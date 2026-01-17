@@ -206,7 +206,7 @@ public class PSPubServerService implements IPSPubServerService {
     try {
       var site = siteMgr.findSite(getSiteGuid(siteId));
       if (site == null) throw new PSPubServerServiceException("Invalid site " + siteId);
-      var pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId));
+      var pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId)).orElse(null);
       if (pubServer == null) throw new PSPubServerServiceException("Invalid server " + serverId);
       if (!serverBelongsToSite(site.getGUID(), pubServer))
         throw new PSPubServerServiceException(
@@ -517,7 +517,7 @@ public class PSPubServerService implements IPSPubServerService {
 
     try {
       IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
-      PSPubServer pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId));
+      PSPubServer pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId)).orElse(null);
 
       if (pubServer == null) {
         throw new PSPubServerServiceException(
@@ -1271,7 +1271,7 @@ public class PSPubServerService implements IPSPubServerService {
 
     try {
       IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
-      PSPubServer pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId));
+      PSPubServer pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId)).orElse(null);
 
       if (pubServer == null) {
         throw new PSPubServerServiceException(
