@@ -66,10 +66,13 @@ import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.system.IPSSystemDesignWs;
-import com.percussion.webservices.system.data.PSSharedProperty;
+import com.percussion.services.system.data.PSSharedProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collections;

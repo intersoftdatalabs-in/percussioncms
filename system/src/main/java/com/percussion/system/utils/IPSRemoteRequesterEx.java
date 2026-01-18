@@ -50,7 +50,7 @@ public interface IPSRemoteRequesterEx extends IPSRemoteRequester {
 
   /**
    * Makes an http/s request to the specified binary update resource, providing the key-value pairs
-   * in the params map as html parameters.
+   * in the params map as html parameters. Legacy method that returns the locator directly.
    *
    * @param files the BinaryFileData array data that represents the binary being sent. Never {@code
    *     null}, but may be empty.
@@ -60,16 +60,25 @@ public interface IPSRemoteRequesterEx extends IPSRemoteRequester {
    * @param params A set of name/value pairs. Each key is a String, while each value is either a
    *     String or a List of Strings. If a list is supplied, then an html param with the name of the
    *     key will be created for each entry. May be {@code null} or empty.
-   * @return the {@code PSLocator} for this content item wrapped in an Optional. Empty Optional if
-   *     the locator could not be retrieved.
+   * @return the {@code PSLocator} for this content item, or {@code null} if the locator could not
+   *     be retrieved.
    * @throws IOException If any problems occur while communicating with the server.
    * @throws SAXException If there are problems parsing the response XML.
    * @throws IllegalArgumentException if resource is {@code null} or empty, or if files is {@code
    *     null}
    */
-  Optional<PSLocator> updateBinary(
-      PSBinaryFileData[] files, String resource, Map<String, Object> params)
+  PSLocator updateBinary(PSBinaryFileData[] files, String resource, Map<String, Object> params)
       throws IOException, SAXException;
+
+  /**
+   * Convenience method returning an Optional wrapper around {@link
+   * #updateBinary(PSBinaryFileData[],String,Map)}.
+   */
+  default Optional<PSLocator> updateBinaryOptional(
+      PSBinaryFileData[] files, String resource, Map<String, Object> params)
+      throws IOException, SAXException {
+    return Optional.ofNullable(updateBinary(files, resource, params));
+  }
 
   /**
    * Default method that provides a convenience overload for getBinary without parameters.

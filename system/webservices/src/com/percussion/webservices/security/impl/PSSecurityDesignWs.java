@@ -16,7 +16,7 @@
  */
 package com.percussion.webservices.security.impl;
 
-import com.percussion.design.objectstore.PSRole;
+
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.security.PSSecurityCatalogException;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -42,6 +42,7 @@ import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSAclEntryImpl;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.webservices.security.data.PSCommunityVisibility;
@@ -49,6 +50,12 @@ import com.percussion.webservices.security.data.PSRole;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.percussion.webservices.security.IPSSecurityDesignWs;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.system.utils.PSBaseBean;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.Subject;

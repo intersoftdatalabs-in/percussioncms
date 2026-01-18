@@ -129,7 +129,8 @@ public interface IPSCatalogSummary extends IPSCatalogIdentifier {
     */
    default String getDisplayString() {
       var label = getLabel();
-      var typeInfo = getType() != null ? " (" + getType() + ")" : "";
+      var type = getTypeEnum();
+      var typeInfo = type != null ? " (" + type + ")" : "";
       return label + typeInfo;
    }
 
@@ -153,7 +154,8 @@ public interface IPSCatalogSummary extends IPSCatalogIdentifier {
       }
 
       // Fallback to name and type comparison
-      return getName().equals(other.getName()) &&
-             getType() == other.getType();
+      var t1 = getTypeEnum();
+      var t2 = other.getTypeEnum();
+      return getName().equals(other.getName()) && java.util.Objects.equals(t1, t2);
    }
 }

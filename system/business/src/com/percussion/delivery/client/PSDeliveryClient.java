@@ -513,14 +513,10 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         ProtocolSocketFactory socketFactory = null;
         boolean sslEnabled = isSslEnabled(actionOptions);
 
-        if(sslEnabled){
-           if (actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate() != null &&
-                   actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate())
-           {
+        if (sslEnabled) {
+           if (actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate().orElse(false)) {
                socketFactory = new EasySSLProtocolSocketFactory();
-           }
-           else //Not using self-signed so setup SSL accordingly
-           {
+           } else {
               socketFactory = new TLSProtocolSocketFactory();
            }
         }
@@ -529,11 +525,10 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         String protocol;
         String port;
 
-        try
-        {
-            uri = new URI(server.getAdminUrl(), false);
-            if (!sslEnabled)
-            {
+        try {
+            String adminUrl = server.getAdminUrl().orElseThrow(() -> new PSDeliveryClientException("Error getting info from delivery config file"));
+            uri = new URI(adminUrl, false);
+            if (!sslEnabled) {
                 // Parse delivery server url to get the protocol and port
                 uri = new URI(server.getUrl(), false);
             }
@@ -568,8 +563,8 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         this.requestUrl = processUrl(actionOptions);
 
         // Authentication information
-        String userName = actionOptions.getDeliveryInfo().getUsername();
-        String password = actionOptions.getDeliveryInfo().getPassword();
+        String userName = actionOptions.getDeliveryInfo().getUsername().orElse(null);
+        String password = actionOptions.getDeliveryInfo().getPassword().orElse(null);
         this.userName = userName;
         this.password = password;
 
@@ -579,7 +574,7 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         if (StringUtils.isNotEmpty(userName)) {
             AuthScope authScope = AuthScope.ANY;
             try {
-                authScope = new AuthScope(uri.getHost(), uri.getPort(),server.getRealm());
+                authScope = new AuthScope(uri.getHost(), uri.getPort(), server.getRealm().orElse(null));
             } catch (URIException e) {
                 log.error(PSExceptionUtils.getMessageForLog(e));
                 log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -593,7 +588,7 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
               this.proxyConfigService = getProxyConfigService();
            if (this.proxyConfigService != null)
               this.proxyConfig = proxyConfigService
-                 .findByProtocol(protocol);
+                 .findByProtocol(protocol).orElse(new PSProxyConfig());
            else
               this.proxyConfig = new PSProxyConfig();
         }
@@ -610,14 +605,10 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         ProtocolSocketFactory socketFactory = null;
         boolean sslEnabled = isSslEnabled(actionOptions);
 
-        if(sslEnabled){
-            if (actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate() != null &&
-                    actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate())
-            {
+        if (sslEnabled) {
+            if (actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate().orElse(false)) {
                 socketFactory = new EasySSLProtocolSocketFactory();
-            }
-            else //Not using self-signed so setup SSL accordingly
-            {
+            } else {
                 socketFactory = new TLSProtocolSocketFactory();
             }
         }
@@ -626,11 +617,10 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         String protocol;
         String port;
 
-        try
-        {
-            uri = new URI(server.getAdminUrl(), false);
-            if (!sslEnabled)
-            {
+        try {
+            String adminUrl = server.getAdminUrl().orElseThrow(() -> new PSDeliveryClientException("Error getting info from delivery config file"));
+            uri = new URI(adminUrl, false);
+            if (!sslEnabled) {
                 // Parse delivery server url to get the protocol and port
                 uri = new URI(server.getUrl(), false);
             }
@@ -665,8 +655,8 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         this.requestUrl = processUrl(actionOptions);
 
         // Authentication information
-        String userName = actionOptions.getDeliveryInfo().getUsername();
-        String password = actionOptions.getDeliveryInfo().getPassword();
+        String userName = actionOptions.getDeliveryInfo().getUsername().orElse(null);
+        String password = actionOptions.getDeliveryInfo().getPassword().orElse(null);
         this.userName = userName;
         this.password = password;
 
@@ -676,7 +666,7 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         if (StringUtils.isNotEmpty(userName)) {
             AuthScope authScope = AuthScope.ANY;
             try {
-                authScope = new AuthScope(uri.getHost(), uri.getPort(),server.getRealm());
+                authScope = new AuthScope(uri.getHost(), uri.getPort(), server.getRealm().orElse(null));
             } catch (URIException e) {
                 log.error(PSExceptionUtils.getMessageForLog(e));
                 log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -690,7 +680,7 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
                 this.proxyConfigService = getProxyConfigService();
             if (this.proxyConfigService != null)
                 this.proxyConfig = proxyConfigService
-                        .findByProtocol(protocol);
+                        .findByProtocol(protocol).orElse(new PSProxyConfig());
             else
                 this.proxyConfig = new PSProxyConfig();
         }
@@ -731,7 +721,8 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
             if (actionOptions.isAdminOperation())
             {
                 // Parse delivery server url to get the host
-                uri = new URI(server.getAdminUrl(), false);
+                String adminUrl = server.getAdminUrl().orElseThrow(() -> new PSDeliveryClientException("Error getting info from delivery config file"));
+                uri = new URI(adminUrl, false);
             }
             else
             {
@@ -1016,7 +1007,8 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         
         try
         {
-            uri = new URI(server.getAdminUrl(), false);
+            String adminUrl = server.getAdminUrl().orElseThrow(() -> new PSDeliveryClientException("Error getting info from delivery config file"));
+            uri = new URI(adminUrl, false);
             protocol = uri.getScheme();
             if (protocol.equals("https"))
             {

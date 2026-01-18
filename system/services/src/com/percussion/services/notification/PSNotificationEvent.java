@@ -192,7 +192,7 @@ public final class PSNotificationEvent implements Serializable {
      * @param target the target object, may be {@code null}
      * @param source the source identifier, may be {@code null}
      */
-    private PSNotificationEvent(EventType eventType, Object target, String source) {
+    public PSNotificationEvent(EventType eventType, Object target, String source) {
         this.messageId = MESSAGE_ID_GENERATOR.incrementAndGet();
         this.eventType = Objects.requireNonNull(eventType, "eventType cannot be null");
         this.target = target;
@@ -301,6 +301,25 @@ public final class PSNotificationEvent implements Serializable {
      */
     public EventType getEventType() {
         return eventType;
+    }
+
+    /**
+     * Backwards compatible alias for {@link #getEventType()} used by older call sites.
+     *
+     * @return the event type, never {@code null}
+     */
+    public EventType getType() {
+        return getEventType();
+    }
+
+    /**
+     * Public two-argument constructor retained for backward compatibility.
+     *
+     * @param eventType the type of event, not {@code null}
+     * @param target the target object, may be {@code null}
+     */
+    public PSNotificationEvent(EventType eventType, Object target) {
+        this(eventType, target, null);
     }
 
     /**

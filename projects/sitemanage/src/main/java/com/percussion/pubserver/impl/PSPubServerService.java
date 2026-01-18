@@ -1109,7 +1109,7 @@ public class PSPubServerService implements IPSPubServerService {
         // in
         // deliverServer.xml and is not valid anymore, thus , need to fix it.
         if (IPSPubServerDao.PUBLISH_SERVER_PROPERTY.equalsIgnoreCase(propertyName)) {
-          String server = pubServer.getPublishServer();
+          String server = pubServer.getPublishServer().orElse("");
           if (!server.equalsIgnoreCase(propertyValue)) {
             needToSave = true;
           }
@@ -1863,7 +1863,7 @@ public class PSPubServerService implements IPSPubServerService {
         // in
         // deliverServer.xml and is not valid anymore, thus , need to fix it.
         if (IPSPubServerDao.PUBLISH_SERVER_PROPERTY.equalsIgnoreCase(propertyName)) {
-          String server = pubServer.getPublishServer();
+          String server = pubServer.getPublishServer().orElse("");
           if (!server.equalsIgnoreCase(propertyValue)) {
             needToSave = true;
           }

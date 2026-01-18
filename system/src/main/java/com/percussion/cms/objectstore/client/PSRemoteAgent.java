@@ -515,14 +515,10 @@ public class PSRemoteAgent {
     // <Item> Node
     Element itemEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
 
-    try {
-      PSClientItem item = newItem(contentTypeId);
-      item.loadXmlData(itemEl);
+    PSClientItem item = newItem(contentTypeId);
+    item.loadXmlData(itemEl);
 
-      return item;
-    } catch (PSUnknownNodeTypeException e) {
-      throw new PSRemoteException(e);
-    }
+    return item;
   }
 
   /**
@@ -539,12 +535,7 @@ public class PSRemoteAgent {
       throw new IllegalArgumentException("contentTypeId may not be null or empty");
 
     PSItemDefinition itemDef = getTypeDef(contentTypeId);
-    try {
-      return new PSClientItem(itemDef);
-    } catch (PSCmsException ex) {
-      log.info(ex);
-      return null;
-    }
+    return new PSClientItem(itemDef);
   }
 
   /**
@@ -606,8 +597,8 @@ public class PSRemoteAgent {
     PSLocator locator = null;
     // Loop through all fields and setup field params and grab
     // binary data
-    Map params = new HashMap();
-    List files = new ArrayList();
+    Map<String, Object> params = new HashMap<>();
+    List<PSBinaryFileData> files = new ArrayList<>();
     Iterator it = item.getAllFields();
     while (it.hasNext()) {
       PSItemField field = (PSItemField) it.next();
@@ -659,8 +650,7 @@ public class PSRemoteAgent {
     try {
       PSBinaryFileData[] tmp = new PSBinaryFileData[files.size()];
       files.toArray(tmp);
-      var optLocator = requester.updateBinary(tmp, app_resource, params);
-      locator = optLocator.orElse(null);
+      locator = requester.updateBinary(tmp, app_resource, params);
     } catch (IOException e) {
       Object[] args = new Object[] {e.getClass().getName(), e.getMessage()};
       throw new PSRemoteException(new PSException(1001, args));
@@ -771,11 +761,7 @@ public class PSRemoteAgent {
 
     PSRemoteFolderProcessor processor =
         new PSRemoteFolderProcessor(m_requester.getRemoteRequester());
-    try {
-      processor.delete(parent, children);
-    } catch (PSCmsException e) {
-      throw new PSRemoteException(e);
-    }
+    processor.delete(parent, children);
   }
 
   /**
@@ -948,10 +934,6 @@ public class PSRemoteAgent {
       if (includeBinary) loadItemBinaries(item);
 
       return item;
-    } catch (PSCmsException e) {
-      throw new PSRemoteException(e);
-    } catch (PSUnknownNodeTypeException e) {
-      throw new PSRemoteException(e);
     } catch (IOException ioe) {
       log.error(ioe.getMessage());
       log.debug(ioe.getMessage(), ioe);

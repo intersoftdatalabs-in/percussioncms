@@ -296,7 +296,7 @@ public class PSUserSession {
     try {
       PSCommunity c = berm.loadCommunity(new PSGuid(PSTypeEnum.COMMUNITY_DEF, cid));
       return c.getName();
-    } catch (PSSecurityException e) {
+    } catch (PSSecurityException | com.percussion.services.security.PSServiceSecurityException e) {
       return null;
     }
   }
@@ -1016,20 +1016,21 @@ public class PSUserSession {
       String newValue = null;
       try {
         IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
-        var opt = mgr.findLocaleByLanguageString(strValue);
-        PSLocale l = opt.orElse(null);
-        if (l == null || l.getStatus() != PSLocale.STATUS_ACTIVE) {
-          var enOpt = mgr.findLocaleByLanguageString("en-us");
-          PSLocale enLocale = enOpt.orElse(null);
-          if (enLocale != null && enLocale.getStatus() == PSLocale.STATUS_ACTIVE) {
+        var currentOpt =
+            mgr.findLocaleByLanguageString(strValue)
+                .filter(locale -> locale.getStatus() == PSLocale.STATUS_ACTIVE);
+        if (currentOpt.isEmpty()) {
+          var enOpt =
+              mgr.findLocaleByLanguageString("en-us")
+                  .filter(locale -> locale.getStatus() == PSLocale.STATUS_ACTIVE);
+          if (enOpt.isPresent()) {
             newValue = "en-us";
           } else {
             java.util.List<PSLocale> active =
                 mgr.findLocalesByStatus(PSLocale.STATUS_ACTIVE)
                     .collect(java.util.stream.Collectors.toList());
             if (!active.isEmpty()) {
-              l = active.iterator().next();
-              newValue = l.getLanguageString();
+              newValue = active.iterator().next().getLanguageString();
             } else {
               throw new Exception("No locales found");
             }

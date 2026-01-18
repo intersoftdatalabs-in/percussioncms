@@ -76,6 +76,8 @@ import jakarta.activation.FileDataSource;
 import jakarta.jws.WebService;
 import jakarta.xml.ws.handler.MessageContext;
 import java.io.File;
+import java.util.Iterator;
+import org.apache.axis.attachments.AttachmentPart;
 import java.io.IOException;
 import java.io.InputStream;
 import java.rmi.RemoteException;

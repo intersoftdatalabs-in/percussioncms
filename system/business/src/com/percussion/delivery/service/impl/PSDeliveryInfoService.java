@@ -217,7 +217,7 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
                 if(editionObject != null && editionObject.getPubServerId()!=null) {
                      pubServer = PSPubServerDaoLocator.getPubServerManager()
                             .loadPubServer(editionObject.getPubServerId());
-                    publishServer = pubServer.getPublishServer();
+                    publishServer = pubServer.getPublishServer().orElse(null);
                 }else{
                     legacyEdition = true;
                 }

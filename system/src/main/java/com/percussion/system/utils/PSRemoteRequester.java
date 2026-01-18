@@ -39,7 +39,6 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -263,25 +262,23 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * @return The array, will be <code>null</code> if <code>params</code> is <code>null</code> or
    *     emtpy.
    */
-  private NVPair[] getParams(Map params) {
-    if (params == null || params.size() <= 0) return null;
+  private NVPair[] getParams(Map<String, Object> params) {
+    if (params == null || params.isEmpty()) return null;
 
-    List pairs = new ArrayList();
+    List<NVPair> pairs = new ArrayList<>();
 
-    Iterator i = params.entrySet().iterator();
-
-    while (i.hasNext()) {
-      Map.Entry entry = (Map.Entry) i.next();
+    for (Map.Entry<String, Object> entry : params.entrySet()) {
       if (entry.getKey() == null)
         throw new IllegalArgumentException("params may not contain a null key");
 
-      String key = entry.getKey().toString();
+      String key = entry.getKey();
       Object val = entry.getValue();
 
       if (val != null) {
         if (val instanceof List) {
-          Iterator itValues = ((List) val).iterator();
-          while (itValues.hasNext()) pairs.add(new NVPair(key, itValues.next().toString()));
+          for (Object v : (List<?>) val) {
+            pairs.add(new NVPair(key, v.toString()));
+          }
         } else {
           pairs.add(new NVPair(key, val.toString()));
         }
@@ -290,11 +287,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
       }
     }
 
-    // now we know how many pairs are there, so that we can create an array
-    NVPair opts[] = new NVPair[pairs.size()];
-    int ind = 0;
-    for (Iterator it = pairs.iterator(); it.hasNext(); ind++) opts[ind] = (NVPair) it.next();
-
+    NVPair[] opts = pairs.toArray(new NVPair[0]);
     return opts;
   }
 
@@ -680,7 +673,8 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * @see com.percussion.util.IPSRemoteRequester#sendBinary
    *    (byte[], java.lang.String, java.util.Map)
    */
-  public PSLocator updateBinary(PSBinaryFileData[] files, String resource, Map params)
+  public PSLocator updateBinary(
+      PSBinaryFileData[] files, String resource, Map<String, Object> params)
       throws IOException, SAXException {
     final String urlResource = getFullResourcePath(resource);
 
