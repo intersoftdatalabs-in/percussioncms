@@ -120,7 +120,7 @@
         <spring.security.version>5.8.16</spring.security.version>
         <spring.version>5.3.39</spring.version>
         <sqlite.version>3.28.0</sqlite.version>
-        <sqlserver.version>13.3.0.jre8-preview</sqlserver.version>
+        <sqlserver.version>13.3.0.jre11-preview</sqlserver.version>
         <swagger.ui.version>3.51.2</swagger.ui.version>
         <swagger.version>2.1.10</swagger.version>
         <tika.version>2.4.1</tika.version>
