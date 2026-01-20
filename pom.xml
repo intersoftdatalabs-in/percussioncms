@@ -201,7 +201,7 @@
         <sqlite.version>3.43.2.2</sqlite.version>
         <stax.version>1.0.1</stax.version>
         <swagger.ui.version>5.31.0</swagger.ui.version>
-        <swagger.version>2.2.41</swagger.version>
+        <swagger.version>2.2.42</swagger.version>
         <tika.version>2.9.4</tika.version>
         <tinymce.version>5.10.3</tinymce.version>
         <trinidad.version>2.2.1</trinidad.version>
