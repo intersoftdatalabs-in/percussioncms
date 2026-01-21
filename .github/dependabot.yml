@@ -188,6 +188,9 @@ updates:
       - dependency-name: "net.oauth.core:oauth"
         versions:
           - ">20090531"
+      - dependency-name: "com.microsoft.sqlserver:mssql-jdbc"
+        # Ignores all versions containing the jre11 suffix
+        versions: ["*jre11*"]
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
