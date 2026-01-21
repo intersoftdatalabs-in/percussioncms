@@ -191,6 +191,21 @@ updates:
       - dependency-name: "com.microsoft.sqlserver:mssql-jdbc"
         # Ignores all versions containing the jre11 suffix
         versions: ["*jre11*"]
+      - dependency-name: "com.fasterxml.jackson.core:*"
+        versions:
+          - ">=2.18"
+       - dependency-name: "com.fasterxml.jackson.dataformat:*"
+        versions:
+          - ">=2.18"
+       - dependency-name: "com.fasterxml.jackson.jaxrs:*"
+        versions:
+          - ">=2.18"
+       - dependency-name: "com.fasterxml.jackson.module:*"
+        versions:
+          - ">=2.18"
+       - dependency-name: "com.fasterxml.jackson.datatype:*"
+        versions:
+          - ">=2.18"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
