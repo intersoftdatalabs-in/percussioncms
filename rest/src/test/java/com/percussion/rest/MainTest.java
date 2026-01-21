@@ -92,12 +92,12 @@ public class MainTest extends AbstractJUnit4SpringContextTests {
     @Autowired private JacksonContextResolver contextResolver;
 
     @Bean
-    public JacksonJsonProvider getJacksonJsonProvider() {
+    public static JacksonJsonProvider getJacksonJsonProvider() {
       return new JacksonJsonProvider();
     }
 
     @Bean
-    public JacksonContextResolver getContextResolver() {
+    public static JacksonContextResolver getContextResolver() {
       return new JacksonContextResolver();
     }
 
