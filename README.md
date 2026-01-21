@@ -94,7 +94,6 @@ To ensure Maven uses JDK 8, use the provided environment setup scripts instead o
 
    - Linux example: `export JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-amazon-corretto`
    - macOS example: `export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/jdk-1.8.jdk/Contents/Home`
-
 2. Run Maven commands using the script:
 
    ```bash
@@ -106,7 +105,6 @@ To ensure Maven uses JDK 8, use the provided environment setup scripts instead o
 1. Set `JAVA_HOME_8` as an environment variable:
    - Open System Properties > Environment Variables.
    - Add a new user variable `JAVA_HOME_8` with value `C:\path\to\jdk-8` (e.g., `C:\Program Files\Java\jdk-8`).
-
 2. Run Maven commands using the script:
 
    ```batch
