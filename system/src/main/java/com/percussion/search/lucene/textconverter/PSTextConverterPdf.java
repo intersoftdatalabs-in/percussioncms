@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
@@ -52,7 +54,9 @@ public class PSTextConverterPdf implements IPSLuceneTextConverter {
     String resultText = "";
     PDDocument pdfDocument = null;
     try {
-      pdfDocument = PDDocument.load(is);
+      // PDFBox 3.0 requires using RandomAccessRead instead of InputStream
+      // RandomAccessReadBuffer accepts InputStream in constructor
+      pdfDocument = Loader.loadPDF(new RandomAccessReadBuffer(is));
       if (pdfDocument.isEncrypted()) {
         // Just try using the default password and move on
 
