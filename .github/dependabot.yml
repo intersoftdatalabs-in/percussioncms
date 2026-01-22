@@ -206,6 +206,9 @@ updates:
        - dependency-name: "com.fasterxml.jackson.datatype:*"
         versions:
           - ">=2.18"
+      - dependency-name: "org.owasp:dependency-check-maven"
+        versions:
+          - ">=11.0.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
