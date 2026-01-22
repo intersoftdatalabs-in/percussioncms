@@ -45,7 +45,7 @@
         <servlet.api.version>4.0.1</servlet.api.version>
         <servlet.spec>3.1.0</servlet.spec>
         <spring.security.version>5.8.16</spring.security.version>
-        <sqlserver.version>13.3.0.jre8-preview</sqlserver.version>
+        <sqlserver.version>13.3.1.jre11-preview</sqlserver.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <tomcat.version>9.0.113</tomcat.version>
         <xmpbox.version>2.0.17</xmpbox.version>
