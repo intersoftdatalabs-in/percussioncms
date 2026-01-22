@@ -193,19 +193,19 @@ updates:
         versions: ["*jre11*"]
       - dependency-name: "com.fasterxml.jackson.core:*"
         versions:
-          - ">=2.18"
+          - ">=2.18.0"
        - dependency-name: "com.fasterxml.jackson.dataformat:*"
         versions:
-          - ">=2.18"
+          - ">=2.18.0"
        - dependency-name: "com.fasterxml.jackson.jaxrs:*"
         versions:
-          - ">=2.18"
+          - ">=2.18.0"
        - dependency-name: "com.fasterxml.jackson.module:*"
         versions:
-          - ">=2.18"
+          - ">=2.18.0"
        - dependency-name: "com.fasterxml.jackson.datatype:*"
         versions:
-          - ">=2.18"
+          - ">=2.18.0"
       - dependency-name: "org.owasp:dependency-check-maven"
         versions:
           - ">=11.0.0"
