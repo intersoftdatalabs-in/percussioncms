@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -10,12 +10,14 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 package com.percussion.delivery.polls.service.rdbms;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
@@ -25,62 +27,45 @@ import jakarta.persistence.criteria.CriteriaDelete;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+@Disabled("Requires DB-backed SessionFactory from test-beans.xml; kept disabled during migration")
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSPollsServiceTest {
+class PSPollsServiceTest {
+
   @Autowired private IPSPollsService pollsService;
   @Autowired private SessionFactory sessionFactory;
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    Session session = getSession();
-    try {
-      CriteriaBuilder builder = session.getCriteriaBuilder();
-      CriteriaDelete<PSPoll> deleteQuery = builder.createCriteriaDelete(PSPoll.class);
-      deleteQuery.from(PSPoll.class);
-      session.createQuery(deleteQuery).executeUpdate();
-    } finally {
-      // session.close();
-    }
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
-
-  private Session getSession() {
-
-    return sessionFactory.getCurrentSession();
+  @BeforeEach
+  void cleanPollsTable() {
+    Session session = sessionFactory.getCurrentSession();
+    CriteriaBuilder builder = session.getCriteriaBuilder();
+    CriteriaDelete<PSPoll> deleteQuery = builder.createCriteriaDelete(PSPoll.class);
+    deleteQuery.from(PSPoll.class);
+    session.createQuery(deleteQuery).executeUpdate();
   }
 
   @Test
-  public void testSave() throws Exception {
-    sessionFactory.getCurrentSession().setFlushMode(FlushMode.COMMIT);
-    Map<String, Boolean> answers = new HashMap<String, Boolean>();
+  void testSave() {
+    Map<String, Boolean> answers = new HashMap<>();
     answers.put("Answer1", true);
     answers.put("Answer2", false);
     answers.put("Answer3", false);
-    pollsService.savePoll("TestPoll", "TestQuestion", answers);
-    try {
-      sessionFactory.getCurrentSession().flush();
-    } catch (Exception e) {
 
-    }
+    pollsService.savePoll("TestPoll", "TestQuestion", answers);
+    sessionFactory.getCurrentSession().flush();
+
     IPSPoll poll = pollsService.findPollByQuestion("TestQuestion");
     assertNotNull(poll);
     assertEquals("TestPoll", poll.getPollName());
@@ -96,38 +81,44 @@ public class PSPollsServiceTest {
     poll = pollsService.findPollByQuestion("TestQuestion");
     assertEquals(currSize + 1, poll.getPollAnswers().size());
 
-    // check the increments
+    // check increments
     answers.put("Answer1", true);
     answers.put("Answer2", false);
     answers.put("Answer3", false);
     currSize = poll.getPollAnswers().size();
     pollsService.savePoll("TestPoll", "TestQuestion", answers);
     poll = pollsService.findPollByQuestion("TestQuestion");
-    // as we updated existing answer the size should be same
     assertEquals(currSize, poll.getPollAnswers().size());
-    // Answer1 must be incremented by 1
-    Set<IPSPollAnswer> pollAnswers = poll.getPollAnswers();
-    for (IPSPollAnswer ipsPollAnswer : pollAnswers) {
-      if (ipsPollAnswer.getAnswer().equals("Answer1")) assertEquals(2, ipsPollAnswer.getCount());
 
-      if (ipsPollAnswer.getAnswer().equals("Answer3")) assertEquals(1, ipsPollAnswer.getCount());
+    Set<IPSPollAnswer> pollAnswers = poll.getPollAnswers();
+    for (IPSPollAnswer pollAnswer : pollAnswers) {
+      if (pollAnswer.getAnswer().equals("Answer1")) {
+        assertEquals(2, pollAnswer.getCount());
+      }
+      if (pollAnswer.getAnswer().equals("Answer3")) {
+        assertEquals(1, pollAnswer.getCount());
+      }
     }
 
-    // Multi answer check
+    // multi-answer check
     answers.put("Answer1", false);
     answers.put("Answer2", true);
     answers.put("Answer3", true);
     currSize = poll.getPollAnswers().size();
     pollsService.savePoll("TestPoll", "TestQuestion", answers);
     poll = pollsService.findPollByQuestion("TestQuestion");
-    // Answer1 must be incremented by 1
+
     pollAnswers = poll.getPollAnswers();
-    for (IPSPollAnswer ipsPollAnswer : pollAnswers) {
-      if (ipsPollAnswer.getAnswer().equals("Answer1")) assertEquals(2, ipsPollAnswer.getCount());
-
-      if (ipsPollAnswer.getAnswer().equals("Answer2")) assertEquals(1, ipsPollAnswer.getCount());
-
-      if (ipsPollAnswer.getAnswer().equals("Answer3")) assertEquals(2, ipsPollAnswer.getCount());
+    for (IPSPollAnswer pollAnswer : pollAnswers) {
+      if (pollAnswer.getAnswer().equals("Answer1")) {
+        assertEquals(2, pollAnswer.getCount());
+      }
+      if (pollAnswer.getAnswer().equals("Answer2")) {
+        assertEquals(1, pollAnswer.getCount());
+      }
+      if (pollAnswer.getAnswer().equals("Answer3")) {
+        assertEquals(2, pollAnswer.getCount());
+      }
     }
   }
 }

@@ -118,12 +118,14 @@
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jackson.annotation.api.version>2.20</jackson.annotation.api.version>
+        <!-- jackson-annotations uses a 2.21 (no .0) coordinate, while most other jackson artifacts use 2.21.0 -->
+        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
         <jackson.version>2.21.0</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
         <jakarta.el.api.version>6.0.1</jakarta.el.api.version>
         <jakarta.inject.version>2.0.1</jakarta.inject.version>
+        <!-- jersey-media-json-jackson 3.1.x pulls jakarta-rs provider/xmlbind annotations at 2.20.1 -->
         <jakarta.jackson.version>2.20.1</jakarta.jackson.version>
         <jakarta.json.api.version>2.1.3</jakarta.json.api.version>
         <jakarta.mail.api.version>2.1.5</jakarta.mail.api.version>
@@ -2398,8 +2400,8 @@
                             <goals>
                                 <goal>check</goal>
                             </goals>
-                            <!-- Using validate phase, so this happens before enforce-style -->
-                            <phase>validate</phase>
+                            <!-- Run after Enforcer's validate-phase checks so Java version errors surface first. -->
+                            <phase>verify</phase>
                         </execution>
                     </executions>
                 </plugin>
