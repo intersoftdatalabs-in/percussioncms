@@ -47,7 +47,7 @@
         <spring.security.version>5.8.16</spring.security.version>
         <sqlserver.version>13.3.0.jre8-preview</sqlserver.version>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <tomcat.version>9.0.113</tomcat.version>
+        <tomcat.version>9.0.115</tomcat.version>
         <xmpbox.version>2.0.17</xmpbox.version>
     </properties>
     <dependencyManagement>
