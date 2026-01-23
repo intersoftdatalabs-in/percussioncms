@@ -8,172 +8,179 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-
 dojo.provide("dojo.widget.TreeSelector");
 
 dojo.require("dojo.widget.HtmlWidget");
 
+dojo.widget.defineWidget(
+  "dojo.widget.TreeSelector",
+  dojo.widget.HtmlWidget,
+  function () {
+    this.eventNames = {};
 
-dojo.widget.defineWidget("dojo.widget.TreeSelector", dojo.widget.HtmlWidget, function() {
-	this.eventNames = {};
+    this.listenedTrees = [];
+  },
+  {
+    widgetType: "TreeSelector",
+    selectedNode: null,
 
-	this.listenedTrees = [];
+    dieWithTree: false,
 
-},
-{
-	widgetType: "TreeSelector",
-	selectedNode: null,
+    eventNamesDefault: {
+      select: "select",
+      destroy: "destroy",
+      deselect: "deselect",
+      dblselect: "dblselect", // select already selected node.. Edit or whatever
+    },
 
-	dieWithTree: false,
+    initialize: function () {
+      for (var name in this.eventNamesDefault) {
+        if (dojo.lang.isUndefined(this.eventNames[name])) {
+          this.eventNames[name] =
+            this.widgetId + "/" + this.eventNamesDefault[name];
+        }
+      }
+    },
 
-	eventNamesDefault: {
-		select : "select",
-		destroy : "destroy",
-		deselect : "deselect",
-		dblselect: "dblselect" // select already selected node.. Edit or whatever
-	},
+    destroy: function () {
+      dojo.event.topic.publish(this.eventNames.destroy, { source: this });
 
-	initialize: function() {
+      return dojo.widget.HtmlWidget.prototype.destroy.apply(this, arguments);
+    },
 
-		for(var name in this.eventNamesDefault) {
-			if (dojo.lang.isUndefined(this.eventNames[name])) {
-				this.eventNames[name] = this.widgetId+"/"+this.eventNamesDefault[name];
-			}
-		}
+    listenTree: function (tree) {
+      dojo.event.topic.subscribe(tree.eventNames.titleClick, this, "select");
+      dojo.event.topic.subscribe(tree.eventNames.iconClick, this, "select");
+      dojo.event.topic.subscribe(tree.eventNames.collapse, this, "onCollapse");
+      dojo.event.topic.subscribe(tree.eventNames.moveFrom, this, "onMoveFrom");
+      dojo.event.topic.subscribe(
+        tree.eventNames.removeNode,
+        this,
+        "onRemoveNode"
+      );
+      dojo.event.topic.subscribe(
+        tree.eventNames.treeDestroy,
+        this,
+        "onTreeDestroy"
+      );
 
-	},
+      /* remember all my trees to deselect when element is movedFrom them */
+      this.listenedTrees.push(tree);
+    },
 
+    unlistenTree: function (tree) {
+      dojo.event.topic.unsubscribe(tree.eventNames.titleClick, this, "select");
+      dojo.event.topic.unsubscribe(tree.eventNames.iconClick, this, "select");
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.collapse,
+        this,
+        "onCollapse"
+      );
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.moveFrom,
+        this,
+        "onMoveFrom"
+      );
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.removeNode,
+        this,
+        "onRemoveNode"
+      );
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.treeDestroy,
+        this,
+        "onTreeDestroy"
+      );
 
-	destroy: function() {
-		dojo.event.topic.publish(this.eventNames.destroy, { source: this } );
+      for (var i = 0; i < this.listenedTrees.length; i++) {
+        if (this.listenedTrees[i] === tree) {
+          this.listenedTrees.splice(i, 1);
+          break;
+        }
+      }
+    },
 
-		return dojo.widget.HtmlWidget.prototype.destroy.apply(this, arguments);
-	},
+    onTreeDestroy: function (message) {
+      this.unlistenTree(message.source);
 
+      if (this.dieWithTree) {
+        //dojo.debug("Killing myself "+this.widgetId);
+        this.destroy();
+        //dojo.debug("done");
+      }
+    },
 
-	listenTree: function(tree) {
-		dojo.event.topic.subscribe(tree.eventNames.titleClick, this, "select");
-		dojo.event.topic.subscribe(tree.eventNames.iconClick, this, "select");
-		dojo.event.topic.subscribe(tree.eventNames.collapse, this, "onCollapse");
-		dojo.event.topic.subscribe(tree.eventNames.moveFrom, this, "onMoveFrom");
-		dojo.event.topic.subscribe(tree.eventNames.removeNode, this, "onRemoveNode");
-		dojo.event.topic.subscribe(tree.eventNames.treeDestroy, this, "onTreeDestroy");
+    // deselect node if parent is collapsed
+    onCollapse: function (message) {
+      if (!this.selectedNode) return;
 
-		/* remember all my trees to deselect when element is movedFrom them */
-		this.listenedTrees.push(tree);
-	},
+      var node = message.source;
+      var parent = this.selectedNode.parent;
+      while (parent !== node && parent.isTreeNode) {
+        parent = parent.parent;
+      }
+      if (parent.isTreeNode) {
+        this.deselect();
+      }
+    },
 
+    select: function (message) {
+      var node = message.source;
+      var e = message.event;
 
-	unlistenTree: function(tree) {
+      if (this.selectedNode === node) {
+        if (e.ctrlKey || e.shiftKey || e.metaKey) {
+          // If the node is currently selected, and they select it again while holding
+          // down a meta key, it deselects it
+          this.deselect();
+          return;
+        }
+        dojo.event.topic.publish(this.eventNames.dblselect, { node: node });
+        return;
+      }
 
-		dojo.event.topic.unsubscribe(tree.eventNames.titleClick, this, "select");
-		dojo.event.topic.unsubscribe(tree.eventNames.iconClick, this, "select");
-		dojo.event.topic.unsubscribe(tree.eventNames.collapse, this, "onCollapse");
-		dojo.event.topic.unsubscribe(tree.eventNames.moveFrom, this, "onMoveFrom");
-		dojo.event.topic.unsubscribe(tree.eventNames.removeNode, this, "onRemoveNode");
-		dojo.event.topic.unsubscribe(tree.eventNames.treeDestroy, this, "onTreeDestroy");
+      if (this.selectedNode) {
+        this.deselect();
+      }
 
+      this.doSelect(node);
 
-		for(var i=0; i<this.listenedTrees.length; i++){
-           if(this.listenedTrees[i] === tree){
-                   this.listenedTrees.splice(i, 1);
-                   break;
-           }
-		}
-	},
+      dojo.event.topic.publish(this.eventNames.select, { node: node });
+    },
 
+    /**
+     * Deselect node if target tree is out of our concern
+     */
+    onMoveFrom: function (message) {
+      if (message.child !== this.selectedNode) {
+        return;
+      }
 
-	onTreeDestroy: function(message) {
+      if (!dojo.lang.inArray(this.listenedTrees, message.newTree)) {
+        this.deselect();
+      }
+    },
 
-		this.unlistenTree(message.source);
+    onRemoveNode: function (message) {
+      if (message.child !== this.selectedNode) {
+        return;
+      }
 
-		if (this.dieWithTree) {
-			//dojo.debug("Killing myself "+this.widgetId);
-			this.destroy();
-			//dojo.debug("done");
-		}
-	},
+      this.deselect();
+    },
 
+    doSelect: function (node) {
+      node.markSelected();
 
-	// deselect node if parent is collapsed
-	onCollapse: function(message) {
-		if (!this.selectedNode) return;
+      this.selectedNode = node;
+    },
 
-		var node = message.source;
-		var parent = this.selectedNode.parent;
-		while (parent !== node && parent.isTreeNode) {
-			parent = parent.parent;
-		}
-		if (parent.isTreeNode) {
-			this.deselect();
-		}
-	},
+    deselect: function () {
+      var node = this.selectedNode;
 
-
-
-	select: function(message) {
-		var node = message.source;
-		var e = message.event;
-
-		if (this.selectedNode === node) {
-			if(e.ctrlKey || e.shiftKey || e.metaKey){
-				// If the node is currently selected, and they select it again while holding
-				// down a meta key, it deselects it
-				this.deselect();
-				return;
-			}
-			dojo.event.topic.publish(this.eventNames.dblselect, { node: node });
-			return;
-		}
-
-		if (this.selectedNode) {
-			this.deselect();
-		}
-
-		this.doSelect(node);
-
-		dojo.event.topic.publish(this.eventNames.select, {node: node} );
-	},
-
-	/**
-	 * Deselect node if target tree is out of our concern
-	 */
-	onMoveFrom: function(message) {
-		if (message.child !== this.selectedNode) {
-			return;
-		}
-
-		if (!dojo.lang.inArray(this.listenedTrees, message.newTree)) {
-			this.deselect();
-		}
-	},
-
-	onRemoveNode: function(message) {
-		if (message.child !== this.selectedNode) {
-			return;
-		}
-
-		this.deselect();
-	},
-
-	doSelect: function(node){
-
-		node.markSelected();
-
-		this.selectedNode = node;
-	},
-
-	deselect: function(){
-
-		var node = this.selectedNode;
-
-		this.selectedNode = null;
-		node.unMarkSelected();
-		dojo.event.topic.publish(this.eventNames.deselect, {node: node} );
-
-	}
-
-});
-
-
-
+      this.selectedNode = null;
+      node.unMarkSelected();
+      dojo.event.topic.publish(this.eventNames.deselect, { node: node });
+    },
+  }
+);

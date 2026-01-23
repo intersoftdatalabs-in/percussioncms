@@ -21,7 +21,5 @@
  *    Custom javascript needed for the widget when with the CM1 UI goes
  *    here.
  *
- *     
+ *
  */
- 
- 

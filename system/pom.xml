@@ -1063,6 +1063,25 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Module-level excludes for legacy/generated files -->
+                        <exclude>**/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
+                        <exclude>**/dojo/**</exclude>
+                        <exclude>**/dojo/tests/**</exclude>
+                        <exclude>**/*.min.js</exclude>
+                        <exclude>**/target/**</exclude>
+                        <exclude>**/node_modules/**</exclude>
+                        <exclude>**/system/target/**</exclude>
+                        <exclude>**/system/**/target/**</exclude>
+                        <exclude>**/system/Docs/**</exclude>
+                        <exclude>**/*.min.js</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.1</version>

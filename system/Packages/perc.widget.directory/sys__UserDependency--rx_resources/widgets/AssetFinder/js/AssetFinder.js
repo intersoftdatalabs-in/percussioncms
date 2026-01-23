@@ -31,270 +31,368 @@
  *
  */
 
-(function($) {
-    $.fn.perc_AssetFinder = function(opts){
+(function ($) {
+  $.fn.perc_AssetFinder = function (opts) {
+    return this.each(function () {
+      var $thisElem = $(this);
+      var contentType = opts.contentType;
+      var fieldToDisplay = opts.fieldToDisplay;
+      var readonly = opts.readonly;
 
-        return this.each(function(){
+      if (contentType != "" && fieldToDisplay != "") {
+        var thisAssetId = getAssetId("sys_contentid");
 
-            var $thisElem = $(this);
-            var contentType = opts.contentType;
-            var fieldToDisplay = opts.fieldToDisplay;
-            var readonly = opts.readonly;
+        if (
+          thisAssetId &&
+          thisAssetId != "#" &&
+          thisAssetId != undefined &&
+          thisAssetId != ""
+        ) {
+          var thisAssetContentId = "16777215-101-" + thisAssetId;
 
-            if( contentType != "" && fieldToDisplay != "") {
+          $.PercPathService.getPathItemById(
+            thisAssetContentId,
+            function (status, result, errorCode) {
+              if (status == $.PercServiceUtils.STATUS_SUCCESS) {
+                var assetFolderPath = cleanFolderPath(
+                  result.PathItem.folderPaths
+                );
 
-                var thisAssetId = getAssetId("sys_contentid");
+                searchForContentType(assetFolderPath, opts, $thisElem);
+              } else {
+                console.warn("Handle Error manually");
+                // handle error here
+              }
+            }
+          );
+        } else {
+          console.log(
+            contentType + " asset not saved yet. Using current folder."
+          );
 
-                if (thisAssetId && thisAssetId != "#" && thisAssetId != undefined && thisAssetId != '') {
-                    var thisAssetContentId = "16777215-101-" + thisAssetId;
+          // If this is a new asset, use the current folder location to determine the department and organization
+          folderId = getAssetId("sys_folderid");
+          folderGuid = "16777215-101-" + folderId;
 
-                    $.PercPathService.getPathItemById( thisAssetContentId, function(status, result, errorCode){
-                        if(status == $.PercServiceUtils.STATUS_SUCCESS) {
-                            var assetFolderPath = cleanFolderPath(result.PathItem.folderPaths);
+          $.PercPathService.getPathItemById(
+            folderGuid,
+            function (status, result) {
+              cleanedAssetPath = cleanFolderPath(result.PathItem.folderPaths);
+              searchForContentType(cleanedAssetPath, opts, $thisElem);
+            }
+          );
+        }
+      } else {
+        if (contentType == "") {
+          console.warn(
+            "No content_type value assigned for percAssetFinderControl."
+          );
+          $thisElem
+            .find(".perc-asset-finder-error")
+            .append(
+              "<div>No content_type value assigned for percAssetFinderControl.</div>"
+            );
+        }
+        if (fieldToDisplay == "") {
+          console.warn(
+            "No field_to_display value assigned for percAssetFinderControl."
+          );
+          $thisElem
+            .find(".perc-asset-finder-error")
+            .append(
+              "<div>No field_to_display value assigned for percAssetFinderControl.</div>"
+            );
+        }
+        console.warn(
+          "This widget is improperly configured, please see documentation on configuring AssetFinder control."
+        );
+      }
+    }); // end Return statement
+  };
 
-                            searchForContentType(assetFolderPath, opts, $thisElem);
-                        } else {
-                            console.warn("Handle Error manually");
-                            // handle error here
-                        }
-                    });
-                } else {
-                    console.log(contentType + " asset not saved yet. Using current folder.");
+  function searchForContentType(assetFolderPath, opts, $thisElem) {
+    // if we are looking for parent organization, we want to trim the folder path start one level up by default.
+    // opts.trimPathAgain hasn't been created yet so this will hold true the first time
+    // if looking for the parentOrganization field.  Will set after first check so that
+    // the path is not trimmed on the next visit.
+    if (
+      opts.paramName === "parentOrganization" &&
+      opts.trimPathAgain === undefined
+    ) {
+      assetFolderPath = splitFolderPath(assetFolderPath, opts, $thisElem);
+      opts.trimPathAgain = false;
+    }
 
-                    // If this is a new asset, use the current folder location to determine the department and organization
-                    folderId = getAssetId('sys_folderid');
-                    folderGuid = "16777215-101-" + folderId;
+    getFolderChildren(assetFolderPath).then(function (response) {
+      console.log(response);
+      if (response != null) {
+        var foundContentType;
+        var childArray = response.PagedItemList.childrenInPage;
 
-                    $.PercPathService.getPathItemById(folderGuid, function(status, result) {
-                        cleanedAssetPath = cleanFolderPath(result.PathItem.folderPaths);
-                        searchForContentType(cleanedAssetPath, opts, $thisElem);
-                    });
-
+        for (var j = childArray.length - 1; j >= 0; j--) {
+          if (childArray[j].type == opts.contentType) {
+            foundContentType = childArray[j];
+            break;
+          }
+        }
+        if (foundContentType != undefined) {
+          getAssetDetails(foundContentType).then(function (response) {
+            if (response != null) {
+              var displayValue = "";
+              try {
+                var assetFieldsArray = response.asset.fields;
+                for (var i = 0; i < assetFieldsArray.entry.length; i++) {
+                  if (assetFieldsArray.entry[i].key == opts.fieldToDisplay) {
+                    displayValue = assetFieldsArray.entry[i].value;
+                  }
                 }
+                //displayValue = response.fields[opts.fieldToDisplay];
+              } catch (e) {
+                // it means wrong attempt
+                if (
+                  response.asset &&
+                  response.asset.type == "percOrganization"
+                ) {
+                  displayValue = response.asset.fields.orgName;
+                } else if (
+                  response.asset &&
+                  response.asset.type == "percDepartment"
+                ) {
+                  displayValue = response.asset.fields.dptName;
+                } else {
+                  displayValue = response.asset.name;
+                }
+              }
+              $thisElem
+                .find(
+                  ".perc-asset-finder-data input#perc-content-display-" +
+                    opts.paramName
+                )
+                .val(displayValue);
 
+              var contentTypeId = getContentId(response);
+              if (contentTypeId != false) {
+                $thisElem
+                  .closest("div[type='sys_normal']")
+                  .find("#perc-content-value-" + opts.paramName)
+                  .val(contentTypeId);
+              }
             } else {
-                if (contentType == "") {
-                    console.warn("No content_type value assigned for percAssetFinderControl.");
-                    $thisElem.find(".perc-asset-finder-error").append("<div>No content_type value assigned for percAssetFinderControl.</div>");
-                }
-                if (fieldToDisplay == "") {
-                    console.warn("No field_to_display value assigned for percAssetFinderControl.");
-                    $thisElem.find(".perc-asset-finder-error").append("<div>No field_to_display value assigned for percAssetFinderControl.</div>");
-                }
-                console.warn("This widget is improperly configured, please see documentation on configuring AssetFinder control.");
+              console.warn(
+                "Error retreiving data for Asset: " + foundContentType
+              );
+              $thisElem
+                .find(".perc-asset-finder-error")
+                .append(
+                  '<label class="perc-asset-finder-warning" for="personEmail" generated="true" style="display: block; padding-left: 15px">No value found for this field.</label>'
+                );
             }
-        }); // end Return statement
-    };
+          });
+        } else {
+          console.info(
+            "Content Type " +
+              opts.contentType +
+              " not found in folder " +
+              assetFolderPath
+          );
+          console.info("Looking up one folder.");
+          var trimmedPath = splitFolderPath(assetFolderPath, opts, $thisElem);
 
-    function searchForContentType(assetFolderPath, opts, $thisElem) {
-        // if we are looking for parent organization, we want to trim the folder path start one level up by default.
-        // opts.trimPathAgain hasn't been created yet so this will hold true the first time
-        // if looking for the parentOrganization field.  Will set after first check so that
-        // the path is not trimmed on the next visit.
-        if (opts.paramName === 'parentOrganization' && opts.trimPathAgain === undefined) {
-            assetFolderPath = splitFolderPath(assetFolderPath, opts, $thisElem);
-            opts.trimPathAgain = false;
+          if (
+            trimmedPath !== null &&
+            trimmedPath !== "" &&
+            trimmedPath !== undefined
+          )
+            searchForContentType(trimmedPath, opts, $thisElem);
         }
+      } else {
+        // handle error with console and ui warning
+        console.warn("No children fond in folder: " + assetFolderPath);
+        $thisElem
+          .find(".perc-asset-finder-error")
+          .append(
+            "<div>No data found for this field. Please see configuration of percAssetFinderControl.</div>"
+          );
+        $thisElem
+          .find(".perc-asset-finder-error")
+          .append(
+            '<label class="perc_field_error" for="personEmail" generated="true" style="display: block;">No data found for this field. Please see configuration of percAssetFinderControl.</label>'
+          );
+      }
+    });
+  }
 
-        getFolderChildren(assetFolderPath)
-            .then(function (response){
-                console.log(response);
-                if (response != null ) {
-                    var foundContentType;
-                    var childArray = response.PagedItemList.childrenInPage;
-
-                    for (var j = childArray.length - 1; j >= 0; j--) {
-                        if (childArray[j].type == opts.contentType) {
-                            foundContentType = childArray[j];
-                            break;
-                        }
-                    }
-                    if (foundContentType != undefined) {
-
-                        getAssetDetails(foundContentType)
-                            .then(function(response) {
-                                if (response != null ) {
-                                    var displayValue ='';
-                                    try{
-                                        var assetFieldsArray = response.asset.fields;
-                                        for(var i=0; i<assetFieldsArray.entry.length; i++){
-                                            if(assetFieldsArray.entry[i].key==opts.fieldToDisplay){
-                                                displayValue = assetFieldsArray.entry[i].value;
-                                            }
-                                        }
-                                        //displayValue = response.fields[opts.fieldToDisplay];
-                                    }catch(e){
-                                        // it means wrong attempt
-                                        if(response.asset && response.asset.type =="percOrganization"){
-                                            displayValue = response.asset.fields.orgName;
-                                        }else if(response.asset && response.asset.type =="percDepartment"){
-                                            displayValue = response.asset.fields.dptName;
-                                        }else{
-                                            displayValue = response.asset.name;
-                                        }
-                                    }
-                                    $thisElem.find('.perc-asset-finder-data input#perc-content-display-' + opts.paramName).val(displayValue);
-
-                                    var contentTypeId = getContentId(response);
-                                    if (contentTypeId != false) {
-                                        $thisElem.closest("div[type='sys_normal']").find('#perc-content-value-' + opts.paramName).val(contentTypeId);
-                                    }
-                                } else {
-                                    console.warn("Error retreiving data for Asset: " + foundContentType);
-                                    $thisElem.find(".perc-asset-finder-error").append('<label class="perc-asset-finder-warning" for="personEmail" generated="true" style="display: block; padding-left: 15px">No value found for this field.</label>');
-                                }
-                            });
-                    } else {
-                        console.info("Content Type " + opts.contentType + " not found in folder " + assetFolderPath);
-                        console.info("Looking up one folder.");
-                        var trimmedPath = splitFolderPath(assetFolderPath, opts, $thisElem);
-
-                        if (trimmedPath !== null && trimmedPath !== '' && trimmedPath !== undefined)
-                            searchForContentType(trimmedPath, opts, $thisElem);
-                    }
-                } else {
-                    // handle error with console and ui warning
-                    console.warn("No children fond in folder: " + assetFolderPath);
-                    $thisElem.find(".perc-asset-finder-error").append("<div>No data found for this field. Please see configuration of percAssetFinderControl.</div>");
-                    $thisElem.find(".perc-asset-finder-error").append('<label class="perc_field_error" for="personEmail" generated="true" style="display: block;">No data found for this field. Please see configuration of percAssetFinderControl.</label>');
-                }
-            });
+  function splitFolderPath(path, opts, $thisElem) {
+    var pathArray = path.split("/");
+    if (pathArray.length > 2) {
+      if (pathArray.length >= 3) {
+        pathArray.pop();
+      }
+      var trimmedPath = pathArray.join("/");
+      return trimmedPath;
+    } else {
+      // If no Asset is found for the selected field, default to value to a hash symbol to store in the database
+      $thisElem
+        .closest("div[type='sys_normal']")
+        .find("#perc-content-value-" + opts.paramName)
+        .val("#");
+      console.info(
+        "Content Type " +
+          opts.contentType +
+          " not found anywhere in Asset path."
+      );
+      $thisElem
+        .find(".perc-asset-finder-error")
+        .append(
+          '<label class="perc-asset-finder-warning" for="personEmail" generated="true" style="display: block; padding-left: 15px">No value found for this field.</label>'
+        );
     }
+  }
 
-    function splitFolderPath(path, opts, $thisElem) {
-        var pathArray = path.split("/");
-        if (pathArray.length > 2){
-            if (pathArray.length >= 3){
-                pathArray.pop();
+  function getFolderChildren(folderPath) {
+    return $.ajax({
+      type: "GET",
+      error: handleError,
+      url:
+        $.perc_paths.PATH_PAGINATED_FOLDER +
+        folderPath +
+        "/?startIndex=1&maxResults=1000&child=Assets",
+      dataType: "json",
+      cache: false,
+    });
+  }
+
+  function getAssetId(param) {
+    var urlParams = window.location.href
+      .slice(window.location.href.indexOf("?") + 1)
+      .split("&");
+    for (var i = 0; i < urlParams.length; i++) {
+      var params = urlParams[i].split("=");
+      if (params[0] == param) return params[1];
+    }
+    return false;
+  }
+
+  function cleanFolderPath(url) {
+    var pathObject = {};
+    var urlStr = url.toString();
+    pathObject.pathArray = urlStr.split("/");
+    pathObject.folderCount = pathObject.pathArray.length;
+    pathObject.pathArray.splice(0, 4); // Clean beginning of the folder path
+    return "/" + pathObject.pathArray.join("/");
+  }
+
+  function getAssetDetails(asset) {
+    var serviceUrl = "/Rhythmyx/rest/assets/by-path/" + asset.path;
+    return $.ajax({
+      type: "GET",
+      url: serviceUrl,
+      error: handleError,
+      dataType: "json",
+      cache: false,
+    });
+  }
+
+  function folderPathCount(path) {
+    if (path != null && path != undefined && path != "") {
+      var pathArray = path.split("/");
+      return pathArray.length;
+    } else {
+      console.log("Incorrect folderpath used in folderPathCount function.");
+    }
+  }
+
+  function getContentId(asset) {
+    if (asset != null && asset != undefined) {
+      var idArray = asset.asset.id.split("-");
+      return idArray[idArray.length - 1];
+    } else {
+      console.warn("Cannot get contentId from given Asset.");
+      return false;
+    }
+  }
+
+  function handleError(result, textstatus, errorCode) {
+    var msg = "";
+    console.log("result: " + result);
+    console.log("textstatus: " + textstatus);
+    console.log("errorCode: " + errorCode);
+    if (errorCode == "cannot.find.item") {
+      msg = I18N.message("perc.ui.common.error@Content Deleted");
+    } else {
+      msg = result;
+    }
+    // defer.reject({title: 'Error on page lookup', content: msg});
+  }
+
+  $.fn.perc_AssetFinderReadOnly = function (opts) {
+    this.each(function () {
+      var $thisElem = $(this);
+      var contentType = opts.contentType;
+      var fieldToDisplay = opts.fieldToDisplay;
+      var readonly = opts.readonly;
+
+      if (contentType != "" && fieldToDisplay != "") {
+        //var thisAssetId = $thisElem.closest("div[type='sys_normal']").find('#perc-content-value-' + opts.paramName).val();
+        var thisAssetId = getAssetId("sys_contentid");
+
+        if (
+          thisAssetId &&
+          thisAssetId != "#" &&
+          thisAssetId != undefined &&
+          thisAssetId != ""
+        ) {
+          var thisAssetContentId = "16777215-101-" + thisAssetId;
+
+          $.PercPathService.getPathItemById(
+            thisAssetContentId,
+            function (status, result, errorCode) {
+              if (status == $.PercServiceUtils.STATUS_SUCCESS) {
+                var assetFolderPath = cleanFolderPath(
+                  result.PathItem.folderPaths
+                );
+                searchForContentType(assetFolderPath, opts, $thisElem);
+              } else {
+                console.warn("Handle Error manually");
+                // handle error here
+              }
             }
-            var trimmedPath = pathArray.join("/");
-            return trimmedPath;
+          );
         } else {
-            // If no Asset is found for the selected field, default to value to a hash symbol to store in the database
-            $thisElem.closest("div[type='sys_normal']").find('#perc-content-value-' + opts.paramName).val("#");
-            console.info("Content Type " + opts.contentType + " not found anywhere in Asset path.");
-            $thisElem.find(".perc-asset-finder-error").append('<label class="perc-asset-finder-warning" for="personEmail" generated="true" style="display: block; padding-left: 15px">No value found for this field.</label>');
+          console.log(
+            contentType +
+              " asset not saved yet. Save asset to acquire " +
+              fieldToDisplay +
+              " for " +
+              contentType +
+              "."
+          );
         }
-    }
-
-    function getFolderChildren(folderPath){
-        return $.ajax({
-            type: 'GET',
-            error: handleError,
-            url: $.perc_paths.PATH_PAGINATED_FOLDER + folderPath + "/?startIndex=1&maxResults=1000&child=Assets",
-            dataType: 'json',
-            cache: false
-        });
-    }
-
-    function getAssetId(param) {
-        var urlParams = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-        for (var i = 0; i < urlParams.length; i++) {
-            var params = urlParams[i].split("=");
-            if(params[0] == param)
-                return params[1];
+      } else {
+        if (contentType == "") {
+          console.warn(
+            "No content_type value assigned for percAssetFinderControl."
+          );
+          $thisElem
+            .find(".perc-asset-finder-error")
+            .append(
+              "<div>No content_type value assigned for percAssetFinderControl.</div>"
+            );
         }
-        return false;
-    }
-
-    function cleanFolderPath(url){
-        var pathObject = {};
-        var urlStr = url.toString();
-        pathObject.pathArray = urlStr.split("/");
-        pathObject.folderCount = pathObject.pathArray.length;
-        pathObject.pathArray.splice(0,4); // Clean beginning of the folder path
-        return "/" + pathObject.pathArray.join("/");
-    }
-
-    function getAssetDetails(asset){
-        var serviceUrl = "/Rhythmyx/rest/assets/by-path/" + asset.path;
-        return $.ajax( {
-            type: 'GET',
-            url: serviceUrl,
-            error: handleError,
-            dataType: 'json',
-            cache: false
-        });
-    }
-
-    function folderPathCount(path){
-        if (path != null && path != undefined && path != ""){
-            var pathArray = path.split("/");
-            return pathArray.length;
-        } else {
-            console.log("Incorrect folderpath used in folderPathCount function.")
+        if (fieldToDisplay == "") {
+          console.warn(
+            "No field_to_display value assigned for percAssetFinderControl."
+          );
+          $thisElem
+            .find(".perc-asset-finder-error")
+            .append(
+              "<div>No field_to_display value assigned for percAssetFinderControl.</div>"
+            );
         }
-    }
-
-    function getContentId(asset){
-        if (asset != null && asset != undefined){
-            var idArray = asset.asset.id.split("-");
-            return idArray[idArray.length - 1];
-        } else {
-            console.warn("Cannot get contentId from given Asset.")
-            return false;
-        }
-    }
-
-    function handleError(result, textstatus, errorCode){
-        var msg = "";
-        console.log("result: " + result);
-        console.log("textstatus: " + textstatus);
-        console.log("errorCode: " + errorCode);
-        if (errorCode == "cannot.find.item") {
-            msg = I18N.message( 'perc.ui.common.error@Content Deleted' );
-        }
-        else {
-            msg = result;
-        }
-        // defer.reject({title: 'Error on page lookup', content: msg});
-    }
-
-    $.fn.perc_AssetFinderReadOnly = function(opts){
-
-        this.each(function(){
-
-            var $thisElem = $(this);
-            var contentType = opts.contentType;
-            var fieldToDisplay = opts.fieldToDisplay;
-            var readonly = opts.readonly;
-
-            if( contentType != "" && fieldToDisplay != "") {
-
-                //var thisAssetId = $thisElem.closest("div[type='sys_normal']").find('#perc-content-value-' + opts.paramName).val();
-                var thisAssetId = getAssetId("sys_contentid");
-
-                if (thisAssetId && thisAssetId != "#" && thisAssetId != undefined && thisAssetId != '') {
-                    var thisAssetContentId = "16777215-101-" + thisAssetId;
-
-                    $.PercPathService.getPathItemById( thisAssetContentId, function(status, result, errorCode){
-                        if(status == $.PercServiceUtils.STATUS_SUCCESS) {
-
-                            var assetFolderPath = cleanFolderPath(result.PathItem.folderPaths);
-                            searchForContentType(assetFolderPath, opts, $thisElem);
-
-                        } else {
-                            console.warn("Handle Error manually");
-                            // handle error here
-                        }
-                    });
-                } else {
-                    console.log(contentType + " asset not saved yet. Save asset to acquire " + fieldToDisplay + " for " + contentType + ".");
-                }
-
-            } else {
-                if (contentType == "") {
-                    console.warn("No content_type value assigned for percAssetFinderControl.");
-                    $thisElem.find(".perc-asset-finder-error").append("<div>No content_type value assigned for percAssetFinderControl.</div>");
-                }
-                if (fieldToDisplay == "") {
-                    console.warn("No field_to_display value assigned for percAssetFinderControl.");
-                    $thisElem.find(".perc-asset-finder-error").append("<div>No field_to_display value assigned for percAssetFinderControl.</div>");
-                }
-                console.warn("This widget is improperly configured, please see documentation on configuring AssetFinder control.");
-            }
-        }); //end Return statement
-    };
-
+        console.warn(
+          "This widget is improperly configured, please see documentation on configuring AssetFinder control."
+        );
+      }
+    }); //end Return statement
+  };
 })(jQuery);
-

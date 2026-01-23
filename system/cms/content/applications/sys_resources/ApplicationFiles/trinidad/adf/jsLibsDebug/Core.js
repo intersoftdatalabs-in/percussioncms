@@ -6,9 +6,9 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -44,15 +44,13 @@ var _blockOnEverySubmit = false;
 var _pprFirstClickPass = false;
 
 // We block using a special DIV element. This is its name
-var _pprdivElementName = '_pprBlockingDiv';
+var _pprdivElementName = "_pprBlockingDiv";
 
 // stores the variables needed to load the libraries for IE
 var _pprLibStore;
 
-
 // The time at which we started the latest PPR block
 var _pprBlockStartTime = 0;
-
 
 // A holder for the pending timeout (Gecko only).
 var _pprBlockingTimeout = null;
@@ -69,7 +67,6 @@ var _pprSavedCursorFlag = false;
 // Keeps track of whether the user has actually made a choice from the popup
 var _pprChoiceChanged = false;
 
-
 // Object containing information about the user agent
 var _agent = new Object();
 
@@ -81,9 +78,8 @@ var _lastDateReset = 0;
 
 // Variables tracking the last time we validated a field, and the last time the
 // validation actually failed.
-var _lastDateValidated  = 0;
-var _lastValidationFailure  = 0;
-
+var _lastDateValidated = 0;
+var _lastValidationFailure = 0;
 
 // Keeps track of arguments that will be needed for a delayed event
 var _delayedEventParams = new Object();
@@ -109,7 +105,6 @@ var _TrFocusRequestNext = false;
 // so we block the second call in _unloadADFDialog.
 var _blockCheckUnloadFromDialog = false;
 
-
 // variables needed if _submitForm was called before the form had
 // completely rendered.
 var _saveForm = null;
@@ -129,8 +124,8 @@ var _IE_MOUSE_CAPTURE_EVENTS = [
   "onmousemove",
   "onmouseout",
   "onmouseover",
-  "onmouseup"
-  ];
+  "onmouseup",
+];
 
 // List of mouse event names to capture
 var _GECKO_MOUSE_CAPTURE_EVENTS = [
@@ -140,51 +135,35 @@ var _GECKO_MOUSE_CAPTURE_EVENTS = [
   "mouseover",
   "mousemove",
   "mouseout",
-  "contextmenu"
-  ];
+  "contextmenu",
+];
 
 /**
  * Return true if the agent is at least the specified agent type and version.
  */
-function _atLeast(
-  kind,
-  version
-  )
-{
-  return (!kind    || (kind    == _agent.kind))    &&
-         (!version || (version <= _agent.version));
+function _atLeast(kind, version) {
+  return (
+    (!kind || kind == _agent.kind) && (!version || version <= _agent.version)
+  );
 }
-
 
 /**
  * Return true if the agent is at most the specified agent type and version.
  */
-function _atMost(
-  kind,
-  version
-  )
-{
-  return (kind == _agent.kind) && (version >= _agent.version);
+function _atMost(kind, version) {
+  return kind == _agent.kind && version >= _agent.version;
 }
 
-function _supportsDOM()
-{
+function _supportsDOM() {
   var retVal = false;
 
-  if (_agent.isIE)
-  {
+  if (_agent.isIE) {
     retVal = _agent.version >= 5.5;
-  }
-  else if (_agent.isNav)
-  {
+  } else if (_agent.isNav) {
     retVal = false;
-  }
-  else if (_agent.isGecko || _agent.isSafari || _agent.isOpera)
-  {
+  } else if (_agent.isGecko || _agent.isSafari || _agent.isOpera) {
     retVal = true;
-  }
-  else if(_agent.isBlackBerry)
-  {
+  } else if (_agent.isBlackBerry) {
     retVal = false;
   }
 
@@ -194,8 +173,7 @@ function _supportsDOM()
 /**
  * initialize information about the agent
  */
-function _agentInit()
-{
+function _agentInit() {
   // convert all characters to lowercase to simplify testing
   var agentString = navigator.userAgent.toLowerCase();
 
@@ -207,94 +185,79 @@ function _agentInit()
   // we do not currently specify the BlackBerry platform
   // because it is not necessary (if we decide to support
   // other browsers on the BlackBerry platform it may become necessary)
-  var isOpera      = false;
-  var isIE         = false;
-  var isNav        = false;
-  var isGecko      = false;
-  var isSafari     = false;
-  var isPIE        = false;
+  var isOpera = false;
+  var isIE = false;
+  var isNav = false;
+  var isGecko = false;
+  var isSafari = false;
+  var isPIE = false;
   var isBlackBerry = false;
-  var kind         = "unknown";
-  var isWindows    = false;
-  var isSolaris    = false;
-  var isMac        = false;
+  var kind = "unknown";
+  var isWindows = false;
+  var isSolaris = false;
+  var isMac = false;
 
-  if (agentString.indexOf("msie") != -1)
-  {
+  if (agentString.indexOf("msie") != -1) {
     // extract ie's version from the ie string
     var matches = agentString.match(/msie (.*);/);
     version = parseFloat(matches[1]);
-    if (agentString.indexOf("ppc") != -1 &&
-        agentString.indexOf("windows ce") != -1 &&
-        version >= 4.0)
-    {
+    if (
+      agentString.indexOf("ppc") != -1 &&
+      agentString.indexOf("windows ce") != -1 &&
+      version >= 4.0
+    ) {
       isPIE = true;
       kind = "pie";
-    }
-    else {
+    } else {
       isIE = true;
       kind = "ie";
     }
-  }
-  else if (agentString.indexOf("opera") != -1)
-  {
+  } else if (agentString.indexOf("opera") != -1) {
     isOpera = true;
     kind = "opera";
-  }
-  else if ((agentString.indexOf("applewebkit") != -1) ||
-           (agentString.indexOf("safari") != -1))
-  {
-    isSafari = true
+  } else if (
+    agentString.indexOf("applewebkit") != -1 ||
+    agentString.indexOf("safari") != -1
+  ) {
+    isSafari = true;
     kind = "safari";
-  }
-  else if (agentString.indexOf("gecko/") != -1)
-  {
+  } else if (agentString.indexOf("gecko/") != -1) {
     isGecko = true;
     kind = "gecko";
     version = 1.0;
-  }
-  else if(agentString.indexOf("blackberry") != -1)
-    {
-      // if we support non-BlackBerry Browser agents on blackberry
-      // devices in the future, we may need to revisit this because
-      // those agents may include "blackberry" in the User-Agent
-      // string; we can't just check if the User-Agent "starts with"
-      // blackberry because navigator.userAgent on BlackBery Browser 4.0
-      // starts with Mozilla/4.0 (even though the User-Agent sent to the
-      // server starts with BlackBerry<model>/<version>)
-    
-      // BlackBerry Browser 4.0+ supports navigator.appVersion,
-      // and earlier versions don't support script, so we can
-      // leave the version as defined above
-      isBlackBerry = true;
-      kind = "blackberry";
-  }
-  else if ((agentString.indexOf('mozilla')    != -1) &&
-           (agentString.indexOf('spoofer')    == -1) &&
-           (agentString.indexOf('compatible') == -1))
-  {
-    if (version >= 5.0)
-    {
+  } else if (agentString.indexOf("blackberry") != -1) {
+    // if we support non-BlackBerry Browser agents on blackberry
+    // devices in the future, we may need to revisit this because
+    // those agents may include "blackberry" in the User-Agent
+    // string; we can't just check if the User-Agent "starts with"
+    // blackberry because navigator.userAgent on BlackBery Browser 4.0
+    // starts with Mozilla/4.0 (even though the User-Agent sent to the
+    // server starts with BlackBerry<model>/<version>)
+
+    // BlackBerry Browser 4.0+ supports navigator.appVersion,
+    // and earlier versions don't support script, so we can
+    // leave the version as defined above
+    isBlackBerry = true;
+    kind = "blackberry";
+  } else if (
+    agentString.indexOf("mozilla") != -1 &&
+    agentString.indexOf("spoofer") == -1 &&
+    agentString.indexOf("compatible") == -1
+  ) {
+    if (version >= 5.0) {
       isGecko = true;
       kind = "gecko";
       version = 1.0;
-    }
-    else
-    {
+    } else {
       isNav = true;
       kind = "nn";
     }
   }
-  if (agentString.indexOf('win') != -1)
-  {
+  if (agentString.indexOf("win") != -1) {
     isWindows = true;
-  }
-  else if (agentString.indexOf('mac') != -1)
-  {
+  } else if (agentString.indexOf("mac") != -1) {
     isMac = true;
-  }
-  else if (agentString.indexOf('sunos') != -1)
-  {
+  } else if (agentString.indexOf("sunos") != -1) {
     isSolaris = true;
   }
 
@@ -305,152 +268,131 @@ function _agentInit()
   _agent.isGecko = isGecko;
   _agent.isSafari = isSafari;
   _agent.isBlackBerry = isBlackBerry;
-  _agent.version = version
+  _agent.version = version;
   _agent.kind = kind;
   _agent.isWindows = isWindows;
   _agent.isSolaris = isSolaris;
   _agent.isMac = isMac;
 
   _agent.atLeast = _atLeast;
-  _agent.atMost  = _atMost;
+  _agent.atMost = _atMost;
 }
-
 
 _agentInit();
 
 // available features in ie
-var _ieFeatures =
-{
-  channelmode:1, // ie 5.0
-  copyhistory:1,
-  directories:1,
-  fullscreen:1,  // ie 5.0
-  height:1,
-  location:1,
-  menubar:1,
-  resizable:1,
-  scrollbars:1,
-  status:1,
-  titlebar:1,    // ie 5.0 when trusted
-  toolbar:1,
-  width:1
+var _ieFeatures = {
+  channelmode: 1, // ie 5.0
+  copyhistory: 1,
+  directories: 1,
+  fullscreen: 1, // ie 5.0
+  height: 1,
+  location: 1,
+  menubar: 1,
+  resizable: 1,
+  scrollbars: 1,
+  status: 1,
+  titlebar: 1, // ie 5.0 when trusted
+  toolbar: 1,
+  width: 1,
 };
 
 // available features in Netscape
-var _nnFeatures =
-{
-  alwayslowered:1,
-  alwaysraised:1,
-  copyhistory:1,
-  dependent:1,
-  directories:1,
-  height:1,
-  hotkeys:1,
-  innerheight:1,
-  innerwidth:1,
-  location:1,
-  menubar:1,
-  outerwidth:1,
-  outerheight:1,
-  resizable:1,
-  scrollbars:1,
-  status:1,
-  titlebar:1,
-  toolbar:1,
-  width:1,
-  "z-lock":1
-}
+var _nnFeatures = {
+  alwayslowered: 1,
+  alwaysraised: 1,
+  copyhistory: 1,
+  dependent: 1,
+  directories: 1,
+  height: 1,
+  hotkeys: 1,
+  innerheight: 1,
+  innerwidth: 1,
+  location: 1,
+  menubar: 1,
+  outerwidth: 1,
+  outerheight: 1,
+  resizable: 1,
+  scrollbars: 1,
+  status: 1,
+  titlebar: 1,
+  toolbar: 1,
+  width: 1,
+  "z-lock": 1,
+};
 
 // override values for modeless windows. Values in this
 // list can't be overridden by the caller for modeless windows
-var _modelessFeatureOverrides =
-{
-};
+var _modelessFeatureOverrides = {};
 
 // override values for modal windows. Values in this
 // list can't be overridden by the caller for modal windows
-var _modalFeatureOverrides =
-{
-};
+var _modalFeatureOverrides = {};
 
-
-var _featureDefaults =
-{
+var _featureDefaults = {
   // default values for features of document windows
-  document:
-  {
-    channelmode:false,
-    copyhistory:true,
-    dependent:false,
-    directories:true,
-    fullscreen:false,
-    hotkeys:false,
-    location:true,
-    menubar:true,
-    resizable:true,
-    scrollbars:true,
-    status:true,
-    toolbar:true
+  document: {
+    channelmode: false,
+    copyhistory: true,
+    dependent: false,
+    directories: true,
+    fullscreen: false,
+    hotkeys: false,
+    location: true,
+    menubar: true,
+    resizable: true,
+    scrollbars: true,
+    status: true,
+    toolbar: true,
   },
   // default values for features of dialog windows
-  dialog:
-  {
-    channelmode:false,
-    copyhistory:false,
-    dependent:true,
-    directories:false,
-    fullscreen:false,
-    hotkeys:true,
-    location:false,
-    menubar:false,
-    resizable:true,
-    scrollbars:true,
-    status:true
-  }
-}
-
+  dialog: {
+    channelmode: false,
+    copyhistory: false,
+    dependent: true,
+    directories: false,
+    fullscreen: false,
+    hotkeys: true,
+    location: false,
+    menubar: false,
+    resizable: true,
+    scrollbars: true,
+    status: true,
+  },
+};
 
 // featues that require signbing in order to be set
-var _signedFeatures =
-{
-  alwayslowered:1,
-  alwaysraised:1,
-  titlebar:1,
-  "z-lock":1
+var _signedFeatures = {
+  alwayslowered: 1,
+  alwaysraised: 1,
+  titlebar: 1,
+  "z-lock": 1,
 };
 
 // features that are boolean values
-var _booleanFeatures =
-{
-  alwayslowered:1,
-  alwaysraised:1,
-  channelmode:1,
-  copyhistory:1,
-  dependent:1,
-  directories:1,
-  fullscreen:1,
-  hotkeys:1,
-  location:1,
-  menubar:1,
-  resizable:1,
-  scrollbars:1,
-  status:1,
-  titlebar:1,
-  toolbar:1,
-  "z-lock":1
+var _booleanFeatures = {
+  alwayslowered: 1,
+  alwaysraised: 1,
+  channelmode: 1,
+  copyhistory: 1,
+  dependent: 1,
+  directories: 1,
+  fullscreen: 1,
+  hotkeys: 1,
+  location: 1,
+  menubar: 1,
+  resizable: 1,
+  scrollbars: 1,
+  status: 1,
+  titlebar: 1,
+  toolbar: 1,
+  "z-lock": 1,
 };
-
-
 
 /**
  * Gets the preferred width of the content
  */
-function _getBodyWidth(
-  element,
-  offsetWidth,
-  offsetLeft
-  )
-{
+function _getBodyWidth(element, offsetWidth, offsetLeft) {
   var maxWidth = _getContentWidth(element, offsetWidth, 0);
 
   // bogusly double the offset to guess the right margin...
@@ -459,9 +401,8 @@ function _getBodyWidth(
   // empirically reasonable value.
   var marginWidth = 10;
 
-  if (_isLTR() || (offsetLeft <= 5))
-  {
-      marginWidth = 2 * offsetLeft;
+  if (_isLTR() || offsetLeft <= 5) {
+    marginWidth = 2 * offsetLeft;
   }
 
   return maxWidth + marginWidth;
@@ -470,81 +411,63 @@ function _getBodyWidth(
 /**
  * Gets the preferred width of the content
  */
-function _getContentWidth(
-  element,
-  offsetWidth,
-  offsetLeft
-  )
-{
+function _getContentWidth(element, offsetWidth, offsetLeft) {
   var children = element.childNodes;
 
   // XXXSafari: what to do here?
   var isIE = _agent.isIE;
 
-  var hasContentProp = (isIE)
-                         ? "canHaveHTML"
-                         : "tagName";
+  var hasContentProp = isIE ? "canHaveHTML" : "tagName";
   var maxWidth = 0;
 
-  for (var i = 0; i < children.length; i++)
-  {
+  for (var i = 0; i < children.length; i++) {
     var currChild = children[i];
 
-    if (currChild[hasContentProp] && (currChild.offsetWidth > 0))
-    {
+    if (currChild[hasContentProp] && currChild.offsetWidth > 0) {
       var currWidth = 0;
       var currOffsetWidth = currChild["offsetWidth"];
 
-      if (!isIE)
-      {
-        if ((currOffsetWidth == offsetWidth) ||
-            (currOffsetWidth <= 1))
-        {
+      if (!isIE) {
+        if (currOffsetWidth == offsetWidth || currOffsetWidth <= 1) {
           var currOffsetLeft = currChild.offsetLeft;
-          if (currChild.parentNode != currChild.offsetParent)
-          {
-            currOffsetLeft = currOffsetLeft -
-                             (currChild.parentNode.offsetLeft);
+          if (currChild.parentNode != currChild.offsetParent) {
+            currOffsetLeft = currOffsetLeft - currChild.parentNode.offsetLeft;
           }
 
-          currWidth = _getContentWidth(currChild,
-                                       currOffsetWidth,
-                                       currOffsetLeft);
-        }
-        else
-        {
+          currWidth = _getContentWidth(
+            currChild,
+            currOffsetWidth,
+            currOffsetLeft
+          );
+        } else {
           currWidth = currOffsetWidth;
         }
-      }
-      else
-      {
+      } else {
         currWidth = currChild["clientWidth"];
 
-        if (currWidth == 0)
-        {
+        if (currWidth == 0) {
           var currOffsetLeft = currChild.offsetLeft;
-          if (currChild.parentElement != currChild.offsetParent)
-          {
-            currOffsetLeft = currOffsetLeft -
-                             (currChild.parentElement.offsetLeft);
+          if (currChild.parentElement != currChild.offsetParent) {
+            currOffsetLeft =
+              currOffsetLeft - currChild.parentElement.offsetLeft;
           }
 
-          currWidth = _getContentWidth(currChild,
-                                       currOffsetWidth,
-                                       currOffsetLeft);
+          currWidth = _getContentWidth(
+            currChild,
+            currOffsetWidth,
+            currOffsetLeft
+          );
         }
       }
 
-      if (currWidth > maxWidth)
-      {
+      if (currWidth > maxWidth) {
         maxWidth = currWidth;
       }
     }
   }
 
   // handle error cases
-  if (maxWidth == 0)
-    maxWidth = offsetWidth;
+  if (maxWidth == 0) maxWidth = offsetWidth;
 
   return maxWidth + offsetLeft;
 }
@@ -553,19 +476,15 @@ function _getContentWidth(
  * Safely returns the parent window of a window, or undefined if security doesn't allow us to
  * retrieve the parent
  */
-function _getParentWindow(currWindow)
-{
+function _getParentWindow(currWindow) {
   var parentWindow = currWindow.parent;
 
-  try
-  {
+  try {
     // dummy read to test security error
     parentWindow.name;
-    
+
     return parentWindow;
-  }
-  catch (e)
-  {
+  } catch (e) {
     return undefined;
   }
 }
@@ -573,13 +492,11 @@ function _getParentWindow(currWindow)
 /**
  * Safely retrieve the top accessible window
  */
-function _getTop(currWindow)
-{
+function _getTop(currWindow) {
   // since top might be in another domain, crawl up as high as possible manually
   var currParentWindow = _getParentWindow(currWindow);
 
-  while (currParentWindow && (currParentWindow != currWindow))
-  {
+  while (currParentWindow && currParentWindow != currWindow) {
     currWindow = currParentWindow;
     currParentWindow = _getParentWindow(currWindow);
   }
@@ -587,51 +504,35 @@ function _getTop(currWindow)
   return currWindow;
 }
 
-
 /**
  * renders transparent image for spacing
  */
-function t(width,height)
-{
-
+function t(width, height) {
   // if the transparent url is not null render img tag
-  if (_tURL)
-  {
+  if (_tURL) {
     document.write('<img src="' + _tURL + '"');
 
-    if (width)
-      document.write(' width="' + width + '"');
-    if (height)
-      document.write(' height="' + height + '"');
+    if (width) document.write(' width="' + width + '"');
+    if (height) document.write(' height="' + height + '"');
 
     // if accessibility mode is not null, render alt attribute
-    if (_axm)
-      document.write(' alt=""');
+    if (_axm) document.write(' alt=""');
 
-    document.write('>');
+    document.write(">");
   }
 }
-
-
 
 /**
  * Returns the object containing the dependent windows.
  */
-function _getDependents(
-  parentWindow,
-  createIfNecessary
-  )
-{
+function _getDependents(parentWindow, createIfNecessary) {
   var depends;
 
-  if (parentWindow)
-  {
+  if (parentWindow) {
     depends = parentWindow["_dependents"];
 
-    if (!depends)
-    {
-      if (createIfNecessary)
-      {
+    if (!depends) {
+      if (createIfNecessary) {
         depends = new Object();
         parentWindow["_dependents"] = depends;
       }
@@ -644,64 +545,42 @@ function _getDependents(
 /**
  * Get the named dependent
  */
-function _getDependent(
-  parentWindow,
-  dependentName
-  )
-{
+function _getDependent(parentWindow, dependentName) {
   var depends = _getDependents(parentWindow);
   var dependent;
 
-  if (depends)
-  {
+  if (depends) {
     dependent = depends[dependentName];
   }
 
   return dependent;
 }
 
-
 /**
  * Sets the value of the named dependent
  */
-function _setDependent(
-  parentWindow,
-  dependentName,
-  dependentValue
-  )
-{
+function _setDependent(parentWindow, dependentName, dependentValue) {
   var depends = _getDependents(parentWindow, true);
 
-  if (depends)
-  {
+  if (depends) {
     depends[dependentName] = dependentValue;
   }
 }
 
-
 /**
  * Returns the dependent which is modal.
  */
-function _getModalDependent(
-  parentWindow
-  )
-{
+function _getModalDependent(parentWindow) {
   return _getDependent(parentWindow, "modalWindow");
 }
-
 
 /**
  * Returns true if the passed in dependent is the modal dependent
  * of the parent window,
  */
-function _isModalDependent(
-  parentWindow,
-  dependent
-  )
-{
-  return (dependent == _getModalDependent(parentWindow));
+function _isModalDependent(parentWindow, dependent) {
+  return dependent == _getModalDependent(parentWindow);
 }
-
 
 /**
  * Called by our modal windows when changes are applied and
@@ -712,10 +591,7 @@ function _isModalDependent(
  * called by the unload event. We call this function
  * instead which in turn calls _checkUnload.
  */
-function _unloadADFDialog(
-  event
-  )
-{
+function _unloadADFDialog(event) {
   // _checkUnload is called from body's
   // unload event when
   // We use this flag to keep it from
@@ -734,20 +610,16 @@ function _unloadADFDialog(
  * handler and make sure that the parent window is updated appropriately
  * to show that no modal window is up anymore.
  */
-function _checkUnload(
-  event
-  )
-{
+function _checkUnload(event) {
   //PH:set the right event object;
   event = _getEventObj();
-  
+
   // Make sure we don't run through this function twice
   // when we close a dialog. The
   // _unloadADFDialog function blocks a second run
   // using the _blockCheckUnloadFromDialog flag.
 
-  if (_blockCheckUnloadFromDialog)
-  {
+  if (_blockCheckUnloadFromDialog) {
     _blockCheckUnloadFromDialog = false;
     return;
   }
@@ -757,13 +629,11 @@ function _checkUnload(
   // In this case, we skip the unload handler, since the
   // modal window no longer has permission to access its
   // parent, and JavaScript errors may occur
-  if (_isModalAbandoned())
-    return;
+  if (_isModalAbandoned()) return;
 
   // Check to see if we have an open modal child window
   var modalWindow = _getModalDependent(window);
-  if (modalWindow != null)
-  {
+  if (modalWindow != null) {
     // If we are being unloaded before our modal child has been
     // closed, that means that the user must have navigated
     // to a new page just before the modal window was displayed.
@@ -782,30 +652,25 @@ function _checkUnload(
 
   var topWindow = _getTop(self);
 
-  if (!topWindow)
-    return;
+  if (!topWindow) return;
 
   var parentWindow = topWindow["opener"];
 
-  if (!parentWindow)
-    return;
+  if (!parentWindow) return;
 
   var unloader = _getDependent(parentWindow, self.name);
 
-  if (_isModalDependent(parentWindow, self))
-  {
+  if (_isModalDependent(parentWindow, self)) {
     // remove the modal window
-    _setDependent(parentWindow, "modalWindow", (void 0));
+    _setDependent(parentWindow, "modalWindow", void 0);
 
     parentWindow.onfocus = null;
 
     var parentBody = parentWindow.document.body;
 
     // release the ie mouse grab
-    if (_agent.atLeast("ie", 4))
-    {
-      if (_agent.atLeast("ie", 5) && _agent.isWindows)
-      {
+    if (_agent.atLeast("ie", 4)) {
+      if (_agent.atLeast("ie", 5) && _agent.isWindows) {
         parentBody.onlosecapture = null;
 
         _removeModalCaptureIE(parentBody);
@@ -813,24 +678,20 @@ function _checkUnload(
       parentBody.style.filter = null;
     }
 
-    if (_agent.isGecko)
-    {
-      if (parentBody != (void 0))
-      {
+    if (_agent.isGecko) {
+      if (parentBody != void 0) {
         _removeModalCaptureGecko(parentWindow, parentBody);
       }
     }
   }
 
-  if (unloader != (void 0))
-  {
+  if (unloader != void 0) {
     // remove our dependent info
-    _setDependent(parentWindow, self.name, (void 0));
+    _setDependent(parentWindow, self.name, void 0);
 
     // try the passed in event (netscape way first), then
     // try to get the event the IE way
-    if (event == (void 0))
-      event = self.event;
+    if (event == void 0) event = self.event;
 
     // call the unloader with the unloading window and the event
     unloader(topWindow, event);
@@ -839,8 +700,7 @@ function _checkUnload(
 
 // Adds a (IE-specific) capture to the specified element
 // for blocking mouse events during modal dialog display
-function _addModalCaptureIE(element)
-{
+function _addModalCaptureIE(element) {
   // Captured events still bubble on IE.  Register
   // mouse event handlers to cancel event bubbling
   // and save away old listeners so we can restore
@@ -849,8 +709,7 @@ function _addModalCaptureIE(element)
   var events = _IE_MOUSE_CAPTURE_EVENTS;
   var eventCount = events.length;
 
-  for (var i = 0; i < eventCount; i++)
-  {
+  for (var i = 0; i < eventCount; i++) {
     var eventName = events[i];
     savedListeners[eventName] = element[eventName];
     element[eventName] = _captureEventIE;
@@ -865,8 +724,7 @@ function _addModalCaptureIE(element)
 }
 
 // Removes a (IE-specific) capture added via _addModalCaptureIE()
-function _removeModalCaptureIE(element)
-{
+function _removeModalCaptureIE(element) {
   // Release the capture
   element.releaseCapture();
 
@@ -874,13 +732,11 @@ function _removeModalCaptureIE(element)
   // during _addModalCaptureIE().
   var savedListeners = window._modalSavedListeners;
 
-  if (savedListeners)
-  {
+  if (savedListeners) {
     var events = _IE_MOUSE_CAPTURE_EVENTS;
     var eventCount = events.length;
 
-    for (var i = 0; i < eventCount; i++)
-    {
+    for (var i = 0; i < eventCount; i++) {
       var eventName = events[i];
 
       element[eventName] = savedListeners[eventName];
@@ -890,49 +746,42 @@ function _removeModalCaptureIE(element)
   }
 }
 
-
 // Captures (and consumes) events during modal grabs
 // on IE browsers
-function _captureEventIE()
-{
+function _captureEventIE() {
   window.event.cancelBubble = true;
 }
 
 // Adds a (Gecko-specific) capture to the specified element
 // for blocking mouse events during modal dialog display
-function _addModalCaptureGecko(element)
-{
+function _addModalCaptureGecko(element) {
   var events = _GECKO_MOUSE_CAPTURE_EVENTS;
   var eventCount = events.length;
 
-  for (var i = 0; i < eventCount; i++)
-  {
+  for (var i = 0; i < eventCount; i++) {
     var eventName = events[i];
     element.addEventListener(eventName, _captureEventGecko, true);
   }
 }
 
 // Removes a (Gecko-specific) capture added via _addModalCapture()
-function _removeModalCaptureGecko(parentWindow, element)
-{
+function _removeModalCaptureGecko(parentWindow, element) {
   var events = _GECKO_MOUSE_CAPTURE_EVENTS;
   var eventCount = events.length;
 
-  for (var i = 0; i < eventCount; i++)
-  {
+  for (var i = 0; i < eventCount; i++) {
     var eventName = events[i];
-    element.removeEventListener(eventName,
-                                parentWindow._captureEventGecko,
-                                true);
+    element.removeEventListener(
+      eventName,
+      parentWindow._captureEventGecko,
+      true
+    );
   }
 }
 
 // Captures (and consumes) events during modal grabs
 // on Gecko browsers
-function _captureEventGecko(
-  event
-  )
-{
+function _captureEventGecko(event) {
   // Stop propagation and suppress default action
   event.stopPropagation();
   window.preventDefault = true;
@@ -942,8 +791,7 @@ function _captureEventGecko(
 // modal window.  This is a modal window who's parent
 // window has navigated to a new page, in which case
 // the modal window is out of context.
-function _isModalAbandoned()
-{
+function _isModalAbandoned() {
   // We look for the _abandoned property on the modal window.
   // Note that in the LOV case, we actually have two onunload
   // event handlers that need to be suppressed: The onunload
@@ -952,83 +800,58 @@ function _isModalAbandoned()
   // within a frame.  So, we check for the _abandoned property
   // on the "top" window.
   var topWindow = _getTop(self);
-  
+
   return topWindow._abandoned;
 }
 
 // Marks the specified modal window as abandoned
-function _setModalAbandoned(
-  modalWindow
-  )
-{
+function _setModalAbandoned(modalWindow) {
   // Just set the _abandoned property on the modal window.
   modalWindow._abandoned = true;
 }
 
-
-function _focusChanging()
-{
-  if (_agent.isIE)
-  {
-    return (window.event.srcElement != window.document.activeElement);
-  }
-  else
-  {
+function _focusChanging() {
+  if (_agent.isIE) {
+    return window.event.srcElement != window.document.activeElement;
+  } else {
     // Netscape gives us no good way of determining this
     return true;
   }
 }
 
-
 /**
  * Function that returns a single key/value pair String
  */
-function _getKeyValueString(
-  target,
-  keyName,
-  index
-  )
-{
+function _getKeyValueString(target, keyName, index) {
   var value = target[keyName];
 
-  if (typeof(value) == "function")
-  {
+  if (typeof value == "function") {
     value = "[function]";
   }
 
   // XXXSafari: what to do here?
-  var separator = (_agent.isGecko)
-                    ? ((index + 1) % 3 == 0)
-                      ? '\n'
-                      : '    '
-                    : '\t';
+  var separator = _agent.isGecko
+    ? (index + 1) % 3 == 0
+      ? "\n"
+      : "    "
+    : "\t";
 
-  return keyName + ':' + value + separator;
+  return keyName + ":" + value + separator;
 }
 
-function _dumpSuppress(
-  target
-  )
-{
-  _dump(target, {innerText:1, outerText:1, outerHTML:1, innerHTML:1});
+function _dumpSuppress(target) {
+  _dump(target, { innerText: 1, outerText: 1, outerHTML: 1, innerHTML: 1 });
 }
 
 /**
  * Utility for dumping the contents of a JavaScript object.
  */
-function _dump(
-  target,
-  suppressProps,
-  name
-  )
-{
+function _dump(target, suppressProps, name) {
   var props = "";
 
-  if (target)
-  {
+  if (target) {
     // default the name if none provided
-    if (!name)
-    {
+    if (!name) {
       name = target["name"];
     }
 
@@ -1051,11 +874,9 @@ function _dump(
     var propCount = 0;
     var propArray = new Array();
 
-    for (var key in target)
-    {
+    for (var key in target) {
       // don't add properties that should be suppressed
-      if ((!suppressProps || !suppressProps[key]) && !key.match(/DOM/))
-      {
+      if ((!suppressProps || !suppressProps[key]) && !key.match(/DOM/)) {
         propArray[propCount] = key;
         propCount++;
       }
@@ -1064,65 +885,48 @@ function _dump(
     // sort the array so that we can find stuff
     propArray.sort();
 
-    for (var i = 0; i < propArray.length; i++)
-    {
+    for (var i = 0; i < propArray.length; i++) {
       props += adder(target, propArray[i], i);
     }
-  }
-  else
-  {
+  } else {
     // the object to dump was undefined
     name = "(Undefined)";
   }
 
   // tell the user that the object has no properties
-  if (props == "")
-  {
+  if (props == "") {
     props = "No properties";
   }
 
   alert(name + ":\n" + props);
 }
 
-function _getJavascriptId(name)
-{
-  return name.split(':').join('_');
+function _getJavascriptId(name) {
+  return name.split(":").join("_");
 }
 
 /**
  * Calls the correct validations function for the form and returns true
  * if the validation succeeded.
  */
-function _validateForm(
-  form,
-  source
-  )
-{
-  var funcName = '_' + _getJavascriptId(form.name) + 'Validator';
+function _validateForm(form, source) {
+  var funcName = "_" + _getJavascriptId(form.name) + "Validator";
   var formWind = window[funcName];
-  if (formWind)
-    return formWind(form, source);
+  if (formWind) return formWind(form, source);
 
   return false;
 }
 
-
 /**
  * Returns the next sibling that is not a comment
  */
-function _getNextNonCommentSibling(
-  parent,
-  index
-  )
-{
+function _getNextNonCommentSibling(parent, index) {
   var children = parent.children;
 
-  for (var i = index + 1; i < children.length; i++)
-  {
+  for (var i = index + 1; i < children.length; i++) {
     var child = children[i];
 
-    if (child && (child.tagName != "!"))
-    {
+    if (child && child.tagName != "!") {
       return child;
     }
   }
@@ -1130,39 +934,31 @@ function _getNextNonCommentSibling(
   return null;
 }
 
-
 /**
  * Validate the specified field.
  */
-function _valField(
-  formName,
-  nameInForm
-  )
-{
-  if (nameInForm)
-  {
+function _valField(formName, nameInForm) {
+  if (nameInForm) {
     // get the target whose validation we want to run
     var target = document.forms[formName][nameInForm];
 
     // get its onblur function
     var blurFunc = target.onblur;
 
-    if (blurFunc)
-    {
+    if (blurFunc) {
       // FIXME: this is *NOT* portable.  Safari, for example,
       // does not implement toString() on functions this way,
       // and nothing requires that it does
       var valFunc = blurFunc.toString();
 
       // whack off the beginning and end of the function, leaving the content
-      var valContents = valFunc.substring(valFunc.indexOf("{") + 1,
-                                          valFunc.lastIndexOf("}"));
+      var valContents = valFunc.substring(
+        valFunc.indexOf("{") + 1,
+        valFunc.lastIndexOf("}")
+      );
 
-      var targetString = "document.forms['" +
-                         formName +
-                         "']['" +
-                         nameInForm +
-                         "']";
+      var targetString =
+        "document.forms['" + formName + "']['" + nameInForm + "']";
 
       // replace 'this' with the actual target
       valContents = valContents.replace(/this/, targetString);
@@ -1184,54 +980,48 @@ function _validateAlert(
   validators,
   globalMessageIndex,
   errorTitle
-  )
-{
-  var failureMap = _multiValidate(form, source,  validators, globalMessageIndex);
-  
-  if (failureMap.length == 0)
-    return true;
-    
-  var firstFailure = true;
-  var failureString = errorTitle + '\n';
+) {
+  var failureMap = _multiValidate(form, source, validators, globalMessageIndex);
 
-  for (var i = 0; i < validators.length; i += 5)
-  {
+  if (failureMap.length == 0) return true;
+
+  var firstFailure = true;
+  var failureString = errorTitle + "\n";
+
+  for (var i = 0; i < validators.length; i += 5) {
     var currId = validators[i];
 
     // Get the messages array for currId, skip if none
     var messages = failureMap[currId];
-    if (!messages || messages.length==0)
-      continue;
+    if (!messages || messages.length == 0) continue;
 
     // Get the input element
     var currInput = _getFormElement(form, currId);
-    if (!currInput)
-      continue;
-      
+    if (!currInput) continue;
+
     // Get the label text for this input
     var label = _getLabel(form, currInput);
 
     // Loop through the messages for this input
-    for (var j=0; j < messages.length; j = j+2)
-    {
+    for (var j = 0; j < messages.length; j = j + 2) {
       // Move the focus back to the first failed field
-      if (firstFailure)
-      {
+      if (firstFailure) {
         _setFocus(currInput);
         firstFailure = false;
       }
 
       // Get the current message
       var facesMessage = messages[j];
-    
-      var errorString = _getGlobalErrorString(currInput, 
-                          globalMessageIndex, 
-                          facesMessage.getDetail(),
-                          label);   
-    
-      failureString += errorString + '\n';
-    }
 
+      var errorString = _getGlobalErrorString(
+        currInput,
+        globalMessageIndex,
+        facesMessage.getDetail(),
+        label
+      );
+
+      failureString += errorString + "\n";
+    }
   }
 
   // Show the error and note the time we finished this validation.
@@ -1241,7 +1031,7 @@ function _validateAlert(
   _recordValidation(true, 0);
   alert(failureString);
   _recordValidation(true, 0);
-  
+
   return false;
 }
 
@@ -1251,14 +1041,12 @@ function _validateInline(
   validators,
   globalMessageIndex,
   errorTitle
-  )
-{
-  var failureMap = _multiValidate(form, source,  validators, globalMessageIndex);
-  
+) {
+  var failureMap = _multiValidate(form, source, validators, globalMessageIndex);
+
   var noFailures = true;
 
-  for (var i = 0; i < validators.length; i += 5)
-  {
+  for (var i = 0; i < validators.length; i += 5) {
     var currId = validators[i];
     var foundMsg = false;
 
@@ -1267,39 +1055,32 @@ function _validateInline(
 
     // If component hasn't got a message element, then skip
     var msgElem = _getElementById(document, validators[i] + "::msg");
-      
+
     // Clear any existing inline message
-    if (msgElem)
-      msgElem.innerHTML = "";
-      
-    // Clear any existing messages from the MessageBox  
+    if (msgElem) msgElem.innerHTML = "";
+
+    // Clear any existing messages from the MessageBox
     TrMessageBox.removeMessages(currId);
-    
+
     // Get the messages array for currId, skip if none
     var messages = failureMap[currId];
-    if (!messages || messages.length==0)
-    {
+    if (!messages || messages.length == 0) {
       // Hide the inline message and icon
-      if (msgElem)
-        msgElem.style.display = "none";
-      if (iconElem)
-        iconElem.style.display = "none";
+      if (msgElem) msgElem.style.display = "none";
+      if (iconElem) iconElem.style.display = "none";
       continue;
     }
-    
+
     // Get the input element
     var currInput = _getFormElement(form, currId);
-    if (!currInput)
-      continue;
-      
+    if (!currInput) continue;
+
     // Get the label text for this input
     var label = _getLabel(form, currInput);
 
     // Loop through the messages for this input
-    for (var j=0; j < messages.length; j = j+2)
-    {
-      if (noFailures)
-      {
+    for (var j = 0; j < messages.length; j = j + 2) {
+      if (noFailures) {
         noFailures = false;
 
         // Move the focus back to the first failed field
@@ -1310,24 +1091,21 @@ function _validateInline(
       // Get the current message
       var facesMessage = messages[j];
 
-      if (msgElem)
-        msgElem.innerHTML += facesMessage.getDetail();
+      if (msgElem) msgElem.innerHTML += facesMessage.getDetail();
 
       // if there's nowhere to display the message in either
       // summary or detail, then pop an alert to warn the page developer
       if (!msgElem && !TrMessageBox.isPresent())
         alert("Field Error [" + currId + "] - " + facesMessage.getDetail());
-      
+
       // Add the message to the MessageBox
       TrMessageBox.addMessage(currId, label, facesMessage);
     }
-    
+
     // If we got this far, we know there's something to display so
     // make the inline message and icon visible.
-    if (msgElem)
-      msgElem.style.display = "inline";
-    if (iconElem)
-      iconElem.style.display = "inline";
+    if (msgElem) msgElem.style.display = "inline";
+    if (iconElem) iconElem.style.display = "inline";
   }
 
   return noFailures;
@@ -1338,66 +1116,55 @@ function _validateInline(
  * the appropriate message will be displayed in the message component for this
  * input field.
  * <p>
- * The simplest usage of this method is from the onblur attribute of the 
+ * The simplest usage of this method is from the onblur attribute of the
  * input component. e.g. onblur="_validateInput(this);"
  * <p>
  * @param input The input element to validate.
- * @return boolean, false if validation failed, otherwise true. 
+ * @return boolean, false if validation failed, otherwise true.
  */
 // TODO: make this a public function only after hanging it on
 // a namespaced object, *and* making it not specific to inline
 // validation
-function _validateInput(input)
-{
-  if (input == (void 0))
-    return true;
-  
+function _validateInput(input) {
+  if (input == void 0) return true;
+
   var form = _getForm(input);
-  if (form == (void 0))
-    return true;
+  if (form == void 0) return true;
 
   var validators = _getValidators(form);
-  if (validators == (void 0))
-    return true;
-    
+  if (validators == void 0) return true;
+
   var validatorsToRun = new Array();
 
-  for (i=0; i < validators.length; i += 5)
-  {
+  for (i = 0; i < validators.length; i += 5) {
     // Find any entries that match this element
-    if (validators[i] == input.id)
-    {
+    if (validators[i] == input.id) {
       validatorsToRun[validatorsToRun.length] = validators[i];
-      validatorsToRun[validatorsToRun.length] = validators[i+1];
-      validatorsToRun[validatorsToRun.length] = validators[i+2];
-      validatorsToRun[validatorsToRun.length] = validators[i+3];
-      validatorsToRun[validatorsToRun.length] = validators[i+4];
+      validatorsToRun[validatorsToRun.length] = validators[i + 1];
+      validatorsToRun[validatorsToRun.length] = validators[i + 2];
+      validatorsToRun[validatorsToRun.length] = validators[i + 3];
+      validatorsToRun[validatorsToRun.length] = validators[i + 4];
     }
   }
 
   // Call inline validation using only the appropriate validators
-  var retVal = _validateInline(form, (void 0), validatorsToRun, 1, (void 0));
+  var retVal = _validateInline(form, void 0, validatorsToRun, 1, void 0);
   return retVal;
 }
 
 // Records the time of this validation event.
 // If fail is set, this is a validation failure, that is noted also.
-function _recordValidation(fail, now)
-{
-  if (!now)
-    now = new Date();
+function _recordValidation(fail, now) {
+  if (!now) now = new Date();
 
   _lastDateValidated = now;
-  if (fail)
-    _lastValidationFailure = now;
+  if (fail) _lastValidationFailure = now;
 }
-
 
 // returns true if a validation has occurred "recently"
 // failures: True means only report on recent failures, false means report on
 //           any validation.
-function _recentValidation(failures)
-{
+function _recentValidation(failures) {
   var retVal = false;
   var timeWindow = 250;
 
@@ -1408,8 +1175,7 @@ function _recentValidation(failures)
   // could probably lower this to 150 if we're seeing dropped validations
   // for really fast, ambitious users.
   // With Macintosh IE, we manage to crash the browser!
-  if (_agent.isMac)
-  {
+  if (_agent.isMac) {
     // The iBook can have diffs of up to about 480 ms.
     // Call it 600 to be safe.
     timeWindow = 600;
@@ -1422,15 +1188,11 @@ function _recentValidation(failures)
   // If simple validation requested, caller interested in any validation fail
   // or not.
   diff = newDate - _lastValidationFailure;
-  if ((diff >= 0) && (diff < timeWindow))
-  {
+  if (diff >= 0 && diff < timeWindow) {
     retVal = true;
-  }
-  else if (!failures)
-  {
+  } else if (!failures) {
     diff = newDate - _lastDateValidated;
-    if ((diff >= 0) && (diff < timeWindow))
-    {
+    if (diff >= 0 && diff < timeWindow) {
       retVal = true;
     }
   }
@@ -1448,13 +1210,11 @@ function _validateField(
   errorFormatIndex,
   emptyValidation,
   nextSibOK
-  )
-{
+) {
   var isNN = _agent.isNav;
 
   // don't validate under Netscape if tabbing to the next sibling is OK
-  if (isNN && nextSibOK)
-  {
+  if (isNN && nextSibOK) {
     return;
   }
 
@@ -1464,58 +1224,48 @@ function _validateField(
   // causing another onBlur to queue up, we finish handling the first,
   // return, and immediately get the second.
   // Bug 2465351 also mentions Mozilla, so it's been added for completeness.
-  if (isNN || _agent.isMac || _agent.isGecko)
-  {
-    if (_recentValidation(false))
-      return;
+  if (isNN || _agent.isMac || _agent.isGecko) {
+    if (_recentValidation(false)) return;
   }
 
   // determine whether we need to validate the field
-  var doValidate = emptyValidation || (_getValue(input) != "");
+  var doValidate = emptyValidation || _getValue(input) != "";
 
   // We only validate if we aren't in the middle of validation in order
   // to avoid infinite lopps caused by the fact that the focus has already
   // moved to a new field when the validation fires, and if the validation
   // on the new field failed also, we would ping-pong between the fields
   // forever
-  if (doValidate && !window._validating && _focusChanging())
-  {
-    if (nextSibOK)
-    {
+  if (doValidate && !window._validating && _focusChanging()) {
+    if (nextSibOK) {
       var activeElement = window.document.activeElement;
 
-      if (activeElement)
-      {
+      if (activeElement) {
         var parent = input.parentElement;
 
-        if (parent == activeElement.parentElement)
-        {
+        if (parent == activeElement.parentElement) {
           var children = parent.children;
 
-          for (var i = 0; i < children.length; i++)
-          {
-            if (input == children[i])
-            {
-              doValidate = (activeElement != _getNextNonCommentSibling(parent, i));
+          for (var i = 0; i < children.length; i++) {
+            if (input == children[i]) {
+              doValidate =
+                activeElement != _getNextNonCommentSibling(parent, i);
             }
           }
         }
       }
     }
 
-    if (doValidate)
-    {
+    if (doValidate) {
       var validationError = _getValidationError(input, validationIndex);
 
-      if (validationError)
-      {
+      if (validationError) {
         var isShowing = _isShowing(input);
 
         // mark that we are in the middle of validation
         window._validating = input;
 
-        if (isShowing)
-          input.select();
+        if (isShowing) input.select();
 
         // move the focus back to the failed field before showing the alert
         // to grab the user's attention about what failed.  We don't
@@ -1527,38 +1277,36 @@ function _validateField(
         // and another round of validation to occur
         // ColorField has required validation on hidden field,
         // but cannot receive focus
-        if (!isNN && isShowing)
-        {
+        if (!isNN && isShowing) {
           input.focus();
 
           // See if there's a specific position at which validation
           // failed;  if there is, we'll try to select everything after it.
-          if (window["_failedPos"] != (void 0))
-          {
+          if (window["_failedPos"] != void 0) {
             // IE style - createTextRange()
-            if (input.createTextRange)
-            {
+            if (input.createTextRange) {
               var rng = input.createTextRange();
               rng.moveStart("character", window["_failedPos"]);
               rng.select();
             }
             // Mozilla style.  Sadly, this won't work for TEXTAREA,
             // because of a Mozilla bug.
-            else if (input.selectionStart != (void 0))
-            {
+            else if (input.selectionStart != void 0) {
               input.selectionStart = window["_failedPos"];
             }
 
-            window["_failedPos"] = (void 0);
+            window["_failedPos"] = void 0;
           }
         }
 
         // get the error String, if any
-        var errorString = _getErrorString(input, errorFormatIndex,
-                                          validationError);
+        var errorString = _getErrorString(
+          input,
+          errorFormatIndex,
+          validationError
+        );
 
-        if (errorString)
-        {
+        if (errorString) {
           // show the error and note the time we finished this validation.
           _validationAlert(errorString);
         }
@@ -1567,15 +1315,13 @@ function _validateField(
         // Netscape
         // ColorField has required validation on hidden field,
         // but cannot receive focus.
-        if (isNN && isShowing)
-        {
+        if (isNN && isShowing) {
           input.focus();
         }
       }
     }
   }
 }
-
 
 /**
  * Field unvalidation function.
@@ -1584,12 +1330,8 @@ function _validateField(
  * validating object so that field validations can continue.  This method
  * is called from the onFocus handler of validating objects.
  */
-function _unvalidateField(
-  input
-  )
-{
-  if (window._validating == input)
-  {
+function _unvalidateField(input) {
+  if (window._validating == input) {
     window._validating = void 0;
   }
 }
@@ -1598,33 +1340,28 @@ function _unvalidateField(
  * Used to submit a selected item in a choice as if it's a commandLink
  * or commandButton
  */
-function _commandChoice(
-  form,
-  choice
-)
-{
+function _commandChoice(form, choice) {
   var src = document.forms[form].elements[choice].value;
 
   // need this strange [0] for when choice repeated,
   // for example a processChoiceBar in actions facet of panelPage.
-  if (src == void(0))
-    src = (document.forms[form].elements[choice])[0].value;
+  if (src == void 0) src = document.forms[form].elements[choice][0].value;
 
   // if it starts with a '#', it's an url.
   var gtIndex = src.indexOf("#");
-  if ( gtIndex == 0)
-    window.document.location.href = src.substring(1,src.length);
-  else
-  {
+  if (gtIndex == 0)
+    window.document.location.href = src.substring(1, src.length);
+  else {
     var openBracketIndex = src.indexOf("[");
     var srcID = src.substring(0, openBracketIndex);
-    var validateString = src.substring(openBracketIndex+1, openBracketIndex+2)
+    var validateString = src.substring(
+      openBracketIndex + 1,
+      openBracketIndex + 2
+    );
     var validate = parseInt(validateString);
-    submitForm(form,validate,{source:srcID});
+    submitForm(form, validate, { source: srcID });
   }
 }
-
-
 
 /**
  * Attempts to submits the form, potentially firing validation and notifying
@@ -1648,49 +1385,37 @@ function _commandChoice(
  *   pre-existing &lt;input type="hidden"&gt; elements as targets
  *   for each of these parameters.
  */
-function submitForm(
-  form,
-  doValidate,
-  parameters,
-  isPartial
-  )
-{
+function submitForm(form, doValidate, parameters, isPartial) {
   // If we've delayed any sort of event submission, we won't want to do it at
   // all now that the form is getting submitted. Blow away the saved data. Any
   // timeout handler will cancel the event submission if the data no longer
   // exists.
   var pending = true;
-  if (_agent.isIE)
-  {
+  if (_agent.isIE) {
     pending = false;
     // keep track of whether there was a pending event
-    for (var key in _delayedEventParams)
-    {
+    for (var key in _delayedEventParams) {
       pending = true;
       break;
     }
   }
 
-  if (pending)
-  {
+  if (pending) {
     _delayedEventParams = new Object();
     _delayedEventParams["reset"] = true;
   }
 
   // if the form was passed as a form name, get the form object
-  if ((typeof form) == "string")
-  {
+  if (typeof form == "string") {
     form = document[form];
   }
   // if the form was passed as a form index, get the form object
-  else if ((typeof form) == "number")
-  {
+  else if (typeof form == "number") {
     form = document.forms[form];
   }
 
   // we had better have a form now
-  if (!form)
-    return false;
+  if (!form) return false;
 
   // Check to see if submitForm is called before the form
   // has been rendered completely. If so, save the parameters
@@ -1702,10 +1427,9 @@ function submitForm(
   // validated, so there is no real validator, we've just hacked one. The
   // submit always sets doValidate to false. Just make sure that you never use
   // this validator if doValidate is false (it might just be the value '1').
-  var formComplete = window["_"+ _getJavascriptId(form.name) + "Validator"];
+  var formComplete = window["_" + _getJavascriptId(form.name) + "Validator"];
 
-  if (formComplete == (void 0))
-  {
+  if (formComplete == void 0) {
     _saveFormForLaterSubmit(form, doValidate, parameters);
 
     // Do not submit the form,
@@ -1716,12 +1440,10 @@ function submitForm(
   // Bug 1789483: ignore a second form submission that happens
   // less than 0.5 seconds after the first one
   var newDate = new Date();
-  if (_recentSubmit(newDate))
-  {
+  if (_recentSubmit(newDate)) {
     // However if we're allowing the first click through... we queue up this
     // submit.
-    if (_pprFirstClickPass && _pprBlocking)
-    {
+    if (_pprFirstClickPass && _pprBlocking) {
       _saveFormForLaterSubmit(form, doValidate, parameters);
     }
     return;
@@ -1734,8 +1456,7 @@ function submitForm(
   _lastDateSubmitted = newDate;
 
   // default value for doValidate is true
-  if (doValidate == (void 0))
-    doValidate = true;
+  if (doValidate == void 0) doValidate = true;
 
   // assume that we should submit the form
   var doSubmit = true;
@@ -1743,21 +1464,17 @@ function submitForm(
   // validate the form if necessary, and don't submit the
   // form if validation fails
   var paramSource;
-  if (parameters != null)
-    paramSource = parameters.source;
-  else
-    paramSource = "";
+  if (parameters != null) paramSource = parameters.source;
+  else paramSource = "";
 
-  if (doValidate && !_validateForm(form, paramSource))
-    doSubmit = false;
+  if (doValidate && !_validateForm(form, paramSource)) doSubmit = false;
 
   //
   // If we have an onSubmit handler, call it
   //
   var onSubmit = window["_" + _getJavascriptId(form.name) + "_Submit"];
 
-  if (onSubmit != (void 0))
-  {
+  if (onSubmit != void 0) {
     // create function so that "return" is handled correctly,
     var func = new Function("doValidate", onSubmit);
 
@@ -1769,40 +1486,32 @@ function submitForm(
     var handlerResult = form._tempFunc(doValidate);
 
     // uninstall the temporary function
-    form._tempFunc = (void 0);
+    form._tempFunc = void 0;
 
     // if we're validating and the handler returns false,
     // don't submit the form
-    if (doValidate && (handlerResult == false))
-    {
+    if (doValidate && handlerResult == false) {
       doSubmit = false;
     }
   }
 
-  if (doSubmit)
-  {
+  if (doSubmit) {
     // reset any hidden form values before submitting
     _resetHiddenValues(form);
 
-    if (isPartial)
-    {
+    if (isPartial) {
       TrPage.getInstance().sendPartialFormPost(form, parameters);
-    }
-    else
-    {
+    } else {
       //
       // assign any dynamic values before submitting
       //
       var isDOM = _supportsDOM();
       var tempParams = new Object();
 
-      if (parameters)
-      {
-        for (var paramName in parameters)
-        {
+      if (parameters) {
+        for (var paramName in parameters) {
           var paramValue = parameters[paramName];
-          if (paramValue != (void 0))
-          {
+          if (paramValue != void 0) {
             // do not try to get properties from the form element directly.
             // Some code somewhere was setting an htmlInputElement as
             // a property on the formElement, but not as a child.
@@ -1814,24 +1523,19 @@ function submitForm(
             // elements array.
             //var hiddenField = form[paramName];
             var hiddenField = form.elements[paramName];
-            if (_agent.isPIE)
-            {
+            if (_agent.isPIE) {
               var element = form.elements[paramName];
               element.value = paramValue;
-            }
-            else
-            {
+            } else {
               var hiddenFieldCreated = false;
               // See if the hidden field exists.  And, because
               // of some rather strange IE behavior w/regards to
               // form.elements['id'], make sure we haven't accidentally
               // grabbed a string
-              if (hiddenField && (typeof(hiddenField) != "string"))
-              {
+              if (hiddenField && typeof hiddenField != "string") {
                 // This condition was added to support enter key
                 // on forms for hcommandButton
-                if (hiddenField.type == 'submit')
-                {
+                if (hiddenField.type == "submit") {
                   var tmpField = document.createElement("input");
                   tmpField.type = "hidden";
                   tmpField.name = paramName;
@@ -1839,20 +1543,15 @@ function submitForm(
                   form.appendChild(tmpField);
                   tempParams[paramName] = tmpField;
                   hiddenFieldCreated = true;
-                }
-                else
-                  hiddenField.value = paramValue;
+                } else hiddenField.value = paramValue;
               }
               //VAC- added so that PDA's do not enter this flow. Since no PDA currently
               //supports createElement function on the document.  Furthermore, if the
               //hidden field exists there should be no reason to create a new hidden field
               //with the same name and attach it to the form.
-              else
-              {
-                if (isDOM)
-                {
-                  if (! hiddenFieldCreated)
-                  {
+              else {
+                if (isDOM) {
+                  if (!hiddenFieldCreated) {
                     // as a convenience to the client, build a hidden field to hold
                     // this parameter.
                     var tmpField = document.createElement("input");
@@ -1870,9 +1569,7 @@ function submitForm(
       }
 
       form.submit();
-      if (_blockOnEverySubmit)
-        _pprStartBlocking(window);
-
+      if (_blockOnEverySubmit) _pprStartBlocking(window);
 
       // Remove any dynamically added form parameters. We do this for two
       // reasons:
@@ -1883,8 +1580,7 @@ function submitForm(
       // "partialTargets" parameters will be on the request).
       // (Bug #3623890. This seems to break on a few Apps pages with bad form
       // setups)
-      if (isDOM)
-      {
+      if (isDOM) {
         for (var paramName in tempParams)
           form.removeChild(tempParams[paramName]);
       }
@@ -1898,36 +1594,32 @@ function submitForm(
  * This function is called when enter key is hit on any form input element.
  * @src if non-null, the ID of the object to fire
  */
-function _submitOnEnter(e, frm,src)
-{
-  if (window.event != (void 0))
-    e = window.event;
+function _submitOnEnter(e, frm, src) {
+  if (window.event != void 0) e = window.event;
 
   var eventSource;
   if (e.srcElement == undefined)
     // Gecko browsers
     eventSource = e.target;
-  else
-    eventSource = e.srcElement;
+  else eventSource = e.srcElement;
 
   if (!eventSource) return true;
   // Only process for "INPUT": but not for submit and reset
   // buttons
-  if(eventSource.tagName == 'A') return true;
+  if (eventSource.tagName == "A") return true;
 
-  if ((eventSource.tagName == 'INPUT') &&
-      (eventSource.type != 'submit') &&
-      (eventSource.type != 'reset'))
-  {
-    if (_getKC(e)==13)
-    {
-      if (src != (void 0))
-      {
+  if (
+    eventSource.tagName == "INPUT" &&
+    eventSource.type != "submit" &&
+    eventSource.type != "reset"
+  ) {
+    if (_getKC(e) == 13) {
+      if (src != void 0) {
         var params = new Object();
         params[src] = src;
-        params['source'] = src;
+        params["source"] = src;
 
-        submitForm(frm,0,params);
+        submitForm(frm, 0, params);
       }
 
       return false;
@@ -1943,8 +1635,7 @@ function _submitOnEnter(e, frm,src)
  * This function will save off the state of the submit request for later
  * processing in _submitFormCheck().
  */
-function _saveFormForLaterSubmit(form, val, params)
-{
+function _saveFormForLaterSubmit(form, val, params) {
   // TODO: fix for PPR
   _saveForm = form;
   _saveDoValidate = val;
@@ -1957,17 +1648,12 @@ function _saveFormForLaterSubmit(form, val, params)
  * rendered, and if so, recall it. This function is rendered at the end of the
  * form, so it is guaranteed that the form is complete when this is called.
  */
-function _submitFormCheck()
-{
-  if (_submitRejected)
-  {
-    if (_inPartialSubmit)
-    {
+function _submitFormCheck() {
+  if (_submitRejected) {
+    if (_inPartialSubmit) {
       _submitPartialChange(_saveForm, _saveDoValidate, _saveParameters);
       _inPartialSubmit = false;
-    }
-    else
-    {
+    } else {
       submitForm(_saveForm, _saveDoValidate, _saveParameters);
     }
     _saveForm = null;
@@ -1988,210 +1674,153 @@ function _submitFormCheck()
  *             in the current <code>document</code>, the index of the form
  *             in the current <code>document</code> or the form itself.
  */
-function resetForm(
-  form
-  )
-{
+function resetForm(form) {
   var doReload = false;
 
   // if the form was passed as a form name, get the form object
-  if ((typeof form) == "string")
-  {
+  if (typeof form == "string") {
     form = document[form];
   }
   // if the form was passed as a form index, get the form object
-  else if ((typeof form) == "number")
-  {
+  else if (typeof form == "number") {
     form = document.forms[form];
   }
 
   // we had better have a form now
-  if (!form)
-    return false;
+  if (!form) return false;
 
-  var resetCallbacks= window[ "_" + _getJavascriptId(form.name) + "_Reset"];
+  var resetCallbacks = window["_" + _getJavascriptId(form.name) + "_Reset"];
 
-  if (resetCallbacks && !doReload)
-  {
-    for (var i = 0; i < resetCallbacks.length; i++)
-    {
+  if (resetCallbacks && !doReload) {
+    for (var i = 0; i < resetCallbacks.length; i++) {
       var trueResetCallback = unescape(resetCallbacks[i]);
 
-      doReload = (eval(trueResetCallback));
-
+      doReload = eval(trueResetCallback);
     }
   }
 
-
-  if ( doReload )
-  {
+  if (doReload) {
     window.document.location.reload();
-  }
-  else
-  {
+  } else {
     form.reset();
   }
   _lastDateReset = new Date();
   return doReload;
 }
 
-
 // Create  query string with the data from a given form
 function createNameValueString(form) {
   var datatosend = "";
-  try
-  {
+  try {
     var arr = form.elements;
-    for (var i = 0; i < arr.length; i++)
-    {
-      try
-      {
+    for (var i = 0; i < arr.length; i++) {
+      try {
         var element = arr[i];
-        if(element.name)
-        {
-          if (element.type == "text"
-              || element.type == "password"
-              || element.type == "textarea"
-              || element.type == "hidden")
-          {
-            datatosend += (element.name + "=" + escape(element.value) + "&");
-          }
-          else if (element.type.indexOf("select") != -1)
-          {
-            //PH:selectdata must be initialized to "". Otherwise, results for 
+        if (element.name) {
+          if (
+            element.type == "text" ||
+            element.type == "password" ||
+            element.type == "textarea" ||
+            element.type == "hidden"
+          ) {
+            datatosend += element.name + "=" + escape(element.value) + "&";
+          } else if (element.type.indexOf("select") != -1) {
+            //PH:selectdata must be initialized to "". Otherwise, results for
             //selectdata+="stringtoconcatenate" is "undefinedstringtoconcatenate"
-            var selectdata ="" ;
-            for (var j = 0; j < element.options.length; j++)
-            {
+            var selectdata = "";
+            for (var j = 0; j < element.options.length; j++) {
               if (element.options[j].selected == true)
-                selectdata += element.name + "="
-                              + escape(element.options[j].value) + "&";
+                selectdata +=
+                  element.name + "=" + escape(element.options[j].value) + "&";
             }
-            if( !selectdata)
-            {
+            if (!selectdata) {
               var val = _getValue(element);
-              if (val)
-              {
+              if (val) {
                 selectdata += element.name + "=" + escape(val) + "&";
               }
             }
-            if (selectdata)
-            {
+            if (selectdata) {
               datatosend += selectdata;
             }
-          }
-          else if (element.type == "checkbox" && element.checked)
-            datatosend += ( element.name + "=" + escape(element.value) + "&");
+          } else if (element.type == "checkbox" && element.checked)
+            datatosend += element.name + "=" + escape(element.value) + "&";
           else if (element.type == "radio" && element.checked == true)
-            datatosend +=  (element.name + "=" + escape(element.value) + "&");
+            datatosend += element.name + "=" + escape(element.value) + "&";
         }
-      }
-      catch (e)
-      {
-      }
+      } catch (e) {}
       element = null;
     }
-  }
-  catch(e)
-  {
-  }
-  return ( datatosend.substring(0, datatosend.length - 1));
+  } catch (e) {}
+  return datatosend.substring(0, datatosend.length - 1);
 }
-
-
-
 
 /**
  * Resets any server-generated hidden values on the form passed in.
  * All hidden form values generated by the server on this form are set to
  * the empty string.
  */
-function _resetHiddenValues(
-  form
-  )
-{
+function _resetHiddenValues(form) {
   var resetFields = window["_reset" + _getJavascriptId(form.name) + "Names"];
-  if (resetFields)
-  {
-    for (var i = 0; i < resetFields.length; i++)
-    {
+  if (resetFields) {
+    for (var i = 0; i < resetFields.length; i++) {
       var currField;
-      if (_agent.isPIE)
-      {
+      if (_agent.isPIE) {
         currField = form.elements[resetFields[i]];
-      }
-      else
-      {
+      } else {
         currField = form[resetFields[i]];
       }
-      if (currField)
-      {
-        currField.value = '';
+      if (currField) {
+        currField.value = "";
       }
     }
   }
 }
 
-
-
 /**
  * Returns the value of a form element.
  */
-function _getValue(formElement)
-{
+function _getValue(formElement) {
   var shadowElem = formElement;
   var elementType = formElement.type;
 
   // When we're dealing with an array of elements, find the
   // real element type by looking inside the array.
-  if (!elementType && formElement.length)
-  {
+  if (!elementType && formElement.length) {
     // See bug 3651045;  IE can put "fieldsets" in with
     // form elements!
-    for (var i = 0; i < formElement.length; i++)
-    {
+    for (var i = 0; i < formElement.length; i++) {
       elementType = formElement[i].type;
-      if (elementType != (void 0))
-      {
+      if (elementType != void 0) {
         shadowElem = formElement[i];
         break;
       }
     }
   }
 
-  if (elementType == "checkbox")
-  {
-    if (formElement.length)
-    {
-      for (var i = 0; i < formElement.length; i++)
-      {
+  if (elementType == "checkbox") {
+    if (formElement.length) {
+      for (var i = 0; i < formElement.length; i++) {
         // See above for why we check each element's type
-        if (formElement[i].type == "checkbox" &&
-            formElement[i].checked)
-        {
+        if (formElement[i].type == "checkbox" && formElement[i].checked) {
           return formElement[i].value;
         }
       }
-    }
-    else
-    {
+    } else {
       return formElement.checked;
     }
-  }
-  else if (elementType.substring(0,6) == "select")
-  {
+  } else if (elementType.substring(0, 6) == "select") {
     formElement = shadowElem;
     var selectedIndex = formElement.selectedIndex;
 
     // selectedIndex exists and non-negative
-    if (selectedIndex != (void 0) &&
-        selectedIndex != null &&
-        selectedIndex >= 0)
-    {
+    if (
+      selectedIndex != void 0 &&
+      selectedIndex != null &&
+      selectedIndex >= 0
+    ) {
       var opt = formElement.options[selectedIndex];
       var value = opt.value;
-      if (!value)
-      {
+      if (!value) {
         // If there's no value, it could be for two reasons:
         //  (1) The user has only specified "text".
         //  (2) The user explicitly wanted "value" to be empty.
@@ -2199,10 +1828,8 @@ function _getValue(formElement)
         // unless we assume that users will be consistent with
         // all options of a choice.  So, if _any_ option
         // has a value, assume this one was possibility (2)
-        for (var i = 0; i < formElement.options.length; i++)
-        {
-          if (formElement.options[i].value)
-            return value;
+        for (var i = 0; i < formElement.options.length; i++) {
+          if (formElement.options[i].value) return value;
         }
 
         // OK, none had a value set - this is option (1) - default
@@ -2215,34 +1842,23 @@ function _getValue(formElement)
 
     // no selected value
     return "";
-  }
-  else if (elementType == "radio")
-  {
-    if (formElement.length)
-    {
-      for (var i = 0; i < formElement.length; i++)
-      {
+  } else if (elementType == "radio") {
+    if (formElement.length) {
+      for (var i = 0; i < formElement.length; i++) {
         // See above for why we check each element's type
-        if (formElement[i].type == "radio" &&
-            formElement[i].checked)
-        {
+        if (formElement[i].type == "radio" && formElement[i].checked) {
           return formElement[i].value;
         }
       }
-    }
-    else
-    {
-      if (formElement.checked)
-      {
+    } else {
+      if (formElement.checked) {
         return formElement.value;
       }
     }
 
     // no selected value
     return "";
-  }
-  else
-  {
+  } else {
     return formElement.value;
   }
 }
@@ -2250,74 +1866,63 @@ function _getValue(formElement)
 /**
  * Sets the selected index
  */
-function _setSelectIndexById(id, index)
-{
+function _setSelectIndexById(id, index) {
   var element = _getElementById(document, id);
-  if (element != null)
-    element.selectedIndex = index;
+  if (element != null) element.selectedIndex = index;
 }
-
 
 /**
  * Synchronizes the index of a repeated choice.
  */
-function _syncChoiceIndex(ch)
-{
+function _syncChoiceIndex(ch) {
   var form = ch.form;
   var name = ch.name;
   var comps = form.elements[name];
-  for (i=0; i<comps.length; i++)
-  {
+  for (i = 0; i < comps.length; i++) {
     comps[i].selectedIndex = ch.selectedIndex;
   }
 }
 
-
 /**
  * Clears a password field if it contains the magic postback string.
  */
-function _clearPassword(field, e)
-{
-  if (window.event != (void 0))
-    e = window.event;
+function _clearPassword(field, e) {
+  if (window.event != void 0) e = window.event;
 
-  if (field.value != "******")
-    return true;
+  if (field.value != "******") return true;
 
   // Backspace
-  if ((e.keyCode == 8) ||
-     // Delete (46) through F1 (112)
-      ((e.keyCode >= 46) && (e.keyCode < 112)))
-    field.value="";
+  if (
+    e.keyCode == 8 ||
+    // Delete (46) through F1 (112)
+    (e.keyCode >= 46 && e.keyCode < 112)
+  )
+    field.value = "";
   return true;
 }
-
 
 /**
  * If appropriate sets the focus on the input passed in
  */
-function _setFocus(currInput)
-{
+function _setFocus(currInput) {
   // check if currInput is showing before setting focus, for example
   // ColorField has required validation on hidden field,
   // but cannot receive focus.
-  if (_isShowing(currInput))
-  {
-    if (currInput.focus)
-      currInput.focus();
+  if (_isShowing(currInput)) {
+    if (currInput.focus) currInput.focus();
 
-    //PH:element["value"] is not supported for PIE,IEM and BB. Therefore 
+    //PH:element["value"] is not supported for PIE,IEM and BB. Therefore
     //use element.value which is supported by all
-    if ((currInput.type == "text")
-        && (currInput.value != (void 0))
-        && (currInput.value != null)
-        && (currInput.value.length > 0))
-    {
+    if (
+      currInput.type == "text" &&
+      currInput.value != void 0 &&
+      currInput.value != null &&
+      currInput.value.length > 0
+    ) {
       // IE fails on this select if a timeout occurs to handle a
       // pending event. Don't do it if we've reset the delayed
       // events object.
-      if (true != _delayedEventParams["reset"])
-        currInput.select();
+      if (true != _delayedEventParams["reset"]) currInput.select();
     }
   }
 }
@@ -2328,13 +1933,7 @@ function _setFocus(currInput)
  * and contains an array of TrFacesMessage objects relating to the
  * component (i.e. <String, TrFacesMessage[]>).
  */
-function _multiValidate(
-  form,
-  source,
-  validators,
-  globalMessageIndex
-  )
-{
+function _multiValidate(form, source, validators, globalMessageIndex) {
   // Initialise the return map.
   var failureMap = new Object();
 
@@ -2342,24 +1941,19 @@ function _multiValidate(
   var ignorePrefixes = new Array();
   var foundUsedSubform = false;
   var key;
-  if (source != (void 0))
-  {
+  if (source != void 0) {
     // Find if there's any prefix that matches
-    for (key in subforms)
-    {
-      if (source.indexOf(key + ":") == 0)
-      {
+    for (key in subforms) {
+      if (source.indexOf(key + ":") == 0) {
         foundUsedSubform = true;
         break;
       }
     }
 
     // Build up all prefixes that don't match
-    for (key in subforms)
-    {
-      if (source.indexOf(key + ":") != 0)
-      {
-        if ((foundUsedSubform) || (subforms[key] == 1))
+    for (key in subforms) {
+      if (source.indexOf(key + ":") != 0) {
+        if (foundUsedSubform || subforms[key] == 1)
           ignorePrefixes.push(key + ":");
       }
     }
@@ -2370,28 +1964,23 @@ function _multiValidate(
   // still need to run every other validation. However, if that one validation
   // failed, the user has seen one alert, don't bug them with a second til they
   // have fixed the first error.
-  if (validators && !_recentValidation(true))
-  {
+  if (validators && !_recentValidation(true)) {
     // get the list of different validations
     var validations = _getValidations(form);
 
     // loop through the validations, building up the error string
-    for (var i = 0; i < validators.length; i += 5)
-    {
+    for (var i = 0; i < validators.length; i += 5) {
       var isIgnored = false;
       // If this field is one that's specifically being ignored,
       // then don't validate here.
-      for (var j = 0; j < ignorePrefixes.length; j++)
-      {
-        if (validators[i].indexOf(ignorePrefixes[j]) == 0)
-        {
+      for (var j = 0; j < ignorePrefixes.length; j++) {
+        if (validators[i].indexOf(ignorePrefixes[j]) == 0) {
           isIgnored = true;
           break;
         }
       }
 
-      if (isIgnored)
-        continue;
+      if (isIgnored) continue;
 
       // get the current form element to validate
       var currInput = _getFormElement(form, validators[i]);
@@ -2405,8 +1994,7 @@ function _multiValidate(
       // todo: Should also check for visibility of currInput, since
       //       rich client may have "hidden" the input, in which case
       //       validation shouldn't fire.
-      if (!currInput)
-        continue;
+      if (!currInput) continue;
 
       //Initialize the failure array for this input
       var inputFailures = new Array();
@@ -2417,89 +2005,71 @@ function _multiValidate(
       // Only the first will be validated as subsequent values should be in sync
       var elementType = currInput.type;
 
-      if (!elementType && currInput.length)
-      {
+      if (!elementType && currInput.length) {
         var firstType = currInput[0].type;
-        if (firstType != "radio" && firstType != "checkbox")
-        {
+        if (firstType != "radio" && firstType != "checkbox") {
           currInput = currInput[0];
         }
       }
 
       var value = _getValue(currInput);
-      var required = validators[i+1];
-      if ( required && ((value == "" ) || (value == null)))
-      {
-
+      var required = validators[i + 1];
+      if (required && (value == "" || value == null)) {
         // get the formatted error string for the current input and
         // formatIndex
-        requiredFormatIndex = validators[i+2];
-        var requiredErrorString = _getErrorString(currInput,
-                                                  requiredFormatIndex);
-                                                  
-        // Populate the failureMap with the current error
-        inputFailures[inputFailures.length] = 
-            new TrFacesMessage(requiredErrorString, requiredErrorString);
-      }
-      else if (validations)
-      {
+        requiredFormatIndex = validators[i + 2];
+        var requiredErrorString = _getErrorString(
+          currInput,
+          requiredFormatIndex
+        );
 
-        var converterInfo = validators[i+3];
+        // Populate the failureMap with the current error
+        inputFailures[inputFailures.length] = new TrFacesMessage(
+          requiredErrorString,
+          requiredErrorString
+        );
+      } else if (validations) {
+        var converterInfo = validators[i + 3];
 
         // set the converterError var to false for each input, otherwise nothing
         // after the first conversion error is validated
         var converterError = false;
 
-        if ( converterInfo != null)
-        {
-
+        if (converterInfo != null) {
           // do the conversion if this element has a value
-          if ((value != null) &&
-              !((typeof value == "string") && (value == "")))
-          {
+          if (value != null && !(typeof value == "string" && value == "")) {
             // evaluate the converter
             var converterConstructor = validations[converterInfo];
 
-            if (converterConstructor)
-            {
+            if (converterConstructor) {
               var converter = eval(converterConstructor);
-              try{
+              try {
                 value = converter.getAsObject(value, label);
-              }
-              catch (e)
-              {
-                converterError = true; 
-  
+              } catch (e) {
+                converterError = true;
+
                 // Populate the failureMap with the current error
                 inputFailures[inputFailures.length] = e.getFacesMessage();
               }
             }
           }
         }
-        
-        if ( converterError == false)
-        {
-          var validatorInfo = validators[i+4];
-          for ( var j = 0; j < validatorInfo.length; j = j + 1)
-          {
+
+        if (converterError == false) {
+          var validatorInfo = validators[i + 4];
+          for (var j = 0; j < validatorInfo.length; j = j + 1) {
             // do the validation if this element has a value
             // Don't just compare against "", since the value has
             // already been converted to a non-string type
-            if ((value !== null) &&
-                 !((typeof value == "string") && value == ""))
-            {
+            if (value !== null && !(typeof value == "string" && value == "")) {
               // evaluate the validator
               var validatorConstructor = validations[validatorInfo[j]];
-              if (validatorConstructor && value !== undefined)
-              {
+              if (validatorConstructor && value !== undefined) {
                 var validator = eval(validatorConstructor);
 
-                try 
-                {
+                try {
                   validator.validate(value, label, converter);
-                }
-                catch (e)
-                {  
+                } catch (e) {
                   // Populate the failureMap with the current error
                   inputFailures[inputFailures.length] = e.getFacesMessage();
                 }
@@ -2508,17 +2078,16 @@ function _multiValidate(
           }
         }
       }
-      
+
       // if there were failures, then add the current input to the failuresMap
-      if (inputFailures.length > 0)
-      {
+      if (inputFailures.length > 0) {
         // TRINIDAD-123: Use input 'name' from validators array rather than currInput.id
         // to avoid issues with radio buttons having numeric id suffixes
         failureMap[validators[i]] = inputFailures;
       }
     }
   }
-  
+
   return failureMap;
 }
 
@@ -2530,24 +2099,20 @@ function _multiValidate(
  * {2} - extra param
  * {3} - extra param
  */
-function _createFacesMessage(
-  key,
-  label,
-  value,
-  param2,  
-  param3
-)
-{  
+function _createFacesMessage(key, label, value, param2, param3) {
   var summary = TrMessageFactory.getSummaryString(key);
   var detail = TrMessageFactory.getDetailString(key);
   // format the detail error string
-  if (detail != null)
-  {
-    detail = TrFastMessageFormatUtils.format(detail, label, value, param2, param3);
+  if (detail != null) {
+    detail = TrFastMessageFormatUtils.format(
+      detail,
+      label,
+      value,
+      param2,
+      param3
+    );
   }
-  return new TrFacesMessage(summary, 
-                          detail, 
-                          TrFacesMessage.SEVERITY_ERROR);
+  return new TrFacesMessage(summary, detail, TrFacesMessage.SEVERITY_ERROR);
 }
 
 /**
@@ -2563,263 +2128,214 @@ function _createCustomFacesMessage(
   detail,
   label,
   value,
-  param2,  
+  param2,
   param3
-)
-{  
-
+) {
   // format the detail error string
-  if (detail != null)
-  {
-    detail = TrFastMessageFormatUtils.format(detail, label, value, param2, param3);
+  if (detail != null) {
+    detail = TrFastMessageFormatUtils.format(
+      detail,
+      label,
+      value,
+      param2,
+      param3
+    );
   }
-  
-  return new TrFacesMessage(summary, 
-                          detail,
-                          TrFacesMessage.SEVERITY_ERROR);
+
+  return new TrFacesMessage(summary, detail, TrFacesMessage.SEVERITY_ERROR);
 }
 
-
-function _getGlobalErrorString(
-  input,
-  formatIndex,
-  errorString,
-  label
-  )
-{
-  var form = _getForm(input);  
+function _getGlobalErrorString(input, formatIndex, errorString, label) {
+  var form = _getForm(input);
   // get the list of different error formats
   var errorFormats = window["_" + _getJavascriptId(form.name) + "_Formats"];
 
-  if (errorFormats)
-  {
+  if (errorFormats) {
     // get the appropriate error format
     var errorFormat = errorFormats[formatIndex];
 
-    if (errorFormat && label != null)
-    {
-      return _formatErrorString(errorFormat,
-                               {
-                                 "0":label,
-                                 "1":errorString
-                               });
+    if (errorFormat && label != null) {
+      return _formatErrorString(errorFormat, {
+        0: label,
+        1: errorString,
+      });
     }
-  }   
-  
-  return errorString;  
-}                
+  }
 
+  return errorString;
+}
 
 /**
  * Returns true if the element is visible such that it could
  * receive focus or have its value selected, otherwise false.
  */
- function _isShowing(
-   input)
- { 
-   //PH: removed !input.focus because firstly, focus() function is supported by 
-   //all browsers (PIE,IEM,BB,FF,IE) and secondly, _isShowing should be treated 
-   //as a function to test visibility only. If there is a case where one really 
-   //wants to test whether focus function exists or not, do it in an if 
-   //statement and call _isShowing within it.
-   if (input.type == 'hidden')
-       return false;
-   
-   // determine visibility from style information
-   if (_agent.isIE)
-   {
-     var node = input;
+function _isShowing(input) {
+  //PH: removed !input.focus because firstly, focus() function is supported by
+  //all browsers (PIE,IEM,BB,FF,IE) and secondly, _isShowing should be treated
+  //as a function to test visibility only. If there is a case where one really
+  //wants to test whether focus function exists or not, do it in an if
+  //statement and call _isShowing within it.
+  if (input.type == "hidden") return false;
 
-     // IE does not give a "computed" style, so we
-     // need to walk up the DOM to get the styles
-     while (node != (void 0))
-     {
-       computedStyle = node.currentStyle;
+  // determine visibility from style information
+  if (_agent.isIE) {
+    var node = input;
 
-       if ((computedStyle != (void 0)) &&
-           ( (computedStyle["visibility"] == "hidden") ||
-             (computedStyle["display"] == "none")))
-       {
-         // node or one of its parents parents are NOT showing
-         return false;
-       }
+    // IE does not give a "computed" style, so we
+    // need to walk up the DOM to get the styles
+    while (node != void 0) {
+      computedStyle = node.currentStyle;
 
-       // consider parent style
-       node = node.parentNode;
-     }
+      if (
+        computedStyle != void 0 &&
+        (computedStyle["visibility"] == "hidden" ||
+          computedStyle["display"] == "none")
+      ) {
+        // node or one of its parents parents are NOT showing
+        return false;
+      }
 
-     // node and all parents are showing
-     return true;
-   }
+      // consider parent style
+      node = node.parentNode;
+    }
 
-   if (_agent.isGecko || _agent.isSafari)
-   {
-     // Radio buttons:  it'll be an array
-     if (!input.ownerDocument && input.length)
-       input = input[0];
+    // node and all parents are showing
+    return true;
+  }
 
-     var computedStyle = input.ownerDocument.defaultView.getComputedStyle(input,
-                                                                          null);
-     
-     // either of these styles will prevent focus from succeeding
-     return ((computedStyle["visibility"] != "hidden") &&
-             (computedStyle["display"] != "none"));
-   }
-   
-   return true;
- }
+  if (_agent.isGecko || _agent.isSafari) {
+    // Radio buttons:  it'll be an array
+    if (!input.ownerDocument && input.length) input = input[0];
+
+    var computedStyle = input.ownerDocument.defaultView.getComputedStyle(
+      input,
+      null
+    );
+
+    // either of these styles will prevent focus from succeeding
+    return (
+      computedStyle["visibility"] != "hidden" &&
+      computedStyle["display"] != "none"
+    );
+  }
+
+  return true;
+}
 
 /**
  * Returns the id of an input element on either IE or Netscape, dealing
  * with the fact that Netscape doesn't support IDs locally.
  */
- function _getID(
-   input
-   )
- {
-   if (!_agent.isNav)
-   {
-     //VAC- bug 4205372 for PIE devices return the name of the input element
-     if (_agent.isPIE){
-       return input.name;
-     }
-     // for non-Netscape return the ID directly
-     var id = input.id;
+function _getID(input) {
+  if (!_agent.isNav) {
+    //VAC- bug 4205372 for PIE devices return the name of the input element
+    if (_agent.isPIE) {
+      return input.name;
+    }
+    // for non-Netscape return the ID directly
+    var id = input.id;
 
-     var inputType = input.type;
+    var inputType = input.type;
 
-     if (!inputType && input.length)
-       inputType = input[0].type;
+    if (!inputType && input.length) inputType = input[0].type;
 
-     // for radio buttons, return ID of enclosing <span>
-     if (inputType == "radio")
-     {
-       var inputParent;
+    // for radio buttons, return ID of enclosing <span>
+    if (inputType == "radio") {
+      var inputParent;
 
-       if (input.length)
-       {
-         inputParent = input[0].parentNode;
-         if (inputParent.tagName == 'FIELDSET')
-           inputParent = inputParent.parentNode;
-       }
-       else
-       {
-         inputParent = input.parentNode;
-       }
+      if (input.length) {
+        inputParent = input[0].parentNode;
+        if (inputParent.tagName == "FIELDSET")
+          inputParent = inputParent.parentNode;
+      } else {
+        inputParent = input.parentNode;
+      }
 
-       id = inputParent.id;
-     }
+      id = inputParent.id;
+    }
 
-     return id;
-   }
-   else
-   {
-     var form = _getForm(input);
-     // for Netscape, use table lookup
-     var nameToID = window["_" + _getJavascriptId(form.name) + "_NameToID"];
+    return id;
+  } else {
+    var form = _getForm(input);
+    // for Netscape, use table lookup
+    var nameToID = window["_" + _getJavascriptId(form.name) + "_NameToID"];
 
-     if (nameToID)
-     {
-       var name = _getName(input);
-       return nameToID[name];
-     }
-   }
- }
-
+    if (nameToID) {
+      var name = _getName(input);
+      return nameToID[name];
+    }
+  }
+}
 
 /**
  * Returns the form of an input element on either IE or Netscape, dealing
  * with the fact that radio inputs do not directly support the form attribute.
  */
- function _getForm(
-   input
-   )
- {
-   var form = input.form;
+function _getForm(input) {
+  var form = input.form;
 
-   if (form == (void 0))
-   {
-     // Try the first item of the array
-     if (input.length)
-     {
-       form = input[0].form;
-     }
-   }
+  if (form == void 0) {
+    // Try the first item of the array
+    if (input.length) {
+      form = input[0].form;
+    }
+  }
 
-   return form;
- }
- 
+  return form;
+}
+
 /**
  * Returns the element of name elementName for the given form
  */
- function _getFormElement(
-   form,
-   elementName)
-{
+function _getFormElement(form, elementName) {
   var formElement = null;
-  if (_agent.isPIE)
-  {
-      formElement = form.elements[elementName];
-  }
-  else
-  {
+  if (_agent.isPIE) {
+    formElement = form.elements[elementName];
+  } else {
     formElement = form[elementName];
     // To support required validation on shuttle component
-    if(formElement == undefined)
-    {
-      formElement = form.elements[elementName+":trailing:items"];
+    if (formElement == undefined) {
+      formElement = form.elements[elementName + ":trailing:items"];
     }
   }
   return formElement;
 }
- 
 
 /**
  * Returns the name of an input element on either IE or Netscape, dealing
  * with the fact that radio inputs do not directly support the name attribute.
  */
- function _getName(
-   input
-   )
- {
-   var name = input.name;
+function _getName(input) {
+  var name = input.name;
 
-   if (name == (void 0))
-   {
-     var inputType = input.type;
+  if (name == void 0) {
+    var inputType = input.type;
 
-     if (!inputType && input.length)
-       inputType = input[0].type;
+    if (!inputType && input.length) inputType = input[0].type;
 
-     // for radio buttons, return ID of enclosing <span>
-     if (inputType == "radio" && input.length)
-     {
-       name = input[0].name;
-     }
-   }
+    // for radio buttons, return ID of enclosing <span>
+    if (inputType == "radio" && input.length) {
+      name = input[0].name;
+    }
+  }
 
-   return name;
- }
+  return name;
+}
 
 /**
  * Return true if the object or any of its prototypes'
  * are an instance of the specified object type.
  */
 function _instanceof(
-  obj,  // the object instance
-  type  // the constructor function
-)
-{
-  if (type == (void 0))
-    return false;
-    
-  if (obj == (void 0))
-    return false;
+  obj, // the object instance
+  type // the constructor function
+) {
+  if (type == void 0) return false;
 
-  while (typeof(obj) == "object")
-  {
-    if (obj.constructor == type)
-      return true;
+  if (obj == void 0) return false;
+
+  while (typeof obj == "object") {
+    if (obj.constructor == type) return true;
 
     // walk up the prototype hierarchy
     obj = obj.prototype;
@@ -2828,25 +2344,18 @@ function _instanceof(
   return false;
 }
 
-
-function _getLabel(
-  form,
-  input
-)
-{
-
+function _getLabel(form, input) {
   // get the mapping of id's to labels
   var labelMap = window["_" + _getJavascriptId(form.name) + "_Labels"];
-  
+
   var label;
-  
+
   // get the label for this input element, if one has been
   // associated using the ID of the input element
-  if (labelMap)
-  {
+  if (labelMap) {
     label = labelMap[_getID(input)];
   }
-  
+
   return label;
 }
 
@@ -2854,77 +2363,56 @@ function _getLabel(
  * Return the formatted error string for an input field
  * and an errorFormatIndex
  */
-function _getErrorString(
-  input,
-  errorFormatIndex,
-  validationError
-  )
-{
+function _getErrorString(input, errorFormatIndex, validationError) {
   var errorFormat;
 
   var form = _getForm(input);
   var value = _getValue(input);
 
   // use the message embedded in the validationError, if any
-  if (_instanceof(validationError, window["TrConverterException"]))
-  {
+  if (_instanceof(validationError, window["TrConverterException"])) {
     errorFormat = validationError.getFacesMessage().getDetail();
   }
   // use the message embedded in the validationError, if any
-  else if (_instanceof(validationError, window["TrValidatorException"]))
-  {
+  else if (_instanceof(validationError, window["TrValidatorException"])) {
     errorFormat = validationError.getFacesMessage().getDetail();
-  }
-  else if (errorFormatIndex != (void 0))
-  {
+  } else if (errorFormatIndex != void 0) {
     // get the list of different error formats
     var errorFormats = window["_" + _getJavascriptId(form.name) + "_Formats"];
 
-    if (errorFormats)
-    {
+    if (errorFormats) {
       // get the appropriate error format
       errorFormat = errorFormats[errorFormatIndex];
     }
   }
 
-  if (errorFormat)
-  {
+  if (errorFormat) {
     var label = _getLabel(form, input);
-    
+
     // format the error string, replacing the following tokens
     //   {0}    the value of the label
     //   {1}    the value of the input element
-    var errorString = _formatErrorString(errorFormat,
-                                         {
-                                           "0":label,
-                                           "1":value
-                                         });
+    var errorString = _formatErrorString(errorFormat, {
+      0: label,
+      1: value,
+    });
     // return the error
     return errorString;
   }
 }
 
-
-
-
 /**
  * Returns the array of validation information used to validate the form at
  * submission time.
  */
-function _getValidations(
-  form
-  )
-{
+function _getValidations(form) {
   return window["_" + _getJavascriptId(form.name) + "_Validations"];
 }
 
 /**
  * Returns the array of form validators.
  */
-function _getValidators(
-  form
-  )
-{
+function _getValidators(form) {
   return window["_" + _getJavascriptId(form.name) + "_Validators"];
 }
 
@@ -2932,37 +2420,31 @@ function _getValidators(
  * Perform the error validation and return true if there is an error.
  */
 function _getValidationError(
-  input,           // form element to be validated
+  input, // form element to be validated
   validationIndex, // index of validation code
-  validations      // the validations array, if available
-  )
-{
-  if (!validations)
-  {
+  validations // the validations array, if available
+) {
+  if (!validations) {
     // get the list of different validations
     validations = _getValidations(input.form);
   }
 
-  if (validations)
-  {
+  if (validations) {
     var validator = validations[validationIndex];
 
-    if (validator)
-    {
+    if (validator) {
       // get the true validator by replacing any value token with
       // the value of the input
       var trueValidator = validator.replace(/%value%/g, "_getValue(input)");
 
       // return true/Exception if a validation error has occurred
-      return (eval(trueValidator));
+      return eval(trueValidator);
     }
   }
 
   // no error
-  return (void 0);
+  return void 0;
 }
-
-
 
 /**
  * Performs token replacement on the the error format, replacing each
@@ -2970,19 +2452,16 @@ function _getValidationError(
  */
 function _formatErrorString(
   errorFormat, // error format string with embedded tokens to be replaced
-  tokens       // tokens Object containin token names and values to be replaced
-  )
-{
+  tokens // tokens Object containin token names and values to be replaced
+) {
   var currString = errorFormat;
 
   // loop through all of the tokens, replacing them if they are present
-  for (var currToken in tokens)
-  {
+  for (var currToken in tokens) {
     var currValue = tokens[currToken];
 
     // if the token has no value, replace it with the empty string
-    if (!currValue)
-    {
+    if (!currValue) {
       currValue = "";
     }
 
@@ -2990,48 +2469,47 @@ function _formatErrorString(
     var currRegExp = "{" + currToken + "}";
 
     // support tokens of the form %token% as well as {token}
-    currString = currString.replace(new RegExp('%' + currToken + '%', 'g'),
-                                    currRegExp);
+    currString = currString.replace(
+      new RegExp("%" + currToken + "%", "g"),
+      currRegExp
+    );
 
     // Replace the token.  Don't use String.replace, as the value may
     // include dollar signs, which leads Netscape astray (bug 2242675)
     var indexOf = currString.indexOf(currRegExp);
 
-    if (currValue.indexOf && currValue.indexOf(currRegExp) >= 0)
-    {
-     var b1 = '';
-     for (i=0; i<currValue.length; i++)
-     {
-       b1 = b1 + 'placeHolderString';
-     }  
-   
-     while (indexOf >= 0)
-    {
-      currString=(currString.substring(0,indexOf)
-           + b1
-           + currString.substring(indexOf+currRegExp.length));
-      indexOf = currString.indexOf(currRegExp);   
-    }    
-   
-    indexOf = currString.indexOf(b1);
-   
-    while (indexOf >= 0)
-    {  
-      currString =(currString.substring(0,indexOf)
-           + currValue
-           + currString.substring(indexOf+b1.length));      
-      indexOf = currString.indexOf(b1);   
-    }
+    if (currValue.indexOf && currValue.indexOf(currRegExp) >= 0) {
+      var b1 = "";
+      for (i = 0; i < currValue.length; i++) {
+        b1 = b1 + "placeHolderString";
+      }
+
+      while (indexOf >= 0) {
+        currString =
+          currString.substring(0, indexOf) +
+          b1 +
+          currString.substring(indexOf + currRegExp.length);
+        indexOf = currString.indexOf(currRegExp);
+      }
+
+      indexOf = currString.indexOf(b1);
+
+      while (indexOf >= 0) {
+        currString =
+          currString.substring(0, indexOf) +
+          currValue +
+          currString.substring(indexOf + b1.length);
+        indexOf = currString.indexOf(b1);
+      }
+    } else
+      while (indexOf >= 0) {
+        currString =
+          currString.substring(0, indexOf) +
+          currValue +
+          currString.substring(indexOf + currRegExp.length);
+        indexOf = currString.indexOf(currRegExp);
+      }
   }
-  else
-    while (indexOf >= 0)
-    {
-      currString = (currString.substring(0, indexOf)
-                      + currValue
-                      + currString.substring(indexOf + currRegExp.length));
-      indexOf = currString.indexOf(currRegExp);
-    }
- }
 
   // And now take any doubled-up single quotes down to one,
   // to handle escaping
@@ -3039,42 +2517,32 @@ function _formatErrorString(
   return currString.replace(twoSingleQuotes, "'");
 }
 
-
 /**
  * Chain two functions together returning whether the default
  * event handling should occur
  */
 function _chain(
-  evh1,        // event handler 1 string
-  evh2,        // event handler 2 string
-  target,      // target of event
-  event,       // the fired event
+  evh1, // event handler 1 string
+  evh2, // event handler 2 string
+  target, // target of event
+  event, // the fired event
   shortCircuit // shortcircuit if handler 1 false
-  )
-{
+) {
   var result1 = _callChained(evh1, target, event);
 
-  if ( shortCircuit && (result1 == false))
-    return false;
+  if (shortCircuit && result1 == false) return false;
 
   var result2 = _callChained(evh2, target, event);
 
   // since undefined results should be evaluated as true,
   // return false only if either result1 or result2 return false
-  return !((result1 == false) || (result2 == false));
+  return !(result1 == false || result2 == false);
 }
 
-function _callChained(
-  handler,
-  target,
-  event
-  )
-{
-  if (handler && (handler.length > 0))
-  {
+function _callChained(handler, target, event) {
+  if (handler && handler.length > 0) {
     // handle ie case, where we have no event parameter
-    if (event == (void 0))
-    {
+    if (event == void 0) {
       event = target.window.event;
     }
 
@@ -3091,24 +2559,20 @@ function _callChained(
     var result = target._tempFunc(event);
 
     // clear the temporary function
-    target._tempFunc = (void 0);
+    target._tempFunc = void 0;
 
     // undefined results should be evaluated as true,
     return !(result == false);
-  }
-  else
-  {
+  } else {
     return true;
   }
 }
 
 // Enforce the maximum length of a form element
 // Returns true if event processing should continue, false otherwise.
-function _checkLength(formElement, length, event)
-{
+function _checkLength(formElement, length, event) {
   elementLength = formElement.value.length;
-  if (elementLength > length)
-  {
+  if (elementLength > length) {
     // Input is longer than max, truncate and return false.
     // This takes care of the case where the user has pasted in text
     // that's too long. Return true here because the onChange event can
@@ -3119,24 +2583,20 @@ function _checkLength(formElement, length, event)
   }
 
   // If less than max length (i.e. within acceptable range), return true
-  if (elementLength < length)
-    return true;
+  if (elementLength < length) return true;
 
   // If we've made it to here, we know that elementLength == length
 
-  if (_agent.isIE)
-  {
+  if (_agent.isIE) {
     // in many forms there is a hidden field named "event"
     // Sometimes IE gets confused and sends us that instead of
     // the true event, so...
-    if (event["type"] == "hidden")
-      event = window.event;
+    if (event["type"] == "hidden") event = window.event;
   }
 
   // If this is a change event, the field has already been updated to a string
   // of the maximum allowable length. This is fine. Continue processing.
-  if (event.type == 'change')
-    return true;
+  if (event.type == "change") return true;
 
   // If we've made it to here, we know that this is a keyPress event
 
@@ -3144,10 +2604,8 @@ function _checkLength(formElement, length, event)
   // return true.
   // If key was CTRL-v, which will be used to paste some new text,
   // pass it along.
-  if (event)
-  {
-    if ((event.which < 32)
-        || ((event.which == 118) && (event["ctrlKey"])))
+  if (event) {
+    if (event.which < 32 || (event.which == 118 && event["ctrlKey"]))
       return true;
   }
 
@@ -3161,84 +2619,64 @@ function _checkLength(formElement, length, event)
 /**
  * Cover for document.getElementById that works on IE 4.x
  */
-function _getElementById(
-  doc,
-  id
-  )
-{
+function _getElementById(doc, id) {
   //PH: Since BB supports getDocumentById use this to obtain the element.
-  if(typeof(doc.getElementById) != 'undefined')
-  {
+  if (typeof doc.getElementById != "undefined") {
     //
     // If we arent' on Internet Explorers before 5,
     // use the DOM way of doing this
     //
     //PH:exclude BlackBerry
-    if (((_agent.kind != "ie") || (_agent.version >= 5)) && (!_agent.isBlackBerry))
-    {    
-      var element = doc.getElementById(id);     
-    
+    if ((_agent.kind != "ie" || _agent.version >= 5) && !_agent.isBlackBerry) {
+      var element = doc.getElementById(id);
+
       // IE's implementation of getElementById() is buggy.  If
       // the page contains an anchor which has the same name
       // as the requested id, IE will return the anchor, even
       // if the anchor's id attribute is not set.  So, make
       // sure that we actually get back an element with the
-      // correct id.  
-      if ((element == null) || (element.id == id))
-        return element;
-      // If we get here, that means that IE has probably returned 
+      // correct id.
+      if (element == null || element.id == id) return element;
+      // If we get here, that means that IE has probably returned
       // an anchor instead of the desired element.  Let's scan
       // the entire DOM tree to find the element we want.
       return _findElementById(doc, id);
     }
-    
-    return doc.getElementById(id);    
-  }   
-  //PH:if agent is PIE get elements this way since getElementById is 
+
+    return doc.getElementById(id);
+  }
+  //PH:if agent is PIE get elements this way since getElementById is
   //not supported
-  if(_agent.isPIE)
-  {
+  if (_agent.isPIE) {
     //if element is not within a form
-    if(doc.forms.length == 0)
-      return window[id];
+    if (doc.forms.length == 0) return window[id];
+    //check to see if element is within the form, if so return the element else do nothing
     else
-      //check to see if element is within the form, if so return the element else do nothing
-      for(var i = 0; i<doc.forms.length; i++)
-      {
+      for (var i = 0; i < doc.forms.length; i++) {
         var f = doc.forms[i];
-        if(f[id])
-          return f[id];        
+        if (f[id]) return f[id];
       }
-      
-    //element is not within the form but form(s) is(are) present. 
-    return window[id];   
-  }  
-  
-  return doc.all[id];  
-  
+
+    //element is not within the form but form(s) is(are) present.
+    return window[id];
+  }
+
+  return doc.all[id];
 }
 
 // A recursive method which searches the entire DOM tree
 // to find the element with the specified ID
-function _findElementById(
-  node,
-  id
-  )
-{
+function _findElementById(node, id) {
   // Check to see if the current node is the node
   // that we are looking for
-  if (node.id == id)
-    return node;
+  if (node.id == id) return node;
 
   // Check all children of the current node
-  if (node.childNodes)
-  {
+  if (node.childNodes) {
     var childNodes = node.childNodes;
-    for (var i = 0; i < childNodes.length; i++)
-    {
+    for (var i = 0; i < childNodes.length; i++) {
       var foundNode = _findElementById(childNodes.item(i), id);
-      if (foundNode != null)
-        return foundNode;
+      if (foundNode != null) return foundNode;
     }
   }
 
@@ -3247,48 +2685,35 @@ function _findElementById(
 
 // Returns '?' or '&' depending on whether the
 // baseURL already contains a query string
-function _getQuerySeparator(baseURL)
-{
+function _getQuerySeparator(baseURL) {
   var lastChar = baseURL.charAt(baseURL.length - 1);
-  if ((lastChar == '&') || (lastChar == '?'))
-    return "";
+  if (lastChar == "&" || lastChar == "?") return "";
 
-  return (baseURL.indexOf('?') >= 0) ? '&' : '?';
+  return baseURL.indexOf("?") >= 0 ? "&" : "?";
 }
 
 /**
  * Adds a parameter to an existing URL, replacing the parameter if
  * it already exists
  */
-function _addParameter(
-  baseURL,
-  paramName,
-  paramValue
-  )
-{
+function _addParameter(baseURL, paramName, paramValue) {
   // check if we have parameters
-  var queryIndex = baseURL.indexOf('?');
+  var queryIndex = baseURL.indexOf("?");
 
-  if (queryIndex == -1)
-  {
+  if (queryIndex == -1) {
     // no parameters, so append to parameters
-    return baseURL + '?' + paramName + '=' + paramValue;
-  }
-  else
-  {
+    return baseURL + "?" + paramName + "=" + paramValue;
+  } else {
     // check if the parameter already exists
-    var paramIndex = baseURL.indexOf('?' + paramName + '=', queryIndex);
+    var paramIndex = baseURL.indexOf("?" + paramName + "=", queryIndex);
 
     if (paramIndex == -1)
-      paramIndex = baseURL.indexOf('&' + paramName + '=', queryIndex + 1);
+      paramIndex = baseURL.indexOf("&" + paramName + "=", queryIndex + 1);
 
-    if (paramIndex == -1)
-    {
+    if (paramIndex == -1) {
       // parameter isn't in the URL
-      return baseURL + '&' + paramName + '=' + paramValue;
-    }
-    else
-    {
+      return baseURL + "&" + paramName + "=" + paramValue;
+    } else {
       //
       // replace the value of the parameter
       //
@@ -3301,10 +2726,9 @@ function _addParameter(
       // append the new value
       newString += paramValue;
 
-      var lastIndex = baseURL.indexOf('&', valueIndex);
+      var lastIndex = baseURL.indexOf("&", valueIndex);
 
-      if (lastIndex != -1)
-      {
+      if (lastIndex != -1) {
         // append the rest of the string after the replaced value
         newString += baseURL.substring(lastIndex);
       }
@@ -3317,21 +2741,14 @@ function _addParameter(
 /**
  * Adds a parameter to the parameters object for form submission
  */
-function _addFormParameter(
-  parameters,
-  paramName,
-  paramValue
-  )
-{
+function _addFormParameter(parameters, paramName, paramValue) {
   // Always create a new object, since we don't want to mess with
   // the caller's parameters
   var newParameters = new Object();
 
   // Copy over existing parameters
-  if (parameters)
-  {
-    for (var name in parameters)
-      newParameters[name] = parameters[name];
+  if (parameters) {
+    for (var name in parameters) newParameters[name] = parameters[name];
   }
 
   // Now set the new parameter value
@@ -3345,32 +2762,28 @@ function _addFormParameter(
 //                              This function just installs or de-installs the
 //                              event consuming handlers.
 //
-function _pprInstallBlockingHandlers(win, install)
-{
+function _pprInstallBlockingHandlers(win, install) {
   var doc = win.document;
 
-  if (doc == (void 0))
-    return;
+  if (doc == void 0) return;
 
-  if (_agent.isIE)
-  {
+  if (_agent.isIE) {
     var el = win._pprConsumeFirstClick;
-    if (install)
-    {
+    if (install) {
       // See comment in _pprConsumeFirstClick().
       // If the event that started this PPR chain was an onChange or onBlur,
       // AND the event location is the element on which the change happened
       // (i.e. the user didn't click somewhere outside the element)
       // then we want to make sure that the blocking starts immediately.
       var ev = win.event;
-      if (ev != (void 0))
-      {
+      if (ev != void 0) {
         var destElt = document.elementFromPoint(ev.x, ev.y);
-        if (!win._pprFirstClickPass // never attach unless passing first click
-            || (((ev.type == 'change') || (ev.type == 'blur'))
-                && (ev.srcElement == destElt))
-            || (!_isSubmittingElement(destElt)))
-        {
+        if (
+          !win._pprFirstClickPass || // never attach unless passing first click
+          ((ev.type == "change" || ev.type == "blur") &&
+            ev.srcElement == destElt) ||
+          !_isSubmittingElement(destElt)
+        ) {
           _pprControlCapture(win, true);
           return;
         }
@@ -3379,27 +2792,21 @@ function _pprInstallBlockingHandlers(win, install)
       // If we're here, we didn't set up a capture.
       // For an onClick, we have to pass on the first click,
       // then we'll capture every subsequent event.
-      doc.attachEvent('onclick', el);
-    }
-    else
-    {
-      doc.detachEvent('onclick', el);
+      doc.attachEvent("onclick", el);
+    } else {
+      doc.detachEvent("onclick", el);
       _pprControlCapture(win, false);
     }
-  }
-  else // Gecko or other standards based browser
-  {
+  } // Gecko or other standards based browser
+  else {
     var el = win._pprConsumeBlockedEvent;
 
     // Set up the same handler on all these events. The handler will just eat
     // the event unless it's the first click and we're passing that.
-    var handlers = { 'click':1, 'keyup':1, 'keydown':1, 'keypress':1};
-    for (var h in handlers)
-    {
-      if (install)
-        doc.addEventListener(h, el, true);
-      else
-        doc.removeEventListener(h, el, true);
+    var handlers = { click: 1, keyup: 1, keydown: 1, keypress: 1 };
+    for (var h in handlers) {
+      if (install) doc.addEventListener(h, el, true);
+      else doc.removeEventListener(h, el, true);
     }
   }
 }
@@ -3408,14 +2815,15 @@ function _pprInstallBlockingHandlers(win, install)
 // _pprConsumeClick: Helps implement blocking. This function just consumes
 //                   every click that falls within the body.
 //
-function _pprConsumeClick(event)
-{
-  if (_agent.isIE)
-  {
+function _pprConsumeClick(event) {
+  if (_agent.isIE) {
     var body = document.body;
-    if ((event.x < body.offsetLeft) || (event.y < body.offsetTop)
-        || (event.x > body.offsetWidth) || (event.y > body.offsetHeight))
-    {
+    if (
+      event.x < body.offsetLeft ||
+      event.y < body.offsetTop ||
+      event.x > body.offsetWidth ||
+      event.y > body.offsetHeight
+    ) {
       // OK, we've caught an event outside the body of the document. Assume
       // that the user is clicking somewhere on the menu bar, or another
       // window. At this point, we release the mouse and continue (that's
@@ -3427,39 +2835,34 @@ function _pprConsumeClick(event)
   return false;
 }
 
-
 //
 // _pprStartBlocking: Starts consuming every click (to implement blocking)
 //
-function _pprStartBlocking(win)
-{
+function _pprStartBlocking(win) {
   // In order to force the user to allow a PPR update to complete, we
   // block all mouse clicks between the start of a PPR update, and the end.
   // We do this by building a dummy DIV element and having it grab all clicks.
   // On Mozilla, we just expand it to cover the entire body as a glass frame.
   // On IE, we leave the DIV at zero size, but route every click to it.
-  if (!win._pprBlocking)
-  {
+  if (!win._pprBlocking) {
     var body = win.document.body;
     win._pprBlockStartTime = new Date();
 
     // XXXSafari: What to do for Safari? Safari will probably work like gecko,
     //            but... need to check.
-    if (_agent.isGecko)
-    {
+    if (_agent.isGecko) {
       // If the user clicks the stop button, then we'll be stuck blocking.
       // So we don't hang, this timeout will clear the block in eight
       // seconds whether we've finished or not, but first we clear any
       // previously existing timeout.
-      if (win._pprBlockingTimeout != null)
-      {
+      if (win._pprBlockingTimeout != null) {
         win.clearTimeout(win._pprBlockingTimeout);
       }
-      win._pprBlockingTimeout = win.setTimeout("_pprStopBlocking(window);",
-                                               8000);
-    }
-    else if (_agent.isIE)
-    {
+      win._pprBlockingTimeout = win.setTimeout(
+        "_pprStopBlocking(window);",
+        8000
+      );
+    } else if (_agent.isIE) {
       // save off the element we'll return focus to
       _pprEventElement = window.document.activeElement;
     }
@@ -3472,19 +2875,15 @@ function _pprStartBlocking(win)
 // _pprStopBlocking: Finishes up the blocking, releases the page back
 //                   to normal processing
 //
-function _pprStopBlocking(win)
-{
+function _pprStopBlocking(win) {
   var doc = win.document;
 
-  if (win._pprBlocking)
-  {
+  if (win._pprBlocking) {
     // XXXSafari: What to do for Safari? Safari will probably work like gecko,
     //            but... need to check.
-    if (_agent.isGecko)
-    {
+    if (_agent.isGecko) {
       // If we've set a timeout, clear it now.
-      if (win._pprBlockingTimeout != null)
-      {
+      if (win._pprBlockingTimeout != null) {
         win.clearTimeout(win._pprBlockingTimeout);
         win._pprBlockingTimeout == null;
       }
@@ -3503,23 +2902,19 @@ function _pprStopBlocking(win)
  * in a browser specific way (different idosyncracies cause poor focus
  * behavior).
  */
-function _pprFocus(node, doc)
-{
-  if (_agent.isIE)
-  {
+function _pprFocus(node, doc) {
+  if (_agent.isIE) {
     // If the node's parent has changed through a DOM update then
     // this node hasn't been fully added to the tree yet so we
     // can't set focus to it.
-    if (node.parentNode == null)
-      return;
+    if (node.parentNode == null) return;
 
     // On IE, if a node has focus and we update it, then setting focus to it
     // seems to have no effect. Setting the focus to another node, then back to
     // the target seems to work correctly. Here we set the focus to a hidden
     // field.
     var divnode = _getElementById(doc, _pprdivElementName);
-    if ((divnode) && (divnode["focus"]))
-      divnode.focus();
+    if (divnode && divnode["focus"]) divnode.focus();
   }
   node.focus();
 }
@@ -3531,16 +2926,13 @@ function _pprFocus(node, doc)
 //
 //                          This function is used on standards based browsers.
 //
-function _pprConsumeBlockedEvent(evt)
-{
+function _pprConsumeBlockedEvent(evt) {
   var rv = true;
 
-  if (_pprBlocking)
-  {
+  if (_pprBlocking) {
     var blockTheEvent = true;
 
-    if (window._pprFirstClickPass)
-    {
+    if (window._pprFirstClickPass) {
       var newDate = new Date();
       var diff = newDate - _pprBlockStartTime;
 
@@ -3550,8 +2942,7 @@ function _pprConsumeBlockedEvent(evt)
       // This addresses the problems that people were seeing, but could cause
       // overlapping PPR events in rare cases.
       var delay = 150;
-      if ((diff < delay) && (evt.type == 'click'))
-      {
+      if (diff < delay && evt.type == "click") {
         // To try to further limit the overlaps, we only allow clicks on
         // buttons, or images that will cause a submit to go through.
         // get the target of the click
@@ -3560,11 +2951,10 @@ function _pprConsumeBlockedEvent(evt)
         // var orig = (_agent.isIE
         //            ? evt.srcElement
         //            : evt.explicitOriginalTarget);
-        blockTheEvent = ! _isSubmittingElement(orig);
+        blockTheEvent = !_isSubmittingElement(orig);
       }
     }
-    if (blockTheEvent)
-    {
+    if (blockTheEvent) {
       // just swallow the event
       evt.stopPropagation();
       evt.preventDefault();
@@ -3573,7 +2963,6 @@ function _pprConsumeBlockedEvent(evt)
   }
   return rv;
 }
-
 
 //
 // _pprConsumeFirstClick: Helps implement blocking.
@@ -3586,53 +2975,42 @@ function _pprConsumeBlockedEvent(evt)
 // this handler. This handler then just immediately switches over the the
 // capture. This function is only used on IE.
 //
-function _pprConsumeFirstClick(event)
-{
+function _pprConsumeFirstClick(event) {
   // This is an IE only function
-  if (_agent.isIE)
-  {
+  if (_agent.isIE) {
     // switch over to capture
     _pprControlCapture(window, true);
     // and remove this one-time function
-    window.document.detachEvent('onclick', _pprConsumeFirstClick);
+    window.document.detachEvent("onclick", _pprConsumeFirstClick);
   }
   return false;
 }
-
 
 //
 // _pprControlCapture: Set up the pprDivElement to capture all
 //                     mouse events. It will then ignore them.
 //
-function _pprControlCapture(win, set)
-{
+function _pprControlCapture(win, set) {
   // This is an IE only function
-  if (_agent.isIE)
-  {
+  if (_agent.isIE) {
     var doc = win.document;
     var body = doc.body;
     var divElement = _getElementById(doc, _pprdivElementName);
-    if (divElement)
-    {
-      if (set)
-      {
+    if (divElement) {
+      if (set) {
         divElement.setCapture();
         // If we've got an element to return focus to,
         // then capture keyboard events also.
-        if (win._pprEventElement)
-          divElement.focus();
+        if (win._pprEventElement) divElement.focus();
         // save current cursor and display a wait cursor
         win._pprSavedCursor = body.style.cursor;
         body.style.cursor = "wait";
         win._pprSavedCursorFlag = true;
-      }
-      else if (win._pprSavedCursorFlag)
-      {
+      } else if (win._pprSavedCursorFlag) {
         divElement.releaseCapture();
 
         // return focus to the post-PPR target element
-        if (win._pprEventElement)
-          win._pprEventElement.focus();
+        if (win._pprEventElement) win._pprEventElement.focus();
         body.style.cursor = win._pprSavedCursor;
         win._pprSavedCursor = null;
         win._pprSavedCursorFlag = false;
@@ -3644,18 +3022,15 @@ function _pprControlCapture(win, set)
 
 // handle the onClick or onBlur for an IE SELECT element
 // Returns true if the user has finally made a selection, and is ready to go.
-function _pprChoiceAction()
-{
+function _pprChoiceAction() {
   // this function is only needed to handle IE's weird select element
-  if (!_agent.isIE)
-    return true;
+  if (!_agent.isIE) return true;
 
   var rv = false;
 
   // This gets called as both onClick and onBlur, but both really only want
   // to submit the event if a change has been made.
-  if ((!window._pprBlocking) && (_pprChoiceChanged))
-  {
+  if (!window._pprBlocking && _pprChoiceChanged) {
     // clear the choice tracker
     _pprChoiceChanged = false;
     rv = true;
@@ -3664,63 +3039,51 @@ function _pprChoiceAction()
 }
 
 // handle the onChange for an IE SELECT element
-function _pprChoiceChangeEvent(event)
-{
-  if (!_agent.isIE)
-    return true;
+function _pprChoiceChangeEvent(event) {
+  if (!_agent.isIE) return true;
 
   // Just remember the fact that a change has occurred.
-  if (!window._pprBlocking)
-    _pprChoiceChanged = true;
+  if (!window._pprBlocking) _pprChoiceChanged = true;
 
   return true;
 }
 
-
 // Tests whether a partial submit should be performed
-function _supportsPPR()
-{
+function _supportsPPR() {
   // TODO: handle platforms that do not support PPR
   return !_pprUnsupported;
 }
 
-
 // Fires a PPR request entirely as a GET operation
-function _firePartialChange(url)
-{
+function _firePartialChange(url) {
   // FIXME: shouldn't be using a private method on TrPage - this should
   // really be made into a public API on TrPage
   var page = TrPage.getInstance();
   TrRequestQueue.getInstance().sendRequest(
-    page, page._requestStatusChanged, url);
+    page,
+    page._requestStatusChanged,
+    url
+  );
 }
 
 // Fires a partial page request via form submission.
 // The args are the same as submitForm().  The
 // partialTargets are passed in as parameters
-function _submitPartialChange(
-  form,
-  doValidate,
-  parameters)
-{
+function _submitPartialChange(form, doValidate, parameters) {
   // If there's no PPR iframe, then just perform a normal,
   // full-page submission.
-  if (!_supportsPPR())
-    return submitForm(form, doValidate, parameters);
+  if (!_supportsPPR()) return submitForm(form, doValidate, parameters);
 
   // Get the actual form object
-  if ((typeof form) == "string")
-    form = document[form];
+  if (typeof form == "string") form = document[form];
 
-  if (!form)
-    return false;
+  if (!form) return false;
 
   // Tack on the "partial" event parameter parameter
   parameters = _addFormParameter(parameters, "partial", "true");
 
   // block all mouse clicks until the submit is done
-  if (!_agent.isPIE)
-  {
+  if (!_agent.isPIE) {
     _pprStartBlocking(window);
   }
 
@@ -3728,10 +3091,8 @@ function _submitPartialChange(
   var submitted = submitForm(form, doValidate, parameters, true);
 
   // If the form wasn't actually submitted, update the ref count
-  if (!submitted)
-  {
-    if (!_agent.isPIE)
-    {
+  if (!submitted) {
+    if (!_agent.isPIE) {
       _pprStopBlocking(window);
     }
   }
@@ -3746,48 +3107,43 @@ function _submitPartialChange(
  *   next : If true, we'll try to focus on the node following the one above,
  *          otherwise, we'll try to focus on the requested node.
  */
-function _setRequestedFocusNode(doc, nodeid, next, win)
-{
+function _setRequestedFocusNode(doc, nodeid, next, win) {
   // degenerate case - default to something that won't cause an error
-  if (!win)
-    win = window;
+  if (!win) win = window;
 
   // we only allow one outstanding focus request
   win._TrFocusRequestDoc = doc;
   win._TrFocusRequestID = nodeid;
-  win._TrFocusRequestNext = (next == true);
+  win._TrFocusRequestNext = next == true;
 }
-
 
 /* If a request was made to focus on a particular node, this function will
  * attempt to get that node.
  */
-function _getRequestedFocusNode(win)
-{
+function _getRequestedFocusNode(win) {
   // degenerate case - default to something that won't cause an error
-  if (win == (void 0))
-    win = window;
+  if (win == void 0) win = window;
 
-  if ((win._TrFocusRequestDoc != null)
-      && (win._TrFocusRequestID != null))
-  {
-    var element = _getElementById(win._TrFocusRequestDoc,
-                                  win._TrFocusRequestID);
-    if (!element)
-      return null;
+  if (win._TrFocusRequestDoc != null && win._TrFocusRequestID != null) {
+    var element = _getElementById(
+      win._TrFocusRequestDoc,
+      win._TrFocusRequestID
+    );
+    if (!element) return null;
 
-    if (win._TrFocusRequestNext)
-    {
+    if (win._TrFocusRequestNext) {
       // If "next" was set, the caller doesn't want this node, but the next
       // one. Try to find something that'll accept focus.
-      for (var next = element.nextSibling;
-           next != null;
-           next = next.nextSibling)
-      {
-        if (_isFocusable(next)
-            // we actually DO want to "tab" to links
-            || ((_agent.isIE) && (next.nodeName.toLowerCase() == 'a')))
-        {
+      for (
+        var next = element.nextSibling;
+        next != null;
+        next = next.nextSibling
+      ) {
+        if (
+          _isFocusable(next) ||
+          // we actually DO want to "tab" to links
+          (_agent.isIE && next.nodeName.toLowerCase() == "a")
+        ) {
           element = next;
           break;
         }
@@ -3798,23 +3154,16 @@ function _getRequestedFocusNode(win)
   return null;
 }
 
-
-
 // Returns the first focusable node under the specified node
-function _getFirstFocusable(node)
-{
-  if ((node == null) || _isFocusable(node))
-    return node;
+function _getFirstFocusable(node) {
+  if (node == null || _isFocusable(node)) return node;
 
-  if (node.hasChildNodes)
-  {
+  if (node.hasChildNodes) {
     var children = node.childNodes;
-    for (var i = 0; i < children.length; i++)
-    {
+    for (var i = 0; i < children.length; i++) {
       var child = children[i];
       var firstFocusable = _getFirstFocusable(child);
-      if (firstFocusable != null)
-        return firstFocusable;
+      if (firstFocusable != null) return firstFocusable;
     }
   }
 
@@ -3822,10 +3171,8 @@ function _getFirstFocusable(node)
 }
 
 // Restores the focus to the specified node
-function _restoreFocus(node, isFirstFocusable, doc)
-{
-  if (node == null)
-    return;
+function _restoreFocus(node, isFirstFocusable, doc) {
+  if (node == null) return;
 
   // If we are in a scrolled DIV, restoring the focus to the
   // first focusable node may cause the DIV to scroll back to 0,0.
@@ -3834,12 +3181,9 @@ function _restoreFocus(node, isFirstFocusable, doc)
   // since we should do a better job locating the correct node to
   // receive the focus.
   var divNode = _getAncestorByName(node, "DIV");
-  if (!divNode)
-  {
+  if (!divNode) {
     _pprFocus(node, doc);
-  }
-  else
-  {
+  } else {
     var scrollTop = divNode.scrollTop;
     var scrollLeft = divNode.scrollLeft;
 
@@ -3847,8 +3191,7 @@ function _restoreFocus(node, isFirstFocusable, doc)
     // focus to the correct focusable owner (and not just the
     // first focusable node), then restore the focus.  Otherwise,
     // we do nothing, in order to avoid unnecessary scrolling.
-    if (((scrollTop == 0) && (scrollLeft == 0)) || !isFirstFocusable)
-    {
+    if ((scrollTop == 0 && scrollLeft == 0) || !isFirstFocusable) {
       _pprFocus(node, doc);
     }
   }
@@ -3857,26 +3200,21 @@ function _restoreFocus(node, isFirstFocusable, doc)
   // done with a PPR update if the input element happens to be enclosed
   // within a table. However, if we make a second request, the focus is set
   // correctly. This is limited to the one interesting case.
-  if ((_agent.isIE)
-      && (node.tagName == 'INPUT')
-      && (_getAncestorByName(node, 'TABLE')))
-  {
+  if (
+    _agent.isIE &&
+    node.tagName == "INPUT" &&
+    _getAncestorByName(node, "TABLE")
+  ) {
     _pprFocus(node, doc);
   }
 }
 
 // Returns an ancestor with the specified name
-function _getAncestorByName(
-  node,
-  ancestorName
-  )
-{
+function _getAncestorByName(node, ancestorName) {
   ancestorName = ancestorName.toUpperCase();
 
-  while (node)
-  {
-    if (ancestorName == node.nodeName)
-      return node;
+  while (node) {
+    if (ancestorName == node.nodeName) return node;
 
     node = node.parentNode;
   }
@@ -3885,18 +3223,11 @@ function _getAncestorByName(
 }
 
 // Tests whether one node is a descendent of another
-function _isDescendent(
-  node,
-  ancestorNode
-  )
-{
-  if (node == null)
-    return false;
+function _isDescendent(node, ancestorNode) {
+  if (node == null) return false;
 
-  while (node.parentNode)
-  {
-    if (node == ancestorNode)
-      return true;
+  while (node.parentNode) {
+    if (node == ancestorNode) return true;
 
     node = node.parentNode;
   }
@@ -3905,16 +3236,13 @@ function _isDescendent(
 }
 
 // Tests whether the specified node is focusable
-function _isFocusable(node)
-{
-  if (node == null)
-    return false;
+function _isFocusable(node) {
+  if (node == null) return false;
 
   var name = node.nodeName.toLowerCase();
 
   // Links that have a destination are generally focusable
-  if (('a' == name) && (node.href))
-  {
+  if ("a" == name && node.href) {
     // We need to be careful on IE - it seems that
     // IE has problems setting the focus to links
     // which contain a single image.  We see this when
@@ -3925,80 +3253,63 @@ function _isFocusable(node)
 
     // If we're not on IE, or if the link has an id,
     // the link should be focusable
-    if (!_agent.isIE || (node.id))
-      return true;
+    if (!_agent.isIE || node.id) return true;
 
     // If we're on IE, we only consider the link to be
     // focusable if it has something other than a single
     // image for its contents.
     var children = node.childNodes;
-    if ((children) && (children.length == 1))
-    {
+    if (children && children.length == 1) {
       var childName = children[0].nodeName;
-      if ('img' == childName.toLowerCase())
-        return false;
+      if ("img" == childName.toLowerCase()) return false;
     }
 
     return true;
   }
 
   // Blow off any disabled elements
-  if (node.disabled)
-    return false;
+  if (node.disabled) return false;
 
   // Input elements are also usually focusable
-  if ('input' == name)
-  {
+  if ("input" == name) {
     // But don't set the focus to hidden fields
-    return (node.type != 'hidden');
+    return node.type != "hidden";
   }
 
   // Catch everything else here...
-  return (('select' == name) ||
-          ('button' == name) ||
-          ('textarea' == name));
+  return "select" == name || "button" == name || "textarea" == name;
 }
 
 // Evaluates the specified code in the target window
-function _eval(targetWindow, code)
-{
-  if (code == null)
-    return;
+function _eval(targetWindow, code) {
+  if (code == null) return;
 
   // For IE, we use window.execScript().  For Mozilla, we use
   // window.eval().  It would be nice if we could use eval() on
   // IE too, but IE's implementation of eval() always executes
   // the script in the current context, even if some other
   // window is specified.
-  if (_agent.isIE)
-    targetWindow.execScript(code);
-  else
-    targetWindow.eval(code);
+  if (_agent.isIE) targetWindow.execScript(code);
+  else targetWindow.eval(code);
 }
 
 /**
  * Called to identify the input field from an event
  * This is called not only below, but also from LovInput.js.
  */
-function _getInputField(event)
-{
-  var input = (void 0);
-  var src = (void 0);
+function _getInputField(event) {
+  var input = void 0;
+  var src = void 0;
 
-  if (window.event)
-  {
+  if (window.event) {
     kc = window.event.keyCode;
     src = window.event.srcElement;
-  }
-  else if (event)
-  {
+  } else if (event) {
     kc = event.which;
     src = event.target;
   }
 
-  if (src != (void 0)
-      && (src.tagName == "INPUT" ||
-          src.tagName == "TEXTAREA" ))
+  if (src != void 0 && (src.tagName == "INPUT" || src.tagName == "TEXTAREA"))
     input = src;
 
   return input;
@@ -4008,22 +3319,17 @@ function _getInputField(event)
  * Called when a field receives focus.
  * Prepares for a later reset of this field by saving its current value.
  */
-function _enterField(
-  event
-  )
-{
+function _enterField(event) {
   var input;
   var src;
   var retv = true;
 
   var input = _getInputField(event);
 
-  if (input != (void 0))
-  {
+  if (input != void 0) {
     input.form._mayResetByInput = false;
 
-    if (input != window._validating)
-    {
+    if (input != window._validating) {
       // save the last valid value for later restoration
       input._validValue = input.value;
     }
@@ -4039,47 +3345,37 @@ function _enterField(
  * If called twice in succession for the same form, with the
  * escape keycode both times, this function will reset the form.
  */
-function _resetOnEscape(event)
-{
+function _resetOnEscape(event) {
   var kc;
   var input = _getInputField(event);
 
-  if (input != (void 0))
-  {
+  if (input != void 0) {
     var form = input.form;
 
-    if (kc == 27)  // escape keycode
-    {
+    if (kc == 27) {
+      // escape keycode
       // reset the form input to its last valid value
       // providing there is no selection (consistent with IE)
 
       var hasSelection = false;
 
-      if ((input.selectionStart != (void 0)) &&
-          (input.selectionEnd   != (void 0)))
-      {
-        hasSelection = (input.selectionStart != input.selectionEnd);
-      }
-      else if (document.selection)
-      {
-        hasSelection = (document.selection.createRange().text.length != 0);
+      if (input.selectionStart != void 0 && input.selectionEnd != void 0) {
+        hasSelection = input.selectionStart != input.selectionEnd;
+      } else if (document.selection) {
+        hasSelection = document.selection.createRange().text.length != 0;
       }
 
-      if (!hasSelection)
-      {
+      if (!hasSelection) {
         // always reset the field
         input.value = input._validValue;
 
         // determine if a full form reset is required
-        if (form._mayResetByInput == true)
-        {
+        if (form._mayResetByInput == true) {
           // reset the form
           // unset the flag for form reset
           form.reset();
           form._mayResetByInput = false;
-        }
-        else
-        {
+        } else {
           // set the flag for form reset
           form._mayResetByInput = true;
         }
@@ -4087,9 +3383,8 @@ function _resetOnEscape(event)
 
       // consume this event to prevent any browser behavior from kicking in
       return false;
-    }
-    else // any keycode other than escape
-    {
+    } // any keycode other than escape
+    else {
       // unset the flag for form reset
       // since some other key was pressed
       form._mayResetByInput = false;
@@ -4107,10 +3402,9 @@ function _resetOnEscape(event)
  * non-PPR related initialization, such as setting the initialFocus, and
  * set the body onload to this method for browsers that do not support PPR.
  */
-function _checkLoadNoPPR()
-{
-  if(_initialFocusID != null)
-    _setFocus(_getElementById(document,_initialFocusID)); 
+function _checkLoadNoPPR() {
+  if (_initialFocusID != null)
+    _setFocus(_getElementById(document, _initialFocusID));
   _pprUnsupported = true;
 }
 
@@ -4118,8 +3412,7 @@ function _checkLoadNoPPR()
  * Called by the load handler of each document body to prepare event handlers
  * for forms, etc.
  */
-function _checkLoad()
-{
+function _checkLoad() {
   // set focus to the window if a dialog. This fixes the bug where our dialog
   // windows don't have focus, so the first keystroke is ignored. 3544304
   // if I used window.focus(), I caused this bug 3876472 -
@@ -4142,29 +3435,25 @@ function _checkLoad()
 
   // IE has a document.activeElement property. Most other
   // browsers do not (though Firefox 3.0 will).
-  if (!_agent.isIE && document.addEventListener)
-  {
+  if (!_agent.isIE && document.addEventListener) {
     document.addEventListener("keyup", _trTrackActiveElement, false);
     document.addEventListener("mousedown", _trTrackActiveElement, false);
   }
 
-  if (document.forms)
-  {
-    for (var i = 0; i < document.forms.length; i++)
-    {
+  if (document.forms) {
+    for (var i = 0; i < document.forms.length; i++) {
       var form = document.forms[i];
 
       // Note: event listener functions must already be defined above
       //       no forward references
-      if (form.addEventListener) // DOM events
-      {
-        form.addEventListener('focus', _enterField, true);
-        form.addEventListener('keydown', _resetOnEscape, true);
-      }
-      else if (form.attachEvent) // IE5 events
-      {
-        form.attachEvent('onfocusin', _enterField);
-        form.attachEvent('onkeydown', _resetOnEscape);
+      if (form.addEventListener) {
+        // DOM events
+        form.addEventListener("focus", _enterField, true);
+        form.addEventListener("keydown", _resetOnEscape, true);
+      } else if (form.attachEvent) {
+        // IE5 events
+        form.attachEvent("onfocusin", _enterField);
+        form.attachEvent("onkeydown", _resetOnEscape);
       }
     }
   }
@@ -4172,59 +3461,48 @@ function _checkLoad()
   // If we're inside a frameset, and the top frame wants
   // reloads blocked, install a _noReload handler.
   var topWindow = _getTop(self);
-  
-  if ((self != topWindow) && topWindow["_blockReload"])
-  {
+
+  if (self != topWindow && topWindow["_blockReload"]) {
     document.onkeydown = _noReload;
   }
 
   // Set initialFocus if necessary
-  if ((!_agent.isNav) && (_initialFocusID != null))
-  {
-    var myElement = _getElementById(document,_initialFocusID);
+  if (!_agent.isNav && _initialFocusID != null) {
+    var myElement = _getElementById(document, _initialFocusID);
 
     //PH: Set Focus on element for all browsers.
-    if(myElement)
-      _setFocus(myElement);
-  }  
+    if (myElement) _setFocus(myElement);
+  }
 }
 
-
-function _getActiveElement()
-{
-  if (document.activeElement)
-    return document.activeElement;
+function _getActiveElement() {
+  if (document.activeElement) return document.activeElement;
   return window._trActiveElement;
 }
 
-function _trTrackActiveElement(e)
-{
+function _trTrackActiveElement(e) {
   window._trActiveElement = e.target;
 }
 
 //
 // Event handle that blocks keys that lead to a page reloading.
 //
-function _noReload(e)
-{
-  if (!e) e=window.event;
-  var kc=e.keyCode;
+function _noReload(e) {
+  if (!e) e = window.event;
+  var kc = e.keyCode;
   // F5 and Ctrl-R
-  if ((kc==116)||(kc==82 && e.ctrlKey))
-  {
+  if (kc == 116 || (kc == 82 && e.ctrlKey)) {
     if (e.preventDefault) e.preventDefault();
-    e.keyCode=0;
+    e.keyCode = 0;
     return false;
   }
 }
-
 
 //
 // Deliver a client event with the specified type, source and parameters
 // to the handler body.
 //
-function _handleClientEvent(type, source, params, handlerBody)
-{
+function _handleClientEvent(type, source, params, handlerBody) {
   var event = new Object();
   event.type = type;
   event.source = source;
@@ -4233,39 +3511,31 @@ function _handleClientEvent(type, source, params, handlerBody)
   return func(event);
 }
 
-
 //
 // APIs dealing with cookies.  We currently have no supported
 // public functions.  _getCookie() and _setCookie() are good candidates.
 //
 
-function _getCookie(name)
-{
+function _getCookie(name) {
   var dc = document.cookie;
 
   var value = "";
   var prefix = name + "=";
-  if (dc)
-  {
+  if (dc) {
     // Look for the cookie name in in the middle.
     var begin = dc.indexOf("; " + prefix);
 
-    if (begin < 0)
-    {
+    if (begin < 0) {
       // Not there: look for it at the beginning
       begin = dc.indexOf(prefix);
-      if (begin > 0)
-        begin = -1;
+      if (begin > 0) begin = -1;
     }
-    else
-      // Found it - now skip over the colon and space
-      begin += 2;
+    // Found it - now skip over the colon and space
+    else begin += 2;
 
-    if (begin >= 0)
-    {
+    if (begin >= 0) {
       var end = dc.indexOf(";", begin);
-      if (end < 0)
-        end = dc.length;
+      if (end < 0) end = dc.length;
 
       value = unescape(dc.substring(begin + name.length + 1, end));
     }
@@ -4279,8 +3549,7 @@ function _getCookie(name)
 // This function isn't especially general (yet) as it doesn't
 // allow overriding the domain, path, or expiry.
 //
-function _setCookie(name, value)
-{
+function _setCookie(name, value) {
   // Compute the domain to scope as widely as is legit
   // by scoping off.
   // =-=AEW "localhost" just doesn't work.  I don't know how to
@@ -4304,8 +3573,7 @@ function _setCookie(name, value)
   */
 
   var colonIndex = domain.indexOf(":");
-  if (colonIndex >= 0)
-    domain = domain.substr(0, colonIndex);
+  if (colonIndex >= 0) domain = domain.substr(0, colonIndex);
 
   // Expire 10 years after today
   var expires = new Date();
@@ -4313,61 +3581,57 @@ function _setCookie(name, value)
 
   // And here's the cookie:
   // (Reordering the parameters seemed to break some browsers)
-  var curCookie = name + "=" + value +
-      "; path=/;domain=" + domain + "; expires=" + expires.toGMTString();
+  var curCookie =
+    name +
+    "=" +
+    value +
+    "; path=/;domain=" +
+    domain +
+    "; expires=" +
+    expires.toGMTString();
 
   document.cookie = curCookie;
 }
 
-
 //
 // Set a single value in the Trinidad cookie
 //
-function _setTrCookie(index, value)
-{
+function _setTrCookie(index, value) {
   var arry = _getTrCookie();
   arry[index] = value;
 
   // Rebuild the encoded value
   var encodedValue = arry[0];
-  for (var i = 1; i < arry.length; i++)
-  {
+  for (var i = 1; i < arry.length; i++) {
     encodedValue = encodedValue + "^" + arry[i];
   }
 
   _setCookie("oracle.uix", encodedValue);
 }
 
-
 //
 // Extract the decoded form of the Trinidad cookie
 //
-function _getTrCookie()
-{
+function _getTrCookie() {
   var encodedValue = _getCookie("oracle.uix");
   var arry;
-  if (encodedValue)
-    arry = encodedValue.split("^");
-  else
-    arry = new Array("0", "", "");
+  if (encodedValue) arry = encodedValue.split("^");
+  else arry = new Array("0", "", "");
 
   return arry;
 }
 
-
 //
 // Defaults the time zone
 //
-function _defaultTZ()
-{
+function _defaultTZ() {
   var tz = _getTrCookie()[2];
 
   // If the time zone has already been set, then bail:  however,
   // time zones that start with "GMT" are inherently unreliable,
   // because they won't track daylight savings.  For such time zones,
   // always replace the value.
-  if (tz && (tz.indexOf("GMT") != 0))
-  {
+  if (tz && tz.indexOf("GMT") != 0) {
     return;
   }
 
@@ -4375,123 +3639,95 @@ function _defaultTZ()
   _setTrCookie(2, _getTimeZoneID());
 }
 
-
 //
 // Compute the time zone ID, of form GMT+-XX:YY
 //
-function _getTimeZoneID()
-{
+function _getTimeZoneID() {
   // Get the time zone offset, then flip the sign, as this
   // is opposite in meaning to the time zone ID
-  var tzOffset = -(new Date()).getTimezoneOffset();
+  var tzOffset = -new Date().getTimezoneOffset();
   var newTZ;
 
   // Build up the name of the time zone
-  if (tzOffset > 0)
-    newTZ = "GMT+";
-  else
-  {
+  if (tzOffset > 0) newTZ = "GMT+";
+  else {
     newTZ = "GMT-";
     tzOffset = -tzOffset;
   }
 
-  var minutes = "" + tzOffset % 60;
-  if (minutes.length == 1)
-    minutes = "0" + minutes;
-  return (newTZ + (Math.floor(tzOffset / 60)) + ":" + minutes);
+  var minutes = "" + (tzOffset % 60);
+  if (minutes.length == 1) minutes = "0" + minutes;
+  return newTZ + Math.floor(tzOffset / 60) + ":" + minutes;
 }
-
 
 //
 // Returns true if the current document reads left to right.
 //
-function _isLTR()
-{
+function _isLTR() {
   return document.documentElement["dir"].toUpperCase() == "LTR";
 }
-
 
 //
 // _isSubmittingElement : Is the given element likely to submit?
 //
-function _isSubmittingElement(element)
-{
+function _isSubmittingElement(element) {
   var isSub = false;
   var eltype = element.nodeName.toUpperCase();
   // Assume any button click is wanted
-  if (eltype == "BUTTON")
-  {
+  if (eltype == "BUTTON") {
     isSub = true;
-  }
-  else if (eltype == "IMG")
-  {
+  } else if (eltype == "IMG") {
     // If the click was on an image, check to see if the image
     // is inside a link element.
     var pnode = element.parentNode;
     var ptype = pnode.nodeName.toUpperCase();
-    if (('A' == ptype) && (pnode.href))
-    {
+    if ("A" == ptype && pnode.href) {
       // OK, it's a link, now check if the onClick goes to one of our
       // submit functions.
       var oc = "" + pnode["onclick"];
-      if ((oc != (void 0)) && (oc != null))
-      {
-        isSub = ((oc.indexOf("submitForm") > 0)
-                 || (oc.indexOf("_uixspu") > 0)
-                 || (oc.indexOf("_adfspu") > 0)
-                 || (oc.indexOf("_addRowSubmit") > 0));
+      if (oc != void 0 && oc != null) {
+        isSub =
+          oc.indexOf("submitForm") > 0 ||
+          oc.indexOf("_uixspu") > 0 ||
+          oc.indexOf("_adfspu") > 0 ||
+          oc.indexOf("_addRowSubmit") > 0;
       }
     }
   }
   return isSub;
 }
 
-
-
 // Get the keycode from an event
-function _getKC(event)
-{
-  if (window.event)
-    return window.event.keyCode;
-  else if (event)
-    return event.which;
+function _getKC(event) {
+  if (window.event) return window.event.keyCode;
+  else if (event) return event.which;
   return -1;
 }
 
-
 // Returns true if a form has been submitted a "short" time before newDate
-function _recentSubmit(newDate)
-{
-  if (_lastDateSubmitted)
-  {
+function _recentSubmit(newDate) {
+  if (_lastDateSubmitted) {
     var diff = newDate - _lastDateSubmitted;
-    if ((diff >= 0) && (diff < 200))
-      return true;
+    if (diff >= 0 && diff < 200) return true;
   }
   return false;
 }
 
 // Returns true if a form has been reset a "short" time before newDate
-function _recentReset(newDate)
-{
-  if (_lastDateReset)
-  {
+function _recentReset(newDate) {
+  if (_lastDateReset) {
     var diff = newDate - _lastDateReset;
-    if ((diff >= 0) && (diff < 200))
-      return true;
+    if (diff >= 0 && diff < 200) return true;
   }
   return false;
 }
 
-function _radioSet_uixspu(f,v,e,s,pt,p,o)
-{
-  _radioSet_adfspu(f,v,e,s,o);
+function _radioSet_uixspu(f, v, e, s, pt, p, o) {
+  _radioSet_adfspu(f, v, e, s, o);
 }
 
-function _radioSet_adfspu(f,v,e,s,o)
-{
-  if (window._pprBlocking)
-    return;
+function _radioSet_adfspu(f, v, e, s, o) {
+  if (window._pprBlocking) return;
 
   // Once again we've got timing issues. When the user clicks on the
   // text of a radio button, we get an onClick for the enclosing span before we
@@ -4504,8 +3740,7 @@ function _radioSet_adfspu(f,v,e,s,o)
   // Of course the obvious answer to this is to use onChange instead of
   // onClick, but IE doesn't deliver onChange events to the container
 
-  if (_pendingRadioButton)
-  {
+  if (_pendingRadioButton) {
     // This is the second onClick call. We want to run the call to adfspu.
     // Eventually submitform will be called, do a submit, and set the
     // _lastDateSubmitted.
@@ -4513,10 +3748,8 @@ function _radioSet_adfspu(f,v,e,s,o)
     // clear the pending flag for next time
     _pendingRadioButton = false;
     // and call
-    _adfspu(f,v,e,s,o);
-  }
-  else
-  {
+    _adfspu(f, v, e, s, o);
+  } else {
     // This is the first click.
 
     // Remember that we've got a pending click.
@@ -4528,20 +3761,16 @@ function _radioSet_adfspu(f,v,e,s,o)
     // clear the pending flag for next time - in case there was no second click.
     var spucall = "_pendingRadioButton=false;_adfspu(";
     // Form
-    if ((f != (void 0)) && (f != null))
-      spucall += "'" + f + "'";
+    if (f != void 0 && f != null) spucall += "'" + f + "'";
     spucall += ",";
     // Validation
-    if (v != (void 0))
-      spucall += v;
+    if (v != void 0) spucall += v;
     spucall += ",";
     // Event
-    if ((e != (void 0)) && (e != null))
-      spucall += "'" + e + "'";
+    if (e != void 0 && e != null) spucall += "'" + e + "'";
     spucall += ",";
     // Source
-    if ((s != (void 0)) && (s != null))
-      spucall += "'" + s + "'";
+    if (s != void 0 && s != null) spucall += "'" + s + "'";
 
     // RadioSet does not pass an object
     spucall += ");";
@@ -4550,184 +3779,185 @@ function _radioSet_adfspu(f,v,e,s,o)
 }
 
 /** This function is called from _spinboxRepeat.
- * This function increments or decrements the value that is in the 
- * input field by the stepSize. If the max/min is reached, check circular.  
- * If circular is true, then circle the number around. 
+ * This function increments or decrements the value that is in the
+ * input field by the stepSize. If the max/min is reached, check circular.
+ * If circular is true, then circle the number around.
  * we default circular for now, because we do not support it yet.
  * Else, stop at the max or min.
  */
-function _stepSpinboxValue(id, increment, stepSize, min, max)
-{
-   var circular = false;
-   var input = _getElementById(document, id);
-   if (input)
-   {
-      var value = input.value;
-      if (isNaN(value) || isNaN(stepSize) || isNaN(min) || isNaN(max))
-      {
-        alert("value, stepSize, min, and max must all be numbers. value: "+
-               value+", stepSize: "+stepSize+", min: "+min+", max: "+max);
-        return false; 
-      }
-      if (increment)
-      {
-        var incrementedValue = parseFloat(value) + parseFloat(stepSize);
-        if (incrementedValue < max)
-              input.value = incrementedValue;
-        else if (circular)
-              input.value = min;   
-        else input.value = max;
-      }
-      else
-      {
-        var decrementedValue = parseFloat(value) - parseFloat(stepSize);
-        
-        if (decrementedValue > min)
-          input.value = decrementedValue;
-        else if (circular)
-          input.value = max; 
-        else input.value = min;
-      }
-      return true;
-   }
-   return false;
+function _stepSpinboxValue(id, increment, stepSize, min, max) {
+  var circular = false;
+  var input = _getElementById(document, id);
+  if (input) {
+    var value = input.value;
+    if (isNaN(value) || isNaN(stepSize) || isNaN(min) || isNaN(max)) {
+      alert(
+        "value, stepSize, min, and max must all be numbers. value: " +
+          value +
+          ", stepSize: " +
+          stepSize +
+          ", min: " +
+          min +
+          ", max: " +
+          max
+      );
+      return false;
+    }
+    if (increment) {
+      var incrementedValue = parseFloat(value) + parseFloat(stepSize);
+      if (incrementedValue < max) input.value = incrementedValue;
+      else if (circular) input.value = min;
+      else input.value = max;
+    } else {
+      var decrementedValue = parseFloat(value) - parseFloat(stepSize);
+
+      if (decrementedValue > min) input.value = decrementedValue;
+      else if (circular) input.value = max;
+      else input.value = min;
+    }
+    return true;
+  }
+  return false;
 }
 
-/* This function is called when the inputNumberSpinbox component's spinbox 
+/* This function is called when the inputNumberSpinbox component's spinbox
  * buttons are released (onmouseup).
- * This function stops the spinboxTimer. 
+ * This function stops the spinboxTimer.
  * The spinboxTimer calls _stepSpinboxValue in one second increments.
  */
-function _clearSpinbox()
-{
+function _clearSpinbox() {
   window.clearTimeout(_spinboxRepeat.timer);
   _spinboxRepeat.functionString = null;
 }
 
 /**
-  * This function is called when the inputNumberSpinbox component's 
-  * spinbox buttons are pressed. This is called onmousedown. 
-  * It calls the _stepSpinboxValue function to increment or decrement
-  * the input element's value. We call this repeatedly every second.
-  * onmouseup the component calls _clearSpinbox which clears the timeout.
-  */
-function _spinboxRepeat(id, increment, stepSize, min, max)
-{ 
+ * This function is called when the inputNumberSpinbox component's
+ * spinbox buttons are pressed. This is called onmousedown.
+ * It calls the _stepSpinboxValue function to increment or decrement
+ * the input element's value. We call this repeatedly every second.
+ * onmouseup the component calls _clearSpinbox which clears the timeout.
+ */
+function _spinboxRepeat(id, increment, stepSize, min, max) {
   // increment/decrement
   var success = _stepSpinboxValue(id, increment, stepSize, min, max);
   // if not successful, then clear the timeout and return
-  if (!success)
-  {
+  if (!success) {
     window.clearTimeout(_spinboxRepeat.timer);
-  }
-  else
-  {
-    if (_spinboxRepeat.functionString == null)
-    {
+  } else {
+    if (_spinboxRepeat.functionString == null) {
       // setup the function to pass to the timeout.
-      _spinboxRepeat.functionString = 
-          "_spinboxRepeat('"+id+"',"+increment+
-          ","+stepSize+","+min+","+max+");";
+      _spinboxRepeat.functionString =
+        "_spinboxRepeat('" +
+        id +
+        "'," +
+        increment +
+        "," +
+        stepSize +
+        "," +
+        min +
+        "," +
+        max +
+        ");";
     }
-    _spinboxRepeat.timer =
-      window.setTimeout(_spinboxRepeat.functionString, 1000);
+    _spinboxRepeat.timer = window.setTimeout(
+      _spinboxRepeat.functionString,
+      1000
+    );
   }
-
 }
 
 /** This function is called from _spinboxRepeat.
- * This function increments or decrements the value that is in the 
- * input field by the stepSize. If the max/min is reached, check circular.  
- * If circular is true, then circle the number around. 
+ * This function increments or decrements the value that is in the
+ * input field by the stepSize. If the max/min is reached, check circular.
+ * If circular is true, then circle the number around.
  * we default circular for now, because we do not support it yet.
  * Else, stop at the max or min.
  */
-function _stepSpinboxValue(id, increment, stepSize, min, max)
-{
-   var circular = false;
-   var input = _getElementById(document, id);
-   if (input)
-   {
-      var value = input.value;
-      if (isNaN(value) || isNaN(stepSize) || isNaN(min) || isNaN(max))
-      {
-        alert("value, stepSize, min, and max must all be numbers. value: "+
-               value+", stepSize: "+stepSize+", min: "+min+", max: "+max);
-        return false; 
-      }
-      if (increment)
-      {
-        var incrementedValue = parseFloat(value) + parseFloat(stepSize);
-        if (incrementedValue < max)
-              input.value = incrementedValue;
-        else if (circular)
-              input.value = min;   
-        else input.value = max;
-      }
-      else
-      {
-        var decrementedValue = parseFloat(value) - parseFloat(stepSize);
-        
-        if (decrementedValue > min)
-          input.value = decrementedValue;
-        else if (circular)
-          input.value = max; 
-        else input.value = min;
-      }
-      return true;
-   }
-   return false;
+function _stepSpinboxValue(id, increment, stepSize, min, max) {
+  var circular = false;
+  var input = _getElementById(document, id);
+  if (input) {
+    var value = input.value;
+    if (isNaN(value) || isNaN(stepSize) || isNaN(min) || isNaN(max)) {
+      alert(
+        "value, stepSize, min, and max must all be numbers. value: " +
+          value +
+          ", stepSize: " +
+          stepSize +
+          ", min: " +
+          min +
+          ", max: " +
+          max
+      );
+      return false;
+    }
+    if (increment) {
+      var incrementedValue = parseFloat(value) + parseFloat(stepSize);
+      if (incrementedValue < max) input.value = incrementedValue;
+      else if (circular) input.value = min;
+      else input.value = max;
+    } else {
+      var decrementedValue = parseFloat(value) - parseFloat(stepSize);
+
+      if (decrementedValue > min) input.value = decrementedValue;
+      else if (circular) input.value = max;
+      else input.value = min;
+    }
+    return true;
+  }
+  return false;
 }
 
-/* This function is called when the inputNumberSpinbox component's spinbox 
+/* This function is called when the inputNumberSpinbox component's spinbox
  * buttons are released (onmouseup).
- * This function stops the spinboxTimer. 
+ * This function stops the spinboxTimer.
  * The spinboxTimer calls _stepSpinboxValue in one second increments.
  */
-function _clearSpinbox()
-{
+function _clearSpinbox() {
   window.clearTimeout(_spinboxRepeat.timer);
   _spinboxRepeat.functionString = null;
 }
 
 /**
-  * This function is called when the inputNumberSpinbox component's 
-  * spinbox buttons are pressed. This is called onmousedown. 
-  * It calls the _stepSpinboxValue function to increment or decrement
-  * the input element's value. We call this repeatedly every second.
-  * onmouseup the component calls _clearSpinbox which clears the timeout.
-  */
-function _spinboxRepeat(id, increment, stepSize, min, max)
-{ 
+ * This function is called when the inputNumberSpinbox component's
+ * spinbox buttons are pressed. This is called onmousedown.
+ * It calls the _stepSpinboxValue function to increment or decrement
+ * the input element's value. We call this repeatedly every second.
+ * onmouseup the component calls _clearSpinbox which clears the timeout.
+ */
+function _spinboxRepeat(id, increment, stepSize, min, max) {
   // increment/decrement
   var success = _stepSpinboxValue(id, increment, stepSize, min, max);
   // if not successful, then clear the timeout and return
-  if (!success)
-  {
+  if (!success) {
     window.clearTimeout(_spinboxRepeat.timer);
-  }
-  else
-  {
-    if (_spinboxRepeat.functionString == null)
-    {
+  } else {
+    if (_spinboxRepeat.functionString == null) {
       // setup the function to pass to the timeout.
-      _spinboxRepeat.functionString = 
-          "_spinboxRepeat('"+id+"',"+increment+
-          ","+stepSize+","+min+","+max+");";
+      _spinboxRepeat.functionString =
+        "_spinboxRepeat('" +
+        id +
+        "'," +
+        increment +
+        "," +
+        stepSize +
+        "," +
+        min +
+        "," +
+        max +
+        ");";
     }
-    _spinboxRepeat.timer =
-      window.setTimeout(_spinboxRepeat.functionString, 1000);
+    _spinboxRepeat.timer = window.setTimeout(
+      _spinboxRepeat.functionString,
+      1000
+    );
   }
-
 }
 //PH:This method returns the 'event' object
-function _getEventObj()
-{
-  if(typeof(event) == 'undefined')
-    return window.event;
-  else     
-    return event;
-  
+function _getEventObj() {
+  if (typeof event == "undefined") return window.event;
+  else return event;
+
   return null;
 }
 
@@ -4742,29 +3972,26 @@ var TrUIUtils = new Object();
 /**
  * Remove leading and trailing whitespace
  */
-TrUIUtils.trim = function(
-data)
-{
-  if (data != null && (typeof data) == 'string')
-    return data.replace(TrUIUtils._TRIM_ALL_RE, '');
+TrUIUtils.trim = function (data) {
+  if (data != null && typeof data == "string")
+    return data.replace(TrUIUtils._TRIM_ALL_RE, "");
 
   return data;
-}
+};
 
 // regular expression to gather whitespace at beginning and end of line
 TrUIUtils._TRIM_ALL_RE = /^\s*|\s*$/g;
-
 
 /**
  * Creates a function instance that will callback the passed in function
  * with "thisObj" as "this".  This is extremely useful for creating callbacks
  */
-TrUIUtils.createCallback = function(thisObj, func)
-{
+TrUIUtils.createCallback = function (thisObj, func) {
   // create a function that sets up "this" and delegates all of the parameters
   // to the passed in function
   var proxyFunction = new Function(
-    "var f=arguments.callee; return f._func.apply(f._owner, arguments);");
+    "var f=arguments.callee; return f._func.apply(f._owner, arguments);"
+  );
 
   // attach ourselves as "this" to the created function
   proxyFunction._owner = thisObj;
@@ -4773,4 +4000,4 @@ TrUIUtils.createCallback = function(thisObj, func)
   proxyFunction._func = func;
 
   return proxyFunction;
-}
+};

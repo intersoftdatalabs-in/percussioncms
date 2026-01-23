@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- tr: "Türkçe",
- hello: "Merhaba"
-}
+({
+  tr: "Türkçe",
+  hello: "Merhaba",
+});

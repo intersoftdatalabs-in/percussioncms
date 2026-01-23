@@ -2256,6 +2256,30 @@
                     <artifactId>spotless-maven-plugin</artifactId>
                     <version>${spotless.plugin.version}</version>
                     <configuration>
+                        <excludes>
+                            <!-- Global excludes so all formatters ignore generated/vendor files -->
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/node_modules/**</exclude>
+                            <exclude>**/system/target/**</exclude>
+                            <exclude>**/system/**/target/**</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
+                            <!-- Broad dojo exclude to ensure any Dojo paths are ignored across modules -->
+                            <exclude>**/dojo/**</exclude>
+                            <!-- Explicitly exclude specific Dojo i18n files with non-UTF-8 encodings -->
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/hu/gregorian.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/ja/gregorian.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/ko/gregorian.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/zh-cn/gregorian.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/zh-hk/gregorian.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/zh-tw/gregorian.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/zh/gregorian.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/currency/nls/hi/EUR.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/currency/nls/hi/GBP.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/currency/nls/hi/INR.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/currency/nls/ja/GBP.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/widget/nls/ja/validate.js</exclude>
+                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/widget/nls/zh-cn/validate.js</exclude>
+                        </excludes>
                         <upToDateChecking>
                             <enabled>true</enabled>
                             <indexFile>${project.basedir}/spotless-index-file</indexFile>
@@ -2283,9 +2307,59 @@
                                 <!-- You have to set the target manually -->
                                 <include>**/*.md</include>
                             </includes>
-                            <flexmark/>
+                            <excludes>
+                                <!-- Exclude generated and vendor content so docs/node modules aren't reformatted -->
+                                <exclude>**/target/**</exclude>
+                                <exclude>**/node_modules/**</exclude>
+                                <exclude>**/system/target/**</exclude>
+                                <exclude>**/system/**/target/**</exclude>
+                            </excludes>
+                            <flexmark>
+                                <extensions>YamlFrontMatter</extensions>
+                            </flexmark>
                             <!-- has its own section below -->
                         </markdown>
+                        <javascript>
+                            <includes>
+                                <include>**/*.js</include>
+                                <include>**/*.mjs</include>
+                                <include>**/*.cjs</include>
+                                <include>**/*.jsx</include>
+                            </includes>
+                            <excludes>
+                                <!-- Exclude built artifacts, packaged war contents, node modules, and vendor/build fragments that Prettier can't parse -->
+                                <exclude>**/war/**</exclude>
+                                <exclude>**/target/**</exclude>
+                                <exclude>**/node_modules/**</exclude>
+                                <exclude>**/WEB-INF/classes/**</exclude>
+                                <exclude>**/cui/components/jquery/**</exclude>
+                                <exclude>**/cui/components/jquery-migrate/**</exclude>
+                                <exclude>**/cui/components/jquery-ui/**</exclude>
+                                <exclude>**/cui/components/twitter-bootstrap-3.0.0/**</exclude>
+                                <exclude>**/cui/components/dynatree/**</exclude>
+                                <exclude>**/cui/components/pubsub-js/**</exclude>
+                                <exclude>**/cui/components/requirejs/**</exclude>
+                                <exclude>**/cui/components/requirejs-text/**</exclude>
+                                <exclude>**/cui/components/font-awesome-4.1.0/**</exclude>
+                                <exclude>**/cui/components/google-fonts/**</exclude>
+                                <exclude>**/cui/**/build/**</exclude>
+                                <exclude>**/cui/**/dist/**</exclude>
+                                <exclude>**/cui/components/twitter-bootstrap-3.0.0/assets/js/raw-files.js</exclude>
+                                <exclude>**/system/Docs/Rhythmyx_Publishing_Design_Help/dhtml_search.js</exclude>
+                                <exclude>**/*.min.js</exclude>
+                                <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
+                                <exclude>**/dojo/tests/**</exclude>
+                                <!-- Specific legacy Dojo files that Prettier can't parse -->
+                                <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
+                                <!-- Module-relative and generic patterns to ensure hostenv_jsc.js is ignored where it appears -->
+                                <exclude>**/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
+                                <exclude>**/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
+                                <exclude>**/hostenv_jsc.js</exclude>
+                            </excludes>
+                            <prettier>
+                                <prettierVersion>2.8.8</prettierVersion>
+                            </prettier>
+                        </javascript>
                         <pom>
                             <!-- These are the defaults, you can override if you want -->
                             <includes>

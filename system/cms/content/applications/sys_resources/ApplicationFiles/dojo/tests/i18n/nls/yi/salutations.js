@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- yi: "ייִדיש",
- hello: "�?ַ גוטן ט�?ָג"
-}
+({
+  yi: "××Ö´×××©",
+  hello: "×?Ö· ×××× ××?Ö¸×",
+});

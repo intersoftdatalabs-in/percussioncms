@@ -6,9 +6,9 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,14 +20,10 @@
 /**
  * AJAX Request Event class. This object is passed back to the listeners
  * of a AJAX Service Request. It support ITrXMLRequestEvent pseudo-interface
- * with the following methods: getStatus, getResponseXML, getResponseText, 
+ * with the following methods: getStatus, getResponseXML, getResponseText,
  * isPprResponse, getResponseContentType
  */
-function TrXMLRequestEvent(
-  status,
-  request
-  )
-{
+function TrXMLRequestEvent(status, request) {
   this._status = status;
   this._request = request;
 }
@@ -37,114 +33,100 @@ TrXMLRequestEvent.STATUS_SEND_BEFORE = 2;
 TrXMLRequestEvent.STATUS_SEND_AFTER = 3;
 TrXMLRequestEvent.STATUS_COMPLETE = 4;
 
-TrXMLRequestEvent.prototype.getStatus = function()
-{
+TrXMLRequestEvent.prototype.getStatus = function () {
   return this._status;
-}
+};
 
 /**
-* Returns the response of the AJAX Request as an XML document
-* NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
-**/
-TrXMLRequestEvent.prototype.getResponseXML = function()
-{
+ * Returns the response of the AJAX Request as an XML document
+ * NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
+ **/
+TrXMLRequestEvent.prototype.getResponseXML = function () {
   return this._request.getResponseXML();
-}
+};
 
 /**
-* Returns true if the response XML of the AJAX Request is valid.
-* NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
-**/
-TrXMLRequestEvent.prototype._isResponseValidXML = function()
-{         
+ * Returns true if the response XML of the AJAX Request is valid.
+ * NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
+ **/
+TrXMLRequestEvent.prototype._isResponseValidXML = function () {
   // Note: Mozilla applies default XSLT to XML parse error
   var responseDocument = this._request.getResponseXML();
-  if (!responseDocument)
-    return false;
+  if (!responseDocument) return false;
 
   var docElement = responseDocument.documentElement;
-  if (!docElement)
-    return false;
+  if (!docElement) return false;
 
   var nodeName = docElement.nodeName;
-  if (!nodeName)
-    nodeName = docElement.tagName;
+  if (!nodeName) nodeName = docElement.tagName;
 
-  if (nodeName == "parsererror")
-    return false;
+  if (nodeName == "parsererror") return false;
 
   return true;
-}
+};
 
 /**
-* Returns the response of the AJAX Request as text.
-* NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
-**/
-TrXMLRequestEvent.prototype.getResponseText = function()
-{  
+ * Returns the response of the AJAX Request as text.
+ * NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
+ **/
+TrXMLRequestEvent.prototype.getResponseText = function () {
   return this._request.getResponseText();
-}
+};
 
 /**
-* Returns the status code of the xml http AJAX Request.
-* NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
-**/
-TrXMLRequestEvent.prototype.getResponseStatusCode = function()
-{
+ * Returns the status code of the xml http AJAX Request.
+ * NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
+ **/
+TrXMLRequestEvent.prototype.getResponseStatusCode = function () {
   return this._request.getStatus();
-}
+};
 
 /**
-* Returns all the response headers for xml http AJAX Request.
-* NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
-**/
-TrXMLRequestEvent.prototype._getAllResponseHeaders = function()
-{
+ * Returns all the response headers for xml http AJAX Request.
+ * NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
+ **/
+TrXMLRequestEvent.prototype._getAllResponseHeaders = function () {
   return this._request.getAllResponseHeaders();
-}
+};
 
 /**
-* Returns a particular response header for xml http Request.
-* NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
-**/
-TrXMLRequestEvent.prototype.getResponseHeader = function(
-  name
-  )
-{
+ * Returns a particular response header for xml http Request.
+ * NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
+ **/
+TrXMLRequestEvent.prototype.getResponseHeader = function (name) {
   // Note: Mozilla chokes when we ask for a response header that does not exist
   var allHeaders = this._request.getAllResponseHeaders();
-  return (allHeaders.indexOf(name) != -1) ?
-           this._request.getResponseHeader(name)
-           : null;
-}
+  return allHeaders.indexOf(name) != -1
+    ? this._request.getResponseHeader(name)
+    : null;
+};
 
 /**
-* Returns if whether if is a rich response
-* NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
-**/
+ * Returns if whether if is a rich response
+ * NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
+ **/
 // TODO: this should likely be deleted or renamed, as it is
 // not PPR-specific here
-TrXMLRequestEvent.prototype.isPprResponse = function()
-{
+TrXMLRequestEvent.prototype.isPprResponse = function () {
   // todo: do we need to mark rich responses?
   // var responseType = this.getResponseHeader("Tr-XHR-Response-Type");
   var isrich = true;
-  if (isrich && (!this._isResponseValidXML()))
-  {
-    TrRequestQueue._logError("Invalid PPR response."+
-        " The response-headers were:\n"+
+  if (isrich && !this._isResponseValidXML()) {
+    TrRequestQueue._logError(
+      "Invalid PPR response." +
+        " The response-headers were:\n" +
         this._getAllResponseHeaders() +
-        "\n The invalid response was:\n"+
-        this.getResponseText());
+        "\n The invalid response was:\n" +
+        this.getResponseText()
+    );
   }
   return isrich;
-}
+};
 
 /**
-* Returns if whether if is a rich response
-* NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
-**/
-TrXMLRequestEvent.prototype.getResponseContentType = function()
-{
+ * Returns if whether if is a rich response
+ * NOTE: this method is valid only for TrXMLRequestEvent.STATUS_COMPLETE
+ **/
+TrXMLRequestEvent.prototype.getResponseContentType = function () {
   this.getResponseHeader("Content-Type");
-}
+};

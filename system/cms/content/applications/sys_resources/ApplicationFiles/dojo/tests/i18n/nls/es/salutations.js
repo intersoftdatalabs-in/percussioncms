@@ -8,8 +8,8 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- es: "Español",
- hello: "Hola",
- hello_dojo: "¡%{hello}, %{dojo}!"
-}
+({
+  es: "Español",
+  hello: "Hola",
+  hello_dojo: "¡%{hello}, %{dojo}!",
+});

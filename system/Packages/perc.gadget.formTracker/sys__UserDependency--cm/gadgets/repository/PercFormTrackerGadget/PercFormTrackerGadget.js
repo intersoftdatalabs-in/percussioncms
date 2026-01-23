@@ -54,7 +54,7 @@
  *  Total column displays total submissions.
  *  Action column is not sortable.
  *  Navigation controls at the bottom are same as datatable navigation controls
- *  
+ *
  *  (*) Dependencies:
  *  Widgets: in /cm/widgets/
  *  @see PercDataTable.js - thin wrapper around jquery datatable.js plugin
@@ -65,213 +65,248 @@
  *  @see PercDataTable.css - datatable styling specific to all gadgets
  *  @see PercSimpleMenu.css - simple menu styling specific to all gadgets
  */
-(function($) {
-    
-    // constants
-    var CM1_FORM_TYPE = 0, DELIVERY_FORM_TYPE = 1;
-    var CM1_FORM_MENU_LABELS = ["Open Form", "Preview Form", "Export", "Clear"];
-    var DELIVERY_FORM_MENU_LABELS = ["Export", "Clear"];
-    var CM1_FORM_CALLBACKS = [editForm, previewForm, exportForm, clearForm];
-    var DELIVERY_FORM_CALLBACKS = [exportForm, clearForm];
-    var TABLE_HEADER_HEIGHT = 30;
-    var TABLE_ROW_HEIGHT = 45;
-    var TABLE_STATUS_FOOTER_HEIGHT = 45;
-    var itemsPerPage = 5;
-    
-    // access framework
-    var PercServiceUtils = percJQuery.PercServiceUtils;
-    var perc_utils       = percJQuery.perc_utils;
-    var formService      = percJQuery.PercFormService;
-    
-    // state variables
-    var isLargeColumn = true;
-    var oTable;
-    var formTrackerTable;
-    var tableDiv;
-    var siteName;
-    var rowsPerGadgetPage;
-    
-    // API for this library
-    $.fn.PercFormTrackerGadget = function(site,rows) {
-        // never show a scrollbar in the gadget
-        $("body").css("overflow","hidden");
-        if(site==""){
-            var sites = [];
-            $(".perc-listing-type-site", window.parent.document).each(function() {
-                sites.push($(this).find("div.perc-finder-item-name").html());
-            });
-            site = sites[0];
-        }
-        siteName=site;
-        tableDiv = $(this);
+(function ($) {
+  // constants
+  var CM1_FORM_TYPE = 0,
+    DELIVERY_FORM_TYPE = 1;
+  var CM1_FORM_MENU_LABELS = ["Open Form", "Preview Form", "Export", "Clear"];
+  var DELIVERY_FORM_MENU_LABELS = ["Export", "Clear"];
+  var CM1_FORM_CALLBACKS = [editForm, previewForm, exportForm, clearForm];
+  var DELIVERY_FORM_CALLBACKS = [exportForm, clearForm];
+  var TABLE_HEADER_HEIGHT = 30;
+  var TABLE_ROW_HEIGHT = 45;
+  var TABLE_STATUS_FOOTER_HEIGHT = 45;
+  var itemsPerPage = 5;
 
-        if(typeof(rows) ==='undefined'){
-            rowsPerGadgetPage = itemsPerPage;
-        }else{
-            rowsPerGadgetPage = rows;
-        }
+  // access framework
+  var PercServiceUtils = percJQuery.PercServiceUtils;
+  var perc_utils = percJQuery.perc_utils;
+  var formService = percJQuery.PercFormService;
 
-        loadGadget(site);
+  // state variables
+  var isLargeColumn = true;
+  var oTable;
+  var formTrackerTable;
+  var tableDiv;
+  var siteName;
+  var rowsPerGadgetPage;
+
+  // API for this library
+  $.fn.PercFormTrackerGadget = function (site, rows) {
+    // never show a scrollbar in the gadget
+    $("body").css("overflow", "hidden");
+    if (site == "") {
+      var sites = [];
+      $(".perc-listing-type-site", window.parent.document).each(function () {
+        sites.push($(this).find("div.perc-finder-item-name").html());
+      });
+      site = sites[0];
+    }
+    siteName = site;
+    tableDiv = $(this);
+
+    if (typeof rows === "undefined") {
+      rowsPerGadgetPage = itemsPerPage;
+    } else {
+      rowsPerGadgetPage = rows;
+    }
+
+    loadGadget(site);
+  };
+
+  function loadGadget(site) {
+    formService.getAllForms(site, function (status, result, message) {
+      createFormTrackerTable(result, message);
+    });
+  }
+
+  function createFormTrackerTable(formSummaryJson, message) {
+    //If the gadget is in first column then we have to render it as large
+    isLargeColumn = gadgets.window.getDashboardColumn() == 1;
+
+    //var formSummaries = formSummaryJson.FormSummary;
+    var formSummaries = formSummaryJson.ArrayList;
+    if (formSummaries == undefined) {
+      formSummaries = [];
+    }
+
+    var menus = [];
+    var percData = [];
+    for (s = 0; s < formSummaries.length; s++) {
+      var formSummary = formSummaries[s];
+
+      var description = formSummary.description;
+      var id = formSummary.id;
+      var name = formSummary.name;
+      var title = perc_utils.isBlankString(formSummary.title)
+        ? name
+        : formSummary.title;
+      var state = formSummary.state;
+      var type = formSummary.type;
+      var newSubmissions = formSummary.newSubmissions;
+      var totalSubmissions = formSummary.totalSubmissions;
+
+      if (id == undefined || id == "") {
+        menus.push($.PercFormTrackerDeliveryActions);
+      } else {
+        menus.push($.PercFormTrackerCM1Actions);
+      }
+
+      var row = {
+        rowData: {
+          formSummary: formSummary,
+          pageId: formSummary.id,
+          pagePath: formSummary.path,
+        },
+        rowContent: [[title, description], newSubmissions, totalSubmissions],
+      };
+      percData.push(row);
+    }
+    var aoColumns = [
+      { sType: "string" },
+      { sType: "numeric" },
+      { sType: "numeric" },
+    ];
+
+    var percVisibleColumns = null;
+    if (!isLargeColumn) percVisibleColumns = [0, 1];
+
+    var percHeaders = [
+      I18N.message("perc.ui.editSiteSectionDialog.label@Description"),
+      I18N.message("perc.ui.forms.tracker.gadget@New"),
+      I18N.message("perc.ui.forms.tracker.gadget@Total"),
+    ];
+
+    var percColumnWidths = ["*", "38", "40"];
+
+    var config = {
+      percRowDblclickCallback: openForm,
+      percColumnWidths: percColumnWidths,
+      percVisibleColumns: percVisibleColumns,
+      iDisplayLength: rowsPerGadgetPage,
+      percData: percData,
+      percHeaders: percHeaders,
+      aoColumns: aoColumns,
+      percMenus: menus,
+    };
+    config.oLanguage = {
+      sZeroRecords: message != null ? message : "No forms found.",
     };
 
-    function loadGadget(site) {
-        formService.getAllForms(site,function(status, result, message) {
-            createFormTrackerTable(result, message);
+    tableDiv.PercActionDataTable(config);
+
+    miniMsg.dismissMessage(loadingMsg);
+
+    // Fix height 10 pixels for the iframe so the actions menu from the middle fits to open downwards
+    var iframe = this.window.parent.jQuery("div[name='Forms Tracker'] iframe");
+    iframe.height(330);
+  }
+
+  function displayErrorMessage(message) {
+    tableDiv.append(
+      "<div class='perc-gadget-errormessage'>" + message + "</div>"
+    );
+    miniMsg.dismissMessage(loadingMsg);
+  }
+
+  $.PercFormTrackerCM1Actions = {
+    title: "",
+    menuItemsAlign: "left",
+    stayInsideOf: ".perc-datatable",
+    items: [
+      { label: "Open Form", callback: editForm },
+      { label: "Preview Form", callback: previewForm },
+      { label: "<a><div>Export</div></a>", callback: exportForm },
+      { label: "Clear", callback: clearForm },
+    ],
+  };
+
+  $.PercFormTrackerDeliveryActions = {
+    title: "",
+    menuItemsAlign: "left",
+    stayInsideOf: ".perc-datatable",
+    items: [
+      { label: "<a><div>Export</div></a>", callback: exportForm },
+      { label: "Clear", callback: clearForm },
+    ],
+  };
+
+  function editForm(event) {
+    var formSummary = getRowDataFromMenuEvent(event);
+    percJQuery.PercNavigationManager.openAsset(formSummary.formSummary);
+  }
+
+  function openForm(event) {
+    var rowData = event.data;
+    var formSummary = rowData.formSummary;
+    if (formSummary.id == undefined || formSummary.id == "") {
+      //nothing to open
+      return;
+    }
+    percJQuery.PercNavigationManager.openAsset(formSummary);
+  }
+
+  function previewForm(event) {
+    var formSummary = getRowDataFromMenuEvent(event);
+    percJQuery.perc_finder().launchAssetPreview(formSummary.formSummary.id);
+  }
+
+  function exportForm(event) {
+    if (!event.data) return;
+
+    var formName = event.data.formSummary.name;
+    var totalSubmissions = event.data.formSummary.totalSubmissions;
+
+    if (totalSubmissions == 0) return;
+
+    formService.getAllSubmissions(
+      siteName,
+      formName,
+      function (status, result) {
+        if (status == PercServiceUtils.STATUS_SUCCESS) {
+          //
+        } else {
+          perc_utils.alert_dialog({ title: "Error", content: result });
+        }
+        window.location.reload();
+      }
+    );
+  }
+
+  function clearForm(event) {
+    var formSummary = getRowDataFromMenuEvent(event);
+    var formSum = formSummary.formSummary;
+    if (formSum.newSubmissions == formSum.totalSubmissions) {
+      // nothing to clear
+      return;
+    }
+    var formTitle = formSum.title;
+    var formName = formSum.name;
+    var name = !perc_utils.isBlankString(formTitle) ? formTitle : formName;
+    perc_utils.confirm_dialog({
+      title: "Confirm Form Clear",
+      question:
+        "Are you sure you want to clear all exported submissions for form '" +
+        name +
+        "'?",
+      cancel: function () {},
+      success: function () {
+        formService.clearForm(siteName, formName, function (status, result) {
+          if (status == PercServiceUtils.STATUS_SUCCESS) {
+            // noop
+          } else {
+            if (result != undefined && result != "")
+              perc_utils.alert_dialog({ title: "Error", content: result });
+          }
+          window.location.reload();
         });
-    }
-    
-    function createFormTrackerTable(formSummaryJson, message) {
-        //If the gadget is in first column then we have to render it as large 
-        isLargeColumn = gadgets.window.getDashboardColumn() == 1;
-        
-        //var formSummaries = formSummaryJson.FormSummary;
-        var formSummaries = formSummaryJson.ArrayList;
-        if(formSummaries == undefined) {
-            formSummaries = [];
-        }
-        
-        var menus = [];
-        var percData = [];
-        for(s=0; s<formSummaries.length; s++) {
-            var formSummary = formSummaries[s];
-            
-            var description = formSummary.description;
-            var id      = formSummary.id;
-            var name    = formSummary.name;
-            var title   = perc_utils.isBlankString(formSummary.title) ? name : formSummary.title;
-            var state   = formSummary.state;
-            var type    = formSummary.type;
-            var newSubmissions = formSummary.newSubmissions;
-            var totalSubmissions = formSummary.totalSubmissions;
+      },
+    });
+  }
 
-            if(id == undefined || id == "") {
-                menus.push($.PercFormTrackerDeliveryActions);
-            } else {
-                menus.push($.PercFormTrackerCM1Actions);
-            }
-            
-            var row = {rowData : {formSummary : formSummary, pageId : formSummary.id, pagePath : formSummary.path}, rowContent : [[title, description], newSubmissions, totalSubmissions]};
-            percData.push(row);
-        }
-        var aoColumns = [
-            { sType: "string"},
-            { sType: "numeric"},
-            { sType: "numeric"}
-        ];
-
-        var percVisibleColumns = null;
-        if(!isLargeColumn)
-            percVisibleColumns = [0,1];
-
-        var percHeaders = [I18N.message("perc.ui.editSiteSectionDialog.label@Description"), I18N.message("perc.ui.forms.tracker.gadget@New"), I18N.message("perc.ui.forms.tracker.gadget@Total")];
-
-        var percColumnWidths = ["*","38","40"];
-
-        var config = {percRowDblclickCallback : openForm, percColumnWidths : percColumnWidths, percVisibleColumns : percVisibleColumns, iDisplayLength : rowsPerGadgetPage, percData : percData, percHeaders : percHeaders, aoColumns : aoColumns, percMenus : menus};
-        config.oLanguage = { sZeroRecords: (message!= null)? message : "No forms found."};
-        
-        tableDiv.PercActionDataTable(config);
-        
-        miniMsg.dismissMessage(loadingMsg);
-
-        // Fix height 10 pixels for the iframe so the actions menu from the middle fits to open downwards
-        var iframe = this.window.parent.jQuery("div[name='Forms Tracker'] iframe");
-        iframe.height(330);
-    }
-
-    function displayErrorMessage(message) {
-        tableDiv.append("<div class='perc-gadget-errormessage'>" + message + "</div>");
-        miniMsg.dismissMessage(loadingMsg);
-    }
-    
-    $.PercFormTrackerCM1Actions = { title : "", menuItemsAlign : "left", stayInsideOf : ".perc-datatable",
-            items : [
-                {label : "Open Form",    callback : editForm},
-                {label : "Preview Form", callback : previewForm},
-                {label : "<a><div>Export</div></a>",  callback : exportForm},
-                {label : "Clear",   callback : clearForm}
-    ]};
-    
-    $.PercFormTrackerDeliveryActions = { title : "", menuItemsAlign : "left", stayInsideOf : ".perc-datatable",
-            items : [
-                {label : "<a><div>Export</div></a>",  callback : exportForm},
-                {label : "Clear",   callback : clearForm}
-    ]};
-    
-    function editForm(event) {
-        var formSummary = getRowDataFromMenuEvent(event);
-        percJQuery.PercNavigationManager.openAsset(formSummary.formSummary);
-    }
-    
-    function openForm(event) {
-        var rowData = event.data;
-        var formSummary = rowData.formSummary;
-        if(formSummary.id == undefined || formSummary.id == "") {
-            //nothing to open
-            return;
-        }
-        percJQuery.PercNavigationManager.openAsset(formSummary);
-    }
-    
-    function previewForm(event) {
-        var formSummary = getRowDataFromMenuEvent(event);
-        percJQuery.perc_finder().launchAssetPreview(formSummary.formSummary.id);
-    }
-    
-    function exportForm(event) {
-    	if(!event.data)
-    		return;
-
-		var formName = event.data.formSummary.name;
-		var totalSubmissions = event.data.formSummary.totalSubmissions;
-
-        if (totalSubmissions == 0)
-            return;
-
-        formService.getAllSubmissions(siteName,formName, function(status, result) {
-            if(status == PercServiceUtils.STATUS_SUCCESS) {
-                //
-            } else {
-                perc_utils.alert_dialog({title: 'Error', content: result});
-            }
-            window.location.reload();
-        });
-    }
-    
-    function clearForm(event) {
-        var formSummary = getRowDataFromMenuEvent(event);
-        var formSum = formSummary.formSummary;
-        if (formSum.newSubmissions == formSum.totalSubmissions)
-        {
-            // nothing to clear
-            return;
-        }
-        var formTitle = formSum.title;
-        var formName = formSum.name;
-        var name = (!perc_utils.isBlankString(formTitle)) ? formTitle : formName;
-        perc_utils.confirm_dialog({
-           title: 'Confirm Form Clear',
-           question: 'Are you sure you want to clear all exported submissions for form \'' + name + '\'?',
-           cancel:
-               function(){},
-           success:
-               function(){
-                  formService.clearForm(siteName,formName, function(status, result) {
-                      if(status == PercServiceUtils.STATUS_SUCCESS) {
-                          // noop
-                      } else {
-                          if(result != undefined && result != "")
-                              perc_utils.alert_dialog({title: 'Error', content: result});
-                      }
-                      window.location.reload();
-                  });
-               }
-        });
-    }
-    
-    function getRowDataFromMenuEvent(event) {
-        var menuItem = event.currentTarget;
-        var tableRow = $(menuItem).parents(".perc-datatable-row");
-        return tableRow.data("percRowData");
-    }
+  function getRowDataFromMenuEvent(event) {
+    var menuItem = event.currentTarget;
+    var tableRow = $(menuItem).parents(".perc-datatable-row");
+    return tableRow.data("percRowData");
+  }
 })(jQuery);

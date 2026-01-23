@@ -17,34 +17,46 @@ dojo.require("dojo.widget.*");
 dojo.require("dojo.widget.TabContainer");
 dojo.require("dojo.event.*");
 
-dojo.deprecated("dojo.widget.RemoteTabController is slated for removal in 0.5; use PageController or TabController instead.", "0.5");
+dojo.deprecated(
+  "dojo.widget.RemoteTabController is slated for removal in 0.5; use PageController or TabController instead.",
+  "0.5"
+);
 
 dojo.widget.defineWidget(
-    "dojo.widget.RemoteTabController",
-    dojo.widget.TabController,
-	{
-        templateCssPath: dojo.uri.moduleUri("dojo.widget", "templates/RemoteTabControl.css"),
-		templateString: '<div dojoAttachPoint="domNode" wairole="tablist"></div>',
+  "dojo.widget.RemoteTabController",
+  dojo.widget.TabController,
+  {
+    templateCssPath: dojo.uri.moduleUri(
+      "dojo.widget",
+      "templates/RemoteTabControl.css"
+    ),
+    templateString: '<div dojoAttachPoint="domNode" wairole="tablist"></div>',
 
-		"class": "dojoRemoteTabController",
+    class: "dojoRemoteTabController",
 
-		// String
-		//	ID of page container that I connect to
-		tabContainer: "",
-	
-		postMixInProperties: function(){
-			this.containerId = this.tabContainer;
-			dojo.widget.RemoteTabController.superclass.postMixInProperties.apply(this, arguments);
-		},
-			
-		fillInTemplate: function() {
-			dojo.html.addClass(this.domNode, this["class"]);  // "class" is a reserved word in JS
+    // String
+    //	ID of page container that I connect to
+    tabContainer: "",
 
-			if (this.tabContainer) {
-				dojo.addOnLoad(dojo.lang.hitch(this, "setupTabs"));
-			}
+    postMixInProperties: function () {
+      this.containerId = this.tabContainer;
+      dojo.widget.RemoteTabController.superclass.postMixInProperties.apply(
+        this,
+        arguments
+      );
+    },
 
-			dojo.widget.RemoteTabController.superclass.fillInTemplate.apply(this, arguments);
-		}
-	}
+    fillInTemplate: function () {
+      dojo.html.addClass(this.domNode, this["class"]); // "class" is a reserved word in JS
+
+      if (this.tabContainer) {
+        dojo.addOnLoad(dojo.lang.hitch(this, "setupTabs"));
+      }
+
+      dojo.widget.RemoteTabController.superclass.fillInTemplate.apply(
+        this,
+        arguments
+      );
+    },
+  }
 );

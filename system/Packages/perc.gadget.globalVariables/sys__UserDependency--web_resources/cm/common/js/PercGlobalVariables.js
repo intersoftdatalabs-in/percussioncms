@@ -15,31 +15,34 @@
  * limitations under the License.
  */
 
-(function($)
-{
-    $(document).ready(function(){
-        //Add global variable data file dynamically
-        var jsGVFileLocation = $('script[src*="PercGlobalVariables.js"]').attr('src');
-        jsGVFileLocation = jsGVFileLocation.replace('PercGlobalVariables.js', 'PercGlobalVariablesData.js?_');
+(function ($) {
+  $(document).ready(function () {
+    //Add global variable data file dynamically
+    var jsGVFileLocation = $('script[src*="PercGlobalVariables.js"]').attr(
+      "src"
+    );
+    jsGVFileLocation = jsGVFileLocation.replace(
+      "PercGlobalVariables.js",
+      "PercGlobalVariablesData.js?_"
+    );
 
-        $.ajax({
-            url: jsGVFileLocation,
-            datatype: 'script'
-        })
-            .done( function() {
-                $(".perc-global-variable-marker").each(function(){
-                    var curVarElem = $(this);
-                    var gvName = curVarElem.attr("title");
-                    if(gvName)
-                    {
-                        var gvValue = PercGlobalVariablesData[gvName];
-                        curVarElem.html(gvValue);
-                    }
-                    curVarElem.removeAttr("title");
-                });
-            })
-            .fail( function() {
-                console.info('Global Variables not available or not in use.');
-            });
-    });
+    $.ajax({
+      url: jsGVFileLocation,
+      datatype: "script",
+    })
+      .done(function () {
+        $(".perc-global-variable-marker").each(function () {
+          var curVarElem = $(this);
+          var gvName = curVarElem.attr("title");
+          if (gvName) {
+            var gvValue = PercGlobalVariablesData[gvName];
+            curVarElem.html(gvValue);
+          }
+          curVarElem.removeAttr("title");
+        });
+      })
+      .fail(function () {
+        console.info("Global Variables not available or not in use.");
+      });
+  });
 })(jQuery);

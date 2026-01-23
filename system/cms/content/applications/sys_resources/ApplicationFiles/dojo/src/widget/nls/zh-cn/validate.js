@@ -8,4 +8,8 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-({"rangeMessage":"* 输入数�?�超出值域。","invalidMessage":"* �?�法的输入值。","missingMessage":"* 此值是必须的。"})
+({
+  rangeMessage: "* è¾å¥æ°æ?®è¶åºå¼åã",
+  invalidMessage: "* é?æ³çè¾å¥å¼ã",
+  missingMessage: "* æ­¤å¼æ¯å¿é¡»çã",
+});

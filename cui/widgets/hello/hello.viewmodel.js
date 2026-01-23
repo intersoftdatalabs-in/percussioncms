@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-define(['knockout'], function(ko) {
-    return function HelloViewModel(options) {
-        var self = this;
-        
-        // #region public members
-        self.hello = ko.observable('');
-        self.debug = ko.observable(options.debug);
-        self.message = ko.observable('');
-        self.ready = ko.computed(function () {
-            return self.hello().length !== 0;
-        }, self);
-        
-        /**
-         * Initialize the view model.
-         */
-        self.init = function() {
-            self.hello("Contributor");
-        };
-        self.showMessage = function(){
-            self.message("Thanks for clicking me!");
-        };
+define(["knockout"], function (ko) {
+  return function HelloViewModel(options) {
+    var self = this;
+
+    // #region public members
+    self.hello = ko.observable("");
+    self.debug = ko.observable(options.debug);
+    self.message = ko.observable("");
+    self.ready = ko.computed(function () {
+      return self.hello().length !== 0;
+    }, self);
+
+    /**
+     * Initialize the view model.
+     */
+    self.init = function () {
+      self.hello("Contributor");
     };
+    self.showMessage = function () {
+      self.message("Thanks for clicking me!");
+    };
+  };
 });
