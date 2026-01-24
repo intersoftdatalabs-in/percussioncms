@@ -8,292 +8,323 @@
         %HTMLspecial;
 ]>
 
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns="http://www.w3.org/1999/xhtml" xmlns:psxi18n="com.percussion.i18n"
-                extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
-  <xsl:import href="file:sys_resources/stylesheets/assemblers/sys_InlineLinks.xsl"/>
-  <xsl:import href="file:rx_resources/stylesheets/assemblers/rx_InlineLinks.xsl"/>
-  <xsl:import href="file:sys_resources/stylesheets/assemblers/sys_Slots.xsl"/>
-  <xsl:import href="file:rx_resources/stylesheets/assemblers/rx_Slots.xsl"/>
-  <xsl:import href="file:sys_resources/stylesheets/assemblers/sys_ContextTemplates.xsl"/>
-  <xsl:import href="file:sys_resources/stylesheets/assemblers/sys_Globals.xsl"/>
-  <xsl:import href="file:rx_resources/stylesheets/assemblers/rx_Globals.xsl"/>
-  <xsl:output encoding="UTF-8"/>
-  <xsl:variable name="related" select="/*/sys_AssemblerInfo/RelatedContent"/>
-  <xsl:variable name="syscommand" select="//@sys_command"/>
-  <xsl:variable name="this" select="/"/>
-  <xsl:template match="/">
-    <html>
-      <head>
-        <meta content="Percussion XSpLit" name="generator"/>
-        <title>Home Page Type</title>
-      </head>
-
-      <body>
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-          <xsl:apply-templates select="*/displaytitle" mode="mode1"/>
-          <xsl:apply-templates select="*/abstractcontent" mode="mode6"/>
-        </table>
-
-      </body>
-
-    </html>
-
-  </xsl:template>
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:psxi18n="com.percussion.i18n"
+	extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
+	<xsl:import
+		href="file:sys_resources/stylesheets/assemblers/sys_InlineLinks.xsl" />
+	<xsl:import
+		href="file:rx_resources/stylesheets/assemblers/rx_InlineLinks.xsl" />
+	<xsl:import
+		href="file:sys_resources/stylesheets/assemblers/sys_Slots.xsl" />
+	<xsl:import
+		href="file:rx_resources/stylesheets/assemblers/rx_Slots.xsl" />
+	<xsl:import
+		href="file:sys_resources/stylesheets/assemblers/sys_ContextTemplates.xsl" />
+	<xsl:import
+		href="file:sys_resources/stylesheets/assemblers/sys_Globals.xsl" />
+	<xsl:import
+		href="file:rx_resources/stylesheets/assemblers/rx_Globals.xsl" />
+	<xsl:output encoding="UTF-8" />
+	<xsl:variable name="related"
+		select="/*/sys_AssemblerInfo/RelatedContent" />
+	<xsl:variable name="syscommand" select="//@sys_command" />
+	<xsl:variable name="this" select="/" />
+	<xsl:template match="/">
+		<html>
+			<head>
+				<meta content="Percussion XSpLit" name="generator" />
+				<title>Home Page Type</title>
+			</head>
+
+			<body>
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+					<xsl:apply-templates select="*/displaytitle"
+						mode="mode1" />
+					<xsl:apply-templates select="*/abstractcontent"
+						mode="mode6" />
+				</table>
+
+			</body>
+
+		</html>
+
+	</xsl:template>
+
+	<xsl:template match="*">
+		<xsl:choose>
+			<xsl:when test="text()">
+				<xsl:choose>
+					<xsl:when test="@no-escaping">
+						<xsl:value-of disable-output-escaping="yes"
+							select="." />
+					</xsl:when>
+
+					<xsl:otherwise>
+						<xsl:value-of select="." />
+					</xsl:otherwise>
+
+				</xsl:choose>
+
+			</xsl:when>
+
+			<xsl:otherwise>&nbsp;
+			</xsl:otherwise>
+
+		</xsl:choose>
+
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
+
+	</xsl:template>
+
+	<xsl:template match="attribute::*">
+		<xsl:value-of select="." />
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
+
+	</xsl:template>
+
+	<xsl:template match="*" mode="mode0">
+		<xsl:for-each select=".">
+			<tr>
+				<td width="100">&nbsp;
+				</td>
+				<td>
+					<h1>
+						<xsl:choose>
+							<xsl:when test="$syscommand=&apos;editrc&apos;">
+								<span psxedit="displaytitle">
+									<xsl:apply-templates select="." />
+								</span>
+
+							</xsl:when>
+
+							<xsl:otherwise>
+								<xsl:apply-templates select="." />
+							</xsl:otherwise>
+
+						</xsl:choose>
 
-  <xsl:template match="*">
-    <xsl:choose>
-      <xsl:when test="text()">
-        <xsl:choose>
-          <xsl:when test="@no-escaping">
-            <xsl:value-of disable-output-escaping="yes" select="."/>
-          </xsl:when>
+					</h1>
 
-          <xsl:otherwise>
-            <xsl:value-of select="."/>
-          </xsl:otherwise>
+				</td>
 
-        </xsl:choose>
+			</tr>
 
-      </xsl:when>
+		</xsl:for-each>
 
-      <xsl:otherwise>&nbsp;</xsl:otherwise>
+	</xsl:template>
 
-    </xsl:choose>
+	<xsl:template match="*/displaytitle" mode="mode1">
+		<xsl:for-each select=".">
+			<tr>
+				<td>
+					<table align="left" border="0" cellpadding="0"
+						cellspacing="0" width="750">
+						<xsl:apply-templates mode="mode0" select="." />
+					</table>
 
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
+				</td>
 
-  </xsl:template>
+			</tr>
 
-  <xsl:template match="attribute::*">
-    <xsl:value-of select="."/>
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
+		</xsl:for-each>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*" mode="mode0">
-    <xsl:for-each select=".">
-      <tr>
-        <td width="100">&nbsp;</td>
-        <td>
-          <h1>
-            <xsl:choose>
-              <xsl:when test="$syscommand=&apos;editrc&apos;">
-                <span psxedit="displaytitle">
-                  <xsl:apply-templates select="."/>
-                </span>
+	<xsl:template match="*" mode="mode2">
+		<xsl:for-each select=".">
+			<tr>
+				<td>
+					<xsl:choose>
+						<xsl:when test="$syscommand=&apos;editrc&apos;">
+							<span psxedit="abstractcontent">
+								<xsl:apply-templates select="." />
+							</span>
 
-              </xsl:when>
+						</xsl:when>
 
-              <xsl:otherwise>
-                <xsl:apply-templates select="."/>
-              </xsl:otherwise>
+						<xsl:otherwise>
+							<xsl:apply-templates select="." />
+						</xsl:otherwise>
 
-            </xsl:choose>
+					</xsl:choose>
 
-          </h1>
+				</td>
 
-        </td>
+			</tr>
 
-      </tr>
+		</xsl:for-each>
 
-    </xsl:for-each>
+	</xsl:template>
 
-  </xsl:template>
+	<xsl:template
+		match="rxslot[@template=&apos;Related Articles&apos;]" mode="rxslot">
+		<xsl:if test="linkurl">
+			<!-- start snippet wrapper -->
 
-  <xsl:template match="*/displaytitle" mode="mode1">
-    <xsl:for-each select=".">
-      <tr>
-        <td>
-          <table align="left" border="0" cellpadding="0" cellspacing="0" width="750">
-            <xsl:apply-templates mode="mode0" select="."/>
-          </table>
+			<xsl:apply-templates mode="rxcas-1"
+				select="linkurl" />
+			<!-- end snippet wrapper -->
 
-        </td>
+		</xsl:if>
 
-      </tr>
+	</xsl:template>
 
-    </xsl:for-each>
+	<xsl:template match="linkurl" mode="rxcas-1">
+		<span id="psx-homepage/sys_AssemblerInfo" psxeditslot="yes"
+			slotname="Related Articles" template="SimpleTableSlot">Related Articles</span>
+	</xsl:template>
 
-  </xsl:template>
+	<xsl:template match="*" mode="mode3">
+		<xsl:for-each select=".">
+			<tr valign="top">
+				<td>
+					<table border="0" cellpadding="5" cellspacing="0"
+						width="100%">
+						<xsl:apply-templates mode="mode2" select="." />
+						<tr>
+							<td>Featured Articles</td>
+						</tr>
 
-  <xsl:template match="*" mode="mode2">
-    <xsl:for-each select=".">
-      <tr>
-        <td>
-          <xsl:choose>
-            <xsl:when test="$syscommand=&apos;editrc&apos;">
-              <span psxedit="abstractcontent">
-                <xsl:apply-templates select="."/>
-              </span>
+						<tr>
+							<td>
+								<!-- start slot Related Articles -->
 
-            </xsl:when>
+								<xsl:variable name="rxslot-2">
+									<rxslot psxeditslot="yes" slotname="Related Articles"
+										template="SimpleTableSlot">
+										<xsl:copy-of
+											select="$related/linkurl[@slotname=&apos;Related Articles&apos;]" />
+									</rxslot>
 
-            <xsl:otherwise>
-              <xsl:apply-templates select="."/>
-            </xsl:otherwise>
+								</xsl:variable>
 
-          </xsl:choose>
+								<xsl:apply-templates mode="rxslot"
+									select="$rxslot-2" />
+								<!-- end slot Releated Articles -->
 
-        </td>
+							</td>
 
-      </tr>
+						</tr>
 
-    </xsl:for-each>
+					</table>
 
-  </xsl:template>
+				</td>
 
-  <xsl:template match="rxslot[@template=&apos;Related Articles&apos;]" mode="rxslot">
-    <xsl:if test="linkurl">
-      <!--   start snippet wrapper   -->
+			</tr>
 
-      <xsl:apply-templates mode="rxcas-1" select="linkurl"/>
-      <!--   end snippet wrapper   -->
+		</xsl:for-each>
 
-    </xsl:if>
+	</xsl:template>
 
-  </xsl:template>
+	<xsl:template match="*" mode="mode4">
+		<xsl:for-each select=".">
+			<tr valign="top">
+				<td colspan="4">
+					<table border="0" cellpadding="0" cellspacing="0"
+						width="100%">
+						<xsl:apply-templates mode="mode3" select="." />
+					</table>
 
-  <xsl:template match="linkurl" mode="rxcas-1">
-    <span id="psx-homepage/sys_AssemblerInfo" psxeditslot="yes" slotname="Related Articles" template="SimpleTableSlot">Related Articles</span>
-  </xsl:template>
+				</td>
 
-  <xsl:template match="*" mode="mode3">
-    <xsl:for-each select=".">
-      <tr valign="top">
-        <td>
-          <table border="0" cellpadding="5" cellspacing="0" width="100%">
-            <xsl:apply-templates mode="mode2" select="."/>
-            <tr>
-              <td>Featured Articles</td>
-            </tr>
+			</tr>
 
-            <tr>
-              <td>
-                <!--   start slot Related Articles   -->
+		</xsl:for-each>
 
-                <xsl:variable name="rxslot-2">
-                  <rxslot psxeditslot="yes" slotname="Related Articles" template="SimpleTableSlot">
-                    <xsl:copy-of select="$related/linkurl[@slotname=&apos;Related Articles&apos;]"/>
-                  </rxslot>
+	</xsl:template>
 
-                </xsl:variable>
+	<xsl:template
+		match="rxslot[@template=&apos;Sidebar Index&apos;]" mode="rxslot">
+		<xsl:if test="linkurl">
+			<!-- start snippet wrapper -->
 
-                <xsl:apply-templates mode="rxslot" select="$rxslot-2"/>
-                <!--   end slot Releated Articles   -->
+			<xsl:apply-templates mode="rxcas-3"
+				select="linkurl" />
+			<!-- end snippet wrapper -->
 
-              </td>
+		</xsl:if>
 
-            </tr>
+	</xsl:template>
 
-          </table>
+	<xsl:template match="linkurl" mode="rxcas-3">
+		<span id="psx-homepage/sys_AssemblerInfo" psxeditslot="yes"
+			slotname="Sidebar Index" template="SimpleTableSlot">Sidebar here</span>
+	</xsl:template>
 
-        </td>
+	<xsl:template match="*" mode="mode5">
+		<xsl:for-each select=".">
+			<tr>
+				<td valign="top" width="65%">
+					<table border="0" cellpadding="0" cellspacing="0">
+						<xsl:apply-templates mode="mode4" select="." />
+					</table>
 
-      </tr>
+				</td>
 
-    </xsl:for-each>
+				<td valign="top" width="20%">
+					<table border="1" valign="top">
+						<tr>
+							<th>Sidebar Slot</th>
+						</tr>
 
-  </xsl:template>
+						<tr>
+							<td>
+								<!-- start slot Related Articles -->
 
-  <xsl:template match="*" mode="mode4">
-    <xsl:for-each select=".">
-      <tr valign="top">
-        <td colspan="4">
-          <table border="0" cellpadding="0" cellspacing="0" width="100%">
-            <xsl:apply-templates mode="mode3" select="."/>
-          </table>
+								<xsl:variable name="rxslot-4">
+									<rxslot psxeditslot="yes" slotname="Sidebar Index"
+										template="SimpleTableSlot">
+										<xsl:copy-of
+											select="$related/linkurl[@slotname=&apos;Sidebar Index&apos;]" />
+									</rxslot>
 
-        </td>
+								</xsl:variable>
 
-      </tr>
+								<xsl:apply-templates mode="rxslot"
+									select="$rxslot-4" />
+								<!-- end slot Releated Articles -->
 
-    </xsl:for-each>
+							</td>
 
-  </xsl:template>
+						</tr>
 
-  <xsl:template match="rxslot[@template=&apos;Sidebar Index&apos;]" mode="rxslot">
-    <xsl:if test="linkurl">
-      <!--   start snippet wrapper   -->
+					</table>
 
-      <xsl:apply-templates mode="rxcas-3" select="linkurl"/>
-      <!--   end snippet wrapper   -->
+				</td>
 
-    </xsl:if>
+			</tr>
 
-  </xsl:template>
+		</xsl:for-each>
 
-  <xsl:template match="linkurl" mode="rxcas-3">
-    <span id="psx-homepage/sys_AssemblerInfo" psxeditslot="yes" slotname="Sidebar Index" template="SimpleTableSlot">Sidebar here</span>
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*" mode="mode5">
-    <xsl:for-each select=".">
-      <tr>
-        <td valign="top" width="65%">
-          <table border="0" cellpadding="0" cellspacing="0">
-            <xsl:apply-templates mode="mode4" select="."/>
-          </table>
+	<xsl:template match="*/abstractcontent" mode="mode6">
+		<xsl:for-each select=".">
+			<tr>
+				<td>
+					<table border="0" cellpadding="0" cellspacing="0" width="750">
+						<xsl:apply-templates mode="mode5" select="." />
+					</table>
 
-        </td>
+				</td>
 
-        <td valign="top" width="20%">
-          <table border="1" valign="top">
-            <tr>
-              <th>Sidebar Slot</th>
-            </tr>
+			</tr>
 
-            <tr>
-              <td>
-                <!--   start slot Related Articles   -->
+		</xsl:for-each>
 
-                <xsl:variable name="rxslot-4">
-                  <rxslot psxeditslot="yes" slotname="Sidebar Index" template="SimpleTableSlot">
-                    <xsl:copy-of select="$related/linkurl[@slotname=&apos;Sidebar Index&apos;]"/>
-                  </rxslot>
+	</xsl:template>
 
-                </xsl:variable>
+	<xsl:template
+		match="*[div/@class=&apos;rxbodyfield&apos;]">
+		<xsl:apply-templates mode="rxbodyfield" select="*" />
+	</xsl:template>
 
-                <xsl:apply-templates mode="rxslot" select="$rxslot-4"/>
-                <!--   end slot Releated Articles   -->
-
-              </td>
-
-            </tr>
-
-          </table>
-
-        </td>
-
-      </tr>
-
-    </xsl:for-each>
-
-  </xsl:template>
-
-  <xsl:template match="*/abstractcontent" mode="mode6">
-    <xsl:for-each select=".">
-      <tr>
-        <td>
-          <table border="0" cellpadding="0" cellspacing="0" width="750">
-            <xsl:apply-templates mode="mode5" select="."/>
-          </table>
-
-        </td>
-
-      </tr>
-
-    </xsl:for-each>
-
-  </xsl:template>
-
-  <xsl:template match="*[div/@class=&apos;rxbodyfield&apos;]">
-    <xsl:apply-templates mode="rxbodyfield" select="*"/>
-  </xsl:template>
-
-  <xsl:template match="sys_AssemblerInfo"/>
+	<xsl:template match="sys_AssemblerInfo" />
 </xsl:stylesheet>
