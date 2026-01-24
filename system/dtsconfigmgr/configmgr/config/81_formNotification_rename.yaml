@@ -1,9 +1,9 @@
 - Name: 81copyFormNotification
-  Class : com.percussion.service.conf.tasks.impl.PSConfigTaskFileCopy
+  Class: com.percussion.service.conf.tasks.impl.PSConfigTaskFileCopy
   RunFrequency: ON_CONTAINER_REFRESH
   RunAtState: BEFORE_CM1_STARTUP
-  RunInEnv :
-     - DOCKER_INITIAL_STARTUP
+  RunInEnv:
+    - DOCKER_INITIAL_STARTUP
   Parameters:
     Action: copy
     Type: file
