@@ -2475,6 +2475,8 @@
                                     <exclude>**/war/**</exclude>
                                     <exclude>**/WEB-INF/**</exclude>
                                     <exclude>**/src/test/resources/**/*.json</exclude>
+                                    <!-- Exclude specific legacy/third-party JSON that Prettier can't safely format -->
+                                    <exclude>modules/jcadf-master/audit_events.json</exclude>
                                 </excludes>
                                 <prettier>
                                     <prettierVersion>2.8.8</prettierVersion>
