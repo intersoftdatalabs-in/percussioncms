@@ -1,7 +1,7 @@
 
 
 <jboss-web>
-   <class-loading> 
-    <loader-repository>percussion.com:loader=rxservices.war</loader-repository>
-   </class-loading>
-</jboss-web> 
+	<class-loading>
+		<loader-repository>percussion.com:loader=rxservices.war</loader-repository>
+	</class-loading>
+</jboss-web>

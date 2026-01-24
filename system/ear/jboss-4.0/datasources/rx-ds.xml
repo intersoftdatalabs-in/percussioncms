@@ -23,10 +23,10 @@
 		<driver-class>@DRIVER@</driver-class>
 		<user-name>@USER@</user-name>
 		<password>@PASSWORD@</password>
-		<!-- sql to call when connection is created <new-connection-sql>some arbitrary 
+		<!-- sql to call when connection is created <new-connection-sql>some arbitrary
 			sql</new-connection-sql> -->
 
-		<!-- sql to call on an existing pooled connection when it is obtained from 
+		<!-- sql to call on an existing pooled connection when it is obtained from
 			pool <check-valid-connection-sql>some arbitrary sql</check-valid-connection-sql> -->
 
 		<!-- corresponding type-mapping in the standardjbosscmp-jdbc.xml (optional) -->

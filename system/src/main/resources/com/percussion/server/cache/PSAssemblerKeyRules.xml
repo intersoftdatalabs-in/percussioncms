@@ -1,30 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 
-<!--
-   $Id: PSAssemblerKeyRules.xml 1.1 2002/06/18 12:46:52Z JaySeletz Exp $
+<!-- $Id: PSAssemblerKeyRules.xml 1.1 2002/06/18 12:46:52Z JaySeletz Exp
+	$ Version Labels : $Name: $ Locked By : $Locker: $ Revision History: $Log:
+	PSAssemblerKeyRules.xml $ Revision 1.1 2002/06/18 12:46:52Z JaySeletz Initial
+	revision -->
 
-   Version Labels : $Name: $
-   Locked By      : $Locker: $
-
-   Revision History:
-      $Log: PSAssemblerKeyRules.xml $
-      Revision 1.1  2002/06/18 12:46:52Z  JaySeletz
-      Initial revision
--->
-
-<!--
-  Defines rules for optional assembler cache key inclusions.  See 
-  com.percussion.server.cache.PSKeyRules for more information.
--->
+<!-- Defines rules for optional assembler cache key inclusions. See com.percussion.server.cache.PSKeyRules
+	for more information. -->
 <PSXKeyRules>
-   <KeyRule keyName="sessionid">
-      <PSXRule boolean="and">
-         <PSXExtensionCallSet id="0">
-            <PSXExtensionCall id="1">
-               <name>Java/global/percussion/contentassembler/sys_casCacheBySessionRule</name>
-            </PSXExtensionCall>
-         </PSXExtensionCallSet>
-      </PSXRule>
-   </KeyRule>
+	<KeyRule keyName="sessionid">
+		<PSXRule boolean="and">
+			<PSXExtensionCallSet id="0">
+				<PSXExtensionCall id="1">
+					<name>Java/global/percussion/contentassembler/sys_casCacheBySessionRule</name>
+				</PSXExtensionCall>
+			</PSXExtensionCallSet>
+		</PSXRule>
+	</KeyRule>
 </PSXKeyRules>

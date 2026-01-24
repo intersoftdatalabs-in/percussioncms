@@ -67,9 +67,12 @@
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                        --add-opens java.base/sun.security.ssl=ALL-UNNAMED
-                        --add-opens java.base/sun.security.util=ALL-UNNAMED</argLine>
+						--add-opens
+						java.base/java.util=ALL-UNNAMED
+						--add-opens
+						java.base/sun.security.ssl=ALL-UNNAMED
+						--add-opens
+						java.base/sun.security.util=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
         </plugins>

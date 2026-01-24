@@ -1,12 +1,11 @@
 
 
-<beans xmlns="http://www.springframework.org/schema/beans"
->
-       
-	<bean id="sys_designObjectAuditConfig" 
+<beans xmlns="http://www.springframework.org/schema/beans">
+
+	<bean id="sys_designObjectAuditConfig"
 		class="com.percussion.services.audit.data.PSDesignObjectAuditConfig">
-		<property name="enabled" value="true"/>
-		<property name="logRetentionDays" value="30"/>   
+		<property name="enabled" value="true" />
+		<property name="logRetentionDays" value="30" />
 	</bean>
-	
+
 </beans>

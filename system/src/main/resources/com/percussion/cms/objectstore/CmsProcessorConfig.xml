@@ -5,20 +5,26 @@
 	<!-- Conforms schema sys_CmsProcessorConfig.xsd -->
 	<CmsComponent type="PSFolder">
 		<Processors>
-			<Processor type="webservice" className="com.percussion.cms.objectstore.ws.PSWsFolderProcessor"/>
-			<Processor type="remote" className="com.percussion.cms.objectstore.ws.PSRemoteFolderProcessor"/>
-			<Processor type="local" className="com.percussion.server.webservices.PSServerFolderProcessor"/>
+			<Processor type="webservice"
+				className="com.percussion.cms.objectstore.ws.PSWsFolderProcessor" />
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.ws.PSRemoteFolderProcessor" />
+			<Processor type="local"
+				className="com.percussion.server.webservices.PSServerFolderProcessor" />
 		</Processors>
 	</CmsComponent>
 	<CmsComponent type="Relationship">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRelationshipProcessor"/>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSRelationshipProcessor"/>
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRelationshipProcessor" />
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSRelationshipProcessor" />
 		</Processors>
 	</CmsComponent>
 	<CmsComponent type="PSSearchCollection">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_DisplayFormats/getSearches.xml</Value>
 				</Property>
@@ -39,7 +45,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSDisplayFormatCollection">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_DisplayFormats/getDisplayFormats.html</Value>
 				</Property>
@@ -56,7 +63,8 @@
 					<Value>PSXDbComponentCollection</Value>
 				</Property>
 			</Processor>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 				<Property name="loadResource">
 					<Value>sys_DisplayFormats/getDisplayFormats.html</Value>
 				</Property>
@@ -77,7 +85,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSDisplayFormat">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_DisplayFormats/getDisplayFormats.html</Value>
 				</Property>
@@ -94,7 +103,8 @@
 					<Value>PSXDbComponentCollection</Value>
 				</Property>
 			</Processor>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 				<Property name="loadResource">
 					<Value>sys_DisplayFormats/getDisplayFormats.html</Value>
 				</Property>
@@ -115,7 +125,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSSearch">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_DisplayFormats/getSearches.xml</Value>
 				</Property>
@@ -132,7 +143,8 @@
 					<Value>PSXDbComponentCollection</Value>
 				</Property>
 			</Processor>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 				<Property name="loadResource">
 					<Value>sys_DisplayFormats/getSearches.xml</Value>
 				</Property>
@@ -153,7 +165,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSAction">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/QueryActions.html</Value>
 				</Property>
@@ -170,7 +183,8 @@
 					<Value>Actions</Value>
 				</Property>
 			</Processor>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/QueryActions.html</Value>
 				</Property>
@@ -191,7 +205,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSMenuMode">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/menuMode.xml</Value>
 				</Property>
@@ -203,7 +218,8 @@
 				</Property>
 			</Processor>
 		</Processors>
-		<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+		<Processor type="local"
+			className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 			<Property name="loadResource">
 				<Value>sys_psxCms/menuMode.xml</Value>
 			</Property>
@@ -217,7 +233,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSComponentSummaries">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/ComponentSummaries.xml</Value>
 				</Property>
@@ -225,7 +242,8 @@
 					<Value>PSXComponentSummaries</Value>
 				</Property>
 			</Processor>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/ComponentSummaries.xml</Value>
 				</Property>
@@ -237,7 +255,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSContentTypeVariantSet">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/PSContentTypeVariantSet.xml</Value>
 				</Property>
@@ -245,7 +264,8 @@
 					<Value>PSXContentTypeVariantSet</Value>
 				</Property>
 			</Processor>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/PSContentTypeVariantSet.xml</Value>
 				</Property>
@@ -257,7 +277,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSSlotTypeSet">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/PSSlotTypeSet.xml</Value>
 				</Property>
@@ -265,7 +286,8 @@
 					<Value>PSXSlotTypeSet</Value>
 				</Property>
 			</Processor>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/PSSlotTypeSet.xml</Value>
 				</Property>
@@ -277,7 +299,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSContentTypeSet">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/PSContentTypeSet.xml</Value>
 				</Property>
@@ -285,7 +308,8 @@
 					<Value>PSXContentTypeSet</Value>
 				</Property>
 			</Processor>
-			<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+			<Processor type="local"
+				className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/PSContentTypeSet.xml</Value>
 				</Property>
@@ -297,7 +321,8 @@
 	</CmsComponent>
 	<CmsComponent type="PSMenuContext">
 		<Processors>
-			<Processor type="remote" className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
+			<Processor type="remote"
+				className="com.percussion.cms.objectstore.client.PSRemoteProcessor">
 				<Property name="loadResource">
 					<Value>sys_psxCms/menuModeContext.xml</Value>
 				</Property>
@@ -309,7 +334,8 @@
 				</Property>
 			</Processor>
 		</Processors>
-		<Processor type="local" className="com.percussion.cms.objectstore.server.PSLocalProcessor">
+		<Processor type="local"
+			className="com.percussion.cms.objectstore.server.PSLocalProcessor">
 			<Property name="loadResource">
 				<Value>sys_psxCms/menuModeContext.xml</Value>
 			</Property>

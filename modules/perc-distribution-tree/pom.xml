@@ -204,10 +204,8 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
-                    <!--
-                The jetty-home artifact is the starting point for the jetty-distribution
-                and must happen early in the build process
-                -->
+                    <!-- The jetty-home artifact is the starting point for the jetty-distribution
+						and must happen early in the build process -->
                     <execution>
                         <id>copy</id>
                         <goals>
@@ -433,9 +431,8 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
-                    <!--
-        Setup the jetty distribution as a jetty.home/jetty.base combo using start.ini configuration mechanism
-        -->
+                    <!-- Setup the jetty distribution as a jetty.home/jetty.base combo using
+						start.ini configuration mechanism -->
                     <execution>
                         <id>setup-home</id>
                         <goals>

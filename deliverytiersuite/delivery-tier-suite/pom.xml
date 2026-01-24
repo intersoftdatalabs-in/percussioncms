@@ -10,7 +10,8 @@
     <groupId>com.percussion.deliverytier</groupId>
     <artifactId>delivery-tier-suite</artifactId>
     <packaging>pom</packaging>
-    <description>The top level pom for constructing the DTS, this pom will go out and build each of the individual projects.</description>
+    <description>The top level pom for constructing the DTS, this pom will
+		go out and build each of the individual projects.</description>
     <modules>
         <module>perc-shared-app</module>
         <module>tomcat-common</module>
@@ -22,7 +23,7 @@
         <module>metadata</module>
         <module>polls</module>
         <module>secure-membership</module>
-        <!--   <module>integrations</module> -->
+        <!-- <module>integrations</module> -->
         <module>delivery-tier-distribution</module>
     </modules>
     <properties>
@@ -32,7 +33,7 @@
         <disruptor.version>4.0.0</disruptor.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache-core.version>3.10.8</ehcache-core.version>
-        <!-- Overrides Parent-->
+        <!-- Overrides Parent -->
         <install.jre.version>8.222.10.1</install.jre.version>
         <javadocs.skip>false</javadocs.skip>
         <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
@@ -50,7 +51,7 @@
         <servlet.api.version>6.0.0</servlet.api.version>
         <servlet.spec>6.0.0</servlet.spec>
         <spring.security.version>7.0.2</spring.security.version>
-        <!-- Overrides Parent-->
+        <!-- Overrides Parent -->
         <spring.version>7.0.2</spring.version>
         <sqlserver.version>13.3.0.jre11-preview</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>

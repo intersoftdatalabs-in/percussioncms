@@ -2256,30 +2256,6 @@
                     <artifactId>spotless-maven-plugin</artifactId>
                     <version>${spotless.plugin.version}</version>
                     <configuration>
-                        <excludes>
-                            <!-- Global excludes so all formatters ignore generated/vendor files -->
-                            <exclude>**/target/**</exclude>
-                            <exclude>**/node_modules/**</exclude>
-                            <exclude>**/system/target/**</exclude>
-                            <exclude>**/system/**/target/**</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
-                            <!-- Broad dojo exclude to ensure any Dojo paths are ignored across modules -->
-                            <exclude>**/dojo/**</exclude>
-                            <!-- Explicitly exclude specific Dojo i18n files with non-UTF-8 encodings -->
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/hu/gregorian.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/ja/gregorian.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/ko/gregorian.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/zh-cn/gregorian.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/zh-hk/gregorian.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/zh-tw/gregorian.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/calendar/nls/zh/gregorian.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/currency/nls/hi/EUR.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/currency/nls/hi/GBP.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/currency/nls/hi/INR.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/i18n/currency/nls/ja/GBP.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/widget/nls/ja/validate.js</exclude>
-                            <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/widget/nls/zh-cn/validate.js</exclude>
-                        </excludes>
                         <upToDateChecking>
                             <enabled>true</enabled>
                             <indexFile>${project.basedir}/spotless-index-file</indexFile>
@@ -2387,6 +2363,152 @@
                                 <sortExecutions>false</sortExecutions>
                             </sortPom>
                         </pom>
+                        <formats>
+                            <format>
+                                <includes>
+                                    <include>**/src/main/resources/**/*.xml</include>
+                                    <include>**/src/main/resources/**/*.xsl</include>
+                                    <include>**/src/main/resources/**/*.xslt</include>
+                                    <include>**/src/main/webapp/**/*.xml</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/system/Docs/**</exclude>
+                                    <exclude>**/WEB-INF/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <exclude>**/UnitTestResources/**</exclude>
+                                    <exclude>modules/extensions-main/src/main/resources/Java/Extensions.xml</exclude>
+                                    <exclude>**/src/main/resources/Java/**</exclude>
+                                    <exclude>modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/data/RxffTableData.xml</exclude>
+                                    <exclude>modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/data/**</exclude>
+                                    <exclude>**/src/main/resources/distribution/rxconfig/Installer/data/**</exclude>
+                                    <exclude>**/distribution/rxconfig/Installer/data/**</exclude>
+                                </excludes>
+                                <eclipseWtp>
+                                    <type>XML</type>
+                                </eclipseWtp>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                            <format>
+                                <includes>
+                                    <include>**/*.html</include>
+                                    <include>**/*.htm</include>
+                                    <include>**/*.xhtml</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <exclude>**/*.jsp</exclude>
+                                    <!-- Exclude docs with legacy encodings to avoid UTF-8 checks -->
+                                    <exclude>**/system/Docs/**</exclude>
+                                    <exclude>**/Docs/**</exclude>
+                                    <!-- Exclude legacy Dojo vendor files that Prettier/Spotless can't parse -->
+                                    <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
+                                    <!-- Exclude vendor-provided component templates (may include templating tags) -->
+                                    <exclude>**/cui/components/**</exclude>
+                                    <!-- Exclude HTML files under test resources to avoid formatting issues in test fixtures -->
+                                    <exclude>**/src/test/resources/**/*.html</exclude>
+                                    <!-- Exclude third-party libraries and demo assets that may contain non-standard or templated HTML -->
+                                    <exclude>**/lib-js/**</exclude>
+                                    <exclude>**/demo/**</exclude>
+                                    <!-- Exclude rich text editor/tinymce plugin docs and vendor docs that Prettier can't parse safely -->
+                                    <exclude>**/sys_resources/tinymce/**</exclude>
+                                    <exclude>**/tinymce/**</exclude>
+                                    <!-- Exclude HTML files under test Java sources (test fixtures embedded in java) -->
+                                    <exclude>**/src/test/java/**/*.html</exclude>
+                                    <!-- Exclude legacy system tutorial and designer files that use non-standard HTML constructs -->
+                                    <exclude>**/system/Designer/**</exclude>
+                                    <exclude>**/system/**/Tutorial/**</exclude>
+                                    <!-- Exclude large collections of legacy/release documentation that contain non-standard HTML -->
+                                    <exclude>**/system/ReleasedDocuments/**</exclude>
+                                    <exclude>**/system/FastForward/**</exclude>
+                                    <!-- Exclude system content (many legacy HTML files that Prettier can't safely parse) -->
+                                    <exclude>**/system/**</exclude>
+                                    <!-- Exclude system release documentation and legacy release materials -->
+                                    <exclude>**/system/release/**</exclude>
+                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
+                                </excludes>
+                                <prettier>
+                                    <prettierVersion>2.8.8</prettierVersion>
+                                </prettier>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                            <!-- Format CSS/SCSS/LESS files using Prettier -->
+                            <format>
+                                <includes>
+                                    <include>**/*.css</include>
+                                    <include>**/*.scss</include>
+                                    <include>**/*.less</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <!-- exclude vendor/component libraries and test fixtures -->
+                                    <exclude>**/cui/components/**</exclude>
+                                    <exclude>**/lib-js/**</exclude>
+                                    <exclude>**/demo/**</exclude>
+                                    <exclude>**/src/test/resources/**/*.css</exclude>
+                                    <exclude>**/src/test/resources/**/*.scss</exclude>
+                                    <exclude>**/src/test/java/**/*.css</exclude>
+                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
+                                </excludes>
+                                <prettier>
+                                    <prettierVersion>2.8.8</prettierVersion>
+                                </prettier>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                            <!-- Format JSON files using Prettier -->
+                            <format>
+                                <includes>
+                                    <include>**/*.json</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <exclude>**/war/**</exclude>
+                                    <exclude>**/WEB-INF/**</exclude>
+                                    <exclude>**/src/test/resources/**/*.json</exclude>
+                                </excludes>
+                                <prettier>
+                                    <prettierVersion>2.8.8</prettierVersion>
+                                </prettier>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                            <!-- Format YAML files using Prettier -->
+                            <format>
+                                <includes>
+                                    <include>**/*.yml</include>
+                                    <include>**/*.yaml</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <exclude>**/src/test/resources/**/*.yml</exclude>
+                                    <exclude>**/src/test/resources/**/*.yaml</exclude>
+                                </excludes>
+                                <prettier>
+                                    <prettierVersion>2.8.8</prettierVersion>
+                                </prettier>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                        </formats>
+                        <lintSuppressions>
+                            <lintSuppression>
+                                <path>*</path>
+                                <step>eclipseWtp</step>
+                                <shortCode>*</shortCode>
+                            </lintSuppression>
+                        </lintSuppressions>
                     </configuration>
                     <dependencies>
                         <dependency>

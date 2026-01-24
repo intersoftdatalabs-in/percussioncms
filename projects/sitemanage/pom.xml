@@ -327,13 +327,15 @@
             <scope>compile</scope>
         </dependency>
         <!-- Use version managed in parent; if IDE still complains, pin to property -->
-        <!-- Pin commons-io to parent-managed version; fallback to property already defined in root -->
+        <!-- Pin commons-io to parent-managed version; fallback to property already
+			defined in root -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- Force IDE to refresh Maven dependencies by adding a harmless property change -->
+        <!-- Force IDE to refresh Maven dependencies by adding a harmless property
+			change -->
         <!-- m2e sometimes caches missing artifacts; this nudge helps it re-resolve -->
         <dependency>
             <groupId>org.slf4j</groupId>

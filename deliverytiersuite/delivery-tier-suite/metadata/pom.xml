@@ -290,7 +290,7 @@
                         <configuration>
                             <container>
                                 <containerId>tomcat7x</containerId>
-                                <!-- <type>embedded</type>-->
+                                <!-- <type>embedded</type> -->
                                 <zipUrlInstaller>
                                     <url>http://repo1.maven.org/maven2/org/apache/tomcat/tomcat/7.0.68/tomcat-7.0.68.zip</url>
                                 </zipUrlInstaller>
@@ -305,10 +305,10 @@
                                 <properties>
                                     <cargo.servlet.port>8080</cargo.servlet.port>
                                     <cargo.datasource.datasource.derby>cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
-                                        cargo.datasource.url=jdbc:derby:derbyDB;create=true|
-                                        cargo.datasource.jndi=jdbc/CargoDS|
-                                        cargo.datasource.username=APP|
-                                        cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
+										cargo.datasource.url=jdbc:derby:derbyDB;create=true|
+										cargo.datasource.jndi=jdbc/CargoDS|
+										cargo.datasource.username=APP|
+										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
                                 </properties>
                             </configuration>
                             <packager>
