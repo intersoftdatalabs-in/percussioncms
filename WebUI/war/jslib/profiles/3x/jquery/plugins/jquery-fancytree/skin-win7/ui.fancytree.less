@@ -36,7 +36,6 @@
 // Import common styles
 @import "../skin-common.less";
 
-
 /*******************************************************************************
  * Styles specific to this skin.
  *
@@ -46,15 +45,15 @@
 // Override the variable after the import.
 // NOTE: Variables are always resolved as the last definition, even if it is
 // after where it is used.
-@fancy-use-sprites: true;      // false: suppress all background images (i.e. icons)
+@fancy-use-sprites: true; // false: suppress all background images (i.e. icons)
 
-@fancy-line-height: 20px;      // height of a nodes selection bar including borders
-@fancy-node-v-spacing: 1px;    // gap between two node borders
+@fancy-line-height: 20px; // height of a nodes selection bar including borders
+@fancy-node-v-spacing: 1px; // gap between two node borders
 @fancy-icon-width: 16px;
 @fancy-icon-height: 16px;
-@fancy-icon-spacing: 3px;      // margin between icon/icon or icon/title
-@fancy-icon-ofs-top: 2px;      // extra vertical offset for expander, checkbox and icon
-@fancy-title-ofs-top: 0px;     // extra vertical offset for title
+@fancy-icon-spacing: 3px; // margin between icon/icon or icon/title
+@fancy-icon-ofs-top: 2px; // extra vertical offset for expander, checkbox and icon
+@fancy-title-ofs-top: 0px; // extra vertical offset for title
 @fancy-node-border-width: 1px;
 @fancy-node-border-radius: 3px;
 @fancy-node-outline-width: 1px;
@@ -69,9 +68,7 @@
 // instead of linking to that file:
 // @fancy-inline-sprites: true;
 
-
 ul.fancytree-container {
-
 }
 
 /*******************************************************************************
@@ -82,28 +79,28 @@ span.fancytree-title {
 // active nodes inside an UN-focused tree are gray instead of blue
 span.fancytree-active .fancytree-title,
 span.fancytree-selected .fancytree-title {
-    .spanStyleMixin(inherit, #e5e5e5, #d9d9d9, #fafafb, #e5e5e5);
+  .spanStyleMixin(inherit, #e5e5e5, #d9d9d9, #fafafb, #e5e5e5);
 }
 span.fancytree-selected .fancytree-title {
-    font-style: italic;
+  font-style: italic;
 }
 // Markers inside an active tree
 .fancytree-treefocus {
-    span.fancytree-active .fancytree-title,
-    span.fancytree-selected .fancytree-title {
-        .spanStyleMixin(inherit, #f6fbfd, #99defd, #f6fbfd, #d5effc);
-    }
-    span.fancytree-focused span.fancytree-title {
-        border: @fancy-node-border-width solid #719acb;
-    }
+  span.fancytree-active .fancytree-title,
+  span.fancytree-selected .fancytree-title {
+    .spanStyleMixin(inherit, #f6fbfd, #99defd, #f6fbfd, #d5effc);
+  }
+  span.fancytree-focused span.fancytree-title {
+    border: @fancy-node-border-width solid #719acb;
+  }
 }
 // Hover is always colored (even if tree is inactive)
 span.fancytree-title:hover {
-    .spanStyleMixin(inherit, #f8fcfe, #d8f0fa, #f8fcfe, #eff9fe);
+  .spanStyleMixin(inherit, #f8fcfe, #d8f0fa, #f8fcfe, #eff9fe);
 }
 span.fancytree-active .fancytree-title:hover,
 span.fancytree-selected .fancytree-title:hover {
-    .spanStyleMixin(inherit, #f2f9fd, #719acb, #f2f9fd, #c4e8fa);
+  .spanStyleMixin(inherit, #f2f9fd, #719acb, #f2f9fd, #c4e8fa);
 }
 
 /*******************************************************************************
@@ -114,7 +111,7 @@ table.fancytree-ext-table tbody {
   tr td {
     border: 1px solid #ededed;
   }
-  tr:hover  {
+  tr:hover {
     .spanStyleMixin(inherit, #f8fcfe, inherit, #f8fcfe, #eff9fe);
     outline: 1px solid #d8f0fa;
   }
@@ -141,15 +138,14 @@ table.fancytree-ext-table tbody {
   tr.fancytree-active:hover,
   tr.fancytree-selected:hover {
     .spanStyleMixin(inherit, #f2f9fd, inherit, #f2f9fd, #c4e8fa);
-    outline: 1px solid #B6E6FB;
+    outline: 1px solid #b6e6fb;
   }
   tr.fancytree-active,
   tr.fancytree-selected {
     .spanStyleMixin(inherit, #f6fbfd, inherit, #f6fbfd, #d5effc);
-    outline: 1px solid #99DEFD;
+    outline: 1px solid #99defd;
   }
   // tr.fancytree-selected .fancytree-title {
   //   font-style: italic;
   // }
-
 }
