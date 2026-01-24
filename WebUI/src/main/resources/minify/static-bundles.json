@@ -357,9 +357,7 @@
         "widgetbuilder/css/perc_widgetbuilder.css",
         "css/perc_ChangePw.css"
       ]
-    }
-  ,
-
+    },
     {
       "type": "js",
       "name": "jslibMin/perc_admin.packed.js",
