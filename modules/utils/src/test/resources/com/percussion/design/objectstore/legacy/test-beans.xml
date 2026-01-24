@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-	   xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
 http://www.springframework.org/schema/util
 http://www.springframework.org/schema/util/spring-util.xsd">
-   
-   <tx:annotation-driven transaction-manager="sys_transactionManager"/>
-   
-	<bean id="dummy"
-		class="com.percussion.services.PSResourceHelper">
+
+	<tx:annotation-driven
+		transaction-manager="sys_transactionManager" />
+
+	<bean id="dummy" class="com.percussion.services.PSResourceHelper">
 	</bean>
 
 	<bean id="sys_rhythmyxinfo"
@@ -24,22 +24,23 @@ http://www.springframework.org/schema/util/spring-util.xsd">
 			</util:map>
 		</property>
 	</bean>
-	
+
 	<bean id="sys_datasourceResolver"
 		class="com.percussion.utils.jdbc.PSDatasourceResolver">
-		<property name="repositoryDatasource" value="rxdefault"/>
+		<property name="repositoryDatasource" value="rxdefault" />
 		<property name="datasourceConfigurations">
 			<list>
-		        <bean id="rxdefault" class="com.percussion.utils.jdbc.PSDatasourceConfig">
-			        <property name="name" value="rxdefault"/>
-					<property name="dataSource" value="jdbc/rxdefault"/>
-					<property name="database" value="rxrhino"/>
-					<property name="origin" value="dbo"/>
-		        </bean>
+				<bean id="rxdefault"
+					class="com.percussion.utils.jdbc.PSDatasourceConfig">
+					<property name="name" value="rxdefault" />
+					<property name="dataSource" value="jdbc/rxdefault" />
+					<property name="database" value="rxrhino" />
+					<property name="origin" value="dbo" />
+				</bean>
 			</list>
-		</property>		
+		</property>
 	</bean>
-	
+
 	<bean id="sys_hibernateDialects"
 		class="com.percussion.services.datasource.PSHibernateDialectConfig">
 		<property name="dialects">
@@ -47,19 +48,19 @@ http://www.springframework.org/schema/util/spring-util.xsd">
 				<entry key="sqlserver">
 					<value> "org.hibernate.dialect.SQLServer2012Dialect"</value>
 				</entry>
-                <entry key="jtds:sqlserver">
-                    <value>org.hibernate.dialect.SQLServer2012Dialect</value>
-                </entry>
-                <entry key="inetdae7">
-                    <value>org.hibernate.dialect.SQLServer2012Dialect</value>
-                </entry>
-                <entry key="oracle:thin">
-                    <value>org.hibernate.dialect.OracleDialect</value>
-                </entry>
-                <entry key="db2">
-                    <value>org.hibernate.dialect.DB2Dialect</value>
-                </entry>
+				<entry key="jtds:sqlserver">
+					<value>org.hibernate.dialect.SQLServer2012Dialect</value>
+				</entry>
+				<entry key="inetdae7">
+					<value>org.hibernate.dialect.SQLServer2012Dialect</value>
+				</entry>
+				<entry key="oracle:thin">
+					<value>org.hibernate.dialect.OracleDialect</value>
+				</entry>
+				<entry key="db2">
+					<value>org.hibernate.dialect.DB2Dialect</value>
+				</entry>
 			</util:map>
-		</property>		
+		</property>
 	</bean>
 </beans>

@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Form"
-                 contenttype_name="percFormAsset"
-                 category="integration"
-                 description="Widget to build and render form data."
-                 author="Percussion Software Inc"
-                 thumbnail="/rx_resources/widgets/form/images/widgetIconForm.gif"
-                 preferred_editor_width="965"
-                 preferred_editor_height="600"
-                 is_responsive="false"
-    />
-    <UserPref name="labelalign"
-              display_name="Label align"
-              required="true"
-              default_value="top"
-              datatype="enum">
-        <EnumValue value="top" display_value="Top of the control" />
-        <EnumValue value="left" display_value="Left of the control" />
-    </UserPref>
+	<WidgetPrefs title="Form" contenttype_name="percFormAsset"
+		category="integration"
+		description="Widget to build and render form data."
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/form/images/widgetIconForm.gif"
+		preferred_editor_width="965" preferred_editor_height="600"
+		is_responsive="false" />
+	<UserPref name="labelalign" display_name="Label align"
+		required="true" default_value="top" datatype="enum">
+		<EnumValue value="top" display_value="Top of the control" />
+		<EnumValue value="left" display_value="Left of the control" />
+	</UserPref>
 
-    <CssPref name="rootclass"
-             display_name="CSS Root Class"
-             datatype="string" />
+	<CssPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
 
-    <Code type="jexl">
+	<Code type="jexl">
         <![CDATA[
             $rootclass = $perc.widget.item.cssProperties.get('rootclass');
             if(!empty($rootclass)) {
@@ -39,9 +32,9 @@
             $dynamicListData = $tools.esc.html("{ deliveryurl : '" + $dsUrl + "'}");
 
         ]]>
-    </Code>
+	</Code>
 
-    <Content type="velocity">
+	<Content type="velocity">
         <![CDATA[
 #loadRelatedWidgetContents()##
 #if( ! $perc.widgetContents.isEmpty())##
@@ -91,5 +84,5 @@ jQuery("input[type = 'submit']").attr('disabled', 'disabled');
 #end
 </div>
 ]]>
-    </Content>
+	</Content>
 </Widget>

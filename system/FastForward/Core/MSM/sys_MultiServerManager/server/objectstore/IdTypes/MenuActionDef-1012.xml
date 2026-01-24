@@ -2,22 +2,36 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="1012" dependencyType="Local" displayName="EI_Publish_Now" isIncluded="yes" objectType="MenuActionDef" objectTypeName="Action Menu Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no">
-         <Dependencies>
-            <PSXDeployableObject>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="310" dependencyType="Shared" displayName="EI Publish Now" isIncluded="no" objectType="EditionDef" objectTypeName="Edition" supportsIdMapping="yes" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
-               <RequiredClasses/>
-            </PSXDeployableObject>
-         </Dependencies>
-      </PSXDependency>
-      <RequiredClasses/>
-   </PSXDeployableObject>
-   <PSXApplicationIDTypesResource resourceName="URL">
-      <PSXApplicationIDTypesElement elementName="UrlParams">
-         <PSXApplicationIDTypeMapping type="EditionDef" value="310">
-            <PSXAppNamedItemIdContext name="sys_editionid" type="Param"/>
-         </PSXApplicationIDTypeMapping>
-      </PSXApplicationIDTypesElement>
-   </PSXApplicationIDTypesResource>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="1012" dependencyType="Local"
+			displayName="EI_Publish_Now" isIncluded="yes"
+			objectType="MenuActionDef" objectTypeName="Action Menu Definition"
+			supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no">
+			<Dependencies>
+				<PSXDeployableObject>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="310" dependencyType="Shared"
+						displayName="EI Publish Now" isIncluded="no"
+						objectType="EditionDef" objectTypeName="Edition"
+						supportsIdMapping="yes" supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="no" />
+					<RequiredClasses />
+				</PSXDeployableObject>
+			</Dependencies>
+		</PSXDependency>
+		<RequiredClasses />
+	</PSXDeployableObject>
+	<PSXApplicationIDTypesResource
+		resourceName="URL">
+		<PSXApplicationIDTypesElement
+			elementName="UrlParams">
+			<PSXApplicationIDTypeMapping
+				type="EditionDef" value="310">
+				<PSXAppNamedItemIdContext
+					name="sys_editionid" type="Param" />
+			</PSXApplicationIDTypeMapping>
+		</PSXApplicationIDTypesElement>
+	</PSXApplicationIDTypesResource>
 </PSXApplicationIDTypes>

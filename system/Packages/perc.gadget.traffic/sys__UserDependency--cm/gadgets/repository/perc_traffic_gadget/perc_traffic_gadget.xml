@@ -1,51 +1,69 @@
-<?xml version="1.0" encoding="UTF-8" ?> 
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-  <ModulePrefs title="Traffic" category="analytics" description="This gadget provides Traffic and Activity graphs." thumbnail="images/gadgetIconTraffic.png" height="350">
-       <Require feature="perc_core"/>
-       <Require feature="settitle" />
-       <Require feature="perc_getDashboardColumn" />
-       <Require feature="minimessage" />
-       <Require feature="perc_jquery_ui"/>
-       <!--Require feature="perc_jqplot" /-->
-  </ModulePrefs>
-  <UserPref name="0-usage" display_name="Usage" required="false" datatype="enum" default_value="pageviews">
-        <EnumValue value="pageviews"   display_value="Page visits"/>
-        <EnumValue value="uniquepageviews"   display_value="Unique page visits"/>
-  </UserPref> 
-  <UserPref name="a-site" display_name="Site" required="false" datatype="enum">
-        <EnumValue value="@url:/services/sitemanage/site/choices"/>
-  </UserPref> 
-  <UserPref name="b-dateFrom" display_name="Date range from" required="true" datatype="string" default_value="">
-  </UserPref>
-  <UserPref name="c-dateTo" display_name="Date range to" required="true" datatype="string" default_value="">
-  </UserPref>
-  <UserPref name="d-granularity" display_name="Graph by" required="true" datatype="enum" default_value="MONTH">
-        <EnumValue value="DAY"   display_value="Day"/>
-        <EnumValue value="WEEK" display_value="Week"/>
-        <EnumValue value="MONTH" display_value="Month"/>
-        <EnumValue value="YEAR"  display_value="Year"/> 
-  </UserPref>
-  <UserPref name="e0-activity-title" display_name="Include the following in the activity graph:" required="true" datatype="bool" default_value="false">
-  </UserPref>
-  <UserPref name="e1-activity-new" display_name="New" required="true" datatype="bool" default_value="true">
-  </UserPref>
-  <UserPref name="e2-activity-updates" display_name="Updates" required="true" datatype="bool" default_value="true">
-  </UserPref>
-  <UserPref name="e3-activity-takedowns" display_name="Takedowns" required="true" datatype="bool" default_value="false">
-  </UserPref>
-  <UserPref name="f1-livePages-title" display_name="Show live pages:" required="true" datatype="bool" default_value="false">
-  </UserPref>
-  <UserPref name="f2-livePages" display_name="Yes" required="true" datatype="bool" default_value="false">
-  </UserPref>
-  <UserPref name="zrows" display_name="Display height" required="false" datatype="enum" default_value="5">
-        <EnumValue value="5" display_value="5 results"/>
-        <EnumValue value="10" display_value="10 results"/>
-        <EnumValue value="15" display_value="15 results"/> 
-        <EnumValue value="20" display_value="20 results"/>
-        <EnumValue value="25" display_value="25 results"/>
-  </UserPref>
-  <Content type="html">
+	<ModulePrefs title="Traffic" category="analytics"
+		description="This gadget provides Traffic and Activity graphs."
+		thumbnail="images/gadgetIconTraffic.png" height="350">
+		<Require feature="perc_core" />
+		<Require feature="settitle" />
+		<Require feature="perc_getDashboardColumn" />
+		<Require feature="minimessage" />
+		<Require feature="perc_jquery_ui" />
+		<!--Require feature="perc_jqplot" / -->
+	</ModulePrefs>
+	<UserPref name="0-usage" display_name="Usage" required="false"
+		datatype="enum" default_value="pageviews">
+		<EnumValue value="pageviews" display_value="Page visits" />
+		<EnumValue value="uniquepageviews"
+			display_value="Unique page visits" />
+	</UserPref>
+	<UserPref name="a-site" display_name="Site" required="false"
+		datatype="enum">
+		<EnumValue value="@url:/services/sitemanage/site/choices" />
+	</UserPref>
+	<UserPref name="b-dateFrom" display_name="Date range from"
+		required="true" datatype="string" default_value="">
+	</UserPref>
+	<UserPref name="c-dateTo" display_name="Date range to"
+		required="true" datatype="string" default_value="">
+	</UserPref>
+	<UserPref name="d-granularity" display_name="Graph by"
+		required="true" datatype="enum" default_value="MONTH">
+		<EnumValue value="DAY" display_value="Day" />
+		<EnumValue value="WEEK" display_value="Week" />
+		<EnumValue value="MONTH" display_value="Month" />
+		<EnumValue value="YEAR" display_value="Year" />
+	</UserPref>
+	<UserPref name="e0-activity-title"
+		display_name="Include the following in the activity graph:"
+		required="true" datatype="bool" default_value="false">
+	</UserPref>
+	<UserPref name="e1-activity-new" display_name="New"
+		required="true" datatype="bool" default_value="true">
+	</UserPref>
+	<UserPref name="e2-activity-updates" display_name="Updates"
+		required="true" datatype="bool" default_value="true">
+	</UserPref>
+	<UserPref name="e3-activity-takedowns"
+		display_name="Takedowns" required="true" datatype="bool"
+		default_value="false">
+	</UserPref>
+	<UserPref name="f1-livePages-title"
+		display_name="Show live pages:" required="true" datatype="bool"
+		default_value="false">
+	</UserPref>
+	<UserPref name="f2-livePages" display_name="Yes"
+		required="true" datatype="bool" default_value="false">
+	</UserPref>
+	<UserPref name="zrows" display_name="Display height"
+		required="false" datatype="enum" default_value="5">
+		<EnumValue value="5" display_value="5 results" />
+		<EnumValue value="10" display_value="10 results" />
+		<EnumValue value="15" display_value="15 results" />
+		<EnumValue value="20" display_value="20 results" />
+		<EnumValue value="25" display_value="25 results" />
+	</UserPref>
+	<Content type="html">
     <![CDATA[
     <!DOCTYPE html>
     <link rel="stylesheet" type="text/css" href="/cm/themes/smoothness/jquery-ui-1.8.9.custom.css" />
@@ -55,11 +73,11 @@
     <link href="/cm/widgets/PercPageDataTable/PercPageDataTable.css" rel="stylesheet" type="text/css" />
     <link href="/cm/widgets/PercSimpleMenu/PercSimpleMenu.css" rel="stylesheet" type="text/css" />
     <link href="/cm/widgets/PercTooltip/PercTooltip.css" rel="stylesheet" type="text/css" />
-    
+
 <!--[if IE]>
     <script src="/cm/gadgets/repository/common/lib/jqplot/excanvas.js"></script>
 <![endif]-->
-    
+
     <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js" ></script>
     <script src="/cm/widgets/PercSimpleMenu/PercSimpleMenu.js" ></script>
     <script src="/cm/widgets/PercTooltip/PercTooltip.js" ></script>
@@ -80,7 +98,7 @@
 
     <script src="/cm/gadgets/repository/perc_traffic_gadget/perc_traffic_gadget.js" ></script>
     <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;"></script>
-    
+
     <style>
         .perc-gadget-errormessage {
             color : #777777;
@@ -93,14 +111,14 @@
             font-size : 11px;
             color : black;
         }
-        
+
         #perc-traffic-title, #perc-traffic-error-message {
             font-size : 14px;
             font-weight : bold;
             padding-top : 5px;
             margin-bottom : 20px;
         }
-        
+
         .message {
             background : #F0F0F0 none repeat scroll 0 0;
             border-bottom : 1px solid #E6E6E9;
@@ -108,7 +126,7 @@
             padding-top : 17px;
             text-align : center;
         }
-        
+
         #perc-traffic-show-hide-details {
             float : right;
             margin-top : 5px;
@@ -116,13 +134,13 @@
             color : grey;
             cursor : pointer;
         }
-        
+
         #perc-traffic-heading {
             text-align : center;
             color : black;
             text-align : center;
         }
-        
+
         #perc-traffic-details {
             height : 400px;
             margin-top : 20px;
@@ -133,21 +151,21 @@
         #chart2 { margin-top : 7px;position : absolute; left : 1500; width : 200; height : 200}
 
         body { overflow : hidden }
-        
+
         #perc-traffic-start-date {
             font-size : 14px;
             padding-top : 5px;
             margin-bottom : 20px;
             font-family : Verdana;
         }
-        
+
         #perc-traffic-end-date {
             font-size : 14px;
             padding-top : 5px;
             margin-bottom : 20px;
             font-family : Verdana;
         }
-        
+
         #perc-label-left {
             float : left;
             padding-left : 36px;
@@ -164,7 +182,7 @@
               font-family: 'Open Sans', sans-serif;
            }
     </style>
-    
+
 <script >
     var loadingMsg = null;
     var miniMsg = null;
@@ -172,14 +190,14 @@
         miniMsg = new gadgets.MiniMessage(__MODULE_ID__);
         loadingMsg = miniMsg.createStaticMessage("Loading...");
     });
-    
+
     function _expandNotify(){
         var labels = $("#perc-graph-labels");
         if(labels.length == 0)
             self.location.reload();
     }
-</script>    
-    
+</script>
+
     <script>
         var busy = false;
         $(document).ready(function() {
@@ -188,7 +206,7 @@
             busy = true;
             var PercServiceUtils = percJQuery.PercServiceUtils;
             var pathService      = percJQuery.PercPathService;
-            var prefs = new gadgets.Prefs(); 
+            var prefs = new gadgets.Prefs();
             var site = prefs.getString("a-site");
             if(site == "@all")
                 site = "";
@@ -201,7 +219,7 @@
             var updates     = prefs.getString("e2-activity-updates");
             var takeDowns   = prefs.getString("e3-activity-takedowns");
             var livePages   = prefs.getString("f2-livePages");
-            
+
             // renamed preference "rows" to "zrows" because preference ui controls are rendered in alphabetical order
             // and we wanted the rows preference to render last
             var rows = parseInt(prefs.getString("zrows"));
@@ -224,7 +242,7 @@
                     }
                     if(site == "@all")
                        site = "";
-                    
+
                     $("#perc-traffic-table-container").PercTrafficGadget(site, dateFromStr, dateToStr, granularity, newPages, updates, takeDowns, livePages, usage, rows);
                 });
             } else {
@@ -242,7 +260,7 @@
 			document.getElementById('perc-traffic-error-message').innerText=I18N.message("perc.ui.traffic.gadget@Select Date Range");
 			gadgets.window.setTitle(I18N.message("perc.ui.traffic.gadget@TRAFFIC"));
         });
-        
+
         var dateFormat = "m/d/yy";
     </script>
     <!--div id="perc-date-range" style="border : 2px solid #0000aa; background : #0000ff; width : 100px; height : 100px; display : none; position : absolute; top : 0px; left : 0px; opacity : 0.2"></div-->
@@ -272,5 +290,5 @@
     </div>
     <div id="chart2" style="margin-top: 4em;"></div>
      ]]>
-  </Content> 
+	</Content>
 </Module>

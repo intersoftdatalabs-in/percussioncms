@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-  <ModulePrefs title="Pages By Status" category="content,search" description="This gadget provides the ability to view all pages by site and workflow status." thumbnail="images/gadgetIconPagesByStatus.png" height="320">
-        <Require feature="perc_core"/>
-        <Require feature="settitle" />
-        <Require feature="perc_getDashboardColumn" />
-        <Require feature="minimessage" />
-        <Require feature="perc_jquery_ui"/>
-  </ModulePrefs>
-  <UserPref name="zrows" display_name="Display height" required="false" datatype="enum" default_value="10">
-        <EnumValue value="5" display_value="5 results"/>
-        <EnumValue value="10" display_value="10 results"/>
-        <EnumValue value="15" display_value="15 results"/>
-        <EnumValue value="20" display_value="20 results"/>
-        <EnumValue value="25" display_value="25 results"/>
-  </UserPref>
-  <Content type="html">
+	<ModulePrefs title="Pages By Status"
+		category="content,search"
+		description="This gadget provides the ability to view all pages by site and workflow status."
+		thumbnail="images/gadgetIconPagesByStatus.png" height="320">
+		<Require feature="perc_core" />
+		<Require feature="settitle" />
+		<Require feature="perc_getDashboardColumn" />
+		<Require feature="minimessage" />
+		<Require feature="perc_jquery_ui" />
+	</ModulePrefs>
+	<UserPref name="zrows" display_name="Display height"
+		required="false" datatype="enum" default_value="10">
+		<EnumValue value="5" display_value="5 results" />
+		<EnumValue value="10" display_value="10 results" />
+		<EnumValue value="15" display_value="15 results" />
+		<EnumValue value="20" display_value="20 results" />
+		<EnumValue value="25" display_value="25 results" />
+	</UserPref>
+	<Content type="html">
      <![CDATA[
     <!DOCTYPE html>
     <link rel="stylesheet" type="text/css" href="/cm/themes/smoothness/jquery-ui-1.8.9.custom.css" />
@@ -130,5 +134,5 @@
 
     </div>
      ]]>
-  </Content>
+	</Content>
 </Module>

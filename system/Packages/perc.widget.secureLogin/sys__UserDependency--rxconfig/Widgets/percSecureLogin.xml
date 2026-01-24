@@ -1,43 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
 	<WidgetPrefs title="Secure Login"
-				 contenttype_name="percSecureLogin"
-				 category="integration"
-				 description="Login widget to access secured content."
-				 author="Percussion Software Inc."
-				 thumbnail="/rx_resources/widgets/percSecureLogin/images/widgetIconLogin.gif"
-				 preferred_editor_width="780"
-				 preferred_editor_height="450"
-				 is_responsive="true"/>
-	<UserPref name="labelAlign"
-			  display_name="Label align"
-			  required="true"
-			  default_value="top"
-			  datatype="enum">
+		contenttype_name="percSecureLogin" category="integration"
+		description="Login widget to access secured content."
+		author="Percussion Software Inc."
+		thumbnail="/rx_resources/widgets/percSecureLogin/images/widgetIconLogin.gif"
+		preferred_editor_width="780" preferred_editor_height="450"
+		is_responsive="true" />
+	<UserPref name="labelAlign" display_name="Label align"
+		required="true" default_value="top" datatype="enum">
 		<EnumValue value="top" display_value="Top of the control" />
 		<EnumValue value="left" display_value="Left of the control" />
 	</UserPref>
 	<UserPref name="showForgotPasswordLink"
-			  display_name="Show forgot password link"
-			  required="false"
-			  default_value="true"
-			  datatype="bool" />
+		display_name="Show forgot password link" required="false"
+		default_value="true" datatype="bool" />
 	<!-- CssPrefs are input fields exposed in the CSS config for a widget -->
 	<!-- Generally we always provide root and summary class css fields -->
-	<CssPref name="rootclass"
-			 display_name="CSS root class"
-			 datatype="string" />
-	<CssPref name="labelclass"
-			 display_name="CSS field label class"
-			 datatype="string" />
-	<CssPref name="inputclass"
-			 display_name="CSS input class"
-			 datatype="string" />
-	<CssPref name="buttonclass"
-			 display_name="CSS button class"
-			 datatype="string" />
+	<CssPref name="rootclass" display_name="CSS root class"
+		datatype="string" />
+	<CssPref name="labelclass" display_name="CSS field label class"
+		datatype="string" />
+	<CssPref name="inputclass" display_name="CSS input class"
+		datatype="string" />
+	<CssPref name="buttonclass" display_name="CSS button class"
+		datatype="string" />
 	<Code type="jexl">
-		<!-- This section is used to set up data that will be used in the content section -->
+		<!-- This section is used to set up data that will be used in the content
+			section -->
 		<![CDATA[
 
 		$props = $perc.widget.item.properties;

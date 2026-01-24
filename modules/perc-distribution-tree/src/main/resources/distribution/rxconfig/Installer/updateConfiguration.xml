@@ -1,286 +1,364 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="updateConfiguration" default="updateConfiguration">
-    <target name="updateConfiguration">
-        <echo>Updating configuration files...</echo>
-        <property file="${install.dir}/Version.properties" prefix="version"/>
-        <if>
-            <equals arg1="" arg2="${version.optionalId}"/>
-            <then>
-                <property name="optionalId" value=""/>
-            </then>
-            <else>
-                <property name="optionalId" value="-${version.optionalId}"/>
-            </else>
-        </if>
-        <property name="buildversion" value="${version.majorVersion}.${version.minorVersion}.${version.microVersion}${optionalId}"/>
+<project name="updateConfiguration"
+	default="updateConfiguration">
+	<target name="updateConfiguration">
+		<echo>Updating configuration files...</echo>
+		<property file="${install.dir}/Version.properties"
+			prefix="version" />
+		<if>
+			<equals arg1="" arg2="${version.optionalId}" />
+			<then>
+				<property name="optionalId" value="" />
+			</then>
+			<else>
+				<property name="optionalId" value="-${version.optionalId}" />
+			</else>
+		</if>
+		<property name="buildversion"
+			value="${version.majorVersion}.${version.minorVersion}.${version.microVersion}${optionalId}" />
 
-        <echoproperties/>
-        <!-- i18n -->
-        <delete file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx.bak" failonerror="false" verbose="true"/>
+		<echoproperties />
+		<!-- i18n -->
+		<delete
+			file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx.bak"
+			failonerror="false" verbose="true" />
 
-        <echo>Backing up i18n resource bundle...</echo>
-        <copy overwrite="true" force="true"
-              file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx" tofile="${install.dir}/rxconfig/I18n/ResourceBundle.tmx.bak" failonerror="false" />
+		<echo>Backing up i18n resource bundle...</echo>
+		<copy overwrite="true" force="true"
+			file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx"
+			tofile="${install.dir}/rxconfig/I18n/ResourceBundle.tmx.bak"
+			failonerror="false" />
 
-        <delete file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx" failonerror="false" verbose="true"/>
+		<delete file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx"
+			failonerror="false" verbose="true" />
 
-        <copy todir="${install.dir}/rxconfig/Server" overwrite="true" force="true"
-              file="${install.src}/rxconfig/Server/RequestHandlers.xml"/>
+		<copy todir="${install.dir}/rxconfig/Server" overwrite="true"
+			force="true"
+			file="${install.src}/rxconfig/Server/RequestHandlers.xml" />
 
-        <copy todir="${install.dir}/rxconfig/Server/ContentEditors" overwrite="true" force="true"
-              file="${install.src}/rxconfig/Server/ContentEditors/ContentEditorSystemDef.xml"/>
+		<copy todir="${install.dir}/rxconfig/Server/ContentEditors"
+			overwrite="true" force="true"
+			file="${install.src}/rxconfig/Server/ContentEditors/ContentEditorSystemDef.xml" />
 
-        <copy todir="${install.dir}/rxconfig/Server" overwrite="true" force="true"
-              file="${install.src}/rxconfig/Server/sys_DatabaseFunctionDefs.xml"/>
+		<copy todir="${install.dir}/rxconfig/Server" overwrite="true"
+			force="true"
+			file="${install.src}/rxconfig/Server/sys_DatabaseFunctionDefs.xml" />
 
-        <!-- TODO: This may need to be a property file update on upgrade -->
-        <copy todir="${install.dir}/rxconfig/Server" overwrite="true" force="true"
-              file="${install.src}/rxconfig/Server/startupProcessManager.properties"/>
+		<!-- TODO: This may need to be a property file update on upgrade -->
+		<copy todir="${install.dir}/rxconfig/Server" overwrite="true"
+			force="true"
+			file="${install.src}/rxconfig/Server/startupProcessManager.properties" />
 
-        <!-- i18n always install or upgrade -->
-        <echo>Updating i18n property file...</echo>
-        <propertyfile file="${install.dir}/rxconfig/I18n/rxlt.properties">
-            <entry key="runAtStartup" value="true" default="true" />
-        </propertyfile>
-
-
-        <!-- Always update the sys_ schema files with latest -->
-        <echo>Refreshing master schema files...</echo>
-        <delete file="${install.dir}/rxconfig/Server/sys_cmstableDef.xml" casesensitive="true" failonerror="false"/>
-        <copy file="${install.src}/rxconfig/Installer/data/cmsTableDef.xml" force="true"  overwrite="true" verbose="true" tofile="${install.dir}/rxconfig/Server/sys_cmsTableDef.xml"/>
-        <copy file="${install.src}/rxconfig/Installer/data/cmsTableData.xml" force="true"  overwrite="true" verbose="true" tofile="${install.dir}/rxconfig/Server/sys_cmsTableData.xml"/>
-
-        <echo>Updating mimemap.properties</echo>
-        <propertyfile file="${install.dir}/rxconfig/Server/mimemap.properties">
-            <entry key="aspx" default="text/html"/>
-            <entry key="asp" default="text/html"/>
-            <entry key="jsp" default="text/html"/>
-            <entry key="php" default="text/html"/>
-            <entry key="cfm" default="text/html"/>
-            <entry key="cfml" default="text/html"/>
-            <entry key="cfc" default="text/html"/>
-            <entry key="cfr" default="text/html"/>
-            <entry key="cfswf" default="text/html"/>
-            <entry key="dhtml" default="text/html"/>
-            <entry key="acgi" operation="del"/>
-        </propertyfile>
-
-        <echo>Updating rxworflow.properties</echo>
-        <propertyfile file="${install.dir}/rxconfig/Workflow/rxworkflow.properties">
-            <entry key="NOTIFICATION_ENABLE" default="N"/>
-            <entry key="ENABLE_TEST_RUN_MODE" default="N"/>
-            <entry key="RX_SERVER_HOST_NOTIFICATION" default=""/>
-            <entry key="RX_SERVER_PORT_NOTIFICATION" default=""/>
-            <entry key="RX_SERVER_IS_SSLLINK_NOTIFICATION" default="no"/>
-            <entry key="MAIL_DOMAIN" default=""/>
-            <entry key="SMTP_HOST" default=""/>
-            <entry key="SMTP_USERNAME" default=""/>
-            <entry key="SMTP_PASSWORD" default=""/>
-            <entry key="SMTP_PORT" default=""/>
-            <entry key="SMTP_TLSENABLED" default=""/>
-            <entry key="SMTP_SSLPORT" default=""/>
-            <entry key="SMTP_BOUNCEADDR" default=""/>
-            <entry key="SMTP_DEFAULTFROM" default=""/>
-            <entry key="APP_FILE_LIST" default=""/>
-            <entry key="BLOCKNOTIFICATIONSFORNAVONS" default="true"/>
-            <entry key="DATA_TYPE_MAP_FILE" default="../rxwfdatatypemaps.xml"/>
-            <entry key="DB_SCHEMA" default=""/>
-            <entry key="DB_BACKEND" default=""/>
-            <entry key="MSACCESS_CURRENTTIMESTAMP" default="Now"/>
-            <entry key="ORACLE_CURRENTTIMESTAMP" default="SYSDATE"/>
-            <entry key="MSSQL_CURRENTTIMESTAMP" default="getDate()"/>
-            <entry key="DB_SERVER" default=""/>
-            <entry key="HTML_PARAM_USER_FULLNAME" default="htmlParamUserFullName"/>
-            <entry key="HTML_PARAM_USER_ROLELIST" default="htmlParamRoleList"/>
-            <entry key="TABLE_DEF_FILE" default="../rxcmsconfig.xml\"/>
-            <entry key="CUSTOM_MAIL_CLASS" default="com.percussion.workflow.mail.PSSecureMailProgram"/>
-            <entry key="DB_DRIVER_VERSION" default="*"/>
-            <entry key="TABLE_DATA_FILE" default="../rxwftabledata.xml"/>
-            <entry key="DB_DRIVER_CLASS_NAME" default=""/>
-            <entry key="TRIGGER_FORCE_CHECK_IN" default="forcecheckin"/>
-            <entry key="TRIGGER_CHECK_IN" default="checkin"/>
-            <entry key="TRIGGER_CHECK_OUT" default="checkout"/>
-            <entry key="MAIL_NOTIFY_LINK_COMPONENT_NAME" default="item_action_panel"/>
-            <entry key="MAIL_NOTIFY_LINK_GEN_EXIT" default="global/percussion/contentassembler/perc_casGenerateReadOnlyLink"/>
-            <entry key="DEFAULT_WORKFLOW" default="Default Workflow"/>
-        </propertyfile>
-
-        <echo>Updating server.properties file</echo>
-            <propertyfile file="${install.dir}/rxconfig/Server/server.properties" >
-                <entry key="maxUsersAllowed" default="0"/>
-                <entry key="compressOutput" value="false"/>
-                <entry key="AUTO_MANAGE_LOCAL_PATHS" value="true"/>
-                <entry key="enabledCiphers" value="TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384"/>
-                <entry key="isWidgetBuilderActive" value="true"/>
-                <entry key="publishNonPageMetadata" default="true"/>
-                <entry key="requireContentSecurityPolicy" value="true" default="true"/>
-                <entry key="contentSecurityPolicy" value="default-src * data: blob: http: https: *.percussion.com *.percussion.marketing *.percussion.services ; img-src * 'self' data: blob: http: https: 'unsafe-inline' 'unsafe-eval'; font-src * 'unsafe-inline' 'unsafe-eval' data: blob: https:; script-src * 'unsafe-inline' 'unsafe-eval' *.siteimprove.net data: blob:; style-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src * 'self' data: blob: https: *.percussion.com *.percussion.marketing *.percussion.services 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self'  ;"/>
-                <entry key="requireStrictTransportSecurity" default="false"/>
-                <entry key="stricttransportsecuritymaxage" default="300"/>
-                <entry key="requireXFrameOptions" value="false" default="false"/>
-                <entry key="xFrameOptions" default="SAMEORIGIN"/>
-                <entry key="requireXXSSProtection" default="true"/>
-                <entry key="xXSSProtection" default="1; mode=block"/>
-                <entry key="requireXContentTypeOptions" default="true"/>
-                <entry key="xContentTypeOptions" default="nosniff"/>
-                <entry key="requireCacheControl" default="true"/>
-                <entry key="cacheControl" default="no-cache='Set-Cookie, Set-Cookie2',must-revalidate"/>
-                <entry key="autotuneCachePercentage" default="60"/>
-                <entry key="brokenManagedLinkBehavior" default="deadLink"/>
-                <entry key="caseSensitiveUrl" default="true"/>
-                <entry key="communities_enabled" value="yes" default="yes" operation="="/>
-                <entry key="forceSockets" default="true"/>
-                <entry key="requireUniqueFieldNames" default="true"/>
-                <entry key="responseCloseDelay" default="10"/>
-                <entry key="catalogPageMax" default="-1"/>
-                <entry key="importPageMax" default="-1"/>
-                <entry key="importTimeOut" default="30"/>
-                <entry key="assignmentTypeCalculationFilterCommunityRoles" default="false"/>
-                <entry key="loginAutoComplete" default="off" value="off"/>
-                <entry key="sendErrorStackToClient" default="false"/>
-                <entry key="disableCrossSiteRequestForgeryCheck" default="false"/>
-                <entry key="clientSessionWarning" default="5"/>
-                <entry key="useXMLAssemblerCache" default="false"/>
-                <entry key="requireHTTPS" default="false"/>
-                <entry key="imageThumbnailWidth" default="50"/>
-                <entry key="publicCmsHostname" default=""/>
-                <entry key="requestBehindProxy" default="false"/>
-                <entry key="proxyScheme" default="http"/>
-                <entry key="proxyPort" default="9992"/>
-                <entry key="enablePagination" default="false"/>
-                <entry key="auditLogConfigurationFile" default="perc-auditlog.properties"/>
-                <entry key="enableAuditLogging" default="true"/>
-                <entry key="optimizePublishWithChecksum" default="false"/>
-                <entry key="allowPurgeRevisionsScheduledTask" value="true" default="true"/>
-                <entry key="enableDebugTools" default="false"/>
-                <entry key="sameSiteCookieMode" value="Lax"/>
-                <entry key="allowedOrigins" default="*"/>
-                <entry key="allowedMethods" default="GET,POST,OPTIONS,HEAD,PUT,DELETE,PATCH"/>
-                <entry key="allowedHeaders" default="Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-UA-Compatible, OWASP-CSRFTOKEN,User-Agent"/>
-                <entry key="allowCredentials" default="false"/>
-                <entry key="secureKeyRotationTime" default="0"/>
-                <entry key="noCacheTemplates" default=""/>
-                <entry key="compressOutput" default="false"/>
-                <entry key="allowLinksToOrphans" value="true" default="true" operation="="/>
-                <entry key="screenshotCommandLine" default=""/>
+		<!-- i18n always install or upgrade -->
+		<echo>Updating i18n property file...</echo>
+		<propertyfile
+			file="${install.dir}/rxconfig/I18n/rxlt.properties">
+			<entry key="runAtStartup" value="true" default="true" />
+		</propertyfile>
 
 
-                <!-- Properties to remove if present -->
-                <entry key="optimizePublishWithMD5Check" operation="del"/>
-                <entry key="enableSQLTool" operation="del"/>
-                <entry key="enableJCRTool" operation="del"/>
-                <entry key="enableLogTool" operation="del"/>
-            </propertyfile>
+		<!-- Always update the sys_ schema files with latest -->
+		<echo>Refreshing master schema files...</echo>
+		<delete
+			file="${install.dir}/rxconfig/Server/sys_cmstableDef.xml"
+			casesensitive="true" failonerror="false" />
+		<copy
+			file="${install.src}/rxconfig/Installer/data/cmsTableDef.xml"
+			force="true" overwrite="true" verbose="true"
+			tofile="${install.dir}/rxconfig/Server/sys_cmsTableDef.xml" />
+		<copy
+			file="${install.src}/rxconfig/Installer/data/cmsTableData.xml"
+			force="true" overwrite="true" verbose="true"
+			tofile="${install.dir}/rxconfig/Server/sys_cmsTableData.xml" />
 
-        <echo>Updating Navigation.properties file...</echo>
+		<echo>Updating mimemap.properties</echo>
+		<propertyfile
+			file="${install.dir}/rxconfig/Server/mimemap.properties">
+			<entry key="aspx" default="text/html" />
+			<entry key="asp" default="text/html" />
+			<entry key="jsp" default="text/html" />
+			<entry key="php" default="text/html" />
+			<entry key="cfm" default="text/html" />
+			<entry key="cfml" default="text/html" />
+			<entry key="cfc" default="text/html" />
+			<entry key="cfr" default="text/html" />
+			<entry key="cfswf" default="text/html" />
+			<entry key="dhtml" default="text/html" />
+			<entry key="acgi" operation="del" />
+		</propertyfile>
 
-        <copy file="${install.dir}/rxconfig/Server/Navigation.properties" tofile="${install.dir}/rxconfig/Server/Navigation.properties.backup" overwrite="true"/>
+		<echo>Updating rxworflow.properties</echo>
+		<propertyfile
+			file="${install.dir}/rxconfig/Workflow/rxworkflow.properties">
+			<entry key="NOTIFICATION_ENABLE" default="N" />
+			<entry key="ENABLE_TEST_RUN_MODE" default="N" />
+			<entry key="RX_SERVER_HOST_NOTIFICATION" default="" />
+			<entry key="RX_SERVER_PORT_NOTIFICATION" default="" />
+			<entry key="RX_SERVER_IS_SSLLINK_NOTIFICATION" default="no" />
+			<entry key="MAIL_DOMAIN" default="" />
+			<entry key="SMTP_HOST" default="" />
+			<entry key="SMTP_USERNAME" default="" />
+			<entry key="SMTP_PASSWORD" default="" />
+			<entry key="SMTP_PORT" default="" />
+			<entry key="SMTP_TLSENABLED" default="" />
+			<entry key="SMTP_SSLPORT" default="" />
+			<entry key="SMTP_BOUNCEADDR" default="" />
+			<entry key="SMTP_DEFAULTFROM" default="" />
+			<entry key="APP_FILE_LIST" default="" />
+			<entry key="BLOCKNOTIFICATIONSFORNAVONS" default="true" />
+			<entry key="DATA_TYPE_MAP_FILE"
+				default="../rxwfdatatypemaps.xml" />
+			<entry key="DB_SCHEMA" default="" />
+			<entry key="DB_BACKEND" default="" />
+			<entry key="MSACCESS_CURRENTTIMESTAMP" default="Now" />
+			<entry key="ORACLE_CURRENTTIMESTAMP" default="SYSDATE" />
+			<entry key="MSSQL_CURRENTTIMESTAMP" default="getDate()" />
+			<entry key="DB_SERVER" default="" />
+			<entry key="HTML_PARAM_USER_FULLNAME"
+				default="htmlParamUserFullName" />
+			<entry key="HTML_PARAM_USER_ROLELIST"
+				default="htmlParamRoleList" />
+			<entry key="TABLE_DEF_FILE" default="../rxcmsconfig.xml\" />
+			<entry key="CUSTOM_MAIL_CLASS"
+				default="com.percussion.workflow.mail.PSSecureMailProgram" />
+			<entry key="DB_DRIVER_VERSION" default="*" />
+			<entry key="TABLE_DATA_FILE" default="../rxwftabledata.xml" />
+			<entry key="DB_DRIVER_CLASS_NAME" default="" />
+			<entry key="TRIGGER_FORCE_CHECK_IN" default="forcecheckin" />
+			<entry key="TRIGGER_CHECK_IN" default="checkin" />
+			<entry key="TRIGGER_CHECK_OUT" default="checkout" />
+			<entry key="MAIL_NOTIFY_LINK_COMPONENT_NAME"
+				default="item_action_panel" />
+			<entry key="MAIL_NOTIFY_LINK_GEN_EXIT"
+				default="global/percussion/contentassembler/perc_casGenerateReadOnlyLink" />
+			<entry key="DEFAULT_WORKFLOW" default="Default Workflow" />
+		</propertyfile>
 
-        <propertyfile file="${install.dir}/rxconfig/Server/Navigation.properties" >
-            <entry key="navimage.content_types" value="percNavImage,rffNavImage"/>
-            <entry key="navimage.field.selector" value="selector"/>
-            <entry key="navon.content_types" value="percNavon,rffNavon"/>
-            <entry key="navon.field.displaytitle" value="displaytitle"/>
-            <entry key="navon.field.namefield" value="sys_title"/>
-            <entry key="navon.field.propagate" value="no_propagate"/>
-            <entry key="navon.field.selector" value="no_selector"/>
-            <entry key="navon.field.variable" value="no_variable"/>
-            <entry key="navon.landingpage.required" value="false"/>
-            <entry key="navon.slot.images" value="perc.nav.image,rffNavImage"/>
-            <entry key="navon.slot.landingpages" value="perc.nav.landingPage,rffNavLandingPage"/>
-            <entry key="navon.slot.submenus" value="perc.nav.subMenu,rffNavSubmenu"/>
-            <entry key="navon.slotnames" value="perc.nav.slot,rffNav"/>
-            <entry key="navtree.content_types" value="percNavTree,rffNavTree"/>
-            <entry key="navtree.field.theme" value="nt_theme"/>
-            <entry key="navtree.theme.default" value="DefaultTheme"/>
-            <entry key="navtree.variable" value="rxs_navbase"/>
-            <entry key="navtree.param.theme" value="nav_theme"/>
-            <entry key="navtree.variant.info" value="NavTreeInfo"/>
-            <entry key="navon.variant.info" value="NavonInfo"/>
-            <entry key="navon.variant.navlink" value="NavonLink"/>
-            <entry key="navon.variant.tree" value="NavonXML"/>
-            <entry key="navimage.variant.info" value="NavImageInfo"/>
-            <entry key="navon.title.template" value="{0}"/>
-            <entry key="navon.displaytitle.template" value="{0}"/>
-        </propertyfile>
+		<echo>Updating server.properties file</echo>
+		<propertyfile
+			file="${install.dir}/rxconfig/Server/server.properties">
+			<entry key="maxUsersAllowed" default="0" />
+			<entry key="compressOutput" value="false" />
+			<entry key="AUTO_MANAGE_LOCAL_PATHS" value="true" />
+			<entry key="enabledCiphers"
+				value="TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384" />
+			<entry key="isWidgetBuilderActive" value="true" />
+			<entry key="publishNonPageMetadata" default="true" />
+			<entry key="requireContentSecurityPolicy" value="true"
+				default="true" />
+			<entry key="contentSecurityPolicy"
+				value="default-src * data: blob: http: https: *.percussion.com *.percussion.marketing *.percussion.services ; img-src * 'self' data: blob: http: https: 'unsafe-inline' 'unsafe-eval'; font-src * 'unsafe-inline' 'unsafe-eval' data: blob: https:; script-src * 'unsafe-inline' 'unsafe-eval' *.siteimprove.net data: blob:; style-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src * 'self' data: blob: https: *.percussion.com *.percussion.marketing *.percussion.services 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self'  ;" />
+			<entry key="requireStrictTransportSecurity" default="false" />
+			<entry key="stricttransportsecuritymaxage" default="300" />
+			<entry key="requireXFrameOptions" value="false" default="false" />
+			<entry key="xFrameOptions" default="SAMEORIGIN" />
+			<entry key="requireXXSSProtection" default="true" />
+			<entry key="xXSSProtection" default="1; mode=block" />
+			<entry key="requireXContentTypeOptions" default="true" />
+			<entry key="xContentTypeOptions" default="nosniff" />
+			<entry key="requireCacheControl" default="true" />
+			<entry key="cacheControl"
+				default="no-cache='Set-Cookie, Set-Cookie2',must-revalidate" />
+			<entry key="autotuneCachePercentage" default="60" />
+			<entry key="brokenManagedLinkBehavior" default="deadLink" />
+			<entry key="caseSensitiveUrl" default="true" />
+			<entry key="communities_enabled" value="yes" default="yes"
+				operation="=" />
+			<entry key="forceSockets" default="true" />
+			<entry key="requireUniqueFieldNames" default="true" />
+			<entry key="responseCloseDelay" default="10" />
+			<entry key="catalogPageMax" default="-1" />
+			<entry key="importPageMax" default="-1" />
+			<entry key="importTimeOut" default="30" />
+			<entry key="assignmentTypeCalculationFilterCommunityRoles"
+				default="false" />
+			<entry key="loginAutoComplete" default="off" value="off" />
+			<entry key="sendErrorStackToClient" default="false" />
+			<entry key="disableCrossSiteRequestForgeryCheck"
+				default="false" />
+			<entry key="clientSessionWarning" default="5" />
+			<entry key="useXMLAssemblerCache" default="false" />
+			<entry key="requireHTTPS" default="false" />
+			<entry key="imageThumbnailWidth" default="50" />
+			<entry key="publicCmsHostname" default="" />
+			<entry key="requestBehindProxy" default="false" />
+			<entry key="proxyScheme" default="http" />
+			<entry key="proxyPort" default="9992" />
+			<entry key="enablePagination" default="false" />
+			<entry key="auditLogConfigurationFile"
+				default="perc-auditlog.properties" />
+			<entry key="enableAuditLogging" default="true" />
+			<entry key="optimizePublishWithChecksum" default="false" />
+			<entry key="allowPurgeRevisionsScheduledTask" value="true"
+				default="true" />
+			<entry key="enableDebugTools" default="false" />
+			<entry key="sameSiteCookieMode" value="Lax" />
+			<entry key="allowedOrigins" default="*" />
+			<entry key="allowedMethods"
+				default="GET,POST,OPTIONS,HEAD,PUT,DELETE,PATCH" />
+			<entry key="allowedHeaders"
+				default="Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-UA-Compatible, OWASP-CSRFTOKEN,User-Agent" />
+			<entry key="allowCredentials" default="false" />
+			<entry key="secureKeyRotationTime" default="0" />
+			<entry key="noCacheTemplates" default="" />
+			<entry key="compressOutput" default="false" />
+			<entry key="allowLinksToOrphans" value="true" default="true"
+				operation="=" />
+			<entry key="screenshotCommandLine" default="" />
 
-        <echo>Setting default velocity.properties...</echo>
-        <copy failonerror="false" verbose="true" overwrite="false" todir="${install.dir}/rxconfig/Server" file="${install.dir}/rxconfig/velocity/2.3/config/*.properties" />
 
-        <!-- Specify the rxdir in jetty default jvm -->
-        <echo>Specifying rxdeploydir in jvm.ini files...</echo>
-        <!-- Convert path so that all slashes are forward -->
-        <pathconvert pathsep="/" property="normalized.install.dir" targetos="unix">
-            <path location="${install.dir}"/>
-        </pathconvert>
-        <if>
-           <isset property="isWindows"/>
-            <then>
-                <property name="lead.slash" value="/"/>
-            </then>
-            <else>
-                <property name="lead.slash" value=""/>
-            </else>
-        </if>
-        <if>
-            <available file="${install.dir}/jetty/defaults/start.d/jvm.ini"/>
-            <then>
-               <replace file="${install.dir}/jetty/defaults/start.d/jvm.ini" token="@@rxdir@@" value="${normalized.install.dir}" />
-            </then>
-        </if>
-        <if>
-            <available file="${install.dir}/jetty/base/start.d/jvm.ini"/>
-            <then>
-                <replace file="${install.dir}/jetty/base/start.d/jvm.ini" token="@@rxdir@@" value="${normalized.install.dir}" />
-                <replace file="${install.dir}/jetty/base/start.d/jvm.ini" token="-Djavax.xml.transform.TransformerFactory" value="#-Djavax.xml.transform.TransformerFactory" />
-                <replace file="${install.dir}/jetty/base/start.d/jvm.ini" token="-Djavax.xml.parsers.SAXParserFactory" value="#-Djavax.xml.parsers.SAXParserFactory" />
-                <replace file="${install.dir}/jetty/base/start.d/jvm.ini" token="-Djavax.xml.datatype.DatatypeFactory" value="#-Djavax.xml.datatype.DatatypeFactory" />
-                <replace file="${install.dir}/jetty/base/start.d/jvm.ini" token="-Djavax.xml.parsers.DocumentBuilderFactory" value="#-Djavax.xml.parsers.DocumentBuilderFactory" />
-            </then>
-        </if>
-        <replace file="${install.dir}/PercussionXMLCatalog.xml" token="@@rxdir@@" value="${lead.slash}${normalized.install.dir}" />
-        <replace file="${install.dir}/var/config/CustomXMLCatalog.xml" token="@@rxdir@@" value="${lead.slash}${normalized.install.dir}" />
-        <if>
-            <available file="${install.dir}/sys_resources/ant/copy-resources.xml"/>
-            <then>
-                <replace file="${install.dir}/sys_resources/ant/copy-resources.xml" token="@@perc.version@@" value="${buildversion}" />
-            </then>
-        </if>
+			<!-- Properties to remove if present -->
+			<entry key="optimizePublishWithMD5Check" operation="del" />
+			<entry key="enableSQLTool" operation="del" />
+			<entry key="enableJCRTool" operation="del" />
+			<entry key="enableLogTool" operation="del" />
+		</propertyfile>
 
-        <macrodef name="add-config-if-missing">
-            <attribute name="srcFile"/>
-            <attribute name="value"/>
-            <sequential>
-                <local name="setting.test" />
-                <loadfile property="setting.test" srcFile="@{srcFile}">
-                    <filterchain>
-                        <linecontains>
-                            <contains value="@{value}"/>
-                        </linecontains>
-                    </filterchain>
-                </loadfile>
+		<echo>Updating Navigation.properties file...</echo>
 
-                <if>
-                    <not>
-                        <equals arg1="${setting.test}" arg2="@{value}" trim="true" forcestring="true" />
-                    </not>
-                    <then>
-                        <echo file="@{srcFile}" append="true" message="&#010;@{value}" />
-                    </then>
-                </if>
-            </sequential>
-        </macrodef>
+		<copy file="${install.dir}/rxconfig/Server/Navigation.properties"
+			tofile="${install.dir}/rxconfig/Server/Navigation.properties.backup"
+			overwrite="true" />
 
-        <echo>Updating user spring configuration...</echo>
-        <replace dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring" value=" bean=" token=" local=">
-            <include name="*.xml"/>
-        </replace>
-        <replace dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring" value="" token="&lt;property name=&quot;diskStorePath&quot; value=&quot;user.dir/perc-image-cache&quot; /&gt;">
-            <include name="*.xml"/>
-        </replace>
-        <replace dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring" >
-            <include name="*.xml"/>
-            <replacetoken><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
+		<propertyfile
+			file="${install.dir}/rxconfig/Server/Navigation.properties">
+			<entry key="navimage.content_types"
+				value="percNavImage,rffNavImage" />
+			<entry key="navimage.field.selector" value="selector" />
+			<entry key="navon.content_types" value="percNavon,rffNavon" />
+			<entry key="navon.field.displaytitle" value="displaytitle" />
+			<entry key="navon.field.namefield" value="sys_title" />
+			<entry key="navon.field.propagate" value="no_propagate" />
+			<entry key="navon.field.selector" value="no_selector" />
+			<entry key="navon.field.variable" value="no_variable" />
+			<entry key="navon.landingpage.required" value="false" />
+			<entry key="navon.slot.images"
+				value="perc.nav.image,rffNavImage" />
+			<entry key="navon.slot.landingpages"
+				value="perc.nav.landingPage,rffNavLandingPage" />
+			<entry key="navon.slot.submenus"
+				value="perc.nav.subMenu,rffNavSubmenu" />
+			<entry key="navon.slotnames" value="perc.nav.slot,rffNav" />
+			<entry key="navtree.content_types"
+				value="percNavTree,rffNavTree" />
+			<entry key="navtree.field.theme" value="nt_theme" />
+			<entry key="navtree.theme.default" value="DefaultTheme" />
+			<entry key="navtree.variable" value="rxs_navbase" />
+			<entry key="navtree.param.theme" value="nav_theme" />
+			<entry key="navtree.variant.info" value="NavTreeInfo" />
+			<entry key="navon.variant.info" value="NavonInfo" />
+			<entry key="navon.variant.navlink" value="NavonLink" />
+			<entry key="navon.variant.tree" value="NavonXML" />
+			<entry key="navimage.variant.info" value="NavImageInfo" />
+			<entry key="navon.title.template" value="{0}" />
+			<entry key="navon.displaytitle.template" value="{0}" />
+		</propertyfile>
+
+		<echo>Setting default velocity.properties...</echo>
+		<copy failonerror="false" verbose="true" overwrite="false"
+			todir="${install.dir}/rxconfig/Server"
+			file="${install.dir}/rxconfig/velocity/2.3/config/*.properties" />
+
+		<!-- Specify the rxdir in jetty default jvm -->
+		<echo>Specifying rxdeploydir in jvm.ini files...</echo>
+		<!-- Convert path so that all slashes are forward -->
+		<pathconvert pathsep="/" property="normalized.install.dir"
+			targetos="unix">
+			<path location="${install.dir}" />
+		</pathconvert>
+		<if>
+			<isset property="isWindows" />
+			<then>
+				<property name="lead.slash" value="/" />
+			</then>
+			<else>
+				<property name="lead.slash" value="" />
+			</else>
+		</if>
+		<if>
+			<available
+				file="${install.dir}/jetty/defaults/start.d/jvm.ini" />
+			<then>
+				<replace
+					file="${install.dir}/jetty/defaults/start.d/jvm.ini"
+					token="@@rxdir@@" value="${normalized.install.dir}" />
+			</then>
+		</if>
+		<if>
+			<available file="${install.dir}/jetty/base/start.d/jvm.ini" />
+			<then>
+				<replace file="${install.dir}/jetty/base/start.d/jvm.ini"
+					token="@@rxdir@@" value="${normalized.install.dir}" />
+				<replace file="${install.dir}/jetty/base/start.d/jvm.ini"
+					token="-Djavax.xml.transform.TransformerFactory"
+					value="#-Djavax.xml.transform.TransformerFactory" />
+				<replace file="${install.dir}/jetty/base/start.d/jvm.ini"
+					token="-Djavax.xml.parsers.SAXParserFactory"
+					value="#-Djavax.xml.parsers.SAXParserFactory" />
+				<replace file="${install.dir}/jetty/base/start.d/jvm.ini"
+					token="-Djavax.xml.datatype.DatatypeFactory"
+					value="#-Djavax.xml.datatype.DatatypeFactory" />
+				<replace file="${install.dir}/jetty/base/start.d/jvm.ini"
+					token="-Djavax.xml.parsers.DocumentBuilderFactory"
+					value="#-Djavax.xml.parsers.DocumentBuilderFactory" />
+			</then>
+		</if>
+		<replace file="${install.dir}/PercussionXMLCatalog.xml"
+			token="@@rxdir@@" value="${lead.slash}${normalized.install.dir}" />
+		<replace file="${install.dir}/var/config/CustomXMLCatalog.xml"
+			token="@@rxdir@@" value="${lead.slash}${normalized.install.dir}" />
+		<if>
+			<available
+				file="${install.dir}/sys_resources/ant/copy-resources.xml" />
+			<then>
+				<replace
+					file="${install.dir}/sys_resources/ant/copy-resources.xml"
+					token="@@perc.version@@" value="${buildversion}" />
+			</then>
+		</if>
+
+		<macrodef name="add-config-if-missing">
+			<attribute name="srcFile" />
+			<attribute name="value" />
+			<sequential>
+				<local name="setting.test" />
+				<loadfile property="setting.test" srcFile="@{srcFile}">
+					<filterchain>
+						<linecontains>
+							<contains value="@{value}" />
+						</linecontains>
+					</filterchain>
+				</loadfile>
+
+				<if>
+					<not>
+						<equals arg1="${setting.test}" arg2="@{value}" trim="true"
+							forcestring="true" />
+					</not>
+					<then>
+						<echo file="@{srcFile}" append="true"
+							message="&#010;@{value}" />
+					</then>
+				</if>
+			</sequential>
+		</macrodef>
+
+		<echo>Updating user spring configuration...</echo>
+		<replace
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring"
+			value=" bean=" token=" local=">
+			<include name="*.xml" />
+		</replace>
+		<replace
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring"
+			value=""
+			token="&lt;property name=&quot;diskStorePath&quot; value=&quot;user.dir/perc-image-cache&quot; /&gt;">
+			<include name="*.xml" />
+		</replace>
+		<replace
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring">
+			<include name="*.xml" />
+			<replacetoken><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:tx="http://www.springframework.org/schema/tx"
@@ -289,7 +367,7 @@
    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 ]]></replacetoken>
-            <replacevalue><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
+			<replacevalue><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -299,12 +377,13 @@ http://www.springframework.org/schema/tx
 http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
 http://www.springframework.org/schema/context
 http://www.springframework.org/schema/context/spring-context-4.2.xsd">]]></replacevalue>
-        </replace>
+		</replace>
 
 
-        <replace dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring" >
-            <include name="*.xml"/>
-            <replacetoken><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
+		<replace
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring">
+			<include name="*.xml" />
+			<replacetoken><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:tx="http://www.springframework.org/schema/tx"
@@ -313,7 +392,7 @@ http://www.springframework.org/schema/context/spring-context-4.2.xsd">]]></repla
    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 ]]></replacetoken>
-            <replacevalue><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
+			<replacevalue><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -323,11 +402,12 @@ http://www.springframework.org/schema/tx
 http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
 http://www.springframework.org/schema/context
 http://www.springframework.org/schema/context/spring-context-4.2.xsd">]]></replacevalue>
-        </replace>
+		</replace>
 
-        <replace dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring" >
-            <include name="*.xml"/>
-            <replacetoken><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
+		<replace
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring">
+			<include name="*.xml" />
+			<replacetoken><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:tx="http://www.springframework.org/schema/tx"
@@ -339,7 +419,7 @@ http://www.springframework.org/schema/context/spring-context-4.2.xsd">]]></repla
    http://www.percussion.com/schema/config  http://www.percussion.com/schema/config/ConfigPropertyValue.xsd"
    >
 ]]></replacetoken>
-            <replacevalue><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
+			<replacevalue><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -349,15 +429,16 @@ http://www.springframework.org/schema/tx
 http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
 http://www.springframework.org/schema/context
 http://www.springframework.org/schema/context/spring-context-4.2.xsd">]]></replacevalue>
-        </replace>
-        <replace dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring" >
-            <include name="*.xml"/>
-            <replacetoken><![CDATA[
+		</replace>
+		<replace
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring">
+			<include name="*.xml" />
+			<replacetoken><![CDATA[
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
    "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 ]]></replacetoken>
-            <replacevalue><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
+			<replacevalue><![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -367,10 +448,11 @@ http://www.springframework.org/schema/tx
 http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
 http://www.springframework.org/schema/context
 http://www.springframework.org/schema/context/spring-context-4.2.xsd">]]></replacevalue>
-        </replace>
-        <replace dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring" >
-            <include name="UserDispatcher-servlet.xml"/>
-            <replacetoken><![CDATA[<!-- add mappings here -->
+		</replace>
+		<replace
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring">
+			<include name="UserDispatcher-servlet.xml" />
+			<replacetoken><![CDATA[<!-- add mappings here -->
         <bean id="urlMapping"
               class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
             <property name="mappings">
@@ -388,7 +470,7 @@ http://www.springframework.org/schema/context/spring-context-4.2.xsd">]]></repla
             </property>
         </bean>
 ]]></replacetoken>
-            <replacevalue><![CDATA[<!-- add mappings here
+			<replacevalue><![CDATA[<!-- add mappings here
    <bean id="urlMapping"
       class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
       <property name="mappings">
@@ -400,51 +482,62 @@ http://www.springframework.org/schema/context/spring-context-4.2.xsd">]]></repla
    </bean>
   -->
  ]]></replacevalue>
-        </replace>
+		</replace>
 
-        <echo>Copying percSystem.xml Resources...</echo>
-        <!-- percSystem.xml Resources -->
-        <PSCopy tofile="${install.dir}/rxconfig/Resources/percSystem.xml" file="${install.src}/rxconfig/Resources/percSystem.xml" replaceType="always"/>
+		<echo>Copying percSystem.xml Resources...</echo>
+		<!-- percSystem.xml Resources -->
+		<PSCopy
+			tofile="${install.dir}/rxconfig/Resources/percSystem.xml"
+			file="${install.src}/rxconfig/Resources/percSystem.xml"
+			replaceType="always" />
 
-        <echo>Updating Publisher Beans files...</echo>
+		<echo>Updating Publisher Beans files...</echo>
 
-        <if>
-            <available file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml" type="file"/>
-            <then>
-               <copy file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml" tofile="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml_copy" />
-                <if>
-                    <available file="publisherBeans.xsl" type="file"/>
-                    <then>
-                        <xslt force="true" style="publisherBeans.xsl"
-                              in="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml_copy"
-                              out="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml" />
-                    </then>
-                    <else>
-                        <echo>publisherBeans.xsl Not Found</echo>
-                    </else>
-                </if>
-                <delete file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml_copy"/>
-            </then>
-            <else>
-                <echo>${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml Not Found</echo>
-            </else>
+		<if>
+			<available
+				file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml"
+				type="file" />
+			<then>
+				<copy
+					file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml"
+					tofile="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml_copy" />
+				<if>
+					<available file="publisherBeans.xsl" type="file" />
+					<then>
+						<xslt force="true" style="publisherBeans.xsl"
+							in="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml_copy"
+							out="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml" />
+					</then>
+					<else>
+						<echo>publisherBeans.xsl Not Found</echo>
+					</else>
+				</if>
+				<delete
+					file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml_copy" />
+			</then>
+			<else>
+				<echo>${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml
+					Not Found</echo>
+			</else>
 
-        </if>
+		</if>
 
-        <echo message="Removing old jetty console logs to free disk space..." />
-        <delete verbose="true" failonerror="false">
-            <fileset dir="${install.dir}/jetty/base/logs">
-                <include name="**/*.jetty.log" />
-            </fileset>
-        </delete>
+		<echo
+			message="Removing old jetty console logs to free disk space..." />
+		<delete verbose="true" failonerror="false">
+			<fileset dir="${install.dir}/jetty/base/logs">
+				<include name="**/*.jetty.log" />
+			</fileset>
+		</delete>
 
-        <echo message="Removing retired ant dependencies..."/>
-        <delete verbose="true" failonerror="false" includeemptydirs="true">
-            <fileset dir="${install.dir}/sys_resources/ant/lib">
-                <include name="**/*"/>
-            </fileset>
-        </delete>
+		<echo message="Removing retired ant dependencies..." />
+		<delete verbose="true" failonerror="false"
+			includeemptydirs="true">
+			<fileset dir="${install.dir}/sys_resources/ant/lib">
+				<include name="**/*" />
+			</fileset>
+		</delete>
 
-    </target>
+	</target>
 
 </project>

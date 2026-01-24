@@ -3,13 +3,13 @@
 
 <LdapConfig>
 
-    <LdapServer>
-        <host>ADServer</host>
-        <port>389</port>
-        <user>CN=Administrator</user>
-        <password>password</password>
-        <catalog>shallow</catalog>
-        <objectAttributeName>samaccountname</objectAttributeName>
-    </LdapServer>
-    
+	<LdapServer>
+		<host>ADServer</host>
+		<port>389</port>
+		<user>CN=Administrator</user>
+		<password>password</password>
+		<catalog>shallow</catalog>
+		<objectAttributeName>samaccountname</objectAttributeName>
+	</LdapServer>
+
 </LdapConfig>

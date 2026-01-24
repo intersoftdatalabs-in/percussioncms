@@ -2,34 +2,39 @@
 
 
 <PSXArchiveManifest>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_images_gadgetIconWebsiteConfig-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\images\gadgetIconWebsiteConfig.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_images_gadgetIconWebsiteConfig-png\gadgetIconWebsiteConfig.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-xml">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\perc_website_config_gadget.xml</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-xml\perc_website_config_gadget.xml</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_images_gadgetIconWebsiteConfigOver-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\images\gadgetIconWebsiteConfigOver.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_images_gadgetIconWebsiteConfigOver-png\gadgetIconWebsiteConfigOver.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-js">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\perc_website_config_gadget.js</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-js\perc_website_config_gadget.js</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-css">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\perc_website_config_gadget.css</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-css\perc_website_config_gadget.css</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_images_gadgetIconWebsiteConfig-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\images\gadgetIconWebsiteConfig.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_images_gadgetIconWebsiteConfig-png\gadgetIconWebsiteConfig.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-xml">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\perc_website_config_gadget.xml</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-xml\perc_website_config_gadget.xml</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_images_gadgetIconWebsiteConfigOver-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\images\gadgetIconWebsiteConfigOver.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_images_gadgetIconWebsiteConfigOver-png\gadgetIconWebsiteConfigOver.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-js">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\perc_website_config_gadget.js</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-js\perc_website_config_gadget.js</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-css">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_website_config_gadget\perc_website_config_gadget.css</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__website__config__gadget_perc__website__config__gadget-css\perc_website_config_gadget.css</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
 </PSXArchiveManifest>

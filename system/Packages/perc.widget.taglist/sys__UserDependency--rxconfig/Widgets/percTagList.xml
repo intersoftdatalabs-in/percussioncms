@@ -1,40 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
- <WidgetPrefs title="Tags"
-              contenttype_name="percTagList"
-              category="blog,search"
-              description=" Displays a list of tags"
-              author="Percussion Software Inc"
-              thumbnail="/rx_resources/widgets/tagList/images/widgetIconLinkTagList.png"
-              preferred_editor_width="800"
-              preferred_editor_height="685"
-              is_responsive="true"/>
- <Resource href="/perc-common-ui/js/perc_common_ui.js"
-           type="javascript"
-           placement="head" />
- <UserPref name="tag_render_option"
-           display_name="Display format"
-           required="true"
-           default_value="list"
-           datatype="enum">
-  <EnumValue value="list" display_value="List" />
-  <EnumValue value="commaSeparated" display_value="Comma separated (wrap text)" />
- </UserPref>
- <UserPref name="tag_sort_option"
-           display_name="Sort method"
-           required="true"
-           default_value="alpha"
-           datatype="enum">
-  <EnumValue value="alpha" display_value="Alphabetic" />
-  <EnumValue value="count" display_value="Count of tags" />
- </UserPref>
- <CssPref name="rootclass"
-          display_name="CSS root class"
-          datatype="string" />
- <CssPref name="summaryclass"
-          display_name="CSS page summary class"
-          datatype="string" />
- <Code type="jexl">
+	<WidgetPrefs title="Tags" contenttype_name="percTagList"
+		category="blog,search" description=" Displays a list of tags"
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/tagList/images/widgetIconLinkTagList.png"
+		preferred_editor_width="800" preferred_editor_height="685"
+		is_responsive="true" />
+	<Resource href="/perc-common-ui/js/perc_common_ui.js"
+		type="javascript" placement="head" />
+	<UserPref name="tag_render_option"
+		display_name="Display format" required="true" default_value="list"
+		datatype="enum">
+		<EnumValue value="list" display_value="List" />
+		<EnumValue value="commaSeparated"
+			display_value="Comma separated (wrap text)" />
+	</UserPref>
+	<UserPref name="tag_sort_option" display_name="Sort method"
+		required="true" default_value="alpha" datatype="enum">
+		<EnumValue value="alpha" display_value="Alphabetic" />
+		<EnumValue value="count" display_value="Count of tags" />
+	</UserPref>
+	<CssPref name="rootclass" display_name="CSS root class"
+		datatype="string" />
+	<CssPref name="summaryclass"
+		display_name="CSS page summary class" datatype="string" />
+	<Code type="jexl">
   <![CDATA[
    $linkContext = $perc.linkContext;
    $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);
@@ -151,8 +141,8 @@
       ;
    }
     ]]>
- </Code>
- <Content type="velocity">
+	</Code>
+	<Content type="velocity">
   <![CDATA[
 <div class="$!{rootclass} perc-tag-list" data-query="$!{dynamicListData}">
 ##This is a hidden div that holds the structure of the list when the tag list output structure changes this hidden div and delivery side view
@@ -219,5 +209,5 @@
 #end##
 </div>
 ]]>
- </Content>
+	</Content>
 </Widget>

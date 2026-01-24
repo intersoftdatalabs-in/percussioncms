@@ -1,74 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<PSXArchiveInfo archiveRef="perc.widget.jqueryUI" category="USER" created="1557849756839" editable="true" serverName="cs-cwright3:9992" userName="Admin">
-   <PSXFormatVersion buildId="479" buildNumber="20160805" displayVersion="5.3.15" interfaceVersion="9" majorVersion="5" microVersion="15" minorVersion="3" optionalId="5315_20190326" versionString="PATCH"/>
-   <PSXDbmsInfo>
-      <datasource>RhythmyxData</datasource>
-      <driver>jtds:sqlserver</driver>
-      <server>//cs-cwright3:55663</server>
-      <database>Percussion</database>
-      <origin>dbo</origin>
-      <userid>sa</userid>
-      <password>bRuj/fZa/1wrb7tUC80oSEUHHcXpPwU5</password>
-   </PSXDbmsInfo>
-   <PSXArchiveDetail>
-      <PSXExportDescriptor archiveType="normal">
-         <PSXDescriptor id="7094909343014856466" name="perc.widget.jqueryUI">
-            <Description>A widget that allows for choosing the implementation of jQuery.</Description>
-            <Publisher name="Percussion Software, Inc." url="https://www.percussion.com"/>
-            <CmsVersion max="9.0.0" min="5.3.15"/>
-            <Version>1.1.4</Version>
-            <ImplConfigFile/>
-            <LocalConfigFile/>
-            <PKGDependencies/>
-         </PSXDescriptor>
-         <Packages>
-            <PSXDeployableElement>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="sys_UserDependency" dependencyType="Shared" displayName="User Dependency" isAssociation="yes" isIncluded="yes" objectType="Custom" objectTypeName="Custom" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="yes">
-                  <Dependencies>
-                     <PSXUserDependency parentId="sys_UserDependency" parentKey="Custom-sys_UserDependency" parentType="Custom" path="rxconfig/Widgets/percJQueryUIWidget.xml">
-                        <PSXDeployableObject>
-                           <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rxconfig/Widgets/percJQueryUIWidget.xml" dependencyType="User" displayName="percJQueryUIWidget.xml" isAssociation="no" isIncluded="yes" objectType="sys_UserDependency" objectTypeName="User Dependency" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no">
-                              <Dependencies/>
-                           </PSXDependency>
-                           <RequiredClasses/>
-                        </PSXDeployableObject>
-                     </PSXUserDependency>
-                     <PSXUserDependency parentId="sys_UserDependency" parentKey="Custom-sys_UserDependency" parentType="Custom" path="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryui.png">
-                        <PSXDeployableObject>
-                           <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryui.png" dependencyType="User" displayName="widgeticonjqueryui.png" isAssociation="no" isIncluded="yes" objectType="sys_UserDependency" objectTypeName="User Dependency" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no">
-                              <Dependencies/>
-                           </PSXDependency>
-                           <RequiredClasses/>
-                        </PSXDeployableObject>
-                     </PSXUserDependency>
-                     <PSXUserDependency parentId="sys_UserDependency" parentKey="Custom-sys_UserDependency" parentType="Custom" path="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiempty.png">
-                        <PSXDeployableObject>
-                           <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiempty.png" dependencyType="User" displayName="widgeticonjqueryuiempty.png" isAssociation="no" isIncluded="yes" objectType="sys_UserDependency" objectTypeName="User Dependency" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no">
-                              <Dependencies/>
-                           </PSXDependency>
-                           <RequiredClasses/>
-                        </PSXDeployableObject>
-                     </PSXUserDependency>
-                     <PSXUserDependency parentId="sys_UserDependency" parentKey="Custom-sys_UserDependency" parentType="Custom" path="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiover.png">
-                        <PSXDeployableObject>
-                           <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiover.png" dependencyType="User" displayName="widgeticonjqueryuiover.png" isAssociation="no" isIncluded="yes" objectType="sys_UserDependency" objectTypeName="User Dependency" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no">
-                              <Dependencies/>
-                           </PSXDependency>
-                           <RequiredClasses/>
-                        </PSXDeployableObject>
-                     </PSXUserDependency>
-                  </Dependencies>
-               </PSXDependency>
-               <Description/>
-            </PSXDeployableElement>
-         </Packages>
-         <ModifiedPackages/>
-         <MissingPackages/>
-      </PSXExportDescriptor>
-      <DbmsInfoMap>
-         <DbmsInfoMapping PkgKey="Custom-sys_UserDependency"/>
-      </DbmsInfoMap>
-   </PSXArchiveDetail>
+<PSXArchiveInfo archiveRef="perc.widget.jqueryUI"
+	category="USER" created="1557849756839" editable="true"
+	serverName="cs-cwright3:9992" userName="Admin">
+	<PSXFormatVersion buildId="479" buildNumber="20160805"
+		displayVersion="5.3.15" interfaceVersion="9" majorVersion="5"
+		microVersion="15" minorVersion="3" optionalId="5315_20190326"
+		versionString="PATCH" />
+	<PSXDbmsInfo>
+		<datasource>RhythmyxData</datasource>
+		<driver>jtds:sqlserver</driver>
+		<server>//cs-cwright3:55663</server>
+		<database>Percussion</database>
+		<origin>dbo</origin>
+		<userid>sa</userid>
+		<password>bRuj/fZa/1wrb7tUC80oSEUHHcXpPwU5</password>
+	</PSXDbmsInfo>
+	<PSXArchiveDetail>
+		<PSXExportDescriptor archiveType="normal">
+			<PSXDescriptor id="7094909343014856466"
+				name="perc.widget.jqueryUI">
+				<Description>A widget that allows for choosing the implementation of
+					jQuery.</Description>
+				<Publisher name="Percussion Software, Inc."
+					url="https://www.percussion.com" />
+				<CmsVersion max="9.0.0" min="5.3.15" />
+				<Version>1.1.4</Version>
+				<ImplConfigFile />
+				<LocalConfigFile />
+				<PKGDependencies />
+			</PSXDescriptor>
+			<Packages>
+				<PSXDeployableElement>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="sys_UserDependency" dependencyType="Shared"
+						displayName="User Dependency" isAssociation="yes" isIncluded="yes"
+						objectType="Custom" objectTypeName="Custom" supportsIdMapping="no"
+						supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="yes">
+						<Dependencies>
+							<PSXUserDependency
+								parentId="sys_UserDependency"
+								parentKey="Custom-sys_UserDependency" parentType="Custom"
+								path="rxconfig/Widgets/percJQueryUIWidget.xml">
+								<PSXDeployableObject>
+									<PSXDependency autoDep="no" autoExpand="yes"
+										dependencyId="rxconfig/Widgets/percJQueryUIWidget.xml"
+										dependencyType="User" displayName="percJQueryUIWidget.xml"
+										isAssociation="no" isIncluded="yes"
+										objectType="sys_UserDependency"
+										objectTypeName="User Dependency" supportsIdMapping="no"
+										supportsIdTypes="no" supportsParentId="no"
+										supportsUserDependencies="no">
+										<Dependencies />
+									</PSXDependency>
+									<RequiredClasses />
+								</PSXDeployableObject>
+							</PSXUserDependency>
+							<PSXUserDependency
+								parentId="sys_UserDependency"
+								parentKey="Custom-sys_UserDependency" parentType="Custom"
+								path="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryui.png">
+								<PSXDeployableObject>
+									<PSXDependency autoDep="no" autoExpand="yes"
+										dependencyId="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryui.png"
+										dependencyType="User" displayName="widgeticonjqueryui.png"
+										isAssociation="no" isIncluded="yes"
+										objectType="sys_UserDependency"
+										objectTypeName="User Dependency" supportsIdMapping="no"
+										supportsIdTypes="no" supportsParentId="no"
+										supportsUserDependencies="no">
+										<Dependencies />
+									</PSXDependency>
+									<RequiredClasses />
+								</PSXDeployableObject>
+							</PSXUserDependency>
+							<PSXUserDependency
+								parentId="sys_UserDependency"
+								parentKey="Custom-sys_UserDependency" parentType="Custom"
+								path="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiempty.png">
+								<PSXDeployableObject>
+									<PSXDependency autoDep="no" autoExpand="yes"
+										dependencyId="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiempty.png"
+										dependencyType="User"
+										displayName="widgeticonjqueryuiempty.png" isAssociation="no"
+										isIncluded="yes" objectType="sys_UserDependency"
+										objectTypeName="User Dependency" supportsIdMapping="no"
+										supportsIdTypes="no" supportsParentId="no"
+										supportsUserDependencies="no">
+										<Dependencies />
+									</PSXDependency>
+									<RequiredClasses />
+								</PSXDeployableObject>
+							</PSXUserDependency>
+							<PSXUserDependency
+								parentId="sys_UserDependency"
+								parentKey="Custom-sys_UserDependency" parentType="Custom"
+								path="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiover.png">
+								<PSXDeployableObject>
+									<PSXDependency autoDep="no" autoExpand="yes"
+										dependencyId="rx_resources/widgets/percJQueryUIWidget/images/widgeticonjqueryuiover.png"
+										dependencyType="User" displayName="widgeticonjqueryuiover.png"
+										isAssociation="no" isIncluded="yes"
+										objectType="sys_UserDependency"
+										objectTypeName="User Dependency" supportsIdMapping="no"
+										supportsIdTypes="no" supportsParentId="no"
+										supportsUserDependencies="no">
+										<Dependencies />
+									</PSXDependency>
+									<RequiredClasses />
+								</PSXDeployableObject>
+							</PSXUserDependency>
+						</Dependencies>
+					</PSXDependency>
+					<Description />
+				</PSXDeployableElement>
+			</Packages>
+			<ModifiedPackages />
+			<MissingPackages />
+		</PSXExportDescriptor>
+		<DbmsInfoMap>
+			<DbmsInfoMapping PkgKey="Custom-sys_UserDependency" />
+		</DbmsInfoMap>
+	</PSXArchiveDetail>
 </PSXArchiveInfo>

@@ -2,20 +2,21 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================================
-        Testing EMPTY "contexts" property for Location Scheme handler      
-        =======================================================
--->
-	
+		<!--- ======================================================== Testing
+			EMPTY "contexts" property for Location Scheme handler ======================================================= -->
+
 		<property name="contexts">
-			<pvalues/>
+			<pvalues />
 		</property>
-		
-		<property name="description" value="CI Home page location 天天"/>
-      <property name="expression"  value="/index.html"/>
-						
-   </SolutionConfig>
+
+		<property name="description" value="CI Home page location 天天" />
+		<property name="expression" value="/index.html" />
+
+	</SolutionConfig>
 </SolutionConfigurations>

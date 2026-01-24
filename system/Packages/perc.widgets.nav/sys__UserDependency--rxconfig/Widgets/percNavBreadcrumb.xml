@@ -1,35 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Breadcrumb"
-                 contenttype_name=""
-                 category="navigation"
-                 description="Display a navigation breadcrumb in your site"
-                 author="Percussion Software Inc"
-                 thumbnail="/web_resources/widgets/navBar/images/widgetIconBreadcrumb.png"
-                 is_responsive="true"/>
-    <Resource href="/web_resources/widgets/navBar/css/breadcrumb.css"
-              type="css"
-              placement="head" />
-    <UserPref name="showHome"
-              display_name="Show home"
-              default_value="true"
-              datatype="bool" />
-    <UserPref name="showCurrentPage"
-              display_name="Show current page"
-              default_value="true"
-              datatype="bool" />
-    <UserPref name="separator"
-              display_name="Separator"
-              default_value=" &gt; "
-              datatype="string" />
-    <UserPref name="ariaLabel"
-              display_name="Aria Label"
-              default_value=""
-              datatype="string" />
-    <CssPref name="rootclass"
-             display_name="CSS root class"
-             datatype="string" />
-    <Code type="jexl">
+	<WidgetPrefs title="Breadcrumb" contenttype_name=""
+		category="navigation"
+		description="Display a navigation breadcrumb in your site"
+		author="Percussion Software Inc"
+		thumbnail="/web_resources/widgets/navBar/images/widgetIconBreadcrumb.png"
+		is_responsive="true" />
+	<Resource
+		href="/web_resources/widgets/navBar/css/breadcrumb.css" type="css"
+		placement="head" />
+	<UserPref name="showHome" display_name="Show home"
+		default_value="true" datatype="bool" />
+	<UserPref name="showCurrentPage"
+		display_name="Show current page" default_value="true" datatype="bool" />
+	<UserPref name="separator" display_name="Separator"
+		default_value=" &gt; " datatype="string" />
+	<UserPref name="ariaLabel" display_name="Aria Label"
+		default_value="" datatype="string" />
+	<CssPref name="rootclass" display_name="CSS root class"
+		datatype="string" />
+	<Code type="jexl">
         <![CDATA[
     $linkContext = $perc.linkContext;
     $showHome = $perc.widget.item.properties.get('showHome');
@@ -50,8 +40,8 @@
         $sampleTooltip = ' title="' + $navTooltip + '"';
     }
     ]]>
-    </Code>
-    <Content type="velocity">
+	</Code>
+	<Content type="velocity">
         <![CDATA[
 <div class="$!{rootclass}perc-breadcrumb" aria-label="$!{ariaLabel}">
 #if ($navSelf)##
@@ -122,5 +112,5 @@ $!{title}
 </nav>
 #end##
 </div>]]>
-    </Content>
+	</Content>
 </Widget>

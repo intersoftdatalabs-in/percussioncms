@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Comments Form"
-                 contenttype_name="percCommentsFormAsset"
-                 category="blog,social"
-                 description="Build a form for submitting comments"
-                 author="Percussion Software Inc"
-                 thumbnail="/rx_resources/widgets/commentsForm/images/WidgetIconComntForm.png"
-                 preferred_editor_width="780"
-                 preferred_editor_height="680"
-                 is_responsive="true"
-    />
-    <UserPref name="labelalign"
-              display_name="Label align"
-              required="true"
-              default_value="top"
-              datatype="enum">
-        <EnumValue value="top" display_value="Top of the control" />
-        <EnumValue value="left" display_value="Left of the control" />
-    </UserPref>
+	<WidgetPrefs title="Comments Form"
+		contenttype_name="percCommentsFormAsset" category="blog,social"
+		description="Build a form for submitting comments"
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/commentsForm/images/WidgetIconComntForm.png"
+		preferred_editor_width="780" preferred_editor_height="680"
+		is_responsive="true" />
+	<UserPref name="labelalign" display_name="Label align"
+		required="true" default_value="top" datatype="enum">
+		<EnumValue value="top" display_value="Top of the control" />
+		<EnumValue value="left" display_value="Left of the control" />
+	</UserPref>
 
-    <CssPref name="rootclass"
-             display_name="CSS Root Class"
-             datatype="string" />
+	<CssPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
 
-    <Code type="jexl">
+	<Code type="jexl">
         <![CDATA[
 
         $linkContext = $perc.linkContext;
@@ -63,9 +56,9 @@
         $dynamicListData = $tools.esc.html("{ deliveryurl : '" + $dsUrl + "'}");
 
         ]]>
-    </Code>
+	</Code>
 
-    <Content type="velocity">
+	<Content type="velocity">
         <![CDATA[
       #loadRelatedWidgetContents()
           <div class = "perc-comments-form $!{rootclass} $!{labelalignclass}" data-query="$!{dynamicListData}">
@@ -103,5 +96,5 @@
              #end
         </div>
     ]]>
-    </Content>
+	</Content>
 </Widget>

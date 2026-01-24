@@ -1,39 +1,48 @@
-<?xml version="1.0" encoding="UTF-8" ?> 
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-  <ModulePrefs title="What's Working" category="analytics" description="This gadget plots traffic gain per page change for sites, sections, and folders." thumbnail="images/gadgetIconEffectiveness.png" height="420">
-       <Require feature="perc_core"/>
-	   <Require feature="perc_jquery_ui"/>
-	   <Require feature="minimessage" />
-       <Require feature="settitle" />
-       <Require feature="perc_getDashboardColumn" />
-       <Require feature="setprefs" />
-  </ModulePrefs>
-  <UserPref name="site" display_name="Site" required="false" datatype="enum" default_value="@all">
-        <EnumValue value="@all" display_value="All Sites"/>
-        <EnumValue value="@url:/services/sitemanage/site/choices"/>
-  </UserPref> 
-  <UserPref name="duration_type" display_name="Duration" required="true" datatype="enum" default_value="days">
-        <EnumValue value="days" display_value="Days"/>
-        <EnumValue value="weeks" display_value="Weeks"/>
-        <EnumValue value="months" display_value="Months"/> 
-        <EnumValue value="years" display_value="Years"/>
-  </UserPref>
-  <UserPref name="duration_value" display_name="How many" required="true" datatype="string" default_value="5"/>
-  <UserPref name="usage_value" display_name="Usage" required="true" datatype="enum" default_value="pageviews">
-		<EnumValue value="pageviews" display_value="Page views"/>
-		<EnumValue value="unique_pageviews" display_value="Unique page views"/>
-  </UserPref>	 		
- <UserPref name="value_threshold" display_name="Goal (Gains per page)" required="true" datatype="string" default_value="0"/>  
- <UserPref name="drill_down_path" datatype="hidden"/>
-  <Content type="html">
+	<ModulePrefs title="What's Working" category="analytics"
+		description="This gadget plots traffic gain per page change for sites, sections, and folders."
+		thumbnail="images/gadgetIconEffectiveness.png" height="420">
+		<Require feature="perc_core" />
+		<Require feature="perc_jquery_ui" />
+		<Require feature="minimessage" />
+		<Require feature="settitle" />
+		<Require feature="perc_getDashboardColumn" />
+		<Require feature="setprefs" />
+	</ModulePrefs>
+	<UserPref name="site" display_name="Site" required="false"
+		datatype="enum" default_value="@all">
+		<EnumValue value="@all" display_value="All Sites" />
+		<EnumValue value="@url:/services/sitemanage/site/choices" />
+	</UserPref>
+	<UserPref name="duration_type" display_name="Duration"
+		required="true" datatype="enum" default_value="days">
+		<EnumValue value="days" display_value="Days" />
+		<EnumValue value="weeks" display_value="Weeks" />
+		<EnumValue value="months" display_value="Months" />
+		<EnumValue value="years" display_value="Years" />
+	</UserPref>
+	<UserPref name="duration_value" display_name="How many"
+		required="true" datatype="string" default_value="5" />
+	<UserPref name="usage_value" display_name="Usage"
+		required="true" datatype="enum" default_value="pageviews">
+		<EnumValue value="pageviews" display_value="Page views" />
+		<EnumValue value="unique_pageviews"
+			display_value="Unique page views" />
+	</UserPref>
+	<UserPref name="value_threshold"
+		display_name="Goal (Gains per page)" required="true" datatype="string"
+		default_value="0" />
+	<UserPref name="drill_down_path" datatype="hidden" />
+	<Content type="html">
      <![CDATA[
      <!DOCTYPE html>
     <link href="/cm/gadgets/repository/common/perc_common_gadget.css" rel="stylesheet" type="text/css" />
     <style>
 
 		#perc-chart-wrapper{
-			position:absolute;	
+			position:absolute;
 			padding:0px 5px;
 			height:89%;
 			font-size:11px;
@@ -52,21 +61,21 @@
 			height:100%;
 	}
 		.jqplot-yaxis{
-			font-weight:bold;	
+			font-weight:bold;
 			font-size:10px;
 			margin-right:0px;
 		}
-		
+
 		.jqplot-xaxis{
 			margin-top:0px;
 		}
-		
+
 		.jqplot-y2axis{
 			display:none;
 		}
-		
+
 		#perc-chart-gain-validation, #perc-chart-duration-validation, .effectiveness-error-message{
-			padding:20px;	
+			padding:20px;
 			margin:auto;
 			text-align:center;
 			background:none repeat scroll 0 0 #F0F0F0;
@@ -77,14 +86,14 @@
 			vertical-align:middle;
 			font-family: 'Open Sans', sans-serif;
 		}
-		
+
 		#perc-chart-breadcrumb{
 			color:#777777;
 			padding:10px 0px 5px 0px;
 			font-size:11px;
 			font-weight:normal;
 			margin:auto;
-			text-align:left;	
+			text-align:left;
 		}
 		#perc-chart-breadcrumb-list{
 			padding:0px;
@@ -94,11 +103,11 @@
 		}
 		#perc-chart-breadcrumb ul{
 			margin:0px;
-		}		
+		}
 		#perc-breadcrumb-items{
 		   font-size:11px;
 		   cursor:pointer;
-		   cursor:hand;	
+		   cursor:hand;
 		}
 		#perc-yaxis-label, .jqplot-xaxis-label{
 			font-size:12px;
@@ -164,7 +173,7 @@
             var PercServiceUtils = percJQuery.PercServiceUtils;
 			var pathService		 = percJQuery.PercPathService;
 			var PercUtils = percJQuery.perc_utils;
-			prefs = new gadgets.Prefs(); 
+			prefs = new gadgets.Prefs();
             var site = prefs.getString("site");
 			var durationValue = prefs.getString("duration_value");
 			var durationType = prefs.getString("duration_type");
@@ -172,7 +181,7 @@
 			var threshold = prefs.getString("value_threshold");
 
 			// Check if Site is available. If not set configuration to All Sites
-			pathService.getLastExistingPath("/Sites/"+site, function(status, result){				
+			pathService.getLastExistingPath("/Sites/"+site, function(status, result){
                 if((result == "")||(result == null)){
 					site = "";
 				}
@@ -180,13 +189,13 @@
 					site = result;
 				}
 				var site_title = site == "" ? "All Sites" : site;
-				
+
 				var drillDownPath = "";
 				PercMetadataService.find(drillDownKey, function(status, result){
 					var path = site;
 					var checkDuration = durationValue;
 					var checkGain = threshold;
-				
+
 				if ((isNaN(checkDuration)) || checkDuration<=0){
 					miniMsg.dismissMessage(loadingMsg);
 					$("#perc-chart-duration-validation").show();
@@ -202,9 +211,9 @@
 					$("#perc-chart-breadcrumb").hide();
 					$("#perc-chart-wrapper").hide();
 					messageFlag = true;
-				}				
-				var title = "WHAT'S WORKING: During Last " + durationValue + " " + durationType + " (" + site_title + ")";   
-				gadgets.window.setTitle(title); 
+				}
+				var title = "WHAT'S WORKING: During Last " + durationValue + " " + durationType + " (" + site_title + ")";
+				gadgets.window.setTitle(title);
 				if(messageFlag){
 					return;
 				}
@@ -237,7 +246,7 @@
 					}
 				});
 			});
-		});	
+		});
     </script>
 			<div id  = "perc-chart-breadcrumb"><ul id = "perc-chart-breadcrumb-list"></ul> </div>
 			<div id = "perc-yaxis-label"></div>
@@ -247,7 +256,7 @@
 			<div id = "perc-chart-wrapper">
 				<div id="perc-chart">
 				</div>
-			</div>	  
+			</div>
      ]]>
-  </Content> 
+	</Content>
 </Module>

@@ -2,30 +2,32 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================================
-        Location Scheme        "Site_Folder_Assembly / CI_Home"      
-        =======================================================
--->
-	
-      <property name="expression">
-      	<pvalue>'/CI_Home/index.html'</pvalue>
-      </property>
+		<!--- ======================================================== Location
+			Scheme "Site_Folder_Assembly / CI_Home" ======================================================= -->
 
-		<property name="generator" value="sys_casDefaultAssemblyLocation"/>
-		
+		<property name="expression">
+			<pvalue>'/CI_Home/index.html'</pvalue>
+		</property>
+
+		<property name="generator"
+			value="sys_casDefaultAssemblyLocation" />
+
 		<property name="generatorParams">
 			<pvalues>
-				<pair value1="root" value2="/home/support"/>
-				<pair value1="path" value2="publish"/>
-				<pair value1="suffix" value2="html"/>
+				<pair value1="root" value2="/home/support" />
+				<pair value1="path" value2="publish" />
+				<pair value1="suffix" value2="html" />
 			</pvalues>
 		</property>
-		
-		<property name="contextWildCard" value="*b*"/>
-		
+
+		<property name="contextWildCard" value="*b*" />
+
 		<property name="publishAndSiteScheme">
 			<pvalues>
 				<pvalue>Publish</pvalue>
@@ -33,9 +35,10 @@
 			</pvalues>
 		</property>
 
-		<property name="description" value="CI Home page location"/>
+		<property name="description" value="CI Home page location" />
 
-		<property name="description天天" value="CI Home page location 天天"/>
-								
-   </SolutionConfig>
+		<property name="description天天"
+			value="CI Home page location 天天" />
+
+	</SolutionConfig>
 </SolutionConfigurations>

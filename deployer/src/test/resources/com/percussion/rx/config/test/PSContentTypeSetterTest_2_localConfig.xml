@@ -2,26 +2,27 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================
-        Content Type        "rffBrief"      
-        =========================================
--->	
-	<propertySet name="ct">
-  
-      <property name="fields"> 
-         <propertySet name="webdavowner">
-               <property name="sequence" value="1"/>
-               <property name="default"  value="helloOwner"/>
-         </propertySet>
+		<!--- ======================================== Content Type "rffBrief"
+			========================================= -->
+		<propertySet name="ct">
 
-         <propertySet name="img2_filename"/>
+			<property name="fields">
+				<propertySet name="webdavowner">
+					<property name="sequence" value="1" />
+					<property name="default" value="helloOwner" />
+				</propertySet>
 
-      </property>
-      
-	</propertySet>
-	
-   </SolutionConfig>
+				<propertySet name="img2_filename" />
+
+			</property>
+
+		</propertySet>
+
+	</SolutionConfig>
 </SolutionConfigurations>

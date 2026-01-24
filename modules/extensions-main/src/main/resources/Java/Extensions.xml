@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PSXExtensionHandlerConfiguration handlerName="Java">
-   <!-- 
+   <!--
        When adding extensions that have never been distributed, the following
        contexts should be used:
 
@@ -198,7 +198,7 @@
    <Extension name="sys_casGenericAssemblyLocation" context="global/percussion/contentassembler/" handler="Java" categorystring="contentassembler" deprecated="no">
       <initParam name="com.percussion.user.description">Builds a delivery location by concatenating all the text nodes of the XML document returned by the specified resource.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
-      <initParam name="className">com.percussion.cas.PSGenericAssembly</initParam>  
+      <initParam name="className">com.percussion.cas.PSGenericAssembly</initParam>
       <initParam name="com.percussion.extension.reentrant">yes</initParam>
       <interface name="com.percussion.extension.IPSAssemblyLocation"/>
       <PSXExtensionParamDef id="0">
@@ -247,7 +247,7 @@
       <initParam name="com.percussion.extension.assembly.fileSuffix">.xml</initParam>
       <interface name="com.percussion.services.assembly.IPSAssembler"/>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <Extension name="sys_xdMultiTextToTree" context="global/percussion/xmldom/" handler="Java" categorystring="xmldom" deprecated="no">
       <initParam name="com.percussion.user.description">Parses multiple text fields into a tree and replaces them in the result document.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -305,7 +305,7 @@
          <dataType>java.lang.String</dataType>
          <description>(optional) The password if authentication is required.</description>
       </PSXExtensionParamDef>
-	</Extension>     
+	</Extension>
    <Extension categorystring="generic" context="global/percussion/extensions/general/" deprecated="no" handler="Java" name="sys_CascadeDelete" restoreRequestParamsOnError="no">
       <initParam name="com.percussion.user.description">Makes requests to the specified resource. If the specified resource is a query resource and returns a non-empty document, then adds the child nodes of the root element of the returned document to the input document of the current request.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -879,7 +879,7 @@
       <initParam name="com.percussion.extension.reentrant">yes</initParam>
       <initParam name="className">com.percussion.extensions.general.PSPageLinkText</initParam>
       <interface name="com.percussion.extension.IPSUdfProcessor"/>
-   </Extension> 
+   </Extension>
    <Extension name="MakeAbsLink" context="global/" handler="Java" deprecated="yes">
       <initParam name="com.percussion.user.description">Creates an absolute URL with up to 6 name/value pairs and adds user session information.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -2444,8 +2444,8 @@
       <PSXExtensionParamDef id="2">
          <name>returnNullForEmpty</name>
          <dataType>java.lang.String</dataType>
-         <description>Valid values are true and false. If this value is true then return 
-            null if the input date is empty or null. This defaults to false if not 
+         <description>Valid values are true and false. If this value is true then return
+            null if the input date is empty or null. This defaults to false if not
             specified.</description>
       </PSXExtensionParamDef>
    </Extension>
@@ -2473,8 +2473,8 @@
       <PSXExtensionParamDef id="3">
          <name>returnNullForEmpty</name>
          <dataType>java.lang.String</dataType>
-         <description>Valid values are true and false. If this value is true then return 
-            null if the input date is empty or null. This defaults to false if not 
+         <description>Valid values are true and false. If this value is true then return
+            null if the input date is empty or null. This defaults to false if not
             specified.</description>
       </PSXExtensionParamDef>
    </Extension>
@@ -2623,7 +2623,7 @@
       </PSXExtensionParamDef>
    </Extension>
         <Extension categorystring="" context="global/percussion/content/" deprecated="no" handler="Java" name="sys_ValidateUniqueName" restoreRequestParamsOnError="no">
-           <initParam name="com.percussion.user.description">System extension used to validate the sys_title field for a Content 
+           <initParam name="com.percussion.user.description">System extension used to validate the sys_title field for a Content
  Editor only. It determines that the value of the sys_title field will be unique if within a folder. And also checks to see if item of its content type is unique within the system.
             </initParam>
            <initParam name="com.percussion.extension.version">1</initParam>
@@ -3523,7 +3523,7 @@ The element root indicates any Document Element of the result document.</initPar
       <initParam name="className">com.percussion.extensions.general.PSTouchItemsWorkflowAction</initParam>
       <interface name="com.percussion.extension.IPSWorkflowAction"/>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <Extension name="sys_TouchContentAndParentItems" context="global/percussion/extensions/general/" handler="Java" categorystring="generic" deprecated="no">
       <initParam name="com.percussion.user.description">This pre-exit touches 0 or more content parent items.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -4352,12 +4352,12 @@ One can a give an empty value for the resource name corresponding to a choice in
    </Extension>
    <Extension categorystring="cx" context="global/percussion/cx/" deprecated="no" handler="Java" name="sys_getItemTypeIconPaths" restoreRequestParamsOnError="no">
       <initParam name="com.percussion.user.description">Exit to get the icon paths for the supplied locators. Gets the input from the value of ItemLocators parameter from the request. It is a required parameter and returns unmodified result document if it is missing. Expects the value of the above parameter in the form of a string representation of XML consisting of PSXLocator elements as direct children of root element. The result document returned from the exit will be as per the following DTD
-     &lt;pre&gt; 
+     &lt;pre&gt;
       &lt;!ELEMENT ItemIcons (Item*)&gt;
-      &lt;!ELEMENT Item (#PCDATA)&gt; 
+      &lt;!ELEMENT Item (#PCDATA)&gt;
       &lt;!ATTLIST Item cid CDATA #REQUIRED&gt;
-      &lt;!ATTLIST Item rev CDATA #REQUIRED&gt; 
-      &lt;!ATTLIST Item path CDATA #REQUIRED&gt; 
+      &lt;!ATTLIST Item rev CDATA #REQUIRED&gt;
+      &lt;!ATTLIST Item path CDATA #REQUIRED&gt;
      &lt;/pre&gt;
      The returned resultDoc consists of an empty ItemIcons element if the input is not as expected by this exit.
      </initParam>
@@ -4423,7 +4423,7 @@ One can a give an empty value for the resource name corresponding to a choice in
          </description>
       </PSXExtensionParamDef>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <Extension categorystring="cms" context="global/percussion/cms/" deprecated="no" handler="Java" name="sys_CmsObjectNameLookup" restoreRequestParamsOnError="no">
       <initParam name="com.percussion.user.description">This UDF is specifically designed to get the name of the CMS object given the Locator for the object. The locator is assumed to have not more than three parts.  Note: This is very inefficient for the fact that it is a UDF which will be called per row in the result set and we make an internal request per row. Ideally, we need to cache all CMS name lookups during server initialization and avoid internal requests. In that this is a temporary feature.</initParam>
       <initParam name="com.percussion.extension.version">12</initParam>
@@ -5395,8 +5395,8 @@ One can a give an empty value for the resource name corresponding to a choice in
       <suppliedResources/>
    </Extension>
    <Extension categorystring="relationship" context="global/percussion/cms/" deprecated="no" handler="Java" name="sys_cloneOverrideField" restoreRequestParamsOnError="no">
-      <initParam name="com.percussion.user.description">This is a generic UDF that can be used to compute field value to override 
-when cloning. The scheme basically involves executing a Rhythmyx URL that generates an XML document with predefined DTD. Then the value is located based on the name of the element supplied. The parameter description is as 
+      <initParam name="com.percussion.user.description">This is a generic UDF that can be used to compute field value to override
+when cloning. The scheme basically involves executing a Rhythmyx URL that generates an XML document with predefined DTD. Then the value is located based on the name of the element supplied. The parameter description is as
 follows:
 
 First parameter is the name of the Rhythmyx resource that generates the field value to be overridden. This has a syntax of ../rxApp/resource.xml.
@@ -5672,7 +5672,7 @@ Rest of the parameters are the parameter name-value pairs that are required for 
    The request includes the HTML parameter sys_folderid, with a value that is not null and not empty (if the request includes multiple values for this parameter, the clone will be added to each specified Folder); and
    The Relationship that is being processed is the Relationship that originally created the clone.  (This requirement ensures that Effect will only be processed once in the life of the Relationship.)
 
-This Effect is assigned to Relationships that allow users to create clones directly in the Content Explorer interface, such as the New Copy and Promotable Version Relationships.  
+This Effect is assigned to Relationships that allow users to create clones directly in the Content Explorer interface, such as the New Copy and Promotable Version Relationships.
 
 Note that the Effect does not check whether the clone is already associated with any of the specified Folders.</initParam>
       <initParam name="com.percussion.extension.version">2</initParam>
@@ -5682,7 +5682,7 @@ Note that the Effect does not check whether the clone is already associated with
       <suppliedResources/>
    </Extension>
    <Extension name="sys_queryExtensions" categorystring="generic" context="global/percussion/extensions/general/" handler="Java" deprecated="no">
-      <initParam name="com.percussion.user.description">Creates a document 
+      <initParam name="com.percussion.user.description">Creates a document
          that consists of a list of Rhythmyx exits. The parameters limit
          the list to relevant extensions.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -5780,17 +5780,17 @@ Note that the Effect does not check whether the clone is already associated with
 
 The site can be specified as the first parameter to the UDF which is the
 siteid for which the base URL is being requested. If not specified, it will
-be taken from the request context as parameter. This, if supplied must be 
+be taken from the request context as parameter. This, if supplied must be
 a valid siteid from the system.
 
 The second parameter, which is optional can be used to specify to modify the
 base URL for if the context is for an intra-site. The context is treated as
-intra-site if the originating siteid is not null or empty and matches with 
-the current siteid. The originating siteid as always read from the request 
-as the html parameter sys_originalsiteid. The value should be a string "yes" 
-to modify the URL (case insensitive) and any other value or no value is 
-treated as "no". If the value is "yes", the URL string will modified to chop 
-the protocol, host and port and return only the part after those. If the 
+intra-site if the originating siteid is not null or empty and matches with
+the current siteid. The originating siteid as always read from the request
+as the html parameter sys_originalsiteid. The value should be a string "yes"
+to modify the URL (case insensitive) and any other value or no value is
+treated as "no". If the value is "yes", the URL string will modified to chop
+the protocol, host and port and return only the part after those. If the
 final result is "/" an empty string is returned.
 
 If the current siteid is not supplied and does not exist in the request, the
@@ -6005,7 +6005,7 @@ The result doc has the following DTD:
       <suppliedResources/>
    </Extension>
    <Extension categorystring="psxsystem" context="global/percussion/system/" deprecated="no" handler="Java" name="sys_copySiteDef" restoreRequestParamsOnError="no">
-      <initParam name="com.percussion.user.description">This is a dummy resource where all work is done in a post exit. 3 parameters are expected: sys_originalSiteName, sys_newSiteName and sys_newFolderPath. 
+      <initParam name="com.percussion.user.description">This is a dummy resource where all work is done in a post exit. 3 parameters are expected: sys_originalSiteName, sys_newSiteName and sys_newFolderPath.
 A search is done looking for a site whose name matches the original supplied. Once found, this site is copied and the site name and folder path are set from the supplied values before saving the copy.
 The result doc indicates success or failure and includes error info on failure (if success is false).
 The result doc has the following DTD:
@@ -6199,7 +6199,7 @@ The result doc has the following DTD:
       <suppliedResources/>
    </Extension>
    <Extension categorystring="translation" context="global/percussion/content/" deprecated="no" handler="Java" name="sys_EditLiveFormEncode" restoreRequestParamsOnError="no">
-      <initParam name="com.percussion.user.description">Translation to encode form tags into a marked div tag that is 
+      <initParam name="com.percussion.user.description">Translation to encode form tags into a marked div tag that is
      allowed in editlive single instance. sys_EditLiveFormDecode Input translation must be used on this field when the encode is
      used. The EditLive rxFormEncodeDecodeSourceFilter plugin must also be enabled for the EditLive editor. </initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -6378,9 +6378,9 @@ The result doc has the following DTD:
          <name>revision2</name>
          <dataType>java.lang.String</dataType>
          <description>The second revision supplied, optional</description>
-      </PSXExtensionParamDef>      
+      </PSXExtensionParamDef>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <!--  Assemblers -->
    <Extension name="debugAssembler" context="global/percussion/assembly" handler="Java" categorystring="assembly" deprecated="no">
       <initParam name="com.percussion.user.description">An assembler which produces debug output, regardless of the actual template specified</initParam>
@@ -6394,7 +6394,7 @@ The result doc has the following DTD:
       <initParam name="com.percussion.user.description">Resource assembler.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
       <initParam name="className">com.percussion.pagemanagement.assembler.impl.PSResourceAssembler</initParam>
-      <initParam name="com.percussion.extension.reentrant">yes</initParam>    
+      <initParam name="com.percussion.extension.reentrant">yes</initParam>
       <interface name="com.percussion.services.assembly.IPSAssembler"/>
       <suppliedResources/>
    </Extension>
@@ -6404,7 +6404,7 @@ The result doc has the following DTD:
       <initParam name="className">com.percussion.services.assembly.impl.plugin.PSVelocityAssembler</initParam>
       <initParam name="com.percussion.extension.reentrant">yes</initParam>
       <initParam name="com.percussion.extension.assembly.autoReload">yes</initParam>
-      <initParam name="com.percussion.extension.assembly.fileSuffix">.vm</initParam>      
+      <initParam name="com.percussion.extension.assembly.fileSuffix">.vm</initParam>
       <interface name="com.percussion.services.assembly.IPSAssembler"/>
       <suppliedResources/>
    </Extension>
@@ -6509,7 +6509,7 @@ The result doc has the following DTD:
          <description>If supplied, this is used to determine whether the item should show the edit revision when the checked out user matches the parameter.</description>
       </PSXExtensionParamDef>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <Extension name="sys_publicFilter" context="global/percussion/itemfilter" handler="Java" categorystring="itemfilter" deprecated="no">
       <initParam name="com.percussion.user.description">Items revisions are filtered to select the current or public revisions of items</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -6518,7 +6518,7 @@ The result doc has the following DTD:
       <initParam name="com.percussion.services.filter.priority">99</initParam>
       <interface name="com.percussion.services.filter.IPSItemFilterRule"/>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <!-- Slot finders -->
    <Extension name="sys_RelationshipContentFinder" context="global/percussion/slotcontentfinder" handler="Java" categorystring="SlotContentFinder" deprecated="no">
       <initParam name="com.percussion.user.description"/>
@@ -6545,7 +6545,7 @@ The result doc has the following DTD:
          <name>sys_lang</name>
          <dataType>java.lang.String</dataType>
          <description>If sorting the results, either with an order_by clause or in an auto index, use this locale to determine collating sequence.</description>
-      </PSXExtensionParamDef>      
+      </PSXExtensionParamDef>
       <suppliedResources/>
    </Extension>
    <Extension name="sys_TranslationContentFinder" context="global/percussion/slotcontentfinder" handler="Java" categorystring="SlotContentFinder" deprecated="no">
@@ -6573,9 +6573,9 @@ The result doc has the following DTD:
          <name>sys_lang</name>
          <dataType>java.lang.String</dataType>
          <description>If sorting the results, either with an order_by clause or in an auto index, use this locale to determine collating sequence.</description>
-      </PSXExtensionParamDef>            
+      </PSXExtensionParamDef>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <Extension name="sys_ManagedNavContentFinder" context="global/percussion/slotcontentfinder" handler="Java" categorystring="SlotContentFinder" deprecated="no">
       <initParam name="com.percussion.user.description"/>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -6647,12 +6647,12 @@ The result doc has the following DTD:
          <name>sys_lang</name>
          <dataType>java.lang.String</dataType>
          <description>If sorting the results, either with an order_by clause or in an auto index, use this locale to determine collating sequence.</description>
-      </PSXExtensionParamDef>      
+      </PSXExtensionParamDef>
       <PSXExtensionParamDef id="5">
          <name>mayHaveCrossSiteLinks</name>
          <dataType>java.lang.String</dataType>
          <description>Default value is false, if set to true the site id for the resulting slot items are calculated and applied.</description>
-      </PSXExtensionParamDef>		
+      </PSXExtensionParamDef>
       <suppliedResources/>
    </Extension>
    <!-- Jexl based extensions -->
@@ -6826,7 +6826,7 @@ The result doc has the following DTD:
          <description>(Required) The change type to use when querying for changes, one of PENDING_LIVE or PENDING_STAGED.</description>
       </PSXExtensionParamDef>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <Extension name="sys_SelectedItemsGenerator" context="global/percussion/system" handler="Java" categorystring="contentlist" deprecated="no">
       <initParam name="com.percussion.user.description">Content list generator based on demand publishing</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -6842,7 +6842,7 @@ The result doc has the following DTD:
       <initParam name="com.percussion.extension.reentrant">yes</initParam>
       <interface name="com.percussion.services.publisher.IPSContentListGenerator"/>
       <suppliedResources/>
-   </Extension>   
+   </Extension>
    <Extension name="sys_SiteTemplateExpander" context="global/percussion/system" handler="Java" categorystring="contentlist" deprecated="no">
       <initParam name="com.percussion.user.description">Template expander that creates an entry per registered site page template</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
@@ -7138,7 +7138,7 @@ The result doc has the following DTD:
       <initParam name="com.percussion.extension.version">1</initParam>
       <initParam name="className">com.percussion.feeds.tasks.impl.PSPushFeedDescriptorsTask</initParam>
       <initParam name="com.percussion.extension.reentrant">yes</initParam>
-      <interface name="com.percussion.rx.publisher.IPSEditionTask"/>      
+      <interface name="com.percussion.rx.publisher.IPSEditionTask"/>
       <suppliedResources/>
    </Extension>
    <Extension categorystring="editiontask" context="global/percussion/task/" deprecated="no" handler="Java" name="sys_flushPublicationCache" restoreRequestParamsOnError="no">
@@ -7153,7 +7153,7 @@ The result doc has the following DTD:
          <description>The maximum number of urls to flush before a flush all is invoked on the cache.  Defaults to 5000.  Note that the name of the cache region must match the name of the current site.</description>
       </PSXExtensionParamDef>
       <suppliedResources/>
-   </Extension>   	 
+   </Extension>
 	<!-- uncomment to test edition tasks
 	<Extension name="sys_editionTestTask" context="global/percussion/task" handler="Java" categorystring="editiontask" deprecated="no">
 		<initParam name="com.percussion.user.description">Edition test task</initParam>
@@ -7166,10 +7166,10 @@ The result doc has the following DTD:
 	 -->
 	<Extension name="sys_purgePublishingLog" context="global/percussion/task" handler="Java" categorystring="scheduledTask" deprecated="no">
       <initParam name="com.percussion.user.description">
-         Purging expired publishing log entries. The task result contains the following context variables, 
+         Purging expired publishing log entries. The task result contains the following context variables,
          which can be used in notification template (both subject and body fields):
          $numberOfDays (String type, the number of days of the expired log entries. This is specified in the parameter of the extension)
-         $enableArchive (String type, it is true if archiving expired logs to the archive location. The archive location is default to AppServer/server/rx/deploy/publogs.war/) 
+         $enableArchive (String type, it is true if archiving expired logs to the archive location. The archive location is default to AppServer/server/rx/deploy/publogs.war/)
          $tools.* (utilities defined in tools.xml)
          $sys.taskName (String type, the name of the task)
          $sys.completed (Boolean type, it is true if the job was completed; otherwise false)
@@ -7196,7 +7196,7 @@ The result doc has the following DTD:
 
    <Extension name="sys_purgeScheduledTaskLog" context="global/percussion/task" handler="Java" categorystring="scheduledTask" deprecated="no">
       <initParam name="com.percussion.user.description">
-         Purging expired task log entries. The task result contains the following context variables, 
+         Purging expired task log entries. The task result contains the following context variables,
          which can be used in notification template (both subject and body fields):
          $numberOfDays (String type, the number of days of the expired log entries. It is defined in the parameter of the extension)
          $tools.* (utilities defined in tools.xml)
@@ -7220,7 +7220,7 @@ The result doc has the following DTD:
 
    <Extension name="sys_runCommand" context="global/percussion/task" handler="Java" categorystring="scheduledTask" deprecated="no">
       <initParam name="com.percussion.user.description">
-         Run a native command. The task result contains the following context variables, 
+         Run a native command. The task result contains the following context variables,
          which can be used in notification template (both subject and body fields):
          $command (String type, the native command defined by the parameter of the extension)
          $tools.* (utilities defined in tools.xml)
@@ -7244,7 +7244,7 @@ The result doc has the following DTD:
 
    <Extension name="sys_runEdition" context="global/percussion/task" handler="Java" categorystring="scheduledTask" deprecated="no">
       <initParam name="com.percussion.user.description">
-         Publishing an Edition. The task result contains the following context variables, 
+         Publishing an Edition. The task result contains the following context variables,
          which can be used in notification template (both subject and body fields):
          $editionName (String type, Edition name, defined by the parameter of the extension)
          $tools.* (utilities defined in tools.xml)
@@ -7377,7 +7377,7 @@ The result doc has the following DTD:
          <name>linkId</name>
          <dataType>java.lang.String</dataType>
          <description>The prior link id used to update the managed link, if any. </description>
-      </PSXExtensionParamDef>      
+      </PSXExtensionParamDef>
       <suppliedResources/>
    </Extension>
       <Extension categorystring="translation" context="global/percussion/content/" deprecated="no" handler="Java" name="sys_manageJSONPayloadPathsOnUpdate" restoreRequestParamsOnError="no">
@@ -7424,7 +7424,7 @@ The result doc has the following DTD:
       </PSXExtensionParamDef>
       <suppliedResources/>
    </Extension>
-   
+
    <Extension categorystring="translation" context="global/percussion/content/" deprecated="no" handler="Java" name="sys_cleanReservedHtmlClasses" restoreRequestParamsOnError="no">
       <initParam name="com.percussion.user.description">Cleans reserved perc css classes from html elements.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>

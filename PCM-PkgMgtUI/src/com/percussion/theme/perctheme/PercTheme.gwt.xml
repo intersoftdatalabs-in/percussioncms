@@ -1,6 +1,7 @@
 
 
 <module>
-    <!--<script src="sc/skins/PercTheme/load_skin.js"/>-->
-    <set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>
+	<!--<script src="sc/skins/PercTheme/load_skin.js"/> -->
+	<set-configuration-property
+		name='xsiframe.failIfScriptTag' value='FALSE' />
 </module>

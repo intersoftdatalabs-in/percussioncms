@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName=" Perc5ussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName=" Perc5ussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
 	<SolutionConfig name="PSActionSetterTest">
-		<property name="actionLabel" value="Quick Edit LC"/>
-		<property name="actionDescription" value="LC Desc"/>
-		<property name="actionUrl" value="../sys_action/transitcheckouteditLC.xml"/>
-		<property name="dynamicParam" value="LCValue"/>
+		<property name="actionLabel" value="Quick Edit LC" />
+		<property name="actionDescription" value="LC Desc" />
+		<property name="actionUrl"
+			value="../sys_action/transitcheckouteditLC.xml" />
+		<property name="dynamicParam" value="LCValue" />
 		<property name="hideForAssignmentTypes">
 			<pvalues>
 				<pvalue>none</pvalue>

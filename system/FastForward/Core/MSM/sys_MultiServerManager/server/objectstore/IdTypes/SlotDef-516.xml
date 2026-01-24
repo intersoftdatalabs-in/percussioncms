@@ -2,31 +2,61 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="516" dependencyType="Local" displayName="rffNavSubmenu" isIncluded="yes" objectType="SlotDef" objectTypeName="Slot Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no">
-         <Dependencies>
-            <PSXDeployableElement>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="308" dependencyType="Shared" displayName="rffExternalLink" isIncluded="no" objectType="ContentEditor" objectTypeName="Content Type" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
-               <Description/>
-            </PSXDeployableElement>
-            <PSXDeployableElement>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="314" dependencyType="Shared" displayName="rffNavon" isIncluded="no" objectType="ContentEditor" objectTypeName="Content Type" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
-               <Description/>
-            </PSXDeployableElement>
-            <PSXDeployableElement>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="315" dependencyType="Shared" displayName="rffNavTree" isIncluded="no" objectType="ContentEditor" objectTypeName="Content Type" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
-               <Description/>
-            </PSXDeployableElement>
-            <PSXDeployableElement>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="526" dependencyType="Shared" displayName="rffSnLink" isIncluded="no" objectType="sys_Templates" objectTypeName="Template" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
-               <Description/>
-            </PSXDeployableElement>
-            <PSXDeployableElement>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="544" dependencyType="Shared" displayName="rffSnNavonLink" isIncluded="no" objectType="sys_Templates" objectTypeName="Template" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
-               <Description/>
-            </PSXDeployableElement>
-         </Dependencies>
-      </PSXDependency>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="516" dependencyType="Local" displayName="rffNavSubmenu"
+			isIncluded="yes" objectType="SlotDef"
+			objectTypeName="Slot Definition" supportsIdMapping="yes"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no">
+			<Dependencies>
+				<PSXDeployableElement>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="308" dependencyType="Shared"
+						displayName="rffExternalLink" isIncluded="no"
+						objectType="ContentEditor" objectTypeName="Content Type"
+						supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="no" />
+					<Description />
+				</PSXDeployableElement>
+				<PSXDeployableElement>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="314" dependencyType="Shared" displayName="rffNavon"
+						isIncluded="no" objectType="ContentEditor"
+						objectTypeName="Content Type" supportsIdMapping="no"
+						supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="no" />
+					<Description />
+				</PSXDeployableElement>
+				<PSXDeployableElement>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="315" dependencyType="Shared"
+						displayName="rffNavTree" isIncluded="no"
+						objectType="ContentEditor" objectTypeName="Content Type"
+						supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="no" />
+					<Description />
+				</PSXDeployableElement>
+				<PSXDeployableElement>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="526" dependencyType="Shared" displayName="rffSnLink"
+						isIncluded="no" objectType="sys_Templates"
+						objectTypeName="Template" supportsIdMapping="no"
+						supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="no" />
+					<Description />
+				</PSXDeployableElement>
+				<PSXDeployableElement>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="544" dependencyType="Shared"
+						displayName="rffSnNavonLink" isIncluded="no"
+						objectType="sys_Templates" objectTypeName="Template"
+						supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="no" />
+					<Description />
+				</PSXDeployableElement>
+			</Dependencies>
+		</PSXDependency>
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

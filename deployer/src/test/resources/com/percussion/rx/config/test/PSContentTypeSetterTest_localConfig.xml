@@ -2,87 +2,75 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================
-        Content Type        "rffBrief"      
-        =========================================
--->	
-	<propertySet name="ct">
-  
-      <property name="label" value="My-Brief"/>
-      <property name="iconValue" value=""/>
-<!--      
-      <property name="defaultWorkflow" value="Simple Workflow"/>
--->      
-      <property name="defaultWorkflow" value="Standard Workflow"/>
-      <property name="templates">
-      		<pvalues>
-      		    <pvalue>rffSnCallout</pvalue>
-      		    <pvalue>rffSnTitleLink</pvalue>  		    
-      		</pvalues>
-      </property>
-      <property name="workflows">
-      		<pvalues>
-<!--      
-      		    <pvalue>Simple Workflow</pvalue>
--->      
-      		    <pvalue>Standard Workflow</pvalue>
-      		</pvalues>
-      </property>
+		<!--- ======================================== Content Type "rffBrief"
+			========================================= -->
+		<propertySet name="ct">
+
+			<property name="label" value="My-Brief" />
+			<property name="iconValue" value="" />
+			<!-- <property name="defaultWorkflow" value="Simple Workflow"/> -->
+			<property name="defaultWorkflow" value="Standard Workflow" />
+			<property name="templates">
+				<pvalues>
+					<pvalue>rffSnCallout</pvalue>
+					<pvalue>rffSnTitleLink</pvalue>
+				</pvalues>
+			</property>
+			<property name="workflows">
+				<pvalues>
+					<!-- <pvalue>Simple Workflow</pvalue> -->
+					<pvalue>Standard Workflow</pvalue>
+				</pvalues>
+			</property>
 
 
-      <property name="fields"> 
-         <propertySet name="webdavowner">
-               <property name="sequence" value="1"/>
-               <property name="default"  value="helloOwner"/>
-         </propertySet>
+			<property name="fields">
+				<propertySet name="webdavowner">
+					<property name="sequence" value="1" />
+					<property name="default" value="helloOwner" />
+				</propertySet>
 
-         <propertySet name="img2_filename"/>
+				<propertySet name="img2_filename" />
 
-<!--
-         <propertySet name="placeholder">
-		      <property name="default"  value="hello"/>
-		      <property name="required"  value="true"/>
-		      <property name="sequence" value="0"/>
-		      <property name="showInPreview" value="false"/>
-		      <property name="userSearchable" value="true"/>
-         </propertySet>
--->         
-      </property>
-      
-      <property name="fields_null_value1"/>
+				<!-- <propertySet name="placeholder"> <property name="default" value="hello"/>
+					<property name="required" value="true"/> <property name="sequence" value="0"/>
+					<property name="showInPreview" value="false"/> <property name="userSearchable"
+					value="true"/> </propertySet> -->
+			</property>
 
-      <property name="fields_null_value2">
-      </property>
-      
-      
-	</propertySet>
-	
-	<propertySet name="fd">
-      <property name="default"  value="hello"/>
-      <property name="required"  value="true"/>
-      <property name="sequence" value="0"/>
-      <property name="showInPreview" value="false"/>
-      <property name="userSearchable" value="true"/>
-	</propertySet>
-	
-	<propertySet name="callout">
-      <property name="label"  value="Call Out"/>
-<!--       
-      <propertySet name="controlParameters">
-	      <property name="height" value="100"/>
-	      <property name="width" value="40"/>
-      </propertySet>
--->
-      <property name="controlParameters">
-	      <pvalues>
-	      	<pair value1="height" value2="100" />
-	      	<pair value1="width" value2="40" />
-	      </pvalues>
-	   </property>
-	</propertySet>
-	
-   </SolutionConfig>
+			<property name="fields_null_value1" />
+
+			<property name="fields_null_value2">
+			</property>
+
+
+		</propertySet>
+
+		<propertySet name="fd">
+			<property name="default" value="hello" />
+			<property name="required" value="true" />
+			<property name="sequence" value="0" />
+			<property name="showInPreview" value="false" />
+			<property name="userSearchable" value="true" />
+		</propertySet>
+
+		<propertySet name="callout">
+			<property name="label" value="Call Out" />
+			<!-- <propertySet name="controlParameters"> <property name="height" value="100"/>
+				<property name="width" value="40"/> </propertySet> -->
+			<property name="controlParameters">
+				<pvalues>
+					<pair value1="height" value2="100" />
+					<pair value1="width" value2="40" />
+				</pvalues>
+			</property>
+		</propertySet>
+
+	</SolutionConfig>
 </SolutionConfigurations>

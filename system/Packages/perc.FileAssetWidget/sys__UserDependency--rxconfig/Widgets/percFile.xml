@@ -1,35 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="File"
-                 contenttype_name="percFileAsset"
-                 category="content,rich media"
-                 description="Upload a file and display a link to it"
-                 author="Percussion Software Inc"
-                 thumbnail="/rx_resources/widgets/file/images/widgetIconFile.png"
-                 preferred_editor_width="780"
-                 preferred_editor_height="340"
-                 is_responsive="true"
-    />
-    <UserPref name="linkNewWindow"
-              display_name="Open link in new window"
-              default_value="true"
-              datatype="bool"/>
-    <UserPref name="referalPolicy"
-              display_name="Referrer-Policy"
-              datatype="enum">
-        <EnumValue value="no-referrer" display_value="no-referrer" />
-        <EnumValue value="no-referrer-when-downgrade" display_value="no-referrer-when-downgrade" />
-        <EnumValue value="origin" display_value="origin" />
-        <EnumValue value="origin-when-cross-origin" display_value="origin-when-cross-origin" />
-        <EnumValue value="same-origin" display_value="same-origin" />
-        <EnumValue value="strict-origin" display_value="strict-origin" />
-        <EnumValue value="strict-origin-when-cross-origin" display_value="strict-origin-when-cross-origin" />
-        <EnumValue value="unsafe-url" display_value="unsafe-url" />
-    </UserPref>
-    <CssPref name="rootclass"
-             display_name="CSS Root Class"
-             datatype="string" />
-    <Code type="jexl">
+	<WidgetPrefs title="File" contenttype_name="percFileAsset"
+		category="content,rich media"
+		description="Upload a file and display a link to it"
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/file/images/widgetIconFile.png"
+		preferred_editor_width="780" preferred_editor_height="340"
+		is_responsive="true" />
+	<UserPref name="linkNewWindow"
+		display_name="Open link in new window" default_value="true"
+		datatype="bool" />
+	<UserPref name="referalPolicy" display_name="Referrer-Policy"
+		datatype="enum">
+		<EnumValue value="no-referrer" display_value="no-referrer" />
+		<EnumValue value="no-referrer-when-downgrade"
+			display_value="no-referrer-when-downgrade" />
+		<EnumValue value="origin" display_value="origin" />
+		<EnumValue value="origin-when-cross-origin"
+			display_value="origin-when-cross-origin" />
+		<EnumValue value="same-origin" display_value="same-origin" />
+		<EnumValue value="strict-origin"
+			display_value="strict-origin" />
+		<EnumValue value="strict-origin-when-cross-origin"
+			display_value="strict-origin-when-cross-origin" />
+		<EnumValue value="unsafe-url" display_value="unsafe-url" />
+	</UserPref>
+	<CssPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
+	<Code type="jexl">
         <![CDATA[
         $props = $perc.widget.item.properties;
         $referalPolicy = $props.get("referalPolicy");
@@ -62,8 +60,8 @@
         $dynamicListData = $tools.esc.html("{ deliveryurl : '" + $dsUrl + "'}");
 
     ]]>
-    </Code>
-    <Content type="velocity">
+	</Code>
+	<Content type="velocity">
         <![CDATA[
     <div class="$!{rootclass} perc-file" data="$!{dynamicListData}">
         #if( ! $perc.widgetContents.isEmpty() )##
@@ -75,5 +73,5 @@
         #end##
     </div>
     ]]>
-    </Content>
+	</Content>
 </Widget>

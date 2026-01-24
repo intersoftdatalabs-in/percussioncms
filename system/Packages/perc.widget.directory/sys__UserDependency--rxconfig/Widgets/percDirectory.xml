@@ -1,79 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Directory"
-                 contenttype_name="percDirectory"
-                 description="This widget is used to display a paginated list of people belonging to a selected organization and enable users to search through the list."
-                 author="Percussion Software Inc."
-                 thumbnail="/rx_resources/widgets/percDirectory/images/percDirectoryIcon.png"
-                 preferred_editor_width="800"
-                 preferred_editor_height="600"
-                 is_responsive="true"/>
-    <UserPref name="dirTitleFormat"
-              display_name="Format of directory title"
-              required="false"
-              datatype="enum" default_value="h2">
-        <EnumValue value="p" display_value="Paragraph" />
-        <EnumValue value="div" display_value="Div" />
-        <EnumValue value="h1" display_value="Heading 1" />
-        <EnumValue value="h2" display_value="Heading 2" />
-        <EnumValue value="h3" display_value="Heading 3" />
-        <EnumValue value="h4" display_value="Heading 4" />
-        <EnumValue value="h5" display_value="Heading 5" />
-        <EnumValue value="h6" display_value="Heading 6" />
-    </UserPref>
-    <UserPref name="directoryLayoutFormat"
-              display_name="Layout format: Table or Card"
-              required="true"
-              datatype="enum" default_value="table">
-        <EnumValue value="table" display_value="Table" />
-        <EnumValue value="card" display_value="Card" />
-    </UserPref>
-    <UserPref name="perc_hidefield_textSearch"
-              display_name="Hide text search box"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_filter_dropdown"
-              display_name="Hide dropdown filter menu"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_personOrganization"
-              display_name="Hide organization"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_personDepartment"
-              display_name="Hide department"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_personTitle"
-              display_name="Hide position/title"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_personPhoneField"
-              display_name="Hide phone number"
-              default_value="true"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_personOfficeLocation"
-              display_name="Hide Office Location"
-              default_value="true"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_personEmailField"
-              display_name="Hide 'Send Email' link"
-              default_value="true"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_personImageField"
-              display_name="Hide image"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_display_full_dir"
-              display_name="Display full directory"
-              default_value="false"
-              datatype="bool" />
+	<WidgetPrefs title="Directory"
+		contenttype_name="percDirectory"
+		description="This widget is used to display a paginated list of people belonging to a selected organization and enable users to search through the list."
+		author="Percussion Software Inc."
+		thumbnail="/rx_resources/widgets/percDirectory/images/percDirectoryIcon.png"
+		preferred_editor_width="800" preferred_editor_height="600"
+		is_responsive="true" />
+	<UserPref name="dirTitleFormat"
+		display_name="Format of directory title" required="false"
+		datatype="enum" default_value="h2">
+		<EnumValue value="p" display_value="Paragraph" />
+		<EnumValue value="div" display_value="Div" />
+		<EnumValue value="h1" display_value="Heading 1" />
+		<EnumValue value="h2" display_value="Heading 2" />
+		<EnumValue value="h3" display_value="Heading 3" />
+		<EnumValue value="h4" display_value="Heading 4" />
+		<EnumValue value="h5" display_value="Heading 5" />
+		<EnumValue value="h6" display_value="Heading 6" />
+	</UserPref>
+	<UserPref name="directoryLayoutFormat"
+		display_name="Layout format: Table or Card" required="true"
+		datatype="enum" default_value="table">
+		<EnumValue value="table" display_value="Table" />
+		<EnumValue value="card" display_value="Card" />
+	</UserPref>
+	<UserPref name="perc_hidefield_textSearch"
+		display_name="Hide text search box" default_value="false"
+		datatype="bool" />
+	<UserPref name="perc_hidefield_filter_dropdown"
+		display_name="Hide dropdown filter menu" default_value="false"
+		datatype="bool" />
+	<UserPref name="perc_hidefield_personOrganization"
+		display_name="Hide organization" default_value="false" datatype="bool" />
+	<UserPref name="perc_hidefield_personDepartment"
+		display_name="Hide department" default_value="false" datatype="bool" />
+	<UserPref name="perc_hidefield_personTitle"
+		display_name="Hide position/title" default_value="false"
+		datatype="bool" />
+	<UserPref name="perc_hidefield_personPhoneField"
+		display_name="Hide phone number" default_value="true" datatype="bool" />
+	<UserPref name="perc_hidefield_personOfficeLocation"
+		display_name="Hide Office Location" default_value="true"
+		datatype="bool" />
+	<UserPref name="perc_hidefield_personEmailField"
+		display_name="Hide 'Send Email' link" default_value="true"
+		datatype="bool" />
+	<UserPref name="perc_hidefield_personImageField"
+		display_name="Hide image" default_value="false" datatype="bool" />
+	<UserPref name="perc_display_full_dir"
+		display_name="Display full directory" default_value="false"
+		datatype="bool" />
 
-    <!-- User prefs define input needed when in layout config for a widget -->
-    <!-- Available data types are bool, number, enum, string -->
+	<!-- User prefs define input needed when in layout config for a widget -->
+	<!-- Available data types are bool, number, enum, string -->
 
-    <Code type="jexl">
-        <!-- This section is used to set up data that will be used in the content section -->
+	<Code type="jexl">
+		<!-- This section is used to set up data that will be used in the content
+			section -->
         <![CDATA[
        $pageId = $perc.page.id;
        $widgetId = $perc.widget.item.id;
@@ -221,9 +205,9 @@
             }
        }
     ]]>
-    </Code>
-    <Content type="velocity">
-        <!-- This section defines the rendered content -->
+	</Code>
+	<Content type="velocity">
+		<!-- This section defines the rendered content -->
         <![CDATA[
        <div class="$!rootclass">
 #if( ! $perc.widgetContents.isEmpty() )
@@ -704,5 +688,5 @@
 #end
         </div> <!-- end "$!rootclass" -->
     ]]>
-    </Content>
+	</Content>
 </Widget>

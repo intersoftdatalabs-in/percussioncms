@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="Google Setup" category="analytics" description="This gadget allows an administrator to configure Google Analytics to use the correct account and profile for each site managed by CMS." thumbnail="images/gadgetConfigGoogle.png" height="465" adminOnly="true">
-        <Require feature="perc_core"/>
-        <Require feature="settitle" />
-        <Require feature="perc_jquery_ui"/>
-    </ModulePrefs>
-    <Content type="html">
+	<ModulePrefs title="Google Setup" category="analytics"
+		description="This gadget allows an administrator to configure Google Analytics to use the correct account and profile for each site managed by CMS."
+		thumbnail="images/gadgetConfigGoogle.png" height="465"
+		adminOnly="true">
+		<Require feature="perc_core" />
+		<Require feature="settitle" />
+		<Require feature="perc_jquery_ui" />
+	</ModulePrefs>
+	<Content type="html">
         <![CDATA[
         <!DOCTYPE html>
         <style type="text/css">
@@ -922,5 +925,5 @@
            <div style="clear: both;"></div>
         </div>
      ]]>
-    </Content>
+	</Content>
 </Module>

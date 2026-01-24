@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PSXApplication active="no" enabled="yes" hidden="no" id="1021" startPriority="0" version="2.0">
+<PSXApplication active="no" enabled="yes" hidden="no"
+	id="1021" startPriority="0" version="2.0">
 	<name>sys_psxInternalResources</name>
-	<description/>
+	<description />
 	<requestRoot>sys_psxInternalResources</requestRoot>
-	<defaultRequestPage/>
+	<defaultRequestPage />
 	<appExtensionContext>application/_animesh_1071114354968/</appExtensionContext>
 	<PSXRevisionHistory>
 		<PSXRevisionEntry majorVersion="1" minorVersion="0">
@@ -21,14 +22,18 @@
 		<PSXAclEntry id="0" type="user">
 			<name>Default</name>
 			<securityProviderType>Any</securityProviderType>
-			<securityProviderInstance/>
-			<applicationAccessLevel dataCreate="yes" dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="no" designRead="no" designUpdate="no" modifyAcl="no"/>
+			<securityProviderInstance />
+			<applicationAccessLevel dataCreate="yes"
+				dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="no"
+				designRead="no" designUpdate="no" modifyAcl="no" />
 		</PSXAclEntry>
 		<PSXAclEntry id="0" type="role">
 			<name>Admin</name>
 			<securityProviderType>Any</securityProviderType>
-			<securityProviderInstance/>
-			<applicationAccessLevel dataCreate="yes" dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="yes" designRead="yes" designUpdate="yes" modifyAcl="yes"/>
+			<securityProviderInstance />
+			<applicationAccessLevel dataCreate="yes"
+				dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="yes"
+				designRead="yes" designUpdate="yes" modifyAcl="yes" />
 		</PSXAclEntry>
 		<multiMembershipBehavior>mergeMaximumAccess</multiMembershipBehavior>
 	</PSXAcl>
@@ -44,40 +49,40 @@
 	<requestTypeValueDelete>DELETE</requestTypeValueDelete>
 	<PSXDataSet id="153">
 		<name>Dataset2492</name>
-		<description/>
+		<description />
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="647">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="642">
 				<PSXBackEndTable id="639">
 					<alias>PSX_FOLDER</alias>
 					<table>PSX_FOLDER</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 				<PSXBackEndTable id="640">
 					<alias>PSX_OBJECTACL</alias>
 					<table>PSX_OBJECTACL</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 				<PSXBackEndTable id="641">
 					<alias>CONTENTSTATUS</alias>
 					<table>CONTENTSTATUS</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 				<PSXBackEndJoin id="0" joinType="inner">
 					<leftColumn>
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_FOLDER</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</leftColumn>
 					<rightColumn>
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_OBJECTACL</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</rightColumn>
 				</PSXBackEndJoin>
@@ -86,14 +91,14 @@
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_FOLDER</tableAlias>
 							<column>REVISIONID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</leftColumn>
 					<rightColumn>
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_OBJECTACL</tableAlias>
 							<column>REVISIONID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</rightColumn>
 				</PSXBackEndJoin>
@@ -102,14 +107,14 @@
 						<PSXBackEndColumn id="0">
 							<tableAlias>CONTENTSTATUS</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</leftColumn>
 					<rightColumn>
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_OBJECTACL</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</rightColumn>
 				</PSXBackEndJoin>
@@ -118,14 +123,14 @@
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_FOLDER</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</leftColumn>
 					<rightColumn>
 						<PSXBackEndColumn id="0">
 							<tableAlias>CONTENTSTATUS</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</rightColumn>
 				</PSXBackEndJoin>
@@ -138,9 +143,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>PSX_OBJECTACL</tableAlias>
 						<column>CONTENTID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -149,9 +154,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>PSX_OBJECTACL</tableAlias>
 						<column>NAME</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -160,9 +165,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>PSX_OBJECTACL</tableAlias>
 						<column>PERMISSIONS</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -171,9 +176,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>PSX_OBJECTACL</tableAlias>
 						<column>TYPE</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -182,7 +187,7 @@
 					<PSXTextLiteral id="0">
 						<text>com.percussion.cms.objectstore.PSObjectAclEntry</text>
 					</PSXTextLiteral>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -191,9 +196,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>PSX_OBJECTACL</tableAlias>
 						<column>SYSID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -202,7 +207,7 @@
 					<PSXTextLiteral id="0">
 						<text>db_unmodified</text>
 					</PSXTextLiteral>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="2" id="0">
 					<PSXXmlField id="0">
@@ -211,12 +216,13 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>CONTENTSTATUS</tableAlias>
 						<column>COMMUNITYID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="643" method="whereClause" unique="no">
+			<PSXDataSelector id="643" method="whereClause"
+				unique="no">
 				<WhereClauses>
 					<PSXWhereClause id="0" omitWhenNull="yes">
 						<PSXConditional id="0">
@@ -224,7 +230,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>PSX_FOLDER</tableAlias>
 									<column>CONTENTID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>IN</operator>
@@ -241,7 +247,7 @@
 									<PSXFunctionParamValue id="0">
 										<value>
 											<PSXTextLiteral id="0">
-												<text/>
+												<text />
 											</PSXTextLiteral>
 										</value>
 									</PSXFunctionParamValue>
@@ -256,11 +262,20 @@
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_OBJECTACL</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</PSXSortedColumn>
 				</Sorting>
-				<nativeStatement>SELECT PSX_OBJECTACL.CONTENTID, PSX_OBJECTACL.NAME,    PSX_OBJECTACL.PERMISSIONS, PSX_OBJECTACL.TYPE,  PSX_OBJECTACL.SYSID, CONTENTSTATUS.COMMUNITYID     FROM PSX_FOLDER, PSX_OBJECTACL , CONTENTSTATUS    WHERE PSX_FOLDER.CONTENTID = PSX_OBJECTACL.CONTENTID AND  PSX_FOLDER.REVISIONID = PSX_OBJECTACL.REVISIONID AND  CONTENTSTATUS.CONTENTID = PSX_OBJECTACL.CONTENTID AND  PSX_FOLDER.CONTENTID = CONTENTSTATUS.CONTENTID AND  PSX_FOLDER.CONTENTID IN (:"PSXSingleParam/inclause")  ORDER BY PSX_OBJECTACL.CONTENTID ASC </nativeStatement>
+				<nativeStatement>SELECT PSX_OBJECTACL.CONTENTID, PSX_OBJECTACL.NAME,
+					PSX_OBJECTACL.PERMISSIONS, PSX_OBJECTACL.TYPE, PSX_OBJECTACL.SYSID,
+					CONTENTSTATUS.COMMUNITYID FROM PSX_FOLDER, PSX_OBJECTACL ,
+					CONTENTSTATUS WHERE PSX_FOLDER.CONTENTID = PSX_OBJECTACL.CONTENTID
+					AND PSX_FOLDER.REVISIONID = PSX_OBJECTACL.REVISIONID AND
+					CONTENTSTATUS.CONTENTID = PSX_OBJECTACL.CONTENTID AND
+					PSX_FOLDER.CONTENTID = CONTENTSTATUS.CONTENTID AND
+					PSX_FOLDER.CONTENTID IN (:"PSXSingleParam/inclause") ORDER BY
+					PSX_OBJECTACL.CONTENTID ASC
+				</nativeStatement>
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
@@ -279,19 +294,20 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="no" id="0">
-				<Keys/>
-				<Dependencies/>
+			<PSXResourceCacheSettings enabled="no"
+				id="0">
+				<Keys />
+				<Dependencies />
 			</PSXResourceCacheSettings>
 		</PSXQueryPipe>
 		<PSXPageDataTank id="152">
 			<schemaSource>file:ObjectAclList.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>getFolderAcls</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<html>
@@ -308,7 +324,7 @@
 		</PSXRequestor>
 		<PSXResultPageSet id="0">
 			<PSXResultPage allowNamespaceCleanup="false" id="154">
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 		<PSXResultPager id="644">
@@ -319,16 +335,16 @@
 	</PSXDataSet>
 	<PSXDataSet id="156">
 		<name>Dataset187</name>
-		<description/>
+		<description />
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="256">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="252">
 				<PSXBackEndTable id="251">
 					<alias>CONTENTSTATUS</alias>
 					<table>CONTENTSTATUS</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 			</PSXBackEndDataTank>
 			<PSXDataMapper id="254" returnEmptyXml="no">
@@ -339,9 +355,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>CONTENTSTATUS</tableAlias>
 						<column>CONTENTID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -350,9 +366,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>CONTENTSTATUS</tableAlias>
 						<column>TITLE</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -361,9 +377,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>CONTENTSTATUS</tableAlias>
 						<column>COMMUNITYID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -372,9 +388,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>CONTENTSTATUS</tableAlias>
 						<column>CONTENTTYPEID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -383,32 +399,34 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>CONTENTSTATUS</tableAlias>
 						<column>OBJECTTYPE</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="253" method="whereClause" unique="no">
-				<WhereClauses/>
-				<Sorting/>
-				<nativeStatement/>
+			<PSXDataSelector id="253" method="whereClause"
+				unique="no">
+				<WhereClauses />
+				<Sorting />
+				<nativeStatement />
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
 			</PSXDataSelector>
-			<PSXResourceCacheSettings enabled="no" id="0">
-				<Keys/>
-				<Dependencies/>
+			<PSXResourceCacheSettings enabled="no"
+				id="0">
+				<Keys />
+				<Dependencies />
 			</PSXResourceCacheSettings>
 		</PSXQueryPipe>
 		<PSXPageDataTank id="155">
 			<schemaSource>file:ItemEntries.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>getItemEntries</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<html>
@@ -425,41 +443,41 @@
 		</PSXRequestor>
 		<PSXResultPageSet id="0">
 			<PSXResultPage allowNamespaceCleanup="false" id="157">
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 	</PSXDataSet>
 	<PSXDataSet id="160">
 		<name>Dataset29</name>
-		<description/>
+		<description />
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="150">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="146">
 				<PSXBackEndTable id="144">
 					<alias>PSX_FOLDER</alias>
 					<table>PSX_FOLDER</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 				<PSXBackEndTable id="145">
 					<alias>PSX_PROPERTIES</alias>
 					<table>PSX_PROPERTIES</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 				<PSXBackEndJoin id="0" joinType="inner">
 					<leftColumn>
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_FOLDER</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</leftColumn>
 					<rightColumn>
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_PROPERTIES</tableAlias>
 							<column>CONTENTID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</rightColumn>
 				</PSXBackEndJoin>
@@ -468,14 +486,14 @@
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_FOLDER</tableAlias>
 							<column>REVISIONID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</leftColumn>
 					<rightColumn>
 						<PSXBackEndColumn id="0">
 							<tableAlias>PSX_PROPERTIES</tableAlias>
 							<column>REVISIONID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</rightColumn>
 				</PSXBackEndJoin>
@@ -488,9 +506,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>PSX_FOLDER</tableAlias>
 						<column>CONTENTID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="2" id="0">
 					<PSXXmlField id="0">
@@ -499,9 +517,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>PSX_PROPERTIES</tableAlias>
 						<column>PROPERTYNAME</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="2" id="0">
 					<PSXXmlField id="0">
@@ -510,12 +528,13 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>PSX_PROPERTIES</tableAlias>
 						<column>PROPERTYVALUE</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="147" method="whereClause" unique="no">
+			<PSXDataSelector id="147" method="whereClause"
+				unique="no">
 				<WhereClauses>
 					<PSXWhereClause id="0" omitWhenNull="no">
 						<PSXConditional id="0">
@@ -527,7 +546,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>PSX_PROPERTIES</tableAlias>
 												<column>PROPERTYNAME</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</value>
 									</PSXFunctionParamValue>
@@ -543,8 +562,8 @@
 						</PSXConditional>
 					</PSXWhereClause>
 				</WhereClauses>
-				<Sorting/>
-				<nativeStatement/>
+				<Sorting />
+				<nativeStatement />
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
@@ -563,19 +582,20 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="no" id="0">
-				<Keys/>
-				<Dependencies/>
+			<PSXResourceCacheSettings enabled="no"
+				id="0">
+				<Keys />
+				<Dependencies />
 			</PSXResourceCacheSettings>
 		</PSXQueryPipe>
 		<PSXPageDataTank id="159">
 			<schemaSource>file:CachedFolderProperties.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>getCachedFolderProperties</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<html>
@@ -592,18 +612,29 @@
 		</PSXRequestor>
 		<PSXResultPageSet id="0">
 			<PSXResultPage allowNamespaceCleanup="false" id="161">
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 	</PSXDataSet>
-	<PSXLogger id="0" logAppStartStop="no" logAppStatistics="no" logBasicUserActivity="no" logDetailedUserActivity="no" logErrors="no" logExecutionPlan="no" logFullUserActivity="no" logMultipleHandlers="no" logServerStartStop="no"/>
-	<PSXTraceInfo id="0" traceAppHandlerProc="no" traceAppSecurity="no" traceBasicRequestInfo="no" traceConditionalEval="no" traceDbPool="no" traceEnabled="no" traceExitExec="no" traceExitProc="no" traceFileInfo="no" traceInitHttpVar="no" traceMapper="no" traceOutputColumnWidth="80" traceOutputConv="no" tracePostExitCgi="no" tracePostExitXml="no" tracePostPreProcHttpVar="no" traceResourceHandler="no" traceResultSet="no" traceSessionInfo="no" traceTimestampOnlyEnabled="no"/>
-	<PSXErrorWebPages id="142" returnHtml="yes"/>
+	<PSXLogger id="0" logAppStartStop="no" logAppStatistics="no"
+		logBasicUserActivity="no" logDetailedUserActivity="no" logErrors="no"
+		logExecutionPlan="no" logFullUserActivity="no"
+		logMultipleHandlers="no" logServerStartStop="no" />
+	<PSXTraceInfo id="0" traceAppHandlerProc="no"
+		traceAppSecurity="no" traceBasicRequestInfo="no"
+		traceConditionalEval="no" traceDbPool="no" traceEnabled="no"
+		traceExitExec="no" traceExitProc="no" traceFileInfo="no"
+		traceInitHttpVar="no" traceMapper="no" traceOutputColumnWidth="80"
+		traceOutputConv="no" tracePostExitCgi="no" tracePostExitXml="no"
+		tracePostPreProcHttpVar="no" traceResourceHandler="no"
+		traceResultSet="no" traceSessionInfo="no"
+		traceTimestampOnlyEnabled="no" />
+	<PSXErrorWebPages id="142" returnHtml="yes" />
 	<backEndLoginPassthru>no</backEndLoginPassthru>
 	<PSXNotifier id="143">
 		<providerType>SMTP</providerType>
 		<server>//Ben</server>
-		<from/>
+		<from />
 	</PSXNotifier>
 	<userProperty name="locationX142">16</userProperty>
 	<userProperty name="locationY159">0</userProperty>

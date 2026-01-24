@@ -1,26 +1,32 @@
-<?xml version="1.0" encoding="UTF-8" ?> 
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="Membership" category="integration" description="This gadget allows administering accounts." thumbnail="images/perc_membership_gadget.png" height="320" adminOnly="true">
-        <Require feature="perc_core"/>
-        <Require feature="settitle" />
-        <Require feature="perc_getDashboardColumn" />
-        <Require feature="minimessage" />
-        <Require feature="perc_jquery_ui"/>
-        <Require feature="setprefs" /> 
-    </ModulePrefs>
-    <UserPref name="site" display_name="Site" required="true" datatype="enum" default_value="">
-    <EnumValue value="@url:/services/sitemanage/site/choices"/>
-</UserPref>
-    <UserPref name="selectedBlogID" display_name="selectedBlogID" required="false" datatype="hidden" default_value="@null" />
-  	<UserPref name="zrows" display_name="Display height" required="false" datatype="enum" default_value="5">
-        <EnumValue value="5" display_value="5 results"/>
-        <EnumValue value="10" display_value="10 results"/>
-        <EnumValue value="15" display_value="15 results"/>
-        <EnumValue value="20" display_value="20 results"/>
-        <EnumValue value="25" display_value="25 results"/>
+	<ModulePrefs title="Membership" category="integration"
+		description="This gadget allows administering accounts."
+		thumbnail="images/perc_membership_gadget.png" height="320"
+		adminOnly="true">
+		<Require feature="perc_core" />
+		<Require feature="settitle" />
+		<Require feature="perc_getDashboardColumn" />
+		<Require feature="minimessage" />
+		<Require feature="perc_jquery_ui" />
+		<Require feature="setprefs" />
+	</ModulePrefs>
+	<UserPref name="site" display_name="Site" required="true"
+		datatype="enum" default_value="">
+		<EnumValue value="@url:/services/sitemanage/site/choices" />
 	</UserPref>
-    <Content type="html">
+	<UserPref name="selectedBlogID" display_name="selectedBlogID"
+		required="false" datatype="hidden" default_value="@null" />
+	<UserPref name="zrows" display_name="Display height"
+		required="false" datatype="enum" default_value="5">
+		<EnumValue value="5" display_value="5 results" />
+		<EnumValue value="10" display_value="10 results" />
+		<EnumValue value="15" display_value="15 results" />
+		<EnumValue value="20" display_value="20 results" />
+		<EnumValue value="25" display_value="25 results" />
+	</UserPref>
+	<Content type="html">
     <![CDATA[
      <!DOCTYPE html>
     <link rel="stylesheet" type="text/css" href="/cm/themes/smoothness/jquery-ui-1.8.9.custom.css" />
@@ -42,11 +48,11 @@
     <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/tools.scrollable.mousewheel-1.0.1.js" ></script>
     <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js" ></script>
     <script src="/cm/plugins/perc_utils.js" ></script>
-    
-    
+
+
     <script src="/cm/services/PercServiceUtils.js" ></script>
     <script src="/cm/services/PercMembershipService.js" ></script>
-    
+
     <script src="/cm/plugins/perc_path_constants.js" ></script>
     <script src="/cm/widgets/PercScrollingTemplateBrowser/PercScrollingTemplateBrowser.js" ></script>
     <script src="/cm/widgets/PercSimpleMenu/PercSimpleMenu.js"></script>
@@ -58,29 +64,29 @@
     <script src="/cm/gadgets/repository/perc_membership_gadget/PercEditSiteUser.js" ></script>
     <script src="/cm/gadgets/repository/perc_membership_gadget/perc_membership_gadget.js" ></script>
 
-    
-   
+
+
     <script>
         var PercMetadataService = percJQuery.PercMetadataService;
         var loadingMsg = null;
         var miniMsg = null;
         $(document).ready(function() {
-            var prefs    = new gadgets.Prefs(); 
+            var prefs    = new gadgets.Prefs();
             var rows     = parseInt(prefs.getString("zrows"));
              var site = prefs.getString("site");
 			if(!site)
 			site = "";
-            
+
             if(rows === NaN)
                rows = 5;
 
             miniMsg    = new gadgets.MiniMessage(__MODULE_ID__);
-            loadingMsg = miniMsg.createStaticMessage("Loading...");            
-            
+            loadingMsg = miniMsg.createStaticMessage("Loading...");
+
             $(".perc-membership-gadget").PercMembershipGadget(site,rows);
             gadgets.window.setTitle(I18N.message("perc.ui.gadgets.membership@MEMBERSHIP"));
         })
-        
+
         function _expandNotify(){
             self.location.reload();
         }
@@ -91,5 +97,5 @@
         </div>
     </div>
     ]]>
-    </Content> 
+	</Content>
 </Module>

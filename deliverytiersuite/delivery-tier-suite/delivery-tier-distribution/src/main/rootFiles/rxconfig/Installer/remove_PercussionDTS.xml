@@ -1,8 +1,10 @@
 
 
-<project name="remove_PercussionDTS" default="remove_PercussionDTS">
-    <!-- Responsible for removing <InstallDir>/_PercussionDTS_installation folder if present -->
-    <target name="remove_PercussionDTS">
-        <!-- TODO: Implement Me -->
-    </target>
+<project name="remove_PercussionDTS"
+	default="remove_PercussionDTS">
+	<!-- Responsible for removing <InstallDir>/_PercussionDTS_installation folder
+		if present -->
+	<target name="remove_PercussionDTS">
+		<!-- TODO: Implement Me -->
+	</target>
 </project>

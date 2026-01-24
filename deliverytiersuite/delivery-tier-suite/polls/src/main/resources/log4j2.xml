@@ -2,20 +2,23 @@
 
 
 <Configuration status="info" name="polls">
-  <Appenders>
-    <RollingRandomAccessFile name="RollingRandomAccessFile" fileName="${sys:catalina.base}/logs/polls.log"
-                 filePattern="logs/$${date:yyyy-MM}/polls-%d{MM-dd-yyyy}-%i.log.gz">
-      <PatternLayout>
-        <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [Thread: %t] %level [%c][%M] - %msg%n</Pattern>
-      </PatternLayout>
-      <Policies>
-        <SizeBasedTriggeringPolicy size="10 MB"/>
-      </Policies>
-    </RollingRandomAccessFile>
-  </Appenders>
-  <Loggers>
-    <Root level="info" includeLocation="true" additivity="false">
-      <AppenderRef ref="RollingRandomAccessFile"/>
-    </Root>
-  </Loggers>
+	<Appenders>
+		<RollingRandomAccessFile
+			name="RollingRandomAccessFile"
+			fileName="${sys:catalina.base}/logs/polls.log"
+			filePattern="logs/$${date:yyyy-MM}/polls-%d{MM-dd-yyyy}-%i.log.gz">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [Thread: %t] %level [%c][%M] -
+					%msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+		</RollingRandomAccessFile>
+	</Appenders>
+	<Loggers>
+		<Root level="info" includeLocation="true" additivity="false">
+			<AppenderRef ref="RollingRandomAccessFile" />
+		</Root>
+	</Loggers>
 </Configuration>

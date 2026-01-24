@@ -2,13 +2,17 @@
 
 
 <Resources>
-<file id="common_js"  path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript" >
-	     <dependency refid="percSystem.common_slim_js"/>
-</file>
-    <file id="registrationform_js" path="/web_resources/widgets/registration/js/registrationform.min.js" type="javascript" >
-	    <dependency refid="percSystem.jquery"/>
+	<file id="common_js"
+		path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript">
+		<dependency refid="percSystem.common_slim_js" />
 	</file>
-    <file id="jquery-validate" path="/web_resources/cm/jslib/jquery.validate.js" type="javascript">
-      <dependency refid="percSystem.jquery" />
-    </file>
+	<file id="registrationform_js"
+		path="/web_resources/widgets/registration/js/registrationform.min.js"
+		type="javascript">
+		<dependency refid="percSystem.jquery" />
+	</file>
+	<file id="jquery-validate"
+		path="/web_resources/cm/jslib/jquery.validate.js" type="javascript">
+		<dependency refid="percSystem.jquery" />
+	</file>
 </Resources>

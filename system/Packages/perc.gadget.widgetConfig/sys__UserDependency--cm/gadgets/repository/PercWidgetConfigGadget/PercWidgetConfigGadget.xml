@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="Widget Configuration" category="content,search" description="Widget configuration gadget" thumbnail="images/gadgetIconWidgetConfig.png" height="450"  adminOnly="true">
-        <Require feature="perc_core"/>
-        <Require feature="settitle" />
-        <Require feature="perc_getDashboardColumn" />
-        <Require feature="minimessage" />
-        <Require feature="perc_jquery_ui"/>
-    </ModulePrefs>
-    <Content type="html">
+	<ModulePrefs title="Widget Configuration"
+		category="content,search" description="Widget configuration gadget"
+		thumbnail="images/gadgetIconWidgetConfig.png" height="450"
+		adminOnly="true">
+		<Require feature="perc_core" />
+		<Require feature="settitle" />
+		<Require feature="perc_getDashboardColumn" />
+		<Require feature="minimessage" />
+		<Require feature="perc_jquery_ui" />
+	</ModulePrefs>
+	<Content type="html">
         <![CDATA[
 <!DOCTYPE html>
     <link rel="stylesheet" type="text/css" href="/cm/themes/smoothness/jquery-ui-1.8.9.custom.css" />
@@ -180,5 +183,5 @@
         </table>
     </div>
      ]]>
-    </Content>
+	</Content>
 </Module>
