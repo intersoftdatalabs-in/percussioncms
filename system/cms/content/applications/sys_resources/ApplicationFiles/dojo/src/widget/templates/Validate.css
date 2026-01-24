@@ -1,12 +1,12 @@
-.dojoValidateEmpty{
-	background-color: #00FFFF;
+.dojoValidateEmpty {
+  background-color: #00ffff;
 }
-.dojoValidateValid{
-	background-color: #cfc;
+.dojoValidateValid {
+  background-color: #cfc;
 }
-.dojoValidateInvalid{
-	background-color: #fcc;
+.dojoValidateInvalid {
+  background-color: #fcc;
 }
-.dojoValidateRange{
-	background-color: #ccf;
+.dojoValidateRange {
+  background-color: #ccf;
 }

@@ -1,5 +1,3 @@
-
-
 /**
    CSS Style for the ViewPort widget. The visual layout of this widget is as follows:
    +--+----------------------------+--+
@@ -17,7 +15,20 @@
      <div class="perc_viewport_right_button">&gt;&gt;</div>
    </div>
 j*/
-.perc-viewport { overflow: hidden; margin-left: 20px; margin-right: 20px; }
-.perc-viewport-left-button, .perc-viewport-right-button { cursor: pointer; position: absolute; top: 70px; }
-.perc-viewport-left-button { left: 0px; }
-.perc-viewport-right-button { right: 0px; }
+.perc-viewport {
+  overflow: hidden;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.perc-viewport-left-button,
+.perc-viewport-right-button {
+  cursor: pointer;
+  position: absolute;
+  top: 70px;
+}
+.perc-viewport-left-button {
+  left: 0px;
+}
+.perc-viewport-right-button {
+  right: 0px;
+}

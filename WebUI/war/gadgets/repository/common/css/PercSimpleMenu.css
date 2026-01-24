@@ -25,35 +25,35 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-	.perc-datatable-actionmenu {
-		float:right;
-	}
-    .perc-simplemenu-menu {
-        background : white;
-        cursor : pointer;
-		float : right;
-    }
-    .perc-simplemenu-title {
-        text-align : right;
-        width : 65px;   /* must be equal to width of perc-simplemenu-menuitems */
-    }
-    .perc-simplemenu-menuitems {
-        background : #3d9bbf;
-        color : white;
-        /*padding : 5px;  comment this line to adjust width with the perc-simplemenu-title */
-        width : 65px;
-    }
-    .perc-simplemenu-menuitem {
-        padding : 5px;
-    }
-    .perc-simplemenu-menuitem-hover {
-        background : #1D6F9E;
-        color : white;
-    }
-    .perc-simplemenu-menuitem {
-        font-size   : 11px;
-    }
+.perc-datatable-actionmenu {
+  float: right;
+}
+.perc-simplemenu-menu {
+  background: white;
+  cursor: pointer;
+  float: right;
+}
+.perc-simplemenu-title {
+  text-align: right;
+  width: 65px; /* must be equal to width of perc-simplemenu-menuitems */
+}
+.perc-simplemenu-menuitems {
+  background: #3d9bbf;
+  color: white;
+  /*padding : 5px;  comment this line to adjust width with the perc-simplemenu-title */
+  width: 65px;
+}
+.perc-simplemenu-menuitem {
+  padding: 5px;
+}
+.perc-simplemenu-menuitem-hover {
+  background: #1d6f9e;
+  color: white;
+}
+.perc-simplemenu-menuitem {
+  font-size: 11px;
+}
 
-    body * {
-        font-family: 'Open Sans', sans-serif;
-    }
+body * {
+  font-family: "Open Sans", sans-serif;
+}

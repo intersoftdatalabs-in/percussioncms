@@ -1,55 +1,48 @@
-.PSmenuitem
-{
-    FONT-SIZE: 8pt;
-    COLOR: Black;
-	FONT-FAMILY: tahoma, arial, helvetica, sans-serif;
-    TEXT-DECORATION: none
+.PSmenuitem {
+  font-size: 8pt;
+  color: Black;
+  font-family: tahoma, arial, helvetica, sans-serif;
+  text-decoration: none;
 }
-.PSnavmenuitem
-{
-    FONT-SIZE: 8pt;
-    COLOR: Black;
-	FONT-FAMILY: verdana, arial, helvetica, sans-serif;
-    TEXT-DECORATION: none
+.PSnavmenuitem {
+  font-size: 8pt;
+  color: Black;
+  font-family: verdana, arial, helvetica, sans-serif;
+  text-decoration: none;
 }
-.PSpopupmenu
-{
-    BORDER-RIGHT: ButtonHighlight 2px outset;
-    BORDER-TOP: ButtonHighlight 2px outset;
-    LEFT: 0px;
-    VISIBILITY: hidden;
-    BORDER-LEFT: ButtonHighlight 2px outset;
-    BORDER-BOTTOM: ButtonHighlight 2px outset;
-    POSITION: absolute;
-    TOP: 0px;
-    BACKGROUND-COLOR: #d4d0c8
+.PSpopupmenu {
+  border-right: ButtonHighlight 2px outset;
+  border-top: ButtonHighlight 2px outset;
+  left: 0px;
+  visibility: hidden;
+  border-left: ButtonHighlight 2px outset;
+  border-bottom: ButtonHighlight 2px outset;
+  position: absolute;
+  top: 0px;
+  background-color: #d4d0c8;
 }
-.PSbreadcrumb
-{
-    FONT-SIZE: 8pt;
-    COLOR: #333333;
-	FONT-FAMILY: verdana, arial, helvetica, sans-serif;
-	padding:3px;
-	vertical-align: bottom;
+.PSbreadcrumb {
+  font-size: 8pt;
+  color: #333333;
+  font-family: verdana, arial, helvetica, sans-serif;
+  padding: 3px;
+  vertical-align: bottom;
 }
-.PStopnavbar
-{
-    BORDER-RIGHT: ButtonHighlight 12px outset;
-    BORDER-TOP: ButtonHighlight 12px outset;
-    BORDER-LEFT: ButtonHighlight 12px outset;
-    BORDER-BOTTOM: ButtonHighlight 12px outset;
+.PStopnavbar {
+  border-right: ButtonHighlight 12px outset;
+  border-top: ButtonHighlight 12px outset;
+  border-left: ButtonHighlight 12px outset;
+  border-bottom: ButtonHighlight 12px outset;
 }
-.PSactiveitemborder
-{
-    BORDER-RIGHT: Green 1px solid;
-    BORDER-TOP: Green 1px solid;
-    BORDER-LEFT: Green 1px solid;
-    BORDER-BOTTOM: Green 1px solid;
+.PSactiveitemborder {
+  border-right: Green 1px solid;
+  border-top: Green 1px solid;
+  border-left: Green 1px solid;
+  border-bottom: Green 1px solid;
 }
-.PSactiveitemborder2
-{
-    BORDER-RIGHT: Blue 1px solid;
-    BORDER-TOP: Blue 1px solid;
-    BORDER-LEFT: Blue 1px solid;
-    BORDER-BOTTOM: Blue 1px solid
+.PSactiveitemborder2 {
+  border-right: Blue 1px solid;
+  border-top: Blue 1px solid;
+  border-left: Blue 1px solid;
+  border-bottom: Blue 1px solid;
 }

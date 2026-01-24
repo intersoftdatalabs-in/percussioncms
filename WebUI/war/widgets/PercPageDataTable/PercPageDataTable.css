@@ -1,98 +1,104 @@
-
-
 table.perc-datatable th.perc-datatable-head-column.perc-first {
-    text-align : left;
+  text-align: left;
 }
 table.perc-datatable th.perc-datatable-head-column.perc-last {
-    text-align : right;
+  text-align: right;
 }
-table.perc-datatable tr.perc-datatable-row td.perc-datatable-column.perc-last .perc-simplemenu-menuitems {
-    text-align : left;
+table.perc-datatable
+  tr.perc-datatable-row
+  td.perc-datatable-column.perc-last
+  .perc-simplemenu-menuitems {
+  text-align: left;
 }
 table.perc-datatable td.perc-datatable-column.perc-first {
-    text-align : left;
+  text-align: left;
 }
 table.perc-datatable td.perc-middle,
 table.perc-datatable th.perc-middle {
-    text-align : left;
+  text-align: left;
 }
 
-table.perc-datatable th, table.perc-datatable td {
-    padding-left : 0px;
-    padding-right : 20px;
-    /*    padding-top : 10px;*/
-    padding-bottom : 6px;
+table.perc-datatable th,
+table.perc-datatable td {
+  padding-left: 0px;
+  padding-right: 20px;
+  /*    padding-top : 10px;*/
+  padding-bottom: 6px;
 }
 
 table.perc-datatable .perc-datatable-columnrow {
-    padding-top : 5px;
-    color : black;
+  padding-top: 5px;
+  color: black;
 }
 
 table.perc-datatable td.perc-last {
-    padding-left : 0px;
-    padding-right : 7px;
+  padding-left: 0px;
+  padding-right: 7px;
 }
 
 table.perc-datatable th.perc-last {
-    padding-left : 0px;
-    padding-right : 0px;
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 table.perc-datatable div.perc-datatable-columnrow.perc-callback {
-    color : #0099CC;
+  color: #0099cc;
 }
 
 table.perc-datatable .perc-callback {
-    color : #0099CC;
-    font-weight : bold;
+  color: #0099cc;
+  font-weight: bold;
 }
 
 table.perc-datatable thead tr.perc-datatable-head-row th.sorting_disabled {
-    cursor : default;
+  cursor: default;
 }
 
-table.perc-datatable thead tr.perc-datatable-head-row th.sorting_disabled span.perc-sort {
-    display : none;
+table.perc-datatable
+  thead
+  tr.perc-datatable-head-row
+  th.sorting_disabled
+  span.perc-sort {
+  display: none;
 }
 div.datatables_info {
-    position : absolute;
-    left : 0px;
-    bottom : 0px;
-    font-size : 11px;
-    font-weight : normal;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  font-size: 11px;
+  font-weight: normal;
 }
 
 .dataTables_paginate.paging_full_numbers {
-    position : absolute;
-    right : 0px;
-    bottom : 0px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
 }
 
 .dataTables_paginate.paging_full_numbers .first,
 .dataTables_paginate.paging_full_numbers .previous,
 .dataTables_paginate.paging_full_numbers .last {
-    margin-left : 4px;
-    margin-right : 4px;
-    cursor : pointer;
+  margin-left: 4px;
+  margin-right: 4px;
+  cursor: pointer;
 }
 
 .dataTables_paginate.paging_full_numbers .next {
-    margin-left : 8px;
-    margin-right : 4px;
-    cursor : pointer;
+  margin-left: 8px;
+  margin-right: 4px;
+  cursor: pointer;
 }
 
 .dataTables_paginate.paging_full_numbers span span.paginate_active,
 .dataTables_paginate.paging_full_numbers span span.paginate_button {
-    padding-left : 4px;
-    cursor : pointer;
-    color : #0099CC;
+  padding-left: 4px;
+  cursor: pointer;
+  color: #0099cc;
 }
 
 .perc-datatable td.perc-issues div.perc-datatable-columnrow {
-    font-weight : normal;
+  font-weight: normal;
 }
 body * {
-    font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }

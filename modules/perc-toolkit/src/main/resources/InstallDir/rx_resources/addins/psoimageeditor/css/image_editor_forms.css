@@ -2,61 +2,51 @@
  * General forms tag specifications.
 */
 
-body
-{
-   color: #0000a0; 
-   font-size: medium;
+body {
+  color: #0000a0;
+  font-size: medium;
 }
-input, textarea
-{
-   color: #0000a0; 
-   background-color: #FFFFFF;
-   
+input,
+textarea {
+  color: #0000a0;
+  background-color: #ffffff;
 }
 
-div.imageBox
-{
-	margin: 5px;
-	padding: 5px;
-	float: left;
+div.imageBox {
+  margin: 5px;
+  padding: 5px;
+  float: left;
 }
 
-div.imageContainer
-{
- 	margin: 2px;
-	padding: 2px;	
+div.imageContainer {
+  margin: 2px;
+  padding: 2px;
 }
 
-.imageInput 
-{
-   border: none;
-   
+.imageInput {
+  border: none;
 }
 
-.clear
-{
-   clear: both;
+.clear {
+  clear: both;
 }
-input.hbutton
-{
-   background-color: #000060;
-   color: #FFFFFF;
-   
-   font-weight: bold;
-   border: none;   
+input.hbutton {
+  background-color: #000060;
+  color: #ffffff;
+
+  font-weight: bold;
+  border: none;
 }
-input.fbutton
-{
-   background-color: #000030;
-   color: #A5A5A5; 
-   
-   font-weight: normal;
-   border:none; 
+input.fbutton {
+  background-color: #000030;
+  color: #a5a5a5;
+
+  font-weight: normal;
+  border: none;
 }
 
-input.plaintext
-{
-	color: black;
-	background: none;
-	border:none;
+input.plaintext {
+  color: black;
+  background: none;
+  border: none;
 }
