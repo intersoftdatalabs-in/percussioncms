@@ -250,4 +250,24 @@ public interface IPSExtensionDef {
   default void addExtensionMethod(PSExtensionMethod method) {
     // no-op for backward compatibility
   }
+
+  /**
+   * Indicates whether this extension is deprecated. Default returns {@code false} to preserve
+   * backward compatibility when implementations do not provide this information.
+   *
+   * @return {@code true} if deprecated, {@code false} otherwise
+   */
+  default boolean isDeprecated() {
+    return false;
+  }
+
+  /**
+   * Indicates whether request parameters should be restored when an extension throws an error.
+   * Default returns {@code false} to preserve backward compatibility.
+   *
+   * @return {@code true} to restore request parameters on error, {@code false} otherwise
+   */
+  default boolean isRestoreRequestParamsOnError() {
+    return false;
+  }
 }

@@ -3,6 +3,8 @@ package com.percussion.webservices.faults;
 public class PSErrorsFault extends Exception {
   private static final long serialVersionUID = 1L;
 
+  private String service;
+
   public PSErrorsFault() {
     super();
   }
@@ -17,5 +19,13 @@ public class PSErrorsFault extends Exception {
 
   public PSErrorsFault(Throwable cause) {
     super(cause);
+  }
+
+  public void setService(String service) {
+    this.service = service;
+  }
+
+  public String getService() {
+    return service;
   }
 }

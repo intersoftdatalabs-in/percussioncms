@@ -112,11 +112,11 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
         }        
     }
 
-    public PSManagedLink findLinkByLinkId(long linkId)
+    public java.util.Optional<PSManagedLink> findLinkByLinkId(long linkId)
     {
         Session session = getSession();
 
-            return session.get(PSManagedLink.class,linkId);
+            return java.util.Optional.ofNullable(session.get(PSManagedLink.class,linkId));
 
     }
 

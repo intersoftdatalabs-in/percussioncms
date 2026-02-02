@@ -65,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test CMS Accessors
- * 
+ *
  * @author dougrand
  */
 @TestMethodOrder(MethodName.class)
@@ -80,7 +80,7 @@ public class PSCmsObjectMgrTest
     * As self documented
     */
    private static final int MIN_TEST_CONTENTID = 366;
-   
+
    /**
     * All fast forward content type id values
     */
@@ -90,14 +90,14 @@ public class PSCmsObjectMgrTest
    /**
     * The cms object manager instance
     */
-   static IPSCmsObjectMgr ms_cms = PSCmsObjectMgrLocator.getObjectManager();   
-   
+   static IPSCmsObjectMgr ms_cms = PSCmsObjectMgrLocator.getObjectManager();
+
    /**
     *  Locale counts before test
     */
    private int ALL_LOCALES = ms_cms.findAllLocales().size();
    private int ACTIVE_LOCALES = ms_cms.findLocaleByStatus(PSLocale.STATUS_ACTIVE).size();
-   
+
    /**
     * @throws Exception
     */
@@ -112,18 +112,18 @@ public class PSCmsObjectMgrTest
          {
             ms_cms.deleteLocale(locale);
          }
-            
+
       }
       catch(Throwable t)
       {
          // Ignore
       }
-      
+
       PSLocale l = ms_cms.createLocale("xy-zy", "Test locale");
       l.setDescription("Test desc");
       l.setStatus(PSLocale.STATUS_INACTIVE);
       ms_cms.saveLocale(l);
-      
+
       // Change status
       l.setStatus(PSLocale.STATUS_ACTIVE);
       ms_cms.saveLocale(l);
@@ -132,7 +132,7 @@ public class PSCmsObjectMgrTest
       l2.setDescription("German language used in Switzerland");
       ms_cms.saveLocale(l2);
    }
-   
+
    /**
     * @throws Exception
     */
@@ -141,39 +141,39 @@ public class PSCmsObjectMgrTest
    {
       PSLocale l = ms_cms.findLocaleByLanguageString("xy-zy");
       assertNotNull(l);
-      
+
       int id = l.getLocaleId();
       assertTrue(id > 0);
-      
+
       PSLocale l2 = ms_cms.loadLocale(id);
       assertEquals(l, l2);
-      
+
       Collection locales = ms_cms.findLocaleByStatus(PSLocale.STATUS_ACTIVE);
       assertTrue(locales.size() == ACTIVE_LOCALES + 1);
-      
+
       locales = ms_cms.findAllLocales();
       assertTrue(locales.size() == ALL_LOCALES + 2);
-      
+
       locales = ms_cms.findLocales(null, null);
       assertTrue(locales.size() == ALL_LOCALES + 2);
-      
+
       locales = ms_cms.findLocales("xy-zy", null);
       assertTrue(locales.size() == 1);
 
       locales = ms_cms.findLocales("", "Test%");
       assertTrue(locales.size() == 2);
-      
+
       locales = ms_cms.findLocales("xy-zy", "Test%");
       assertTrue(locales.size() == 1);
-      
+
       locales = ms_cms.findLocales("de-ch", "Test%");
       assertTrue(locales.size() == 1);
-      
+
       locales = ms_cms.findLocales("foo", "Test%");
       assertTrue(locales.size() == 0);
-      
+
    }
-   
+
    /**
     * @throws Exception
     */
@@ -186,7 +186,7 @@ public class PSCmsObjectMgrTest
       PSLocale l2 = ms_cms.findLocaleByLanguageString("de-ch");
       ms_cms.deleteLocale(l2);
    }
-   
+
    /**
     * @throws Exception
     */
@@ -202,7 +202,7 @@ public class PSCmsObjectMgrTest
       {
          ms_cms.deleteComponentSummaries(summaries);
       }
-      
+
       // Known ids from fast forward
       ids.clear();
       ids.add(318); // Folder
@@ -211,7 +211,7 @@ public class PSCmsObjectMgrTest
       summaries = ms_cms.loadComponentSummaries(ids);
       assertEquals(3, summaries.size());
 
-      // Create new summary and save 
+      // Create new summary and save
       PSComponentSummary sum = new PSComponentSummary(10000000, 1, 1, 1, 1, "Test item", 311, -1);
       sum.setCheckoutUserName("GeorgeWashington");
       sum.setCommunityId(1010);
@@ -250,39 +250,39 @@ public class PSCmsObjectMgrTest
       summaries.clear();
       summaries.add(sum2);
       ms_cms.saveComponentSummaries(summaries);
-      // Remove 
+      // Remove
       ms_cms.deleteComponentSummaries(ret);
       // Find a group by type
       Collection<PSComponentSummary> col;
       col = ms_cms.findComponentSummariesByType(311); // Generic
       assertTrue(col.size() > 0);
-      assertTrue(col.iterator().next().getContentTypeId() == 311);     
-      
+      assertTrue(col.iterator().next().getContentTypeId() == 311);
+
       // Test performance
       PSStopwatch sw = new PSStopwatch();
-      
+
       for(int i = MIN_TEST_CONTENTID; i < MAX_TEST_CONTENTID; i++)
       {
          ids.add(i);
       }
-      
-      System.out.println("testCSLoad " + ids.size() + " items"); 
+
+      System.out.println("testCSLoad " + ids.size() + " items");
       sw.start();
       summaries = ms_cms.loadComponentSummaries(ids);
       sw.stop();
       System.out.println("testCSLoad First run " + sw);
-      
+
       sw.start();
       summaries = ms_cms.loadComponentSummaries(ids);
       sw.stop();
       System.out.println("testCSLoad Second run " + sw);
-      
+
       sw.start();
       summaries = ms_cms.loadComponentSummaries(ids);
       sw.stop();
-      System.out.println("testCSLoad Third run " + sw);      
+      System.out.println("testCSLoad Third run " + sw);
    }
-   
+
    /**
     * Check that find content types works
     * @throws Exception
@@ -291,26 +291,26 @@ public class PSCmsObjectMgrTest
    public void test05FindContentTypes() throws Exception
    {
       List<Integer> cids = new ArrayList<Integer>();
-      
+
       cids.addAll(ms_cms.findContentIdsByType(311));
       cids.addAll(ms_cms.findContentIdsByType(305));
       cids.addAll(ms_cms.findContentIdsByType(313));
-      
+
       Set<Long> contenttypeids = ms_cms.findContentTypesForIds(cids);
       assertNotNull(contenttypeids);
       assertTrue(contenttypeids.size() == 3);
       assertTrue(contenttypeids.contains(311L));
       assertTrue(contenttypeids.contains(305L));
       assertTrue(contenttypeids.contains(313L));
-      
+
       // Test large collection of content ids
       cids.clear();
-      
+
       for(int i = 0; i < ALL_FF_TYPES.length; i++)
       {
-         cids.addAll(ms_cms.findContentIdsByType(ALL_FF_TYPES[i]));  
+         cids.addAll(ms_cms.findContentIdsByType(ALL_FF_TYPES[i]));
       }
-      
+
       contenttypeids = ms_cms.findContentTypesForIds(cids);
       assertNotNull(contenttypeids);
       assertTrue(contenttypeids.size() == ALL_FF_TYPES.length);
@@ -319,9 +319,9 @@ public class PSCmsObjectMgrTest
          assertTrue(contenttypeids.contains(new Long(ALL_FF_TYPES[i])));
       }
    }
- 
+
    /**
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -333,12 +333,12 @@ public class PSCmsObjectMgrTest
       {
          PSComponentSummary fitem = col.iterator().next();
          Collection<Integer> cids = ms_cms.findContentIdsByWorkflowStatus(fitem.getWorkflowAppId(), fitem.getContentStateId());
-         assertTrue(cids.size()>=1); 
+         assertTrue(cids.size()>=1);
       }
    }
-   
+
    /**
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -350,10 +350,10 @@ public class PSCmsObjectMgrTest
       {
          PSComponentSummary fitem = col.iterator().next();
          Collection<Integer> cids = ms_cms.findContentIdsByWorkflow(fitem.getWorkflowAppId());
-         assertTrue(cids.size()>=1); 
+         assertTrue(cids.size()>=1);
       }
    }
-   
+
    /**
     * @throws Exception
     */
@@ -364,26 +364,28 @@ public class PSCmsObjectMgrTest
       assertNotNull(cids);
       assertTrue(cids.size() > 0);
    }
-   
+
    /**
     * @throws Exception
     */
    @Test
    public void test09WorkflowObjects() throws Exception
    {
-      IPSWorkflowAppsContext wf = ms_cms.loadWorkflowAppContext(4);
-      assertNotNull(wf);
+      java.util.Optional<IPSWorkflowAppsContext> wfOpt = ms_cms.loadWorkflowAppContext(4);
+      assertTrue(wfOpt.isPresent());
+      IPSWorkflowAppsContext wf = wfOpt.get();
       assertEquals(4, wf.getWorkFlowAppID());
       assertEquals("Simple Workflow", wf.getWorkFlowAppName());
       assertEquals(1, wf.getWorkFlowInitialStateID());
-      
-      IPSStatesContext state = ms_cms.loadWorkflowState(4, 1);
-      assertNotNull(state);
+
+      java.util.Optional<IPSStatesContext> stateOpt = ms_cms.loadWorkflowState(4, 1);
+      assertTrue(stateOpt.isPresent());
+      IPSStatesContext state = stateOpt.get();
       assertEquals(1, state.getStateID());
       assertEquals("Draft", state.getStateName());
       assertEquals(4, state.getStatePK().getWorkflowAppId());
    }
-   
+
    /**
     * @throws Exception
     */
@@ -398,7 +400,7 @@ public class PSCmsObjectMgrTest
       items.add(new PSFilterItem(new PSLegacyGuid(321, 1), null, null));
       items = ms_cms.filterItemsByPublishableFlag(items, flags);
       assertTrue(items.size() == 3);
-      
+
       items.clear();
       for(int i = 0; i < ALL_FF_TYPES.length; i++)
       {
@@ -411,10 +413,10 @@ public class PSCmsObjectMgrTest
       assertNotNull(items);
       assertTrue(items.size() > 50);
    }
-   
+
    /**
     * Negative test for managing the Relationship Configuration IDs and Names.
-    * 
+    *
     * @throws Exception if error occurs
     */
    @Test
@@ -422,24 +424,24 @@ public class PSCmsObjectMgrTest
    {
       Collection<PSConfig> configs = ms_cms.findAllConfigs();
       assertTrue(configs.size() == 2);
-      
-      List<PSRelationshipConfigName> aaList = 
+
+      List<PSRelationshipConfigName> aaList =
          ms_cms.findRelationshipConfigNames("%Assembly%");
       for (PSRelationshipConfigName cfg : aaList)
       {
          assertTrue(cfg.getName().contains("Assembly"));
       }
-      
+
       PSConfig cfg = ms_cms.findConfig(
             PSConfigurationFactory.RELATIONSHIPS_CFG);
       assertNotNull(cfg);
-      
+
       PSRelationshipConfigSet relConfigSet = loadRelationshipConfigSet();
 
       //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
       // Negative testing various operations on SYSTEM relationship configs
       //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-      
+
       // modify an id of a system relationship config
       PSRelationshipConfig sysConfig = relConfigSet
             .getConfig(PSRelationshipConfig.TYPE_FOLDER_CONTENT);
@@ -448,16 +450,16 @@ public class PSCmsObjectMgrTest
          sysConfig.setId(100);
          // above line should fail, cannot set id to an object which already
          // has an assigned id.
-         assertTrue(false); 
+         assertTrue(false);
       }
       catch (Exception e) {}
       sysConfig.resetId();
-      sysConfig.setId(100);      
+      sysConfig.setId(100);
       try
       {
          saveRelationshipConfigSet(relConfigSet, cfg);
          // above line should fail, id of a system config cannot be modified.
-         assertTrue(false); 
+         assertTrue(false);
       }
       catch (Exception e) {}
 
@@ -465,14 +467,14 @@ public class PSCmsObjectMgrTest
       {
          relConfigSet.deleteConfig(sysConfig.getName());
          // above line should fail, cannot delete a system config.
-         assertTrue(false); 
+         assertTrue(false);
       }
       catch (Exception e) {}
-      
+
       //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
       // Negative testing various operations on USER relationship configs
       //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-      
+
       relConfigSet = loadRelationshipConfigSet();
       PSRelationshipConfig userConfig = (PSRelationshipConfig) relConfigSet
          .getConfig(PSRelationshipConfig.TYPE_FOLDER_CONTENT).clone();
@@ -483,7 +485,7 @@ public class PSCmsObjectMgrTest
       {
          saveRelationshipConfigSet(relConfigSet, cfg);
          // above line should fail, cannot save with a user config with DUP-NAME.
-         assertTrue(false); 
+         assertTrue(false);
       }
       catch (Exception e) {}
 
@@ -495,17 +497,17 @@ public class PSCmsObjectMgrTest
       {
          saveRelationshipConfigSet(relConfigSet, cfg);
          // above line should fail, cannot save with a user config with DUP-ID.
-         assertTrue(false); 
+         assertTrue(false);
       }
       catch (Exception e) {}
-      
+
    }
 
    /**
     * Loads all relationship configurations from the repository.
-    * 
+    *
     * @return the loaded relationship configs, never <code>null</code>.
-    * 
+    *
     * @throws PSException if an error occurs.
     */
    private PSRelationshipConfigSet loadRelationshipConfigSet()
@@ -518,12 +520,12 @@ public class PSCmsObjectMgrTest
 
 
    /**
-    * Saves the specified relationship config set through a supplied 
+    * Saves the specified relationship config set through a supplied
     * {@link PSConfig} object.
-    * 
+    *
     * @param relConfigSet the to be saved configs, assumed not <code>null</code>.
     * @param cfg used to save the above configs, assumed not <code>null</code>.
-    * 
+    *
     * @throws PSCmsException if an error occurs.
     */
    private void saveRelationshipConfigSet(PSRelationshipConfigSet relConfigSet,
@@ -536,10 +538,10 @@ public class PSCmsObjectMgrTest
       cfg.releaseLock();
       ms_cms.saveConfig(cfg);
    }
-   
+
    /**
     * Testing {@link IPSCmsObjectMgr#loadCmsObject(int)} method.
-    * 
+    *
     * @throws Exception if an error occurs.
     */
    @Test
@@ -548,7 +550,7 @@ public class PSCmsObjectMgrTest
       PSCmsObject itemObject = ms_cms.loadCmsObject(PSCmsObject.TYPE_ITEM);
       assertTrue(itemObject.isRevisionable());
       assertTrue(itemObject.isWorkflowable());
-      
+
       PSCmsObject folderObject = ms_cms.loadCmsObject(PSCmsObject.TYPE_FOLDER);
       assertTrue(!folderObject.isRevisionable());
       assertTrue(!folderObject.isWorkflowable());
@@ -560,11 +562,11 @@ public class PSCmsObjectMgrTest
       List<PSCmsObject> cmsObjects = ms_cms.findAllCmsObjects();
       assertTrue(cmsObjects.size() == 3);
    }
-   
+
    /**
     * Testing the API for managing Relationship Configuration objects,
     * {@link PSRelationshipConfigSet} and {@link PSRelationshipConfigName}
-    * 
+    *
     * @throws Exception if error occurs
     */
    @Test
@@ -572,48 +574,48 @@ public class PSCmsObjectMgrTest
    {
       Collection<PSConfig> configs = ms_cms.findAllConfigs();
       assertTrue(configs.size() == 2);
-      
+
       PSConfig cfg = ms_cms.findConfig(
             PSConfigurationFactory.RELATIONSHIPS_CFG);
       assertNotNull(cfg);
-      
+
       cfg.lock("Ben" + System.currentTimeMillis());
       ms_cms.saveConfig(cfg);
 
       cfg.releaseLock();
       ms_cms.saveConfig(cfg);
-      
-      // Validate the default Execution Contexts in the Effects 
+
+      // Validate the default Execution Contexts in the Effects
 
       PSRelationshipConfigSet relConfigSet = loadRelationshipConfigSet();
-      
+
       // validate all configurations
       for (int i=0; i<relConfigSet.size(); i++)
       {
-         PSRelationshipConfig config = 
+         PSRelationshipConfig config =
             (PSRelationshipConfig) relConfigSet.get(i);
          assertTrue(config.isSystem());
       }
-      
+
       // test to/from XML
       Element origRoot = relConfigSet.toXml(PSXmlDocumentBuilder
             .createXmlDocument());
-      String origText = PSXmlDocumentBuilder.toString(origRoot);      
+      String origText = PSXmlDocumentBuilder.toString(origRoot);
       //System.out.println("\norigText: \n" + origText);
-      
+
       setDefaultExeContexts(relConfigSet);
       origRoot = relConfigSet.toXml(PSXmlDocumentBuilder.createXmlDocument());
       String newText = PSXmlDocumentBuilder.toString(origRoot);
-      
+
       //System.out.println("\n New Doc Text: \n" + newText);
 
       assertTrue(origText.equals(newText));
-      
+
       // add configuration
       Collection<PSRelationshipConfigName> names = ms_cms
       .findAllRelationshipConfigNames();
       int currentSize = names.size();
-            
+
       final String NEW_CFG_NAME = "CopyOfNewCopy";
       PSRelationshipConfig newConfig = (PSRelationshipConfig) relConfigSet
             .getConfig(PSRelationshipConfig.TYPE_NEW_COPY).clone();
@@ -623,12 +625,12 @@ public class PSCmsObjectMgrTest
       newConfig.resetId();
       relConfigSet.add(newConfig);
       saveRelationshipConfigSet(relConfigSet, cfg);
-      
+
       // the new relationship config name should be added also
       names = ms_cms.findAllRelationshipConfigNames();
       assertTrue(names.size() == currentSize + 1);
       assertTrue(findRelCfgName(NEW_CFG_NAME, names));
-      
+
       // remove configuration
       cfg.setConfig(origText);
       cfg.releaseLock();
@@ -645,14 +647,14 @@ public class PSCmsObjectMgrTest
          assertTrue(config.isSystem());
       }
    }
-   
+
    /**
     * Look for a relationship config name from a list of the config objects.
-    * 
+    *
     * @param name the looked up name, assmed not <code>null</code>.
     * @param names the list of relationship configs, assumed not
     *           <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if found one from the list; otherwise return
     *         <code>false</code>.
     */
@@ -667,12 +669,12 @@ public class PSCmsObjectMgrTest
 
       return false;
    }
-   
+
    /**
     * Set Execution Contexts for all known relationship effects for the
     * supplied configuration set.
-    * 
-    * @param configs the relationship configuration set, assumed not 
+    *
+    * @param configs the relationship configuration set, assumed not
     *   <code>null</code>.
     */
    private void setDefaultExeContexts(PSRelationshipConfigSet configs)
@@ -696,7 +698,7 @@ public class PSCmsObjectMgrTest
             effect.setExecutionContexts(ctxs);
          }
       }
-   
+
       // set Execution Context for "Translation - Mandatory"
       config = configs
             .getConfig(PSRelationshipConfig.TYPE_TRANSLATION_MANDATORY);
@@ -724,7 +726,7 @@ public class PSCmsObjectMgrTest
             effect.setExecutionContexts(ctxs);
          }
       }
-            
+
       // set Execution Context for "Translation"
       config = configs
             .getConfig(PSRelationshipConfig.TYPE_TRANSLATION);
@@ -745,7 +747,7 @@ public class PSCmsObjectMgrTest
             effect.setExecutionContexts(ctxs);
          }
       }
-         
+
       // set Execution Context for "Active Assembly - Mandatory"
       config = configs
             .getConfig(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY_MANDATORY);
@@ -762,7 +764,7 @@ public class PSCmsObjectMgrTest
             effect.setExecutionContexts(ctxs);
          }
       }
-   
+
       // set Execution Context for "Promotable Version"
       config = configs
             .getConfig(PSRelationshipConfig.TYPE_PROMOTABLE_VERSION);
@@ -775,12 +777,12 @@ public class PSCmsObjectMgrTest
          if (effectName.equals("sys_Promote"))
          {
             ctxs.add(IPSExecutionContext.RS_POST_WORKFLOW);
-            effect.setExecutionContexts(ctxs);               
+            effect.setExecutionContexts(ctxs);
          }
          else if (effectName.equals("sys_AddCloneToFolder"))
          {
             ctxs.add(IPSExecutionContext.RS_PRE_CONSTRUCTION);
-            effect.setExecutionContexts(ctxs);               
+            effect.setExecutionContexts(ctxs);
          }
       }
 
@@ -796,11 +798,11 @@ public class PSCmsObjectMgrTest
          if (effectName.equals("sys_AddCloneToFolder"))
          {
             ctxs.add(IPSExecutionContext.RS_PRE_CONSTRUCTION);
-            effect.setExecutionContexts(ctxs);               
+            effect.setExecutionContexts(ctxs);
          }
       }
    }
-   
+
    /**
     * @throws Exception
     */
@@ -810,7 +812,7 @@ public class PSCmsObjectMgrTest
    {
       ms_cms.flushSecondLevelCache();
    }
-   
+
    /**
     * @throws Exception
     */
@@ -821,12 +823,12 @@ public class PSCmsObjectMgrTest
       List<IPSGuid> guids;
       List<Integer> ids = new ArrayList<Integer>();
       PSStopwatch sw = new PSStopwatch();
-      
+
       for(int i = MIN_TEST_CONTENTID; i < MAX_TEST_CONTENTID; i++)
       {
          ids.add(i);
       }
-      
+
       System.out.println("testFindPublicGuids " + ids.size() + " items");
       // First
       sw.start();
@@ -842,18 +844,18 @@ public class PSCmsObjectMgrTest
          assertEquals(id, g.getContentId());
          assertTrue(g.getRevision() > 0);
       }
-      
-      
+
+
       sw.start();
       guids = ms_cms.findPublicOrCurrentGuids(ids);
       sw.stop();
       System.out.println("testFindPublicGuids Second run " + sw);
-      
+
       sw.start();
       guids = ms_cms.findPublicOrCurrentGuids(ids);
       sw.stop();
       System.out.println("testFindPublicGuids Third run " + sw);
-      
+
       sw.start();
       guids = ms_cms.findPublicOrCurrentGuids(ids);
       sw.stop();
@@ -862,7 +864,7 @@ public class PSCmsObjectMgrTest
 
    /**
     * Tests all persistent property related API
-    * 
+    *
     * @throws Exception if an error occurs.
     */
    @Test
@@ -907,13 +909,13 @@ public class PSCmsObjectMgrTest
       props = ms_cms.findAllPersistentProperties();
       assertTrue(origProps.size() == props.size());
    }
-   
+
    @Test
    public void test17ClearStartDate() throws Exception
    {
       Set<Integer> ids = new HashSet<Integer>();
       List<PSComponentSummary> sums = ms_cms.findComponentSummariesByType(311);
-      
+
       try
       {
          for (PSComponentSummary sum : sums)
@@ -937,7 +939,7 @@ public class PSCmsObjectMgrTest
          }
          catch (Exception ex)
          {
-            
+
          }
       }
    }
@@ -947,7 +949,7 @@ public class PSCmsObjectMgrTest
    {
       Set<Integer> ids = new HashSet<Integer>();
       List<PSComponentSummary> sums = ms_cms.findComponentSummariesByType(311);
-      
+
       try
       {
          Date date = new Date();
@@ -957,9 +959,9 @@ public class PSCmsObjectMgrTest
             sum.setContentExpiryDate(date);
             ids.add(sum.getContentId());
          }
-         
+
          ms_cms.saveComponentSummaries(testSums);
-         
+
          for (PSComponentSummary sum : ms_cms.findComponentSummariesByType(311))
          {
             assertNotNull(sum.getContentExpiryDate());
@@ -980,7 +982,7 @@ public class PSCmsObjectMgrTest
          }
          catch (Exception ex)
          {
-            
+
          }
       }
    }

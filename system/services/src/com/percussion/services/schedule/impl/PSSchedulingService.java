@@ -97,13 +97,13 @@ public class PSSchedulingService implements IPSSchedulingService {
     * {@inheritDoc}
     */
    @Override
-   public PSScheduledTask findScheduledTaskById(IPSGuid id) throws PSSchedulingException {
+   public Optional<PSScheduledTask> findScheduledTaskById(IPSGuid id) throws PSSchedulingException {
       if (id == null) {
          throw new IllegalArgumentException("Schedule id may not be null");
       }
 
       try {
-         return maybeCreateScheduleFromJob(id);
+         return Optional.ofNullable(maybeCreateScheduleFromJob(id));
       } catch (SchedulerException e) {
          throw new PSSchedulingException(
                Error.SCHEDULER.ordinal(), e, e.getLocalizedMessage());
@@ -146,14 +146,14 @@ public class PSSchedulingService implements IPSSchedulingService {
       var schedules = new ArrayList<PSScheduledTask>();
 
       try {
-         var groupMatcher = GroupMatcher.groupEquals(JOB_GROUP);
+         GroupMatcher<JobKey> groupMatcher = GroupMatcher.groupEquals(JOB_GROUP);
 
          for (var jobKey : getScheduler().getJobKeys(groupMatcher)) {
             var id = new PSGuid(jobKey.getName());
-            var schedule = findScheduledTaskById(id);
+            var scheduleOpt = findScheduledTaskById(id);
 
             // Only add if schedule exists - there might be orphaned jobs
-            Optional.ofNullable(schedule).ifPresent(schedules::add);
+            scheduleOpt.ifPresent(schedules::add);
          }
       } catch (SchedulerException e) {
          throw new PSSchedulingException(
@@ -167,13 +167,12 @@ public class PSSchedulingService implements IPSSchedulingService {
     * {@inheritDoc}
     */
    @Override
-   public PSScheduledTask findScheduleByName(String label) throws PSSchedulingException {
+   public Optional<PSScheduledTask> findScheduleByName(String label) throws PSSchedulingException {
       SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
       return findAllSchedules().stream()
          .filter(schedule -> schedule.getName().equals(label))
-         .findFirst()
-         .orElse(null);
+         .findFirst();
    }
 
    /**
@@ -276,7 +275,8 @@ public class PSSchedulingService implements IPSSchedulingService {
       final JobDetail jobDetail = createJobDetail(schedule);
 
       // save previous job/trigger for recovering in the case of failure 
-      PSScheduledTask previousSched = findScheduledTaskById(schedule.getId());
+      var previousSchedOpt = findScheduledTaskById(schedule.getId());
+      PSScheduledTask previousSched = previousSchedOpt.orElse(null);
 
       if (previousSched != null)
       {
@@ -288,7 +288,7 @@ public class PSSchedulingService implements IPSSchedulingService {
       }
       finally
       {
-         if (previousSched != null && findScheduledTaskById(schedule.getId()) == null)
+         if (previousSched != null && findScheduledTaskById(schedule.getId()).isEmpty())
          {
             // In the case of failure, try to restore the old job.
             // Note, this still resets the last firing time for the job.
@@ -374,26 +374,26 @@ public class PSSchedulingService implements IPSSchedulingService {
    }
 
    // see base
-   public PSNotificationTemplate findNotificationTemplateById(IPSGuid id)
+   public Optional<PSNotificationTemplate> findNotificationTemplateById(IPSGuid id)
    {
       if (id == null)
       {
          throw new IllegalArgumentException(
                "Notification template id may not be null");
       }
-      return getSession().get(
-            PSNotificationTemplate.class, id.longValue());
+      return Optional.ofNullable(getSession().get(
+            PSNotificationTemplate.class, id.longValue()));
    }
 
    // see base
    @SuppressWarnings("unchecked")
-   public PSNotificationTemplate findNotificationTemplateByName(String name)
+   public Optional<PSNotificationTemplate> findNotificationTemplateByName(String name)
    {
       final List<PSNotificationTemplate> results =
               getSession().createQuery(
                   "from PSNotificationTemplate where name = :name").setParameter(
                   "name", name).list();
-      return results.isEmpty() ? null : results.get(0); 
+      return results.stream().findFirst(); 
    }
 
    // see base
@@ -493,13 +493,13 @@ public class PSSchedulingService implements IPSSchedulingService {
    }
 
    // see base
-   public PSScheduledTaskLog findTaskLogById(IPSGuid id)
+   public Optional<PSScheduledTaskLog> findTaskLogById(IPSGuid id)
    {
       if (id == null)
          throw new IllegalArgumentException("Event log id may not be null");
 
-      return  getSession().get(
-            PSScheduledTaskLog.class, id.longValue());
+      return Optional.ofNullable(getSession().get(
+            PSScheduledTaskLog.class, id.longValue()));
 
    }
 

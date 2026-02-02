@@ -33,18 +33,18 @@ import org.json.JSONException;
 
 /**
  * A utility class with static methods. This will be exposed to velocity macros.
- * Only the methods that are needed 
+ * Only the methods that are needed
  */
 public class PSAAUtils
-{   
+{
    /**
     * The logger to use in this class
     */
    private static final Logger ms_logger = LogManager.getLogger(PSAAUtils.class);
-   
+
    /**
     * Gets the page active assembly object id
-    * 
+    *
     * @see com.percussion.content.ui.aa.PSAAObjectId for further details.
     * @param item The current working item, must not be <code>null</code>.
     * @return String representaion of JSONArray object id.
@@ -66,11 +66,11 @@ public class PSAAUtils
 
    /**
     * Gets the slot active assembly object id
-    * 
+    *
     * @see com.percussion.content.ui.aa.PSAAObjectId for further details.
     * @param item The current working item, must not be <code>null</code>.
     * @param slotname The name of the slot must not be <code>null</code>.
-    * @return objectid as a string, never <code>null</code> or empty. 
+    * @return objectid as a string, never <code>null</code> or empty.
     * @throws PSAssemblyException
     * @throws PSMissingBeanConfigurationException
     * @throws IllegalArgumentException
@@ -93,11 +93,11 @@ public class PSAAUtils
 
    /**
     * Gets the snippet active assembly object id.
-    * 
+    *
     * @see com.percussion.content.ui.aa.PSAAObjectId for further details.
     * @param item The current working item, must not be <code>null</code>.
     * @param slotname The name of the slot must not be <code>null</code>.
-    * @return objectid as a string, never <code>null</code> or empty. 
+    * @return objectid as a string, never <code>null</code> or empty.
     * @throws PSAssemblyException
     * @throws PSMissingBeanConfigurationException
     * @throws IllegalArgumentException
@@ -114,9 +114,9 @@ public class PSAAUtils
          throw new IllegalArgumentException("item must not be null");
       if(slotname == null)
          throw new IllegalArgumentException("slotname must not be null");
-      
+
       String sortrank = "0";
-      
+
       try
       {
          sortrank = getSortRank(item);
@@ -139,7 +139,7 @@ public class PSAAUtils
 
    /**
     * Extract the sort rank for the assembly item.
-    * 
+    *
     * @param item assembly item must not be <code>null</code>.
     * @return sort rank of the assembly itemn as string, may be <code>null</code>.
     * @throws PSMissingBeanConfigurationException if relationship service could
@@ -165,19 +165,20 @@ public class PSAAUtils
       if (!StringUtils.isBlank(relationshipId))
       {
          relid = Integer.parseInt(relationshipId);
-         final PSRelationship rel = relsvc.loadRelationship(relid);
+         final int __relid = relid;
+         final PSRelationship rel = relsvc.loadRelationship(__relid).orElseThrow(() -> new PSException("Relationship not found: " + __relid));
          sortrank = rel.getProperty(IPSHtmlParameters.SYS_SORTRANK);
          if (StringUtils.isBlank(sortrank))
             sortrank = "0";
          else
-            sortrank = sortrank.trim(); 
+            sortrank = sortrank.trim();
       }
       return sortrank;
    }
 
    /**
     * Gets the page active assembly object id
-    * 
+    *
     * @see com.percussion.content.ui.aa.PSAAObjectId for further details.
     * @param item The current working item, must not be <code>null</code>.
     * @return String representaion of JSONArray object id.
@@ -198,5 +199,5 @@ public class PSAAUtils
             fieldName, null);
       return objid.toString();
    }
-   
+
 }

@@ -861,7 +861,7 @@ public class PSWorkFlowUtils {
     linkUrlComponent = (linkUrlComponent == null) ? "ca_search" : linkUrlComponent;
 
     try {
-      HashMap<String, String> newHtmlParams;
+      HashMap<String, Object> newHtmlParams;
       IPSInternalRequest iReq;
       Document doc;
 
@@ -2121,8 +2121,12 @@ public class PSWorkFlowUtils {
   public static boolean isAdmin(PSContentStatusContext csc, String userName, String roleNameList)
       throws SQLException {
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    IPSWorkflowAppsContext wac = cms.loadWorkflowAppContext(csc.getWorkflowID());
-    String sAdminName = wac.getWorkFlowAdministrator();
+    java.util.Optional<IPSWorkflowAppsContext> wacOpt =
+        cms.loadWorkflowAppContext(csc.getWorkflowID());
+    String sAdminName = null;
+    if (wacOpt.isPresent()) {
+      sAdminName = wacOpt.get().getWorkFlowAdministrator();
+    }
     // Check whether the user is Workflow admin
     return PSWorkFlowUtils.isAdmin(sAdminName, userName, roleNameList);
   }

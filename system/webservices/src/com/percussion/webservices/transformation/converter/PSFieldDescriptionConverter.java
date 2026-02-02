@@ -47,40 +47,40 @@ public class PSFieldDescriptionConverter extends PSConverter
    public Object convert(Class type, Object value)
    {
       Object result = super.convert(type, value);
-      
+
       PSTransformerFactory factory = PSTransformerFactory.getInstance();
       if (isClientToServer(value))
       {
-         com.percussion.webservices.content.PSFieldDescription orig = 
+         com.percussion.webservices.content.PSFieldDescription orig =
             (com.percussion.webservices.content.PSFieldDescription) value;
          PSFieldDescription dest = (PSFieldDescription) result;
-         PSFieldDescriptionDataType srcDT = orig.getDataType();
+         Object srcDT = orig.getDataType();
 
          Converter converter = factory.getConverter(
             PSFieldDescriptionDataType.class);
-         
-         PSFieldDescription.PSFieldTypeEnum tgtDT = 
+
+         PSFieldDescription.PSFieldTypeEnum tgtDT =
             (PSFieldTypeEnum) converter.convert(
-               PSFieldDescription.PSFieldTypeEnum.class, srcDT);  
+               PSFieldDescription.PSFieldTypeEnum.class, srcDT);
          dest.setType(tgtDT.name());
       }
       else
       {
          PSFieldDescription orig = (PSFieldDescription) value;
-         com.percussion.webservices.content.PSFieldDescription dest = 
+         com.percussion.webservices.content.PSFieldDescription dest =
             (com.percussion.webservices.content.PSFieldDescription) result;
-         PSFieldDescription.PSFieldTypeEnum srcDT = 
+         PSFieldDescription.PSFieldTypeEnum srcDT =
             PSFieldDescription.PSFieldTypeEnum.valueOf(orig.getType());
-         
+
          Converter converter = factory.getConverter(
             PSFieldDescription.PSFieldTypeEnum.class);
-         
-         PSFieldDescriptionDataType tgtDT = 
+
+         PSFieldDescriptionDataType tgtDT =
             (PSFieldDescriptionDataType) converter.convert(
                PSFieldDescriptionDataType.class, srcDT);
-         dest.setDataType(tgtDT);
+         dest.setDataType(tgtDT == null ? null : tgtDT.getValue());
       }
-      
+
       return result;
    }
 

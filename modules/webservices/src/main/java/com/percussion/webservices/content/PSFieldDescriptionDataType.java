@@ -10,4 +10,9 @@ public enum PSFieldDescriptionDataType {
     if (s == null) return null;
     return PSFieldDescriptionDataType.valueOf(s);
   }
+
+  /** Returns the enum value as a String. */
+  public String getValue() {
+    return name();
+  }
 }

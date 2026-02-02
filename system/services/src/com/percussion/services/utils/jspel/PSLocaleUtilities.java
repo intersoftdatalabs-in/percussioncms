@@ -36,6 +36,6 @@ public class PSLocaleUtilities
    {
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
       
-      return cms.findLocaleByStatus(PSLocale.STATUS_ACTIVE).size();
+      return (int) cms.findLocalesByStatus(PSLocale.STATUS_ACTIVE).count();
    }
 }

@@ -11,4 +11,9 @@ public enum PSFieldDimension {
     if (s == null) return null;
     return PSFieldDimension.valueOf(s);
   }
+
+  /** Returns the enum value as a String. */
+  public String getValue() {
+    return name();
+  }
 }

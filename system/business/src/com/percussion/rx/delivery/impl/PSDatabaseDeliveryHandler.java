@@ -296,7 +296,7 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
          return m_dbmsDef;
       }
       
-      public Map<String, Object> getTableMetaMap()
+      public Map<String, com.percussion.tablefactory.PSJdbcTableMetaData> getTableMetaMap()
       {
          return m_tableMetaMap;
       }
@@ -334,7 +334,7 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
        * <p>
        * It is used to cache the meta data of the processed tables.
        */
-      Map<String, Object> m_tableMetaMap = new HashMap<>();
+      Map<String, com.percussion.tablefactory.PSJdbcTableMetaData> m_tableMetaMap = new HashMap<>();
    }
 
    /**

@@ -137,8 +137,7 @@ public class PSFeedsInfoService implements IPSFeedsInfoService {
       return;
     }
     try {
-      var descriptors =
-          createDescriptorsJson(site, feeds, server.getServerType(), publishServer);
+      var descriptors = createDescriptorsJson(site, feeds, server.getServerType(), publishServer);
       log.info("Queuing {} feeds for site {}", feeds.size(), site.getName());
       queue.queueDescriptors(site.getName(), descriptors, server.getServerType());
       if (feeds.isEmpty()) {

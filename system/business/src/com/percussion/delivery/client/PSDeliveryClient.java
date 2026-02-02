@@ -918,10 +918,10 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
               config.setProxy(proxyConfig.getHost(),
                       Integer.parseInt(proxyConfig.getPort()));
               
-              if (proxyConfig.getUser() != null && proxyConfig.getPassword() != null)
+              if (proxyConfig.getUser() != null && proxyConfig.getPassword().isPresent())
               {
                  String proxyUser = proxyConfig.getUser();
-                 String proxyPassword = proxyConfig.getPassword();
+                 String proxyPassword = proxyConfig.getPassword().orElse(null);
                  Credentials credentials = new UsernamePasswordCredentials(proxyUser, proxyPassword);
                  AuthScope authScope = new AuthScope(proxyConfig.getHost(),
                          Integer.parseInt(proxyConfig.getPort()));

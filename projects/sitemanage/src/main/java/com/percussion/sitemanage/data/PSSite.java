@@ -43,6 +43,9 @@ public class PSSite extends PSSiteSummary implements IPSFolderPath {
 
   @NotBlank @NotNull private String templateName;
 
+  /** The version for optimistic locking; null if not set. */
+  private Integer version;
+
   @Override
   public String getLabel() {
     return label;
@@ -138,5 +141,23 @@ public class PSSite extends PSSiteSummary implements IPSFolderPath {
    */
   public Optional<String> getDescriptionOptional() {
     return Optional.ofNullable(description);
+  }
+
+  /**
+   * Gets the version of the site if available.
+   *
+   * @return the version, may be {@code null}
+   */
+  public Integer getVersion() {
+    return this.version;
+  }
+
+  /**
+   * Sets the version of the site for optimistic locking.
+   *
+   * @param version the version, may be {@code null}
+   */
+  public void setVersion(Integer version) {
+    this.version = version;
   }
 }

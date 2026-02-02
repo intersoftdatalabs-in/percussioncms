@@ -14,6 +14,26 @@
  */
 package org.apache.soap;
 
-/** Minimal stub of org.apache.soap.Header used by legacy code. */
-public class Header {
+import java.util.Vector;
+import org.w3c.dom.Element;
+
+/** Minimal compatibility shim for legacy Axis-style Header used by PSWebServiceAgent. */
+public class Header
+{
+    private Vector<Element> headerEntries;
+
+    public Header()
+    {
+        this.headerEntries = new Vector<>();
+    }
+
+    public void setHeaderEntries(Vector<Element> entries)
+    {
+        this.headerEntries = entries;
+    }
+
+    public Vector<Element> getHeaderEntries()
+    {
+        return this.headerEntries;
+    }
 }

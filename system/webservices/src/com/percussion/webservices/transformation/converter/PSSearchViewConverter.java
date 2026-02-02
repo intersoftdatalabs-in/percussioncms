@@ -39,19 +39,19 @@ import com.percussion.webservices.ui.data.SearchFieldType;
 import com.percussion.webservices.ui.data.SearchViewParentCategory;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Converts between {@link com.percussion.cms.objectstore.PSSearch}
- * and {@link com.percussion.webservices.ui.data.PSSearchDef} types. 
+ * and {@link com.percussion.webservices.ui.data.PSSearchDef} types.
  * Converts between {@link com.percussion.cms.objectstore.PSSearch}
- * and {@link com.percussion.webservices.ui.data.PSViewDef} types. 
+ * and {@link com.percussion.webservices.ui.data.PSViewDef} types.
  */
 public class PSSearchViewConverter extends PSConverter
 {
@@ -77,7 +77,7 @@ public class PSSearchViewConverter extends PSConverter
          if (value instanceof PSSearchDef)
             return getSearchFromClient((PSSearchDef) value);
          else
-            return getViewFromClient((PSViewDef) value);            
+            return getViewFromClient((PSViewDef) value);
       }
       else
       {
@@ -91,17 +91,17 @@ public class PSSearchViewConverter extends PSConverter
    }
 
    /**
-    * Converts a list of {@link PSSearch} objects to array of either 
+    * Converts a list of {@link PSSearch} objects to array of either
     * {@link PSSearchDef} or {@link PSViewDef}.
     * Note, the framework for list to array conversion does not work for the
     * scenario described above. We use this as a workaround until the framework
-    * is capable to deal with this. 
-    *  
-    * @param type the converted class, must be either {@link PSSearchDef} or 
-    *    {@link PSViewDef}, never <code>null</code>. 
+    * is capable to deal with this.
+    *
+    * @param type the converted class, must be either {@link PSSearchDef} or
+    *    {@link PSViewDef}, never <code>null</code>.
     * @param value the to be converted list, never <code>null</code>, may be
     *    empty.
-    * 
+    *
     * @return the converted array, never <code>null</code>, may be empty.
     */
    public static Object convertListToArray(Class type, List<PSSearch> value)
@@ -110,12 +110,12 @@ public class PSSearchViewConverter extends PSConverter
          throw new IllegalArgumentException("type must be either PSSearchDef.class or PSViewDef.class.");
       if (value == null)
          throw new IllegalArgumentException("value must not be null.");
-      
+
       PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
+
       Converter converter = factory.getConverter(PSSearch.class);
       Object result = null;
-      
+
       if (type == PSSearchDef.class)
       {
          PSSearchDef[] searches = new PSSearchDef[value.size()];
@@ -132,11 +132,11 @@ public class PSSearchViewConverter extends PSConverter
          {
             views[i] = (PSViewDef)converter.convert(type, value.get(i));
          }
-         result = views;         
+         result = views;
       }
-         
+
       return result;
-   }   
+   }
 
    /**
     * Converts a search definition from objectstore to webservice object.
@@ -155,23 +155,27 @@ public class PSSearchViewConverter extends PSConverter
       if (source.hasProperty(PSSearch.PROP_USERNAME))
          visibleUser = source.getProperty(PSSearch.PROP_USERNAME);
 
-      target = new PSSearchDef(
-            id,
-            source.getDescription(),
-            getCommunities(source),
-            getSearchFields(source),            
-            getProperties(source),
-            source.getName(),
-            source.getLabel(),
-            source.isCaseSensitive(),
-            source.getMaximumResultSize(),
-            getParentCategory(source),
-            dspFormatId,
-            source.getDisplayName(),
-            source.getUrl(),
-            getSearchType(source),
-            source.isUserCustomizable(),
-            visibleUser);
+      target = new PSSearchDef();
+      try {
+         getBeanUtils().copyProperty(target, "id", id);
+         getBeanUtils().copyProperty(target, "description", source.getDescription());
+         getBeanUtils().copyProperty(target, "communities", getCommunities(source));
+         getBeanUtils().copyProperty(target, "searchFields", getSearchFields(source));
+         getBeanUtils().copyProperty(target, "properties", getProperties(source));
+         getBeanUtils().copyProperty(target, "name", source.getName());
+         getBeanUtils().copyProperty(target, "label", source.getLabel());
+         getBeanUtils().copyProperty(target, "caseSensitive", source.isCaseSensitive());
+         getBeanUtils().copyProperty(target, "maximumResultSize", source.getMaximumResultSize());
+         getBeanUtils().copyProperty(target, "parentCategory", getParentCategory(source));
+         getBeanUtils().copyProperty(target, "displayFormatId", dspFormatId);
+         getBeanUtils().copyProperty(target, "displayName", source.getDisplayName());
+         getBeanUtils().copyProperty(target, "url", source.getUrl());
+         getBeanUtils().copyProperty(target, "type", getSearchType(source));
+         getBeanUtils().copyProperty(target, "userCustomizable", source.isUserCustomizable());
+         getBeanUtils().copyProperty(target, "visibleUser", visibleUser);
+      } catch (Exception e) {
+         throw new ConversionException(e.getLocalizedMessage());
+      }
 
       return target;
    }
@@ -245,25 +249,29 @@ public class PSSearchViewConverter extends PSConverter
             PSTypeEnum.DISPLAY_FORMAT, source.getDisplayFormatId())))
             .getValue();
 
-      target = new PSViewDef(
-            id,
-            source.getDescription(),
-            getCommunities(source),
-            getSearchFields(source),
-            getProperties(source),
-            source.getName(),
-            source.getLabel(),
-            source.isCaseSensitive(),
-            source.getMaximumResultSize(),
-            getParentCategory(source),
-            dspFormatId,
-            source.getDisplayName(),
-            source.getUrl(),
-            getViewType(source));
+      target = new PSViewDef();
+      try {
+         getBeanUtils().copyProperty(target, "id", id);
+         getBeanUtils().copyProperty(target, "description", source.getDescription());
+         getBeanUtils().copyProperty(target, "communities", getCommunities(source));
+         getBeanUtils().copyProperty(target, "searchFields", getSearchFields(source));
+         getBeanUtils().copyProperty(target, "properties", getProperties(source));
+         getBeanUtils().copyProperty(target, "name", source.getName());
+         getBeanUtils().copyProperty(target, "label", source.getLabel());
+         getBeanUtils().copyProperty(target, "caseSensitive", source.isCaseSensitive());
+         getBeanUtils().copyProperty(target, "maximumResultSize", source.getMaximumResultSize());
+         getBeanUtils().copyProperty(target, "parentCategory", getParentCategory(source));
+         getBeanUtils().copyProperty(target, "displayFormatId", dspFormatId);
+         getBeanUtils().copyProperty(target, "displayName", source.getDisplayName());
+         getBeanUtils().copyProperty(target, "url", source.getUrl());
+         getBeanUtils().copyProperty(target, "type", getViewType(source));
+      } catch (Exception e) {
+         throw new ConversionException(e.getLocalizedMessage());
+      }
 
       return target;
    }
-   
+
    /**
     * Creates a objectstore search definition from a webservice view def.
     * @param source the webservice view def, assumed not <code>null</code>.
@@ -298,7 +306,7 @@ public class PSSearchViewConverter extends PSConverter
          setFields(target, source.getSearchFields());
 
          target.setType(PSSearch.TYPE_VIEW);
-         if (source.getType().getValue().equals(CUSTOM_VIEW))
+         if (source.getType().equals(CUSTOM_VIEW))
          {
             target.setCustom(true);
             target.setUrl(source.getUrl());
@@ -312,7 +320,7 @@ public class PSSearchViewConverter extends PSConverter
          throw new RuntimeException(e);
       }
    }
-   
+
    /**
     * Converts search type from objectstore to webservice.
     * @param source the source object, assumed not <code>null</code>.
@@ -331,7 +339,7 @@ public class PSSearchViewConverter extends PSConverter
 
       return PSSearchDefType.fromString(type);
    }
-   
+
    /**
     * Converts the search type from webservice to objectstore.
     *
@@ -342,7 +350,7 @@ public class PSSearchViewConverter extends PSConverter
     */
    private String getSearchType(PSSearchDef source)
    {
-      String tgtType = source.getType().getValue();
+      String tgtType = source.getType();
       if (tgtType.equals(STANDARD_SEARCH))
          tgtType = PSSearch.TYPE_STANDARDSEARCH;
       else if (tgtType.equals(CUSTOM_SEARCH))
@@ -364,7 +372,7 @@ public class PSSearchViewConverter extends PSConverter
 
       if (source.isCustomView())
          type = CUSTOM_VIEW;
-      else 
+      else
          type = STANDARD_VIEW;
 
       return PSViewDefType.fromString(type);
@@ -373,15 +381,15 @@ public class PSSearchViewConverter extends PSConverter
    /**
     * Constants defined in com.percussion.webservices.ui.data.PSViewType
     */
-   private static final String STANDARD_VIEW = PSViewDefType._standardView;
-   private static final String CUSTOM_VIEW = PSViewDefType._customView;
-   
+private static final String STANDARD_VIEW = "list";
+   private static final String CUSTOM_VIEW = "grid";
+
    /**
-    * Constants defined in com.percussion.webservices.ui.data.PSVDefType
+    * Constants defined in com.percussion.webservices.ui.data.PSSearchDefType
     */
-   private static final String STANDARD_SEARCH = PSSearchDefType._standardSearch;
-   private static final String CUSTOM_SEARCH = PSSearchDefType._customSearch;
-   private static final String USER_SEARCH = PSSearchDefType._userSearch;
+   private static final String STANDARD_SEARCH = "simple";
+   private static final String CUSTOM_SEARCH = "advanced";
+   private static final String USER_SEARCH = "simple";
 
    /**
     * Gets the visible communities from the server object.
@@ -393,7 +401,7 @@ public class PSSearchViewConverter extends PSConverter
    {
       if (source == null)
          throw new IllegalArgumentException("source may not be null.");
-      
+
       if (source.getShowTo() == PSSearch.SHOW_TO_USER)
          return null;
 
@@ -404,8 +412,13 @@ public class PSSearchViewConverter extends PSConverter
       {
          for (Map.Entry<IPSGuid, String> comm : srcCommunities.entrySet())
          {
-            community = new CommunityRef(
-               (new PSDesignGuid(comm.getKey())).getValue(), comm.getValue());
+            community = new CommunityRef();
+            try {
+               getBeanUtils().copyProperty(community, "id", (new PSDesignGuid(comm.getKey())).getValue());
+               getBeanUtils().copyProperty(community, "name", comm.getValue());
+            } catch (Exception e) {
+               throw new org.apache.commons.beanutils.ConversionException(e.getLocalizedMessage());
+            }
             tgtComms.add(community);
          }
       }
@@ -422,7 +435,13 @@ public class PSSearchViewConverter extends PSConverter
             {
                PSDesignGuid guid = new PSDesignGuid(new PSGuid(
                      PSTypeEnum.COMMUNITY_DEF, Long.parseLong(id)));
-               community = new CommunityRef(guid.getValue(), "");
+               community = new CommunityRef();
+               try {
+                  getBeanUtils().copyProperty(community, "id", guid.getValue());
+                  getBeanUtils().copyProperty(community, "name", "");
+               } catch (Exception e) {
+                  throw new org.apache.commons.beanutils.ConversionException(e.getLocalizedMessage());
+               }
                tgtComms.add(community);
             }
          }
@@ -445,7 +464,7 @@ public class PSSearchViewConverter extends PSConverter
    {
       if (source == null)
          throw new IllegalArgumentException("source may not be null.");
-      
+
       List<SearchField> tgtFields =
          new ArrayList<SearchField>();
       Iterator srcFields = source.getFields();
@@ -459,19 +478,22 @@ public class PSSearchViewConverter extends PSConverter
          srcValues.toArray(tgtValues);
 
          // get position
-         org.apache.axis.types.UnsignedInt position =
-            new org.apache.axis.types.UnsignedInt(srcField.getPosition());
+         Long position = Long.valueOf(srcField.getPosition());
 
-         tgtField = new SearchField(
-           tgtValues,
-           srcField.getFieldName(),
-           srcField.getDisplayName(),
-           srcField.getFieldDescription(),
-           getSearchFieldType(srcField),
-           srcField.getOperator(),
-           srcField.usesExternalOperator(),
-           position,
-           srcField.getMnemonic());
+         tgtField = new SearchField();
+         try {
+            getBeanUtils().copyProperty(tgtField, "values", tgtValues);
+            getBeanUtils().copyProperty(tgtField, "name", srcField.getFieldName());
+            getBeanUtils().copyProperty(tgtField, "label", srcField.getDisplayName());
+            getBeanUtils().copyProperty(tgtField, "description", srcField.getFieldDescription());
+            getBeanUtils().copyProperty(tgtField, "type", getSearchFieldType(srcField));
+            getBeanUtils().copyProperty(tgtField, "operator", srcField.getOperator());
+            getBeanUtils().copyProperty(tgtField, "externalOperator", srcField.usesExternalOperator());
+            getBeanUtils().copyProperty(tgtField, "position", position);
+            getBeanUtils().copyProperty(tgtField, "mnemonic", srcField.getMnemonic());
+         } catch (Exception e) {
+            throw new ConversionException(e.getLocalizedMessage());
+         }
 
          tgtFields.add(tgtField);
 
@@ -492,11 +514,11 @@ public class PSSearchViewConverter extends PSConverter
    {
       String type;
       if (srcField.isNumberValue())
-         type = SearchFieldType._number;
+         type = "number";
       else if (srcField.isDateValue())
-         type = SearchFieldType._date;
+         type = "date";
       else
-         type = SearchFieldType._text;
+         type = "text";
 
       return SearchFieldType.fromString(type);
    }
@@ -510,7 +532,7 @@ public class PSSearchViewConverter extends PSConverter
    {
       if (source == null)
          throw new IllegalArgumentException("source may not be null.");
-            
+
       int catId = source.getParentCategory();
       String catName = null;
       for (PSSearch.ParentCategory cat : PSSearch.ParentCategory.values())
@@ -536,7 +558,7 @@ public class PSSearchViewConverter extends PSConverter
    {
       if (source == null)
          throw new IllegalArgumentException("source may not be null.");
-            
+
       List<Property> ps = new ArrayList<Property>();
 
       // get unknown properties
@@ -553,37 +575,43 @@ public class PSSearchViewConverter extends PSConverter
             while (values.hasNext())
             {
                String value = (String) values.next();
-               Property p = new Property(pname, value);
+               Property p = new Property();
+               try {
+                  getBeanUtils().copyProperty(p, "name", pname);
+                  getBeanUtils().copyProperty(p, "value", value);
+               } catch (Exception e) {
+                  throw new ConversionException(e.getLocalizedMessage());
+               }
                ps.add(p);
             }
          }
       }
 
       // handle sys_community = -1 (all communities)
-      if (source.getShowTo() == PSSearch.SHOW_TO_ALL_COMMUNITIES)
-         ps.add(new Property(PSSearch.PROP_COMMUNITY,
-               PSSearch.PROP_COMMUNITY_ALL));
+      if (source.getShowTo() == PSSearch.SHOW_TO_ALL_COMMUNITIES) {
+         Property p = new Property();
+         try {
+            getBeanUtils().copyProperty(p, "name", PSSearch.PROP_COMMUNITY);
+            getBeanUtils().copyProperty(p, "value", PSSearch.PROP_COMMUNITY_ALL);
+         } catch (Exception e) {
+            throw new ConversionException(e.getLocalizedMessage());
+         }
+         ps.add(p);
+      }
 
       Property[] result = new Property[ps.size()];
       ps.toArray(result);
       return result;
    }
 
-   /**
-    * Gets the properties from the webservice to objectstore search object.
-    *
-    * @param target the objectstore search object, never <code>null</code>.
-    * @param properties webservice property objects, may be <code>null</code>.
-    */
-   protected void setProperties(PSSearch target,
-         com.percussion.webservices.ui.data.Property[] properties)
+   protected void setProperties(PSSearch target, Property[] properties)
    {
       if (target == null)
          throw new IllegalArgumentException("target may not be null.");
       if (properties == null)
          return;
-      
-      for (com.percussion.webservices.ui.data.Property prop : properties)
+
+      for (Property prop : properties)
       {
          // skip sys_community property, which is handled by
          // setVisibleCommunitiesOrUser()
@@ -604,12 +632,60 @@ public class PSSearchViewConverter extends PSConverter
     * @param communities the visible communities, not <code>null</code>, may
     *    be empty.
     */
+   protected void setProperties(PSSearch target, com.percussion.webservices.ui.data.SearchView.Properties properties)
+   {
+      if (properties == null)
+         return;
+      java.util.List<Property> propList = properties.getProperty();
+      Property[] arr = new Property[propList.size()];
+      propList.toArray(arr);
+      setProperties(target, arr);
+   }
+
+   protected void setFields(PSSearch target, com.percussion.webservices.ui.data.SearchView.SearchFields srcFields)
+   {
+      if (srcFields == null)
+         return;
+      java.util.List<SearchField> list = srcFields.getSearchField();
+      SearchField[] arr = new SearchField[list.size()];
+      list.toArray(arr);
+      setFields(target, arr);
+   }
+
+   protected void setVisibleCommunitiesOrUser(PSSearch target,
+         String visibleUser, com.percussion.webservices.ui.data.SearchView.Properties properties, com.percussion.webservices.ui.data.SearchView.Communities communities)
+   {
+      com.percussion.webservices.ui.data.Property[] props = null;
+      com.percussion.webservices.ui.data.CommunityRef[] comms = null;
+      if (properties != null)
+      {
+         java.util.List<com.percussion.webservices.ui.data.Property> propList = properties.getProperty();
+         props = new com.percussion.webservices.ui.data.Property[propList.size()];
+         propList.toArray(props);
+      }
+      if (communities != null)
+      {
+         java.util.List<com.percussion.webservices.ui.data.CommunityRef> commList = communities.getCommunityRef();
+         comms = new com.percussion.webservices.ui.data.CommunityRef[commList.size()];
+         commList.toArray(comms);
+      }
+      setVisibleCommunitiesOrUser(target, visibleUser, props, comms);
+   }
+
+   protected int getParentCategory(String category)
+   {
+      if (category == null)
+         throw new IllegalArgumentException("category may not be null");
+      com.percussion.webservices.ui.data.SearchViewParentCategory svc = com.percussion.webservices.ui.data.SearchViewParentCategory.fromString(category);
+      return getParentCategory(svc);
+   }
+
    protected void setVisibleCommunitiesOrUser(PSSearch target,
          String visibleUser, Property[] properties, CommunityRef[] communities)
    {
       if (properties == null && communities == null)
          throw new IllegalArgumentException("properties and communities cannot be both null.");
-      
+
       // check visible user first
       if (visibleUser != null && visibleUser.trim().length() > 0)
       {
@@ -644,7 +720,7 @@ public class PSSearchViewConverter extends PSConverter
          if (communities == null)
             throw new IllegalArgumentException(
                   "communites may not be null if sys_community = -1 does not exist in the properties.");
-            
+
          //target.removeCommunity(PSSearch.PROP_COMMUNITY_ALL);
          if (target.doesPropertyHaveValue(PSSearch.PROP_COMMUNITY,
                PSSearch.PROP_COMMUNITY_ALL))
@@ -667,7 +743,7 @@ public class PSSearchViewConverter extends PSConverter
     *
     * @param category the webservice category, never <code>null</code>.
     *
-    * @return the numeric value of the category in 
+    * @return the numeric value of the category in
     *   {@link PSSearch.ParentCategory}.
     */
    protected int getParentCategory(SearchViewParentCategory category)
@@ -675,7 +751,7 @@ public class PSSearchViewConverter extends PSConverter
       if (category == null)
          throw new IllegalArgumentException("category may not be null.");
 
-      String catName = category.getValue();
+      String catName = category.name();
 
       for (PSSearch.ParentCategory cat : PSSearch.ParentCategory.values())
       {
@@ -697,16 +773,16 @@ public class PSSearchViewConverter extends PSConverter
       int id = target.getId();
       if (id == -1)
          throw new IllegalStateException("target.getId() must not be -1.");
-      
+
       PSSFields fields = target.getFieldContainer();
       fields.clear();
 
       if (srcFields == null) // there is no fields defined
          return;
-      
+
       for (SearchField f : srcFields)
       {
-         String type = f.getType().getValue();
+         String type = f.getType();
          if (PSSearchField.TYPE_DATE.equalsIgnoreCase(type))
             type = PSSearchField.TYPE_DATE;
          else if (PSSearchField.TYPE_NUMBER.equalsIgnoreCase(type))
@@ -719,11 +795,44 @@ public class PSSearchViewConverter extends PSConverter
          PSKey key = PSSearchField.createKey(f.getName(), id);
          key.setPersisted(false);
          tgtField.setLocator(key);
-         tgtField.setPosition(f.getPosition().intValue());
+         tgtField.setPosition((int) f.getPosition());
 
-         List<String> values = new ArrayList<String>(Arrays.asList(
-            f.getValues()));
-         
+         List<String> values = new ArrayList<String>();
+         Object valuesObj = f.getValues();
+         if (valuesObj != null)
+         {
+            if (valuesObj instanceof String[])
+            {
+               for (String s : (String[]) valuesObj)
+                  values.add(s);
+            }
+            else
+            {
+               try
+               {
+                  Object res = getBeanUtils().getPropertyUtils().getSimpleProperty(valuesObj, "value");
+                  if (res instanceof String[])
+                  {
+                     for (String s : (String[]) res)
+                        values.add(s);
+                  }
+                  else if (res instanceof java.util.List<?>)
+                  {
+                     for (Object o : (java.util.List<?>) res)
+                        values.add(o == null ? null : o.toString());
+                  }
+                  else if (res != null)
+                  {
+                     values.add(res.toString());
+                  }
+               }
+               catch (Exception e)
+               {
+                  throw new ConversionException(e.getLocalizedMessage());
+               }
+            }
+         }
+
          if (f.isExternalOperator())
             tgtField.setExternalFieldValues("CONCEPT", values);
          else

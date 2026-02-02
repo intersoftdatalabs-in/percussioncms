@@ -31,13 +31,16 @@ public class PSEnumTypeConverter implements Converter
 {
 
    // see base
-   @SuppressWarnings("unchecked")
+   @SuppressWarnings({"unchecked", "rawtypes"})
    public Object getAsObject(FacesContext context, UIComponent component,
          String value)
    {
-      final Class enumType =
-            component.getValueBinding("value").getType(context);
-      return Enum.valueOf(enumType, value);
+      var ve = component.getValueExpression("value");
+      if (ve == null) {
+         throw new IllegalStateException("Component has no value expression");
+      }
+      final Class enumType = ve.getType(context.getELContext());
+      return Enum.valueOf((Class) enumType, value);
    }
 
    // see base

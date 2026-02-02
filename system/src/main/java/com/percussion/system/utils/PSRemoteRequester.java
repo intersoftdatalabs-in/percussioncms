@@ -29,6 +29,8 @@ import com.percussion.HTTPClient.ProtocolNotSuppException;
 import com.percussion.HTTPClient.RedirectionModule;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.tools.PSHttpRequest;
+import com.percussion.util.PSCharSets;
+import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -655,7 +657,8 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * @param resource the resource, not <code>null</code>.
    * @throws IOException if I/O error occurs.
    */
-  protected byte[] getBinary(String resource) throws IOException {
+  @Override
+  public byte[] getBinary(String resource) throws IOException {
     final String urlResource = getFullResourcePath(resource);
 
     final NVPair[] hdrs = new NVPair[1];

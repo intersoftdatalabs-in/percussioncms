@@ -889,9 +889,9 @@ public class PSHtmlParser {
 
           // pop all the stuff off of the stack except for the top-most
           // element
-          HTMLNode root = (HTMLNode) m_elStack.pop();
+          HTMLElement root = (HTMLElement) m_elStack.pop();
           while (!m_elStack.empty()) {
-            root = (HTMLNode) m_elStack.pop(); // pull the element off the stack
+            root = (HTMLElement) m_elStack.pop(); // pull the element off the stack
           }
           m_elStack.push(root);
           break;

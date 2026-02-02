@@ -85,7 +85,7 @@ public class PSBackEndSubject
          joinColumns = {@JoinColumn(name = "SUBJECTID")}, 
          inverseJoinColumns = {@JoinColumn(name = "ROLEID")})
    //@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "Role_Subjects")
-   private Set roles = null;
+   private Set<PSBackEndRole> roles = null;
    
    /**
     * Default ctor
@@ -155,7 +155,7 @@ public class PSBackEndSubject
    /**
     * @return The roles related to this subject
     */
-   public Set getRoles()
+   public Set<PSBackEndRole> getRoles()
    {
       return roles;
    }
@@ -163,7 +163,7 @@ public class PSBackEndSubject
    /**
     * @param subjectRoles The roles to set.
     */
-   public void setRoles(Set subjectRoles)
+   public void setRoles(Set<PSBackEndRole> subjectRoles)
    {
       roles = subjectRoles;
    }

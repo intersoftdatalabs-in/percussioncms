@@ -30,6 +30,7 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSRuntimeException;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
+import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
@@ -138,6 +139,15 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     @Basic
     private String label;
 
+    /**
+     * Set the label for the template.
+     * @param label the label
+     */
+    public void setLabel(String label)
+    {
+       this.label = label;
+    }
+
     @Basic
     @Column(name = "LOCATIONPREFIX")
     private String locationPrefix;
@@ -146,12 +156,41 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     @Column(name = "LOCATIONSUFFIX")
     private String locationSuffix;
 
+    /**
+     * Set the location suffix for this template. This is used when constructing assembly
+     * locations and defaults to null if not specified.
+     * @param suffix the location suffix, may be {@code null}
+     */
+    public void setLocationSuffix(String suffix)
+    {
+       this.locationSuffix = suffix;
+    }
+
+    /**
+     * Set the location prefix for this template. This is used when constructing assembly
+     * locations and defaults to null if not specified.
+     * @param prefix the location prefix, may be {@code null}
+     */
+    public void setLocationPrefix(String prefix)
+    {
+       this.locationPrefix = prefix;
+    }
+
     @Basic
     private String assembler;
 
     @Basic
     @Column(name = "ASSEMBLYURL")
     private String assemblyUrl;
+
+    /**
+     * Set the assembly url for this template. May be {@code null}.
+     * @param assemblyUrl the assembly url
+     */
+    public void setAssemblyUrl(String assemblyUrl)
+    {
+       this.assemblyUrl = assemblyUrl;
+    }
 
     @Basic
     @Column(name = "STYLESHEETNAME")
@@ -169,6 +208,21 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     @Column(name = "PUBLISHWHEN")
     private Character publishWhen = PublishWhen.Unspecified.getValue();
 
+    /**
+     * Set the publish when behavior for this template.
+     * @param publishWhen the publish when value, never {@code null}
+     */
+    public void setPublishWhen(PublishWhen publishWhen)
+    {
+       this.publishWhen = (publishWhen == null) ? PublishWhen.Unspecified.getValue() : publishWhen.getValue();
+    }
+
+    @Override
+    public PublishWhen getPublishWhen()
+    {
+       return (publishWhen == null) ? PublishWhen.Unspecified : PublishWhen.valueOf(publishWhen.charValue());
+    }
+
     @Basic
     @Column(name = "TEMPLATE_TYPE")
     private Integer templateType = TemplateType.Shared.ordinal();
@@ -180,12 +234,75 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     @Basic(fetch = FetchType.EAGER)
     private String template;
 
+    /**
+     * Set the template text for this assembly template.
+     * @param templatetext the text, may be {@code null}
+     */
+    public void setTemplate(String templatetext)
+    {
+       this.template = templatetext;
+    }
+
+    /**
+     * Set the stylesheet path for legacy assemblers.
+     * @param path the stylesheet path, may be {@code null}
+     */
+    public void setStyleSheetPath(String path)
+    {
+       this.styleSheet = path;
+    }
+
+    /**
+     * Set the output format for this template.
+     * @param outputFormat the output format, may be {@code null}
+     */
+    public void setOutputFormat(IPSAssemblyTemplate.OutputFormat outputFormat)
+    {
+       this.outputFormat = (outputFormat == null) ? IPSAssemblyTemplate.OutputFormat.Page.ordinal() : outputFormat.ordinal();
+    }
+
+    /**
+     * Get the template version used for optimistic locking.
+     * @return the version, may be {@code null}
+     */
+    public Integer getVersion()
+    {
+       return this.version;
+    }
+
+    /**
+     * Set the template version used for optimistic locking.
+     * @param version the version, may be {@code null}
+     */
+    public void setVersion(Integer version)
+    {
+       this.version = version;
+    }
+
     @Basic()
     @Column(name = "MIME_TYPE")
     private String mimeType;
 
+    /**
+     * Set the mime type for this template.
+     * @param mimeType the mime type, may be {@code null}
+     */
+    public void setMimeType(String mimeType)
+    {
+       this.mimeType = mimeType;
+    }
+
     @Basic
     private String charset;
+
+    /**
+     * Set the character set for this template. May be {@code null}.
+     * @param charset the character set
+     */
+    public void setCharset(String charset)
+    {
+       this.charset = charset;
+    }
 
     @OneToMany(targetEntity = PSTemplateBinding.class, cascade = {CascadeType.ALL},
                fetch = FetchType.EAGER, orphanRemoval = true)
@@ -208,6 +325,12 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     @Basic
     @Column(name = "GLOBAL_TEMPLATE_USAGE")
     private String globalTemplateUsage;
+
+    // Backing field for the global template GUID. Transient for now to keep
+    // changes minimal and behavior-preserving; persisted mapping can be added
+    // later if required.
+    @jakarta.persistence.Transient
+    private com.percussion.utils.guid.IPSGuid globalTemplateGuid;
 
     /**
      * Default constructor required for JPA/Hibernate.
@@ -369,6 +492,17 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     }
 
     /**
+     * Remove a binding from this template.
+     * @param binding the binding to remove, not {@code null}
+     */
+    public void removeBinding(PSTemplateBinding binding) {
+        Objects.requireNonNull(binding, "binding cannot be null");
+        if (bindings != null) {
+            bindings.remove(binding);
+        }
+    }
+
+    /**
      * Get template slots as an immutable set for safer access.
      *
      * @return immutable set of template slots, never {@code null}
@@ -447,9 +581,58 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      * Get the type of this object for cataloging
      * @return the type, never <code>null</code>
      */
-    public PSTypeEnum getType()
+    @Override
+    public String getType()
     {
-      return PSTypeEnum.TEMPLATE;
+      return PSTypeEnum.TEMPLATE.name();
+    }
+
+    @Override
+    public IPSGuid getGUID()
+    {
+       return new PSGuid(PSTypeEnum.TEMPLATE, id);
+    }
+
+    @Override
+    public void setGUID(IPSGuid newguid) throws IllegalStateException
+    {
+       this.id = newguid.longValue();
+    }
+
+    @Override
+    public void fromXML(String xmlsource) throws java.io.IOException, org.xml.sax.SAXException, PSInvalidXmlException
+    {
+       // reset transient fields to avoid restore issues
+       this.id = 0L;
+       this.version = null;
+       PSXmlSerializationHelper.readFromXML(xmlsource, this);
+    }
+
+    @Override
+    public String toXML() throws java.io.IOException, org.xml.sax.SAXException
+    {
+       return PSXmlSerializationHelper.writeToXml(this);
+    }
+
+    @Override
+    public Object clone()
+    {
+       try
+       {
+          return super.clone();
+       }
+       catch (CloneNotSupportedException e)
+       {
+          throw new RuntimeException(e);
+       }
+    }
+
+    @Override
+    public void removeSlot(IPSTemplateSlot slot)
+    {
+      if (slots != null) {
+        slots.remove(slot);
+      }
     }
 
     /*
@@ -474,6 +657,110 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
          throw new IllegalArgumentException("newTemplateType may not be null");
       }
       templateType = newTemplateType.ordinal();
+    }
+
+    @Override
+    public IPSAssemblyTemplate.OutputFormat getOutputFormat()
+    {
+       return IPSAssemblyTemplate.OutputFormat.valueOf(outputFormat);
+    }
+
+    @Override
+    public String getAssemblyUrl()
+    {
+       return assemblyUrl;
+    }
+
+    @Override
+    public String getCharset()
+    {
+       return charset;
+    }
+
+    @Override
+    public String getStyleSheetPath()
+    {
+       return styleSheet;
+    }
+
+    @Override
+    public String getLocationPrefix()
+    {
+       return locationPrefix;
+    }
+
+    @Override
+    public String getLocationSuffix()
+    {
+       return locationSuffix;
+    }
+
+    @Override
+    public IPSAssemblyTemplate.AAType getActiveAssemblyType()
+    {
+       return IPSAssemblyTemplate.AAType.valueOf(aaType);
+    }
+
+    @Override
+    public String getMimeType()
+    {
+       return mimeType;
+    }
+
+    @Override
+    public String getTemplate()
+    {
+       return template;
+    }
+
+    @Override
+    public void setActiveAssemblyType(IPSAssemblyTemplate.AAType aaType)
+    {
+      if (aaType == null)
+         throw new IllegalArgumentException("aaType may not be null");
+      this.aaType = aaType.ordinal();
+    }
+
+    /**
+     * Set the global template usage as defined by the interface.
+     * Accepts null to clear the usage.
+     */
+    public void setGlobalTemplateUsage(IPSAssemblyTemplate.GlobalTemplateUsage usage)
+    {
+       if (usage == null)
+          this.globalTemplateUsage = null;
+       else
+          this.globalTemplateUsage = usage.name();
+    }
+
+    /**
+     * Set the global template GUID.
+     */
+    public void setGlobalTemplate(IPSGuid guid)
+    {
+       this.globalTemplateGuid = guid;
+    }
+
+    /**
+     * Get the global template GUID, may be null.
+     */
+    public IPSGuid getGlobalTemplate()
+    {
+       return this.globalTemplateGuid;
+    }
+
+    /**
+     * Gets the global template usage for this template. Never returns null.
+     */
+    public IPSAssemblyTemplate.GlobalTemplateUsage getGlobalTemplateUsage()
+    {
+       if (this.globalTemplateUsage == null)
+          return IPSAssemblyTemplate.GlobalTemplateUsage.None;
+       try {
+          return IPSAssemblyTemplate.GlobalTemplateUsage.valueOf(this.globalTemplateUsage);
+       } catch (IllegalArgumentException e) {
+          return IPSAssemblyTemplate.GlobalTemplateUsage.None;
+       }
     }
 
     /* (non-Javadoc)

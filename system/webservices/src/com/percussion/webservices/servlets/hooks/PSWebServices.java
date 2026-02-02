@@ -92,7 +92,7 @@ public class PSWebServices
    {
       // init log4j config
       initLogging();
-      
+
       // Register the HTTPS protocol handler
       PSUtils.registerSSLProtocolHandler();
    }
@@ -240,12 +240,12 @@ public class PSWebServices
    }
 
    /**
-    * Release resources if there is any. Clear the supplied authorization info 
-    * if it is not <code>null</code>. Clear all cookies which relate to 
+    * Release resources if there is any. Clear the supplied authorization info
+    * if it is not <code>null</code>. Clear all cookies which relate to
     * the current object.
-    * 
+    *
     * @param conn the connection, assumed not <code>null</code>
-    * @param authInfo the authorization info object that is registered with 
+    * @param authInfo the authorization info object that is registered with
     *    the current object as its context. It may be <code>null</code> if no
     *    authorization info is registered with the current object as its
     *    context.
@@ -254,10 +254,10 @@ public class PSWebServices
    {
       // discard all cookies that may been added from the current processing
       CookieModule.discardAllCookies(conn.getContext());
-      
+
       if (authInfo != null)
          AuthorizationInfo.removeAuthorization(authInfo, conn.getContext());
-      
+
       if (conn != null)
       {
          conn.stop();
@@ -270,7 +270,7 @@ public class PSWebServices
     * @param resp the reponse stream to send the data on,
     *    must not be <code>null</code>
     * @param context the connection context, assumed not <code>null</code>.
-    * 
+    *
     * @return Envelope with all the data from the response input stream
     * @throws SOAPException
     */
@@ -378,8 +378,8 @@ public class PSWebServices
     * @param   env      Envelope of the request, contains credentials, must
     *                     not be <code>null</code>.
     * @param conn the <code>HTTPConnection</code>, assumed not <code>null</code>
-    * 
-    * @return the authorization info object that is registered with the 
+    *
+    * @return the authorization info object that is registered with the
     *    current object as its context. It may be <code>null</code> if has not
     *    register any authorization info object.
     *
@@ -534,7 +534,7 @@ public class PSWebServices
                Codecs.base64Encode(username + ":" + password));
          AuthorizationInfo.addAuthorization(authInfo, conn.getContext());
       }
-      
+
       return authInfo;
    }
 
@@ -560,14 +560,9 @@ public class PSWebServices
 
       try
       {
-         MimeBodyPart rootPart = ctx.getRootPart();
-         MimeBodyPart bp;
-         for (int i = 0; i < ctx.getCount(); i++)
-         {
-            bp = ctx.getBodyPart(i);
-            if (bp.equals(rootPart))
-            {
-               // add the body as an attachment
+               // Extract body directly from the Envelope (compatible with the
+               // current SOAPContext shim which exposes body elements instead
+               // of MimeBodyPart attachments).
                Body body = env.getBody();
                if (body == null)
                {
@@ -578,11 +573,10 @@ public class PSWebServices
                Vector bodyEntries = body.getBodyEntries();
 
                if (bodyEntries.size() < 1)
-                  continue;
+                  return ret;
 
                // the root element is the method to be called, the child
-               // is the parameters and the rest of the body
-               // for the method to be called
+               // is the parameters and the rest of the body for the method
                Element bodyEl = (Element)bodyEntries.elementAt(0);
                m_nameSpaceURI = bodyEl.getNamespaceURI();
                Element bodyData = DOMUtils.getFirstChildElement(bodyEl);
@@ -597,9 +591,7 @@ public class PSWebServices
                ret = DOM2Writer.nodeToString(bodyData);
                // only get the FIRST valid body part, ignore the rest, which
                // is compliant with Rhythmyx WSDL
-               break;
-            }
-         }
+
       }
       catch (MessagingException me)
       {
@@ -644,7 +636,7 @@ public class PSWebServices
          m_url = new URL(m_rxUrl + WEBSERVICES_APP);
          m_port = m_url.getPort();
          m_server = m_url.getHost();
-         
+
          // get timeout setting if specified
          String timeOutParam = servlet.getInitParameter(WEBSERVICES_TIMEOUT);
          if (timeOutParam != null && timeOutParam.length() > 0)
@@ -653,7 +645,7 @@ public class PSWebServices
             {
                m_timeout = Integer.parseInt(timeOutParam);
             }
-            catch (NumberFormatException e) 
+            catch (NumberFormatException e)
             {
                // ignore bad time out data use default timeout
                System.out.println("Ignore bad time out number: '" + timeOutParam
@@ -712,9 +704,9 @@ public class PSWebServices
       Node child = node.getFirstChild();
       return child != null ? child.getNodeValue() : null;
    }
-   
+
    /**
-    * Initializes logging if it is not already initialized, forcing the 
+    * Initializes logging if it is not already initialized, forcing the
     * publisher log config to be used.
     */
    private synchronized void initLogging()
@@ -738,21 +730,21 @@ public class PSWebServices
                e.fillInStackTrace();
                if (e instanceof IOException)
                   throw (IOException)e;
-               else 
+               else
                   throw (RuntimeException)e;
             }
-            
-            // Need to set default init override so we don't pick up the 
+
+            // Need to set default init override so we don't pick up the
             // container
-            // config before we can set ours. 
+            // config before we can set ours.
             // First get current setting so we can reset
             String oldval = System.getProperty("log4j.defaultInitOverride");
             System.setProperty("log4j.defaultInitOverride", "true");
             PropertyConfigurator.configure(props);
-            
+
             // reset the property
-            System.setProperty("log4j.defaultInitOverride", 
-               oldval == null ? "false" : oldval);            
+            System.setProperty("log4j.defaultInitOverride",
+               oldval == null ? "false" : oldval);
          }
          catch (IOException e)
          {
@@ -760,7 +752,7 @@ public class PSWebServices
             throw new RuntimeException(e);
          }
       }
-   }   
+   }
 
    /**
     * Constant for the name of the entry that represents the Rhythmyx
@@ -778,7 +770,7 @@ public class PSWebServices
     * with Rhythmyx server.
     */
    private static final String WEBSERVICES_TIMEOUT = "timeout_to_rhythmyx";
-   
+
    /**
     * Constant defining the element names in the Xml
     * document for the authentication header
@@ -793,11 +785,11 @@ public class PSWebServices
 
    /**
     * The timeout setting (in milliseconds) for communicating with Rhythmyx
-    * server. Defaults to 10 minutes. It can be cumtomized by 
+    * server. Defaults to 10 minutes. It can be cumtomized by
     * {@link #WEBSERVICES_TIMEOUT} parameter.
     */
    private int m_timeout = 600000;
-   
+
    /**
     * Variables to set server/username parameters for each request, the ip
     * location of the rx server
@@ -829,7 +821,7 @@ public class PSWebServices
    /**
     * The standard container session cookie
     */
-   private static final String J_SESSION_COOKIE = "JSESSIONID";   
+   private static final String J_SESSION_COOKIE = "JSESSIONID";
 
    /**
     * Storage for the options passed with the request to the Rx server
@@ -842,14 +834,14 @@ public class PSWebServices
     * message is parsed.
     */
    private String m_nameSpaceURI = null;
-   
+
    /**
     * The context counter for the connection instances. It is used to set
     * a different context for each connection so that it does not share
     * authentication or cookie with other connection instances.
     */
    private static long ms_contextCounter = Long.MIN_VALUE;
-   
+
    /**
     * The logger for this class
     */

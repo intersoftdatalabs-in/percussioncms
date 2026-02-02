@@ -38,6 +38,7 @@ import org.apache.solr.common.util.NamedList;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class PSSolrDeliveryHandler
@@ -400,7 +401,7 @@ public class PSSolrDeliveryHandler
             if (solrClient == null) {
                 // Must make sure to close cloudClient Instance in commit or
                 // rollback.
-                CloudSolrClient cloudClient = new CloudSolrClient.Builder().withZkHost(serverConfig.getSolrHost()).build();
+                CloudSolrClient cloudClient = new CloudSolrClient.Builder(List.of(serverConfig.getSolrHost())).build();
                 cloudClient.setDefaultCollection(serverConfig.getDefaultCollection());
                 solrClient = cloudClient;
             }

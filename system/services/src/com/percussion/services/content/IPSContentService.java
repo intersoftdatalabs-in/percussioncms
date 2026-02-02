@@ -165,6 +165,15 @@ public interface IPSContentService {
     List<PSFolderProperty> loadFolderProperties(IPSGuid folderId);
 
     /**
+     * Find folder properties by property name across all folders.
+     *
+     * @param property the property name to search for, not {@code null} or empty
+     * @return list of folder properties matching the property name, never {@code null}, may be empty
+     * @throws IllegalArgumentException if property is null or empty
+     */
+    List<PSFolderProperty> getFolderProperties(String property);
+
+    /**
      * Save the supplied folder property.
      *
      * @param property the folder property to save, not {@code null}

@@ -141,7 +141,7 @@ public class PSContentListNode extends PSDesignNode {
       super(contentlist.getName(), contentlist.getGUID());
       var props = new HashMap<String, String>();
       props.put("description", contentlist.getDescription());
-      props.put("type", contentlist.getType().name());
+      props.put("type", contentlist.getContentListType().name());
       setProperties(props);
       m_clist = contentlist;
    }
@@ -428,7 +428,7 @@ public class PSContentListNode extends PSDesignNode {
     */
    public boolean isIncremental()
    {
-      return m_clist.getType().ordinal() == IPSContentList.Type.INCREMENTAL.ordinal();
+      return m_clist.getContentListType() == IPSContentList.Type.INCREMENTAL;
    }
    
    /**
@@ -440,9 +440,9 @@ public class PSContentListNode extends PSDesignNode {
    public void setIncremental(boolean isIncremental)
    {
       if (isIncremental)
-         m_clist.setType(IPSContentList.Type.INCREMENTAL);
+         m_clist.setContentListType(IPSContentList.Type.INCREMENTAL);
       else
-         m_clist.setType(IPSContentList.Type.NORMAL);
+         m_clist.setContentListType(IPSContentList.Type.NORMAL);
    }
    
    /**
@@ -452,7 +452,7 @@ public class PSContentListNode extends PSDesignNode {
     */
    public int getType()
    {
-      return m_clist.getType().ordinal();
+      return m_clist.getContentListType().ordinal();
    }
 
    /**
@@ -462,7 +462,7 @@ public class PSContentListNode extends PSDesignNode {
     */
    public void setType(int ordinal)
    {
-      m_clist.setType(IPSContentList.Type.valueOf(ordinal));
+      m_clist.setContentListType(IPSContentList.Type.valueOf(ordinal));
    }
 
    /**

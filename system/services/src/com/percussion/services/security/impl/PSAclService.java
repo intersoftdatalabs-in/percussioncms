@@ -65,6 +65,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
+import java.util.stream.Stream;
+import com.percussion.services.guidmgr.data.PSGuid;
 
 /**
  * Implementation of the interface
@@ -173,6 +176,16 @@ public class PSAclService implements IPSAclService
       return new HashSet<>(comms);
    }
 
+   @Override
+   @Transactional(readOnly = true)
+   public Stream<IPSGuid> streamObjectsWithAcls()
+   {
+      Session session = entityManager.unwrap(Session.class);
+      @SuppressWarnings("unchecked")
+      List<Object[]> rows = session.createQuery("select distinct a.objectId, a.objectType from PSAclImpl a").list();
+      return rows.stream().map(r -> new PSGuid(PSTypeEnum.valueOf(((Number) r[1]).intValue()), ((Number) r[0]).longValue()));
+   }
+
    /**
     * Add the permissions from the supplied entry to the supplied set.
     * 
@@ -222,7 +235,7 @@ public class PSAclService implements IPSAclService
    }
 
    @Transactional
-   public IPSAcl createAcl(IPSGuid objGuid, IPSTypedPrincipal owner)
+   public IPSAcl createAclImpl(IPSGuid objGuid, IPSTypedPrincipal owner)
    {
       if (objGuid == null)
          throw new IllegalArgumentException("objGuid may not be null");
@@ -587,18 +600,16 @@ public class PSAclService implements IPSAclService
     * @see com.percussion.security.acl.IPSAclService#saveAcls(java.util.Set)
     */
    @Transactional
-   public List<IPSAcl> saveAcls(List<IPSAcl> aclList) throws PSServiceSecurityException
+   public void saveAclsImpl(List<IPSAcl> aclList) throws PSServiceSecurityException
    {
          List<IPSAcl> result = internalPersist(aclList);
-         // need to really pass back aclList as return but not changing interface at this time.
+         // update original list GUIDs where necessary
          int i = 0;
          for (IPSAcl acl : result) {
             PSAclImpl orig = (PSAclImpl) aclList.get(i++);
             if (orig.getGUID() == null)
                orig.setGUID(acl.getGUID());
          }
-
-         return result;
 
    }
    
@@ -706,7 +717,6 @@ public class PSAclService implements IPSAclService
 
    private static final Logger ms_logger = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
 
-   @Override
    @Transactional
    public Collection<IPSGuid> filterByCommunities(List<IPSGuid> objectIds, List<String> communityNames)
    {
@@ -716,5 +726,43 @@ public class PSAclService implements IPSAclService
       return findObjectsVisibleToCommunities(communityNames, null, objectIds);
    }
    
-  
+   @Override
+   public Optional<String> validateAclImpl(IPSAcl acl) {
+      // basic validation placeholder - consider more thorough checks later
+      return Optional.empty();
+   }
+
+   @Override
+   public void deleteAclsImpl(List<IPSGuid> objectGuids) throws PSServiceSecurityException {
+      if (objectGuids == null || objectGuids.isEmpty()) {
+         return;
+      }
+      try {
+         List<IPSAcl> acls = loadAclsForObjectsModifiable(objectGuids);
+         for (IPSAcl acl : acls) {
+            if (acl != null) {
+               ms_objectIdToAclIdMap.remove(acl.getObjectGuid());
+               getSession().delete(acl);
+            }
+         }
+      } catch (DataAccessException e) {
+         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e, 
+            objectGuids.toString(), e.getLocalizedMessage());
+      }
+   }
+
+   public boolean hasAclsForTypeImpl(PSTypeEnum objectType) {
+      if (objectType == null) {
+         return false;
+      }
+      Session session = getSession();
+      org.hibernate.query.Query<Long> q = session.createQuery(
+         "select count(a) from PSAclImpl a where a.objectType = :objectType", Long.class)
+         .setParameter("objectType", (int) objectType.getOrdinal())
+         .setCacheable(true);
+      Long count = q.uniqueResult();
+      return count != null && count > 0;
+   }
+
 }
+

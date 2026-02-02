@@ -20,10 +20,9 @@ package com.percussion.widgets.image.web.impl;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.bytesource.ByteSource;
-import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
+import org.apache.commons.imaging.bytesource.ByteSource;
+import org.apache.commons.imaging.bytesource.ByteSourceInputStream;
 import org.apache.commons.imaging.formats.jpeg.JpegImageParser;
-import org.apache.commons.imaging.formats.jpeg.segments.Segment;
 import org.apache.commons.imaging.formats.jpeg.segments.UnknownSegment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -276,8 +275,8 @@ public final class ImageReader {
             return false;
         }
 
-        var app14Segment = (UnknownSegment) segments.get(0);
-        var data = app14Segment.getSegmentData();
+        var app14Segment = segments.get(0);
+        var data = getSegmentBytes(app14Segment);
 
         return hasAdobeMarkerInData(data);
     }
@@ -289,7 +288,7 @@ public final class ImageReader {
      * @return {@code true} if Adobe marker is present
      */
     private static boolean hasAdobeMarkerInData(byte[] data) {
-        if (data.length < MIN_ADOBE_SEGMENT_SIZE) {
+        if (data == null || data.length < MIN_ADOBE_SEGMENT_SIZE) {
             return false;
         }
 
@@ -300,6 +299,30 @@ public final class ImageReader {
             }
         }
         return true;
+    }
+
+    /**
+     * Extract segment bytes from a segment object using common getter names or
+     * our local shim; uses reflection to remain compatible with multiple
+     * commons-imaging versions.
+     */
+    private static byte[] getSegmentBytes(Object segment) {
+        if (segment == null) return new byte[0];
+        try {
+            // Our local shim
+            if (segment instanceof com.percussion.imaging.shims.segments.Segment) {
+                return ((com.percussion.imaging.shims.segments.Segment) segment).getSegmentData();
+            }
+            // Try common method names
+            java.lang.reflect.Method m;
+            try { m = segment.getClass().getMethod("getSegmentData"); return (byte[]) m.invoke(segment); } catch (NoSuchMethodException ignored) {}
+            try { m = segment.getClass().getMethod("getSegmentBytes"); return (byte[]) m.invoke(segment); } catch (NoSuchMethodException ignored) {}
+            try { m = segment.getClass().getMethod("getData"); return (byte[]) m.invoke(segment); } catch (NoSuchMethodException ignored) {}
+            try { m = segment.getClass().getMethod("getBytes"); return (byte[]) m.invoke(segment); } catch (NoSuchMethodException ignored) {}
+        } catch (Exception e) {
+            // ignore and fall through
+        }
+        return new byte[0];
     }
 
     /**
@@ -324,8 +347,8 @@ public final class ImageReader {
             return false;
         }
 
-        var app14Segment = (UnknownSegment) segments.get(0);
-        var data = app14Segment.getSegmentData();
+        var app14Segment = segments.get(0);
+        var data = getSegmentBytes(app14Segment);
 
         if (!hasAdobeMarkerInData(data)) {
             return false;
@@ -341,7 +364,7 @@ public final class ImageReader {
      * @param imageBytes the JPEG data
      * @return Optional containing list of segments, or empty if extraction fails
      */
-    private static Optional<List<Segment>> getSegmentsOptional(byte[] imageBytes) {
+    private static Optional<List<org.apache.commons.imaging.formats.jpeg.segments.AbstractSegment>> getSegmentsOptional(byte[] imageBytes) {
         try {
             var segments = getSegments(imageBytes);
             return Optional.ofNullable(segments);
@@ -359,14 +382,12 @@ public final class ImageReader {
      * @throws ImageReadException if image parsing fails
      * @throws IOException if I/O error occurs
      */
-    private static List<Segment> getSegments(byte[] imageBytes)
+    private static List<org.apache.commons.imaging.formats.jpeg.segments.AbstractSegment> getSegments(byte[] imageBytes)
             throws ImageReadException, IOException {
         var parser = new JpegImageParser();
 
-        try (var inputStream = new ByteArrayInputStream(imageBytes)) {
-            var byteSource = new ByteSourceInputStream(inputStream, "");
-            return parser.readSegments(byteSource, new int[]{APP14_MARKER}, true);
-        }
+        var byteSource = new ByteSourceInputStream(new ByteArrayInputStream(imageBytes), null);
+        return parser.readSegments(byteSource, new int[]{APP14_MARKER}, true);
     }
 
     /**

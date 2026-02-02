@@ -50,17 +50,17 @@ import org.xml.sax.SAXException;
  * This object represents a single workbench hierarchy node.
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, 
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
       region = "PSHierarchyNode")
 @Table(name = "PSX_WB_HIERARCHY_NODE")
-public class PSHierarchyNode implements Serializable, IPSCatalogSummary, 
+public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    IPSCatalogItem
 {
    /**
     * Compiler generated serial version ID used for serialization.
     */
    private static final long serialVersionUID = -5425086083061018906L;
-   
+
    /**
     * Full guid value.
     */
@@ -86,18 +86,18 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    @Basic
    @Column(name = "TYPE", nullable = false)
    private int type;
-   
+
    @Transient
    private Map<String, String> properties = new HashMap<>();
 
    /**
-    * This ctor is meant for serialization only. It should not be used by 
+    * This ctor is meant for serialization only. It should not be used by
     * clients.
     */
    public PSHierarchyNode()
    {
    }
-   
+
    /**
     * This enum identifies how the node is used.
     *
@@ -109,18 +109,18 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
        * This node is a folder, meaning it can contain other nodes.
        */
       FOLDER(1),
-      
+
       /**
        * This node is used to indicate where some other object should be placed
        * in the hierarchy. It is not a container.
        */
       PLACEHOLDER(2);
-      
+
       /**
        * Lookup enum value by ordinal. Ordinals should be unique. If they are
        * not unique, then the first enum value with a matching ordinal is
        * returned.
-       * 
+       *
        * @param s ordinal value
        * @return an enumerated value or <code>null</code> if the ordinal does
        * not match
@@ -139,14 +139,14 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
       /**
        * We want to have our own assigned numbers, so we pass that in to the
        * ctor for each enum.
-       * 
+       *
        * @param ordinal Any value is OK.
        */
       private NodeType(int ordinal)
       {
          m_value = ordinal;
       }
-      
+
       /**
        * Returns the value supplied in the ctor.
        * @return See description.
@@ -155,18 +155,18 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
       {
          return m_value;
       }
-      
+
       /**
        * See ctor.
        */
       private final int m_value;
    }
-   
+
    /**
     * This is not for client use. It should only be used by the betwixt
     * serialization mechanism. When betwixt supports enums, this could be
     * removed.
-    * 
+    *
     * @return Equivalent to {@link #getType()}.ordinal().
     */
    @IPSXmlSerialization(suppress=true)
@@ -174,12 +174,12 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       return type;
    }
-   
+
    /**
     * This is not for client use. It should only be used by the betwixt
     * serialization mechanism. When betwixt supports enums, this could be
     * removed.
-    * 
+    *
     * @param nodeType Like {@link #setType(NodeType)}, but takes the ordinal of
     * the enum.
     */
@@ -187,10 +187,10 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       type = nodeType;
    }
-   
+
    /**
     * Create a valid node.
-    * 
+    *
     * @param nodeName See {@link #setName(String)}.
     * @param nodeGuid See {@link #setGUID(IPSGuid)}.
     * @param nodeType See {@link #setType(NodeType)}.
@@ -202,21 +202,21 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
       setGUID(nodeGuid);
       setType(nodeType);
    }
-   
+
    /**
     * Get the object version.
-    * 
+    *
     * @return the object version, <code>null</code> if not initialized yet.
     */
    public Integer getVersion()
    {
       return version;
    }
-   
+
    /**
-    * Set the object version. The version can only be set once in the life 
-    * cycle of this object. 
-    * 
+    * Set the object version. The version can only be set once in the life
+    * cycle of this object.
+    *
     * @param version the version of the object, must be >= 0.
     */
    public void setVersion(Integer version)
@@ -224,10 +224,10 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
       if (this.version != null)
          throw new IllegalStateException(
             "version can only be initialized once");
-      
+
       if (version < 0)
          throw new IllegalArgumentException("version must be >= 0");
-      
+
       this.version = version;
    }
 
@@ -238,22 +238,22 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       return name;
    }
-   
+
    /**
     * Set a new name for this hierarchy node. A node cannot have the same name
     * as a sibling, case-insensitive. This check is performed by the service,
     * not this class.
-    * 
+    *
     * @param nodeName the new name, not <code>null</code> or empty.
     */
    public void setName(String nodeName)
    {
       if (StringUtils.isBlank(nodeName))
          throw new IllegalArgumentException("name cannot be null or empty");
-      
+
       this.name = nodeName;
    }
-   
+
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getLabel()
     */
@@ -261,7 +261,7 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       return getName();
    }
-   
+
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getDescription()
     */
@@ -277,33 +277,45 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       return new PSDesignGuid(id);
    }
-   
+
    /**
-    * The id of the parent of this hierarchy node, <code>null</code> if this 
+    * The id of the parent of this hierarchy node, <code>null</code> if this
     * hierarchy node does not have a parent.
-    * 
-    * @return the id of the parent hierarchy node, <code>null</code> if this 
+    *
+    * @return the id of the parent hierarchy node, <code>null</code> if this
     *    is a root node.
     */
    public IPSGuid getParentId()
    {
       return parentId == 0 ? null : new PSDesignGuid(parentId);
    }
-   
+
    /**
-    * Get the type of this hierarchy node.
-    * 
-    * @return the hierarchy node type.
+    * Get the type of this hierarchy node (textual form for compatibility with
+    * the catalog identifier API).
+    *
+    * @return the hierarchy node type name as a String, or {@code null} if unknown.
     */
-   public NodeType getType()
+   public String getType()
+   {
+      NodeType nt = NodeType.valueOf(type);
+      return nt == null ? null : nt.name();
+   }
+
+   /**
+    * Convenience accessor returning the enum form of the node type.
+    *
+    * @return the {@link NodeType} or {@code null} if unknown.
+    */
+   public NodeType getNodeType()
    {
       return NodeType.valueOf(type);
    }
-   
+
    /**
     * Set a new hierarchy node type. This is meant for use w/ the default ctor.
     * If called otherwise, an exception is thrown.
-    * 
+    *
     * @param nt The new hierarchy node type, not <code>null</code>.
     * @throws IllegalStateException If called more than once.
     */
@@ -311,16 +323,16 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       if (type != 0)
          throw new IllegalStateException("Can only set the type once.");
-      
+
       if (nt == null)
          throw new IllegalArgumentException("nt cannot be null");
 
       type = nt.getOrdinal();
    }
-   
+
    /**
     * Set the id of the new parent hierarchy node.
-    * 
+    *
     * @param parent the id of the new hierarchy parent, <code>null</code> to
     *    make this a root node.
     */
@@ -345,10 +357,10 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
 
       id = new PSDesignGuid(newguid).getValue();
    }
-   
+
    /**
     * Get all hierarchy node properties.
-    * 
+    *
     * @return the hierarchy node properties, never <code>null</code>, may
     *    be empty.
     */
@@ -356,10 +368,10 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       return properties;
    }
-   
+
    /**
     * Set new hierarchy node properties.
-    * 
+    *
     * @param properties the new hierarchy node properties, may be
     *    <code>null</code> or empty. All supplied properties must have a valid
     *    id. All properties will be attached to this node.
@@ -371,10 +383,10 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
       else
          this.properties = properties;
    }
-   
+
    /**
-    * Adds a new hierarchy node property or replaces an existing one. 
-    * 
+    * Adds a new hierarchy node property or replaces an existing one.
+    *
     * @param propertyName never <code>null</code> or empty.
     * @param value may be <code>null</code> or empty.
     */
@@ -382,14 +394,14 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       if (StringUtils.isBlank(propertyName))
          throw new IllegalArgumentException("name cannot be null or empty");
-      
+
       properties.put(propertyName, value);
    }
-   
+
    /**
     * Remove the property for the specified name.
-    * 
-    * @param propertyName the name or the property to be removed, may be 
+    *
+    * @param propertyName the name or the property to be removed, may be
     *    <code>null</code> or empty. Nothing is done if the referenced property
     *    does not exist.
     */
@@ -398,10 +410,10 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
       if (!StringUtils.isBlank(propertyName))
          properties.remove(propertyName);
    }
-   
+
    /**
     * Get the property for the specified name.
-    * 
+    *
     * @param propertyName the name of the property to get, may be <code>null</code> or
     *    empty.
     * @return the property for the specified name, <code>null</code> if not
@@ -411,13 +423,13 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary,
    {
       if (StringUtils.isBlank(propertyName))
          return null;
-      
+
       return properties.get(propertyName);
    }
 
-   
-   
-   
+
+
+
    @Override
    public int hashCode()
    {

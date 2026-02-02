@@ -57,6 +57,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -636,7 +637,10 @@ public class PSRelationshipEffectProcessor {
     if (relId > 0) {
       IPSRelationshipService svc = PSRelationshipServiceLocator.getRelationshipService();
       try {
-        sourceRel = svc.loadRelationship(currentRel.getId());
+        Optional<PSRelationship> opt = svc.loadRelationship(currentRel.getId());
+        if (opt.isPresent()) {
+          sourceRel = opt.get();
+        }
       } catch (PSException e) {
         log.error("Cannot get relationship with id= {} ", currentRel.getId());
         log.error("Error : {} ", PSExceptionUtils.getMessageForLog(e));

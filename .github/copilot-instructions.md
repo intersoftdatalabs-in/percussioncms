@@ -33,6 +33,7 @@ Apply SOLID, DRY, KISS, YAGNI, OWASP, DOP, and DDD principles.
 Write small, focused functions (< 20 lines) and pure functions for data manipulation.
 Use immutable, flat, denormalized data structures; validate data explicitly.
 Prefer dependency injection, static factory methods, and builders over constructors.
+Avoid reflection as a shortcut for overload disambiguation or type mismatches; instead add explicit methods, overloads, or adjust method signatures to preserve compile-time type safety and clarity. See `.github/instructions/reflection-policy.md` for the policy and examples.
 Use try-with-resources, minimize mutability, and avoid raw types.
 Synchronize shared mutable data; prefer concurrency utilities over threads.
 Avoid Java serialization; use alternatives or defensive serialization.
@@ -48,7 +49,7 @@ src/main/java/: Main application code
 src/main/resources/: Configuration files (e.g., application.properties)
 src/test/java/: Unit tests
 src/test/resources/: Test resources (e.g., test data, configuration)
-docs/: Markdown documentation and API specs. 
+docs/: Markdown documentation and API specs.
 .github/copilot-instructions.md:    Copilot instructions and guidelines
 .github/instructions/:    Additional Copilot instructions
 .github/prompts/:    Copilot prompts for specific tasks

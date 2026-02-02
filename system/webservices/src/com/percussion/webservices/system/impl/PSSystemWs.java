@@ -59,8 +59,15 @@ import com.percussion.webservices.PSUserNotMemberOfCommunityException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.system.IPSSystemWs;
+import com.percussion.webservices.content.IPSContentWs;
+import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.workflow.PSTransitionInfo;
+import com.percussion.workflow.PSWorkFlowUtils;
+import com.percussion.workflow.PSEntryNotFoundException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +78,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The public system webservice implementations. Note that service 
+ * The public system webservice implementations. Note that service
  * {@link #transitionItems(List, String, String)} is not transactional.
  */
 @PSBaseBean("sys_systemWs")
@@ -103,18 +110,18 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
    }
 
    /**
-    * Just like {@link IPSSystemDesignWs#findDependencies(List)} and 
+    * Just like {@link IPSSystemDesignWs#findDependencies(List)} and
     * {@link #findOwners(IPSGuid, PSRelationshipFilter)}, except the id is
     * either the owner id or dependent id according to the <code>isOwner</code>
     * parameter.
-    *  
-    * @param isOwnerId it is <code>true</code> if the specified <code>id</code> 
-    *    parameter is an owner id, and this method will behave the way that 
+    *
+    * @param isOwnerId it is <code>true</code> if the specified <code>id</code>
+    *    parameter is an owner id, and this method will behave the way that
     *    is described in {@link #findDependents(IPSGuid, PSRelationshipFilter)};
     *    otherwise the specified <code>id</code> parameter is a dependent id,
-    *    and this method will behave the way that is described in 
+    *    and this method will behave the way that is described in
     *    {@link #findOwners(IPSGuid, PSRelationshipFilter)}.
-    *    
+    *
     * @see IPSSystemDesignWs#findDependencies(List)
     * @see #findOwners(IPSGuid, PSRelationshipFilter)
     */
@@ -225,9 +232,9 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
 
    /**
     * Validates a relationship category.
-    * 
+    *
     * @param category the category in question, assumed not <code>null</code> or
-    *    empty. 
+    *    empty.
     * @throws IllegalArgumentException if the validation failed.
     */
    private void validateCategory(String category)
@@ -248,7 +255,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
 
    /**
     * Finds the relationship config names from the supplied pattern.
-    * 
+    *
     * @param pattern the pattern of the lookup name, It may contain wildcard.
     *    it may be <code>null</code> or empty for all names.
     * @return the names that matches the pattern
@@ -260,12 +267,11 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
          pattern = "*";
       pattern = StringUtils.replaceChars(pattern, '*', '%');
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      List<PSRelationshipConfigName> names = cms
+      java.util.stream.Stream<PSRelationshipConfigName> names = cms
          .findRelationshipConfigNames(pattern);
 
       List<String> result = new ArrayList<String>();
-      for (PSRelationshipConfigName n : names)
-         result.add(n.getName());
+      names.forEach(n -> result.add(n.getName()));
       return result;
    }
 
@@ -356,8 +362,9 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
 
       // verify the locale
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
-      PSLocale locale = mgr.findLocaleByLanguageString(code);
-         
+      Optional<PSLocale> optLocale = mgr.findLocaleByLanguageString(code);
+      PSLocale locale = optLocale.orElse(null);
+
       // if the specifed locale is not active, piggy back the exception with
       // a set of valid locales. Clients can use this information if they need
       // such as in WB, where a new dialog is shown to choose a locale
@@ -365,7 +372,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
       {
          StringBuilder msgSfx = new StringBuilder(1024);
          msgSfx.append(" Valid locales:<");
-         List<PSLocale> locList = mgr.findAllLocales();
+         List<PSLocale> locList = mgr.findAllLocales().collect(Collectors.toList());
          Iterator<PSLocale> it = locList.iterator();
          while ( it.hasNext() )
          {
@@ -376,7 +383,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
          if ( locList.size() == 0 )
             msgSfx.append("none");
          msgSfx.append(">");
-         
+
          // throw invalid locale exception with a set of active locales
          int errcode = IPSWebserviceErrors.INVALID_LOCALE;
          throw new PSInvalidLocaleException(errcode, PSWebserviceErrors
@@ -439,7 +446,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
 
    @Transactional
    public List<String> transitionItems(List<IPSGuid> ids, String transition,
-      String comment, List<String> adhocUsers) 
+      String comment, List<String> adhocUsers)
       throws PSErrorsException, PSErrorException
    {
       if (StringUtils.isBlank(transition))
@@ -448,7 +455,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       // validate all items exist, must be in checked in mode (or checkin first
-      // if is checked out by the same user, and the revision of an id 
+      // if is checked out by the same user, and the revision of an id
       // (in the ids) must be current revision if included
       List<PSComponentSummary> summaries = new ArrayList<PSComponentSummary>(
          ids.size());
@@ -493,7 +500,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
       {
          try
          {
-            PSWebserviceUtils.transitionItem(summary.getContentId(), 
+            PSWebserviceUtils.transitionItem(summary.getContentId(),
                transition, comment, adhocUsers);
          }
          catch (PSErrorException e)
@@ -535,7 +542,7 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
       if (config == null)
          throw new IllegalArgumentException(
             "Cannot find a relationship type with name = '" + name + "'.");
-      
+
       final boolean IS_OWNER_ID = true;
       PSLocator owner = PSWebserviceUtils.getHeadLocator(
          (PSLegacyGuid) ownerId, IS_OWNER_ID, config);

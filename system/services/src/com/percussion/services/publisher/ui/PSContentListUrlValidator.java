@@ -40,7 +40,7 @@ public class PSContentListUrlValidator extends PSBaseValidator
    public void validate(FacesContext ctx, UIComponent comp, Object value)
          throws ValidatorException
    {
-      String url = getString(value, true).trim();
+      String url = safeToString(value).trim();
       if (!url.startsWith(PSServer.getRequestRoot()))
       {
          fail(FacesMessage.SEVERITY_ERROR, "jsf@content_list_url_request_root",

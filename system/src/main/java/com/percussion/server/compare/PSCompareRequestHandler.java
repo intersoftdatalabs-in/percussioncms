@@ -129,7 +129,7 @@ public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
       }
       res = getComparisionResult(assemblyPage1, assemblyPage2, lang);
     } catch (Exception e) {
-      PSConsole.printMsg(HANDLER, ExceptionUtils.getFullStackTrace(e));
+      PSConsole.printMsg(HANDLER, ExceptionUtils.getStackTrace(e));
       res = e.getMessage();
     }
 

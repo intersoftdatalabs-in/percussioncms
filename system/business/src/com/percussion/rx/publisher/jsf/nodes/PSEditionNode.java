@@ -65,7 +65,7 @@ import java.util.TreeSet;
 
 /**
  * This node represents an edition in the navigation tree.
- * 
+ *
  * @author dougrand
  */
 public class PSEditionNode extends PSDesignNode
@@ -82,7 +82,7 @@ public class PSEditionNode extends PSDesignNode
    private static final Logger ms_log = LogManager.getLogger(PSEditionNode.class);
 
    /**
-    * Content List wrapper is used to display the available lists while 
+    * Content List wrapper is used to display the available lists while
     * selecting the associated Content Lists to current Edition.
     */
    public class CListWrapper
@@ -92,27 +92,27 @@ public class PSEditionNode extends PSDesignNode
 
       /**
        * Constructs a wrapper with an Content List.
-       * 
+       *
        * @param clist the Content List, never <code>null</code>.
        */
       public CListWrapper(IPSContentList clist)
       {
          if (clist == null)
             throw new IllegalArgumentException("clist may not be null.");
-         
+
          mi_clist = clist;
       }
-      
+
       /**
        * Determines if this Content List is selected.
-       * 
+       *
        * @return <code>true</code> if it is selected.
        */
       public boolean getSelected()
       {
          return mi_selected;
       }
-      
+
       /**
        * Sets the select status for the current Content List.
        * @param selected
@@ -121,10 +121,10 @@ public class PSEditionNode extends PSDesignNode
       {
          mi_selected = selected;
       }
-      
+
       /**
        * Gets the wrapped Content List.
-       * 
+       *
        * @return the wrapped Content List, never <code>null</code>.
        */
       public IPSContentList getClist()
@@ -132,7 +132,7 @@ public class PSEditionNode extends PSDesignNode
          return mi_clist;
       }
    }
-   
+
    /**
     * In order to handle the parameters for tasks well, this object acts as a
     * buffer that always presents all the possible parameters as defined by the
@@ -157,7 +157,7 @@ public class PSEditionNode extends PSDesignNode
 
       /**
        * Ctor.
-       * 
+       *
        * @param task the task, assumed never <code>null</code>.
        */
       public TaskEditItem(IPSEditionTaskDef task) {
@@ -192,7 +192,7 @@ public class PSEditionNode extends PSDesignNode
 
       /**
        * Set the extension name and fix the cached parameters.
-       * 
+       *
        * @param name the new extension name, never <code>null</code> or empty.
        */
       public void setExtensionName(String name)
@@ -228,7 +228,7 @@ public class PSEditionNode extends PSDesignNode
 
       /**
        * Set new params.
-       * 
+       *
        * @param params the new param values, never <code>null</code>.
        */
       public void setParams(List<PSParameter> params)
@@ -305,7 +305,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Ctor.
-    * 
+    *
     * @param edition the edition, never <code>null</code>.
     */
    public PSEditionNode(IPSEdition edition) {
@@ -316,7 +316,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Calculate the properties, called by the ctor and the save methods.
-    * 
+    *
     * @param edition the edition, assumed never <code>null</code>.
     */
    private void calculateProperties(IPSEdition edition)
@@ -357,14 +357,14 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Gets the edition embedded in this node.
-    * 
-    * @return the edition, never <code>null</code>. 
+    *
+    * @return the edition, never <code>null</code>.
     */
    public IPSEdition getEdition() throws PSNotFoundException {
       assureLoaded();
       return m_edition;
    }
-   
+
    /**
     * @param name the new value
     */
@@ -435,7 +435,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Get the content list information.
-    * 
+    *
     * @return a list of wrappers, never <code>null</code>.
     * @throws PSPublisherException
     */
@@ -448,26 +448,26 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Move the selected content-list or edition-task up in the list.
-    * 
+    *
     * @return the outcome, <code>null</code> since we aren't navigating on
     *         this action.
     */
    public String moveSelectedUp() throws PSNotFoundException {
       if (moveSelectedContentListUp())
          return null;
-      
+
       if (moveSelectedTaskUp(m_preTasks))
          return null;
-      
+
       if (moveSelectedTaskUp(m_postTasks))
          return null;
-      
+
       return PSNavigation.NONE_SELECT_WARNING;
    }
 
    /**
     * Move the selected content-list up in the list.
-    * 
+    *
     * @return <code>true</code> if moved a ContentList up; otherwise return
     *    <code>false</code> if there is no selected ContentList.
     */
@@ -487,13 +487,13 @@ public class PSEditionNode extends PSDesignNode
             l.setSequence(seq++);
          }
       }
-      return true;      
+      return true;
    }
 
    /**
     * Finds a selected task from the given task list.
     * @param tasks the task list in question, assumed not <code>null</code>.
-    * @return the index of the selected task; it may be <code>-1</code> if 
+    * @return the index of the selected task; it may be <code>-1</code> if
     *    there is no selected task from the task list.
     */
    private int findSelectedTask(List<TaskEditItem> tasks)
@@ -510,9 +510,9 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Move the selected task up from the given task list.
-    * 
+    *
     * @param tasks the task list in question, assumed not <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if moved up a selected Content List; otherwise
     *    return <code>false</code> if there is no selected Content List.
     */
@@ -521,20 +521,20 @@ public class PSEditionNode extends PSDesignNode
       int i = findSelectedTask(tasks);
       if (i == -1)
          return false;
-      
+
       if (i > 0)
       {
          TaskEditItem task = tasks.remove(i);
          tasks.add(i-1, task);
       }
-      return true; 
+      return true;
    }
 
    /**
     * Move the selected task down from the given task list.
-    * 
+    *
     * @param tasks the task list in question, assumed not <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if moved down a selected Content List; otherwise
     *    return <code>false</code> if there is no selected Content List.
     */
@@ -543,38 +543,38 @@ public class PSEditionNode extends PSDesignNode
       int i = findSelectedTask(tasks);
       if (i == -1)
          return false;
-      
+
       if (i < tasks.size() -1)
       {
          TaskEditItem task = tasks.remove(i);
          tasks.add(i+1, task);
       }
-      return true; 
+      return true;
    }
-   
+
 
    /**
     * Move the selected content-list or edition-task down in the list.
-    * 
+    *
     * @return the outcome, <code>null</code> since we aren't navigating on
     *         this action.
     */
    public String moveSelectedDown() throws PSNotFoundException {
       if (moveSelectedContentListDown())
          return null;
-      
+
       if (moveSelectedTaskDown(m_preTasks))
          return null;
-      
+
       if (moveSelectedTaskDown(m_postTasks))
          return null;
-      
+
       return PSNavigation.NONE_SELECT_WARNING;
    }
 
    /**
     * Move the selected content-list down in the list.
-    * 
+    *
     * @return <code>true</code> if moved down a selected Content List; otherwise
     *    return <code>false</code> if there is no selected Content List.
     */
@@ -582,7 +582,7 @@ public class PSEditionNode extends PSDesignNode
       Integer sel = findSelectedCL();
       if (sel == null)
          return false;
-      
+
       if (sel != null && sel < (m_eclists.size() - 1))
       {
          PSEditionContentListWrapper list = m_eclists.get(sel);
@@ -599,7 +599,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Remove the selected content-list or edition-task.
-    * 
+    *
     * @return the outcome, <code>null</code> since we aren't navigating on
     *         this action.
     */
@@ -607,10 +607,10 @@ public class PSEditionNode extends PSDesignNode
       Integer selIndex = findSelectedCL();
       if (removeContentList(selIndex))
          return null;
-      
+
       if (removeSelectedTask())
          return null;
-      
+
       return PSNavigation.NONE_SELECT_WARNING;
    }
 
@@ -623,10 +623,10 @@ public class PSEditionNode extends PSDesignNode
    {
       if (removeTask(m_preTasks))
          return true;
-      
+
       if (removeTask(m_postTasks))
          return true;
-      
+
       return false;
    }
 
@@ -639,24 +639,24 @@ public class PSEditionNode extends PSDesignNode
    {
       if (selIndex == null)
          return false;
-         
+
       m_deletedEclists.add(m_eclists.get(selIndex));
       m_eclists.remove(selIndex.intValue());
       return true;
    }
-   
+
    /**
     * Look through the current edition content lists and return the correct
     * selected list.
-    * 
+    *
     * @return the selected list's index or <code>null</code> if nothing is
     *         selected.
     */
    private Integer findSelectedCL() throws PSNotFoundException {
       assureLoaded();
-      
+
       Integer index = 0;
-      
+
       for (PSEditionContentListWrapper list : m_eclists)
       {
          if (list.getSelected())
@@ -670,7 +670,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Cancel the editor and navigate back to the list view.
-    * 
+    *
     * @return the outcome
     */
    @Override
@@ -685,7 +685,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Save the m_edition and navigate back to the list view.
-    * 
+    *
     * @return the outcome
     * @throws Exception
     */
@@ -698,7 +698,7 @@ public class PSEditionNode extends PSDesignNode
       IPSPublisherService psvc = PSPublisherServiceLocator
             .getPublisherService();
       psvc.saveEdition(m_edition);
-      
+
       // Save ContentList
       int i = 0;
       if (m_eclists != null)
@@ -714,7 +714,7 @@ public class PSEditionNode extends PSDesignNode
       {
          psvc.deleteEditionContentList(wrapper.getEclist());
       }
-      
+
       // Save tasks
       i = -1 * m_preTasks.size();
       for (TaskEditItem t : m_preTasks)
@@ -743,7 +743,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Handle the details of adding a new edition.
-    * 
+    *
     * @param parent the parent that will contain the node, never
     *            <code>null</code>.
     * @param ed the to be saved edition, never <code>null</code>
@@ -751,7 +751,7 @@ public class PSEditionNode extends PSDesignNode
     * @param eclists the to be cloned content list for the new edition.
     *       It may be <code>null</code> if there is no content list
     *       for the new edition.
-    * 
+    *
     * @return the outcome, never <code>null</code> or empty.
     */
    public String handleNewEdition(PSCategoryNodeBase parent, IPSEdition ed,
@@ -780,7 +780,7 @@ public class PSEditionNode extends PSDesignNode
          for (PSEditionContentListWrapper wrapper : eclists)
          {
             eclist = psvc.createEditionContentList();
-            PSEditionContentListPK eclPK = 
+            PSEditionContentListPK eclPK =
                ((PSEditionContentList) eclist).getEditionContentListPK();
             eclPK.setEditionid(ed.getGUID().longValue());
             eclPK.setContentlistid(
@@ -822,7 +822,7 @@ public class PSEditionNode extends PSDesignNode
       getTasks();
       addTask(m_preTasks);
    }
-   
+
    /**
     * Add a post task.
     */
@@ -831,7 +831,7 @@ public class PSEditionNode extends PSDesignNode
       getTasks();
       addTask(m_postTasks);
    }
-   
+
    /**
     * Add a created Task to the given task list.
     * @param tasks the task list, assumed not <code>null</code>.
@@ -889,7 +889,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Get pre-tasks for this Edition.
-    * 
+    *
     * @return the list of pre-tasks, never <code>null</code>, but may be
     * empty.
     */
@@ -908,7 +908,7 @@ public class PSEditionNode extends PSDesignNode
       getTasks();
       return m_postTasks;
    }
-   
+
    /**
     * Is there any pre-tasks for this Edition.
     * @return <code>true</code> if there are any tasks.
@@ -939,7 +939,7 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Copy the edition.
-    * 
+    *
     * @return the outcome, may be <code>null</code> if no node is selected
     */
    @Override
@@ -953,7 +953,7 @@ public class PSEditionNode extends PSDesignNode
       copiedEdition.setSiteId(site.getGUID());
       String name = getContainer().getUniqueName(copiedEdition.getName(), true);
       copiedEdition.setName(name);
-      
+
       PSEditionNode node = new PSEditionNode(copiedEdition);
 
       return handleNewEdition((PSCategoryNodeBase) getParent(), copiedEdition,
@@ -970,12 +970,12 @@ public class PSEditionNode extends PSDesignNode
    {
       return m_ecList;
    }
-   
-   private EditionCListAssociation m_ecList = new EditionCListAssociation(); 
+
+   private EditionCListAssociation m_ecList = new EditionCListAssociation();
 
    /**
     * Add content list action.
-    * 
+    *
     * @return the outcome
     */
    public String addContentList()
@@ -988,23 +988,23 @@ public class PSEditionNode extends PSDesignNode
 
    /**
     * Edit content list action.
-    * 
+    *
     * @return the outcome
     */
    public String editContentList() throws PSNotFoundException {
       Integer index = findSelectedCL();
       if (index == null)
          return PSNavigation.NONE_SELECT_WARNING;
-      
+
       if (!m_ecList.setLocalVariables(index))
          return null;
-      
+
       return ASSOCIATE_CONTENT_LIST_OUTCOME;
    }
-   
+
 
    /**
-    * It manages the association between Edition and ContentList. 
+    * It manages the association between Edition and ContentList.
     */
    public class EditionCListAssociation
    {
@@ -1012,14 +1012,14 @@ public class PSEditionNode extends PSDesignNode
        * The name of the default delivery context.
        */
       private final static String DEFAULT_DELIVERY_CTX = "Publish";
-      
+
       /**
        * If this is a new content list association this field will be set to
        * <code>true</code>, <code>false</code> when editing an existing
        * association.
        */
       private boolean mi_isNew;
-      
+
       /**
        * The current Content List, which is <code>null</code> for adding
        * a new association, not <code>null</code> for editing one.
@@ -1057,21 +1057,21 @@ public class PSEditionNode extends PSDesignNode
        * The current filtered and sorted list.
        */
       private List<CListWrapper> mi_clists = new ArrayList<>();
-      
+
       /**
        * This is used to cache the content lists belongs to others sites.
        */
       private List<CListWrapper> mi_otherSiteCLists = new ArrayList<>();
-      
+
       /**
        * This is used to cache the content lists belongs to current site and
        * unused.
        */
       private List<CListWrapper> mi_siteAndUnusedCLists = new ArrayList<>();
-      
+
       /**
-       * Reset common properties at the beginning of entering the 
-       * Association Editor. 
+       * Reset common properties at the beginning of entering the
+       * Association Editor.
        */
       private void reset()
       {
@@ -1083,7 +1083,7 @@ public class PSEditionNode extends PSDesignNode
          mi_assemblyContext = null;
          mi_srcCList = null;
       }
-      
+
       /**
        * Set m_apXXX variables from the given index of the m_eclists
        * @param index the index of m_eclists, assumed not <code>null</code>.
@@ -1093,16 +1093,16 @@ public class PSEditionNode extends PSDesignNode
       private boolean setLocalVariables(Integer index) throws PSNotFoundException {
          reset();
          mi_isNew = false;
-         
+
          IPSPublisherService psvc = PSPublisherServiceLocator
          .getPublisherService();
          PSEditionContentListWrapper selected = m_eclists.get(index);
          String cname = selected.getContentlistname();
-         mi_srcCList = psvc.findContentListByName(cname);
+         mi_srcCList = psvc.findContentListByName(cname).orElse(null);
          if (mi_srcCList == null)
          {
             ms_log.error("Cannot find content list with name: " + cname);
-            return false;            
+            return false;
          }
          mi_authtype = selected.getAuthtype();
          mi_assemblyContext = null;
@@ -1113,10 +1113,10 @@ public class PSEditionNode extends PSDesignNode
                   .getUUID();
          return true;
       }
-      
+
       /**
        * Get the actual help file name for the current page.
-       * 
+       *
        * @return  the help file name, never <code>null</code> or empty.
        */
       public String getHelpFile()
@@ -1132,11 +1132,11 @@ public class PSEditionNode extends PSDesignNode
       {
          return mi_isNew;
       }
-      
+
       /**
        * Determines if need to display a warning message when there is nothing
        * selected in the content list table.
-       * 
+       *
        * @return <code>true</code> if need to display the warning message.
        */
       public boolean getSelectWarning()
@@ -1144,12 +1144,12 @@ public class PSEditionNode extends PSDesignNode
          /**
           * Default to give warning is not empty, which will be override later
           * when an element is selected.
-          * 
-          * However, default to false if the list (mi_clists) is EMPTY; 
+          *
+          * However, default to false if the list (mi_clists) is EMPTY;
           * otherwise the UI may crash when involving a lot of content lists.
-          * We have to move the EMPTY list (empty getCandidateContentLists()) 
+          * We have to move the EMPTY list (empty getCandidateContentLists())
           * logic into JSP page as part of EL (expression language), see
-          * AssociateContentlist.jsp for detail. 
+          * AssociateContentlist.jsp for detail.
           */
          boolean isSelected = mi_clists.isEmpty() ? false : true;
          for (CListWrapper w : mi_clists)
@@ -1160,14 +1160,14 @@ public class PSEditionNode extends PSDesignNode
                break;
             }
          }
-         
+
          return isSelected;
       }
-      
+
       /**
        * Add the content list selected in the associate content list page to the
        * edition, or save the new information about a specific content list.
-       * 
+       *
        * @return the outcome "done" if successful; <code>null</code> if missing
        * required data (this will make UI remain at the same page).
        */
@@ -1188,7 +1188,7 @@ public class PSEditionNode extends PSDesignNode
                   foundSrcCList = true;
                   continue;
                }
-               
+
                selectedCLists.add(w.getClist());
             }
          }
@@ -1230,31 +1230,31 @@ public class PSEditionNode extends PSDesignNode
       }
 
       /**
-       * Creates an Content List Wrapper. Assume {@link #mi_srcCList} 
+       * Creates an Content List Wrapper. Assume {@link #mi_srcCList}
        * is not <code>null</code>}.
-       *  
+       *
        * @return the created Content List Wrapper. Never <code>null</code>.
-       * The selected flag is on for the returned Content List. 
+       * The selected flag is on for the returned Content List.
        */
-      PSEditionContentListWrapper createCLWrapper(int sequence, 
+      PSEditionContentListWrapper createCLWrapper(int sequence,
             IPSContentList clist)
       {
          IPSPublisherService psvc = PSPublisherServiceLocator
                .getPublisherService();
          IPSEditionContentList eclist = psvc.createEditionContentList();
-         PSEditionContentListPK eclPK = 
+         PSEditionContentListPK eclPK =
             ((PSEditionContentList) eclist).getEditionContentListPK();
          eclPK.setEditionid(m_edition.getGUID().longValue());
          eclPK.setContentlistid(clist.getGUID().longValue());
          eclist.setSequence(sequence);
-         
-         PSEditionContentListWrapper wrapper = 
+
+         PSEditionContentListWrapper wrapper =
             new PSEditionContentListWrapper(eclist, m_edition.getSiteId());
          wrapper.setSelected(true);
 
          return wrapper;
       }
-      
+
       /**
        * Sets the properties of the supplied Edition/ContentList wrapper
        * to the user selected properties.
@@ -1268,7 +1268,7 @@ public class PSEditionNode extends PSDesignNode
             deliveryId = PSGuidUtils.makeGuid(mi_deliveryContext,
                   PSTypeEnum.CONTEXT);
          wrapper.getEclist().setDeliveryContextId(deliveryId);
-         
+
          // set assembly context
          IPSGuid assemblyId = null;
          if (mi_assemblyContext != null)
@@ -1284,41 +1284,41 @@ public class PSEditionNode extends PSDesignNode
             authtype = new Integer(mi_authtype);
          }
          wrapper.getEclist().setAuthtype(authtype);
-         wrapper.init();         
+         wrapper.init();
       }
 
       /**
        * Get the possible content lists according to the current filter.
-       * 
+       *
        * @return the lists, never <code>null</code> but might be empty. The entries
        * are in ascending alpha order.
        */
       public List<CListWrapper> getCandidateContentLists() throws PSNotFoundException {
          boolean isFirstCall = mi_clists.isEmpty();
-         
+
          IPSGuid siteId = m_edition.getSiteId();
          List<CListWrapper> clists = new ArrayList<>();
          clists.addAll(getSiteAndUnusedCLists(siteId));
          if (!mi_limitContentListsToSite)
-         {   
+         {
             clists.addAll(getOtherSiteCLists());
          }
-         
+
          List<CListWrapper> filteredList = filterCLists(clists);
          mi_clists.clear();
          mi_clists.addAll(sortCLists(filteredList));
-         
+
          if (isFirstCall)
             setSelectRowIfNeeded();
-            
+
          return mi_clists;
       }
-      
+
       /**
        * Sorts the specified Content Lists.
-       * 
+       *
        * @param clists the Content Lists, assumed not <code>null</code>.
-       * 
+       *
        * @return the sorted list, never <code>null</code>.
        */
       private Set<CListWrapper> sortCLists(List<CListWrapper> clists)
@@ -1335,13 +1335,13 @@ public class PSEditionNode extends PSDesignNode
          listset.addAll(clists);
          return listset;
       }
-      
+
       /**
        * Gets the Content Lists that is either belong to the specified site
        * or not used by any site.
-       * 
+       *
        * @param siteId the ID of the site, assumed not <code>null</code>.
-       * 
+       *
        * @return the Content Lists of the site and unused by any sites.
        */
       private List<CListWrapper> getSiteAndUnusedCLists(IPSGuid siteId) throws PSNotFoundException {
@@ -1355,16 +1355,16 @@ public class PSEditionNode extends PSDesignNode
          lists.addAll(psvc.findAllUnusedContentLists());
          for (IPSContentList c : lists)
             mi_siteAndUnusedCLists.add(new CListWrapper(c));
-         
+
          return mi_siteAndUnusedCLists;
       }
-      
+
       /**
        * Determines if the specified Content Lists contains the given name.
-       * 
+       *
        * @param name the looked up name, assumed not <code>null</code>.
        * @param clists the Content Lists, assumed not <code>null</code>.
-       * 
+       *
        * @return <code>true</ocde> if the list does contain the specified
        * name.
        */
@@ -1377,11 +1377,11 @@ public class PSEditionNode extends PSDesignNode
          }
          return false;
       }
-      
+
       /**
        * Gets the Content Lists that belongs to all other sites, except the
        * current site.
-       * 
+       *
        * @return the Content Lists, never <code>null</code>, but may be empty.
        */
       private List<CListWrapper> getOtherSiteCLists()
@@ -1399,9 +1399,9 @@ public class PSEditionNode extends PSDesignNode
          }
          return mi_otherSiteCLists;
       }
-      
+
       /**
-       * If editing an existing association, then set the row that is occupied 
+       * If editing an existing association, then set the row that is occupied
        * by current Content List object; otherwise clear the selected row of
        * the table (for add new association).
        */
@@ -1409,7 +1409,7 @@ public class PSEditionNode extends PSDesignNode
       {
          if (mi_isNew || mi_srcCList == null)
             return;
-         
+
          String name =  mi_srcCList.getName();
          for (CListWrapper w : mi_clists)
          {
@@ -1422,20 +1422,20 @@ public class PSEditionNode extends PSDesignNode
       }
 
       /**
-       * Gets the number of rows per page for the table that displays the child 
+       * Gets the number of rows per page for the table that displays the child
        * components.
-       * 
+       *
        * @return the number of rows per page.
        */
       public int getPageRows() throws Exception
       {
          return PSNodeBase.getPageRows(getCandidateContentLists().size());
       }
-      
+
       /**
-       * Filters the supplied list. Removes the ones already associated with 
+       * Filters the supplied list. Removes the ones already associated with
        * the Edition and/or do not match the filter (if specified).
-       * 
+       *
        * @param lists the to be filtered list.
        */
       private List<CListWrapper> filterCLists(List<CListWrapper> lists)
@@ -1443,7 +1443,7 @@ public class PSEditionNode extends PSDesignNode
          String filter = null;
          if (StringUtils.isNotBlank(mi_contentListFilter))
             filter = mi_contentListFilter.toLowerCase();
-         
+
          List<CListWrapper> rval = new ArrayList<>();
          for (CListWrapper c : lists)
          {
@@ -1463,26 +1463,26 @@ public class PSEditionNode extends PSDesignNode
                rval.add(c);
                continue;
             }
-            
+
             // already associated with current Edition
             if (clistNameExists(c.getClist().getName()))
             {
                continue;
             }
-            
+
             // does not match the filter pattern
             if ((filter != null)
                   && (!c.getClist().getName().toLowerCase().contains(filter)))
             {
                continue;
             }
-            
+
             rval.add(c);
          }
-         
+
          return rval;
       }
-      
+
       /**
        * @return the candidate contexts to show, never <code>null</code>.
        */
@@ -1522,9 +1522,11 @@ public class PSEditionNode extends PSDesignNode
          mi_contentListFilter = null;
          FacesContext ctx = FacesContext.getCurrentInstance();
          UIComponent c = ctx.getViewRoot().findComponent("filteredText");
-         ((UIXEditableValue) c).resetValue(); 
+         if (c instanceof jakarta.faces.component.EditableValueHolder) {
+            ((jakarta.faces.component.EditableValueHolder) c).resetValue();
+         }
       }
-      
+
       /**
        * Determines if the supplied name exists in the current associated
        * Content Lists.
@@ -1544,14 +1546,14 @@ public class PSEditionNode extends PSDesignNode
 
       /**
        * Sets the new value on the component. Does not skip to render response as
-       * it is assumed to be called by a command. 
+       * it is assumed to be called by a command.
        * @param ev Supplied by framework, assumed never <code>null</code>.
        */
       public void contentListNameFilterChanged(ValueChangeEvent ev)
       {
          setContentListFilter(ev.getNewValue().toString());
       }
-      
+
       /**
        * Sets the new value on the component, then skips to the render phase.
        * @param ev Supplied by framework, assumed never <code>null</code>.
@@ -1561,7 +1563,7 @@ public class PSEditionNode extends PSDesignNode
          setLimitContentListsToSite(((Boolean)ev.getNewValue()));
          FacesContext.getCurrentInstance().renderResponse();
       }
-      
+
 
       /**
        * @param apContentListFilter the ContentListFilter to set
@@ -1635,10 +1637,10 @@ public class PSEditionNode extends PSDesignNode
       {
          mi_authtype = apAuthtype;
       }
-      
+
      /**
       * Returns all authtypes registered with the system.
-      * 
+      *
       * @return Never <code>null</code>. The first entry is the 'empty' entry.
       * Sorted in ascending alpha order.
       */
@@ -1650,7 +1652,7 @@ public class PSEditionNode extends PSDesignNode
                "Authorization_Types", "label");
          if (keywords.size() == 0)
             return result;
-         
+
          PSKeyword key = keywords.get(0);
          keywords = csvc.findKeywordChoices(key.getValue(), null);
          for (PSKeyword k : keywords)
@@ -1659,7 +1661,7 @@ public class PSEditionNode extends PSDesignNode
          }
 
          return result;
-      }      
+      }
    }
 
    @Override

@@ -612,8 +612,7 @@ public class ContentTestCase extends PSContentTestBase
          assertTrue(children.length == 2);
          for (PSItemSummary child : children)
          {
-            assertTrue(child.getObjectType().getValue()
-               .equals(ObjectType._item));
+            assertTrue("item".equalsIgnoreCase(child.getObjectType().getValue()));
             assertTrue(child.getContentType().getName().equals("rffFile"));
             assertTrue(child.getOperation().length == 3); // read/write,transition,checkin/out
          }

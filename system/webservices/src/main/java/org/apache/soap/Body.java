@@ -14,6 +14,26 @@
  */
 package org.apache.soap;
 
-/** Minimal stub of org.apache.soap.Body used by legacy code. */
-public class Body {
+import java.util.Vector;
+import org.w3c.dom.Element;
+
+/** Minimal compatibility shim for legacy Axis-style Body used by PSWebServiceAgent. */
+public class Body
+{
+    private Vector<Element> bodyEntries;
+
+    public Body()
+    {
+        this.bodyEntries = new Vector<>();
+    }
+
+    public void setBodyEntries(Vector<Element> entries)
+    {
+        this.bodyEntries = entries;
+    }
+
+    public Vector<Element> getBodyEntries()
+    {
+        return this.bodyEntries;
+    }
 }

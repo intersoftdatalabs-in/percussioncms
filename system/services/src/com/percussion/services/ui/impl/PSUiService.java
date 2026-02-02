@@ -28,6 +28,7 @@ import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;

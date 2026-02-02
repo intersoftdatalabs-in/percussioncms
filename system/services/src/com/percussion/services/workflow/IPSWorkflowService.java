@@ -27,6 +27,8 @@ import com.percussion.services.workflow.data.PSNotification;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
+import com.percussion.services.workflow.data.PSContentAdhocUser;
+import com.percussion.services.workflow.data.PSContentApproval;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
@@ -37,7 +39,7 @@ import java.util.stream.Stream;
  * The workflow service provides comprehensive workflow management capabilities with Java 11 modernization.
  *
  * <h2>Workflows</h2>
- * A workflow consists of a collection of states, which are arranged by 
+ * A workflow consists of a collection of states, which are arranged by
  * pairwise relationships called transitions. An item can be in one workflow
  * state at a time. For any given state, there may be transitions available to
  * other states.
@@ -49,7 +51,7 @@ import java.util.stream.Stream;
  * cannot act on the item. These possible <em>assignment types</em> will be
  * extended in the future.
  * <p>
- * One or more roles for a given state can allow <em>adhoc</em> assignment. 
+ * One or more roles for a given state can allow <em>adhoc</em> assignment.
  * Adhoc assignments allow the specification of particular users or set
  * of users that have the assignee role. Normal adhoc requires that the user(s)
  * must also be members of the adhoc role. Anonymous adhoc allows any user to
@@ -81,7 +83,7 @@ import java.util.stream.Stream;
  *
  * @see PSAssignmentTypeEnum for information about assignment types
  * @see IPSNotificationService for information about asynchronous notification
- * 
+ *
  * @author dougrand
  */
 public interface IPSWorkflowService {
@@ -155,6 +157,16 @@ public interface IPSWorkflowService {
     }
 
     /**
+     * Check whether a workflow state is marked publishable in the given workflow.
+     *
+     * @param stateId the state id, not {@code null}
+     * @param workflowId the workflow id, not {@code null}
+     * @return {@code true} if publishable, {@code false} otherwise
+     * @throws PSWorkflowException if there is a problem checking the state
+     */
+    boolean isPublic(IPSGuid stateId, IPSGuid workflowId) throws PSWorkflowException;
+
+    /**
      * Load all workflows for the specified name. Unlike
      * {@link #loadWorkflow(IPSGuid)}, this does not return a read-only copy
      * of the workflow cached in memory. However, the returned object has been
@@ -195,6 +207,47 @@ public interface IPSWorkflowService {
      * @throws IllegalArgumentException if workflow is null
      */
     void saveWorkflow(PSWorkflow workflow);
+
+    /**
+     * Update the workflow database version for the supplied workflow GUID. Implementations should
+     * provide the version bump logic (used by tests and admin scripts).
+     *
+     * @param id the workflow id, not {@code null}
+     */
+    void updateWorkflowVersion(IPSGuid id);
+
+    /**
+     * Find adhoc assignment information for the supplied content item.
+     *
+     * @param contentId the content GUID, not {@code null}
+     * @return a list of adhoc users for the item, never {@code null}
+     */
+    java.util.List<com.percussion.services.workflow.data.PSContentAdhocUser> findAdhocInfoByItem(IPSGuid contentId);
+
+    /**
+     * Find approvals for a user.
+     *
+     * @param username the user name, not {@code null}
+     * @return a list of approvals for the user, never {@code null}
+     */
+    java.util.List<com.percussion.services.workflow.data.PSContentApproval> findApprovalsByUser(String username);
+
+    /**
+     * Find approvals for a content item.
+     *
+     * @param contentId the content GUID, not {@code null}
+     * @return a list of approvals for the item, never {@code null}
+     */
+    java.util.List<com.percussion.services.workflow.data.PSContentApproval> findApprovalsByItem(IPSGuid contentId);
+
+    /**
+     * Add a role to a workflow instance.
+     *
+     * @param id the role id (may be null to generate),
+     * @param roleName the role name, not {@code null}
+     * @param wf the workflow to modify, not {@code null}
+     */
+    void addRoleToWorkflow(IPSGuid id, String roleName, PSWorkflow wf);
 
     /**
      * Delete the designated workflow. If the workflow does not exist, then this

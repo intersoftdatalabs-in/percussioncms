@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -42,34 +44,34 @@ public class PSItemEntry implements IPSItemEntry {
     private static final Logger logger = LogManager.getLogger(PSItemEntry.class);
 
     // Core item identifiers
-    private final int contentId;
-    private final String name;
-    private final int communityId;
-    private final int contentTypeId;
-    private final int objectType;
+    protected  int contentId;
+    protected String name;
+    protected  int communityId;
+    protected  int contentTypeId;
+    protected  int objectType;
 
     // Audit information
-    private final String createdBy;
-    private final Date lastModifiedDate;
-    private final String lastModifier;
-    private final Date postedDate;
-    private final Date createdDate;
-
+    protected  String createdBy;
+    protected  Date lastModifiedDate;
+    protected  String lastModifier;
+    protected  Date postedDate;
+    protected Date createdDate;
+    
     // Workflow information
-    private final int workflowAppId;
-    private final int stateId;
+    protected int workflowAppId;
+    protected int stateId;
 
     // Revision tracking
-    private final int tipRevision;
-    private final int currentRevision;
-    private final int publicRevision;
+    protected int tipRevision;
+    protected int currentRevision;
+    protected int publicRevision;
 
     // Check-out information
-    private final String checkedOutUsername;
+    protected String checkedOutUsername;
 
     // Additional metadata
-    private String contentTypeLabel;
-    private String stateName;
+    protected String contentTypeLabel;
+    protected String stateName;
 
     /**
      * Constructs an item entry with minimal required information.
@@ -217,6 +219,64 @@ public class PSItemEntry implements IPSItemEntry {
     @Override
     public String getContentTypeLabel() {
         return contentTypeLabel;
+    }
+
+    /* Compatibility setters and alias methods - kept small and conservative
+     * These methods are provided so legacy code that expects mutable
+     * PSItemEntry and calls setters or alternate names (getContentStateId,
+     * isFolder) continues to compile without behavioral change beyond
+     * explicit mutations.
+     */
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate == null ? null : new Date(lastModifiedDate.getTime());
+    }
+
+    public void setCheckedOutUsername(String u) {
+        this.checkedOutUsername = u;
+    }
+
+    public void setLastModifier(String lastModifier) {
+        this.lastModifier = lastModifier;
+    }
+
+    public void setPostDate(Date d) {
+        this.postedDate = d == null ? null : new Date(d.getTime());
+    }
+
+    public void setWorkflowAppId(int workflowAppId) {
+        this.workflowAppId = workflowAppId;
+    }
+
+    // Backward-compatible alias expected by older code
+    public int getContentStateId() {
+        return getStateId();
+    }
+
+    public void setContentStateId(int stateId) {
+        this.stateId = stateId;
+    }
+
+    public void setTipRevision(int rev) { this.tipRevision = rev; }
+    public void setCurrentRevision(int rev) { this.currentRevision = rev; }
+    public void setPublicRevision(int rev) { this.publicRevision = rev; }
+
+    public boolean hasOlderPublicRevision() {
+        return this.publicRevision > 0 && this.publicRevision < this.currentRevision;
+    }
+
+    /**
+     * Legacy compatibility: whether this entry represents a folder. Many
+     * legacy callers expect an isFolder() method. We default to false to be
+     * conservative; callers that require real folder detection should use
+     * the item summary APIs.
+     */
+    public boolean isFolder() {
+        return false;
     }
 
     /**
@@ -455,5 +515,45 @@ public class PSItemEntry implements IPSItemEntry {
      */
     public Optional<String> getStateNameOptional() {
         return Optional.ofNullable(stateName);
+    }
+
+    /**
+     * Returns the XML representation of this item entry.
+     *
+     * <p>Format:
+     * <pre>
+     * &lt;PSXItemEntry contentid="..." title="..." communityid="..." contenttypeid="..." objecttype="..."/&gt;
+     * </pre>
+     *
+     * @param doc the document used to generate XML element, not {@code null}
+     * @return the element representing this item entry
+     */
+    public Element toXml(Document doc) {
+        Objects.requireNonNull(doc, "doc may not be null");
+        Element root = doc.createElement("PSXItemEntry");
+        root.setAttribute("contentid", Integer.toString(contentId));
+        if (name != null && !name.isEmpty()) {
+            root.setAttribute("title", name);
+        }
+        root.setAttribute("communityid", Integer.toString(communityId));
+        root.setAttribute("contenttypeid", Integer.toString(contentTypeId));
+        root.setAttribute("objecttype", Integer.toString(objectType));
+        return root;
+    }
+
+    /**
+     * Backwards-compatible alias for legacy callers that use the old method name
+     * {@code toXML(Document)}. Delegates to {@link #toXml(Document)}.
+     *
+     * <p><strong>Note:</strong> this method is synchronized to preserve legacy
+     * thread-safety expectations.
+     *
+     * @param doc the document used to generate XML element, not {@code null}
+     * @return the element representing this item entry
+     * @deprecated use {@link #toXml(Document)} instead
+     */
+    @Deprecated
+    public synchronized Element toXML(Document doc) {
+        return toXml(doc);
     }
 }

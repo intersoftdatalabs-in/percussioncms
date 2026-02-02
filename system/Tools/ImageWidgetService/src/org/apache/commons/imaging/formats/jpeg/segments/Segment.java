@@ -1,5 +1,11 @@
 package org.apache.commons.imaging.formats.jpeg.segments;
 
+/**
+ * Local shim for older code. Not used by ImageReader anymore; preserved
+ * to avoid accidental compilation breakage for any other code that might
+ * reference these types.
+ */
+@Deprecated
 public class Segment {
     private final int marker;
     private final byte[] bytes;

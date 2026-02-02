@@ -110,6 +110,6 @@ public interface IPSRemoteRequesterEx extends IPSRemoteRequester {
    */
   default Optional<PSLocator> updateBinary(PSBinaryFileData[] files, String resource)
       throws IOException, SAXException {
-    return updateBinary(files, resource, null);
+    return Optional.ofNullable(updateBinary(files, resource, null));
   }
 }

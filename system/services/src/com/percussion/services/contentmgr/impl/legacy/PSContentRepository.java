@@ -2389,8 +2389,14 @@ public class PSContentRepository
             if (ic == null)
                 continue;
             Object data = null;
+            // Use JPA Metamodel to get attribute names since SessionFactory.getClassMetadata(Class) is removed
             //ms_log.info(getSessionFactory().getMetamodel().entity(ic).getAttributes());
-            String[] columnNames = getSessionFactory().getClassMetadata(ic).getPropertyNames();
+            java.util.Set<?> attrs = getSessionFactory().getMetamodel().entity(ic).getAttributes();
+                    java.util.List<String> names = new java.util.ArrayList<>();
+                    for (Object attr : attrs) {
+                        names.add(((jakarta.persistence.metamodel.Attribute<?, ?>) attr).getName());
+                    }
+                    String[] columnNames = names.toArray(new String[0]);
 
             if (cn.getConfiguration().isParent()) {
 

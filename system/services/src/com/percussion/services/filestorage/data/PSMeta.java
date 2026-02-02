@@ -315,6 +315,10 @@ public class PSMeta
       return StringUtils.substringBefore(properties.get(HttpHeaders.CONTENT_TYPE), ";");
    }
 
+   public java.util.Optional<String> getMimeTypeSafely() {
+      return java.util.Optional.ofNullable(getMimeType()).filter(s -> s != null && !s.trim().isEmpty());
+   }
+
    /**
     * @param mimeType
     */
@@ -332,6 +336,10 @@ public class PSMeta
    public String getEncoding()
    {
       return properties.get(HttpHeaders.CONTENT_ENCODING);
+   }
+
+   public java.util.Optional<String> getEncodingSafely() {
+      return java.util.Optional.ofNullable(getEncoding()).filter(s -> s != null && !s.trim().isEmpty());
    }
 
    /**
@@ -353,6 +361,10 @@ public class PSMeta
       return properties.get(TikaCoreProperties.RESOURCE_NAME_KEY);
    }
 
+   public java.util.Optional<String> getOriginalFilenameSafely() {
+      return java.util.Optional.ofNullable(getOriginalFilename()).filter(s -> s != null && !s.trim().isEmpty());
+   }
+
    /**
     * Set the originalFilename
     * @param originalFilename
@@ -361,6 +373,10 @@ public class PSMeta
    {
       if (originalFilename != null)
          properties.put(TikaCoreProperties.RESOURCE_NAME_KEY, originalFilename);
+   }
+
+   public java.util.Optional<String> getPropertySafely(String propName) {
+      return java.util.Optional.ofNullable(properties.get(propName));
    }
 
    /* (non-Javadoc)
@@ -411,6 +427,10 @@ public class PSMeta
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSFileMeta#getParseError()
     */
+   public java.util.Optional<String> getParseErrorSafely() {
+      return java.util.Optional.ofNullable(properties.get(PARSE_ERROR));
+   }
+
    public String getParseError()
    {
       return properties.get(PARSE_ERROR);

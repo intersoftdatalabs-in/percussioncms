@@ -173,8 +173,19 @@ public class PSContentListServlet extends HttpServlet
          List<PSContentListItem> items = null;
          if (maxresults > 0 && !StringUtils.isBlank(publicationid))
          {
-            items = (List<PSContentListItem>) cache.get(publicationid,
-                  ms_region);
+            Object cached = cache.get(publicationid, ms_region);
+            if (cached instanceof java.util.Optional)
+            {
+               java.util.Optional<?> opt = (java.util.Optional<?>) cached;
+               if (opt.isPresent())
+               {
+                  items = (List<PSContentListItem>) opt.get();
+               }
+            }
+            else if (cached != null)
+            {
+               items = (List<PSContentListItem>) cached;
+            }
          }
 
          if (items == null)

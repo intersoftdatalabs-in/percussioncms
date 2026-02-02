@@ -23,7 +23,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
  * Converts objects between the classes
- * {@link com.percussion.search.objectstore.PSWSSearchField.PSConnectorEnum} and 
+ * {@link com.percussion.search.objectstore.PSWSSearchField.PSConnectorEnum} and
  * {@link com.percussion.webservices.common.ConnectorTypes}.
  */
 public class PSConnectorTypesConverter extends PSConverter
@@ -35,7 +35,7 @@ public class PSConnectorTypesConverter extends PSConverter
    {
       super(beanUtils);
    }
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -44,12 +44,12 @@ public class PSConnectorTypesConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
          return PSWSSearchField.PSConnectorEnum.valueOf(
             value.toString().toUpperCase());
       else
-         return ConnectorTypes.fromString(
+         return ConnectorTypes.fromValue(
             value.toString().toLowerCase());
    }
 }

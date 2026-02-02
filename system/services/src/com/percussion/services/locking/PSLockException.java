@@ -65,11 +65,15 @@ public class PSLockException extends PSBaseException {
       if (errors.isEmpty()) {
          throw new IllegalArgumentException("errors cannot be empty");
       }
-      
+
       this.results = successes != null ? List.copyOf(successes) : List.of();
       this.errors = Map.copyOf(errors);
+      // This constructor represents a multi-operation failure; mark single-op fields as unset
+      this.id = -1L;
+      this.locker = null;
+      this.remainingTime = -1L;
    }
-   
+
    /**
     * Convenience constructor for simple lock failures.
     *
@@ -79,7 +83,7 @@ public class PSLockException extends PSBaseException {
    public PSLockException(int msgCode, long id) {
       this(msgCode, id, null, -1);
    }
-   
+
    /**
     * Convenience constructor for lock conflicts.
     *
@@ -106,7 +110,7 @@ public class PSLockException extends PSBaseException {
     */
    public PSLockException(int msgCode, long id, String locker, long remainingTime, Throwable cause) {
       super(msgCode, cause, new Object[] {id, locker, remainingTime});
-      
+
       if (locker != null && locker.trim().isEmpty()) {
          throw new IllegalArgumentException("locker cannot be empty");
       }
@@ -118,6 +122,9 @@ public class PSLockException extends PSBaseException {
       this.id = id;
       this.locker = locker != null ? locker.trim() : null;
       this.remainingTime = remainingTime;
+      // Single-op constructor: mark multi-op fields as null
+      this.results = null;
+      this.errors = null;
    }
 
    /**
@@ -188,7 +195,7 @@ public class PSLockException extends PSBaseException {
                                                     Map<IPSGuid, PSLockException> errors) {
       return new PSLockException(successes, errors);
    }
-   
+
    /**
     * Get the results of a multi-operation safely.
     *
@@ -226,10 +233,10 @@ public class PSLockException extends PSBaseException {
    public Map<IPSGuid, PSLockException> getErrors() {
       return errors != null ? Collections.unmodifiableMap(errors) : null;
    }
-   
+
    /**
     * Get the id of the object for which this exception was thrown.
-    *   
+    *
     * @return the id of the object for which this exception was thrown if this
     *         is a single-op error, otherwise -1
     */
@@ -245,10 +252,10 @@ public class PSLockException extends PSBaseException {
    public Optional<String> findLocker() {
       return Optional.ofNullable(locker).filter(name -> !name.trim().isEmpty());
    }
-   
+
    /**
     * Get the name of the user who locks the requested object.
-    * 
+    *
     * @return the name of the user who locks the requested object, may be {@code null}
     *         if the requested object is not locked. If this is a multi-op error, it is {@code null}
     */
@@ -264,10 +271,10 @@ public class PSLockException extends PSBaseException {
    public Optional<Long> findRemainingTime() {
       return remainingTime > 0 ? Optional.of(remainingTime) : Optional.empty();
    }
-   
+
    /**
     * Get the remaining lock time.
-    * 
+    *
     * @return the remaining lock time, -1 if the requested object is not locked.
     *         If this is a multi-op error, -1
     */
@@ -275,8 +282,15 @@ public class PSLockException extends PSBaseException {
       return remainingTime;
    }
 
-   /**
-    * Check if this is a multi-operation exception.
+   /**    * Backwards-compatible misspelled accessor retained for legacy code.
+    * @deprecated use {@link #getRemainingTime()} instead
+    */
+   @Deprecated
+   public long getRemainigTime() {
+       return getRemainingTime();
+   }
+
+   /**    * Check if this is a multi-operation exception.
     *
     * @return {@code true} if this exception represents multiple operation failures
     */
@@ -330,7 +344,7 @@ public class PSLockException extends PSBaseException {
    protected String getResourceBundleBaseName() {
       return "com.percussion.services.locking.PSLockErrorStringBundle";
    }
-   
+
    /**
     * The id of the object we tried to lock, extend or release.
     */

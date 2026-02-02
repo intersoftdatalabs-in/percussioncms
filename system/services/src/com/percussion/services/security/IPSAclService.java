@@ -146,7 +146,7 @@ public interface IPSAclService {
     default Optional<List<IPSAcl>> loadAclsSafely(List<IPSGuid> aclGuids) {
         try {
             return Optional.of(loadAcls(aclGuids));
-        } catch (PSSecurityException e) {
+        } catch (PSServiceSecurityException e) {
             return Optional.empty();
         }
     }
@@ -210,6 +210,28 @@ public interface IPSAclService {
     List<IPSAcl> loadAclsForObjectsModifiable(List<IPSGuid> objectGuids) throws PSServiceSecurityException;
 
     /**
+     * Convenience method that loads the ACL for a single object GUID.
+     *
+     * @param objectGuid the GUID of the object, not {@code null}
+     * @return the ACL for the object, or {@code null} if not found
+     */
+    default IPSAcl loadAclForObject(IPSGuid objectGuid) throws PSServiceSecurityException {
+        Objects.requireNonNull(objectGuid, "objectGuid cannot be null");
+        List<IPSAcl> list = loadAclsForObjects(List.of(objectGuid));
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    /**
+     * Backwards-compatible convenience method to load a single modifiable ACL
+     * for the supplied object GUID.
+     */
+    default IPSAcl loadAclForObjectModifiable(IPSGuid objectGuid) throws PSServiceSecurityException {
+        Objects.requireNonNull(objectGuid, "objectGuid cannot be null");
+        List<IPSAcl> list = loadAclsForObjectsModifiable(List.of(objectGuid));
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    /**
      * Save the supplied ACLs to persistent storage with enhanced validation.
      *
      * @param acls The ACLs to save, not {@code null} or empty
@@ -242,6 +264,22 @@ public interface IPSAclService {
     }
 
     /**
+     * Backwards compatible convenience method to delete a single ACL GUID.
+     */
+    default void deleteAcl(IPSGuid aclGuid) throws PSServiceSecurityException {
+        Objects.requireNonNull(aclGuid, "aclGuid cannot be null");
+        deleteAcls(List.of(aclGuid));
+    }
+
+    /**
+     * Clear any internal ACL caches. Default is a no-op; implementations
+     * that cache ACLs should override to clear their caches.
+     */
+    default void clearCache() {
+        // no-op by default
+    }
+
+    /**
      * Internal implementation for ACL deletion.
      */
     void deleteAclsImpl(List<IPSGuid> objectGuids) throws PSServiceSecurityException;
@@ -259,7 +297,8 @@ public interface IPSAclService {
         Objects.requireNonNull(requiredLevel, "requiredLevel cannot be null");
 
         var userLevel = getUserAccessLevel(objectGuid);
-        return userLevel.getAccessLevel() >= requiredLevel.getAccessLevel();
+        // Compare permission sets: user must contain all required permissions
+        return userLevel.getPermissions().containsAll(requiredLevel.getPermissions());
     }
 
     /**
@@ -295,6 +334,14 @@ public interface IPSAclService {
 
         return streamAcls(aclGuids).filter(predicate);
     }
+    /**
+     * Find objects visible to named communities for a given type.
+     *
+     * @param communityNames List of community names, not {@code null}
+     * @param type optional type filter, may be {@code null}
+     * @return collection of object GUIDs visible to the communities
+     */
+    Collection<IPSGuid> findObjectsVisibleToCommunities(List<String> communityNames, PSTypeEnum type);
 
     /**
      * Count ACLs that match the specified criteria.

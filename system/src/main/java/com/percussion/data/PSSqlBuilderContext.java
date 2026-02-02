@@ -199,7 +199,8 @@ class PSSqlBuilderContext {
    * Conenience method which calls {@link #addReplacementField(value, datatype, col, null)} See that
    * method for details.
    */
-  void addReplacementField(IPSReplacementValue value, int datatype, PSBackEndColumn col) {
+  void addReplacementField(IPSReplacementValue value, int datatype, PSBackEndColumn col)
+      throws PSDataExtractionException {
     addReplacementField(value, datatype, col, null);
   }
 
@@ -215,8 +216,9 @@ class PSSqlBuilderContext {
    *     block is <code>null</code>
    */
   void addReplacementField(
-      IPSReplacementValue value, int datatype, PSBackEndColumn col, IPSLobColumnInitializer lci) {
-    Object[] params = new Object[] {new Integer(datatype), col, lci};
+      IPSReplacementValue value, int datatype, PSBackEndColumn col, IPSLobColumnInitializer lci)
+      throws PSDataExtractionException {
+    Object[] params = new Object[] {Integer.valueOf(datatype), col, lci};
     addReplacementField(value, params);
   }
 
@@ -229,7 +231,8 @@ class PSSqlBuilderContext {
    * @throws IllegalStateException if this context is in an invalid state such that the current
    *     block is <code>null</code>
    */
-  public void addReplacementField(IPSReplacementValue value, Object[] params) {
+  public void addReplacementField(IPSReplacementValue value, Object[] params)
+      throws PSDataExtractionException {
     if (value == null) throw new IllegalArgumentException("value may not be null");
 
     if (m_curBlock == null) throw new IllegalStateException("Invalid state. Current block is null");

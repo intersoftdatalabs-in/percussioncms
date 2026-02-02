@@ -23,8 +23,8 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.services.assembly.IPSAssemblyTemplate.PublishWhen</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.services.assembly.IPSAssemblyTemplate.PublishWhen</code> and
  * <code>com.percussion.webservices.assembly.data.PSAssemblyTemplateOutputFormat</code>.
  */
 public class PSPublishWhenConverter extends PSConverter
@@ -36,7 +36,7 @@ public class PSPublishWhenConverter extends PSConverter
    {
       super(beanUtils);
    }
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -45,12 +45,12 @@ public class PSPublishWhenConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
          return IPSAssemblyTemplate.PublishWhen.valueOf(
             StringUtils.capitalize(value.toString()));
       else
-         return PublishType.fromString(
+         return PublishType.valueOf(
             value.toString().toLowerCase());
    }
 }

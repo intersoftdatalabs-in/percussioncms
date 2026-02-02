@@ -556,17 +556,8 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
             int i = 0;
 
             for (Object value : m_paramValues) {
-                if (value instanceof Integer) {
-                    stmt.setParameter(i, ((Integer) value).intValue());
-                } else if (value instanceof Long) {
-                    stmt.setLong(i, ((Long) value).longValue());
-                } else if (value instanceof String) {
-                    stmt.setString(i, (String) value);
-                } else {
-                    throw new IllegalStateException("Unsupported value type: " +
-                        value.getClass().getName());
-                }
-
+                // Hibernate NativeQuery uses 1-based position indexing
+                stmt.setParameter(i + 1, value);
                 i++;
             }
 

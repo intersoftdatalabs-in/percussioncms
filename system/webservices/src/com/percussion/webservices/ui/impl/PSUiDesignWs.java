@@ -61,7 +61,7 @@ import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.data.ActionType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,7 +96,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#createActions(List<String>, List<String>)
     */
    @Transactional
@@ -124,7 +124,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#createDisplayFormats(List<String>)
     */
    @Transactional
@@ -148,7 +148,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#createHierarchyNodes(List<String>, List<IPSGuid>,
     * List<PSHierarchyNode.NodeType>, List<String>, List<String>)
     */
@@ -210,7 +210,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#createSearches(List<String>, List<String>)
     */
    @Transactional
@@ -238,7 +238,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#createViews(List<String>)
     */
    @Transactional
@@ -261,7 +261,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#deleteActions(List, boolean)
     */
    @Transactional
@@ -276,7 +276,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#deleteDisplayFormats(List, boolean)
     */
    @Transactional
@@ -291,7 +291,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#deleteHierarchyNodes(List, boolean, String, String)
     */
    @Transactional
@@ -355,7 +355,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#deleteSearches(List, boolean)
     */
    @Transactional
@@ -370,7 +370,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#deleteViews(List, boolean)
     */
    @Transactional
@@ -383,7 +383,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#findActions(String, String)
     */
    public List<IPSCatalogSummary> findActions(String name, String label, List<ActionType> types)
@@ -401,11 +401,11 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          action = (PSAction) comp;
          for (ActionType type : types)
          {
-            if (ActionType._item.equals(type.getValue()) && action.isMenuItem())
+            if (ActionType.ITEM.equals(type) && action.isMenuItem())
                result.add(comp);
-            else if (ActionType._cascading.equals(type.getValue()) && action.isCascadedMenu())
+            else if (ActionType.CASCADING.equals(type) && action.isCascadedMenu())
                result.add(comp);
-            else if (ActionType._dynamic.equals(type.getValue()) && action.isDynamicMenu())
+            else if (ActionType.DYNAMIC.equals(type) && action.isDynamicMenu())
                result.add(comp);
          }
       }
@@ -415,7 +415,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#findDisplayFormats(String, String)
     */
    public List<IPSCatalogSummary> findDisplayFormats(String name, String label) throws PSErrorException
@@ -427,7 +427,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#findHierarchyNodes(String, PSHierarchyNode.NodeType)
     */
    public List<IPSCatalogSummary> findHierarchyNodes(String path, PSHierarchyNode.NodeType type)
@@ -530,7 +530,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       {
          synchronized (this)
          {
-         
+
             if (!initializing && objectIdToNodeIdMap == null)
             {
                initializing = true;
@@ -545,7 +545,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    /**
     * Initialize the map - Map of node type and another map(map of node guid and
     * its path)
-    * 
+    *
     * @return The initialized map
     */
    private ConcurrentHashMap<PSHierarchyNode.NodeType, ConcurrentHashMap<IPSGuid, String>> initializeHierarchyNodes()
@@ -583,7 +583,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Generate a path string for a given node
-    * 
+    *
     * @param node - for which the path string is to be created
     * @param nodes - list of all the nodes in the hierarchy node, so as to find
     *           the parent(s) of the given node
@@ -635,7 +635,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    /**
     * Get the object id of the node and create a map of the object guid and the
     * node guid of this object.
-    * 
+    *
     * @return Map of object guid and node guid.
     */
    private ConcurrentHashMap<IPSGuid, IPSGuid> getAllHierarchyNodesGuidProperties()
@@ -663,7 +663,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    /**
     * Combine the maps of node guid and path strings for the different node
     * types.
-    * 
+    *
     * @return The combined map.
     */
    private ConcurrentHashMap<IPSGuid, String> getNodesPathMapForAllTypes()
@@ -672,7 +672,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       ConcurrentHashMap<IPSGuid, String> nodeMap = new ConcurrentHashMap<>();
 
       initializeHierarchyNodeMaps();
-      
+
       if (nodeIdToPathMap != null && !nodeIdToPathMap.isEmpty())
       {
          nodeMap.putAll(nodeIdToPathMap.get(PSHierarchyNode.NodeType.PLACEHOLDER));
@@ -700,7 +700,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#findSearches(String, String)
     */
    public List<IPSCatalogSummary> findSearches(String name, String label) throws PSErrorException
@@ -714,7 +714,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#findViews(String, String)
     */
    public List<IPSCatalogSummary> findViews(String name, String label) throws PSErrorException
@@ -728,7 +728,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#getChildren(IPSGuid)
     */
    public List<IPSGuid> getChildren(IPSGuid id)
@@ -742,7 +742,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#idsToPaths(List)
     */
    @SuppressWarnings("unchecked")
@@ -779,7 +779,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#loadActions(List, boolean, boolean, String, String)
     */
    @SuppressWarnings("unchecked")
@@ -794,7 +794,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#loadDisplayFormats(List, boolean, boolean, String,
     * String)
     */
@@ -847,13 +847,13 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       }
       return null;
    }
-   
+
    /**
     * Loads a display format for the given ID.
-    * 
+    *
     * @param id the ID of the display format in question, assumed not <code>null</code>.
-    * 
-    * @see IPSUiDesignWs#loadHierachyNodes(List, boolean, boolean, 
+    *
+    * @see IPSUiDesignWs#loadHierachyNodes(List, boolean, boolean,
     *    String, String)
     * @see IPSUiDesignWs#loadHierachyNodes(List, boolean, boolean, String,
     * String)
@@ -876,8 +876,8 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
-    * @see IPSUiDesignWs#loadHierachyNodes(List, boolean, boolean, 
+    *
+    * @see IPSUiDesignWs#loadHierachyNodes(List, boolean, boolean,
     *    String, String)
     */
    @SuppressWarnings("unchecked")
@@ -927,7 +927,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#loadSearches(List, boolean, boolean, String, String)
     */
    public List<PSSearch> loadSearches(List<IPSGuid> ids, boolean lock, boolean overrideLock, String session, String user)
@@ -938,7 +938,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#loadViews(List, boolean, boolean, String, String)
     */
    public List<PSSearch> loadViews(List<IPSGuid> ids, boolean lock, boolean overrideLock, String session, String user)
@@ -949,7 +949,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#moveChildren(IPSGuid, IPSGuid, List)
     */
    @Transactional
@@ -974,7 +974,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#pathsToIds(List)
     */
    public List<List<IPSGuid>> pathsToIds(List<String> paths) throws PSErrorException
@@ -994,7 +994,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#removeChildren(IPSGuid, List)
     */
    @Transactional
@@ -1016,7 +1016,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#saveActions(List, boolean, String, String)
     */
    @Transactional
@@ -1031,7 +1031,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#saveDisplayFormats(List, boolean, String, String)
     */
    @Transactional
@@ -1047,7 +1047,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#saveHierarchyNodes(List, boolean, String, String)
     */
    @Transactional
@@ -1138,7 +1138,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#saveSearches(List, boolean, String, String)
     */
    @Transactional
@@ -1167,7 +1167,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiDesignWs#saveViews(List, boolean, String, String)
     */@Transactional
 
@@ -1178,13 +1178,14 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.webservices.ui.IPSUiDesignWs#findAllSearches()
     */
    public List<PSSearch> findAllSearches() throws PSErrorResultsException, PSErrorException
    {
       IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
-      Vector<PSSearch> searches = (Vector<PSSearch>) cache.get(ALL_SEARCHES_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+      java.util.Optional<java.io.Serializable> cached = cache.get(ALL_SEARCHES_CACHE_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+      Vector<PSSearch> searches = cached.isPresent() ? (Vector<PSSearch>) cached.get() : null;
       if (searches == null)
       {
          List<IPSDbComponent> searchViews = findComponentsByNameLabel(null, null, FIND_SEARCHES,
@@ -1199,7 +1200,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.webservices.ui.IPSUiDesignWs#objectIdToPath(IPSGuid
     * guid)
     */
@@ -1256,7 +1257,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Spring property accessor
-    * 
+    *
     * @return get the cache service
     */
    public IPSCacheAccess getCache()
@@ -1266,7 +1267,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Set the cache service
-    * 
+    *
     * @param cache the service, never <code>null</code>
     */
    public void setCache(IPSCacheAccess cache)
@@ -1282,28 +1283,28 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Creates an action object from a name and a type.
-    * 
+    *
     * @param name the name of the action, assumed not <code>null</code>.
     * @param type the type of the action, assumed not <code>null</code> or
     *           empty. It must be either {@link PSAction#TYPE_MENUITEM} or
     *           {@link PSAction#TYPE_MENU}.
-    * 
+    *
     * @return the created action object, never <code>null</code>.
-    * 
+    *
     * @throws RuntimeException if failed to get the next available id.
     */
    private PSAction createAction(String name, ActionType type)
    {
       PSAction source = new PSAction(name, name);
-      if (ActionType._item.equals(type.getValue()))
+      if (ActionType.ITEM.equals(type))
       {
          source.setMenuType(PSAction.TYPE_MENUITEM);
       }
-      else if (ActionType._cascading.equals(type.getValue()))
+      else if (ActionType.CASCADING.equals(type))
       {
          source.setMenuType(PSAction.TYPE_MENU);
       }
-      else if (ActionType._dynamic.equals(type.getValue()))
+      else if (ActionType.DYNAMIC.equals(type))
       {
          source.setMenuType(PSAction.TYPE_MENU);
          source.setMenuDynamic(true);
@@ -1319,11 +1320,11 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Creates a displayformat object from a name.
-    * 
+    *
     * @param name the name of the displayformat, assumed not <code>null</code>.
-    * 
+    *
     * @return the created displayformat object, never <code>null</code>.
-    * 
+    *
     * @throws RuntimeException if failed to get the next available id.
     */
    private PSDisplayFormat createDisplayFormat(String name)
@@ -1357,7 +1358,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * Validates the specified component names, to make sure each name is not
     * blank, does not contain space character and is not used by an existing
     * component (case insensitive).
-    * 
+    *
     * @param names the names in question; assumed not <code>null</code> or
     *           empty.
     * @param resourcePath the resource path used to lookup the components,
@@ -1372,7 +1373,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     *           {@link PSTypeEnum#ACTION}, {@link PSSearch} for if type is
     *           {@link PSTypeEnum#SEARCH_DEF}, or {@link PSDisplayFormat} for if
     *           type is {@link PSTypeEnum#DISPLAY_FORMAT}.
-    * 
+    *
     * @throws PSErrorException if failed to catalog the specified component.
     */
    private void validateComponentNames(List<String> names, String resourcePath, String nodeName, PSTypeEnum type,
@@ -1421,12 +1422,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Creates a search definition from a name and a type.
-    * 
+    *
     * @param name the name of the new search def, assumed not <code>null</code>
     *           or empty.
     * @param type the search type, it must be one of the PSSearch.TYPE_XXXSEARCH
     *           values.
-    * 
+    *
     * @return the created object, never <code>null</code>.
     */
    private PSSearch createSearch(String name, String type)
@@ -1461,7 +1462,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Deletes a list of components specified by the given parameters.
-    * 
+    *
     * @param ids the ids of the components, assumed not <code>null</code>.
     * @param objClass the class of the component, assumed not <code>null</code>.
     * @param objType the component type, assumed not <code>null</code> or empty.
@@ -1469,7 +1470,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     *           deleteXXX API for detail.
     * @param session current session, assumed not <code>null</code> or empty.
     * @param user current user name, assumed not <code>null</code> or empty.
-    * 
+    *
     * @throws PSErrorsException if an error occurs.
     */
    private void deleteComponents(List<IPSGuid> ids, Class objClass, String objType, boolean ignoreDependencies,
@@ -1510,10 +1511,10 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Gets the next available id for the given key.
-    * 
+    *
     * @param key the key used to get the next number, assumed not
     *           <code>null</code> or empty.
-    * 
+    *
     * @return the next number.
     */
    private int getNextId(String key)
@@ -1533,7 +1534,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * Convenience method, just like
     * {@link #deleteComponent(PSKey, String, IPSGuid, Class, PSErrorsException)}
     * except this method does not throw exception.
-    * 
+    *
     * @param results it used to store the GUID if successful or an
     *           {@link PSErrorException} object if failed the delete operation.
     *           It may not be <code>null</code>.
@@ -1556,7 +1557,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Converts a list of components to a list of catalog summaries.
-    * 
+    *
     * @param components the to be converted components, assumed not
     *           <code>null</code> and it has implemented
     *           {@link IPSCatalogSummary}.
@@ -1574,7 +1575,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * or {@link IPSUiDesignWs#loadViews(List, boolean, boolean, String, String)}
     * , except this is loading either searches or views according to isView
     * parameter.
-    * 
+    *
     * @param isView <code>true</code> if loading views; otherwise loading
     *           searches.
     */
@@ -1591,7 +1592,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Loads the specified components.
-    * 
+    *
     * @param ids the ids of the components to be loaded, assumed not
     *           <code>null</code>.
     * @param objClass the component class, assumed not <code>null</code>.
@@ -1652,7 +1653,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Create a component key for the supplied id and object type.
-    * 
+    *
     * @param id the id for which to create the component key, assumed not
     *           <code>null</code>.
     * @param objType the type of the object for which to create the component
@@ -1685,7 +1686,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * original and the updated component. For a persisted component, it is
     * assumed the version property of its lock is not <code>null</code>;
     * otherwise it is not a persisted component.
-    * 
+    *
     * @param components the to be saved component list, assumed not
     *           <code>null</code> or empty. The component must implemented
     *           {@link IPSCatalogSummary}.
@@ -1697,7 +1698,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     *           objects, not <code>null</code> or empty.
     * @param user the user for which to release the saved objects, not
     *           <code>null</code> or empty.
-    * 
+    *
     * @throws PSErrorsException if failed to save at least one of the component.
     */
    private void saveComponents(List<IPSDbComponent> components, Class cz, boolean release, String session, String user)
@@ -1763,7 +1764,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Save a specified component.
-    * 
+    *
     * @param comp the to be saved component, assumed not <code>null</code>.
     * @param id the GUID of the component, assumed not <code>null</code>.
     * @param cz the class of the to be saved component, assumed not
@@ -1771,7 +1772,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * @param results the object to add the failure info, assumed not
     *           <code>null</code>.
     * @param version version to restore on the template before saving it.
-    * 
+    *
     * @return <code>true</code> if successfully saved the component;
     *         <code>false</code> if failed to save the component and added the
     *         error into the <code>results</code>.
@@ -1823,14 +1824,14 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Loads a component with the supplied id.
-    * 
+    *
     * @param key the to be loaded component key.
     * @param componentType the to be loaded component type.
     * @param id the to be loaded component id.
     * @param objClass the to be loaded component class.
-    * 
+    *
     * @return the loaded component, never <code>null</code>.
-    * 
+    *
     * @throws PSErrorException if cannot find the component or failed to load
     *            due to an error.
     */
@@ -1865,7 +1866,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Get the children recursive for all supplied nodes.
-    * 
+    *
     * @param nodes the nodes for which to get the children recursive, assumed
     *           not null, may be empty.
     * @param type the node type for which to filter the results, may be
@@ -1890,7 +1891,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    /**
     * Get the hierarchy node tree starting with the supplied id up the tree to
     * the root.
-    * 
+    *
     * @param id the id of the node to start with, not <code>null</code>.
     * @param tree the tree into which to fill the found nodes, not
     *           <code>null</code> may be empty. The list is filled with the root
@@ -1919,7 +1920,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    /**
     * Convert the supplied list of nodes into a path string of the form
     * <code>/tree[0].getName()/tree[1].getName()/...</code>.
-    * 
+    *
     * @param tree the list of nodes to convert, not <code>null</code>, may be
     *           empty.
     * @return the path string, never <code>null</code> or empty.
@@ -1939,7 +1940,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Get the hierarchy node tree for the supplied path.
-    * 
+    *
     * @param path the path for which to get the node tree, not <code>null</code>
     *           or empty.
     * @return the hierarchy node tree as list stating with the root node, never
@@ -1992,7 +1993,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Deletes a specified component.
-    * 
+    *
     * @param key the key of the component, assumed not <code>null</code>.
     * @param id the GUID of the component, assumed not <code>null</code>.
     * @param cz the class of the to be deleted object, assumed not
@@ -2001,7 +2002,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     *           {@link PSErrorException} object if failed the delete operation.
     *           It may be <code>null</code> if the caller wants to catch the
     *           exception due the failure of the delete operation.
-    * 
+    *
     * @throws PSCmsException if failed to delete the component and the 'results'
     *            parameter is <code>null</code>.
     */
@@ -2071,7 +2072,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
       /**
        * Ctor
-       * 
+       *
        * @param cache the cache accessor, never <code>null</code>
        */
       public EvictionListener(IPSCacheAccess cache)
@@ -2107,7 +2108,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    }
 
-   
+
    /**
     * The cache key for storing the collection of searches in the
     * IPSCacheAccess.IN_MEMORY_STORE region.
@@ -2122,15 +2123,15 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
 
    /**
     * Hierarchy node path prefix for navigation content types
-    * 
+    *
     */
    private static final String CONTENTTYPES_NAV_PATH = "/contentTypes/Navigation/";
 
    /**
     * The cache key for storing the map that maps the ID to its related
-    * display format object in the IPSCacheAccess.IN_MEMORY_STORE region. 
+    * display format object in the IPSCacheAccess.IN_MEMORY_STORE region.
     */
-   private static final String DISPLAY_FORMAT_ID_OBJ_MAP = "displayformat_id_object_map";   
+   private static final String DISPLAY_FORMAT_ID_OBJ_MAP = "displayformat_id_object_map";
 
    /**
     * Cache service

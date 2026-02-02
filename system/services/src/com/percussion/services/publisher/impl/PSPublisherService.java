@@ -145,6 +145,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -368,6 +369,13 @@ public class PSPublisherService
       return cl;
    }
 
+   @Override
+   @Transactional
+   public IPSContentList createContentListImpl(String name)
+   {
+      return createContentList(name);
+   }
+
    /*
     * (non-Javadoc)
     * 
@@ -438,6 +446,13 @@ public class PSPublisherService
 
    }
 
+   @Override
+   @Transactional
+   public void saveContentListsImpl(List<IPSContentList> lists)
+   {
+      saveContentLists(lists);
+   }
+
    @Transactional
    public void saveContentList(IPSContentList clist)
    {
@@ -446,6 +461,13 @@ public class PSPublisherService
          throw new IllegalArgumentException("clist may not be null");
       }      
       getSession().saveOrUpdate(clist);
+   }
+
+   @Override
+   @Transactional
+   public void saveContentListImpl(IPSContentList clist)
+   {
+      saveContentList(clist);
    }
 
 
@@ -470,13 +492,20 @@ public class PSPublisherService
 
    }
 
+   @Override
+   @Transactional
+   public void deleteContentListsImpl(List<IPSContentList> lists)
+   {
+      deleteContentLists(lists);
+   }
+
    public IPSContentList loadContentList(String name) throws PSNotFoundException
    {
       // @TODO load from cache
-      IPSContentList clist = findContentListByName(name);
-      if (clist == null)
+      Optional<IPSContentList> opt = findContentListByName(name);
+      if (!opt.isPresent())
          throw new PSNotFoundException(name, PSTypeEnum.CONTENT_LIST);
-      return clist;
+      return opt.get();
    }
    
    /*
@@ -484,7 +513,8 @@ public class PSPublisherService
     * 
     * @see com.percussion.services.publisher.IPSPublisherService#findContentListByName(java.lang.String)
     */
-   public IPSContentList findContentListByName(String name) throws PSNotFoundException {
+   @Override
+   public Optional<IPSContentList> findContentListByName(String name) {
       if (StringUtils.isBlank(name))
       {
          throw new IllegalArgumentException("name may not be null or empty");
@@ -496,11 +526,15 @@ public class PSPublisherService
       q.setParameter("name", name);
       List<PSContentList> results = q.list();
       if (results.isEmpty())
-         return null;
+         return Optional.empty();
 
       IPSContentList clist = (IPSContentList) results.get(0);
-      loadItemFilterIfNeeded(clist);
-      return clist; 
+      try {
+         loadItemFilterIfNeeded(clist);
+      } catch (PSNotFoundException e) {
+         log.warn("Skipping item filter: {}", PSExceptionUtils.getMessageForLog(e));
+      }
+      return Optional.of(clist);
 
    }
    
@@ -540,7 +574,8 @@ public class PSPublisherService
       {
          q.setParameter("filter", "%" + filter.toLowerCase() + "%");
       }
-      List<IPSContentList> results = q.list();
+      List<PSContentList> plists = q.list();
+      List<IPSContentList> results = new ArrayList<>(plists);
       for (IPSContentList clist : results)
       {
          try {
@@ -549,8 +584,15 @@ public class PSPublisherService
             log.warn("Skipping item filter: {}",PSExceptionUtils.getMessageForLog(e));
          }
       }
+
       return results; 
 
+   }
+
+   @Override
+   public List<IPSContentList> findAllContentListsImpl(String filter)
+   {
+      return findAllContentLists(filter);
    }
 
    public List<String> findAllContentListNames(String filter)
@@ -572,7 +614,8 @@ public class PSPublisherService
       {
          q = s.createQuery("select distinct cl from PSContentList cl order by cl.name", PSContentList.class);
       }
-      List<IPSContentList> results = q.list();
+      List<PSContentList> plists = q.list();
+      List<IPSContentList> results = new ArrayList<>(plists);
       List<String> nameList = new ArrayList<>();
       for (IPSContentList clist : results)
       {
@@ -608,7 +651,8 @@ public class PSPublisherService
    public List<IPSDeliveryType> findAllDeliveryTypes()
    {
       Query<PSDeliveryType> q = getSession().createQuery("from PSDeliveryType", PSDeliveryType.class);
-      return q.list();
+      List<PSDeliveryType> plists = q.list();
+      return new ArrayList<IPSDeliveryType>(plists);
    }
 
    /*
@@ -836,7 +880,6 @@ public class PSPublisherService
       }
    }
 
-   @Override
    @Transactional
    public void updatePubLogHidden(PSPubServer psPubServer) {
       // First disconnect records belonging to the given jobId. Then find
@@ -1295,7 +1338,8 @@ public class PSPublisherService
          if (type.getOrdinal() == PSTypeEnum.CONTENT_LIST.getOrdinal())
          {
             Query<PSContentList> q = s.createQuery("from PSContentList", PSContentList.class);
-            List<IPSContentList> results = q.list();
+            List<PSContentList> plists = q.list();
+            List<IPSContentList> results = new ArrayList<>(plists);
             for (IPSContentList contentlist : results)
             {
                rval.add(new PSObjectSummary(contentlist.getGUID(), contentlist
@@ -2179,7 +2223,7 @@ public class PSPublisherService
       {
          try
          {
-            cids.addAll(cms.findContentIdsByType(ctid.longValue()));
+            cids.addAll(cms.findContentIdsByType(ctid.longValue()).collect(java.util.stream.Collectors.toList()));
          }
          catch (PSORMException e)
          {
@@ -2390,6 +2434,13 @@ public class PSPublisherService
          }
 
 
+   }
+
+   @Override
+   @Transactional
+   public void deleteStatusListImpl(List<IPSPubStatus> statusList)
+   {
+      deleteStatusList(statusList);
    }
 
    @Transactional
@@ -2972,7 +3023,9 @@ public class PSPublisherService
          if (!StringUtils.isBlank(filter)) {
             q.setParameter("filter", "%" + filter.toLowerCase() + "%");
          }
-         List<IPSEdition> results = q.list();
+         List<PSEdition> tmp = q.list();
+         List<IPSEdition> results = new java.util.ArrayList<>();
+         results.addAll(tmp);
          return results; 
 
       }
@@ -3015,6 +3068,13 @@ public class PSPublisherService
       IPSGuid id = gmgr.createGuid(PSTypeEnum.EDITION_TASK_DEF);
       IPSEditionTaskDef task = new PSEditionTaskDef(id);
       return task;
+   }
+
+   @Override
+   @Transactional
+   public IPSEditionTaskDef createEditionTaskImpl()
+   {
+      return createEditionTask();
    }
 
    @Transactional
@@ -3086,14 +3146,16 @@ public class PSPublisherService
       return log;
    }
 
-   public List<IPSEditionTaskLog> findEditionTaskLogEntriesByJobId(long jobid)
+   public List<IPSEditionTaskLog> findEditionTaskLogEntriesByJobId(Long jobid)
    {
+      if (jobid == null)
+         throw new IllegalArgumentException("jobid may not be null");
       Session s = getSession();
 
          Query<PSEditionTaskLog> q = s.createQuery("from PSEditionTaskLog where jobId = :jobId order by referenceId asc", PSEditionTaskLog.class);
-         q.setParameter("jobId", jobid);
-         return q.list(); 
-
+         q.setParameter("jobId", jobid.longValue());
+         List<PSEditionTaskLog> plists = q.list();
+         return new ArrayList<IPSEditionTaskLog>(plists);
 
       }
 
@@ -3273,9 +3335,9 @@ public class PSPublisherService
       Session session = getSession();
       try
       {
-         Query q =session.createQuery("select p from PSPubItem p where p.statusId = :statusId");
-         q.setParameter("statusId", new Long(jobid));
-         Iterator<IPSPubItemStatus> values = q.iterate();
+         Query<IPSPubItemStatus> q = session.createQuery("select p from PSPubItem p where p.statusId = :statusId", IPSPubItemStatus.class);
+         q.setParameter("statusId", jobid);
+         java.util.Iterator<IPSPubItemStatus> values = q.list().iterator();
          PSXStreamObjectStream<IPSPubItemStatus> rvalue = new PSXStreamObjectStream<>();
          rvalue.writeObjects(values);
          return rvalue;
@@ -3301,7 +3363,6 @@ public class PSPublisherService
       return findPubStatusByEditionList(editionIds);
    }
    
-   @Override
    public List<IPSPubStatus> findPubStatusBySiteWithFilters(IPSGuid siteId, int numDays, int maxCount)
    {
       List<IPSEdition> editions = findAllEditionsBySite(siteId);
@@ -3326,7 +3387,6 @@ public class PSPublisherService
          return statusList;
    }
    
-   @Override
    public List<IPSPubStatus> findPubStatusBySiteAndServerWithFilters(IPSGuid siteId, IPSGuid serverId, int numDays,
          int maxCount)
    {
@@ -3353,7 +3413,6 @@ public class PSPublisherService
       return findPubStatusByEditionList(Collections.emptyList());
    }
    
-   @Override
    public List<IPSPubStatus> findAllPubStatusWithFilters(int days, int maxCount)
    {
       return findPubStatusByEditionListWithFilters(Collections.emptyList(), days, maxCount);
@@ -4217,7 +4276,6 @@ public class PSPublisherService
       }
    }
 
-   @Override
    public boolean isSitePublished(IPSGuid siteId)
    {
       List<IPSEdition> editions = findAllEditionsBySite(siteId);

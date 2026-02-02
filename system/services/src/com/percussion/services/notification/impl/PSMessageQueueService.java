@@ -26,6 +26,9 @@ import com.percussion.utils.request.PSRequestInfo;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.JMSException;
@@ -76,6 +79,16 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
     */
    public <T extends Serializable> void removeListener(Class<T> messageType) {
       queueMap.remove(messageType.getCanonicalName());
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @SuppressWarnings("unchecked")
+   public <T extends Serializable> Optional<IPSMessageQueueListener<T>> getListener(Class<T> messageType) {
+      notNull(messageType);
+      IPSMessageQueueListener<T> listener = (IPSMessageQueueListener<T>) queueMap.get(messageType.getCanonicalName());
+      return Optional.ofNullable(listener);
    }
    
    /**
@@ -144,6 +157,27 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
    public IPSQueueSender getQueueSender()
    {
       return m_queueSender;
+   }
+
+   /**
+    * Return all registered message types as Class objects by resolving the canonical names
+    * stored in the internal map. Non-loadable classes are ignored.
+    */
+   public Set<Class<? extends Serializable>> getRegisteredMessageTypes() {
+      Set<Class<? extends Serializable>> types = new java.util.HashSet<>();
+      for (String name : queueMap.keySet()) {
+         try {
+            Class<?> clazz = Class.forName(name);
+            if (Serializable.class.isAssignableFrom(clazz)) {
+               @SuppressWarnings("unchecked")
+               Class<? extends Serializable> sc = (Class<? extends Serializable>) clazz;
+               types.add(sc);
+            }
+         } catch (ClassNotFoundException e) {
+            ms_logger.warn("Registered message type not resolvable: {}", name);
+         }
+      }
+      return types;
    }
    /**
     * The queue wrapper to send messages.

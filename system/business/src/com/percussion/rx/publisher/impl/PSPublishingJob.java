@@ -276,6 +276,20 @@ public class PSPublishingJob implements Runnable
          return m_statusIterable;
       }
    }
+
+   /**
+    * Public accessor for job item status for compatibility with callers that
+    * expect to retrieve job status directly from the job instance.
+    *
+    * @return list of {@link IPSPubItemStatus}, never <code>null</code>
+    */
+   public List<IPSPubItemStatus> getJobStatus()
+   {
+      IPSPublisherService psvc = PSPublisherServiceLocator.getPublisherService();
+      if (psvc == null)
+         return Collections.emptyList();
+      return psvc.findPubItemStatusForJob(m_jobid);
+   }
    
    /**
     * Logger.
@@ -1327,7 +1341,7 @@ public class PSPublishingJob implements Runnable
          {
             asm.handleItemTemplates(Collections.singletonList(work));
          }
-         catch (PSAssemblyException e)
+         catch (Exception e)
          {
             log.error("Problem trying to fetch template information "
                   + "- skipping status", e);

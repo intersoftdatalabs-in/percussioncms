@@ -43,7 +43,7 @@ public interface IPSWidgetBuilderDefinitionDao {
      * @throws IllegalArgumentException if definition is null
      */
     PSWidgetBuilderDefinition save(PSWidgetBuilderDefinition definition) throws PSDataServiceException;
-    
+
     /**
      * Saves multiple widget builder definitions efficiently.
      *
@@ -55,10 +55,12 @@ public interface IPSWidgetBuilderDefinitionDao {
     default List<PSWidgetBuilderDefinition> saveAll(Collection<PSWidgetBuilderDefinition> definitions)
             throws PSDataServiceException {
         Objects.requireNonNull(definitions, "Definitions collection cannot be null");
-        return definitions.stream()
-            .peek(def -> Objects.requireNonNull(def, "Definition cannot be null"))
-            .map(this::save)
-            .collect(java.util.stream.Collectors.toList());
+        List<PSWidgetBuilderDefinition> results = new java.util.ArrayList<>();
+        for (PSWidgetBuilderDefinition def : definitions) {
+            Objects.requireNonNull(def, "Definition cannot be null");
+            results.add(save(def));
+        }
+        return java.util.Collections.unmodifiableList(results);
     }
 
     /**
@@ -105,7 +107,7 @@ public interface IPSWidgetBuilderDefinitionDao {
      * @throws IllegalArgumentException if definitionId is negative
      */
     void delete(long definitionId);
-    
+
     /**
      * Deletes multiple widget builder definitions efficiently.
      *

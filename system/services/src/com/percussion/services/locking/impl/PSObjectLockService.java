@@ -33,7 +33,7 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -214,7 +214,7 @@ public class PSObjectLockService
       for (IPSGuid id : results.getResults().keySet()) {
          Object value = results.getResults().get(id);
          try {
-            Integer version = PSORMUtils.getVersion(value);
+            Integer version = PSORMUtils.getVersion(value).orElse(null);
 
             createLock(id, session, user, version, overrideLock);
          } catch (PSLockException e) {
@@ -224,12 +224,25 @@ public class PSObjectLockService
                             value.getClass().getName(), new PSDesignGuid(id).getValue(),
                             e.getLocalizedMessage()),
                     ExceptionUtils.getFullStackTrace(e), e.getLocker(),
-                    e.getRemainigTime());
+                    e.getRemainingTime());
             results.addError(id, error);
          }
       }
 
       for (IPSGuid ipsGuid : results.getErrors().keySet()) results.removeResult(ipsGuid);
+   }
+
+   @Override
+   public void createLocksImpl(PSErrorResultsException results, String session, String user, boolean overrideLock)
+   {
+      createLocks(results, session, user, overrideLock);
+   }
+
+   @Override
+   public List<PSObjectLock> createLocksImpl(List<IPSGuid> ids, String session, String locker,
+                                             List<Integer> versions, boolean overrideLock) throws PSLockException
+   {
+      return createLocks(ids, session, locker, versions, overrideLock);
    }
 
    /* (non-Javadoc)
@@ -340,6 +353,21 @@ public class PSObjectLockService
       return toSaveLocks;
    }
 
+   @Override
+   public List<PSObjectLock> extendLocksImpl(List<IPSGuid> ids, String session, String locker,
+         List<Integer> versions, long interval) throws PSLockException
+   {
+      return extendLocks(ids, session, locker, versions, interval);
+   }
+
+   @Override
+   public List<PSObjectLock> loadLocksByIdsImpl(List<IPSGuid> ids)
+   {
+      // Delegate to the existing findLocksByObjectIds implementation which
+      // performs suitable validation and retrieval.
+      return findLocksByObjectIds(ids, null, null);
+   }
+
    /* (non-Javadoc)
     * @see IPSObjectLockService#findExpiredLocks()
     */
@@ -385,6 +413,26 @@ public class PSObjectLockService
 
    }
 
+   @Override
+   public PSObjectLock findLockByObjectIdImpl(IPSGuid id)
+   {
+      return findLockByObjectId(id);
+   }
+
+   @Override
+   public PSObjectLock findLockByObjectIdImpl(IPSGuid id, String lockSession, String locker)
+   {
+      return findLockByObjectId(id, lockSession, locker);
+   }
+
+   @Override
+   public Integer getLockedVersionImpl(IPSGuid id) throws PSLockException {
+      if (id == null) throw new IllegalArgumentException("id cannot be null");
+      PSObjectLock lock = findLockByObjectId(id);
+      if (lock == null) throw new PSLockException(IPSLockErrors.LOCK_NOT_FOUND, new PSDesignGuid(id).getValue());
+      return lock.getLockedVersion();
+   }
+
    /* (non-Javadoc)
     * @see IPSObjectLockService#findLocksByObjectIds(List)
     * todo: either return a collection, or make the results match the order of 
@@ -393,10 +441,17 @@ public class PSObjectLockService
    public List<PSObjectLock> findLocksByObjectIds(List<IPSGuid> ids, 
       final String lockSession, final String locker)
    {
+      return findLocksByObjectIdsImpl(ids, lockSession, locker);
+   }
+
+   // restored behavior of findLocksByObjectIds
+   public List<PSObjectLock> findLocksByObjectIdsImpl(List<IPSGuid> ids, 
+      final String lockSession, final String locker) {
       if (PSGuidUtils.isBlank(ids))
          throw new IllegalArgumentException("ids cannot be null or empty");
       
       Session session = getSession();
+
 
          PSCriteriaQueryRepeater<PSObjectLock> cr = 
             new PSCriteriaQueryRepeater<PSObjectLock>()
@@ -494,7 +549,7 @@ public class PSObjectLockService
             ids.add(lock.getGUID());
 
          Session session = getSession();
-         loadLocksByIds(ids, true).forEach(session::delete);
+         loadLocksByIds(ids, true).forEach(session::remove);
       }
    }
    
@@ -503,20 +558,28 @@ public class PSObjectLockService
     */
    public boolean isLockedFor(IPSGuid id, String session, String locker)
    {
+      return isLockedForImpl(id, session, locker);
+   }
+
+   /**
+    * Internal implementation for the isLockedFor contract.
+    */
+   @Override
+   public boolean isLockedForImpl(IPSGuid id, String session, String locker) {
       if (id == null)
          throw new IllegalArgumentException("id cannot be null");
-      
+
       if (StringUtils.isBlank(session))
          throw new IllegalArgumentException("session cannot be null or empty");
-      
+
       if (StringUtils.isBlank(locker))
          throw new IllegalArgumentException("locker cannot be null or empty");
-      
+
       PSObjectLock lock = findLockByObjectId(id, session, locker);
-      
+
       // release the lock if it has expired
       lock = releaseExpiredLock(lock);
-      
+
       return lock != null;
    }
    
@@ -549,7 +612,7 @@ public class PSObjectLockService
       try
       {
          for (PSObjectLock lock : locks)
-            session.saveOrUpdate(lock);
+            session.merge(lock);
       }
       finally
       {
@@ -645,5 +708,13 @@ public class PSObjectLockService
       return releaseExpiredLocks(locks);
 
 
+   }
+
+   /**
+    * Internal implementation for finding locks by user.
+    */
+   public List<PSObjectLock> findLocksByUserImpl(String lockSession, String locker)
+   {
+      return findLocksByUser(lockSession, locker);
    }
 }

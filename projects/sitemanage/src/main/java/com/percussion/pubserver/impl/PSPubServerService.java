@@ -3032,7 +3032,7 @@ public class PSPubServerService implements IPSPubServerService {
       return null;
     } else {
       PSPubServer currentDefaultServer = getDefaultPubServer(site.getGUID());
-      String adminUrl = currentDefaultServer.getPublishServer();
+      String adminUrl = currentDefaultServer.getPublishServer().orElse(null);
       return adminUrl;
     }
   }

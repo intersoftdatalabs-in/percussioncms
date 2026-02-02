@@ -31,13 +31,13 @@ public class PSTransitionConverter extends PSTransitionBaseConverter
 {
    /**
     * See {@link PSConverter#PSConverter(BeanUtilsBean)}
-    * 
+    *
     * @param beanUtils
     */
    public PSTransitionConverter(BeanUtilsBean beanUtils)
    {
       super(beanUtils);
-      m_specialProperties.add("requiresComment"); 
+      m_specialProperties.add("requiresComment");
       m_specialProperties.add("roles"); // handled by workflow conv
    }
 
@@ -46,22 +46,24 @@ public class PSTransitionConverter extends PSTransitionBaseConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
          // only reading from server is supported
          throw new ConversionException(
             "Conversion not supported from client to server");
       }
-      
-      PSTransition src = (PSTransition) value; 
-      com.percussion.webservices.system.PSTransition tgt = 
+
+      PSTransition src = (PSTransition) value;
+      com.percussion.webservices.system.PSTransition tgt =
          (com.percussion.webservices.system.PSTransition) super.convert(
             type, value);
-      tgt.setComment(PSTransitionComment.fromString(PSStringUtils.toCamelCase(
-         src.getRequiresComment().name())));
-      
+      // generated PSTransition.comment is a String attribute; set the string value
+      PSTransitionComment comment = PSTransitionComment.fromString(
+         PSStringUtils.toCamelCase(src.getRequiresComment().name()));
+      tgt.setComment(comment == null ? null : comment.toString());
+
       return tgt;
-   }   
+   }
 }
 

@@ -177,6 +177,14 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
    }
 
    /**
+    * Get the database id for this binding.
+    * @return the binding id
+    */
+   public Long getId() {
+      return m_bindingId;
+   }
+
+   /**
     * Get the JEXL expression with Optional wrapper for safer access.
     *
     * @return Optional containing the expression if present, empty otherwise

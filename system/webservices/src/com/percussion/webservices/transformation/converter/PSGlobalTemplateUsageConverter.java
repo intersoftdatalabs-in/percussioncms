@@ -23,8 +23,8 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Converts objects between the classes 
- * <code>IPSAssemblyTemplate.GlobalTemplateUsage</code> and 
+ * Converts objects between the classes
+ * <code>IPSAssemblyTemplate.GlobalTemplateUsage</code> and
  * <code>TemplateUsageType</code>.
  */
 public class PSGlobalTemplateUsageConverter extends PSConverter
@@ -36,7 +36,7 @@ public class PSGlobalTemplateUsageConverter extends PSConverter
    {
       super(beanUtils);
    }
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -45,13 +45,19 @@ public class PSGlobalTemplateUsageConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
          return IPSAssemblyTemplate.GlobalTemplateUsage.valueOf(
             StringUtils.capitalize(value.toString()));
-      else
-         return TemplateUsageType.fromString(
-            value.toString().toLowerCase());
+      else {
+         String val = value.toString();
+         try {
+            return TemplateUsageType.valueOf(val.toUpperCase());
+         } catch (IllegalArgumentException e) {
+            // Unknown mapping, return null to indicate no value
+            return null;
+         }
+      }
    }
 }
 

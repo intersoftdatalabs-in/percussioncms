@@ -10,4 +10,9 @@ public enum PSFieldSourceType {
     if (s == null) return null;
     return PSFieldSourceType.valueOf(s);
   }
+
+  /** Returns the enum value as a String. */
+  public String getValue() {
+    return name();
+  }
 }

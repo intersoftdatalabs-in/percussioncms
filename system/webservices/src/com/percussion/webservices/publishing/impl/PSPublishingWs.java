@@ -41,7 +41,7 @@ import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.publishing.IPSPublishingWs;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

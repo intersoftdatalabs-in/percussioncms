@@ -77,7 +77,7 @@ import java.util.stream.Collectors;
 
 /**
  * Implementation of the content manager
- * 
+ *
  * @author dougrand
  */
 @Transactional(propagation = Propagation.REQUIRED)
@@ -98,9 +98,9 @@ public class PSContentMgr  implements IPSContentMgr
     * The logger for the content manager
     */
     private static final Logger ms_log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
-   
+
    /**
-    * The region that caches information for the content manager. Used for 
+    * The region that caches information for the content manager. Used for
     * hibernate's query cache.
     */
    static final String CACHE_REGION = "contentmanagerqueries";
@@ -132,7 +132,7 @@ public class PSContentMgr  implements IPSContentMgr
 
    /**
     * Set the repositories
-    * 
+    *
     * @param rep the repository, never <code>null</code>
     */
    @Transactional(propagation=Propagation.NOT_SUPPORTED)
@@ -238,15 +238,15 @@ public class PSContentMgr  implements IPSContentMgr
       }
 
    }
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.contentmgr.IPSContentTypeMgr#findNodeDefinitionByName(java.lang.String)
     */
-   public IPSNodeDefinition findNodeDefinitionByName(String name) 
+   public IPSNodeDefinition findNodeDefinitionByName(String name)
       throws RepositoryException
    {
       List<IPSNodeDefinition> defs = findNodeDefinitionsByName(name);
-      
+
       if (defs.isEmpty())
       {
          throw new NoSuchNodeTypeException("Did not find " + name);
@@ -273,7 +273,7 @@ public class PSContentMgr  implements IPSContentMgr
          cquery.setParameter("name", name);
          cquery.setCacheable(true);
          cquery.setCacheRegion(CACHE_REGION);
-         List<PSNodeDefinition> defs = cquery.list();
+         List<IPSNodeDefinition> defs = cquery.list().stream().map(nd -> (IPSNodeDefinition) nd).collect(Collectors.toList());
          if (defs.size() == 0)
          {
             // Try again with spaces in case the internal name had spaces
@@ -282,12 +282,12 @@ public class PSContentMgr  implements IPSContentMgr
             cquery.setParameter("name", name);
             cquery.setCacheable(true);
             cquery.setCacheRegion(CACHE_REGION);
-            defs = cquery.list();
+            defs = cquery.list().stream().map(nd -> (IPSNodeDefinition) nd).collect(Collectors.toList());
          }
-         
+
          // Make unique
          Set<IPSNodeDefinition> bdefs = new HashSet<>(defs);
-         
+
          // Convert back to a list
          defs = new ArrayList<IPSNodeDefinition>(bdefs);
 
@@ -311,7 +311,7 @@ public class PSContentMgr  implements IPSContentMgr
                  .setParameter("otype", 1)
                  .setCacheable(true)
                  .setCacheRegion(CACHE_REGION);
-         
+
          List<PSNodeDefinition> defs = q.list();
          //there may be an entry for every template association
          HashSet<IPSNodeDefinition> deduped = new HashSet<IPSNodeDefinition>(defs);
@@ -332,7 +332,7 @@ public class PSContentMgr  implements IPSContentMgr
 
       if (ctId == null)
          throw new IllegalArgumentException("Content Type id may not be null");
-     
+
       org.hibernate.Session s = getSession();
 
          org.hibernate.query.Query<PSContentTemplateDesc> q = s.createQuery("from PSContentTemplateDesc where m_templateid = :tmp and m_contenttypeid = :ct", PSContentTemplateDesc.class)
@@ -352,7 +352,7 @@ public class PSContentMgr  implements IPSContentMgr
    {
       if (ctId == null)
          throw new IllegalArgumentException("Content Type id may not be null");
-     
+
       org.hibernate.Session s = getSession();
 
          org.hibernate.query.Query<PSContentTypeWorkflow> q = s.createQuery("from PSContentTypeWorkflow where m_contenttypeid = :ct", PSContentTypeWorkflow.class)
@@ -364,7 +364,7 @@ public class PSContentMgr  implements IPSContentMgr
 
 
    }
-   
+
    @SuppressWarnings("unchecked")
    public List<IPSNodeDefinition> findNodeDefinitionsByTemplate(
          IPSGuid templateid) throws RepositoryException
@@ -373,17 +373,17 @@ public class PSContentMgr  implements IPSContentMgr
       {
          throw new IllegalArgumentException("templateid may not be null");
       }
-      
+
       org.hibernate.Session s = getSession();
-      
+
 
          org.hibernate.query.Query<PSNodeDefinition> q = s.createQuery("select distinct nd from PSNodeDefinition nd join nd.m_cvDescriptors descriptor where descriptor.m_templateid = :templateid", PSNodeDefinition.class)
                  .setParameter("templateid", templateid.longValue())
                  .setCacheable(true)
                  .setCacheRegion(CACHE_REGION);
-         List<PSNodeDefinition> defs = q.list();
+         List<IPSNodeDefinition> defs = q.list().stream().map(nd -> (IPSNodeDefinition) nd).collect(Collectors.toList());
          //there may be an entry for every template association
-         Set<IPSNodeDefinition> deduped = new HashSet<IPSNodeDefinition>(defs);
+         Set<IPSNodeDefinition> deduped = new HashSet<>(defs);
          return new ArrayList<>(deduped);
 
    }
@@ -396,9 +396,9 @@ public class PSContentMgr  implements IPSContentMgr
       {
          throw new IllegalArgumentException("workflowid may not be null");
       }
-      
+
       org.hibernate.Session s = getSession();
-      
+
 
          // Convert workflow id to int to match stored field
          int wfId = (int) workflowid.longValue();
@@ -406,17 +406,17 @@ public class PSContentMgr  implements IPSContentMgr
                  .setParameter("workflowid", wfId)
                  .setCacheable(true)
                  .setCacheRegion(CACHE_REGION);
-         List<PSNodeDefinition> defs = q.list();
+         List<IPSNodeDefinition> defs = q.list().stream().map(nd -> (IPSNodeDefinition) nd).collect(Collectors.toList());
          //there may be an entry for every workflow association
-         Set<IPSNodeDefinition> deduped = new HashSet<IPSNodeDefinition>(defs);
+         Set<IPSNodeDefinition> deduped = new HashSet<>(defs);
          return new ArrayList<>(deduped);
 
    }
-   
+
    public Collection<IPSGuid> findItemIdsByNodeDefinition(NodeDefinition def)
    {
       PSNodeDefinition psdef = (PSNodeDefinition) def;
-      
+
       Collection<IPSGuid> guids = new ArrayList<>();
       String query = "select c.m_contentId, c.m_currRevision"
             + " from PSComponentSummary c where c.m_contentTypeId = :ctid";
@@ -461,7 +461,7 @@ public class PSContentMgr  implements IPSContentMgr
             lexer = new SqlLexer(reader);
             SqlParser parser = new SqlParser(lexer);
             q = parser.start_rule();
-            
+
          }
          else
          {
@@ -502,7 +502,7 @@ public class PSContentMgr  implements IPSContentMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.contentmgr.IPSContentMgr#executeQuery(javax.jcr.query.Query,
     *      int, java.util.Map)
     */
@@ -515,7 +515,7 @@ public class PSContentMgr  implements IPSContentMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.contentmgr.IPSContentMgr#executeQuery(javax.jcr.query.Query,
     *      int, java.util.Map, java.lang.String)
     */
@@ -545,12 +545,12 @@ public class PSContentMgr  implements IPSContentMgr
       }
       // Build new collection
       Collection<IPSGuid> rval = new ArrayList<>();
-      
+
       if (types.size() > 0 && ids.size() > 0)
       {
          String query = "select c.m_contentId, c.m_contentTypeId"
                + " from PSComponentSummary c where c.m_contentId in (:ids)";
-   
+
          List<Integer> cids = new ArrayList<>();
          for (IPSGuid i : ids)
          {
@@ -566,7 +566,7 @@ public class PSContentMgr  implements IPSContentMgr
             Integer cid = (Integer) result[0];
             idToType.put(cid, new PSGuid(PSTypeEnum.NODEDEF, (Long) result[1]));
          }
-        
+
          for (IPSGuid i : ids)
          {
             PSLegacyGuid lg = (PSLegacyGuid) i;
@@ -577,13 +577,13 @@ public class PSContentMgr  implements IPSContentMgr
             }
          }
       }
-      
+
       return rval;
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.contentmgr.IPSContentMgr#findNodesByTitle(
     *      java.long.Long, java.lang.String)
     */
@@ -638,19 +638,19 @@ public class PSContentMgr  implements IPSContentMgr
    public void deleteItems(List<IPSGuid> items) throws RepositoryException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Transactional
    public void saveItems(List<Node> items, PSContentMgrConfig config) throws RepositoryException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.contentmgr.IPSContentMgr#findItemsByLocalFieldValue(
     *      java.long.Long, java.lang.String, java.lang.String)
     */
@@ -687,15 +687,15 @@ public class PSContentMgr  implements IPSContentMgr
       } catch (SQLException e) {
          throw new RuntimeException(e);
       }
-      NativeQuery<?> result = sess.createNativeQuery(sql);
-      List<Object> result = result.list();
-         
-         for (Object row : result)
+      org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
+      List<?> rows = query.list();
+
+         for (Object row : rows)
          {
             contentIds.add((Integer)row);
          }
 
-      
+
       return contentIds;
    }
 

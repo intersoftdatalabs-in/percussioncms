@@ -8,4 +8,9 @@ public enum PSFieldTransferEncoding {
     if (s == null) return null;
     return PSFieldTransferEncoding.valueOf(s);
   }
+
+  /** Returns the enum value as a String. */
+  public String getValue() {
+    return name();
+  }
 }

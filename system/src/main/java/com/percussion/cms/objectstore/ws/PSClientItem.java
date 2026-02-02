@@ -47,4 +47,19 @@ public class PSClientItem {
   public int getContentTypeId() {
     return -1;
   }
+
+  // Compatibility stubs expected by legacy callers
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public java.util.Iterator getAllChildren() {
+    return java.util.Collections.emptyIterator();
+  }
+
+  public org.w3c.dom.Element toMinXml(
+      org.w3c.dom.Document doc,
+      boolean includeBinaries,
+      boolean includeFields,
+      boolean forPreview,
+      boolean includeRelationships) {
+    return doc.createElement("item");
+  }
 }

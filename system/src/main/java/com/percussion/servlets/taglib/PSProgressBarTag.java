@@ -23,7 +23,6 @@ public class PSProgressBarTag extends PSJSFBaseTag {
   /** It holds the value of "percent" attribute. */
   private String m_percent;
 
-  @Override
   public String getComponentType() {
     return "com.percussion.jsf.ProgressBar";
   }

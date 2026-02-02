@@ -266,13 +266,13 @@ public class PSHibernateInterceptor extends EmptyInterceptor {
 
         // Handle known special cases first for performance
         if (obj instanceof PSAccessLevelImpl) {
-            PSAccessLevelImpl accessLevel = (PSAccessLevelImpl) obj;
-            return Optional.ofNullable(accessLevel.getGUID());
+            // AccessLevel does not expose a GUID method - we won't attempt to create one here
+            return Optional.empty();
         }
 
         if (obj instanceof PSAclEntryImpl) {
-            PSAclEntryImpl aclEntry = (PSAclEntryImpl) obj;
-            return Optional.ofNullable(aclEntry.getGUID());
+            // ACL entry does not expose a GUID property directly in the model used here
+            return Optional.empty();
         }
 
         // Use cached reflection for other objects

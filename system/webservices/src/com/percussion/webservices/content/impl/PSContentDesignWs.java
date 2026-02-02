@@ -84,7 +84,7 @@ import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,9 +126,9 @@ public class PSContentDesignWs extends PSContentBaseWs implements
     * <p>
     * Do nothing and return the specified ID if the revision of it is not
     * <code>-1</code>.
-    * 
+    *
     * @param id the ID of the item.
-    * 
+    *
     * @return the GUID of the item, never <code>null</code>.
     */
    public IPSGuid getItemGuid(IPSGuid id)
@@ -141,7 +141,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       PSLegacyGuid guid = (PSLegacyGuid) id;
       if (guid.getRevision() >= 0)
          return id;
-      
+
       try
       {
          PSLocator loc = PSWebserviceUtils.getItemLocator(guid);
@@ -153,34 +153,34 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                + id.getUUID(), e);
       }
    }
-   
+
    /*
     * //see base interface method for details
     */
    public String getItemEditUrl(IPSGuid itemId, String ctName, String viewName)
    {
-      return getItemUrl(itemId, ctName, viewName, false);      
+      return getItemUrl(itemId, ctName, viewName, false);
    }
-   
+
    /*
     * //see base interface method for details
     */
-   public String getItemViewUrl(IPSGuid itemId, String ctName, String viewName)      
+   public String getItemViewUrl(IPSGuid itemId, String ctName, String viewName)
    {
       return getItemUrl(itemId, ctName, viewName, true);
    }
-   
+
    /**
     * Common method used to facilitate {@link #getItemEditUrl(IPSGuid, String, String)} and
     * {@link #getItemViewUrl(IPSGuid, String, String)}. See each of those methods doc for
     * further details.
-    * @param itemId the ID of the item. It may be <code>null</code> if the 
+    * @param itemId the ID of the item. It may be <code>null</code> if the
     * returned URL will be used for creating an item.
     * @param ctName the name of the Content Type, never blank.
-    * @param viewName the value of the "sys_view" for the specified 
+    * @param viewName the value of the "sys_view" for the specified
     * Content Type, never blank.
     * @param readonly flag indicated which view type is requested.
-    * 
+    *
     * @return the edit or view URL described above. It may be <code>null</code> if
     * the content type does not exist or it is not enabled.
     */
@@ -190,22 +190,22 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          throw new IllegalArgumentException("BlankContent");
       if (StringUtils.isBlank(viewName))
          throw new IllegalArgumentException("View name may not be blank.");
-      
+
       List<IPSNodeDefinition> nodes = PSContentTypeHelper.loadNodeDefs(ctName);
       if (nodes.isEmpty())
          return null; // content type does not exist.
-      
+
       IPSNodeDefinition node = nodes.get(0);
       PSContentEditor ctEditor = PSItemDefManager.getInstance()
             .getContentEditorDef(node.getGUID().longValue());
       if (ctEditor == null)
          return null; // content type is not enabled.
-      
+
       if (viewName.startsWith(IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME))
       {
           PSContentEditorHandler.addHiddenFieldsView(ctEditor, viewName);
       }
-      
+
       StringBuilder buffer = new StringBuilder();
       buffer.append(node.getQueryRequest());
       buffer.append("?");
@@ -235,7 +235,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       buffer.append("&sys_view=").append(viewName);
       return buffer.toString();
    }
-   
+
    // @see IPSContentDesignWs#createContentTypes(List<String>, String, String)
    @Transactional
    public List<PSItemDefinition> createContentTypes(List<String> names,
@@ -418,7 +418,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                Integer version = null;
                PSObjectLock lock = lockService.findLockByObjectId(id, session,
                   user);
-               // remove template associations 
+               // remove template associations
              if (lock == null)
                {
                   loadAssociatedTemplates(id, true, false, session, user);
@@ -535,10 +535,11 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          {
             if (PSWebserviceUtils.hasValidLockForDelete(id, session, user))
             {
-               PSLocale locale = objMgr.loadLocale((int) id.longValue());
+               java.util.Optional<PSLocale> optLocale = objMgr.loadLocale((int) id.longValue());
 
-               if (locale != null)
+               if (optLocale.isPresent())
                {
+                  PSLocale locale = optLocale.get();
                   // check for deps if requested
                   if (!ignoreDependencies)
                   {
@@ -588,18 +589,18 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
       IPSObjectLockService lockService = PSObjectLockServiceLocator
          .getLockingService();
-      
+
       List<IPSNodeDefinition> nodeDefs = PSContentTypeHelper.loadNodeDefs(name);
-      
+
       if (nodeDefs!=null && !nodeDefs.isEmpty())
       {
-         
+
          List<PSObjectLock> locks = lockService.findLocksByObjectIds(nodeDefs.stream().map(IPSCatalogIdentifier::getGUID).collect(Collectors.toList()),null,null);
          Map<IPSGuid,PSObjectLock> lockMap = locks.stream().collect(Collectors.toMap(PSObjectLock::getObjectId, Function.identity()));
-               
+
          for (IPSNodeDefinition nodeDef : nodeDefs)
          {
-            
+
             PSObjectLock lock = lockMap.get(nodeDef.getGUID());
          PSObjectSummary sum = new PSObjectSummary(nodeDef.getGUID(), nodeDef
             .getInternalName(), nodeDef.getLabel(), nodeDef.getDescription());
@@ -628,7 +629,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    }
 
    /**
-    * @see IPSContentDesignWs#loadAssociatedTemplates(IPSGuid, boolean, boolean, 
+    * @see IPSContentDesignWs#loadAssociatedTemplates(IPSGuid, boolean, boolean,
     *    String, String)
     */
    public List<PSContentTemplateDesc> loadAssociatedTemplates(
@@ -720,7 +721,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
 
       PSErrorResultsException results = new PSErrorResultsException();
-      List<PSContentTypeWorkflow> ctWfList = 
+      List<PSContentTypeWorkflow> ctWfList =
          new ArrayList<>();
 
       try
@@ -782,7 +783,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    }
 
    /**
-    * @see IPSContentDesignWs#loadContentEditorSharedDef(boolean, boolean, 
+    * @see IPSContentDesignWs#loadContentEditorSharedDef(boolean, boolean,
     *    String, String)
     */
    public PSContentEditorSharedDef loadContentEditorSharedDef(boolean lock,
@@ -827,7 +828,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    }
 
    /**
-    * @see IPSContentDesignWs#loadContentEditorSystemDef(boolean, boolean, 
+    * @see IPSContentDesignWs#loadContentEditorSystemDef(boolean, boolean,
     *    String, String)
     */
    public PSContentEditorSystemDef loadContentEditorSystemDef(boolean lock,
@@ -871,7 +872,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    }
 
    /**
-    * @see IPSContentDesignWs#loadContentTypes(List, boolean, boolean, 
+    * @see IPSContentDesignWs#loadContentTypes(List, boolean, boolean,
     *    String, String)
     */
    @SuppressWarnings("unchecked")
@@ -963,7 +964,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                      PSWebserviceErrors.createErrorMessage(code, nodeDef
                         .getClass().getName(), nodeDef.getGUID().longValue(), e
                         .getLocalizedMessage()), ExceptionUtils
-                        .getFullStackTrace(e), e.getLocker(), e.getRemainigTime());
+                        .getFullStackTrace(e), e.getLocker(), e.getRemainingTime());
                   results.addError(nodeDef.getGUID(), error);
                }
             }
@@ -981,7 +982,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    }
 
    /**
-    * @see IPSContentDesignWs#loadKeywords(List, boolean, boolean, 
+    * @see IPSContentDesignWs#loadKeywords(List, boolean, boolean,
     *    String, String)
     */
    @SuppressWarnings("unchecked")
@@ -1034,7 +1035,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    }
 
    /**
-    * @see IPSContentDesignWs#loadLocales(List, boolean, boolean, 
+    * @see IPSContentDesignWs#loadLocales(List, boolean, boolean,
     *    String, String)
     */
    public List<PSLocale> loadLocales(List<IPSGuid> ids, boolean lock,
@@ -1057,8 +1058,8 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       for (IPSGuid id : ids)
       {
 
-         PSLocale locale = objMgr.loadLocale((int) id.longValue());
-         if (locale == null)
+         java.util.Optional<PSLocale> optLocale = objMgr.loadLocale((int) id.longValue());
+         if (optLocale.isEmpty())
          {
             int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
             PSDesignGuid guid = new PSDesignGuid(id);
@@ -1070,6 +1071,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          }
          else
          {
+            PSLocale locale = optLocale.get();
             results.addResult(id, locale);
             locales.add(locale);
          }
@@ -1089,7 +1091,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    }
 
    /**
-    * @see IPSContentDesignWs#loadTranslationSettings(boolean, boolean, 
+    * @see IPSContentDesignWs#loadTranslationSettings(boolean, boolean,
     *    String, String)
     */
    public List<PSAutoTranslation> loadTranslationSettings(boolean lock,
@@ -1104,7 +1106,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
       IPSContentService service = PSContentServiceLocator.getContentService();
 
-      List<PSAutoTranslation> atList = service.loadAutoTranslations();
+      List<PSAutoTranslation> atList = service.loadAutoTranslations(PSAutoTranslation.getAutoTranslationsGUID());
 
       if (lock)
       {
@@ -1128,7 +1130,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    }
 
    /**
-    * @see IPSContentDesignWs#saveAssociatedTemplates(IPSGuid, List, boolean, 
+    * @see IPSContentDesignWs#saveAssociatedTemplates(IPSGuid, List, boolean,
     *    String, String)
     */
    @Transactional
@@ -1214,7 +1216,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                      ((PSNodeDefinition) updatedDefs.get(0)).getVersion());
                }
 
-               // extend the lock 
+               // extend the lock
                if (!release)
                {
                   nodeDefs = mgr.loadNodeDefinitions(PSGuidUtils
@@ -1409,11 +1411,11 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       if (results.hasErrors())
          throw results;
    }
-   
+
    /**
     * Helper method to update the workflow info object of content editor by
     * getting the workflows from node definition.
-    * 
+    *
     * @param nodeDefs List of node defs assumed not null.
     * @throws PSInvalidContentTypeException
     */
@@ -1438,8 +1440,8 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          ceditor.setWorkflowInfo(wfInfo);
       }
    }
-   
-   /** 
+
+   /**
     * @see IPSContentDesignWs#saveContentEditorSharedDef(
     *    PSContentEditorSharedDef, boolean, String, String)
     */
@@ -1753,12 +1755,12 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
                // save the object and extend the lock
                saveKeyword(keyword, version);
-               
+
                // reload the keyword to obtain the new version
-               IPSContentService service = 
+               IPSContentService service =
                   PSContentServiceLocator.getContentService();
                keyword = service.loadKeyword(id, null);
-               
+
                if (!release)
                {
                   lockService.extendLock(id, session, user,
@@ -1843,10 +1845,10 @@ public class PSContentDesignWs extends PSContentBaseWs implements
                   resourceCopier.processResourceCopy(false);
                }
 
-               // extend the lock 
+               // extend the lock
                if (!release)
                {
-                  locale = objMgr.loadLocale((int) id.longValue());
+                  locale = objMgr.loadLocale((int) id.longValue()).orElse(null);
                   if (locale == null)
                   {
                      // we just saved, this is a bug
@@ -1939,7 +1941,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          if (lock != null)
          {
             // load the current set
-            List<PSAutoTranslation> curList = service.loadAutoTranslations();
+            List<PSAutoTranslation> curList = service.loadAutoTranslations(PSAutoTranslation.getAutoTranslationsGUID());
             Map<PSAutoTranslationPK, PSAutoTranslation> curMap = new HashMap<>();
             for (PSAutoTranslation at : curList)
             {
@@ -1970,12 +1972,11 @@ public class PSContentDesignWs extends PSContentBaseWs implements
             {
                if (!newMap.containsKey(at.getKey()))
                {
-                  service.deleteAutoTranslation(at.getContentTypeId(), at
-                     .getLocale());
+                  service.deleteAutoTranslation(PSGuidUtils.makeGuid(at.getContentTypeId(), com.percussion.services.catalog.PSTypeEnum.AUTO_TRANSLATIONS));
                }
             }
 
-            // extend the lock 
+            // extend the lock
             if (!release)
             {
                lockService.extendLock(id, session, user, null);
@@ -2018,7 +2019,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          lockService.releaseLock(lock);
       }
    }
-   
+
    /*
     * //see base interface method for details
     */
@@ -2055,7 +2056,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
             loadOption.addOption(PSContentMgrOption.LAZY_LOAD_CHILDREN);
          }
 
-         
+
          return m_contentMgr.findItemsByGUID(idList, loadOption);
       }
       catch (Exception e)
@@ -2066,7 +2067,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
    /**
     * Sets the Content Manager.
-    * 
+    *
     * @param contentMgr the content manager, never <code>null</code>.
     */
    @Autowired
@@ -2074,12 +2075,12 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    {
       m_contentMgr = contentMgr;
    }
-   
+
    /**
     * Validates the supplied system and shared def against the currently active
     * content types to ensure there are not any invalid overrides or duplicate
     * fields.
-    * 
+    *
     * @param sysDef The system def to validate against, may be <code>null</code>
     *    if there was an error when it was last initialized.
     * @param sharedDef The shared def to validate against, may be
@@ -2189,10 +2190,10 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
       /**
        * Private Ctor for internal use only
-       * 
-       * @param session The user session, assumed not <code>null</code> or 
+       *
+       * @param session The user session, assumed not <code>null</code> or
        * empty.
-       * @param user The current user name, assumed not <code>null</code> or 
+       * @param user The current user name, assumed not <code>null</code> or
        * empty.
        * @param id The node def id, assumed not <code>null</code>.
        * @param service The lock service to use, assumed not <code>null</code>.
@@ -2207,7 +2208,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
       }
 
       /**
-       * Updates the lock info for the node def.  See 
+       * Updates the lock info for the node def.  See
        * {@link IPSSaveNodeDefListener#nodeDefSaved()} for more info.
        */
       public void nodeDefSaved()
@@ -2234,7 +2235,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
       /**
        * Get the lock exception if one was thrown during {@link #nodeDefSaved()}
-       * 
+       *
        * @return The exception, <code>null</code> if none was thrown.
        */
       public PSLockException getLockException()
@@ -2245,9 +2246,9 @@ public class PSContentDesignWs extends PSContentBaseWs implements
 
    /**
     * Get the current user's request.
-    * 
+    *
     * @return The request, never <code>null</code>.
-    * 
+    *
     * @throws IllegalStateException if the current thread has not had a request
     * initialized.
     */
@@ -2255,54 +2256,54 @@ public class PSContentDesignWs extends PSContentBaseWs implements
    {
       PSRequest request = (PSRequest) PSRequestInfo
          .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
-      
+
       if (request == null)
          throw new IllegalStateException(
             "No request initialized for the current thread");
-      
+
       return request;
    }
-   
+
    /**
     * Saves the specified keyword.
-    * 
+    *
     * @param keyword the object contains the new keyword, assumed not
     * <code>null</code>.
     * @param version version to restore on the keyword before saving it.
     */
    private void saveKeyword(PSKeyword keyword, Integer version)
    {
-         IPSContentService service = 
+         IPSContentService service =
             PSContentServiceLocator.getContentService();
 
          try
          {
             IPSGuid id = keyword.getGUID();
-            
+
             // Load the existing keyword and copy data into it
             PSKeyword dbkeyword = service.loadKeyword(id, null);
 
             // Copy data object into "live" object
             dbkeyword.copy(keyword);
-                       
+
             keyword = dbkeyword;
          }
          catch (PSContentException e)
          {
             // No problem, new instance
          }
-       
+
          // Restore version
          keyword.setVersion(null);
          keyword.setVersion(version);
 
          service.saveKeyword(keyword);
    }
-   
+
    /**
     * The content manager, set by {@link #setContentMgr(IPSContentMgr)}, never
     * <code>null</code> after that.
     */
    private IPSContentMgr m_contentMgr;
-   
+
 }

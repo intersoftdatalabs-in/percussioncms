@@ -173,7 +173,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
       Date testDate = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -days);
 
       Query query = getSession().createQuery(
-            "select count(*) " + "from PSBinary " + "where lastAccessedDate < :testDate").setDate("testDate", testDate);
+            "select count(*) " + "from PSBinary " + "where lastAccessedDate < :testDate").setParameter("testDate", testDate);
 
       result = (Long) query.uniqueResult();
 
@@ -191,17 +191,17 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
       int deleteddata =  getSession().createQuery(
             "delete from PSBinaryData data " + "where data.id in (select b.id from PSBinary b where b.lastAccessedDate < :testDate )")
-            .setDate("testDate", testDate)
+            .setParameter("testDate", testDate)
             .executeUpdate();
       getSession().flush();
       int deletedmetadata =  getSession().createQuery(
             "delete from PSBinaryMetaEntry meta " + "where meta.binary in (select b from PSBinary b where b.lastAccessedDate < :testDate )")
-            .setDate("testDate", testDate)
+            .setParameter("testDate", testDate)
             .executeUpdate();
       getSession().flush();
       int deletedEntities =  getSession().createQuery(
             "delete from PSBinary b where (b.lastAccessedDate < :testDate )")
-            .setDate("testDate", testDate)
+            .setParameter("testDate", testDate)
             .executeUpdate();
       
       log.debug("Delete updated {} entities",deletedEntities);
@@ -412,7 +412,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
    public Blob createBlob(InputStream is, long l)
    {
-      return Hibernate.getLobCreator(getSession()).createBlob(is, l);
+      return org.hibernate.engine.jdbc.BlobProxy.generateProxy(is, l);
    }
 
 }

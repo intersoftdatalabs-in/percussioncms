@@ -39,134 +39,137 @@ public class UiSOAPImpl extends PSBaseSOAPImpl implements Ui
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see Ui#loadActions(LoadActionsRequest)
     */
-   public PSAction[] loadActions(LoadActionsRequest loadActionsRequest)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+   public LoadActionsResponse loadActions(LoadActionsRequest loadActionsRequest)
+      throws com.percussion.webservices.ui.InvalidSessionFaultMessage, com.percussion.webservices.ui.NotAuthorizedFaultMessage
    {
-      authenticate();
+      try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.ui.InvalidSessionFaultMessage(e.getMessage(), e); }
 
       IPSUiWs uiws = PSUiWsLocator.getUiWebservice();
-      com.percussion.webservices.ui.data.PSAction[] result = null;
+      LoadActionsResponse response = new LoadActionsResponse();
       try
       {
-         List<com.percussion.cms.objectstore.PSAction> actions = 
+         List<com.percussion.cms.objectstore.PSAction> actions =
             uiws.loadActions(loadActionsRequest.getName());
-         
-         result = (PSAction[]) convert(PSAction[].class, actions);
+
+         com.percussion.webservices.ui.data.PSAction[] result =
+            (com.percussion.webservices.ui.data.PSAction[]) convert(com.percussion.webservices.ui.data.PSAction[].class, actions);
+         for (com.percussion.webservices.ui.data.PSAction a : result) {
+            response.getPSAction().add(a);
+         }
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "loadActions");
+         try { handleInvalidContract(e, "loadActions"); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorException e)
       {
          // unknown error
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
-      
-      return result;
+
+      return response;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see Ui#loadDisplayFormats(LoadDisplayFormatsRequest)
     */
-   public PSDisplayFormat[] loadDisplayFormats(
+   public LoadDisplayFormatsResponse loadDisplayFormats(
       LoadDisplayFormatsRequest request)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+      throws com.percussion.webservices.ui.InvalidSessionFaultMessage, com.percussion.webservices.ui.NotAuthorizedFaultMessage
    {
-      authenticate();
+      try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.ui.InvalidSessionFaultMessage(e.getMessage(), e); }
 
       IPSUiWs uiws = PSUiWsLocator.getUiWebservice();
-      com.percussion.webservices.ui.data.PSDisplayFormat[] result = null;
+      LoadDisplayFormatsResponse response = new LoadDisplayFormatsResponse();
       try
       {
-         List<com.percussion.cms.objectstore.PSDisplayFormat> actions = 
+         List<com.percussion.cms.objectstore.PSDisplayFormat> actions =
             uiws.loadDisplayFormats(request.getName());
-         
-         result = (PSDisplayFormat[]) convert(PSDisplayFormat[].class, actions);
+
+         com.percussion.webservices.ui.data.PSDisplayFormat[] result = (com.percussion.webservices.ui.data.PSDisplayFormat[]) convert(com.percussion.webservices.ui.data.PSDisplayFormat[].class, actions);
+         for (com.percussion.webservices.ui.data.PSDisplayFormat f : result) response.getPSDisplayFormat().add(f);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "loadDisplayFormats");
+         try { handleInvalidContract(e, "loadDisplayFormats"); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorException e)
       {
          // unknown error
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
-      
-      return result;
+
+      return response;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see Ui#loadSearches(LoadSearchesRequest)
     */
-   public PSSearchDef[] loadSearches(LoadSearchesRequest request)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+   public LoadSearchesResponse loadSearches(LoadSearchesRequest request)
+      throws com.percussion.webservices.ui.InvalidSessionFaultMessage, com.percussion.webservices.ui.NotAuthorizedFaultMessage
    {
-      authenticate();
+      try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.ui.InvalidSessionFaultMessage(e.getMessage(), e); }
 
       IPSUiWs uiws = PSUiWsLocator.getUiWebservice();
-      PSSearchDef[] result = null;
+      LoadSearchesResponse response = new LoadSearchesResponse();
       try
       {
-         List<com.percussion.cms.objectstore.PSSearch> actions = 
+         List<com.percussion.cms.objectstore.PSSearch> actions =
             uiws.loadSearches(request.getName());
-         
-         result = (PSSearchDef[]) convert(PSSearchDef[].class, actions);
+
+         com.percussion.webservices.ui.data.PSSearchDef[] result = (com.percussion.webservices.ui.data.PSSearchDef[]) convert(com.percussion.webservices.ui.data.PSSearchDef[].class, actions);
+         for (com.percussion.webservices.ui.data.PSSearchDef d : result) response.getPSSearchDef().add(d);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "loadSearches");
+         try { handleInvalidContract(e, "loadSearches"); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorException e)
       {
          // unknown error
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
-      
-      return result;
+
+      return response;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see Ui#loadViews(LoadViewsRequest)
     */
-   public PSViewDef[] loadViews(LoadViewsRequest request)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+   public LoadViewsResponse loadViews(LoadViewsRequest request)
+      throws com.percussion.webservices.ui.InvalidSessionFaultMessage, com.percussion.webservices.ui.NotAuthorizedFaultMessage
    {
-      authenticate();
+      try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.ui.InvalidSessionFaultMessage(e.getMessage(), e); }
 
       IPSUiWs uiws = PSUiWsLocator.getUiWebservice();
-      PSViewDef[] result = null;
+      LoadViewsResponse response = new LoadViewsResponse();
       try
       {
-         List<com.percussion.cms.objectstore.PSSearch> actions = 
+         List<com.percussion.cms.objectstore.PSSearch> actions =
             uiws.loadViews(request.getName());
-         
-         result = (PSViewDef[]) convert(PSViewDef[].class, actions);
+
+         com.percussion.webservices.ui.data.PSViewDef[] result = (com.percussion.webservices.ui.data.PSViewDef[]) convert(com.percussion.webservices.ui.data.PSViewDef[].class, actions);
+         for (com.percussion.webservices.ui.data.PSViewDef v : result) response.getPSViewDef().add(v);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "loadViews");
+         try { handleInvalidContract(e, "loadViews"); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorException e)
       {
          // unknown error
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
-      
-      return result;
+
+      return response;
    }
 }

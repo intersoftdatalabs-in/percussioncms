@@ -31,7 +31,6 @@ public class PSSpanIdTag extends PSJSFBaseTag {
   /** A CSS style to be applied */
   String m_inlineStyle;
 
-  @Override
   public String getComponentType() {
     return "com.percussion.jsf.SpanId";
   }

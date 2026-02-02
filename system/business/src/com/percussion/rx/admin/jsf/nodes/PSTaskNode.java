@@ -263,7 +263,8 @@ public class PSTaskNode extends PSEditableNode {
     public PSScheduledTask getEvent() {
         if (m_event == null) {
             try {
-                m_event = getSchedulingService().findScheduledTaskById(getGUID());
+                m_event = getSchedulingService().findScheduledTaskById(getGUID())
+                        .orElseThrow(() -> new RuntimeException("Scheduled task not found with ID: " + getGUID()));
             } catch (PSSchedulingException e) {
                 // should never be here
                 e.printStackTrace();
@@ -299,7 +300,7 @@ public class PSTaskNode extends PSEditableNode {
         choices.add(new SelectItem("", ""));
         var roles = getRoleManager().getRoles();
         for (var role : roles) {
-            choices.add(new SelectItem(role, role));
+            choices.add(new SelectItem(role, String.valueOf(role)));
         }
         return choices;
     }

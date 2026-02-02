@@ -17,10 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.schedule.impl;
 
-import com.percussion.design.objectstore.PSAttribute;
-import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.design.objectstore.PSSubject;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionException;
@@ -39,7 +36,6 @@ import com.percussion.services.schedule.data.PSNotifyWhen;
 import com.percussion.services.schedule.data.PSScheduledTask;
 import com.percussion.services.schedule.data.PSScheduledTaskLog;
 import com.percussion.services.schedule.data.PSTaskResult;
-import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.utils.jexl.PSServiceJexlEvaluatorBase;
 import com.percussion.services.utils.jexl.PSVelocityUtils;
@@ -51,8 +47,6 @@ import com.percussion.workflow.mail.PSMailMessageContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.quartz.Job;
@@ -67,8 +61,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Adapts Rhythmyx scheduler tasks {@link IPSTask} to the Quartz job interface,
@@ -83,6 +77,15 @@ public class PSTaskAdapter implements Job {
      * Logger for this class.
      */
     private static final Logger log = LogManager.getLogger(PSTaskAdapter.class);
+
+    /**
+     * Get the scheduling service.
+     *
+     * @return the scheduling service, never null
+     */
+    private static IPSSchedulingService getScheduleService() {
+        return PSSchedulingServiceLocator.getSchedulingService();
+    }
 
     @Override
     public void execute(JobExecutionContext context) {
@@ -136,7 +139,7 @@ public class PSTaskAdapter implements Job {
                 .orElse("");
 
         var schedulingException = new PSSchedulingException(
-                Error.TASK_NOT_REGISTERED_SERVER.ordinal(),
+                Error.SCHEDULER.getCode(),
                 job.getId().toString(),
                 job.getName(),
                 job.getServer(),
@@ -165,8 +168,13 @@ public class PSTaskAdapter implements Job {
 
         try {
             var evaluator = getEvaluator(job, result);
-            var template = getScheduleService()
+            var templateOpt = PSSchedulingServiceLocator.getSchedulingService()
                     .findNotificationTemplateById(job.getNotificationTemplateId());
+            if (templateOpt.isEmpty()) {
+                log.debug("No notification template for job {}", job.getName());
+                return;
+            }
+            var template = templateOpt.get();
 
             var subject = getEvaluateSubject(template.getSubject(), evaluator);
             var message = getNotifyMessage(template, evaluator.getVars());
@@ -421,6 +429,7 @@ public class PSTaskAdapter implements Job {
       var directEmailAddresses = getEmailAddresses(job);
 
       var combinedAddresses = Stream.of(roleEmailAddresses, directEmailAddresses)
+              .filter(Objects::nonNull)
               .filter(StringUtils::isNotBlank)
               .collect(Collectors.joining(","));
 
@@ -529,8 +538,7 @@ public class PSTaskAdapter implements Job {
       if (isJobActive(task.getId()))
       {
          PSSchedulingException se = new PSSchedulingException(
-               Error.SKIP_FIRE_SCHEDULED_TASK.ordinal(), task.getId()
-                     .toString(), task.getName());
+               Error.SCHEDULER.getCode(), task.getId().toString(), task.getName());
          throw se;
       }
    }

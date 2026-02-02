@@ -322,7 +322,8 @@ public final class PSContentChangeService implements IPSContentChangeService,
             PSContentEditorHandler contentEditorHandler = (PSContentEditorHandler) requestHandler;
             // Use Spring proxy to handle transaction annotations
             var serviceProxy = PSContentChangeServiceLocator.getContentChangeService();
-            contentEditorHandler.addEditorChangeListener(serviceProxy);
+            // The proxy may implement IPSEditorChangeListener as well; cast to satisfy the compiler
+            contentEditorHandler.addEditorChangeListener((IPSEditorChangeListener) serviceProxy);
             log.debug("Registered content change service with editor handler");
         }
     }

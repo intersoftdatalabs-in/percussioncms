@@ -26,6 +26,12 @@ import javax.xml.stream.XMLStreamException;
 
 import com.percussion.rx.publisher.impl.PSPublishingJob;
 import com.percussion.services.assembly.IPSAssemblyItem;
+import com.percussion.services.publisher.IPSPublisherService;
+import com.percussion.services.publisher.PSPublisherServiceLocator;
+import com.percussion.services.publisher.IPSEditionTaskDef;
+import com.percussion.services.publisher.IPSEditionTaskLog;
+import com.percussion.services.publisher.IPSEdition;
+import com.percussion.services.publisher.IPSPubStatus;
 import com.percussion.services.utils.general.PSServiceConfigurationBean;
 import com.percussion.utils.guid.IPSGuid;
 
@@ -142,6 +148,38 @@ public interface IPSRxPublisherServiceInternal extends IPSRxPublisherService
     * find the job.
     */
    PSPublishingJob getPublishingJob(long jobID);
+
+   /**
+    * Compatibility helpers that delegate to the underlying publisher service when available.
+    */
+   default IPSEditionTaskDef findEditionTaskById(IPSGuid id) {
+      IPSPublisherService svc = PSPublisherServiceLocator.getPublisherService();
+      return svc != null ? svc.findEditionTaskById(id) : null;
+   }
+
+   default java.util.List<IPSEditionTaskLog> findEditionTaskLogEntriesByJobId(Long jobId) {
+      IPSPublisherService svc = PSPublisherServiceLocator.getPublisherService();
+      return svc != null ? svc.findEditionTaskLogEntriesByJobId(jobId) : java.util.Collections.emptyList();
+   }
+
+   default IPSGuid findEditionIdForJob(Long jobId) {
+      IPSPublisherService svc = PSPublisherServiceLocator.getPublisherService();
+      return svc != null ? svc.findEditionIdForJob(jobId) : null;
+   }
+
+   default IPSEdition loadEdition(IPSGuid id) {
+      IPSPublisherService svc = PSPublisherServiceLocator.getPublisherService();
+      try {
+         return svc != null ? svc.loadEdition(id) : null;
+      } catch (com.percussion.services.error.PSNotFoundException e) {
+         return null;
+      }
+   }
+
+   default IPSPubStatus findPubStatusForJob(Long jobId) {
+      IPSPublisherService svc = PSPublisherServiceLocator.getPublisherService();
+      return svc != null ? svc.findPubStatusForJob(jobId) : null;
+   }
 
    /**
     * Gets the configuration bean to access configuration properties.

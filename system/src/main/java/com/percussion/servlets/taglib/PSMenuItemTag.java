@@ -49,7 +49,6 @@ public class PSMenuItemTag extends PSJSFBaseTag {
   /** Switches rendering on or off for the component. */
   private String m_rendered;
 
-  @Override
   public String getComponentType() {
     return "com.percussion.jsf.MenuItem";
   }
@@ -183,7 +182,6 @@ public class PSMenuItemTag extends PSJSFBaseTag {
   /**
    * @param rendered the rendered to set
    */
-  @Override
   public void setRendered(String rendered) {
     m_rendered = rendered;
   }

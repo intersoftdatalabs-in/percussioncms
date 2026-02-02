@@ -130,6 +130,7 @@ public class PSFolderEntry extends PSItemEntry {
    *
    * @param doc the document used to generate XML element, never <code>null</code>.
    */
+  @Override
   public Element toXml(Document doc) {
     if (m_folderAcl == null) {
       return super.toXml(doc);
@@ -169,13 +170,13 @@ public class PSFolderEntry extends PSItemEntry {
     }
 
     m_folderAcl = acl;
-    m_communityId = folder.getCommunityId();
+    communityId = folder.getCommunityId();
     PSFolderProperty prop = folder.getProperty(PSFolder.PROPERTY_PUB_FILE_NAME);
     if (prop == null) m_pubFileNameProperty = null;
     else m_pubFileNameProperty = prop.getValue().trim();
 
     // don't call setName() which will 'dirty' for folder object
-    m_name = folder.getName();
+    name = folder.getName();
     m_folder = folder;
   }
 

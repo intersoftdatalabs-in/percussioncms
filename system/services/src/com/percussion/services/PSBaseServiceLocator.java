@@ -110,9 +110,9 @@ public class PSBaseServiceLocator {
      */
     private static final ReentrantReadWriteLock contextLock = new ReentrantReadWriteLock();
 
-    // Private constructor to prevent instantiation
-    private PSBaseServiceLocator() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    // Protected constructor so subclasses can compile (no-op).
+    protected PSBaseServiceLocator() {
+        // no-op
     }
 
     /**

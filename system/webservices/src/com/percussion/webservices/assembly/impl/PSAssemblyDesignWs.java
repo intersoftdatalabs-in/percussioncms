@@ -59,7 +59,7 @@ import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -311,7 +311,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
                      }
                   }
 
-                  // get a list of templates containing these slots and 
+                  // get a list of templates containing these slots and
                   // lock them
                   List<IPSGuid> templateLocks = new ArrayList<>();
                   List<IPSAssemblyTemplate> templates = service
@@ -365,7 +365,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
                      }
                   }
 
-                  // delete the slot                  
+                  // delete the slot
                   service.deleteSlot(id);
                   results.addResult(id);
                }
@@ -397,8 +397,8 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
    }
 
    /*
-    * @see IPSAssemblyDesignWs#findAssemblyTemplates(String, String, 
-    *    Set<IPSAssemblyTemplate.OutputFormat>, 
+    * @see IPSAssemblyDesignWs#findAssemblyTemplates(String, String,
+    *    Set<IPSAssemblyTemplate.OutputFormat>,
     *    IPSAssemblyTemplate.TemplateType, Boolean, Boolean, String)
     */
    public List<IPSCatalogSummary> findAssemblyTemplates(String name,
@@ -628,24 +628,24 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
 
    /**
     * This is used to synchronize the calls that involve the same objects due to
-    * the automatic removal of associations during delete operations.  This 
+    * the automatic removal of associations during delete operations.  This
     * includes deleting templates and slots, each of which modifies the other
-    * object type, and saving and deleting templates, both of which modify 
+    * object type, and saving and deleting templates, both of which modify
     * sites.
     */
    private static final Object SYNC_SAVE_DELETE_TEMPLATE_AND_SLOT = new Object();
 
    /**
-    * Deletes the specified template and the association between the template 
+    * Deletes the specified template and the association between the template
     * and a list of sites and slots.
-    * 
-    * @param deletedId the to be deleted template id, assumed not 
+    *
+    * @param deletedId the to be deleted template id, assumed not
     *    <code>null</code>.
-    * @param session The session id of the client performing the operation. 
+    * @param session The session id of the client performing the operation.
     * Assumed not <code>null</code> or empty.
-    * @param user The user id of the client performing the operation. 
+    * @param user The user id of the client performing the operation.
     * Assumed not <code>null</code> or empty.
-    * 
+    *
     * @throws PSAssemblyException if an error occurs in the assembly service.
     * @throws PSErrorsException If any problems deleting the associated content
     * type relationships.
@@ -688,7 +688,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
          IPSContentDesignWs model = PSContentWsLocator
             .getContentDesignWebservice();
          List<PSContentTemplateDesc> ctAssociations;
-         //remove any content type associations first. Get all associations 
+         //remove any content type associations first. Get all associations
          // unlocked first and only lock the ctypes that need to be modified.
          try
          {
@@ -752,11 +752,11 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
    /**
     * Saves the specified template and the association between the template and
     * a list of sites.
-    * 
+    *
     * @param templateWs the object contains the new template and its association
     *           with a list of sites, assumed not <code>null</code>.
     * @param version version to restore on the template before saving it
-    * 
+    *
     * @throws PSAssemblyException if an error occurs in the assembly service.
     */
    private synchronized void saveTemplateWs(PSAssemblyTemplateWs templateWs,
@@ -809,19 +809,19 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
 
          service.saveTemplate(template);
 
-         // get site / templates associations. Has to cast to 
+         // get site / templates associations. Has to cast to
          IPSSiteManager sitemgr =  PSSiteManagerLocator
                .getSiteManager();
          Map<PSPair<IPSGuid, String>, Collection<IPSGuid>> siteToTemplates = sitemgr
                .findSiteTemplatesAssociations();
-         
+
          // save template / sites associations
          for (Map.Entry<PSPair<IPSGuid, String>, Collection<IPSGuid>> entry : siteToTemplates
                .entrySet())
          {
             IPSGuid siteId = entry.getKey().getFirst();
             Collection<IPSGuid> templateIds = entry.getValue();
-            
+
             // save specified template / sites associations
             Map<IPSGuid, String> siteRefs = templateWs.getSites();
             if (siteRefs.get(siteId) == null
@@ -849,34 +849,34 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
    /**
     * Logges the save Site/Template association action. Do nothing if debug
     * is not on for this class.
-    * 
+    *
     * @param site the saved Site, assumed not <code>null</code>.
     * @param template the added/removed template, assumed not <code>null</code>.
     * @param isAdd <code>true</code> if add the template; otherwise remove
     * the template from the site.
     */
-   private void logSaveSiteTemplateAssociation(IPSSite site, 
+   private void logSaveSiteTemplateAssociation(IPSSite site,
          IPSAssemblyTemplate template, boolean isAdd)
    {
       if (!ms_logger.isDebugEnabled())
          return;
-      
+
       String action = isAdd ? "ADD" : "REMOVE";
       String msgPattern = "{0} Template (id={1}, name=\"{2}\") into Site (id={3}, name=\"{4}\").";
-      Object[] args = new Object[]{action, template.getGUID().toString(), 
+      Object[] args = new Object[]{action, template.getGUID().toString(),
             template.getName(), site.getGUID().toString(), site.getName()};
       MessageFormat form = new MessageFormat(msgPattern);
       String message = form.format(args);
       ms_logger.debug(message);
    }
-   
+
    /**
     * Converts the supplied extension to the returned one by taking all the
     * results and errors and adding them to the newly created exception,
     * dropping the success objects.
-    * 
+    *
     * @param e Assumed not <code>null</code>.
-    * 
+    *
     * @return Never <code>null</code>.
     */
    private PSErrorsException convertException(PSErrorResultsException e)
@@ -999,7 +999,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
             throw results;
       }
    }
-   
+
    /*
     * //see base interface method for details
     */
@@ -1015,7 +1015,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
       }
       return images;
    }
-   
+
    /*
     * //see base interface method for details
     */
@@ -1023,14 +1023,14 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
    {
       if (!event.getType().equals(EventType.FILE))
          return;
-   
+
       // flush the cached image file map if there are any file changes,
       // may be from installed packages.
       getCache().evict(IMG_FILE_MAP, IPSCacheAccess.IN_MEMORY_STORE);
    }
-   
+
    /**
-    * Gets the image file mapping, which 
+    * Gets the image file mapping, which
     * @return
     */
    @SuppressWarnings("unchecked")
@@ -1038,7 +1038,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
    {
       IPSCacheAccess cache = getCache();
       Map<String, String> imgMap = (Map<String, String>) cache.get(IMG_FILE_MAP,
-            IPSCacheAccess.IN_MEMORY_STORE);
+            IPSCacheAccess.IN_MEMORY_STORE).orElse(null);
       if (imgMap == null)
       {
          HashMap<String, String> mapImp = new HashMap<>(PSTemplateImageUtils.getImageFileNames());
@@ -1047,7 +1047,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
       }
       return imgMap;
    }
-   
+
    /**
     * Spring property accessor.
     *
@@ -1079,11 +1079,11 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
    IPSCacheAccess m_cache;
 
    /**
-    * The image file mapping, used to cache the mapping since it is not 
-    * expected to change after the server started. 
+    * The image file mapping, used to cache the mapping since it is not
+    * expected to change after the server started.
     */
    private  static final String IMG_FILE_MAP = "sys_image_file_mappings";
-   
+
    /**
     * The logger for this class
     */

@@ -100,7 +100,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       query.setMaxResults(count);
     }
 
-    List<Object> idRows = query.list();
+    List<?> idRows = query.list();
 
     // Now we have a good priorized orderd list of ids. Now get the items
     // for the ids
@@ -134,13 +134,13 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
         throw new RuntimeException(e);
       }
 
-      NativeQuery<?> query =
+      NativeQuery<?> queryQ =
           sess.createNativeQuery(sql)
               .addEntity(PSSearchIndexQueueItem.class)
               .addScalar("CURRENTREVISION", StandardBasicTypes.LONG);
-      query.setParameter("idList", idList);
+      queryQ.setParameter("idList", idList);
 
-      List<Object[]> results = (List<Object[]>) query.list();
+      List<Object[]> results = (List<Object[]>) queryQ.list();
       for (Object[] result : results) {
         PSSearchIndexQueueItem item = (PSSearchIndexQueueItem) result[0];
         if (result[1] == null) item.setRevisionId(-2);
@@ -203,7 +203,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       throws DataAccessResourceFailureException, IllegalStateException, HibernateException {
     Session sess = getSession();
 
-    Query sql =
+    Query<?> sql =
         sess.createQuery("delete from PSSearchIndexQueueItem where m_queueId in (:queueIds)");
     sql.setParameterList("queueIds", queueIds);
     sql.executeUpdate();
@@ -224,9 +224,9 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       throws DataAccessResourceFailureException, IllegalStateException, HibernateException {
     Session sess = getSession();
 
-    Query sql =
+    Query<?> sql =
         sess.createQuery("delete from PSSearchIndexQueueItem where m_contentId = :contentId");
-    sql.setInteger("contentId", id);
+    sql.setParameter("contentId", id);
     sql.executeUpdate();
     sess.flush();
   }
@@ -245,9 +245,9 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       throws DataAccessResourceFailureException, IllegalStateException, HibernateException {
     Session sess = getSession();
 
-    Query sql =
+    Query<?> sql =
         sess.createQuery("delete from PSSearchIndexQueueItem where m_contentTypeId = :typeId");
-    sql.setLong("typeId", id);
+    sql.setParameter("typeId", id);
     sql.executeUpdate();
     sess.flush();
   }
@@ -257,7 +257,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   public void deleteAllItems() {
     Session sess = getSession();
 
-    Query sql = sess.createQuery("delete from PSSearchIndexQueueItem");
+    Query<?> sql = sess.createQuery("delete from PSSearchIndexQueueItem");
     sql.executeUpdate();
   }
 

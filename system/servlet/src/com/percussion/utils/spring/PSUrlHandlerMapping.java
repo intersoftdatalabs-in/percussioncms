@@ -39,16 +39,16 @@ import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
  * that path.
  * <p>
  * The special handler <q>[default]</q> is used for non-matching paths when
- * matching in {@link #lookupHandler(String, HttpServletRequest)}. 
+ * matching in {@link #lookupHandler(String, HttpServletRequest)}.
  */
 public class PSUrlHandlerMapping extends SimpleUrlHandlerMapping
 {
    /**
-    * Delegates to base class method and then builds a map of handlers to 
+    * Delegates to base class method and then builds a map of handlers to
     * url path pattern.  See base class method for more info.
     */
    @Override
-   protected void registerHandler(String urlPath, Object handler) 
+   public void registerHandler(String urlPath, Object handler)
       throws BeansException
    {
       super.registerHandler(urlPath, handler);
@@ -77,24 +77,24 @@ public class PSUrlHandlerMapping extends SimpleUrlHandlerMapping
       Object handler = super.lookupHandler(urlPath, req);
       if (handler instanceof HandlerExecutionChain)
       {
-         // get the handler object to execute, which should be an instance of 
+         // get the handler object to execute, which should be an instance of
          // PSWebDavServletController. See registerHandler(String, Object)
          handler = ((HandlerExecutionChain) handler).getHandler();
       }
       ms_urlPath.set(ms_handlerMap.get(handler));
-      
+
       if (handler == null)
       {
          handler = super.lookupHandler("/[default]", req);
       }
-      
+
       return handler;
    }
-   
+
    /**
     * Provides access to the path stored for the current thread by the last call
     * on this thread to {@link #lookupHandler(String, HttpServletRequest)}.
-    * 
+    *
     * @return The path, could be <code>null</code> or empty if
     *         {@link #lookupHandler(String, HttpServletRequest)} has not been
     *         called, or if somehow no handler was registered for the specified
@@ -106,15 +106,15 @@ public class PSUrlHandlerMapping extends SimpleUrlHandlerMapping
    {
       return ms_urlPath.get();
    }
-   
+
    /**
     * Map of handlers to url path patterns, never <code>null</code>.
     * The map key is an instance of {@link PSWebDavServletController}
     * The map value is the URL of the (servlet) handler (that is the map key).
     */
-   private static Map<Object, String> ms_handlerMap = 
+   private static Map<Object, String> ms_handlerMap =
       new HashMap<>();
-   
+
    /**
     * Stores most recently match url path pattern for a thread of execution,
     * never <code>null</code>.

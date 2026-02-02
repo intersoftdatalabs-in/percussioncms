@@ -44,7 +44,7 @@ public class PSUIMenuItem extends HtmlCommandLink {
       if (StringUtils.isNotBlank(title)) {
         writer.writeAttribute("title", title, null);
       }
-    } else if (getAction() != null) {
+    } else if (getActionExpression() != null) {
       super.encodeBegin(context);
     }
   }
