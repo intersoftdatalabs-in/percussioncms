@@ -419,7 +419,22 @@ public abstract class PSSecurityStrategy
 
          //loading the acls individually is very slow, so batch load them
          IPSAclService aclService = PSAclServiceLocator.getAclService();
-         List<IPSAcl> acls = aclService.loadAclsForObjects(ids);
+         List<IPSAcl> acls;
+         try {
+            acls = aclService.loadAclsForObjects(ids);
+         } catch (com.percussion.services.security.PSServiceSecurityException e) {
+            m_log.warn("Failed to load ACLs for object ids: " + e.getMessage());
+            PSDesignGuid dguid = new PSDesignGuid(ids.get(0));
+            int code = IPSWebserviceErrors.ACCESS_CONTROL_ERROR;
+            PSErrorException error = new PSErrorException(code,
+               PSWebserviceErrors.createErrorMessage(code,
+                  dguid.toString(), perm),
+                  ExceptionUtils.getFullStackTrace(e));
+            for (IPSGuid id : ids)
+               failedGuids.put(id, error);
+            m_proceed = false;
+            return failedGuids;
+         }
          //convert to a map for later use
          Map<IPSGuid, IPSAcl> guidToAcl = new HashMap<IPSGuid, IPSAcl>();
          for (IPSAcl acl : acls)
@@ -498,8 +513,20 @@ public abstract class PSSecurityStrategy
          Map<IPSGuid, PSErrorException> failedGuids)
    {
       IPSAclService aclService = PSAclServiceLocator.getAclService();
-      IPSAcl acl = aclService.loadAclForObject(guid);
-      return checkGuidWithAcl(acl, guid, perm, obj, failedGuids);
+      try {
+         IPSAcl acl = aclService.loadAclForObject(guid);
+         return checkGuidWithAcl(acl, guid, perm, obj, failedGuids);
+      } catch (Exception e) {
+         m_log.warn("Failed to load ACL for guid " + guid + ": " + e.getMessage());
+         PSDesignGuid dguid = new PSDesignGuid(guid);
+         int code = IPSWebserviceErrors.ACCESS_CONTROL_ERROR;
+         PSErrorException error = new PSErrorException(code,
+               PSWebserviceErrors.createErrorMessage(code,
+                     dguid.toString(), perm),
+               ExceptionUtils.getFullStackTrace(e));
+         failedGuids.put(guid, error);
+         return true;
+      }
    }
 
    /**
@@ -535,7 +562,19 @@ public abstract class PSSecurityStrategy
       if (accessLevel == null)
       {
          IPSAclService aclService = PSAclServiceLocator.getAclService();
-         accessLevel = aclService.calculateUserAccessLevel(acl);
+         try {
+            accessLevel = aclService.calculateUserAccessLevel(acl);
+         } catch (Exception e) {
+            m_log.warn("Failed to calculate user access level for guid " + guid + ": " + e.getMessage());
+            PSDesignGuid dguid = new PSDesignGuid(guid);
+            int code = IPSWebserviceErrors.ACCESS_CONTROL_ERROR;
+            PSErrorException error = new PSErrorException(code,
+               PSWebserviceErrors.createErrorMessage(code,
+                  dguid.toString(), perm),
+                  ExceptionUtils.getFullStackTrace(e));
+            failedGuids.put(guid, error);
+            return true;
+         }
       }
 
       boolean isFailed = false;

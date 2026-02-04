@@ -177,7 +177,14 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
     long cTypeId = editor.getContentType();
     IPSGuid ctypeGuid = new PSGuid(PSTypeEnum.NODEDEF, cTypeId);
     IPSAclService aclService = PSAclServiceLocator.getAclService();
-    IPSAcl ctypeAcl = aclService.loadAclForObject(ctypeGuid);
+    IPSAcl ctypeAcl;
+    try {
+      ctypeAcl = aclService.loadAclForObject(ctypeGuid);
+    } catch (com.percussion.services.security.PSServiceSecurityException e) {
+      Logger log = LogManager.getLogger(this.getClass());
+      log.warn("Failed to load ACL for content type {}: {}", cTypeId, e.getMessage());
+      return wfGuids;
+    }
     // Get the list of communities from Security Manager
     IPSBackEndRoleMgr roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
     Map<String, IPSGuid> comms = new HashMap<>();

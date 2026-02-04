@@ -279,7 +279,8 @@ public class SecuritySOAPImpl extends PSBaseSOAPImpl implements com.percussion.w
         logger.debug("Filtering {} IDs by runtime visibility", inputCount);
 
         try {
-            authenticate();
+            String session;
+            try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securityservices.InvalidSessionFaultMessage(e.toString(), e); }
             var service = PSSecurityWsLocator.getSecurityWebservice();
 
             if (idsList.isEmpty()) {

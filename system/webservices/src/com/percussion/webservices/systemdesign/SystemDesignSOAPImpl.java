@@ -105,7 +105,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       }
       catch (PSLockErrorException e)
       {
-         try { handleLockError(e); } catch (PSLockFault lf) { throw new com.percussion.webservices.systemdesign.LockFaultMessage(lf.toString(), lf); } catch (RemoteException re) { throw new RuntimeException(re); }
+         try { handleLockError(e); } catch (PSLockFault lf) { throw new RuntimeException(lf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
@@ -151,7 +151,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       }
       catch (PSLockErrorException e)
       {
-         try { handleLockError(e); } catch (PSLockFault lf) { throw new com.percussion.webservices.systemdesign.LockFaultMessage(lf.toString(), lf); } catch (RemoteException re) { throw new RuntimeException(re); }
+         try { handleLockError(e); } catch (PSLockFault lf) { throw new RuntimeException(lf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
@@ -322,11 +322,11 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
             PSErrorsFault.class, e);
          fault.setService(serviceName);
 
-         throw fault;
+         throw new com.percussion.webservices.systemdesign.ErrorsFaultMessage(fault.toString(), fault);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
@@ -472,7 +472,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       }
       catch (IllegalArgumentException e)
       {
-         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.systemdesign.ContractViolationFaultMessage(cv.toString(), cv); }
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
 
       // will never get here
@@ -489,7 +489,8 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       String service = "loadAcls";
       try
       {
-         String session = authenticate();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.systemdesign.InvalidSessionFaultMessage(e.toString(), e); }
          String user = getRemoteUser().orElse(null);
 
          IPSSystemDesignWs svce = PSSystemWsLocator.getSystemDesignWebservice();
@@ -570,22 +571,20 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.systemdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
-
-         throw (PSLockFault) convert(
-                 PSLockFault.class, e);
+         try { handleLockError(e); } catch (PSLockFault lf) { throw new com.percussion.webservices.systemdesign.LockFaultMessage(lf.toString(), lf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (FileNotFoundException e)
       {
          logger.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new com.percussion.webservices.systemdesign.UnknownConfigurationFaultMessage(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       // will never get here
@@ -691,7 +690,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       }
       catch (RuntimeException e)
       {
-         try { handleRuntimeException(e, serviceName); } catch (com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage naf) { throw naf; }
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       // will never get here
@@ -839,16 +838,16 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       }
       catch (IllegalArgumentException e)
       {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code,
-            PSWebserviceErrors.createErrorMessage(code, serviceName,
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.systemdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorResultsException e)
       {
          // this should never happen
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
+
+      // will never get here
+      return new IsLockedResponse();
    }
 
    /*
@@ -904,7 +903,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       }
       catch (RuntimeException e)
       {
-         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage(naf.toString(), naf); }
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       // will never get here
@@ -1066,8 +1065,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
 
          int count = request.getCount() == null ? 1 : request.getCount();
 
-         String session;
-         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.systemdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.systemdesign.InvalidSessionFaultMessage(e.toString(), e); }
 
          IPSSystemDesignWs service = PSSystemWsLocator.getSystemDesignWebservice();
 
@@ -1083,7 +1081,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
       }
       catch (RuntimeException e)
       {
-         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       // will never get here

@@ -189,7 +189,8 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
             PSWebserviceUtils.throwObjectExistException(name, PSTypeEnum.HIERARCHY_NODE);
          }
 
-         PSHierarchyNode node = service.createHierarchyNode(name, parent, type);
+         PSHierarchyNode node;
+         try { node = service.createHierarchyNode(name, parent, type); } catch (PSUiException e) { throw new RuntimeException(e); }
 
          IPSObjectLockService lockService = PSObjectLockServiceLocator.getLockingService();
          try
@@ -624,7 +625,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
                     node.getName());
             node.setParentId(null);
             IPSUiService service = PSUiServiceLocator.getUiService();
-            service.saveHierarchyNode(node);
+            try { service.saveHierarchyNode(node); } catch (PSUiException e) { throw new RuntimeException(e); }
             nodePath.insert(0, "/" + node.getName());
          }
       }
@@ -1083,11 +1084,21 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
                   node.setVersion(version);
 
                // save the object and extend the lock
-               service.saveHierarchyNode(node);
-               if (!release)
-                  lockService.extendLock(id, session, user, node.getVersion());
+               try {
+                  service.saveHierarchyNode(node);
+                  if (!release)
+                     lockService.extendLock(id, session, user, node.getVersion());
 
-               results.addResult(id);
+                  results.addResult(id);
+               }
+               catch (PSUiException e)
+               {
+                  int code = IPSWebserviceErrors.SAVE_FAILED;
+                  PSDesignGuid guid = new PSDesignGuid(id);
+                  PSErrorException error = new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
+                        PSHierarchyNode.class.getName(), guid.getValue(), e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+                  results.addError(id, error);
+               }
             }
             else
             {

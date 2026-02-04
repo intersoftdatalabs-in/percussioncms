@@ -144,7 +144,7 @@ class PSCacheAccessTest {
       }
    }
 
-   @BeforeEach All
+   @BeforeAll
    static void setupCache() throws Exception {
       CacheManager.create(new ByteArrayInputStream(EHCACHE_CONFIG.getBytes()));
    }

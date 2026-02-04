@@ -70,15 +70,20 @@ public class PSRelationshipConfigConverter extends PSTransitionBaseConverter
 
          com.percussion.webservices.system.PSRelationshipConfig source
           = (com.percussion.webservices.system.PSRelationshipConfig) value;
-         String xmlString = source.getRelationshipConfig();
-         if (xmlString == null || xmlString.trim().length() == 0)
-            throw new IllegalArgumentException("RelationshipConfig property must not be null or empty.");
-         PSRelationshipConfig target = getRelationshipConfig(xmlString);
+Object xmlObj = source.getRelationshipConfig();
+           String xmlString = xmlObj == null ? null : (xmlObj instanceof String ? (String) xmlObj : xmlObj.toString());
+           if (xmlString == null || xmlString.trim().length() == 0)
+              throw new IllegalArgumentException("RelationshipConfig property must not be null or empty.");
+           PSRelationshipConfig target = getRelationshipConfig(xmlString);
 
          target.setName(source.getName());
          target.setLabel(source.getLabel());
          target.setDescription(source.getDescription());
-         target.setCategory(source.getCategory());
+         Object catObj = source.getCategory();
+         String cat = null;
+         if (catObj != null)
+            cat = catObj instanceof String ? (String) catObj : catObj.toString();
+         target.setCategory(cat);
          Object rawType = source.getType();
          String typeValue = rawType == null ? "" : String.valueOf(rawType);
          if ("system".equalsIgnoreCase(typeValue))
@@ -126,7 +131,11 @@ public class PSRelationshipConfigConverter extends PSTransitionBaseConverter
         type = RelationshipConfigSummaryType.user;
 
       target.setId(id);
-      target.setCategory(source.getCategory());
+      Object catObj = source.getCategory();
+      String cat = null;
+      if (catObj != null)
+         cat = catObj instanceof String ? (String) catObj : catObj.toString();
+      target.setCategory(cat);
       target.setDescription(source.getDescription());
       target.setLabel(source.getLabel());
       target.setName(source.getName());

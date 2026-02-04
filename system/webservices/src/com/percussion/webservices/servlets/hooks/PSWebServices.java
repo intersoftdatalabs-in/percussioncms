@@ -558,8 +558,6 @@ public class PSWebServices
    {
       String ret = "";
 
-      try
-      {
                // Extract body directly from the Envelope (compatible with the
                // current SOAPContext shim which exposes body elements instead
                // of MimeBodyPart attachments).
@@ -592,13 +590,6 @@ public class PSWebServices
                // only get the FIRST valid body part, ignore the rest, which
                // is compliant with Rhythmyx WSDL
 
-      }
-      catch (MessagingException me)
-      {
-         throw new SOAPException(
-            Constants.FAULT_CODE_CLIENT,
-            "MessagingException " + me.getMessage());
-      }
 
       return ret;
    }

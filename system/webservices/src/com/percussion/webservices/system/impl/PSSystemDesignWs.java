@@ -688,10 +688,17 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
       {
          acls = new ArrayList<>();
          List<IPSAcl> existingAcls;
-         if (lock)
-            existingAcls = aclService.loadAclsForObjectsModifiable(ids);
-         else
-            existingAcls = aclService.loadAclsForObjects(ids);
+         try {
+            if (lock)
+               existingAcls = aclService.loadAclsForObjectsModifiable(ids);
+            else
+               existingAcls = aclService.loadAclsForObjects(ids);
+         } catch (PSServiceSecurityException e) {
+            for (IPSGuid id : ids) {
+               results.addError(id, e);
+            }
+            existingAcls = Collections.emptyList();
+         }
          int i = 0;
          for (IPSAcl acl : existingAcls)
          {

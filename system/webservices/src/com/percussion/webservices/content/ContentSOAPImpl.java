@@ -324,7 +324,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
             // Map validation/server errors to ContractViolationFaultMessage for SOAP contract
             throw new com.percussion.webservices.content.ContractViolationFaultMessage(PSExceptionUtils.getMessageForLog(e), e);
         } catch (RuntimeException e) {
-            try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.content.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
+            try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
         }
 
         return null;
@@ -378,7 +378,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
          try {
             handleRuntimeException(e, serviceName);
          } catch (PSNotAuthorizedFault naf) {
-            throw new com.percussion.webservices.content.NotAuthorizedFaultMessage(naf.toString(), naf);
+            throw new RuntimeException(naf);
          } catch (RemoteException ex) {
             throw new RuntimeException(ex);
          }
@@ -441,11 +441,11 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "addFolderChildren");
+         try { handleInvalidContract(e, "addFolderChildren"); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.content.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorException e)
       {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new com.percussion.webservices.content.ContractViolationFaultMessage(PSExceptionUtils.getMessageForLog(e), e);
       }
    }
 
@@ -484,15 +484,15 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.content.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.content.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(e);
       }
 
       return null;
@@ -514,7 +514,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorsException e)
       {
@@ -538,11 +538,11 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (PSErrorsFault erf) { throw new RuntimeException(erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
@@ -885,11 +885,11 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (PSErrorsFault erf) { throw new RuntimeException(erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
    }
 
@@ -1012,7 +1012,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (Exception e)
       {
@@ -1091,8 +1091,6 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
     */
    public FindFolderPathResponse findFolderPath(FindFolderPathRequest request)
    {
-      authenticate();
-
       try
       {
          try { authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
@@ -1108,7 +1106,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "findFolderPath");
+         try { handleInvalidContract(e, "findFolderPath"); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorException e)
       {
@@ -1169,7 +1167,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
    public FindParentItemsResponse findParentItems(
       FindParentItemsRequest request)
    {
-      authenticate();
+      try { authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
 
       String serviceName = "findParentItems";
       FindParentItemsResponse response = new FindParentItemsResponse();
@@ -1191,13 +1189,13 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (Exception e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         handleRuntimeException(new RuntimeException(e), serviceName);
+         try { handleRuntimeException(new RuntimeException(e), serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       return null;
@@ -1318,11 +1316,11 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorException e)
       {
-         handleRuntimeException(new RuntimeException(e), serviceName);
+         try { handleRuntimeException(new RuntimeException(e), serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       return null;
@@ -1378,7 +1376,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       LoadChildEntriesResponse response = new LoadChildEntriesResponse();
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
 
          IPSContentWs service = PSContentWsLocator.getContentWebservice();
 
@@ -1404,21 +1402,21 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSUnknownChildException e)
       {
-         handleRuntimeException(new RuntimeException(e), serviceName);
+         throw new RuntimeException(e);
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new RuntimeException(erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         handleRuntimeException(new RuntimeException(e), serviceName);
+         try { handleRuntimeException(new RuntimeException(e), serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       return null;
@@ -1676,7 +1674,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.content.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       return response;
@@ -1693,7 +1691,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       String serviceName = "moveFolderChildren";
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.content.InvalidSessionFaultMessage(e.toString(), e); }
          // validating, cannot specified both id & path for source/target
          validateFolderRef(request.getSource());
          validateFolderRef(request.getTarget());
@@ -1723,11 +1721,11 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.content.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorException e)
       {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
    }
 
@@ -1743,7 +1741,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
 
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
 
          IPSContentWs service = PSContentWsLocator.getContentWebservice();
 
@@ -1770,7 +1768,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new RuntimeException(erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
@@ -1814,7 +1812,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
 
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
 
          IPSContentWs service = PSContentWsLocator.getContentWebservice();
 
@@ -1841,7 +1839,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new RuntimeException(erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
@@ -2022,7 +2020,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       String serviceName = "removeFolderChildren";
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
          validateFolderRef(request.getParent());
 
          IPSContentWs service = PSContentWsLocator.getContentWebservice();
@@ -2047,15 +2045,15 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (PSErrorsFault erf) { throw new RuntimeException(erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
    }
 
@@ -2071,7 +2069,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       String serviceName = "reorderChildEntries";
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.content.InvalidSessionFaultMessage(e.toString(), e); }
          IPSContentWs service = PSContentWsLocator.getContentWebservice();
 
          IPSGuid id = new PSLegacyGuid(reorderChildEntriesRequest.getId());
@@ -2086,7 +2084,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.content.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSUnknownChildException e)
       {
@@ -2095,18 +2093,18 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (PSInvalidStateException e)
       {
-         throw new PSContractViolationFault(e.getCode(),
-            e.getLocalizedMessage(), ExceptionUtils.getFullStackTrace(e));
+         var fault = convert(com.percussion.webservices.faults.PSContractViolationFault.class, e);
+         throw new com.percussion.webservices.content.ContractViolationFaultMessage(fault.toString(), fault);
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (PSErrorsFault erf) { throw new com.percussion.webservices.content.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new com.percussion.webservices.content.ContractViolationFaultMessage(PSExceptionUtils.getMessageForLog(e), e);
       }
    }
 
@@ -2138,7 +2136,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (PSErrorException e)
       {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
    }
 
@@ -2181,13 +2179,13 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (PSErrorsFault erf) { throw new com.percussion.webservices.content.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new com.percussion.webservices.content.ContractViolationFaultMessage(PSExceptionUtils.getMessageForLog(e), e);
       }
    }
 

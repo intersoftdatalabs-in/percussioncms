@@ -72,7 +72,21 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
          CreateContentTypesResponse response = new CreateContentTypesResponse();
          response.getPSContentType().addAll(Arrays.asList(arr));
          return response;
-      } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); } catch (RemoteException re) { throw new RuntimeException(re); }
+      } catch (RuntimeException e) {
+         Throwable cause = e.getCause();
+         if (cause instanceof PSInvalidSessionFault) {
+            PSInvalidSessionFault isf = (PSInvalidSessionFault) cause;
+            throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(isf.toString(), isf);
+         }
+         if (cause instanceof PSContractViolationFault) {
+            PSContractViolationFault cv = (PSContractViolationFault) cause;
+            throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv);
+         }
+         if (cause instanceof PSErrorsException) {
+            throw new RuntimeException(cause);
+         }
+         throw e;
+      } catch (RemoteException re) { throw new RuntimeException(re); }
    }
 
    /*
@@ -97,12 +111,12 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RemoteException(cv.toString(), cv); }
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (PSInvalidSessionFault e)
       {
@@ -111,7 +125,7 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       // Should never get here - return empty array if we do
@@ -168,11 +182,11 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RemoteException(cv.toString(), cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       // Should never get here - return an empty array in case
@@ -518,7 +532,7 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorResultsException e)
       {
@@ -566,7 +580,7 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       // will never get here
@@ -742,7 +756,7 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
@@ -790,7 +804,7 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSLockErrorException e)
       {
@@ -800,11 +814,11 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
       // will never get here
@@ -849,7 +863,7 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
@@ -885,7 +899,7 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
@@ -895,11 +909,11 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
@@ -991,15 +1005,15 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 

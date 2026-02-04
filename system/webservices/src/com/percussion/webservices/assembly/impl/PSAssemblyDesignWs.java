@@ -802,6 +802,11 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
             // Fault
             throw new RuntimeException(e);
          }
+         catch (com.percussion.utils.xml.PSInvalidXmlException e)
+         {
+            // Wrap as assembly exception
+            throw new com.percussion.services.assembly.PSAssemblyException(0, e);
+         }
 
          // Restore version
          ((PSAssemblyTemplate) template).setVersion(null);
