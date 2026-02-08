@@ -113,7 +113,7 @@
         <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
-        <hibernate.version>6.6.40.Final</hibernate.version>
+        <hibernate.version>6.6.41.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
@@ -192,7 +192,7 @@
         <maven.version>[3.6,)</maven.version>
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
         <mockito.version>5.21.0</mockito.version>
-        <mssql.version>13.3.0.jre11-preview</mssql.version>
+        <mssql.version>13.3.1.jre11-preview</mssql.version>
         <myfaces.version>4.1.2</myfaces.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
         <opencsv.version>5.12.0</opencsv.version>
@@ -1896,7 +1896,7 @@
             <dependency>
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client</artifactId>
-                <version>2.0.3</version>
+                <version>2.1.0</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
