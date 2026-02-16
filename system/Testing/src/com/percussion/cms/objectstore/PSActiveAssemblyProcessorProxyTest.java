@@ -20,26 +20,24 @@ import com.percussion.design.objectstore.PSLocator;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Test the public interface documented for the active assembly processor proxy.
  * The processor functionality itself is not tested here but in autotests.
  */
-public class PSActiveAssemblyProcessorProxyTest extends TestCase
+public class PSActiveAssemblyProcessorProxyTest
 {
    // see base class for documentation
-   public PSActiveAssemblyProcessorProxyTest(String name)
-   {
-      super(name);
-   }
-   
    /**
     * Test all realtionship processor proxy constructors contracts.
     * 
     * @throws Exception for any error.
     */
-   public void testConstructors() throws Exception
+   @Test
+   @Test
+         public void testConstructors() throws Exception
    {
       String type = "type";
       Object context = new Object();
@@ -82,7 +80,9 @@ public class PSActiveAssemblyProcessorProxyTest extends TestCase
     * 
     * @throws Exception for any error.
     */
-   public void testPublicAPI() throws Exception
+   @Test
+   @Test
+         public void testPublicAPI() throws Exception
    {
       PSActiveAssemblyProcessorProxy processor = 
             new PSActiveAssemblyProcessorProxy("type", null);

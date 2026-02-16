@@ -42,8 +42,8 @@ public class PSFileSystemStatementTest
 {
    private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
 
-   @Rule
-   public Path tempFolder = new TemporaryFolder();
+   @TempDir
+   public File tempFolder;
 
    public static void main(String[] args)
    {
@@ -87,7 +87,8 @@ public class PSFileSystemStatementTest
    @BeforeEach 
    public void setUp() throws IOException {
       // make the testing directories
-      m_rootDir = tempFolder.newFolder("Testing","PSFileSystemStatementTest");
+      m_rootDir = new File(tempFolder, "Testing/PSFileSystemStatementTest");
+      m_rootDir.mkdirs();
       m_2Dir = new File(m_rootDir, "Dir2");
       m_3Dir = new File(m_2Dir, "Dir3");
       m_4Dir = new File(m_3Dir, "Dir4");
@@ -160,7 +161,7 @@ public class PSFileSystemStatementTest
    @Disabled //TODO: Fix ME!
    public void testRecursive() throws Exception
    {
-      String tempPath = tempFolder.getRoot().getAbsolutePath();
+      String tempPath = tempFolder.getAbsolutePath();
       PSFileSystemStatement statement = new PSFileSystemStatement(null);
       String sqlQuery =
          "SELECT name, fullname, path, modified, length FROM '"+ tempPath + "*'";
@@ -179,22 +180,17 @@ public class PSFileSystemStatementTest
       ResultSetMetaData meta = result.getMetaData();
       assertNotNull(meta);
 
-      assertEquals("Column count", 5, meta.getColumnCount());
+      assertEquals(5, meta.getColumnCount(), "Column count");
 
-      assertEquals("Name column type should be VARCHAR",
-              java.sql.Types.VARCHAR, meta.getColumnType(1));
+      assertEquals(java.sql.Types.VARCHAR, meta.getColumnType(1), "Name column type should be VARCHAR");
 
-      assertEquals("Fullname column type should be VARCHAR",
-              java.sql.Types.VARCHAR, meta.getColumnType(2));
+      assertEquals(java.sql.Types.VARCHAR, meta.getColumnType(2), "Fullname column type should be VARCHAR");
 
-      assertEquals("Path column type should be VARCHAR",
-              java.sql.Types.VARCHAR, meta.getColumnType(3));
+      assertEquals(java.sql.Types.VARCHAR, meta.getColumnType(3), "Path column type should be VARCHAR");
 
-      assertEquals("Modified column type should be VARCHAR",
-              java.sql.Types.VARCHAR, meta.getColumnType(4));
+      assertEquals(java.sql.Types.VARCHAR, meta.getColumnType(4), "Modified column type should be VARCHAR");
 
-      assertEquals("Length column type should be BIGINT",
-              java.sql.Types.BIGINT, meta.getColumnType(5));
+      assertEquals(java.sql.Types.BIGINT, meta.getColumnType(5), "Length column type should be BIGINT");
 
       assertEquals(m_totalNumFiles, i);
 

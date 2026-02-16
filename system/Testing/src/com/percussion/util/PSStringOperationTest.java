@@ -18,6 +18,7 @@
 package com.percussion.util;
 
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 
@@ -29,13 +30,10 @@ import org.junit.jupiter.api.Test;
  * @version    2.0
  * @since      1.0
  */
-public class PSStringOperationTest extends TestCase
+public class PSStringOperationTest
 {
-   public PSStringOperationTest(String name)
-   {
-      super(name);
-   }
 
+   @Test
    public void testReplaceAndToProperCase() throws Exception
    {
       PSStringOperation operation = new PSStringOperation();
@@ -74,6 +72,7 @@ public class PSStringOperationTest extends TestCase
       assertTrue(result.equals("This Is Only A Test"));
    }
 
+   @Test
    public void testDateFormatCase() throws Exception
    {
       PSStringOperation operation = new PSStringOperation();
@@ -129,6 +128,7 @@ public class PSStringOperationTest extends TestCase
     * 
     * @throws Exception if the test fails.
     */
+   @Test
    public void testCharReplace() throws Exception
    {
       assertEquals("foo:bar:doh", PSStringOperation.replace("foo;bar;doh", ';', 
@@ -148,13 +148,5 @@ public class PSStringOperationTest extends TestCase
          ';', ':'));         
    }
 
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSStringOperationTest("testReplaceAndToProperCase"));
-      suite.addTest(new PSStringOperationTest("testDateFormatCase"));
-      suite.addTest(new PSStringOperationTest("testCharReplace"));
-      return suite;
-   }
+
 }

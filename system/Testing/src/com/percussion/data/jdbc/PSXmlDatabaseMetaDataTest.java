@@ -54,8 +54,8 @@ public class PSXmlDatabaseMetaDataTest
 {
    private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
 
-   @Rule
-   public Path tempFolder = new TemporaryFolder();
+   @TempDir
+   public File tempFolder;
 
    /** true if we already initialized */
    private static boolean ms_inited = false;
@@ -115,8 +115,8 @@ public class PSXmlDatabaseMetaDataTest
 
          ms_singleElementFileName = "SingleEl.xml";
          ms_multiElementsFileName = "MultiEl.xml";
-         tempFolder.create();
-         ms_rootDir = tempFolder.newFolder("Testing");
+         ms_rootDir = new File(tempFolder, "Testing");
+         ms_rootDir.mkdirs();
          ms_rootDir.deleteOnExit();
          assertTrue(ms_rootDir.exists());
 

@@ -27,30 +27,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSActionVisibilityCheckerTest extends TestCase
+public class PSActionVisibilityCheckerTest
 {
-   public PSActionVisibilityCheckerTest(String name)
-   {
-      super(name);
-   }
+   // legacy constructor removed - tests use @Test methods now
+
 
    @SuppressWarnings("unchecked")
+   @Test
    public void testBasics()
    {
       PSActionVisibilityChecker checker = new PSActionVisibilityChecker(-1,
             true, null);
-      assertTrue(checker.isVisible(null, (Collection) null));
-      
+      assertTrue(checker.isVisible(null, (Collection<?>) null));
+
       assertTrue(checker.isVisible(
-            new GenericGlobalState(new HashMap<String, Object>()), 
+            new GenericGlobalState(new HashMap<String, Object>()),
             new GenericObjectState(new HashMap<String, Object>())));
    }
-   
+
    /**
     * Tests all contexts that are exposed in
     * {@link PSActionVisibilityGlobalState}.
     */
+   @Test
    public void testGlobalStates()
    {
       genericCheckGlobalVisibility(
@@ -61,11 +62,12 @@ public class PSActionVisibilityCheckerTest extends TestCase
             PSActionVisibilityContext.VIS_CONTEXT_LOCALES_TYPE);
       checkGlobalVisibilityRoles();
    }
-   
+
    /**
     * Tests all contexts that are exposed in
     * {@link PSActionVisibilityObjectState}.
     */
+   @Test
    public void testObjectStates()
    {
       //integer types
@@ -81,12 +83,12 @@ public class PSActionVisibilityCheckerTest extends TestCase
       //string types
       genericCheckObjectVisibility(
             PSActionVisibilityContext.VIS_CONTEXT_PUBLISHABLE_TYPE);
-      
+
       //special cases
       checkVisibilityCheckoutStatus();
       checkVisibilityFolderSecurity();
    }
-   
+
    private void checkVisibilityFolderSecurity()
    {
       String contextId = PSActionVisibilityContext.VIS_CONTEXT_FOLDER_SECURITY;
@@ -124,22 +126,22 @@ public class PSActionVisibilityCheckerTest extends TestCase
       PSActionVisibilityChecker checker = new PSActionVisibilityChecker(300,
             true, vcs);
       Map<String, Object> stateMap = new HashMap<String, Object>();
-      stateMap.put(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE, 
+      stateMap.put(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE,
             Arrays.asList(new String[] { "r3", "r5" }));
       GenericGlobalState gs = new GenericGlobalState(stateMap);
       assertFalse(checker.isVisible(gs, (Collection) null));
 
-      stateMap.put(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE, 
+      stateMap.put(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE,
             Arrays.asList(new String[] { "r3", "r6" }));
       gs.reset(stateMap);
       assertTrue(checker.isVisible(gs, (Collection) null));
 
-      stateMap.put(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE, 
+      stateMap.put(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE,
             Arrays.asList(new String[] { "r7", "r8" }));
       gs.reset(stateMap);
       assertTrue(checker.isVisible(gs, (Collection) null));
    }
-   
+
    @SuppressWarnings("unchecked")
    private void genericCheckGlobalVisibility(String contextId)
    {
@@ -158,7 +160,7 @@ public class PSActionVisibilityCheckerTest extends TestCase
       gs.reset(stateMap);
       assertTrue(checker.isVisible(gs, (Collection) null));
    }
-   
+
    @SuppressWarnings("unchecked")
    private void genericCheckObjectVisibility(String contextId)
    {
@@ -177,7 +179,7 @@ public class PSActionVisibilityCheckerTest extends TestCase
       os.reset(stateMap);
       assertTrue(checker.isVisible(null, os));
    }
-   
+
    @SuppressWarnings("unchecked")
    private void checkVisibilityCheckoutStatus()
    {
@@ -198,7 +200,7 @@ public class PSActionVisibilityCheckerTest extends TestCase
       os.reset(stateMap);
       assertTrue(checker.isVisible(null, os));
    }
-   
+
    private class GenericObjectState extends PSActionVisibilityObjectState
    {
       /**
@@ -214,7 +216,7 @@ public class PSActionVisibilityCheckerTest extends TestCase
 
       /**
        * Replace the existing state with the supplied state.
-       * 
+       *
        * @param state Same as ctor.
        */
       public void reset(Map<String, Object> state)
@@ -278,13 +280,13 @@ public class PSActionVisibilityCheckerTest extends TestCase
                PSActionVisibilityContext.VIS_CONTEXT_WORKFLOWS_TYPE);
          return o == null ? super.getWorkflowAppUuid() : ((Integer) o).intValue();
       }
-      
+
       /**
        * Set in ctor, then never modified.
        */
       private Map<String, Object> m_state;
    }
-   
+
    private class GenericGlobalState extends PSActionVisibilityGlobalState
    {
       /**
@@ -300,14 +302,14 @@ public class PSActionVisibilityCheckerTest extends TestCase
 
       /**
        * Replace the existing state with the supplied state.
-       * 
+       *
        * @param state Same as ctor.
        */
       public void reset(Map<String, Object> state)
       {
          m_state = state;
       }
-      
+
       @Override
       public String getClientContext()
       {
@@ -340,11 +342,11 @@ public class PSActionVisibilityCheckerTest extends TestCase
                PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE);
          return o == null ? super.getRoles() : (Collection<String>) o;
       }
-      
+
       /**
        * Set in ctor, then never modified.
        */
       private Map<String, Object> m_state;
    }
-   
+
 }

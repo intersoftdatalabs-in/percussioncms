@@ -34,6 +34,9 @@ import javax.security.auth.Subject;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.iterators.FilterIterator;
 
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 
@@ -41,40 +44,18 @@ import org.junit.jupiter.api.Test;
  * Tests for utils
  * @author dougrand
  */
-public class PSJaasUtilsTest extends TestCase
+public class PSJaasUtilsTest
 {
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see junit.framework.TestCase#setUp()
-    */
+   @BeforeEach
    protected void setUp() throws Exception
    {
-      super.setUp();
       ms_testData = new ArrayList<Principal>();
       ms_testRoleGroup = new PSGroup("Roles");
 
    }
 
-   /**
-    * Constructor for PSJaasUtillsTest.
-    * 
-    * @param arg0
-    */
-   public PSJaasUtilsTest(String arg0) {
-      super(arg0);
-   }
 
-   /**
-    * Suite method
-    * 
-    * @return The test suite, never <code>null</code>.
-    */
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSJaasUtilsTest.class);
-   }
 
    /**
     * Test data intiialized during {@link #setUp()}, never <code>null</code> 
@@ -93,6 +74,7 @@ public class PSJaasUtilsTest extends TestCase
     * 
     * @throws Exception if the test failes.
     */
+   @Test
    public void testFindRoleGroup() throws Exception
    {
       ms_testData.add(ms_testRoleGroup);
@@ -114,6 +96,7 @@ public class PSJaasUtilsTest extends TestCase
     * @throws Exception if the test fails.
     */
    @SuppressWarnings(value={"unchecked"})
+   @Test
    public void testCollectionResults() throws Exception
    {
       ms_testData.add(new PSPrincipal("user"));
@@ -150,6 +133,7 @@ public class PSJaasUtilsTest extends TestCase
     * @throws Exception if the test fails.
     */
    @SuppressWarnings(value={"unchecked"})
+   @Test
    public void testSubjectToEntry() throws Exception
    {
       PSGroupEntry group1 = new PSGroupEntry("group1", 0);

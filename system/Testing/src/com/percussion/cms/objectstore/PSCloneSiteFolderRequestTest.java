@@ -24,7 +24,7 @@ import java.util.Map;
 
 
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 
@@ -32,31 +32,29 @@ import org.w3c.dom.Document;
  * Test the clone site folder request according to the schema defined in schema
  * sys_FolderParameters.xsd.
  */
-public class PSCloneSiteFolderRequestTest extends TestCase
+public class PSCloneSiteFolderRequestTest
 {
-   // see base class for documentation
-   public PSCloneSiteFolderRequestTest(String name)
-   {
-      super(name);
-   }
-   
+   // legacy constructor removed - using @Test methods
+
+
    /**
     * Test all public constuctors.
-    * 
+    *
     * @throws Exception for any error.
     */
+   @Test
    public void testConstructors() throws Exception
    {
       PSLocator source = new PSLocator(1, 1);
       PSLocator target = new PSLocator(1, 1);
       PSCloningOptions options = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName", 
-         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK, 
+         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
+         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
          null);
-      
+
       // test valid parameters
       new PSCloneSiteFolderRequest(source, target, options);
-      
+
       // test invalid source
       Exception exception = null;
       try
@@ -68,7 +66,7 @@ public class PSCloneSiteFolderRequestTest extends TestCase
          exception = e;
       }
       assertTrue(exception instanceof IllegalArgumentException);
-      
+
       // test invalid target
       exception = null;
       try
@@ -80,7 +78,7 @@ public class PSCloneSiteFolderRequestTest extends TestCase
          exception = e;
       }
       assertTrue(exception instanceof IllegalArgumentException);
-      
+
       // test invalid options
       exception = null;
       try
@@ -93,10 +91,10 @@ public class PSCloneSiteFolderRequestTest extends TestCase
       }
       assertTrue(exception instanceof IllegalArgumentException);
    }
-   
+
    /**
     * Test all public methods contracts.
-    * 
+    *
     * @throws Exception for any error.
     */
    public void testPublicAPI() throws Exception
@@ -105,42 +103,37 @@ public class PSCloneSiteFolderRequestTest extends TestCase
       communityMappings.put(new Integer(1), new Integer(2));
       communityMappings.put(new Integer(3), new Integer(4));
       communityMappings.put(new Integer(5), new Integer(6));
-      
+
       PSCloningOptions options = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName", 
-         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK, 
+         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
+         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
          communityMappings);
 
       PSLocator locator_1 = new PSLocator(1, 1);
       PSLocator locator_2 = new PSLocator(2, 2);
-      
+
       PSCloneSiteFolderRequest request_1 = new PSCloneSiteFolderRequest(
          locator_1, locator_1, options);
-      
+
       PSCloneSiteFolderRequest request_2 = new PSCloneSiteFolderRequest(
          locator_2, locator_2, options);
-      
+
       assertTrue(!request_1.equals(request_2));
-      
+
       // test copyFrom
       request_2.copyFrom(request_1);
       assertTrue(request_1.equals(request_2));
-      
+
       // test clone
       assertTrue(request_1.equals(request_1.clone()));
-      
+
       // test toXml / fromXml
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSCloneSiteFolderRequest request_1_copy = 
+      PSCloneSiteFolderRequest request_1_copy =
          new PSCloneSiteFolderRequest(request_1.toXml(doc), null, null);
       assertTrue(request_1.equals(request_1_copy));
    }
-   
-   // see base class for documentation
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite(PSCloneSiteFolderRequestTest.class);
-      
-      return suite;
-   }
+
+   // JUnit 3 style suite removed; using JUnit 5 @Test methods
+
 }

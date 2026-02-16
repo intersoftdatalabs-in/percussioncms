@@ -45,8 +45,8 @@ public class PSFileSystemConnectionTest
    // the connection properties for the single root elem doc
    private Properties m_connProperties;
 
-   @Rule
-   public Path tempFolder = new TemporaryFolder();
+   @TempDir
+   public File tempFolder;
 
    @BeforeEach 
    public void setUp()
@@ -54,7 +54,7 @@ public class PSFileSystemConnectionTest
 
       try
       {
-         m_rootDir = tempFolder.newFolder("Testing");
+         m_rootDir = new File(tempFolder, "Testing");
          m_connProperties = new Properties();
          m_rootDir.mkdirs();
          m_connProperties.setProperty("catalog", m_rootDir.getCanonicalPath());

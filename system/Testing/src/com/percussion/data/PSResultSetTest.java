@@ -20,6 +20,9 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.Vector;
 
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -28,7 +31,7 @@ import org.apache.commons.lang3.RandomStringUtils;
  * Unit tests for the PSResultSet class
  *
  */
-public class PSResultSetTest extends TestCase
+public class PSResultSetTest
 {
    /**
     * Set the result set's data to our data, then iterate through the
@@ -100,6 +103,7 @@ public class PSResultSetTest extends TestCase
       assertTrue(i == NUM_ROWS);
    }
 
+   @BeforeEach
    @SuppressWarnings("unchecked")
    public void setUp()
    {

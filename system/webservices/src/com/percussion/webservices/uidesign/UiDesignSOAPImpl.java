@@ -306,7 +306,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl
          try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.uidesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
-      return result; 
+      return result;
    }
 
    /*

@@ -17,6 +17,7 @@
 package com.percussion.util;
 
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,13 +33,10 @@ import java.util.Map;
 /**
  * Unit tests for the PSBaseHttpUtils class
  */
-public class PSBaseHttpUtilsTest extends TestCase
+public class PSBaseHttpUtilsTest
 {
-   public PSBaseHttpUtilsTest(String name)
-   {
-      super(name);
-   }
 
+   @Test
    public void testRemoveQueryParam()
    {
       String[][] vectors = 
@@ -58,6 +56,7 @@ public class PSBaseHttpUtilsTest extends TestCase
       }
    }
    
+   @Test
    public void testAddQueryParams()
    {
       String[] paths = 
@@ -99,6 +98,7 @@ public class PSBaseHttpUtilsTest extends TestCase
       assertEquals(params, PSBaseHttpUtils.parseQueryParamsString(result));
    }
    
+   @Test
    public void testParseHttpPath()
    {
       String[][] testData = 
@@ -117,6 +117,7 @@ public class PSBaseHttpUtilsTest extends TestCase
    }
    
    @SuppressWarnings("unchecked")
+   @Test
    public void testParseQueryParams() throws Exception
    {
       Map<String, Object> results;
@@ -179,6 +180,7 @@ public class PSBaseHttpUtilsTest extends TestCase
       assertEquals(p1, results.get(v1));
    }
    
+   @Test
    public void testReadStatusLine() throws Exception
    {
       String[] testStrings = new String[]
@@ -213,6 +215,7 @@ public class PSBaseHttpUtilsTest extends TestCase
    }
 
    @SuppressWarnings("unchecked")
+   @Test
    public void testParseContentType() throws Exception
    {
       HashMap params = new HashMap();
