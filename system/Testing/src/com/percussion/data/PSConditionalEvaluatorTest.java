@@ -23,6 +23,7 @@ import com.percussion.design.objectstore.PSNumericLiteral;
 import com.percussion.design.objectstore.PSTextLiteral;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -36,13 +37,10 @@ import java.util.ArrayList;
  * @version   1.0
  * @since     1.0
  */
-public class PSConditionalEvaluatorTest extends TestCase
+public class PSConditionalEvaluatorTest
 {
-   public PSConditionalEvaluatorTest(String name)
-   {
-      super(name);
-   }
 
+   @Test
    public void testMakeComparable2Number() throws Exception
    {
       // only BigDecimal works for type Number
@@ -133,6 +131,7 @@ public class PSConditionalEvaluatorTest extends TestCase
       testNormalCases(null, null);
    }
 
+   @Test
    public void testMakeComparable2Date() throws Exception
    {
       java.util.Date left = new java.util.Date(1000);
@@ -216,6 +215,7 @@ public class PSConditionalEvaluatorTest extends TestCase
       testEqualNullCase(null,right);
    }
 
+   @Test
    public void testMakeComparable2String() throws Exception
    {
       String left = "This is a test";
@@ -275,6 +275,7 @@ public class PSConditionalEvaluatorTest extends TestCase
       testNormalCases(left, textLiteral);
    }
 
+   @Test
    public void testMakeComparable2PSDateLiteral() throws Exception
    {
       String pattern = "yyyy.MM.dd G";
@@ -348,6 +349,7 @@ public class PSConditionalEvaluatorTest extends TestCase
       testNormalCases(dateLiteral, myText);
    }
 
+   @Test
    public void testMakeComparable2PSNumericLiteral() throws Exception
    {
       java.text.DecimalFormat format = new java.text.DecimalFormat();
@@ -408,6 +410,7 @@ public class PSConditionalEvaluatorTest extends TestCase
       testNullNullCase(null, null);
    }
 
+   @Test
    public void testMakeComparable2PSTextLiteral() throws Exception
    {
       PSTextLiteral left = new PSTextLiteral("This is a test");
@@ -459,6 +462,7 @@ public class PSConditionalEvaluatorTest extends TestCase
       testNormalCasesInverse(myText, oneDay);
    }
 
+   @Test
    public void testMakeComparable2Lists() throws Exception
    {
       ArrayList left = new ArrayList();
