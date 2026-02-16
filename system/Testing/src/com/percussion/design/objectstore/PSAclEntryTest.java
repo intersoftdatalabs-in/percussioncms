@@ -24,20 +24,20 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSAclEntryTest extends TestCase
+public class PSAclEntryTest
 {
-   public PSAclEntryTest(String name)
-   {
-      super(name);
-   }
 
+   @BeforeEach
    public void setUp()
    {
 
    }
 
+   @Test
    public void testEmptyEquals() throws Exception
    {
       PSAclEntry entry = new PSAclEntry();
@@ -45,6 +45,7 @@ public class PSAclEntryTest extends TestCase
       assertEquals(entry, otherEntry);
    }
 
+   @Test
    public void testNameTypeConstructor() throws Exception
    {
       PSAclEntry entry =
@@ -98,6 +99,7 @@ public class PSAclEntryTest extends TestCase
 
    }
 
+   @Test
    public void testGetSetName() throws Exception
    {
       PSAclEntry entry = new PSAclEntry();
@@ -143,6 +145,7 @@ public class PSAclEntryTest extends TestCase
       assertEquals(entry.getName(), "foobar");
    }
 
+   @Test
    public void testXml() throws Exception
    {
       PSAclEntry entry = new PSAclEntry();
@@ -152,7 +155,7 @@ public class PSAclEntryTest extends TestCase
       // block 1
       entry.setAccessLevel(PSAclEntry.SACE_ACCESS_DATA);
       entry.setName("foobar");
-      assertTrue(!entry.equals(otherEntry));
+      assertFalse(entry.equals(otherEntry));
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element el = entry.toXml(doc);
@@ -164,7 +167,7 @@ public class PSAclEntryTest extends TestCase
       // block 2
       entry.setAccessLevel(PSAclEntry.AACE_DATA_QUERY);
       entry.setName("taebo");
-      assertTrue(!entry.equals(otherEntry));
+      assertFalse(entry.equals(otherEntry));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = entry.toXml(doc);
@@ -175,15 +178,5 @@ public class PSAclEntryTest extends TestCase
 
    }
 
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSAclEntryTest("testEmptyEquals"));
-      suite.addTest(new PSAclEntryTest("testNameTypeConstructor"));
-      suite.addTest(new PSAclEntryTest("testGetSetName"));
-      suite.addTest(new PSAclEntryTest("testXml"));
-      return suite;
-   }
 }
 
