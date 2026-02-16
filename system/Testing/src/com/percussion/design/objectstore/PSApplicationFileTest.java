@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 
@@ -35,8 +36,9 @@ import com.percussion.xml.PSXmlTreeWalker;
 /**
  *   Unit tests for the PSApplicationFile class
  */
-public class PSApplicationFileTest extends TestCase
+public class PSApplicationFileTest
 {
+   @Test
    public void testConstructors() throws Exception
    {
       File tempFile = File.createTempFile("PSApplicationFileTest", null);
@@ -84,6 +86,7 @@ public class PSApplicationFileTest extends TestCase
       catch (IllegalArgumentException success) {}
    }
 
+   @Test
    public void testOtherMethods() throws Exception
    {
       File tempFile = File.createTempFile("PSApplicationFileTest", null);
@@ -147,6 +150,7 @@ public class PSApplicationFileTest extends TestCase
     * @throws   Exception
     *
     */
+   @Test
    public void testToFromXml() throws Exception
    {
       final File tempFile = File.createTempFile("PSApplicationFileTest", null);
@@ -183,7 +187,7 @@ public class PSApplicationFileTest extends TestCase
          bytesRead += read;
       }
       assertTrue(appFileIn.available() == 0);
-      assertTrue("" + bytesRead + "=?=" + bytes.length, bytesRead == bytes.length);
+      assertTrue(bytesRead == bytes.length, "" + bytesRead + "=?=" + bytes.length);
       assertTrue(Arrays.equals(bytes, readBytes));
    }
 
