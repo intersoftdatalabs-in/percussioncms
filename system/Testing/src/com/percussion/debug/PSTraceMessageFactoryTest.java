@@ -20,7 +20,7 @@ package com.percussion.debug;
 import com.percussion.design.objectstore.PSTraceOption;
 
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,13 +28,10 @@ import java.util.Iterator;
 /**
  *   Unit tests for the PSTraceMessageFactoryTest class
  */
-public class PSTraceMessageFactoryTest extends TestCase
+public class PSTraceMessageFactoryTest
 {
-   public PSTraceMessageFactoryTest(String name)
-   {
-      super(name);
-   }
 
+   @Test
    public void testMessages() throws Exception
    {
       // create each message from its flag and be sure it's the correct type
@@ -105,17 +102,9 @@ public class PSTraceMessageFactoryTest extends TestCase
                assertTrue(message instanceof PSTraceSessionInfo);
                break;
             default:
-               assertTrue(false);
+               fail("Unexpected trace message type: " + flag);
          }
       }
-   }
-
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSTraceMessageFactoryTest("testMessages"));
-       return suite;
    }
 
 
