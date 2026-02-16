@@ -20,6 +20,7 @@ package com.percussion.design.objectstore;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.w3c.dom.Document;
@@ -33,11 +34,12 @@ import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
  *   Unit tests for the PSApplication class
  */
 
-public class PSApplicationTest extends TestCase
+public class PSApplicationTest
 {
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   @Test
    public void testEqualsHashCode()
    {
       final int ID = 123;
@@ -72,6 +74,7 @@ public class PSApplicationTest extends TestCase
 }
 
    
+   @Test
    public void testXml() throws Exception
    {
       // assert that two empty apps are equal
