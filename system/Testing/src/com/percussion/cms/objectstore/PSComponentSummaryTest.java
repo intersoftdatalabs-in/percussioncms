@@ -17,6 +17,7 @@
 package com.percussion.cms.objectstore;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,13 +30,14 @@ import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 /**
  * 
  */
-public class PSComponentSummaryTest extends TestCase
+public class PSComponentSummaryTest
 {
    /**
     * Test all public constuctors.
     * 
     * @throws Exception for any error.
     */
+   @Test
    public void testConstructors() throws Exception
    {
       int cid = 300;
@@ -173,6 +175,7 @@ public class PSComponentSummaryTest extends TestCase
     * 
     * @throws Exception for any error.
     */
+   @Test
    public void testPublicAPI() throws Exception
    {
       int cid = 300;
@@ -224,6 +227,7 @@ public class PSComponentSummaryTest extends TestCase
     * Tests <code>PSComponentSummary.getEditLocator()</code>.
     *
     */
+   @Test
    public void testEditLocator()
    {
       int cid = 300;
@@ -264,6 +268,7 @@ public class PSComponentSummaryTest extends TestCase
     * Tests <code>PSComponentSummary.getEditLocator()</code>.
     *
     */
+   @Test
    public void testTimeZone()
    {
       int cid = 300;

@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,13 +32,14 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 /**
  * Unit test class for the <code>PSFolder</code> class.
  */
-public class PSFolderTest extends TestCase
+public class PSFolderTest
 {
    /**
     * Tests the equals and to/from XML methods
     *
     * @throws Exception if there are any errors.
     */
+   @Test
    public void testAll() throws Exception
    {
       PSFolder folder = new PSFolder("f1", 10, -1,
@@ -83,6 +85,7 @@ public class PSFolderTest extends TestCase
     *
     * @throws Exception if there are any errors.
     */
+   @Test
    public void testState() throws Exception
    {
       PSFolder folder = new PSFolder("f1", 10, -1,
@@ -101,6 +104,7 @@ public class PSFolderTest extends TestCase
     * 
     * @throws Exception
     */
+   @Test
    public void testMerge() throws Exception
    {
       // tests merge properties
@@ -191,6 +195,7 @@ public class PSFolderTest extends TestCase
     *
     * @throws Exception an error occurs.
     */
+   @Test
    public void testComponentSummary() throws Exception
    {
       PSComponentSummary compSummary = new PSComponentSummary(10, 1, 1, 1,
@@ -214,6 +219,7 @@ public class PSFolderTest extends TestCase
     * 
     * @throws Exception on error
     */
+   @Test
    public void testFolderHashCodeAndEquals() throws Exception
    {
       PSFolder folder1 = new PSFolder("f1", 10, -1,
@@ -250,6 +256,7 @@ public class PSFolderTest extends TestCase
     * 
     * @throws Exception
     */
+   @Test
    public void testMergeAclFrom() throws Exception
    {
       // create a persisted folder
