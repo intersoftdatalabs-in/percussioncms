@@ -22,6 +22,7 @@ import com.percussion.design.objectstore.PSBackEndJoin;
 import com.percussion.design.objectstore.PSBackEndTable;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -39,14 +40,13 @@ import java.util.HashMap;
  * Unit tests for the query joiner class. 
  *
  */
-public class PSQueryJoinerTest extends TestCase
+public class PSQueryJoinerTest
 {
-   public PSQueryJoinerTest(String name)
-   {
-      super(name);
+   public PSQueryJoinerTest() {
       ms_rand = new SecureRandom();
    }
 
+   @Test
    public void testNormalJoin() throws Exception
    {
       int[] dataTypes =
@@ -510,22 +510,19 @@ public class PSQueryJoinerTest extends TestCase
       try {
          if (joinType == PSBackEndJoin.BEJ_TYPE_LEFT_OUTER)
          {
-            assertTrue(
-               "Left outer must be at least as large as left side",
-               leftCard <= joinedRs.getNumRows());
+            assertTrue(leftCard <= joinedRs.getNumRows(),
+               "Left outer must be at least as large as left side");
          }
          else if (joinType == PSBackEndJoin.BEJ_TYPE_RIGHT_OUTER)
          {
-            assertTrue(
-               "Right outer must be at least as large as right side",
-               rightCard <= joinedRs.getNumRows());
+            assertTrue(rightCard <= joinedRs.getNumRows(),
+               "Right outer must be at least as large as right side");
          }
          else if (joinType == PSBackEndJoin.BEJ_TYPE_FULL_OUTER)
          {
             int expected = Math.max(leftCard, rightCard);
-            assertTrue(
-               "Full outer must be at least as large as the larger side",
-               expected <= joinedRs.getNumRows());
+            assertTrue(expected <= joinedRs.getNumRows(),
+               "Full outer must be at least as large as the larger side");
          }
          else
          {   // inner - ? what's the check here?!
@@ -649,16 +646,6 @@ public class PSQueryJoinerTest extends TestCase
       out.flush();
       out.close();
    }
-
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSQueryJoinerTest("smokeTestJoins"));
-      suite.addTest(new PSQueryJoinerTest("testNormalJoin"));
-      return suite;
-   }
-
 
    protected static SecureRandom ms_rand;
 }
