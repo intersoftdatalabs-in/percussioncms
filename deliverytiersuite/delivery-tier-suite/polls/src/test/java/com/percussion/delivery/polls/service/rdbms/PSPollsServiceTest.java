@@ -22,49 +22,58 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 import com.percussion.delivery.polls.services.IPSPollsService;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
 
-@Disabled("Requires DB-backed SessionFactory from test-beans.xml; kept disabled during migration")
-@Transactional
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(locations = {"classpath:test-beans.xml"})
+import static org.mockito.Mockito.when;
+
+/**
+ * Unit test for {@link com.percussion.delivery.polls.services.impl.PSPollsService}.
+ *
+ * <p>This test was previously an integration test using Spring + Hibernate + an in-memory Derby
+ * datasource configured in {@code test-beans.xml}. During migration it was disabled because it
+ * required a DB-backed {@code SessionFactory}.
+ *
+ * <p>To keep coverage without DB wiring, this version tests the service logic using a mocked
+ * {@link com.percussion.delivery.polls.services.IPSPollsDao}.
+ */
+@ExtendWith(MockitoExtension.class)
 class PSPollsServiceTest {
 
-  @Autowired private IPSPollsService pollsService;
-  @Autowired private SessionFactory sessionFactory;
+  private IPSPollsService pollsService;
+
+  @Mock private com.percussion.delivery.polls.services.IPSPollsDao pollsDao;
+
+  @BeforeEach
+  void setUp() {
+    pollsService = new com.percussion.delivery.polls.services.impl.PSPollsService(pollsDao);
+  }
 
   @BeforeEach
   void cleanPollsTable() {
-    Session session = sessionFactory.getCurrentSession();
-    CriteriaBuilder builder = session.getCriteriaBuilder();
-    CriteriaDelete<PSPoll> deleteQuery = builder.createCriteriaDelete(PSPoll.class);
-    deleteQuery.from(PSPoll.class);
-    session.createQuery(deleteQuery).executeUpdate();
+    // no-op: previous integration test cleared the DB table; unit test uses in-memory objects
   }
 
   @Test
   void testSave() {
+    var pollEntity = new PSPoll();
+    pollEntity.setPollAnswers(new java.util.HashSet<>());
+    when(pollsDao.findByQuestion("TestQuestion")).thenReturn(null, pollEntity, pollEntity, pollEntity);
+    when(pollsDao.createEmptyPoll()).thenReturn(pollEntity);
+    when(pollsDao.createEmptyAnswer()).thenAnswer(inv -> new PSPollAnswer());
+
     Map<String, Boolean> answers = new HashMap<>();
     answers.put("Answer1", true);
     answers.put("Answer2", false);
     answers.put("Answer3", false);
 
     pollsService.savePoll("TestPoll", "TestQuestion", answers);
-    sessionFactory.getCurrentSession().flush();
 
     IPSPoll poll = pollsService.findPollByQuestion("TestQuestion");
     assertNotNull(poll);
