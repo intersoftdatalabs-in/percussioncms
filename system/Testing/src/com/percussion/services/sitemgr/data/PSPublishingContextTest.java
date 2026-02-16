@@ -20,28 +20,30 @@ package com.percussion.services.sitemgr.data;
 import com.percussion.services.guidmgr.data.PSGuid;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for the {@link PSPublishingContext} object.
  */
-public class PSPublishingContextTest extends TestCase
+public class PSPublishingContextTest 
 {
    /**
     * Test equals and hashcode
     * 
     * @throws Exception if the test fails.
     */
+   
    public void testEquals() throws Exception
    {
       PSPublishingContext context1 = createContext();
       PSPublishingContext context2 = new PSPublishingContext();
-      assertTrue(!context1.equals(context2));
+      assertFalse(context1.equals(context2));
       context2 = (PSPublishingContext) context1.clone();
       assertEquals(context1, context2);
       assertEquals(context1.hashCode(), context2.hashCode());
            
       context2.setDescription("This is a new description");
-      assertTrue(!context1.equals(context2));
+      assertFalse(context1.equals(context2));
    }
    
    /**
@@ -49,11 +51,12 @@ public class PSPublishingContextTest extends TestCase
     * 
     * @throws Exception if there are any errors.
     */
+   
    public void testXml() throws Exception
    {
       PSPublishingContext context1 = createContext();
       PSPublishingContext context2 = new PSPublishingContext();
-      assertTrue(!context1.equals(context2));
+      assertFalse(context1.equals(context2));
       String str = context1.toXML();
       context2.fromXML(str);
       

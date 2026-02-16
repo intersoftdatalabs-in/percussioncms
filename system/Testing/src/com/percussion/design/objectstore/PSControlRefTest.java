@@ -24,19 +24,22 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSControlRefTest extends TestCase
+public class PSControlRefTest 
 {
-   public PSControlRefTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testEquals() throws Exception
    {
    }
+
+   
 
    public void testXml() throws Exception
    {
@@ -57,15 +60,8 @@ public class PSControlRefTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSControlRef testFrom = new PSControlRef(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      
-      suite.addTest(new PSControlRefTest("testXml"));
-      
-      return suite;
-   }
+   
 }

@@ -21,6 +21,7 @@ import java.util.Random;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import com.percussion.utils.tools.PSPatternMatcher;
@@ -28,16 +29,14 @@ import com.percussion.utils.tools.PSPatternMatcher;
 /**
  * Unit tests for the PSPatternMatcher class
  */
-public class PSPatternMatcherTest extends TestCase
+public class PSPatternMatcherTest 
 {
-   public PSPatternMatcherTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Assert that a newly constructed object is in the correct state
     */
+   
    public void testConstructor()
    {
       PSPatternMatcher matchAnything = new PSPatternMatcher('?', '*', "*");
@@ -45,6 +44,8 @@ public class PSPatternMatcherTest extends TestCase
       assertTrue('*' == matchAnything.getMatchZeroOrMore());
       assertTrue(matchAnything.isCaseSensitive());
    }
+
+   
 
    public void testMatchAnything()
    {
@@ -57,6 +58,8 @@ public class PSPatternMatcherTest extends TestCase
          assertTrue(randStr, matchAnything.doesMatchPattern(randStr));
       }
    }
+
+   
 
    public void testMatchSubstring()
    {
@@ -75,6 +78,8 @@ public class PSPatternMatcherTest extends TestCase
       assertTrue("sfax", matchAnything.doesMatchPattern("sfax"));
       assertTrue("af", !matchAnything.doesMatchPattern("af"));
    }
+
+   
 
    public void testMatchSplitString()
    {
@@ -116,13 +121,5 @@ public class PSPatternMatcherTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSPatternMatcherTest("testConstructor"));
-      suite.addTest(new PSPatternMatcherTest("testMatchAnything"));
-      suite.addTest(new PSPatternMatcherTest("testMatchSubstring"));
-      suite.addTest(new PSPatternMatcherTest("testMatchSplitString"));
-      return suite;
-   }
+   
 }

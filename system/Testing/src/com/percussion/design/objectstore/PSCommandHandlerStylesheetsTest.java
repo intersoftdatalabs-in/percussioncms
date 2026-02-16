@@ -24,19 +24,22 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSCommandHandlerStylesheetsTest extends TestCase
+public class PSCommandHandlerStylesheetsTest 
 {
-   public PSCommandHandlerStylesheetsTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testEquals() throws Exception
    {
    }
+
+   
 
    public void testXml() throws Exception
    {
@@ -66,16 +69,8 @@ public class PSCommandHandlerStylesheetsTest extends TestCase
       Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
       Element elem2 = testFrom.toXml(doc);
       PSXmlDocumentBuilder.copyTree(doc2, root2, elem2, true);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      //suite.addTest(new PSCommandHandlerStylesheetsTest("testEquals"));
-      suite.addTest(new PSCommandHandlerStylesheetsTest("testXml"));
-
-      return suite;
-   }
+   
 }

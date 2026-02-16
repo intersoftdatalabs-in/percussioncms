@@ -23,17 +23,19 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.w3c.dom.Document;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link PSJdbcDriverConfig} class.
  */
-public class PSJdbcDriverConfigTest extends TestCase
+public class PSJdbcDriverConfigTest 
 {
    /**
     * Test the parameterized ctor
     * 
     * @throws Exception if the test fails
     */
+   
    public void testCtor() throws Exception
    {
       String[] args = (String[]) ArrayUtils.clone(ARGS);
@@ -60,6 +62,7 @@ public class PSJdbcDriverConfigTest extends TestCase
     * 
     * @throws Exception if the test fails.
     */
+   
    public void testXml() throws Exception
    {
       String[] args = (String[]) ArrayUtils.clone(ARGS);
@@ -74,6 +77,7 @@ public class PSJdbcDriverConfigTest extends TestCase
     * 
     * @throws Exception if the test fails
     */
+   
    public void testEquals() throws Exception
    {
       String[] args = (String[]) ArrayUtils.clone(ARGS);
@@ -88,7 +92,7 @@ public class PSJdbcDriverConfigTest extends TestCase
       {
          String val = args[i];
          args[i] = "foo";
-         assertTrue(!cfg.equals(PSTestUtils.testCtor(PSJdbcDriverConfig.class, 
+         assertFalse(cfg.equals(PSTestUtils.testCtor(PSJdbcDriverConfig.class, 
             PARAMS, args, false)));
          args[i] = val;
       }      
@@ -99,6 +103,7 @@ public class PSJdbcDriverConfigTest extends TestCase
     * 
     * @throws Exception if the test fails
     */
+   
    public void testSetters() throws Exception
    {
       String[] args = (String[]) ArrayUtils.clone(ARGS);

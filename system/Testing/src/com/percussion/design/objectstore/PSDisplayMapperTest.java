@@ -24,20 +24,18 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSDisplayMapperTest extends TestCase
+public class PSDisplayMapperTest
 {
-   public PSDisplayMapperTest(String name)
-   {
-      super(name);
-   }
-
+   @Test
    public void testEquals() throws Exception
    {
    }
 
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -72,15 +70,9 @@ public class PSDisplayMapperTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSDisplayMapper testFrom = new PSDisplayMapper(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
+   // JUnit 5 uses test discovery; explicit suite() is not required and has been removed.
 
-      suite.addTest(new PSDisplayMapperTest("testXml"));
-      
-      return suite;
-   }
 }

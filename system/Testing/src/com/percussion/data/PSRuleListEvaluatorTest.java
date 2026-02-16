@@ -35,42 +35,42 @@ public class PSRuleListEvaluatorTest
     * Test AND rule evaluations.
     */
    @Test
-   public void testAndEvaluation() throws PSNotFoundException, 
+   public void testAndEvaluation() throws PSNotFoundException,
       PSExtensionException
    {
       PSRuleListEvaluator evaluator = null;
       PSCollection rules = new PSCollection(PSRule.class);
-      PSExecutionData data = new PSExecutionData(null, null, 
+      PSExecutionData data = new PSExecutionData(null, null,
          new PSRequest(null, null, null, null));
-      
+
       // true AND true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND false = false
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // false AND true = false
       rules.clear();
       rules.add(getConditionalRule(false, PSRule.BOOLEAN_AND));
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // false AND false = false
       rules.clear();
       rules.add(getConditionalRule(false, PSRule.BOOLEAN_AND));
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // true AND true AND true AND true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -79,7 +79,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND true AND true AND false = false
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -88,7 +88,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // true AND true AND false AND true = false
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -97,7 +97,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // true AND false AND true AND true = false
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -106,7 +106,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // false AND true AND true AND true = false
       rules.clear();
       rules.add(getConditionalRule(false, PSRule.BOOLEAN_AND));
@@ -116,47 +116,47 @@ public class PSRuleListEvaluatorTest
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
    }
-   
+
    /**
     * Test OR rule evaluations.
     */
    @Test
-   public void testOrEvaluation() throws PSNotFoundException, 
+   public void testOrEvaluation() throws PSNotFoundException,
       PSExtensionException
    {
       PSRuleListEvaluator evaluator = null;
       PSCollection rules = new PSCollection(PSRule.class);
-      PSExecutionData data = new PSExecutionData(null, null, 
+      PSExecutionData data = new PSExecutionData(null, null,
          new PSRequest(null, null, null, null));
-      
+
       // true OR true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_OR));
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true OR false = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_OR));
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // false OR true = true
       rules.clear();
       rules.add(getConditionalRule(false, PSRule.BOOLEAN_OR));
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // false OR false = false
       rules.clear();
       rules.add(getConditionalRule(false, PSRule.BOOLEAN_OR));
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // true OR true OR true OR true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_OR));
@@ -165,7 +165,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true OR true OR true OR false = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_OR));
@@ -174,7 +174,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true OR false OR true OR false = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_OR));
@@ -183,7 +183,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // false OR false OR false OR true = true
       rules.clear();
       rules.add(getConditionalRule(false, PSRule.BOOLEAN_OR));
@@ -193,24 +193,24 @@ public class PSRuleListEvaluatorTest
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
    }
-   
+
    /**
     * Test mixed rule evaluations.
     */
    @Test
-   public void testMixedEvaluation() throws PSNotFoundException, 
+   public void testMixedEvaluation() throws PSNotFoundException,
       PSExtensionException
    {
       PSRuleListEvaluator evaluator = null;
       PSCollection rules = new PSCollection(PSRule.class);
-      PSExecutionData data = new PSExecutionData(null, null, 
+      PSExecutionData data = new PSExecutionData(null, null,
          new PSRequest(null, null, null, null));
 
       // empty rules = true
       rules.clear();
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND true AND true OR false = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -219,7 +219,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND false AND true OR false = false
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -228,7 +228,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // true AND false AND true OR true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -237,7 +237,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND false AND true OR false OR false OR true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -248,7 +248,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND false OR true AND false = false
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -257,7 +257,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       // true AND true OR true AND false OR false AND true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -268,7 +268,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND false OR true AND true OR false AND true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -279,7 +279,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND false OR false AND true OR true AND true = true
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -290,7 +290,7 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       // true AND false OR true AND false OR false AND true = false
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -301,9 +301,9 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(true, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       /*
-       * (true AND true AND false AND true) OR false OR (false AND true) OR 
+       * (true AND true AND false AND true) OR false OR (false AND true) OR
        * (false AND true AND false) = false
        */
       rules.clear();
@@ -319,9 +319,9 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(!evaluator.isMatch(data));
-      
+
       /*
-       * (true AND true AND false AND true) OR true OR (false AND true) OR 
+       * (true AND true AND false AND true) OR true OR (false AND true) OR
        * (false AND true AND false) = true
        */
       rules.clear();
@@ -337,9 +337,9 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       /*
-       * (true AND true AND true AND true) OR false OR (false AND true) OR 
+       * (true AND true AND true AND true) OR false OR (false AND true) OR
        * (false AND true AND false) = true
        */
       rules.clear();
@@ -355,9 +355,9 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       /*
-       * (true AND true AND false AND true) OR false OR (true AND true) OR 
+       * (true AND true AND false AND true) OR false OR (true AND true) OR
        * (false AND true AND false) = true
        */
       rules.clear();
@@ -373,10 +373,10 @@ public class PSRuleListEvaluatorTest
       rules.add(getConditionalRule(false, -1));
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
-      
+
       /*
-       * (true AND true AND false AND true) OR false OR (false AND true) OR 
-       * (true AND true AND true) = true 
+       * (true AND true AND false AND true) OR false OR (false AND true) OR
+       * (true AND true AND true) = true
        */
       rules.clear();
       rules.add(getConditionalRule(true, PSRule.BOOLEAN_AND));
@@ -392,40 +392,40 @@ public class PSRuleListEvaluatorTest
       evaluator = new PSRuleListEvaluator(rules);
       assertTrue(evaluator.isMatch(data));
    }
-   
+
    /**
     * Constructs a simple rule that produces the requested evaluation result.
-    * 
-    * @param evaluationResult <code>true</code> will return a rule which 
-    *    evaluates to <code>true</code>, <code>false</code> will return a 
+    *
+    * @param evaluationResult <code>true</code> will return a rule which
+    *    evaluates to <code>true</code>, <code>false</code> will return a
     *    rule which evaluates to <code>false</code>.
-    * @param operator the rule operator, assumed one of 
-    *    <code>PSRule.OPBOOL_AND</code> or <code>PSRule.OPBOOL_OR</code>, 
+    * @param operator the rule operator, assumed one of
+    *    <code>PSRule.OPBOOL_AND</code> or <code>PSRule.OPBOOL_OR</code>,
     *    defaults to <code>PSRule.OPBOOL_AND</code> if -1 is supplied.
-    * @return the rule that produces the requested evaluation result, 
+    * @return the rule that produces the requested evaluation result,
     *    never <code>null</code>.
     */
    private PSRule getConditionalRule(boolean evaluationResult, int operator)
    {
       PSTextLiteral literal_1 = new PSTextLiteral("1");
       PSTextLiteral literal_2 = new PSTextLiteral("2");
-      
+
       // create an AND codition that produces the requested result
       PSConditional conditional = null;
       if (evaluationResult)
-         conditional = new PSConditional(literal_1, 
+         conditional = new PSConditional(literal_1,
             PSConditional.OPTYPE_EQUALS, literal_1);
       else
-         conditional = new PSConditional(literal_1, 
+         conditional = new PSConditional(literal_1,
             PSConditional.OPTYPE_EQUALS, literal_2);
-      
+
       PSCollection conditionals = new PSCollection(PSConditional.class);
       conditionals.addElement(conditional);
-      
+
       PSRule rule = new PSRule(conditionals);
       if (operator > 0)
          rule.setOperator(operator);
-      
+
       return rule;
    }
 }

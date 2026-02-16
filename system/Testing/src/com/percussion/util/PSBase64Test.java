@@ -20,6 +20,7 @@ package com.percussion.util;
 import com.percussion.error.PSRuntimeException;
 import com.percussion.tools.PSCopyStream;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.*;
 import java.util.Arrays;
@@ -27,12 +28,13 @@ import java.util.Arrays;
 /**
  * Unit tests for <code>PSBase64Decoder</code> and <code>PSBase64Encoder</code>.
  */
-public class PSBase64Test extends TestCase
+public class PSBase64Test 
 {
    /**
     * Tests that a small string can be encoded and decoded.
     * @throws Exception if any error occurs
     */
+   
    public void testSmallString() throws Exception
    {
       String original = "This is a string that needs to be encoded.";
@@ -40,7 +42,7 @@ public class PSBase64Test extends TestCase
       String decoded;
       
       encoded = PSBase64Encoder.encode(original);
-      assertTrue(!original.equals(encoded));     
+      assertFalse(original.equals(encoded));     
       decoded = PSBase64Decoder.decode(encoded);
       assertEquals(original, decoded);
       
@@ -51,6 +53,8 @@ public class PSBase64Test extends TestCase
       decoded = PSBase64Decoder.decode("ZGVtbw==");
       assertEquals(original, decoded);
    }
+   
+   
    
    public void testIllegalArgs() throws Exception
    {
@@ -88,6 +92,7 @@ public class PSBase64Test extends TestCase
     * Tests the stream methods for encoding and decoding.
     * @throws Exception if any error occurs
     */
+   
    public void testSmallStream() throws Exception
    {
       String original = "This is a string that needs to be encoded.";
@@ -97,7 +102,7 @@ public class PSBase64Test extends TestCase
       
       PSBase64Encoder.encode(in, out);
       String encoded = out.toString();
-      assertTrue(!original.equals(encoded));
+      assertFalse(original.equals(encoded));
       
       byte[] encodedBytes = encoded.getBytes();
       in = new ByteArrayInputStream(encodedBytes);
@@ -112,6 +117,7 @@ public class PSBase64Test extends TestCase
     * encoding.
     * @throws Exception if any error occurs
     */
+   
    public void testEncodingName() throws Exception
    {
       String original = "This is a string that needs to be encoded.";
@@ -129,18 +135,18 @@ public class PSBase64Test extends TestCase
       assertTrue(threw);
       
       String encoded = PSBase64Encoder.encode(original, "ISO-8859-1");
-      assertTrue(!original.equals(encoded));     
+      assertFalse(original.equals(encoded));     
       String decoded = PSBase64Decoder.decode(encoded);
       assertEquals(original, decoded);  
       
       encoded = PSBase64Encoder.encode(original, "US-ASCII");
-      assertTrue(!original.equals(encoded));
+      assertFalse(original.equals(encoded));
       decoded = PSBase64Decoder.decode(encoded);
       assertEquals(original, decoded);
       
       original = "\u4eca\u65e5\u306f\u4e16\u754c"; // Hello World (Japanese)
       encoded = PSBase64Encoder.encode(original, "Shift_JIS");
-      assertTrue(!original.equals(encoded));
+      assertFalse(original.equals(encoded));
       decoded = PSBase64Decoder.decode(encoded, "Shift_JIS");
       assertEquals(original, decoded);
    }
@@ -149,6 +155,7 @@ public class PSBase64Test extends TestCase
     * Tests that a large binary file can be encoded and decoded.
     * @throws Exception if any error occurs
     */
+   
    public void testFile() throws Exception
    {
       InputStream file = new FileInputStream( RESOURCE_PATH + TEST_FILE );
@@ -162,7 +169,7 @@ public class PSBase64Test extends TestCase
       
       byte[] decodedBytes = PSBase64Decoder.decode(encodedBytes);
       assertEquals(originalBytes.length, decodedBytes.length);     
-      assertTrue(Arrays.equals(originalBytes, decodedBytes));     
+      assertEquals(Arrays, originalBytes, decodedBytes);     
    }
    
    

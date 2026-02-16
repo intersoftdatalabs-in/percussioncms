@@ -45,7 +45,7 @@ public class PSTraceMessageFactoryTest
          int flag = option.getFlag();
          IPSTraceMessage message =
             (IPSTraceMessage)PSTraceMessageFactory.getTraceMessage(flag);
-            
+
          assertEquals(message.getTypeFlag(), flag);
 
          switch(flag)

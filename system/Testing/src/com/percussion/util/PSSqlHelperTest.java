@@ -18,6 +18,7 @@
 package com.percussion.util;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -25,12 +26,13 @@ import org.junit.jupiter.api.Test;
  *
  * @author     Paul Howard
  */
-public class PSSqlHelperTest extends TestCase
+public class PSSqlHelperTest 
 {
    /**
     * This method tests PSSqlHelper.parseSqlName by supplying the various
     * possibilities of qname and verifying that it is parsed correctly.
     */
+   
    public void testParseSqlName() throws Exception
    {
       String tableName = PSSqlHelper.parseTableName( null, null, null, null );
@@ -85,6 +87,7 @@ public class PSSqlHelperTest extends TestCase
    /**
     * Test url construction.
     */
+   
    public void testJdbcUrlGen()
    {
       assertEquals("jdbc:oracle:thin:serverName", 

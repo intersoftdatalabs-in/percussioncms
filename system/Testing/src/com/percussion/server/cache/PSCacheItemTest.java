@@ -22,24 +22,23 @@ import java.util.Date;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit test for the {@link PSCacheItem} class.
  */
-public class PSCacheItemTest extends TestCase
+public class PSCacheItemTest 
 {
    // see base class
-   public PSCacheItemTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Test constructing the <code>PSCacheItem</code> class.
     * 
     * @throws Exception if any errors occur.
     */
+   
    public void testCtor() throws Exception
    {
       PSCacheItem item = null;
@@ -140,6 +139,7 @@ public class PSCacheItemTest extends TestCase
     * 
     * @throws Exception if any errors occur.
     */
+   
    public void testDiskOps() throws Exception
    {
       PSCacheItem item = null;
@@ -178,6 +178,7 @@ public class PSCacheItemTest extends TestCase
     * 
     * @throws Exception if any errors occur.
     */
+   
    public void testListeners() throws Exception
    {
       PSCacheItem item = null;
@@ -239,15 +240,7 @@ public class PSCacheItemTest extends TestCase
 
    
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSCacheItemTest("testCtor"));
-      // suite.addTest(new PSCacheItemTest("testAccess")); todo: commented out due to unreliable timing issue
-      suite.addTest(new PSCacheItemTest("testDiskOps"));
-      suite.addTest(new PSCacheItemTest("testListeners"));
-      return suite;
-   }
+   
  
    /**
     * Stores action caused by access listener event.

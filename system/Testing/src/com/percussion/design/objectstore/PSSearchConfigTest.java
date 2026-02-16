@@ -21,6 +21,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -31,7 +32,7 @@ import org.w3c.dom.Element;
  *
  * JUnit test for the PSSearchConfig object.
  */
-public class PSSearchConfigTest extends TestCase
+public class PSSearchConfigTest 
 {
    /**
     * See JUnit framework description for details.
@@ -45,15 +46,13 @@ public class PSSearchConfigTest extends TestCase
    /**
     * See JUnit framework description for details.
     */
-   public PSSearchConfigTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Tests the add, remove and remove all methods for handling custom 
     * properties.
     */
+   
    public void testCustomProps()
    {
       PSSearchConfig sc = new PSSearchConfig();
@@ -85,33 +84,34 @@ public class PSSearchConfigTest extends TestCase
     * verifying they are not equal, then on config 2, verifying they are equal.
     * Every time equals is checked, the hashcode is checked as well.
     */
+   
    public void testEquals()
    {
       PSSearchConfig sc = new PSSearchConfig();
       PSSearchConfig copy = new PSSearchConfig(sc);
 
-      assertTrue(sc.equals(copy));
+      assertEquals(sc, copy);
       assertTrue(sc.hashCode() == copy.hashCode());
       
       copy.setAdminMaster(!sc.isAdminMaster());     
-      assertTrue(!sc.equals(copy));
+      assertFalse(sc.equals(copy));
       sc.setAdminMaster((copy.isAdminMaster()));
-      assertTrue(sc.equals(copy));
+      assertEquals(sc, copy);
       assertTrue(sc.hashCode() == copy.hashCode());
       
       copy.setFtsEnabled(!sc.isFtsEnabled());     
-      assertTrue(!sc.equals(copy));
+      assertFalse(sc.equals(copy));
       sc.setFtsEnabled((copy.isFtsEnabled()));
-      assertTrue(sc.equals(copy));
+      assertEquals(sc, copy);
       assertTrue(sc.hashCode() == copy.hashCode());
       
       copy.addCustomProp("p1", "v1");
       copy.addCustomProp("p2", "v2");     
-      assertTrue(!sc.equals(copy));
+      assertFalse(sc.equals(copy));
       //verify order independence
       sc.addCustomProp("p2", "v2");     
       sc.addCustomProp("p1", "v1");
-      assertTrue(sc.equals(copy));
+      assertEquals(sc, copy);
       assertTrue(sc.hashCode() == copy.hashCode());
    }
    
@@ -120,6 +120,7 @@ public class PSSearchConfigTest extends TestCase
     * 
     * @throws Exception
     */
+   
    public void testPersistence() throws Exception
    {
       // compare w/ all default values
@@ -130,7 +131,7 @@ public class PSSearchConfigTest extends TestCase
       PSSearchConfig compare = new PSSearchConfig();
       compare.fromXml(el, null, null);
       
-      assertTrue(sc.equals(compare));
+      assertEquals(sc, compare);
       assertTrue(sc.hashCode() == compare.hashCode());
       
       //compare w/ non-default values
@@ -138,7 +139,7 @@ public class PSSearchConfigTest extends TestCase
       el = sc.toXml(doc);
       compare = new PSSearchConfig();
       compare.fromXml(el, null, null);
-      assertTrue(sc.equals(compare));
+      assertEquals(sc, compare);
    }
    
    /**

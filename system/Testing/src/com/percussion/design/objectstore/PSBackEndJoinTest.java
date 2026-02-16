@@ -23,17 +23,18 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit tests for the PSBackEndJoin class.
  */
-public class PSBackEndJoinTest extends TestCase
+public class PSBackEndJoinTest 
 {
-   public PSBackEndJoinTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testConstructor() throws Exception
    {
@@ -60,8 +61,10 @@ public class PSBackEndJoinTest extends TestCase
       otherJoin.setRightOuterJoin();
       assertTrue(otherJoin.isRightOuterJoin());
 
-      assertTrue(!join.equals(otherJoin));
+      assertFalse(join.equals(otherJoin));
    }
+
+   
 
    public void testXml() throws Exception
    {
@@ -86,11 +89,5 @@ public class PSBackEndJoinTest extends TestCase
       assertEquals(join, otherJoin);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSBackEndJoinTest("testConstructor"));
-      suite.addTest(new PSBackEndJoinTest("testXml"));
-      return suite;
-   }
+   
 }

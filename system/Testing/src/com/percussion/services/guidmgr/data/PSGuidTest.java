@@ -33,7 +33,7 @@ public class PSGuidTest
    static IPSGuid MG = new PSGuid(PSTypeEnum.INVALID,0x1248ACFF12484210L);
 
    /**
-    * 
+    *
     */
    @Test
    public void testCtors()
@@ -41,28 +41,28 @@ public class PSGuidTest
       long hostid = 12;
       long uuid = 24;
       PSTypeEnum type = PSTypeEnum.ITEM;
-      
+
       IPSGuid guid = new PSGuid(hostid, type, uuid);
       assertEquals(hostid, guid.getHostId());
       assertEquals(type.getOrdinal(), guid.getType());
       assertEquals(uuid, guid.getUUID());
-      
+
       IPSGuid guid_2 = new PSGuid(guid.toString());
       assertEquals(guid, guid_2);
-      
+
       IPSGuid guid_3 = new PSDesignGuid(guid.longValue());
       assertEquals(guid, guid_3);
-      
+
       IPSGuid guid_4 = new PSGuid(type, uuid);
       assertEquals(type.getOrdinal(), guid_4.getType());
       assertEquals(uuid, guid_4.getUUID());
-      
+
       IPSGuid guid_5 = new PSGuid(guid_4.toString());
       assertEquals(guid_5, guid_4);
-      
+
       IPSGuid guid_6 = new PSGuid(type, guid_4.toStringUntyped());
       assertEquals(guid_6, guid_4);
-      
+
       // test with negative full guid
       IPSGuid guid_7 = new PSGuid(PSTypeEnum.ITEM_FILTER,
             "-2878460938313269246");
@@ -71,7 +71,7 @@ public class PSGuidTest
       try
       {
          new PSGuid(type, guid_4.toString());
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch(Exception e)
       {
@@ -81,7 +81,7 @@ public class PSGuidTest
       try
       {
          new PSGuid(type, guid_4.longValue());
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch(Exception e)
       {
@@ -91,29 +91,29 @@ public class PSGuidTest
       try
       {
          new PSGuid(PSTypeEnum.INVALID, 0x0000010200000003L);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch(Exception e)
       {
          // OK, should throw exception
       }
    }
-   
+
    /**
-    * 
+    *
     */
    @Test
    public void testLongValue()
    {
       IPSGuid tv = new PSGuid(PSTypeEnum.ITEM, 1);
       IPSGuid tv2 = new PSGuid(1, PSTypeEnum.ITEM, 1);
-      
+
       assertEquals(0x01L, tv.longValue());
       assertEquals(0x0000010100000001L, tv2.longValue());
    }
-   
+
    /**
-    * 
+    *
     */
    @Test
    public void testAccessors()
@@ -136,7 +136,7 @@ public class PSGuidTest
    }
 
    /**
-    * 
+    *
     */
    @Test
    public void testToString()
@@ -146,7 +146,7 @@ public class PSGuidTest
    }
 
    /**
-    * 
+    *
     */
    @Test
    public void testToStringNoType()
@@ -156,7 +156,7 @@ public class PSGuidTest
    }
 
    /**
-    * 
+    *
     */
    @Test
    public void testAssemble()
@@ -166,38 +166,38 @@ public class PSGuidTest
    }
 
    /**
-    * 
+    *
     */
    @Test
    public void testFromString()
    {
       IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, "1-2-3");
       assertEquals(NG, guid);
-      
+
       guid = new PSGuid("1-2-3");
       assertEquals(NG, guid);
    }
 
    /**
-    * 
+    *
     */
    @Test
    public void testFromStringNoType()
    {
       IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, "1-3");
       assertEquals(NG, guid);
-      
+
       try
       {
          guid = new PSGuid("1-3");
-         assertTrue("Expected exception", false);
+         fail("Expected exception");
       }
       catch(Exception e)
       {
          // OK
       }
    }
-   
+
    /**
     * test a valid guid: negative number, +ve number, and an actual guid type
     *
@@ -206,10 +206,10 @@ public class PSGuidTest
    public void testIsValid()
    {
       String val = "-2";
-      assertFalse(val + " is valid", PSGuid.isValid(PSTypeEnum.TEMPLATE, val));
+      assertFalse(PSGuid.isValid(PSTypeEnum.TEMPLATE, val), val + " is valid");
       val = "301";
-      assertTrue(val + " is valid", PSGuid.isValid(PSTypeEnum.TEMPLATE, val));
+      assertTrue(PSGuid.isValid(PSTypeEnum.TEMPLATE, val), val + " is valid");
       val = "39759470036779009";
-      assertTrue(val + " is valid", PSGuid.isValid(PSTypeEnum.ITEM_FILTER, val));
+      assertTrue(PSGuid.isValid(PSTypeEnum.ITEM_FILTER, val), val + " is valid");
    }
 }

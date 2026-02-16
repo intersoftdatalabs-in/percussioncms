@@ -24,6 +24,7 @@ import com.percussion.system.utils.PSDate;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -39,12 +40,12 @@ import java.util.Date;
  * @version    2.0
  * @since      1.0
  */
-public class PSCalculationTest extends TestCase
+public class PSCalculationTest 
 {
-   public PSCalculationTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testAdd() throws Exception
    {
@@ -69,7 +70,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -95,7 +96,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -113,6 +114,8 @@ public class PSCalculationTest extends TestCase
       }
       assertTrue(didThrow);
    }
+
+   
 
    public void testSubtract() throws Exception
    {
@@ -139,7 +142,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -165,7 +168,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -183,6 +186,8 @@ public class PSCalculationTest extends TestCase
       }
       assertTrue(didThrow);
    }
+
+   
 
    public void testMultiply() throws Exception
    {
@@ -207,7 +212,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -233,7 +238,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -251,6 +256,8 @@ public class PSCalculationTest extends TestCase
       }
       assertTrue(didThrow);
    }
+
+   
 
    public void testDivide() throws Exception
    {
@@ -275,7 +282,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -301,7 +308,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -327,6 +334,8 @@ public class PSCalculationTest extends TestCase
       }
       assertTrue(didThrow);
    }
+
+   
 
    public void testNumberVerify() throws Exception
    {
@@ -365,7 +374,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -373,8 +382,10 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
    }
+
+    
 
     public void testDateAdjust() throws Exception
    {
@@ -411,15 +422,5 @@ public class PSCalculationTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSCalculationTest("testAdd"));
-      suite.addTest(new PSCalculationTest("testSubtract"));
-      suite.addTest(new PSCalculationTest("testMultiply"));
-      suite.addTest(new PSCalculationTest("testDivide"));
-      suite.addTest(new PSCalculationTest("testNumberVerify"));
-      suite.addTest(new PSCalculationTest("testDateAdjust"));
-      return suite;
-   }
+   
 }

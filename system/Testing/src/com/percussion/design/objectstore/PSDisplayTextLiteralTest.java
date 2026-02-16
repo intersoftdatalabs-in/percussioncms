@@ -18,26 +18,22 @@ package com.percussion.design.objectstore;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit tests for the <code>PSDisplayTextLiteralTest</code> class.
  */
-public class PSDisplayTextLiteralTest extends TestCase
+public class PSDisplayTextLiteralTest
 {
-   public PSDisplayTextLiteralTest(String name)
-   {
-      super( name );
-   }
-
-
-   /**
+/**
     * Tests that the <code>clone()</code> method creates a separate-but-equal
     * instance, including fields defined in the superclass, and that the copy
     * was deep.
-    * 
+    *
     * @throws Exception if the test fails.
-    */ 
+    */
+   @Test
    public void testClone() throws Exception
    {
       PSDisplayTextLiteral foo = new PSDisplayTextLiteral( "foo", "FOOFOO" );
@@ -45,19 +41,12 @@ public class PSDisplayTextLiteralTest extends TestCase
       PSDisplayTextLiteral bar = (PSDisplayTextLiteral) foo.clone();
 
       assertEquals( foo, bar );
-      assertTrue( "id copied", bar.getId() == 99 );
-      assertTrue( "m_value copied", bar.getValueText().equals( "FOOFOO" ) );
+      assertEquals(99, bar.getId(), "id copied");
+      assertEquals("FOOFOO", bar.getValueText(), "m_value copied");
       bar.setValueText( "bar" );
-      assertTrue( "bar changed", bar.getValueText().equals( "bar" ) );
-      assertTrue( "foo unchanged", foo.getValueText().equals( "FOOFOO" ) );
-      assertTrue( !foo.equals( bar ) );
-   }
-
-
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSDisplayTextLiteralTest( "testClone" ) );
-      return suite;
+      assertEquals("bar", bar.getValueText(), "bar changed");
+      assertEquals("FOOFOO", foo.getValueText(), "foo unchanged");
+      assertFalse(foo.equals( bar ));
    }
 }
+

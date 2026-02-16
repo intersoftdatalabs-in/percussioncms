@@ -28,6 +28,7 @@ import com.percussion.server.PSRequestTest;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -42,11 +43,12 @@ import java.util.StringTokenizer;
 /**
  * Tests the functionality of <code>PSActionSet</code>.
  */
-public class PSActionSetTest extends TestCase
+public class PSActionSetTest 
 {
    /**
     * Tests that the getters return valid data
     */
+   
    public void testGetters() throws Exception
    {
       PSActionSet actionSet = newActionSet( PSActionSet.XML_NODE_NAME,
@@ -180,6 +182,7 @@ public class PSActionSetTest extends TestCase
    /**
     * Tests the constructor with good and bad XML
     */
+   
    public void testCtor() throws Exception
    {
       // tests that wrong element name is error
@@ -209,6 +212,7 @@ public class PSActionSetTest extends TestCase
     * Tests that an exception is thrown when a set contains multiple actions
     * with the same name.
     */
+   
    public void testDuplicateActionNames() throws Exception
    {
       Element el = null;
@@ -242,6 +246,7 @@ public class PSActionSetTest extends TestCase
    /**
     * Tests that actions' exits can be loaded from XML.
     */
+   
    public void testActionExits() throws Exception
    {
       InputStream input =

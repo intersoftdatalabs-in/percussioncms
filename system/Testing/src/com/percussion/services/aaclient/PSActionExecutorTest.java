@@ -40,7 +40,7 @@ public class PSActionExecutorTest
       // empty result
       result.setResultData("".getBytes());
       assertEquals("<br/>", executor.getSnippetBody(result));
-      
+
       final String content = "Some Content";
 
       // no content

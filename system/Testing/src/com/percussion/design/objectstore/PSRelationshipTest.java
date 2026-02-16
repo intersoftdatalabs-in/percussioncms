@@ -18,6 +18,7 @@ package com.percussion.design.objectstore;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,13 +27,14 @@ import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 /**
  * Unit test for the {@link PSRelationship} class.
  */
-public class PSRelationshipTest extends TestCase
+public class PSRelationshipTest 
 {
    /**
     * The all public constructor contracts.
     * 
     * @throws Exception for any error.
     */
+   
    public void testConstructors() throws Exception
    {
       PSRelationshipConfigSet configs = getConfigs();
@@ -150,6 +152,7 @@ public class PSRelationshipTest extends TestCase
     * 
     * @throws Exception for all errors.
     */
+   
    public void testPublicAPI() throws Exception
    {
       PSRelationshipConfigSet configs = getConfigs();
@@ -251,6 +254,7 @@ public class PSRelationshipTest extends TestCase
     * 
     * @throws Exception if an error occurs.
     */
+   
    public void testToFromXml() throws Exception
    {
       PSRelationshipConfigSet configs = getConfigs();
@@ -267,7 +271,7 @@ public class PSRelationshipTest extends TestCase
       PSRelationship rs_2 = new PSRelationship(rsEl, null, null, configs
             .getConfig(PSRelationshipConfig.TYPE_TRANSLATION));
       
-      assertTrue(rs_1.equals(rs_2));
+      assertEquals(rs_1, rs_2);
       rs_1.resetId();
       assertFalse(rs_1.equals(rs_2));
       
@@ -285,7 +289,7 @@ public class PSRelationshipTest extends TestCase
       rs_2 = new PSRelationship(rsEl, null, null, 
             configs.getConfig(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY));
       
-      assertTrue(rs_1.equals(rs_2));
+      assertEquals(rs_1, rs_2);
       rs_1.resetId();
       assertFalse(rs_1.equals(rs_2));
       
@@ -294,6 +298,7 @@ public class PSRelationshipTest extends TestCase
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   
    public void testEqualsHashCode()
    {
       final PSLocator owner = new PSLocator();

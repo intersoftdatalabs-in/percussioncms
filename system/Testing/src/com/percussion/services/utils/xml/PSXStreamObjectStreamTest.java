@@ -48,21 +48,21 @@ public class PSXStreamObjectStreamTest
       a.contentId = 10;
       a.date = new Date();
       a.folderId = 100;
-      
+
       PSPubItem b = new PSPubItem();
       b.contentId = 20;
       b.date = new Date();
       b.folderId = 200;
       items.add(a);
       items.add(b);
-      
+
       pubItems.writeObjects(items.iterator());
       ArrayList<IPSPubItemStatus> actual = new ArrayList<IPSPubItemStatus>();
       Iterables.addAll(actual, pubItems);
       assertEquals(items, actual);
-      
+
    }
-   
+
    @Test
    public void testMassiveWriteObjects() throws Exception
    {
@@ -82,9 +82,9 @@ public class PSXStreamObjectStreamTest
             a.folderId = i * 10;
             return a;
          }
-         
+
       });
-      
+
       int i = 0;
       for (IPSPubItemStatus s : pubItems) {
          assertEquals (++i, s.getContentId());
@@ -105,9 +105,9 @@ public class PSXStreamObjectStreamTest
       TimeUnit.SECONDS.sleep(1);
       pubItems.dispose();
       Integer j = f.get();
-      assertTrue( "should do some calculation", SIZE >= j);
-      
-      
+      assertTrue(SIZE >= j, "should do some calculation");
+
+
    }
 
 }

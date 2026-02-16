@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.io.IOUtils;
@@ -38,13 +39,14 @@ import org.apache.commons.io.IOUtils;
 /**
  * Unit test for the {@link PSWorkflowConverter}.
  */
-public class PSWorkflowConverterTest extends TestCase
+public class PSWorkflowConverterTest 
 {
    /**
     * Tests the conversion from a server to a client object. 
     * 
     * @throws Exception if the test fails
     */
+   
    public void testConversion() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();

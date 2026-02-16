@@ -19,6 +19,7 @@ package com.percussion.services.datasource;
 import com.percussion.utils.tools.PSTestUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 
 import java.util.HashMap;
@@ -27,13 +28,14 @@ import java.util.Map;
 /**
  * Test case for the {@link PSHibernateDialectConfig} class.
  */
-public class PSHibernateDialectConfigTest extends TestCase
+public class PSHibernateDialectConfigTest 
 {
    /**
     * Test accessor methods
     * 
     * @throws Exception if the test fails.
     */
+   
    public void testAccessors() throws Exception
    {
       PSHibernateDialectConfig cfg = new PSHibernateDialectConfig();
@@ -75,6 +77,7 @@ public class PSHibernateDialectConfigTest extends TestCase
     * 
     * @throws Exception
     */
+   
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();

@@ -21,12 +21,14 @@ import java.util.HashSet;
 import java.util.Set;
 import jakarta.faces.validator.ValidatorException;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSUniqueValidatorTest extends TestCase
+public class PSUniqueValidatorTest 
 {
+   
    public void testConstructor()
    {
       // not yet specified
@@ -43,6 +45,8 @@ public class PSUniqueValidatorTest extends TestCase
       v.validate(null, null, new Object());
    }
    
+   
+   
    public void testSetValueProvider()
    {
       final PSUniqueValidator v = new PSUniqueValidator();
@@ -55,6 +59,8 @@ public class PSUniqueValidatorTest extends TestCase
       
       v.setValueProvider(new TestValueProvider());
    }
+   
+   
    
    public void testValidate()
    {

@@ -20,6 +20,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -28,7 +29,7 @@ import org.w3c.dom.Element;
 /**
  * Tests the basic functionality of the <code>PSServerCacheSettings</code> class.
  */
-public class PSServerCacheSettingsTest extends TestCase
+public class PSServerCacheSettingsTest 
 {
    /**
     * Constructs an instance of this class to run the test implemented by the
@@ -36,21 +37,12 @@ public class PSServerCacheSettingsTest extends TestCase
     *
     * @param methodName name of the method that implements a test
     */
-   public PSServerCacheSettingsTest(String name)
-   {
-      super( name );
-   }
+   
 
    /**
     * Collects all the tests implemented by this class into a single suite.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSServerCacheSettingsTest( "testCtors" ) );
-      suite.addTest( new PSServerCacheSettingsTest( "testXml" ) );
-      return suite;
-   }
+   
 
 
    /**
@@ -58,12 +50,13 @@ public class PSServerCacheSettingsTest extends TestCase
     * default values to the members of the object and rejects invalid
     * parameters.
     */
+   
    public void testCtors() throws Exception
    {
       PSServerCacheSettings cacheSettings = new PSServerCacheSettings();
 
       //Make sure by default it is disabled.
-      assertTrue( !cacheSettings.isEnabled());
+      assertFalse(cacheSettings.isEnabled());
       assertEquals( cacheSettings.getMaxMemoryUsage(), 100*1024*1024); //100MB
       assertEquals( cacheSettings.getMaxDiskUsage(), 1024*1024*1024); //1GB
       assertEquals( cacheSettings.getMaxPageSize(), 100*1024); //100 KB Size
@@ -144,6 +137,7 @@ public class PSServerCacheSettingsTest extends TestCase
     * </ol>
     * @throws Exception
     */
+   
    public void testXml() throws Exception
    {
       //Test through xml everything got initialized properly.

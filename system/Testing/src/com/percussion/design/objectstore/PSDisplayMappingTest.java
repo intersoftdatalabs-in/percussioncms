@@ -26,16 +26,13 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSDisplayMappingTest extends TestCase
+public class PSDisplayMappingTest
 {
-   public PSDisplayMappingTest(String name)
-   {
-      super(name);
-   }
-
+   @Test
    public void testEquals() throws Exception
    {
       PSUISet uiset = new PSUISet();
@@ -46,7 +43,7 @@ public class PSDisplayMappingTest extends TestCase
       PSDisplayMapping b = new PSDisplayMapping();
       b.setFieldRef("foo");
       b.setUISet(uiset);
-      
+
       PSReflectionHelper.testEquals(a, b, new IPSReflectionFilter() {
 
          public boolean acceptMethod(String methodname)
@@ -81,11 +78,7 @@ public class PSDisplayMappingTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSDisplayMapping testFrom = new PSDisplayMapping(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
-   }
-
-   public static Test suite()
-   {
-      return new TestSuite(PSDisplayMappingTest.class);
+      assertEquals(testTo, testFrom);
    }
 }
+

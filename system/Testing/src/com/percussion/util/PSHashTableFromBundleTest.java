@@ -25,18 +25,16 @@ import com.percussion.system.utils.PSHashTableFromBundle;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  *   Unit tests for the PSHashTableFromBundle class. This class is private
  *   and is not meant to be shipped with the product.
  */
-public class PSHashTableFromBundleTest extends TestCase
+public class PSHashTableFromBundleTest 
 {
-   public PSHashTableFromBundleTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     *   Test with a valid resource bundle file using the default
@@ -44,6 +42,7 @@ public class PSHashTableFromBundleTest extends TestCase
     *   known valid hashtable that is contained in that .properties
     *   file.
     */
+   
    public void testConstructorWithValidBundleAndDefaultLocale()
    {
       PSHashTableFromBundle table = new PSHashTableFromBundle(
@@ -51,7 +50,7 @@ public class PSHashTableFromBundleTest extends TestCase
 
       assertTrue(null != table);
       assertEquals(table, m_validTable);
-      assertTrue(!table.equals(m_invalidTable));
+      assertFalse(table.equals(m_invalidTable));
    }
 
    /**
@@ -60,6 +59,7 @@ public class PSHashTableFromBundleTest extends TestCase
     *   known valid hashtable that is contained in that .properties
     *   file.
     */
+   
    public void testConstructorWithValidBundleAndNoLocale()
    {
       PSHashTableFromBundle table =
@@ -67,7 +67,7 @@ public class PSHashTableFromBundleTest extends TestCase
 
       assertTrue(null != table);
       assertEquals(table, m_validTable);
-      assertTrue(!table.equals(m_invalidTable));
+      assertFalse(table.equals(m_invalidTable));
    }
 
    /**
@@ -75,6 +75,7 @@ public class PSHashTableFromBundleTest extends TestCase
     *   keys which cannot be represented as integers). Make sure
     *   it returns null.
     */
+   
    public void testConstructorWithInvalidBundleAndDefaultLocale()
    {
       boolean didThrow = false;
@@ -97,6 +98,7 @@ public class PSHashTableFromBundleTest extends TestCase
     *   keys which cannot be represented as integers). Make sure
     *   it returns null.
     */
+   
    public void testConstructorWithInvalidBundleAndNoLocale()
    {
       boolean didThrow = false;
@@ -117,6 +119,7 @@ public class PSHashTableFromBundleTest extends TestCase
     *   Test with a non existent bundle and make sure it throws
     *   MissingResourceException
     */
+   
    public void testConstructorWithNonExistentBundleAndDefaultLocale()
    {
       boolean didThrow = false;
@@ -137,6 +140,7 @@ public class PSHashTableFromBundleTest extends TestCase
     *   Test with a non existent bundle and make sure it throws
     *   MissingResourceException
     */
+   
    public void testConstructorWithNonExistentBundleAndNoLocale()
    {
       boolean didThrow = false;
@@ -174,23 +178,7 @@ public class PSHashTableFromBundleTest extends TestCase
    /** 
     *   collect all tests into a TestSuite and return it
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSHashTableFromBundleTest(
-         "testConstructorWithValidBundleAndDefaultLocale"));
-      suite.addTest(new PSHashTableFromBundleTest(
-         "testConstructorWithValidBundleAndNoLocale"));
-      suite.addTest(new PSHashTableFromBundleTest(
-         "testConstructorWithInvalidBundleAndDefaultLocale"));
-      suite.addTest(new PSHashTableFromBundleTest(
-         "testConstructorWithInvalidBundleAndNoLocale"));
-      suite.addTest(new PSHashTableFromBundleTest(
-         "testConstructorWithNonExistentBundleAndDefaultLocale"));
-      suite.addTest(new PSHashTableFromBundleTest(
-         "testConstructorWithNonExistentBundleAndNoLocale"));
-      return suite;
-   }
+   
 
    private String m_validBundleName = "com.percussion.testing.PSHashTestBundleValid";
    private String m_invalidBundleName = "com.percussion.testing.PSHashTestBundleInvalid";

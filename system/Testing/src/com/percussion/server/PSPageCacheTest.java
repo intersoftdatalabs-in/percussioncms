@@ -20,6 +20,7 @@ package com.percussion.server;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -27,8 +28,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.getFullStackTrace;
 
-public class PSPageCacheTest extends TestCase
+public class PSPageCacheTest 
 {
+
+   
 
    public void testPSPageCache()
    {

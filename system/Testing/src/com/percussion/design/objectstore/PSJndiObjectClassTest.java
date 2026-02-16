@@ -17,16 +17,18 @@
 package com.percussion.design.objectstore;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import static com.percussion.design.objectstore.PSJndiObjectClass.MEMBER_ATTR_DYNAMIC;
 import static com.percussion.design.objectstore.PSJndiObjectClass.MEMBER_ATTR_STATIC;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 
-public class PSJndiObjectClassTest extends TestCase
+public class PSJndiObjectClassTest 
 {
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   
    public void testEqualsHashCode()
    {
       final PSJndiObjectClass objectClass =

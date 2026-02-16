@@ -22,21 +22,20 @@ import java.util.List;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSMultiLevelCacheTest extends TestCase
+public class PSMultiLevelCacheTest 
 {
    // see base class
-   public PSMultiLevelCacheTest(String name)
-   {
-      super(name);
-   }
+   
    
    /**
     * Test creating caches
     * 
     * @throws Exception if the test fails or anything goes wrong.
     */
+   
    public void testCtor() throws Exception
    {
       PSMultiLevelCache testCache = null;
@@ -90,6 +89,7 @@ public class PSMultiLevelCacheTest extends TestCase
     * 
     * @throws Exception if the test fails or anything goes wrong.
     */
+   
    public void testAccess() throws Exception
    {
       // test one level
@@ -150,6 +150,7 @@ public class PSMultiLevelCacheTest extends TestCase
     * 
     * @throws Exception
     */
+   
    public void testFlush() throws Exception
    {
       PSMultiLevelCache cache;
@@ -429,6 +430,7 @@ public class PSMultiLevelCacheTest extends TestCase
     * 
     * @throws Exception if any errors occur.
     */
+   
    public void testListeners() throws Exception
    {
       PSMultiLevelCache cache;
@@ -577,15 +579,7 @@ public class PSMultiLevelCacheTest extends TestCase
    
    
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSMultiLevelCacheTest("testCtor"));
-      suite.addTest(new PSMultiLevelCacheTest("testAccess"));
-      suite.addTest(new PSMultiLevelCacheTest("testFlush"));
-      suite.addTest(new PSMultiLevelCacheTest("testListeners"));
-      return suite;
-   }
+   
  
    /**
     * Stores action caused by access listener event.

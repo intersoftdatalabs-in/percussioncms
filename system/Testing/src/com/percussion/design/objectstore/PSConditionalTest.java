@@ -24,6 +24,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -33,12 +34,12 @@ import org.w3c.dom.Element;
 /**
  * Unit tests for the PSConditional class
  */
-public class PSConditionalTest extends TestCase
+public class PSConditionalTest 
 {
-   public PSConditionalTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testToFromXml() throws Exception
    {
@@ -66,6 +67,8 @@ public class PSConditionalTest extends TestCase
       }
 
    }
+
+   
 
    public void testValueValidation() throws Exception
    {
@@ -102,6 +105,8 @@ public class PSConditionalTest extends TestCase
          assertTrue("Caught binary op with no value?", didThrow);
       }
    }
+
+   
 
    public void testUdfCall() throws Exception
    {
@@ -168,6 +173,8 @@ public class PSConditionalTest extends TestCase
       assertEquals(condTwo, fromCondTwo);
    */
    }
+
+   
 
    public void testEquals() throws Exception
    {
@@ -332,14 +339,5 @@ public class PSConditionalTest extends TestCase
                 a.equals(b) == false);                
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSConditionalTest("testValueValidation"));
-      suite.addTest(new PSConditionalTest("testToFromXml"));
-      suite.addTest(new PSConditionalTest("testUdfCall"));
-      suite.addTest(new PSConditionalTest("testEquals"));
-      
-      return suite;
-   }
+   
 }

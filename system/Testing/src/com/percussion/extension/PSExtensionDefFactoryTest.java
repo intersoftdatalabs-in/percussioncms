@@ -20,6 +20,7 @@ import com.percussion.design.objectstore.PSExtensionParamDef;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -35,12 +36,13 @@ import java.util.Properties;
  * equality.
  */
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
-public class PSExtensionDefFactoryTest extends TestCase
+public class PSExtensionDefFactoryTest 
 {
    /**
     * Does a round trip test, with all possible properties containing values.
     */
    @SuppressWarnings("unchecked")
+   
    public void testFull() throws Exception
    {
       // create an extension def, then round trip it thru the factory, then
@@ -127,6 +129,7 @@ public class PSExtensionDefFactoryTest extends TestCase
     * parameters defined..
     */
    @SuppressWarnings("unchecked")
+   
    public void testNoUrlsNoRuntimeParams() throws Exception
    {
       // create an extension def, then round trip it thru the factory, then
@@ -185,6 +188,7 @@ public class PSExtensionDefFactoryTest extends TestCase
     * Does a round trip test, using a def that has no URLs defined.
     */
    @SuppressWarnings("unchecked")
+   
    public void testNoUrls() throws Exception
    {
       // create an extension def, then round trip it thru the factory, then
@@ -253,6 +257,7 @@ public class PSExtensionDefFactoryTest extends TestCase
     * Does a round trip test, using a def that has no runtime params defined.
     */
    @SuppressWarnings("unchecked")
+   
    public void testNoRuntimeParamst() throws Exception
    {
       // create an extension def, then round trip it thru the factory, then

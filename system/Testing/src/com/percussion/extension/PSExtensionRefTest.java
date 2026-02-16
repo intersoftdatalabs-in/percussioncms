@@ -20,17 +20,20 @@ import java.util.ArrayList;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit tests for the PSExtensionRef class
  */
-public class PSExtensionRefTest extends TestCase
+public class PSExtensionRefTest 
 {
    public PSExtensionRefTest(String testName)
    {
       super(testName);
    }
+
+   
 
    public void testConstruct()
       throws Exception
@@ -45,6 +48,8 @@ public class PSExtensionRefTest extends TestCase
          assertEquals(test.full, ref.toString());
       }
    }
+
+   
 
    public void testConstructFull()
       throws Exception
@@ -123,13 +128,7 @@ public class PSExtensionRefTest extends TestCase
    }
 
    /** collect all tests into a TestSuite and return it */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSExtensionRefTest("testConstruct"));
-      suite.addTest(new PSExtensionRefTest("testConstructFull"));
-      return suite;
-   }
+   
 
    static
    {

@@ -22,12 +22,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSLoginWebPageTest extends TestCase
+public class PSLoginWebPageTest 
 {
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   
    public void testEqualsHashCode() throws MalformedURLException
    {
       final PSLoginWebPage webPage1 = new PSLoginWebPage(getUrl1(), true);

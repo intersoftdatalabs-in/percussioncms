@@ -25,19 +25,22 @@ import org.w3c.dom.Node;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSContentEditorPipeTest extends TestCase
+public class PSContentEditorPipeTest 
 {
-   public PSContentEditorPipeTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testEquals() throws Exception
    {
    }
+
+   
 
    public void testXml() throws Exception
    {
@@ -79,15 +82,8 @@ public class PSContentEditorPipeTest extends TestCase
       Element elem2 = testFrom.toXml(doc);
       Node node = doc2.importNode(elem2,true);
       root2.appendChild(node);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSContentEditorPipeTest("testXml"));
-      
-      return suite;
-   }
+   
 }

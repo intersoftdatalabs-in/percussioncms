@@ -22,6 +22,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -30,7 +31,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author paulhoward
  */
-public class PSSearchPropertiesTest extends TestCase
+public class PSSearchPropertiesTest 
 {
    /**
     * Groups all tests implicitly. See framework description for more details.
@@ -44,10 +45,7 @@ public class PSSearchPropertiesTest extends TestCase
     * The ctor needed for a JUnit test. See framework description for more 
     * details.
     */
-   public PSSearchPropertiesTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Makes a few objects and verifies that all appropriate bits are considered
@@ -56,6 +54,7 @@ public class PSSearchPropertiesTest extends TestCase
     * @throws PSUnknownNodeTypeException If the <code>fromXml</code> method
     * fails unexpectedly. 
     */
+   
    public void testEqualsAndHashCode()
       throws PSUnknownNodeTypeException
    {
@@ -148,6 +147,7 @@ public class PSSearchPropertiesTest extends TestCase
     * Verifies an exception is thrown when the enable transformation flag is
     * locked.
     */
+   
    public void testEnableTransformLock()
    {
       PSSearchProperties sp = new PSSearchProperties();
@@ -170,6 +170,7 @@ public class PSSearchPropertiesTest extends TestCase
     * @throws PSUnknownNodeTypeException If the <code>fromXml</code> method
     * fails unexpectedly. 
     */
+   
    public void testXmlConversion()
       throws PSUnknownNodeTypeException
    {

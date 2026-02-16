@@ -24,19 +24,21 @@ import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.beanutils.Converter;
 
 /**
  * Test the {@link PSAssignedRoleConverter}
  */
-public class PSAssignedRoleConverterTest extends TestCase
+public class PSAssignedRoleConverterTest 
 {
    /**
     * Test the converter
     * 
     * @throws Exception if there are any errors.
     */
+   
    public void testConverter() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();

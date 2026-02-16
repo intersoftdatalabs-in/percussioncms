@@ -100,12 +100,12 @@ public class PSTableChangeDataTest
       listeners.add(listener2);
 
       PSTableChangeData data = new PSTableChangeData(listeners.iterator());
-      
+
       final String tableNameCONTENTSTATUS = "CONTENTSTATUS";
       final String tableNameCONTENTADHOCUSERS = "CONTENTADHOCUSERS";
       final String tableNameCONTENTAPPROVALS = "CONTENTAPPROVALS";
       final String tableNameRXARTICLE = "RXARTICLE";
-      
+
       /* Tests the expectsColumn and addColumnValue methods to fire
          IllegalStateException before actioType is set.
        */
@@ -136,11 +136,11 @@ public class PSTableChangeDataTest
          corresponding event is fired to the listener.
        */
       data.setActionType(PSTableChangeEvent.ACTION_INSERT);
-      
+
       data.addTable(tableNameCONTENTSTATUS);
       data.addTable(tableNameCONTENTADHOCUSERS);
       data.addTable(tableNameRXARTICLE);
-      
+
       //listener1 interested
       assertTrue(data.expectsColumn(tableNameCONTENTSTATUS, "CONTENTSTATEID"));
       data.addColumnValue(tableNameCONTENTSTATUS, "CONTENTSTATEID", "2");
@@ -167,10 +167,10 @@ public class PSTableChangeDataTest
       listener1.clearChangedTables();
       listener2.clearChangedTables();
       data.clearData();
-      
+
       data.setActionType(PSTableChangeEvent.ACTION_UPDATE);
       data.addTable(tableNameCONTENTAPPROVALS);
-      
+
       assertTrue(data.expectsColumn(tableNameCONTENTAPPROVALS, "STATEID"));
       assertTrue(data.expectsColumn(tableNameCONTENTAPPROVALS, "CONTENTID"));
       data.addColumnValue(tableNameCONTENTAPPROVALS, "STATEID", "3");
@@ -185,10 +185,10 @@ public class PSTableChangeDataTest
       listener1.clearChangedTables();
       listener2.clearChangedTables();
       data.clearData();
-      
+
       data.setActionType(PSTableChangeEvent.ACTION_UPDATE);
       data.addTable(tableNameCONTENTADHOCUSERS);
-      
+
       data.setActionType(PSTableChangeEvent.ACTION_DELETE);
       assertTrue(!data.expectsColumn(tableNameCONTENTADHOCUSERS, "STATEID"));
       data.addColumnValue(tableNameCONTENTADHOCUSERS, "STATEID", "3");

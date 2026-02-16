@@ -50,7 +50,7 @@ public class PSDataConverterTest
          this.seconds = seconds;
          this.milliseconds = milliseconds;
       }
-      
+
       public String dateText;
       public int month; // 0-11
       public int year; // whatever

@@ -44,41 +44,41 @@ import org.junit.jupiter.api.Test;
 /**
  * Class to run performance tests against the PSMetadataDeliveryHandler and the
  * remote Extractor REST Service.
- * 
+ *
  * @author miltonpividori
  */
 public class PSMetadataDeliveryHandlerPerformanceTest
 {
     @Test
     public void testDummy()
-    {   
+    {
     }
-    
+
     /**
      * A valid directory where test pages reside.
      */
     //private static final String PAGES_DIRECTORY = "C:/Customer/HHS/DHHS_PublishPages";
-    private static final String PAGES_DIRECTORY = "C:\\Users\\Milton\\Documents\\pages"; 
-   
+    private static final String PAGES_DIRECTORY = "C:\\Users\\Milton\\Documents\\pages";
+
     //private static final String DELIVERY_URL = "http://terminator:7080";
     private static final String DELIVERY_URL = "http://localhost:9970";
-    
+
 //    private static final String DELIVERY_SECURED_URL = "https://terminator:7443";
     private static final String DELIVERY_SECURED_URL = "https://localhost:8443";
 
     private static final String DELIVERY_PASSWORD = "newpassword";
 
     private static final String DELIVERY_USER = "ps_manager";
-    
+
     private static final long JOB_ID = 100L;
-    
+
     private static final long PUB_SERVER_ID = 1000L;
-    
+
     private static final int DELIVERY_CONTEXT = 1;
-    
-    
+
+
     private PSMetadataDeliveryHandler metadataDeliveryHandler = new PSMetadataDeliveryHandler();
-    
+
     @BeforeEach
     public void setUp() throws Exception
     {
@@ -89,31 +89,31 @@ public class PSMetadataDeliveryHandlerPerformanceTest
 
         metadataDeliveryHandler.setOperationTimeout(60000);
         metadataDeliveryHandler.setConnectionTimeout(60000);
-        
+
         metadataDeliveryHandler.setDeliveryServer(deliveryServer);
         metadataDeliveryHandler.prepareForDelivery(JOB_ID);
     }
-    
+
     @AfterEach
-    public void tearDown() 
+    public void tearDown()
     {
        metadataDeliveryHandler.releaseForDelivery(JOB_ID);
     }
 
-    
+
     public Item createItem(PSPurgableTempFile file, String mimeType, boolean removal)
     {
         IPSGuid fakeGuid = new PSGuid();
-        
+
         return metadataDeliveryHandler
             .createItemForTest(fakeGuid, file, mimeType, 100L, removal, JOB_ID, PUB_SERVER_ID, DELIVERY_CONTEXT);
     }
-    
+
     /**
      * Returns an IOFileFilter object to list files in the directory where pages
      * reside. It looks for file with .htm and .html extensions, and also without
      * extension.
-     * 
+     *
      * @return A IOFileFilter object with filter settings.
      *
     private IOFileFilter getFileFilters()
@@ -140,22 +140,22 @@ public class PSMetadataDeliveryHandlerPerformanceTest
 
         return FileFilterUtils.or((IOFileFilter[]) filters.toArray(new IOFileFilter[0]));
     }
-    
+
     @Test
     public void testPerformance() throws Exception
     {
         File directoryWithPages = new File(PAGES_DIRECTORY);
-        
+
         if (!directoryWithPages.exists())
             return;
-        
+
         System.out.println("Searching for files in directory: " +
                 directoryWithPages.getAbsolutePath());
-        
+
         Collection<File> pagesToProcess =
             FileUtils.listFiles(directoryWithPages, getFileFilters(),
                     FileFilterUtils.trueFileFilter());
-        
+
         // Send each page to the metadata delivery handler, and through it,
         // to the remote extractor REST service.
         for (File aPage : pagesToProcess)
@@ -163,9 +163,9 @@ public class PSMetadataDeliveryHandlerPerformanceTest
             System.out.println("Page: " + aPage.getAbsolutePath());
             PSPurgableTempFile f = new PSPurgableTempFile("test-", ".txt", null);
             FileUtils.writeStringToFile(f, FileUtils.readFileToString(aPage));
-            
+
             Item item = createItem(f, "text/html", false);
-            
+
             IPSDeliveryResult dr = null;
             try
             {
@@ -179,14 +179,14 @@ public class PSMetadataDeliveryHandlerPerformanceTest
                 e.printStackTrace();
                 continue;
             }
-            
+
             if (dr.getOutcome() == Outcome.FAILED)
                System.out.println("  ERROR: " + dr.getFailureMessage());
-            
+
             //assertEquals(Outcome.DELIVERED, dr.getOutcome());
         }
     }
-    
+
     public static void main(String[] args)
     {
        PSMetadataDeliveryHandlerPerformanceTest perf = new PSMetadataDeliveryHandlerPerformanceTest();
@@ -195,7 +195,7 @@ public class PSMetadataDeliveryHandlerPerformanceTest
           perf.setUp();
           perf.testPerformance();
           perf.tearDown();
-          
+
           System.out.println();
           System.out.println("Finished");
        }

@@ -20,6 +20,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -28,12 +29,12 @@ import org.w3c.dom.Element;
 /**
  * Unit tests for the PSBackEndColumn class.
  */
-public class PSBackEndColumnTest extends TestCase
+public class PSBackEndColumnTest 
 {
-   public PSBackEndColumnTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testConstructors() throws Exception
    {
@@ -91,6 +92,8 @@ public class PSBackEndColumnTest extends TestCase
       }
    }
 
+   
+
    public void testGetSetColumn() throws Exception
    {
       String colName = "zoo";
@@ -125,6 +128,8 @@ public class PSBackEndColumnTest extends TestCase
       assertEquals("Col name unchanged after illegal setColumn?", "bar", col.getColumn());
    }
 
+   
+
    public void testGetSetTable() throws Exception
    {
       PSBackEndTable tab = new PSBackEndTable("baz");
@@ -142,6 +147,7 @@ public class PSBackEndColumnTest extends TestCase
     *
     * @throws Exception if the test failed.
     */
+   
    public void testXml() throws Exception
    {
       PSBackEndTable tab = new PSBackEndTable( "baz" );
@@ -150,19 +156,11 @@ public class PSBackEndColumnTest extends TestCase
       Element el = col.toXml( doc );
       PSBackEndTable tab2 = new PSBackEndTable( "zap" );
       PSBackEndColumn col2 = new PSBackEndColumn( tab2, "hohos" );
-      assertTrue( !col2.equals( col ) );
+      assertFalse(col2.equals( col ) );
       col2.fromXml( el, null, null );
       assertEquals( col, col2 );
       assertEquals( col, new PSBackEndColumn( el, null, null ) );
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSBackEndColumnTest("testConstructors"));
-      suite.addTest(new PSBackEndColumnTest("testGetSetColumn"));
-      suite.addTest(new PSBackEndColumnTest("testGetSetTable"));
-      suite.addTest(new PSBackEndColumnTest("testXml"));
-      return suite;
-   }
+   
 }

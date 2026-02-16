@@ -19,23 +19,21 @@ package com.percussion.search.objectstore;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Test the ctors, equals and hashcode methods of the 
  * <code>PSWSSearchFieldTest</code> class.
  */
-public class PSWSSearchFieldTest extends TestCase
+public class PSWSSearchFieldTest 
 {
    /**
     * Create a new test
     * 
     * @param name The name of the test
     */
-   public PSWSSearchFieldTest(String name)
-   {
-      super(name);      
-   }
+   
    
    /**
     * Get a {@link TestSuite} that has all the testXXX methods in it.
@@ -51,6 +49,7 @@ public class PSWSSearchFieldTest extends TestCase
     * 
     * @throws Exception
     */
+   
    public void testCtor() throws Exception
    {
       // test valid op
@@ -60,22 +59,22 @@ public class PSWSSearchFieldTest extends TestCase
          PSWSSearchField.CONN_ATTR_AND));
 
       // invalid op
-      assertTrue(!constructField("name", -2, "val", 
+      assertFalse(constructField("name", -2, "val", 
          PSWSSearchField.CONN_ATTR_AND));
-      assertTrue(!constructField("name", 50, "val", 
+      assertFalse(constructField("name", 50, "val", 
          PSWSSearchField.CONN_ATTR_AND));
       // invalid connector
-      assertTrue(!constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val", 
+      assertFalse(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val", 
          -2));
-      assertTrue(!constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val", 
+      assertFalse(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val", 
          50));
       // invalid name
-      assertTrue(!constructField(null, PSWSSearchField.OP_ATTR_EQUAL, "val", 
+      assertFalse(constructField(null, PSWSSearchField.OP_ATTR_EQUAL, "val", 
          PSWSSearchField.CONN_ATTR_AND));
-      assertTrue(!constructField("", PSWSSearchField.OP_ATTR_EQUAL, "val", 
+      assertFalse(constructField("", PSWSSearchField.OP_ATTR_EQUAL, "val", 
          PSWSSearchField.CONN_ATTR_AND));
       // invalid value
-      assertTrue(!constructField("name", PSWSSearchField.OP_ATTR_EQUAL, null, 
+      assertFalse(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, null, 
          PSWSSearchField.CONN_ATTR_AND));
  
       
@@ -83,23 +82,23 @@ public class PSWSSearchFieldTest extends TestCase
       assertTrue(constructField("name", "concept", "val", 
          PSWSSearchField.CONN_ATTR_AND));
       // invalid name
-      assertTrue(!constructField(null, "concept", "val", 
+      assertFalse(constructField(null, "concept", "val", 
          PSWSSearchField.CONN_ATTR_AND));
-      assertTrue(!constructField("", "concept", "val", 
+      assertFalse(constructField("", "concept", "val", 
          PSWSSearchField.CONN_ATTR_AND));
       // invalid ext op
-      assertTrue(!constructField("name", null, "val", 
+      assertFalse(constructField("name", null, "val", 
          PSWSSearchField.CONN_ATTR_AND));
-      assertTrue(!constructField("name", "", "val", 
+      assertFalse(constructField("name", "", "val", 
          PSWSSearchField.CONN_ATTR_AND));
       // invalid value
-      assertTrue(!constructField("name", "concept", null, 
+      assertFalse(constructField("name", "concept", null, 
          PSWSSearchField.CONN_ATTR_AND));
 
       // invalid connector
-      assertTrue(!constructField("name", "concept", "val", 
+      assertFalse(constructField("name", "concept", "val", 
          -2));
-      assertTrue(!constructField("name", "concept", "val", 
+      assertFalse(constructField("name", "concept", "val", 
          50));
    }
    
@@ -108,6 +107,7 @@ public class PSWSSearchFieldTest extends TestCase
     * 
     * @throws Exception if there are any errors
     */
+   
    public void testEquals() throws Exception
    {
       // test same
@@ -129,22 +129,22 @@ public class PSWSSearchFieldTest extends TestCase
       // diff name
       field2 = new PSWSSearchField("foo3", PSWSSearchField.OP_ATTR_LESSTHAN, 
          "bar2", PSWSSearchField.CONN_ATTR_OR);
-      assertTrue(!field1.equals(field2));
+      assertFalse(field1.equals(field2));
       
       // diff op
       field2 = new PSWSSearchField("foo2", PSWSSearchField.OP_ATTR_EQUAL, 
          "bar2", PSWSSearchField.CONN_ATTR_OR);
-      assertTrue(!field1.equals(field2));
+      assertFalse(field1.equals(field2));
 
       // diff value
       field2 = new PSWSSearchField("foo2", PSWSSearchField.OP_ATTR_LESSTHAN, 
          "bar3", PSWSSearchField.CONN_ATTR_OR);
-      assertTrue(!field1.equals(field2));
+      assertFalse(field1.equals(field2));
 
       // diff connector
       field2 = new PSWSSearchField("foo2", PSWSSearchField.OP_ATTR_LESSTHAN, 
          "bar2", PSWSSearchField.CONN_ATTR_AND);
-      assertTrue(!field1.equals(field2));
+      assertFalse(field1.equals(field2));
 
       // same ext op
       field1 = new PSWSSearchField("foo3", "CONCEPT", "bar2", 
@@ -157,12 +157,12 @@ public class PSWSSearchFieldTest extends TestCase
       // diff ext op
       field2 = new PSWSSearchField("foo3", "BOOLEAN", "bar2", 
          PSWSSearchField.CONN_ATTR_AND);      
-      assertTrue(!field1.equals(field2));
+      assertFalse(field1.equals(field2));
 
       // op vs ext op
       field2 = new PSWSSearchField("foo3", PSWSSearchField.OP_ATTR_LESSTHAN, 
          "bar2", PSWSSearchField.CONN_ATTR_AND);
-      assertTrue(!field1.equals(field2));
+      assertFalse(field1.equals(field2));
 
    }
    
@@ -171,6 +171,7 @@ public class PSWSSearchFieldTest extends TestCase
     * 
     * @throws Exception if there are any errors.
     */
+   
    public void testXml() throws Exception
    {
       PSWSSearchField field1 = new PSWSSearchField("foo", 
@@ -200,7 +201,7 @@ public class PSWSSearchFieldTest extends TestCase
       // test failure (sanity check)
       PSWSSearchField field2 = new PSWSSearchField("foo", 
          PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
-      assertTrue(!field1.equals(roundTrip(field2)));
+      assertFalse(field1.equals(roundTrip(field2)));
    }
 
    /**

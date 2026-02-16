@@ -18,6 +18,7 @@ package com.percussion.search.lucene.textconverter;
 
 import com.percussion.search.lucene.IPSLuceneConstants;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.io.IOUtils;
 import org.junit.jupiter.api.Disabled;
@@ -32,12 +33,13 @@ import java.io.InputStream;
  */
 //TODO: Fix these tests - the failures are valid
 @Disabled
-public class PSTextConverterTest extends TestCase
+public class PSTextConverterTest 
 {
    /**
     * MS Word file text conversion test.
     * @throws Exception
     */
+   
    public void testWordConvertion() throws Exception
    {
       InputStream is = null;
@@ -66,6 +68,7 @@ public class PSTextConverterTest extends TestCase
     * MS Word file text conversion test.
     * @throws Exception
     */
+   
    public void testTikaWordConvertion() throws Exception
    {
       InputStream is = null;
@@ -95,6 +98,7 @@ public class PSTextConverterTest extends TestCase
     * MS Excel file text conversion test.
     * @throws Exception
     */
+   
    public void testExcelConversion() throws Exception
    {
       InputStream is = null;
@@ -124,6 +128,7 @@ public class PSTextConverterTest extends TestCase
     * MS Excel file text conversion test.
     * @throws Exception
     */
+   
    public void testTikaExcelConversion() throws Exception
    {
       InputStream is = null;
@@ -149,6 +154,8 @@ public class PSTextConverterTest extends TestCase
       }
    }
    
+   
+   
    public void testTikaUnsupportedMimeTypeConversion() throws Exception
    {
       InputStream is = null;
@@ -170,6 +177,7 @@ public class PSTextConverterTest extends TestCase
     * Pdf file text conversion test.
     * @throws Exception
     */
+   
    public void testPdfConvertion() throws Exception
    {
       InputStream is = null;
@@ -188,6 +196,8 @@ public class PSTextConverterTest extends TestCase
       }
 
    }
+   
+   
    
    public void testTikaPdfConvertion() throws Exception
    {
@@ -212,6 +222,7 @@ public class PSTextConverterTest extends TestCase
     * Html file text conversion test.
     * @throws Exception
     */
+   
    public void testHtmlConversion() throws Exception
    {
       InputStream is = null;
@@ -235,6 +246,7 @@ public class PSTextConverterTest extends TestCase
     * Html file text conversion test.
     * @throws Exception
     */
+   
    public void testTikaHtmlConversion() throws Exception
    {
       InputStream is = null;
@@ -258,6 +270,7 @@ public class PSTextConverterTest extends TestCase
     * Power Point file text conversion test.
     * @throws Exception
     */
+   
    public void testPowerPointConvertion() throws Exception
    {
       InputStream is = null;
@@ -286,6 +299,7 @@ public class PSTextConverterTest extends TestCase
     * Power Point file text conversion test.
     * @throws Exception
     */
+   
    public void testTikaPowerPointConvertion() throws Exception
    {
       InputStream is = null;
@@ -314,6 +328,7 @@ public class PSTextConverterTest extends TestCase
     * RTF file text conversion test.
     * @throws Exception
     */
+   
    public void testRtfConversion() throws Exception
    {
       InputStream is = null;
@@ -337,6 +352,7 @@ public class PSTextConverterTest extends TestCase
     * RTF file text conversion test.
     * @throws Exception
     */
+   
    public void testTikaRtfConversion() throws Exception
    {
       InputStream is = null;
@@ -360,6 +376,7 @@ public class PSTextConverterTest extends TestCase
     * Xml file text conversion test.
     * @throws Exception
     */
+   
    public void testXmlConvertion() throws Exception
    {
       InputStream is = null;
@@ -383,6 +400,7 @@ public class PSTextConverterTest extends TestCase
     * Xml file text conversion test.
     * @throws Exception
     */
+   
    public void testTikaXmlConvertion() throws Exception
    {
       InputStream is = null;

@@ -23,6 +23,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.utils.collections.PSIteratorUtils;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import java.io.File;
@@ -32,12 +33,14 @@ import java.util.Properties;
 /**
  * Unit tests for the JavaScript extension handler and supporting classes.
  */
-public class PSJavaScriptTest extends TestCase
+public class PSJavaScriptTest 
 {
    public PSJavaScriptTest(String testName)
    {
       super(testName);
    }
+
+   
 
    public void testAll() throws PSExtensionException, PSNonUniqueException, PSNotFoundException {
 
@@ -84,12 +87,7 @@ public class PSJavaScriptTest extends TestCase
    }
 
    /** collect all tests into a TestSuite and return it */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSJavaScriptTest("testAll"));
-      return suite;
-   }
+   
    
    /**
     * Base directory for unit test resources

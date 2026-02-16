@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test certain methods on content node
- * 
+ *
  * @author dougrand
  */
 public class PSContentNodeTest
@@ -45,19 +45,19 @@ public class PSContentNodeTest
       parent.addNode("bletch");
       parent.addNode("bletch");
       parent.setChildrenLoaded(true); // Cheat so we don't try to hit the db
-      
+
       NodeIterator ni = parent.getNodes();
       assertEquals(0, ni.getPosition());
       assertEquals(9, ni.getSize());
       assertEquals(0, ni.getPosition());
       assertTrue(ni.hasNext());
       assertTrue(ni.next() instanceof Node);
-      
+
       ni = parent.getNodes("foo");
       assertEquals(0, ni.getPosition());
       assertEquals(3, ni.getSize());
       assertEquals(0, ni.getPosition());
-      
+
       int i = 0;
       while(ni.hasNext())
       {
@@ -66,12 +66,12 @@ public class PSContentNodeTest
          i++;
       }
       assertEquals(3, i);
-      
+
       ni = parent.getNodes("b*");
       assertEquals(0, ni.getPosition());
       assertEquals(6, ni.getSize());
       assertEquals(0, ni.getPosition());
-      
+
       i = 0;
       while(ni.hasNext())
       {
@@ -79,10 +79,10 @@ public class PSContentNodeTest
          assertTrue(n.getName().startsWith("b"));
          i++;
       }
-      assertEquals(6, i);     
-      
+      assertEquals(6, i);
+
       Node n = parent.getNode("bar");
-      assertNotNull(n);   
+      assertNotNull(n);
       assertEquals("bar", n.getName());
       n = parent.getNode("bar[1]");
       assertNotNull(n);

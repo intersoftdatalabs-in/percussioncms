@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * Unit tests for the query joiner class. 
+ * Unit tests for the query joiner class.
  *
  */
 public class PSQueryJoinerTest
@@ -54,7 +54,7 @@ public class PSQueryJoinerTest
          // These types cannot be compared
          //   Boolean doesn't have a concept of < or >
          //   Byte[] doesn't implement Comparable, though we can fix this
-         // Types.BIT ,   
+         // Types.BIT ,
          // Types.BINARY,
          // Types.VARBINARY ,
          // Types.LONGVARBINARY ,
@@ -136,7 +136,7 @@ public class PSQueryJoinerTest
                leftData = new Byte((byte)(i%4));
                rightData = new Byte((byte)(i%3));
                break;
-               
+
             case Types.SMALLINT:
                leftData = new Short((short)(i%4));
                rightData = new Short((short)(i%3));
@@ -233,7 +233,7 @@ public class PSQueryJoinerTest
          case Types.TINYINT:
             System.err.println("Inner joining with TINYINT");
             break;
-            
+
          case Types.SMALLINT:
             System.err.println("Inner joining with SMALLINT");
             break;
@@ -368,12 +368,12 @@ public class PSQueryJoinerTest
     * Test the joining on 20 random result sets.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/8/1
-    * 
-    * 
+    *
+    *
     * @throws   Exception
-    * 
+    *
     */
    public void smokeTestJoins() throws Exception
    {
@@ -397,12 +397,12 @@ public class PSQueryJoinerTest
     * up and that the data has the correct number of rows.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/8/1
-    * 
-    * 
+    *
+    *
     * @throws   Exception
-    * 
+    *
     */
    public void smokeTestJoin(int joinType) throws Exception
    {
@@ -475,7 +475,7 @@ public class PSQueryJoinerTest
           join.setInnerJoin();
        }
 
-      PSQueryJoiner joiner = new PSSortedResultJoiner(null, join, columnNames, 
+      PSQueryJoiner joiner = new PSSortedResultJoiner(null, join, columnNames,
            null, columnNames, null, leftCard*rightCard);
 
       joiner.closeInputResultsAfterJoin(false);
@@ -491,7 +491,7 @@ public class PSQueryJoinerTest
 
        // debug messages to System.err have been commented out as they are
        // not useful for routine use of this test
-       
+
 //       System.err.println("Left cardinality:  " + leftCard);
 //       System.err.println("Right cardinality: " + rightCard);
 //       System.err.println("Join cardinality:  " + joinedRs.getNumRows());
@@ -539,12 +539,12 @@ public class PSQueryJoinerTest
     * schema. The data will be more or less randomly generated.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/8/1
-    * 
+    *
     * @param   schema
     * @param   numRows
-    * 
+    *
     * @return   PSResultSet
     */
    protected static PSResultSet createResultSet(PSResultSetMetaData schema, int numRows, boolean sorted)
@@ -581,16 +581,16 @@ public class PSQueryJoinerTest
     * types are supported; mostly basic types.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/8/1
-    * 
-    * 
+    *
+    *
     * @param   javaSqlType
-    * 
+    *
     * @return   Object
-    * 
+    *
     * @throws IllegalArgumentException
-    * 
+    *
     */
    protected static Object randomObject(int javaSqlType)
    {
@@ -611,7 +611,7 @@ public class PSQueryJoinerTest
       case Types.VARCHAR:
          return RandomStringUtils.randomAscii(99);
       }
-      
+
       throw new IllegalArgumentException("unsupported type: " + javaSqlType);
    }
 
@@ -621,7 +621,7 @@ public class PSQueryJoinerTest
 
       ResultSetMetaData md = rs.getMetaData();
       int cols = md.getColumnCount();
-      
+
       // print result set header
       for (int i = 1; i <= cols; i++) // 1 based
       {

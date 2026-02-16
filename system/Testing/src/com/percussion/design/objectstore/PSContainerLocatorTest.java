@@ -24,20 +24,18 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSContainerLocatorTest extends TestCase
+public class PSContainerLocatorTest
 {
-   public PSContainerLocatorTest(String name)
-   {
-      super(name);
-   }
-
+   @Test
    public void testEquals() throws Exception
    {
    }
 
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();

@@ -21,11 +21,12 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-public class PSExtractComponentUrlsTest extends TestCase
+public class PSExtractComponentUrlsTest 
 {
    static final String ms_testDoc = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?> "
          + " <slotcomponents>"
@@ -38,6 +39,8 @@ public class PSExtractComponentUrlsTest extends TestCase
          + " <component name=\"cmp_userstatus\" slotname=\"slt_userstatus\">"
          + "  <url>http://127.0.0.1:8080/Rhythmyx/sys_cmpUserStatus/userstatus.html?sys_componentname=cmp_userstatus&amp;sys_pagename=sys_variants&amp;workflowid=&amp;sys_componentid=1&amp;sys_sortparam=&amp;sys_sysnavcontentid=307</url> "
          + "  </component>" + "  </slotcomponents>";
+   
+   
    
    public void testit() throws Exception
    {

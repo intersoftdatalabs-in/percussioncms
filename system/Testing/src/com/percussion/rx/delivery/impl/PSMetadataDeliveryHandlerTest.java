@@ -27,13 +27,14 @@ import com.percussion.utils.guid.IPSGuid;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PSMetadataDeliveryHandlerTest extends TestCase
+public class PSMetadataDeliveryHandlerTest 
 {
     /**
      * Enable or disable the test that requires a live delivery server
@@ -49,6 +50,8 @@ public class PSMetadataDeliveryHandlerTest extends TestCase
     private static final int DELIVERY_CONTEXT = 1;
 
     private PSMetadataDeliveryHandler h = new PSMetadataDeliveryHandler();
+
+    
 
     public void testCreateFullPath()
     {
@@ -154,6 +157,7 @@ public class PSMetadataDeliveryHandlerTest extends TestCase
     }
 
     @Test
+    
     public void testDoDelivery() throws Exception
     {
         if (!isRunTest)
@@ -166,6 +170,7 @@ public class PSMetadataDeliveryHandlerTest extends TestCase
     }
 
     @Test
+    
     public void testDoDeliveryFailureBadEndpoint() throws Exception
     {
         if (!isRunTest)
@@ -181,6 +186,7 @@ public class PSMetadataDeliveryHandlerTest extends TestCase
     }
 
     @Test
+    
     public void testDoRemoval()
     {
         if (!isRunTest)

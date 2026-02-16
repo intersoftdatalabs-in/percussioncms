@@ -28,13 +28,13 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 
 /**
- * 
+ *
  */
 public class PSComponentSummaryTest
 {
    /**
     * Test all public constuctors.
-    * 
+    *
     * @throws Exception for any error.
     */
    @Test
@@ -48,12 +48,12 @@ public class PSComponentSummaryTest
       String name = "item_1";
       int contenttypeid = 301;
       int permissions = 3;
-      
+
       // test valid constuctor parameters
       Exception exception = null;
       try
       {
-         new PSComponentSummary(cid, rid, tiprid, editrid, objecttype, name, 
+         new PSComponentSummary(cid, rid, tiprid, editrid, objecttype, name,
             contenttypeid, permissions);
       }
       catch (Exception e)
@@ -66,7 +66,7 @@ public class PSComponentSummaryTest
       exception = null;
       try
       {
-         new PSComponentSummary(-1, rid, tiprid, editrid, objecttype, name, 
+         new PSComponentSummary(-1, rid, tiprid, editrid, objecttype, name,
             contenttypeid, permissions);
       }
       catch (Exception e)
@@ -79,7 +79,7 @@ public class PSComponentSummaryTest
       exception = null;
       try
       {
-         new PSComponentSummary(cid, rid, tiprid, editrid, objecttype, null, 
+         new PSComponentSummary(cid, rid, tiprid, editrid, objecttype, null,
             contenttypeid, permissions);
       }
       catch (Exception e)
@@ -92,7 +92,7 @@ public class PSComponentSummaryTest
       exception = null;
       try
       {
-         new PSComponentSummary(cid, rid, tiprid, editrid, objecttype, "", 
+         new PSComponentSummary(cid, rid, tiprid, editrid, objecttype, "",
             contenttypeid, permissions);
       }
       catch (Exception e)
@@ -105,8 +105,8 @@ public class PSComponentSummaryTest
       exception = null;
       try
       {
-         new PSComponentSummary(cid, rid, tiprid, 
-            editrid, PSComponentSummary.TYPE_FOLDER, name, contenttypeid, 
+         new PSComponentSummary(cid, rid, tiprid,
+            editrid, PSComponentSummary.TYPE_FOLDER, name, contenttypeid,
             permissions);
       }
       catch (Exception e)
@@ -119,7 +119,7 @@ public class PSComponentSummaryTest
       exception = null;
       try
       {
-         new PSComponentSummary(cid, rid, tiprid, 
+         new PSComponentSummary(cid, rid, tiprid,
             editrid, PSComponentSummary.TYPE_FOLDER, name, contenttypeid, -1);
       }
       catch (Exception e)
@@ -127,12 +127,12 @@ public class PSComponentSummaryTest
          exception = e;
       }
       assertTrue(exception instanceof IllegalArgumentException);
-      
+
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSComponentSummary item_1 = new PSComponentSummary(cid, rid, tiprid, 
+      PSComponentSummary item_1 = new PSComponentSummary(cid, rid, tiprid,
          editrid, objecttype, name, contenttypeid, permissions);
       Element item_1_xml = item_1.toXml(doc);
-      
+
       // test xml constructor for valid element
       exception = null;
       try
@@ -144,7 +144,7 @@ public class PSComponentSummaryTest
          exception = e;
       }
       assertTrue(exception == null);
-      
+
       // test xml constructor for invalid element
       exception = null;
       try
@@ -156,7 +156,7 @@ public class PSComponentSummaryTest
          exception = e;
       }
       assertTrue(exception instanceof IllegalArgumentException);
-      
+
       // test xml constructor for unknown node type element
       exception = null;
       try
@@ -169,10 +169,10 @@ public class PSComponentSummaryTest
       }
       assertTrue(exception instanceof PSUnknownNodeTypeException);
    }
-   
+
    /**
     * Test all public methods contracts.
-    * 
+    *
     * @throws Exception for any error.
     */
    @Test
@@ -186,23 +186,23 @@ public class PSComponentSummaryTest
       String name = "item_1";
       int contenttypeid = 301;
       int permissions = 3;
-      PSComponentSummary item_1 = new PSComponentSummary(cid, rid, tiprid, 
+      PSComponentSummary item_1 = new PSComponentSummary(cid, rid, tiprid,
          editrid, objecttype, name, contenttypeid, permissions);
-      
+
       // test clone method
       PSComponentSummary item_1_clone_1 = (PSComponentSummary) item_1.clone();
       assertTrue(item_1.equals(item_1_clone_1));
-      
+
       // test toXml method
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSComponentSummary item_1_clone_2 = 
+      PSComponentSummary item_1_clone_2 =
          new PSComponentSummary(item_1.toXml(doc));
       assertEqualsWithHash(item_1, item_1_clone_2);
-      
+
       // test equals method
       item_1_clone_2.setName("foo");
       assertTrue(!item_1.equals(item_1_clone_2));
-      
+
       // test setName method with invalid name
       try
       {
@@ -210,7 +210,7 @@ public class PSComponentSummaryTest
          fail();
       }
       catch (IllegalArgumentException success) {}
-      
+
       // test setName method with empty name
       try
       {
@@ -218,11 +218,11 @@ public class PSComponentSummaryTest
          fail();
       }
       catch (IllegalArgumentException success) {}
-      
+
       // test setName method with valid name
       item_1_clone_2.setName("item_1");
    }
-   
+
    /**
     * Tests <code>PSComponentSummary.getEditLocator()</code>.
     *
@@ -263,7 +263,7 @@ public class PSComponentSummaryTest
       assertEquals(cid, loc.getId());
       assertEquals(currentRevision, loc.getRevision());
    }
-   
+
    /**
     * Tests <code>PSComponentSummary.getEditLocator()</code>.
     *
@@ -285,11 +285,11 @@ public class PSComponentSummaryTest
       summary = new PSComponentSummary(cid, currentRevision, tipRevision,
             editRevision, PSComponentSummary.TYPE_ITEM, "edit_1",
             contenttypeid, permissions);
-      
+
       summary.setContentPostDateTz("EST");
-      
+
       String timezone = summary.getContentPostDateTz();
-      
+
       assertNotNull(timezone);
 
    }

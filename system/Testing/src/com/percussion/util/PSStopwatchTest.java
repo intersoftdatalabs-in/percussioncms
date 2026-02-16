@@ -18,6 +18,7 @@ package com.percussion.util;
 
 import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  *
  * Unit tests for stopwatch class
  */
-public class PSStopwatchTest extends TestCase
+public class PSStopwatchTest 
 {   
    /**
     * @param arg0
@@ -87,6 +88,8 @@ public class PSStopwatchTest extends TestCase
       
       checkReasonable(700, w.elapsed());
    }
+   
+   
    
    public void testStatechecks() throws Exception
    {

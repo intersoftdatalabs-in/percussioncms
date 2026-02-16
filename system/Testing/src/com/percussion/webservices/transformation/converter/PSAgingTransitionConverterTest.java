@@ -29,17 +29,19 @@ import java.util.List;
 import org.apache.commons.beanutils.Converter;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test the {@link PSAgingTransitionConverter}
  */
-public class PSAgingTransitionConverterTest extends TestCase
+public class PSAgingTransitionConverterTest 
 {
    /**
     * Test the converter
     * 
     * @throws Exception if the test fails.
     */
+   
    public void testConverter() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();

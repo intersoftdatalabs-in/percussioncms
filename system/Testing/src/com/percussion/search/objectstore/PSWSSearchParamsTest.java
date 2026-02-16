@@ -24,11 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test the <code>PSWSSearchParams</code> class.
  */
-public class PSWSSearchParamsTest extends TestCase
+public class PSWSSearchParamsTest 
 {
 
    /**
@@ -36,16 +37,14 @@ public class PSWSSearchParamsTest extends TestCase
     * 
     * @param name The name of the test.
     */
-   public PSWSSearchParamsTest(String name)
-   {
-      super(name);
-   }
+   
    
    /**
     * Test setters with invalid values.
     * 
     * @throws Exception if there are any errors
     */
+   
    public void testSetters() throws Exception
    {
       PSWSSearchParams params1 = new PSWSSearchParams();
@@ -134,6 +133,7 @@ public class PSWSSearchParamsTest extends TestCase
     * 
     * @throws Exception if there are any errors
     */
+   
    public void testEquals() throws Exception
    {
       // test empty
@@ -144,10 +144,10 @@ public class PSWSSearchParamsTest extends TestCase
       // test title
       params1.setTitle("foo", PSWSSearchField.OP_ATTR_LIKE, 
          PSWSSearchField.CONN_ATTR_AND);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setTitle("bar", PSWSSearchField.OP_ATTR_LIKE, 
       PSWSSearchField.CONN_ATTR_AND);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setTitle("foo", PSWSSearchField.OP_ATTR_LIKE, 
       PSWSSearchField.CONN_ATTR_AND);
       assertEquals(params1, params2);
@@ -157,7 +157,7 @@ public class PSWSSearchParamsTest extends TestCase
       assertEquals(params1, params2);
       params1.setTitle(null, PSWSSearchField.OP_ATTR_LIKE, 
          PSWSSearchField.CONN_ATTR_AND);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setTitle("", PSWSSearchField.OP_ATTR_LIKE, 
          PSWSSearchField.CONN_ATTR_AND);
       assertEquals(params1, params2);
@@ -165,12 +165,12 @@ public class PSWSSearchParamsTest extends TestCase
       
       // test contenttypeid
       params1.setContentTypeId(2);      
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params1.setContentTypeId(-1);
       assertEquals(params1, params2);
       params1.setContentTypeId(2);
       params2.setContentTypeId(3);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setContentTypeId(2);
       assertEquals(params1, params2);
       params2.setContentTypeId(params1.getContentTypeId());
@@ -179,7 +179,7 @@ public class PSWSSearchParamsTest extends TestCase
       
       // test folder path filter
       params1.setFolderPathFilter("//Sites/foo", false);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params1.setFolderPathFilter("", true);
       assertEquals(params1, params2);
       String path = "//Sites/bar";
@@ -191,7 +191,7 @@ public class PSWSSearchParamsTest extends TestCase
       
       // test folder search
       params1.setSearchForFolders(true);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params1.setSearchForFolders(false);
       assertEquals(params1, params2);
       params1.setSearchForFolders(true);
@@ -201,7 +201,7 @@ public class PSWSSearchParamsTest extends TestCase
       
       // test start index
       params1.setStartIndex(3);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params1.setStartIndex(1);
       assertEquals(params1, params2);
       params1.setStartIndex(3);
@@ -213,7 +213,7 @@ public class PSWSSearchParamsTest extends TestCase
       params1.setStartIndex(1);
       params2.setStartIndex(1);
       params1.setEndIndex(5);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params1.setEndIndex(-1);
       assertEquals(params1, params2);
       params1.setEndIndex(3);
@@ -223,14 +223,14 @@ public class PSWSSearchParamsTest extends TestCase
       
       // test query
       params1.setFTSQuery("foo");
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params1.setFTSQuery("");
       assertEquals(params1, params2);
       params1.setFTSQuery(null);
       assertEquals(params1, params2);
       params1.setFTSQuery("foo");
       params2.setFTSQuery("bar");
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params1.setFTSQuery("bar");
       assertEquals(params1, params2);
       params1.setFTSQuery(params2.getFTSQuery());
@@ -242,13 +242,13 @@ public class PSWSSearchParamsTest extends TestCase
       fields.add(new PSWSSearchField("foo", PSWSSearchField.OP_ATTR_LIKE, "bar", 
          PSWSSearchField.CONN_ATTR_AND));
       params1.setSearchFields(fields);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setSearchFields(fields);
       assertEquals(params1, params2);      
       fields.add(new PSWSSearchField("sys_bar", 
          PSWSSearchField.OP_ATTR_LESSTHAN, "2", PSWSSearchField.CONN_ATTR_OR));
       params1.setSearchFields(fields);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setSearchFields(params1.getSearchFields());
       assertEquals(params1, params2);      
       assertEquals(params1.hashCode(), params2.hashCode());
@@ -257,12 +257,12 @@ public class PSWSSearchParamsTest extends TestCase
       List results = new ArrayList();
       results.add("sys_foo");
       params1.setResultFields(results);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setResultFields(results);
       assertEquals(params1, params2);
       results.add("sys_bar");
       params1.setResultFields(results);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setResultFields(params1.getResultFields());
       assertEquals(params1, params2);
       assertEquals(params1.hashCode(), params2.hashCode());
@@ -271,31 +271,31 @@ public class PSWSSearchParamsTest extends TestCase
       Map props = new HashMap();
       props.put("prop1", "val1");
       params1.setProperties(props);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setProperties(props);
       assertEquals(params1, params2);
       props.put("prop2", "val2");
       params1.setProperties(props);
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setProperties(params1.getProperties());
       assertEquals(params1, params2);
       assertEquals(params1.hashCode(), params2.hashCode());
       
       // test clearing
       params1.setSearchFields(new ArrayList());
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setSearchFields(params1.getSearchFields());
       assertEquals(params1, params2);      
       assertEquals(params1.hashCode(), params2.hashCode());
       
       params1.setResultFields(new ArrayList());
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setResultFields(params1.getResultFields());
       assertEquals(params1, params2);
       assertEquals(params1.hashCode(), params2.hashCode());
 
       params1.setProperties(new HashMap());      
-      assertTrue(!params1.equals(params2));
+      assertFalse(params1.equals(params2));
       params2.setProperties(params1.getProperties());
       assertEquals(params1, params2);
       assertEquals(params1.hashCode(), params2.hashCode());
@@ -306,6 +306,7 @@ public class PSWSSearchParamsTest extends TestCase
     * 
     * @throws Exception if there are any errors.
     */
+   
    public void testXml() throws Exception
    {
       PSWSSearchParams params1 = new PSWSSearchParams();

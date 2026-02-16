@@ -23,17 +23,19 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Basic query node test
  * @author dougrand
  *
  */
-public class PSQueryNodeTest extends TestCase
+public class PSQueryNodeTest 
 {   
    /**
     * Test serialization
     */
+   
    public void testSimpleToString()
    {
       Calendar cal = new GregorianCalendar();

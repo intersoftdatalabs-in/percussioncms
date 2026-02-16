@@ -27,18 +27,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.beanutils.Converter;
 /**
  * Test the {@link PSTransitionConverter}
  */
-public class PSTransitionConverterTest extends TestCase
+public class PSTransitionConverterTest 
 {
    /**
     * Test the converter
     * 
     * @throws Exception if the test fails.
     */
+   
    public void testConverter() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();

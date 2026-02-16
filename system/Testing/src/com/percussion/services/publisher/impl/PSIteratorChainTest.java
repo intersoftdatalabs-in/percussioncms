@@ -35,7 +35,7 @@ public class PSIteratorChainTest
 {
 
    private List<List<String>> values = new ArrayList<List<String>>();
-   @BeforeEach 
+   @BeforeEach
    public void setUp() throws Exception
    {
       values.add(asList("a","b"));

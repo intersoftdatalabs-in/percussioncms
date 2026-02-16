@@ -19,6 +19,7 @@ package com.percussion.design.objectstore;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,12 +28,13 @@ import org.w3c.dom.NodeList;
 /**
  * Unit test class for <code>PSPropertySet</code>
  */
-public class PSPropertySetTest extends TestCase
+public class PSPropertySetTest 
 {
    /**
     * Tests that the XML serialization has a predictable ordering (ascending
     * alphabetical property name).
     */
+   
    public void testXmlOrdering()
    {
       PSPropertySet pset = new PSPropertySet();     

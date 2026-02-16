@@ -24,18 +24,16 @@ import java.util.List;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit test for the PSView and PSViewSet classes.
  */
-public class PSViewSetTest extends TestCase
+public class PSViewSetTest 
 {
    // see base class
-   public PSViewSetTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Tests creating views, adding them to a view set and retrieving them from
@@ -43,6 +41,7 @@ public class PSViewSetTest extends TestCase
     *
     * @throws Exception if the test fails or an error occurs
     */
+   
    public void testViewSet() throws Exception
    {
       PSViewSet viewSet = new PSViewSet();
@@ -80,12 +79,7 @@ public class PSViewSetTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSViewSetTest("testViewSet"));
-      return suite;
-   }
+   
 
 
 }

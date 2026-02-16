@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -36,12 +37,13 @@ import org.junit.jupiter.api.Tag;
  * Unit tests for the {@link PSSharedProperty} class.
  */
 @Tag("IntegrationTest")
-public class PSSharedPropertyTest extends TestCase
+public class PSSharedPropertyTest 
 {
    /**
     * Test all object contracts.
     */
    @Test
+   
    public void testContracts()
    {
       PSSharedProperty property = new PSSharedProperty();
@@ -106,6 +108,7 @@ public class PSSharedPropertyTest extends TestCase
     * Test all CRUD services.
     */
    @Test
+   
    public void testCRUD() throws Exception
    {
       IPSSystemService service = PSSystemServiceLocator.getSystemService();
@@ -128,7 +131,7 @@ public class PSSharedPropertyTest extends TestCase
       service.saveSharedProperty(property);
       PSSharedProperty property2 = service.loadSharedProperty(
          property.getGUID());
-      assertTrue(property.equals(property2));
+      assertEquals(property, property2);
       
       // delete the property
       service.deleteSharedProperty(property.getGUID());

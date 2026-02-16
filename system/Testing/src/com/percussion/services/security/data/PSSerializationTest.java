@@ -22,6 +22,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test xml helper serialization of selected objects
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.Test;
  * @author dougrand
  * 
  */
-public class PSSerializationTest extends TestCase
+public class PSSerializationTest 
 {
    static
    {
@@ -37,6 +38,8 @@ public class PSSerializationTest extends TestCase
       PSXmlSerializationHelper.addType(PSLocale.class);
       PSXmlSerializationHelper.addType(PSGuid.class);
    }
+   
+   
    
    public void testGuidSer() throws Exception
    {
@@ -48,6 +51,8 @@ public class PSSerializationTest extends TestCase
       
       assertEquals(g, res);
    }
+   
+   
    
    public void testCommunitySerialization() throws Exception
    {

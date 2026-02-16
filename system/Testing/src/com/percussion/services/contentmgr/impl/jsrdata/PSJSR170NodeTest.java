@@ -27,15 +27,14 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSJSR170NodeTest extends TestCase
+public class PSJSR170NodeTest 
 {
    Node m_root;
    
-   public PSJSR170NodeTest(String name) {
-      super(name);
-   }
+   
 
    public static TestSuite suite()
    {
@@ -76,6 +75,8 @@ public class PSJSR170NodeTest extends TestCase
       
    }
 
+   
+
    public void testNodeAndPropertyAccess() throws Exception
    {
       String prop = m_root.getProperty("aaa/dog").getString();
@@ -90,6 +91,8 @@ public class PSJSR170NodeTest extends TestCase
       assertTrue(m_root.getProperty("aaa/house").getBoolean());
    }
    
+   
+   
    public void testPropIterator() throws Exception
    {
       Node aaa = m_root.getNode("aaa");
@@ -101,6 +104,8 @@ public class PSJSR170NodeTest extends TestCase
       iter = aaa.getProperties("rx:ca*");
       assertEquals(2, iter.getSize());
    }
+   
+   
    
    public void testNodeIterator() throws Exception
    {

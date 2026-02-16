@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PSDataComparisonTest
 {
-   
+
    @Test
    public void testNumericComparisonsNotEqual()
    {

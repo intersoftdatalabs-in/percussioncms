@@ -33,7 +33,7 @@ public abstract class PSScheduleTestBase
    protected PSJob createFullSchedule()
    {
       final PSJob schedule = createSchedule();
-      
+
       schedule.setId(createGuid());
       schedule.setName("Label 1");
       schedule.setExtensionName("extension 1");
@@ -42,7 +42,7 @@ public abstract class PSScheduleTestBase
       schedule.setNotifyWhen(PSNotifyWhen.ALWAYS);
       schedule.getParameters().put("param1", "value1");
       schedule.setNotify("roleToNotify");
-      
+
       return schedule;
    }
 
@@ -53,7 +53,7 @@ public abstract class PSScheduleTestBase
    protected abstract PSJob createSchedule();
 
    /**
-    * Creates a sample schedule notification template GUID. 
+    * Creates a sample schedule notification template GUID.
     */
    protected PSGuid createTemplateGuid()
    {
@@ -62,7 +62,7 @@ public abstract class PSScheduleTestBase
    }
 
    /**
-    * Creates a sample schedule GUID. 
+    * Creates a sample schedule GUID.
     */
    protected PSGuid createGuid()
    {

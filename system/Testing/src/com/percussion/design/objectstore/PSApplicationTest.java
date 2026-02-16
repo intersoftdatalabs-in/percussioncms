@@ -45,9 +45,9 @@ public class PSApplicationTest
       final int ID = 123;
       final String NAME = "NAME " + RandomStringUtils.random(2);
       final String DESCRIPTION = "DESCRIPTION " + RandomStringUtils.random(2);
-      final String REQUEST_ROOT = "REQUEST ROOT " + RandomStringUtils.random(2); 
+      final String REQUEST_ROOT = "REQUEST ROOT " + RandomStringUtils.random(2);
 
-      final PSApplication a = new PSApplication(); 
+      final PSApplication a = new PSApplication();
 
       final PSApplication a2 = new PSApplication();
       assertEqualsWithHash(a, a2);
@@ -56,24 +56,24 @@ public class PSApplicationTest
       assertFalse(a.equals(a2));
       a.setId(ID);
       assertEqualsWithHash(a, a2);
-      
+
       a2.setName(NAME);
       assertFalse(a.equals(a2));
       a.setName(NAME);
       assertEqualsWithHash(a, a2);
-      
+
       a2.setDescription(DESCRIPTION);
       assertFalse(a.equals(a2));
       a.setDescription(DESCRIPTION);
       assertEqualsWithHash(a, a2);
-      
+
       a2.setRequestRoot(REQUEST_ROOT);
       assertFalse(a.equals(a2));
       a.setRequestRoot(REQUEST_ROOT);
       assertEqualsWithHash(a, a2);
 }
 
-   
+
    @Test
    public void testXml() throws Exception
    {

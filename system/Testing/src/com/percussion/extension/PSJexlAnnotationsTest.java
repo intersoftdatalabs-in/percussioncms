@@ -17,16 +17,15 @@
 package com.percussion.extension;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 
-public class PSJexlAnnotationsTest extends TestCase
+public class PSJexlAnnotationsTest 
 {
-   public PSJexlAnnotationsTest(String name) {
-      super(name);
-   }
+   
 
    public static TestSuite suite()
    {
@@ -44,6 +43,8 @@ public class PSJexlAnnotationsTest extends TestCase
    {
       
    }
+         
+   
          
    public void test1() throws Exception
    {

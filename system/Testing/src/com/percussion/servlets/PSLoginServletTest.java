@@ -20,11 +20,14 @@ package com.percussion.servlets;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSLoginServletTest extends TestCase
+public class PSLoginServletTest 
 {
 
    MockHttpServletRequest request = new MockHttpServletRequest();
+   
+   
    
    public void testIsValidRedirectUri() throws Exception
    {

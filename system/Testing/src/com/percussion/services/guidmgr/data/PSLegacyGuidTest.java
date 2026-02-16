@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test legacy guids
- * 
+ *
  * @author dougrand
  */
 public class PSLegacyGuidTest
@@ -33,7 +33,7 @@ public class PSLegacyGuidTest
    public void testLongValueRoundtrip()
    {
       final PSLegacyGuid guid = new PSLegacyGuid(101, 15, 12345);
-      final long value = guid.longValue(); 
+      final long value = guid.longValue();
       assertEquals(value, new PSLegacyGuid(value).longValue());
    }
 
@@ -47,7 +47,7 @@ public class PSLegacyGuidTest
       assertEquals(12345, guid.getUUID());
       assertEquals(12345, guid.getContentId());
    }
-   
+
    @Test
    public void testContentId()
    {
@@ -55,11 +55,11 @@ public class PSLegacyGuidTest
       assertEquals(12345, guid.getUUID());
       assertEquals(12345, guid.getContentId());
       assertEquals(2, guid.getRevision());
-      
+
       guid = new PSLegacyGuid(1, -1);
       assertEquals(-1, guid.getRevision());
       assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
-      
+
       guid = new PSLegacyGuid(-1, -1);
       assertEquals(-1, guid.getContentId());
       assertEquals(-1, guid.getRevision());
@@ -70,33 +70,33 @@ public class PSLegacyGuidTest
       assertEquals(-1, guid.getRevision());
       assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
    }
-   
+
    @Test
    public void testStringVsGuid()
    {
       // test PSTypeEnum.LEGACY_CONTENT type
       PSLegacyGuid guid = new PSLegacyGuid(12345, 2);
       PSLegacyGuid guid_2 = new PSLegacyGuid(guid.toString());
-      
+
       assertEquals(guid, guid_2);
-      
+
       guid = new PSLegacyGuid(12345, -1);
       guid_2 = new PSLegacyGuid(guid.toString());
-      
+
       assertEquals(guid, guid_2);
-      
+
       // test PSTypeEnum.LEGACY_CHILD type
       guid = new PSLegacyGuid(101, 15, 12345);
       guid_2 = new PSLegacyGuid(guid.toString());
-      
-      assertEquals(guid, guid_2);    
-      
+
+      assertEquals(guid, guid_2);
+
       // test from PSGuid to PSLegacyGuid
       guid = new PSLegacyGuid(12345, 2);
       guid_2 = new PSLegacyGuid( new PSGuid(guid.toString()));
-      
+
       assertEquals(guid, guid_2);
-      
+
       guid = new PSLegacyGuid(101, 15, 12345);
       guid_2 = new PSLegacyGuid( new PSGuid(guid.toString()));
       assertEquals(guid, guid_2);

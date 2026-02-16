@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -31,12 +32,9 @@ import org.w3c.dom.Element;
 
 // Test case
 
-public class PSUrlRequestTest extends TestCase
+public class PSUrlRequestTest 
 {
-   public PSUrlRequestTest(String name)
-   {
-      super( name );
-   }
+   
 
 
    /**
@@ -45,6 +43,7 @@ public class PSUrlRequestTest extends TestCase
     * 
     * @throws Exception if the test fails.
     */ 
+   
    public void testClone() throws Exception
    {
       PSCollection parameters = new PSCollection( PSParam.class );
@@ -90,6 +89,9 @@ public class PSUrlRequestTest extends TestCase
    }
 
 
+   
+
+
    public void testXmlParts() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -109,8 +111,11 @@ public class PSUrlRequestTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSUrlRequest testFrom = new PSUrlRequest( elem, null, null );
-      assertTrue( testTo.equals( testFrom ) );
+      assertEquals(testTo, testFrom );
    }
+
+
+   
 
 
    public void testXmlUdf() throws Exception
@@ -127,18 +132,9 @@ public class PSUrlRequestTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSUrlRequest testFrom = new PSUrlRequest( elem, null, null );
-      assertTrue( testTo.equals( testFrom ) );
+      assertEquals(testTo, testFrom );
    }
 
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest( new PSUrlRequestTest( "testXmlParts" ) );
-      suite.addTest( new PSUrlRequestTest( "testXmlUdf" ) );
-      suite.addTest( new PSUrlRequestTest( "testClone" ) );
-
-      return suite;
-   }
+   
 }

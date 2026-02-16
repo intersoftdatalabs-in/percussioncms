@@ -20,12 +20,13 @@ import com.percussion.util.PSCollection;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Tests the {@link PSUISet} class
  */
-public class PSUISetTest extends TestCase
+public class PSUISetTest 
 {
    public PSUISetTest(String s)
    {
@@ -33,13 +34,7 @@ public class PSUISetTest extends TestCase
    }
 
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSUISetTest( "testDeepCopy" ) );
-      suite.addTest( new PSUISetTest( "testMergeAndDiff" ) );
-      return suite;
-   }
+   
 
 
    /**
@@ -48,6 +43,7 @@ public class PSUISetTest extends TestCase
     * 
     * @throws Exception if the test fails.
     */ 
+   
    public void testDeepCopy() throws Exception
    {
       // build a object
@@ -65,7 +61,7 @@ public class PSUISetTest extends TestCase
       PSUISet uiSetCopy = (PSUISet) uiSet.clone();
 
       // are they equal?
-      assertTrue(uiSet.equals(uiSetCopy));
+      assertEquals(uiSet, uiSetCopy);
    }
    
    /**
@@ -74,6 +70,7 @@ public class PSUISetTest extends TestCase
     * 
     * @throws Exception if the test fails.
     */
+   
    public void testMergeAndDiff() throws Exception
    {
       PSUISet uiSet = new PSUISet();

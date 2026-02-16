@@ -17,9 +17,11 @@
 package com.percussion.rx.ui.jsf.beans;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSHelpTopicMappingTest extends TestCase
+public class PSHelpTopicMappingTest 
 {
+   
    public void testGetFileName()
    {
       assertTrue(PSHelpTopicMapping.getFileName("SiteEditor") != null);

@@ -34,7 +34,7 @@ public class PSNotificationTemplateTest
    {
       final PSNotificationTemplate template = new PSNotificationTemplate();
       template.setId(createTemplateGuid());
-      
+
       // null id
       try
       {
@@ -42,7 +42,7 @@ public class PSNotificationTemplateTest
          fail();
       }
       catch (NullPointerException expected) {}
-      
+
       // wrong id guid type
       try
       {
@@ -70,7 +70,7 @@ public class PSNotificationTemplateTest
       }
       catch (IllegalArgumentException expected) {}
 }
-   
+
    @Test
    public void testByLabelComparator()
    {
@@ -98,22 +98,22 @@ public class PSNotificationTemplateTest
 
       assertTrue(t1.equals(t2));
       assertTrue(t1.hashCode() == t2.hashCode());
-      
+
       assertFalse(t1.equals(t3));
       assertFalse(t1.hashCode() == t3.hashCode());
    }
-   
+
    /**
     * Creates a template with the given properties.
-    * 
+    *
     * @param id the ID of the template, assumed not <code>null</code>.
     * @param label the label of the template, assumed not blank.
     * @param subject the subject of the template, assumed not blank.
     * @param template the template, may be blank.
-    * 
+    *
     * @return the notification template object, never <code>null</code>.
     */
-   private PSNotificationTemplate createTemplate(IPSGuid id, 
+   private PSNotificationTemplate createTemplate(IPSGuid id,
          String label, String subject, String template)
    {
       PSNotificationTemplate t = new PSNotificationTemplate();
@@ -121,12 +121,12 @@ public class PSNotificationTemplateTest
       t.setName(label);
       t.setSubject(subject);
       t.setTemplate(template);
-      
+
       return t;
    }
-   
+
    /**
-    * Creates a sample schedule notification template GUID. 
+    * Creates a sample schedule notification template GUID.
     */
    private PSGuid createTemplateGuid()
    {

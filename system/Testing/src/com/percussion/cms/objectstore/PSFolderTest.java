@@ -98,17 +98,17 @@ public class PSFolderTest
       // the state of the property is MODIFIED, so is the folder's
       assertTrue(folder.getState() == IPSDbComponent.DBSTATE_MODIFIED);
    }
-   
+
    /**
     * Tests the merge method.
-    * 
+    *
     * @throws Exception
     */
    @Test
    public void testMerge() throws Exception
    {
       // tests merge properties
-      
+
       // create a persisted folder with persisted properties
       PSFolder origFolder = new PSFolder("f1", 10, -1,
             PSObjectPermissions.ACCESS_ADMIN, "description");
@@ -119,22 +119,22 @@ public class PSFolderTest
       origFolder.addProperty(prop);
       // set ACL entries
       PSObjectAcl acl = new PSObjectAcl();
-      PSObjectAclEntry entry = new PSObjectAclEntry(1, 
-            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1", 
+      PSObjectAclEntry entry = new PSObjectAclEntry(1,
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1",
             PSObjectAclEntry.ACCESS_READ);
       acl.add(entry);
-      entry = new PSObjectAclEntry(1, 
-            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "admin1", 
+      entry = new PSObjectAclEntry(1,
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "admin1",
             PSObjectAclEntry.ACCESS_ADMIN);
       acl.add(entry);
       origFolder.setAcl(acl);
-      
+
       origFolder.setPersisted();
-      
+
       // create a new folder from the original folder
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       PSFolder folder = new PSFolder(origFolder.toXml(doc));
-      
+
       // create a folder with new state and properties and ACL entries
       PSFolder srcFolder = new PSFolder("f1", 10, -1,
             PSObjectPermissions.ACCESS_ADMIN, "description");
@@ -144,23 +144,23 @@ public class PSFolderTest
       // create new ACL entries
       acl = new PSObjectAcl();
       entry = new PSObjectAclEntry(
-            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1", 
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1",
             PSObjectAclEntry.ACCESS_WRITE);
       acl.add(entry);
-      entry = new PSObjectAclEntry( 
-            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "admin2", 
+      entry = new PSObjectAclEntry(
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "admin2",
             PSObjectAclEntry.ACCESS_ADMIN);
       acl.add(entry);
       srcFolder.setAcl(acl);
 
-      
+
       // MERGE
       folder.mergeFrom(srcFolder);
-      
+
       //\/\/\/\/\/\/\/\/\/\/\/\
       // tests merge properties
       //\/\/\/\/\/\/\/\/\/\/\/\
-      
+
       // "p2" should be removed
       assertTrue(folder.getProperty("p2") == null);
       // "p1" should be modified
@@ -176,14 +176,14 @@ public class PSFolderTest
       //\/\/\/\/\/\/\/\/\/\/\/\/
       // tests merge ACL entries
       //\/\/\/\/\/\/\/\/\/\/\/\/
-      
+
       acl = folder.getAcl();
       entry = acl.getAclEntry("qa1", PSObjectAclEntry.ACL_ENTRY_TYPE_USER);
       assertTrue(entry != null);
       assertTrue(entry.getState() == IPSDbComponent.DBSTATE_MODIFIED);
       entry = acl.getAclEntry("admin2", PSObjectAclEntry.ACL_ENTRY_TYPE_USER);
       assertTrue(entry.getState() == IPSDbComponent.DBSTATE_NEW);
-      
+
       // "admin1" should be in the deleted list
       entry = acl.getAclEntry("admin1", PSObjectAclEntry.ACL_ENTRY_TYPE_USER);
       assertTrue(entry == null);
@@ -211,12 +211,12 @@ public class PSFolderTest
 
       assertTrue(target.equals(compSummary));
    }
-   
+
    /**
     * Test if folders with only different locators have
     * different hashcodes, as they should. Also tests the use case of
     * putting several folders in a Set.
-    * 
+    *
     * @throws Exception on error
     */
    @Test
@@ -240,20 +240,20 @@ public class PSFolderTest
       assertTrue(folder1.hashCode() != folder2.hashCode());
       assertTrue(!folder1.equals(folder2));
       assertTrue(folder2.equals(folder3));
-      
+
       // Test putting folders in a set, the set should have only
       // 2 entries as 2 of the three folders should be equal
       final Set<PSFolder> folderSet = new HashSet<PSFolder>();
       folderSet.add(folder1);
       folderSet.add(folder2);
       folderSet.add(folder3);
-      
+
       assertTrue(folderSet.size() == 2);
    }
-   
+
    /**
     * Tests the merge acl method.
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -262,55 +262,55 @@ public class PSFolderTest
       // create a persisted folder
       PSFolder origFolder = new PSFolder("f1", 10, -1,
             PSObjectPermissions.ACCESS_ADMIN, "description");
-      
+
       // set ACL entries
       PSObjectAcl acl = new PSObjectAcl();
-      PSObjectAclEntry entry = new PSObjectAclEntry(1, 
-            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1", 
+      PSObjectAclEntry entry = new PSObjectAclEntry(1,
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1",
             PSObjectAclEntry.ACCESS_READ);
       acl.add(entry);
-      entry = new PSObjectAclEntry(1, 
-            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "admin1", 
+      entry = new PSObjectAclEntry(1,
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "admin1",
             PSObjectAclEntry.ACCESS_ADMIN);
       acl.add(entry);
       origFolder.setAcl(acl);
-      
+
       origFolder.setPersisted();
-      
+
       // create a new folder from the original folder
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       PSFolder folder = new PSFolder(origFolder.toXml(doc));
-      
+
       // create a folder with new state and properties and ACL entries
       PSFolder srcFolder = new PSFolder("f1", 10, -1,
             PSObjectPermissions.ACCESS_ADMIN, "description");
-      
+
       // create new ACL entries
       acl = new PSObjectAcl();
       entry = new PSObjectAclEntry(
-            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1", 
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "qa1",
             PSObjectAclEntry.ACCESS_WRITE);
       acl.add(entry);
-      entry = new PSObjectAclEntry( 
-            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "admin2", 
+      entry = new PSObjectAclEntry(
+            PSObjectAclEntry.ACL_ENTRY_TYPE_USER, "admin2",
             PSObjectAclEntry.ACCESS_ADMIN);
       acl.add(entry);
       srcFolder.setAcl(acl);
-      
+
       // MERGE
       folder.mergeAclFrom(srcFolder.getAcl());
-      
+
       //\/\/\/\/\/\/\/\/\/\/\/\/
       // tests merge ACL entries
       //\/\/\/\/\/\/\/\/\/\/\/\/
-      
+
       acl = folder.getAcl();
       entry = acl.getAclEntry("qa1", PSObjectAclEntry.ACL_ENTRY_TYPE_USER);
       assertTrue(entry != null);
       assertTrue(entry.getState() == IPSDbComponent.DBSTATE_MODIFIED);
       entry = acl.getAclEntry("admin2", PSObjectAclEntry.ACL_ENTRY_TYPE_USER);
       assertTrue(entry.getState() == IPSDbComponent.DBSTATE_NEW);
-      
+
       // "admin1" should be in the deleted list
       entry = acl.getAclEntry("admin1", PSObjectAclEntry.ACL_ENTRY_TYPE_USER);
       assertTrue(entry == null);

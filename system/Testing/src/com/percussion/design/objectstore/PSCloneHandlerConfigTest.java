@@ -20,6 +20,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,16 +36,13 @@ import java.util.Iterator;
  * Unit test for the {@link PSCloneHandlerConfigSet} and 
  * {@link PSCloneHandlerConfigTest} class.
  */
-public class PSCloneHandlerConfigTest extends TestCase
+public class PSCloneHandlerConfigTest 
 {
 
    private static final Logger log = LogManager.getLogger(PSCloneHandlerConfigTest.class);
 
    // see base class
-   public PSCloneHandlerConfigTest(String name)
-   {
-      super(name);
-   }
+   
  
    /**
     * Test to/from XML methods.
@@ -92,12 +90,7 @@ public class PSCloneHandlerConfigTest extends TestCase
    }
    
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSCloneHandlerConfigTest("test"));
-      return suite;
-   }
+   
 
    /**
     * Defines the path to the files used by this unit test, relative from the

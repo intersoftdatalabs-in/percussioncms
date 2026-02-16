@@ -23,6 +23,7 @@ import com.percussion.util.PSCharSetsConstants;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.tools.PSTestUtils;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -30,13 +31,14 @@ import java.io.InputStream;
 /**
  * Unit tests for the {@link PSMimeContentAdapter} class.
  */
-public class PSMimeContentAdapterTest extends TestCase
+public class PSMimeContentAdapterTest 
 {
    /**
     * Tests the programming interface. 
     * 
     * @throws Exception If the test fails
     */
+   
    public void testInterface() throws Exception
    {
       String data = "some content...";

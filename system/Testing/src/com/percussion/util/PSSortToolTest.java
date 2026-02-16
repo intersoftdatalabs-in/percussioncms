@@ -23,24 +23,23 @@ import java.util.Vector;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  *   Unit tests for the PSSortTool class
  */
 
-public class PSSortToolTest extends TestCase
+public class PSSortToolTest 
 {
 
-   public PSSortToolTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Test sorting a large-ish vector of Long objects
     * using QuickSort
     */
+   
    public void testVectorQuickSort()
    {
       class LongComp implements Comparator
@@ -76,6 +75,7 @@ public class PSSortToolTest extends TestCase
     * Test sorting a large-ish array of Long objects
     * using QuickSort
     */
+   
    public void testArrayQuickSort()
    {
       class LongComp implements Comparator
@@ -112,6 +112,7 @@ public class PSSortToolTest extends TestCase
     * Test sorting a large-ish array of Long objects
     * using MergeSort
     */
+   
    public void testArrayMergeSort()
    {
       class LongComp implements Comparator
@@ -145,6 +146,9 @@ public class PSSortToolTest extends TestCase
    }
 
 
+   
+
+
    public void testVectorJdkSort()
    {
       class LongComp implements Comparator
@@ -175,6 +179,8 @@ public class PSSortToolTest extends TestCase
          assertTrue("Element at: " + i, compVal <= 0);
       }
    }
+
+   
 
    public void testArrayJdkSort()
    {
@@ -218,17 +224,7 @@ public class PSSortToolTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSSortToolTest("testVectorQuickSort"));
-      suite.addTest(new PSSortToolTest("testArrayQuickSort"));
-      suite.addTest(new PSSortToolTest("testArrayJdkSort"));
-      suite.addTest(new PSSortToolTest("testVectorJdkSort"));
-      suite.addTest(new PSSortToolTest("testArrayMergeSort"));
-      
-      return suite;
-   }
+   
 
    private Vector m_randomLongVector;
    private static final int VECTOR_SIZE = 2048;
