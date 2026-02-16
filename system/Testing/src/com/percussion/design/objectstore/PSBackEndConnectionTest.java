@@ -21,20 +21,17 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit tests for the PSBackEndConnection class.
  */
-public class PSBackEndConnectionTest extends TestCase
+public class PSBackEndConnectionTest
 {
-   public PSBackEndConnectionTest(String name)
-   {
-      super(name);
-   }
 
+   @Test
    public void testConstructor() throws Exception
    {
       // create two valid, identical connections and test for equality
@@ -47,64 +44,24 @@ public class PSBackEndConnectionTest extends TestCase
       }
 
       // invalid - null driver name
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSBackEndConnection conn = new PSBackEndConnection(
-               null, "className", "serverName");
-         }
-         catch (IllegalArgumentException e)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow);
-      }
+      assertThrows(IllegalArgumentException.class, () ->
+         new PSBackEndConnection(null, "className", "serverName")
+      );
 
       // invalid - empty driver name
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSBackEndConnection conn = new PSBackEndConnection(
-               "", "className", "serverName");
-         }
-         catch (IllegalArgumentException e)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow);
-      }
+      assertThrows(IllegalArgumentException.class, () ->
+         new PSBackEndConnection("", "className", "serverName")
+      );
 
       // invalid - null class name
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSBackEndConnection conn = new PSBackEndConnection(
-               "driverName", null, "serverName");
-         }
-         catch (IllegalArgumentException e)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow);
-      }
+      assertThrows(IllegalArgumentException.class, () ->
+         new PSBackEndConnection("driverName", null, "serverName")
+      );
 
       // invalid - empty class name
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSBackEndConnection conn = new PSBackEndConnection(
-               "driverName", "", "serverName");
-         }
-         catch (IllegalArgumentException e)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow);
-      }
+      assertThrows(IllegalArgumentException.class, () ->
+         new PSBackEndConnection("driverName", "", "serverName")
+      );
 
       // this is valid
       {
@@ -119,6 +76,7 @@ public class PSBackEndConnectionTest extends TestCase
       }
    }
 
+   @Test
    public void testXml() throws Exception
    {
       PSBackEndConnection conn = new PSBackEndConnection(
@@ -130,7 +88,7 @@ public class PSBackEndConnectionTest extends TestCase
       conn.setConnectionMin(17);
       conn.setIdleTimeout(217);
 
-      assertTrue(!conn.equals(otherConn));
+      assertNotEquals(conn, otherConn);
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element el = conn.toXml(doc);
@@ -143,11 +101,5 @@ public class PSBackEndConnectionTest extends TestCase
       assertEquals(217, otherConn.getIdleTimeout());
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSBackEndConnectionTest("testConstructor"));
-      suite.addTest(new PSBackEndConnectionTest("testXml"));
-      return suite;
-   }
+
 }

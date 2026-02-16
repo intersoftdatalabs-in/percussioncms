@@ -23,6 +23,24 @@
 			<artifactId>derbyclient</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- JUnit 5 + vintage/legacy JUnit 4 for system tests -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>com.percussion</groupId>
 			<artifactId>perc-security-utils</artifactId>
