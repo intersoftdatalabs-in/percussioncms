@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSView;
@@ -36,7 +37,7 @@ import com.percussion.system.utils.IPSHtmlParameters;
 /**
  * Unit test for the PSViewEvaluator class.
  */
-public class PSViewEvaluatorTest extends TestCase
+public class PSViewEvaluatorTest
 {
    /**
     * Tests view evaluator construction with valid and invalid data, checking
@@ -44,6 +45,7 @@ public class PSViewEvaluatorTest extends TestCase
     *
     * @throws Exception if the test fails or there are any errors.
     */
+   @Test
    public void testViewEvaluator() throws Exception
    {
       // construct data
@@ -75,10 +77,9 @@ public class PSViewEvaluatorTest extends TestCase
 
       // this should not fail
       eval = new PSViewEvaluator(viewSet);
-      assertTrue("field visible", eval.isFieldVisible("FIELD1", data));
-      assertTrue("field not visible", !eval.isFieldVisible("foobar", data));
-      assertTrue("getnextview: sys_All", eval.getNextView(data, 2).equals(
-         IPSConstants.SYS_ALL_VIEW_NAME));
+      assertTrue(eval.isFieldVisible("FIELD1", data), "field visible");
+      assertFalse(eval.isFieldVisible("foobar", data), "field not visible");
+      assertEquals(IPSConstants.SYS_ALL_VIEW_NAME, eval.getNextView(data, 2), "getnextview: sys_All");
 
       // remove the view param
       req.removeParameter(IPSHtmlParameters.SYS_VIEW);
@@ -89,12 +90,10 @@ public class PSViewEvaluatorTest extends TestCase
 
       // should default to sys_default for current view
       eval = new PSViewEvaluator(viewSet);
-      assertTrue("field visible", eval.isFieldVisible("FIELD1", data));
-      assertTrue("field not visible", !eval.isFieldVisible("foobar", data));
-      assertTrue("getnextview: sys_Default", eval.getNextView(data, 0).equals(
-         IPSConstants.DEFAULT_VIEW_NAME));
-      assertTrue("getnextview: sys_Default", eval.getNextView(data, 1).equals(
-         IPSConstants.DEFAULT_VIEW_NAME));
+      assertTrue(eval.isFieldVisible("FIELD1", data), "field visible");
+      assertFalse(eval.isFieldVisible("foobar", data), "field not visible");
+      assertEquals(IPSConstants.DEFAULT_VIEW_NAME, eval.getNextView(data, 0), "getnextview: sys_Default");
+      assertEquals(IPSConstants.DEFAULT_VIEW_NAME, eval.getNextView(data, 1), "getnextview: sys_Default");
 
       // NOTE: cannot test conditional views without an app handler
    }
