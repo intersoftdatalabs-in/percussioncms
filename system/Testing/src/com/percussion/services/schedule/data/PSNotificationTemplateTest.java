@@ -21,13 +21,15 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.schedule.data.PSNotificationTemplate.ByLabelComparator;
 import com.percussion.utils.guid.IPSGuid;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSNotificationTemplateTest extends TestCase
+public class PSNotificationTemplateTest
 {
+   @Test
    public void testSetId()
    {
       final PSNotificationTemplate template = new PSNotificationTemplate();
@@ -50,6 +52,7 @@ public class PSNotificationTemplateTest extends TestCase
       catch (IllegalArgumentException expected) {}
    }
 
+   @Test
    public void testSetLabelSubject()
    {
       final PSNotificationTemplate template = new PSNotificationTemplate();
@@ -68,6 +71,7 @@ public class PSNotificationTemplateTest extends TestCase
       catch (IllegalArgumentException expected) {}
 }
    
+   @Test
    public void testByLabelComparator()
    {
       final ByLabelComparator c = new ByLabelComparator();
@@ -81,6 +85,7 @@ public class PSNotificationTemplateTest extends TestCase
       assertEquals(1, c.compare(t2, t1));
    }
 
+   @Test
    public void testEqualsHashCode()
    {
       IPSGuid id = createTemplateGuid();

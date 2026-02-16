@@ -84,7 +84,7 @@ public class PSFileSystemStatementTest
    /**
     *   Set up the testing directories and files
     */
-   @BeforeEach 
+   @BeforeEach
    public void setUp() throws IOException {
       // make the testing directories
       m_rootDir = new File(tempFolder, "Testing/PSFileSystemStatementTest");
@@ -108,7 +108,7 @@ public class PSFileSystemStatementTest
          "ere", "he", "is", "aware"
       };
 
-      m_4Files = new String[] 
+      m_4Files = new String[]
       {
          "When", "thoughts", "of", "the", "last", "bitter", "hour",
          "come", "like", "a", "blight", "over", "thy", "spirit",

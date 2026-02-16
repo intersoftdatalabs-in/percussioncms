@@ -22,18 +22,20 @@ import com.percussion.services.guidmgr.data.PSGuid;
 
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the {@link PSAuditLogEntry} class
  */
-public class PSAuditLogEntryTest extends TestCase
+public class PSAuditLogEntryTest
 {
    /**
     * Tests the equals and hashcode methods.
     * 
     * @throws Exception if the test fails
     */
+   @Test
    public void testEquals() throws Exception
    {
       PSAuditLogEntry entry1 = new PSAuditLogEntry();

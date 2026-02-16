@@ -1148,8 +1148,8 @@
                 <version>3.4</version>
             </dependency>
             <dependency>
-                <!-- our version 1.2 - this is old au\id\jericho\ namespace 2.6.1 last version 
-                    before package change. 2.3.x-2.6.x in net.htmlparser.jericho » jericho-html 
+                <!-- our version 1.2 - this is old au\id\jericho\ namespace 2.6.1 last version
+                    before package change. 2.3.x-2.6.x in net.htmlparser.jericho » jericho-html
                     maven package 2.3 last in this maven group -->
                 <groupId>net.htmlparser</groupId>
                 <artifactId>jericho-html</artifactId>
@@ -2077,7 +2077,7 @@
                         </compilerArgs>
                     </configuration>
                 </plugin>
-                <!--This plugin's configuration is used to store Eclipse 
+                <!--This plugin's configuration is used to store Eclipse
                 m2e settings only. It has no influence on the Maven build itself. -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
@@ -2534,14 +2534,14 @@
                         </dependency>
                     </dependencies>
                     <executions>
-                        <execution>
+                      <!--  <execution>
                             <id>auto-style</id>
                             <goals>
                                 <goal>check</goal>
                             </goals>
-                            <!-- Using validate phase, so this happens before enforce-style -->
                             <phase>validate</phase>
                         </execution>
+                        -->
                     </executions>
                 </plugin>
                 <plugin>

@@ -48,7 +48,7 @@ public class PSFileSystemConnectionTest
    @TempDir
    public File tempFolder;
 
-   @BeforeEach 
+   @BeforeEach
    public void setUp()
    {
 

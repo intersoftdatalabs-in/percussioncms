@@ -29,6 +29,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import org.apache.commons.io.FileUtils;
@@ -46,8 +47,9 @@ import org.junit.jupiter.api.Test;
  * 
  * @author miltonpividori
  */
-public class PSMetadataDeliveryHandlerPerformanceTest extends TestCase
+public class PSMetadataDeliveryHandlerPerformanceTest
 {
+    @Test
     public void testDummy()
     {   
     }

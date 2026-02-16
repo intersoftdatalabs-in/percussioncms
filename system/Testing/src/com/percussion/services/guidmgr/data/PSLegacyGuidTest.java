@@ -19,6 +19,7 @@ package com.percussion.services.guidmgr.data;
 
 import com.percussion.services.catalog.PSTypeEnum;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -26,8 +27,9 @@ import org.junit.jupiter.api.Test;
  * 
  * @author dougrand
  */
-public class PSLegacyGuidTest extends TestCase
+public class PSLegacyGuidTest
 {
+   @Test
    public void testLongValueRoundtrip()
    {
       final PSLegacyGuid guid = new PSLegacyGuid(101, 15, 12345);
@@ -35,6 +37,7 @@ public class PSLegacyGuidTest extends TestCase
       assertEquals(value, new PSLegacyGuid(value).longValue());
    }
 
+   @Test
    public void testChildId()
    {
       PSLegacyGuid guid = new PSLegacyGuid(101, 15, 12345);
@@ -45,6 +48,7 @@ public class PSLegacyGuidTest extends TestCase
       assertEquals(12345, guid.getContentId());
    }
    
+   @Test
    public void testContentId()
    {
       PSLegacyGuid guid = new PSLegacyGuid(12345, 2);
@@ -67,6 +71,7 @@ public class PSLegacyGuidTest extends TestCase
       assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
    }
    
+   @Test
    public void testStringVsGuid()
    {
       // test PSTypeEnum.LEGACY_CONTENT type

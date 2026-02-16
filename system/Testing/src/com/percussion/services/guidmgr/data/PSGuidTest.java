@@ -19,13 +19,14 @@ package com.percussion.services.guidmgr.data;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test the guid class
  * @author dougrand
  */
-public class PSGuidTest extends TestCase
+public class PSGuidTest
 {
    static IPSGuid NG = new PSGuid(PSTypeEnum.NODEDEF,0x0000010200000003L);
 
@@ -34,6 +35,7 @@ public class PSGuidTest extends TestCase
    /**
     * 
     */
+   @Test
    public void testCtors()
    {
       long hostid = 12;
@@ -100,6 +102,7 @@ public class PSGuidTest extends TestCase
    /**
     * 
     */
+   @Test
    public void testLongValue()
    {
       IPSGuid tv = new PSGuid(PSTypeEnum.ITEM, 1);
@@ -112,6 +115,7 @@ public class PSGuidTest extends TestCase
    /**
     * 
     */
+   @Test
    public void testAccessors()
    {
       long siteid = NG.getHostId();
@@ -134,6 +138,7 @@ public class PSGuidTest extends TestCase
    /**
     * 
     */
+   @Test
    public void testToString()
    {
       String str = NG.toString();
@@ -143,6 +148,7 @@ public class PSGuidTest extends TestCase
    /**
     * 
     */
+   @Test
    public void testToStringNoType()
    {
       String str = NG.toStringUntyped();
@@ -152,6 +158,7 @@ public class PSGuidTest extends TestCase
    /**
     * 
     */
+   @Test
    public void testAssemble()
    {
       IPSGuid guid = new PSGuid(1, PSTypeEnum.NODEDEF, 3);
@@ -161,6 +168,7 @@ public class PSGuidTest extends TestCase
    /**
     * 
     */
+   @Test
    public void testFromString()
    {
       IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, "1-2-3");
@@ -173,6 +181,7 @@ public class PSGuidTest extends TestCase
    /**
     * 
     */
+   @Test
    public void testFromStringNoType()
    {
       IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, "1-3");
@@ -193,6 +202,7 @@ public class PSGuidTest extends TestCase
     * test a valid guid: negative number, +ve number, and an actual guid type
     *
     */
+   @Test
    public void testIsValid()
    {
       String val = "-2";

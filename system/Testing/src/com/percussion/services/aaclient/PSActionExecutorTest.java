@@ -21,16 +21,18 @@ import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSActionExecutorTest extends TestCase
+public class PSActionExecutorTest
 {
    /**
     * Tests {@link PSActionExecutor#getSnippetBody(IPSAssemblyResult)}.
     */
+   @Test
    public void testGetSnippetBody() throws IOException {
       final PSActionExecutor executor = new PSActionExecutor();
       final PSAssemblyWorkItem result = new PSAssemblyWorkItem();

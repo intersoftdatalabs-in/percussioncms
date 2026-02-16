@@ -103,7 +103,7 @@ public class PSXmlDatabaseMetaDataTest
    /**
     *   Set up the testing directories and files
     */
-   @BeforeEach 
+   @BeforeEach
    public void init()
    {
       if (ms_inited)
@@ -149,7 +149,7 @@ public class PSXmlDatabaseMetaDataTest
          f.deleteOnExit();
          doc = PSXmlDocumentBuilder.createXmlDocument();
          docRoot = PSXmlDocumentBuilder.createRoot(doc, "MultiElementDocument");
-         Element el = 
+         Element el =
             PSXmlDocumentBuilder.addEmptyElement(doc, docRoot, "Child0");
          for (int i = 0; i < 10; i++)
          {
@@ -181,7 +181,7 @@ public class PSXmlDatabaseMetaDataTest
                   subSubEl.setAttribute("id", "" + (i * 10 + j));
                }
             }
-         } 
+         }
          try(FileOutputStream out = new FileOutputStream(f)) {
             PSXmlDocumentBuilder.write(doc, out);
          }
@@ -201,11 +201,11 @@ public class PSXmlDatabaseMetaDataTest
                // this always is expected because elements at this level are leaves
                ms_multiElementsExpectedFields.put(
                   "MultiElementDocument/Child0/SubChild" + i + "/SubSubChild" + i + "_" + j, Boolean.TRUE);
-               
+
                if (shouldHaveAttribute(i, j))
                {
                   ms_multiElementsExpectedFields.put(
-                     "MultiElementDocument/Child0/SubChild" + i + "/SubSubChild" + i + "_" + j + "/@" + "id", Boolean.TRUE);               
+                     "MultiElementDocument/Child0/SubChild" + i + "/SubSubChild" + i + "_" + j + "/@" + "id", Boolean.TRUE);
                }
             }
          }
@@ -246,7 +246,7 @@ public class PSXmlDatabaseMetaDataTest
 
       DatabaseMetaData md = xmlConn.getMetaData();
       assertTrue(md instanceof com.percussion.data.jdbc.PSXmlDatabaseMetaData);
-      
+
       ResultSet rs = md.getColumns(
          ms_rootDir.getName(), "%", ms_singleElementFileName, "%");
 
@@ -261,7 +261,7 @@ public class PSXmlDatabaseMetaDataTest
       Connection xmlConn = DriverManager.getConnection("jdbc:psxml",
          ms_connProperties);
       assertTrue(xmlConn instanceof com.percussion.data.jdbc.PSXmlConnection);
-      
+
       DatabaseMetaData md = xmlConn.getMetaData();
       assertTrue(md instanceof com.percussion.data.jdbc.PSXmlDatabaseMetaData);
 
@@ -279,7 +279,7 @@ public class PSXmlDatabaseMetaDataTest
       Connection xmlConn = DriverManager.getConnection("jdbc:psxml",
          ms_connProperties);
       assertTrue(xmlConn instanceof com.percussion.data.jdbc.PSXmlConnection);
-      
+
       DatabaseMetaData md = xmlConn.getMetaData();
       assertTrue(md instanceof com.percussion.data.jdbc.PSXmlDatabaseMetaData);
 
@@ -298,13 +298,13 @@ public class PSXmlDatabaseMetaDataTest
       Connection xmlConn = DriverManager.getConnection("jdbc:psxml",
          ms_connProperties);
       assertTrue(xmlConn instanceof com.percussion.data.jdbc.PSXmlConnection);
-      
+
       DatabaseMetaData md = xmlConn.getMetaData();
       assertTrue(md instanceof com.percussion.data.jdbc.PSXmlDatabaseMetaData);
 
       ResultSet rs = md.getTables(
          ms_rootDir.getName(), null, "%", null);
-      
+
       while (rs.next())
       {
          log.info(rs.getString(1) + "\t"

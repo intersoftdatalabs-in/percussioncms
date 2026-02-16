@@ -37,7 +37,7 @@ public class PSStringTemplateTest
 
    /**
     * Test simple expansions using default values.
-    * 
+    *
     * @throws PSStringTemplateException
     */
    @Test
@@ -54,7 +54,7 @@ public class PSStringTemplateTest
 
    /**
     * Test expansion using more interesting variables and quoted characters.
-    * 
+    *
     * @throws PSStringTemplateException
     */
    @Test
@@ -71,7 +71,7 @@ public class PSStringTemplateTest
 
    /**
     * Test using variables syntax for Convera.
-    * 
+    *
     * @throws PSStringTemplateException
     */
    @Test
@@ -128,7 +128,7 @@ public class PSStringTemplateTest
       String output = template.expand(new HashMap());
       assertEquals("xy", output);
    }
-   
+
    /**
     * Test non-default start, end and quote.
     * @throws PSStringTemplateException
@@ -136,14 +136,14 @@ public class PSStringTemplateTest
    @Test
    public void testNonDefaults() throws PSStringTemplateException
    {
-      PSStringTemplate template = 
+      PSStringTemplate template =
          new PSStringTemplate("foo ''= <[bar]>","<[","]>",'\'');
       Map vars = new HashMap();
       vars.put("bar", "foo");
       String out = template.expand(vars);
       assertTrue(out.equals("foo '= foo"));
    }
-   
+
    /**
     * Test more quote situations for correct behavior
     * @throws PSStringTemplateException
@@ -155,7 +155,7 @@ public class PSStringTemplateTest
       Map vars = new HashMap();
       String out = template.expand(vars);
       assertTrue(out.equals("\\"));
-      
+
       try
       {
          template = new PSStringTemplate("\\{var}\\");
@@ -167,11 +167,11 @@ public class PSStringTemplateTest
       {
          // Correct, ignore
       }
-      
+
       template = new PSStringTemplate("\\{var}");
       out = template.expand(vars);
       assertTrue(out.equals("{var}"));
-      
+
       template = new PSStringTemplate("{}");
       out = template.expand(vars);
       assertTrue(out.length() == 0);
@@ -205,20 +205,20 @@ public class PSStringTemplateTest
       });
       assertTrue(result.equals("first ran ahead of last"));
    }
-   
+
    /**
-    * Tests ignoring a message with a start sequence and no unmatched end 
+    * Tests ignoring a message with a start sequence and no unmatched end
     * sequence.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Test
    public void testIgnoreUnmatched() throws Exception
    {
-      PSStringTemplate template = new PSStringTemplate("In the ${noun", "${", 
+      PSStringTemplate template = new PSStringTemplate("In the ${noun", "${",
          "}");
       template.setIgnoreUnmatchedSequence(true);
-      
+
       try
       {
          template.expand(new HashMap());
@@ -227,6 +227,6 @@ public class PSStringTemplateTest
       {
          // Should not have thrown an exception
          assertTrue(false);
-      }      
+      }
    }
 }

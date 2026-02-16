@@ -41,7 +41,7 @@ public class PSJdbcDbmsDefTest
 
    private String rxdeploydir;
 
-   @BeforeEach 
+   @BeforeEach
    public void setup(){
       rxdeploydir = System.getProperty("rxdeploydir");
       System.setProperty("rxdeploydir",temporaryFolder.getAbsolutePath());

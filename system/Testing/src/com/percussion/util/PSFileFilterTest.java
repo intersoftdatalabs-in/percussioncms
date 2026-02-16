@@ -107,7 +107,7 @@ public class PSFileFilterTest
       assertEquals(9, files.length);
    }
 
-   @BeforeEach 
+   @BeforeEach
    public void setUp()  {
 
       try

@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
  * @author dougrand
  */
 @TestMethodOrder(MethodName.class)
-public class PSTrackAssemblyErrorsTest extends TestCase
+public class PSTrackAssemblyErrorsTest
 {
 
    private static final Logger log = LogManager.getLogger(PSTrackAssemblyErrorsTest.class);

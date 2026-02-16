@@ -40,7 +40,7 @@ public class PSResultSetTest
    public void testRowValuesWithColumnIndices() throws java.sql.SQLException
    {
       PSResultSet result = new PSResultSet();
-      
+
       // set the data in the result set
       result.setResultData(m_columns, m_columnNames );
 
@@ -75,7 +75,7 @@ public class PSResultSetTest
    public void testRowValuesWithColumnNames() throws java.sql.SQLException
    {
       PSResultSet result = new PSResultSet();
-      
+
       // set the data in the result set
       result.setResultData(m_columns, m_columnNames );
 
@@ -108,7 +108,7 @@ public class PSResultSetTest
    public void setUp()
    {
       m_columns = new Vector[3];
-      
+
       m_columns[0] = new Vector(NUM_ROWS);
       m_columns[1] = new Vector(NUM_ROWS);
       m_columns[2] = new Vector(NUM_ROWS);

@@ -28,14 +28,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-
-
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the {@link IPSDesignObjectAuditService} class.
  */
- public class PSDesignObjectAuditServiceTest extends TestCase
+ public class PSDesignObjectAuditServiceTest
 {
    /**
     * Test that the configuration can be obtained.
@@ -122,6 +121,7 @@ import org.junit.jupiter.api.Test;
       assertTrue(svc.findAuditLogEntries().isEmpty());
    }
    
+   @Test
    public void testdummy(){
       
    }

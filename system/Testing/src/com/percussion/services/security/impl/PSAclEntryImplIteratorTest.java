@@ -33,18 +33,20 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test the iterator used to determine a user's permissions in a given acl
  */
-public class PSAclEntryImplIteratorTest extends TestCase
+public class PSAclEntryImplIteratorTest
 {
    /**
     * Test the iterator
     * 
     * @throws Exception if the test fails
     */
+   @Test
    public void testIterator() throws Exception
    {
       PSAclImpl testAcl = createTestAcl();

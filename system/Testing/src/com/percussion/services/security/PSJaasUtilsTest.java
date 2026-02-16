@@ -58,20 +58,20 @@ public class PSJaasUtilsTest
 
 
    /**
-    * Test data intiialized during {@link #setUp()}, never <code>null</code> 
+    * Test data intiialized during {@link #setUp()}, never <code>null</code>
     * after that.
     */
    static Collection<Principal> ms_testData;
 
    /**
-    * Test group initialized during {@link #setUp()}, never <code>null</code> 
-    * after that. 
+    * Test group initialized during {@link #setUp()}, never <code>null</code>
+    * after that.
     */
    static Group ms_testRoleGroup;
 
    /**
     * Test locating the group containing role names.
-    * 
+    *
     * @throws Exception if the test failes.
     */
    @Test
@@ -79,20 +79,20 @@ public class PSJaasUtilsTest
    {
       ms_testData.add(ms_testRoleGroup);
 
-      Group r = PSJaasUtils.findOrCreateGroup(ms_testData, 
+      Group r = PSJaasUtils.findOrCreateGroup(ms_testData,
          PSJaasUtils.ROLE_GROUP_NAME);
       assertTrue(r == ms_testRoleGroup);
 
       ms_testData.remove(ms_testRoleGroup);
 
-      r = PSJaasUtils.findOrCreateGroup(ms_testData, 
+      r = PSJaasUtils.findOrCreateGroup(ms_testData,
          PSJaasUtils.ROLE_GROUP_NAME);
       assertTrue(!(r == ms_testRoleGroup));
    }
-   
+
    /**
     * Test various collection operations.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @SuppressWarnings(value={"unchecked"})
@@ -108,7 +108,7 @@ public class PSJaasUtilsTest
       Principal u = PSJaasUtils.findFirstPSPrincipal(ms_testData);
       assertTrue(u == ms_testData.iterator().next());
 
-      rval = 
+      rval =
          new FilterIterator(ms_testData.iterator(), new Predicate()
       {
          public boolean evaluate(Object principal)
@@ -117,9 +117,9 @@ public class PSJaasUtilsTest
          }
 
       });
-      
+
       Iterator<Principal> td = ms_testData.iterator();
-      
+
       assertEquals(rval.next(), td.next());
       assertEquals(rval.next(), td.next());
       assertEquals(rval.next(), td.next());
@@ -129,7 +129,7 @@ public class PSJaasUtilsTest
 
    /**
     * Test converting a subject to a user entry
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @SuppressWarnings(value={"unchecked"})
@@ -139,39 +139,39 @@ public class PSJaasUtilsTest
       PSGroupEntry group1 = new PSGroupEntry("group1", 0);
       PSGroupEntry group2 = new PSGroupEntry("group2", 0);
       PSGroupEntry[] groups = new PSGroupEntry[] {group1, group2};
-      
+
       PSRoleEntry role1 = new PSRoleEntry("role1", 0);
       PSRoleEntry role2 = new PSRoleEntry("role2", 0);
       PSRoleEntry[] roles = new PSRoleEntry[] {role1, role2};
-      
-      
+
+
       PSUserAttributes attrs = new PSUserAttributes();
       attrs.put("attr1", "attval1");
       attrs.put("attr2", "attval2");
-      
+
       String username = "admin1";
       String pwd = "demo";
-      PSUserEntry entry = new PSUserEntry(username, 0, groups, roles, attrs, 
+      PSUserEntry entry = new PSUserEntry(username, 0, groups, roles, attrs,
          PSUserEntry.createSignature(username, pwd));
       Subject sub = PSJaasUtils.userEntryToSubject(entry, pwd);
       PSUserEntry entry2 = PSJaasUtils.subjectToUserEntry(sub, username, pwd);
       assertEquals(entry, entry2);
       assertEquals(sub, PSJaasUtils.userEntryToSubject(entry2, pwd));
-      
-      entry = new PSUserEntry(username, 0, groups, roles, 
+
+      entry = new PSUserEntry(username, 0, groups, roles,
          new PSUserAttributes(), PSUserEntry.createSignature(username, pwd));
       assertFalse(sub.equals(PSJaasUtils.userEntryToSubject(entry, pwd)));
-      
+
       sub.getPrincipals().clear();
-      assertFalse(entry2.equals(PSJaasUtils.subjectToUserEntry(sub, username, 
+      assertFalse(entry2.equals(PSJaasUtils.subjectToUserEntry(sub, username,
          pwd)));
-      
-      entry = new PSUserEntry(username, 0, groups, new PSRoleEntry[0], attrs, 
+
+      entry = new PSUserEntry(username, 0, groups, new PSRoleEntry[0], attrs,
          PSUserEntry.createSignature(username, pwd));
       assertFalse(sub.equals(PSJaasUtils.userEntryToSubject(entry, pwd)));
-      
+
       sub.getPrincipals().clear();
-      assertFalse(entry2.equals(PSJaasUtils.subjectToUserEntry(sub, username, 
-         pwd)));      
+      assertFalse(entry2.equals(PSJaasUtils.subjectToUserEntry(sub, username,
+         pwd)));
    }
 }

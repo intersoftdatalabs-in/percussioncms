@@ -31,11 +31,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.Test;
-
-public class PSXStreamObjectStreamTest extends TestCase
+public class PSXStreamObjectStreamTest
 {
 
    private static final int SIZE = 10 * 10 * 10 * 10 * 10;

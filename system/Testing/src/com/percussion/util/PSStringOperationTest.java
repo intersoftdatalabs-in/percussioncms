@@ -125,27 +125,27 @@ public class PSStringOperationTest
 
    /**
     * Test the {@link PSStringOperation#replace(String, char, char)} method.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Test
    public void testCharReplace() throws Exception
    {
-      assertEquals("foo:bar:doh", PSStringOperation.replace("foo;bar;doh", ';', 
+      assertEquals("foo:bar:doh", PSStringOperation.replace("foo;bar;doh", ';',
          ':'));
-      assertEquals(":foo:bar:doh", PSStringOperation.replace(";foo;bar;doh",';', 
+      assertEquals(":foo:bar:doh", PSStringOperation.replace(";foo;bar;doh",';',
          ':'));
       assertEquals(":", PSStringOperation.replace(";", ';', ':'));
       assertEquals("", PSStringOperation.replace("", ';',  ':'));
       assertEquals("::", PSStringOperation.replace(":", ';', ':'));
       assertNull(PSStringOperation.replace(null, ';', ':'));
       assertEquals("foo:bar:", PSStringOperation.replace("foo;bar;", ';', ':'));
-      assertEquals("foo:bar::doh", PSStringOperation.replace("foo;bar:doh", ';', 
+      assertEquals("foo:bar::doh", PSStringOperation.replace("foo;bar:doh", ';',
          ':'));
-      assertEquals("foo:bar:doh::", PSStringOperation.replace("foo;bar;doh:", 
+      assertEquals("foo:bar:doh::", PSStringOperation.replace("foo;bar;doh:",
          ';', ':'));
-      assertEquals("::foo:bar:doh", PSStringOperation.replace(":foo;bar;doh", 
-         ';', ':'));         
+      assertEquals("::foo:bar:doh", PSStringOperation.replace(":foo;bar;doh",
+         ';', ':'));
    }
 
 

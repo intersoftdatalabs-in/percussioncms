@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  * Base for the schedule classes test cases.
  * @author Andriy Palamarchuk
  */
-public abstract class PSScheduleTestBase extends TestCase
+public abstract class PSScheduleTestBase
 {
    /**
     * Creates a schedule with all the properties specified.

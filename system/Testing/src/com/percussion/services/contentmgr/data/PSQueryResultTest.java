@@ -31,6 +31,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -40,7 +41,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author dougrand
  */
-public class PSQueryResultTest extends TestCase
+public class PSQueryResultTest
 {   
    private static final String[] columns =
    { "rx:able", "rx:baker", "rx:charlie"};
@@ -89,6 +90,7 @@ public class PSQueryResultTest extends TestCase
     * 
     * @throws Exception
     */
+   @Test
    public void testResult() throws Exception
    {
       PSQueryResult r = buildResult();
@@ -130,6 +132,7 @@ public class PSQueryResultTest extends TestCase
     * 
     * @throws RepositoryException
     */
+   @Test
    public void testSortOrder() throws RepositoryException
    {
       PSQueryResult r = buildResult();
@@ -182,6 +185,7 @@ public class PSQueryResultTest extends TestCase
     * 
     * @throws Exception
     */
+   @Test
    public void testNodesWithoutTraversing() throws Exception
    {
       PSQueryResult r = buildResult();
@@ -197,6 +201,7 @@ public class PSQueryResultTest extends TestCase
     * 
     * @throws Exception
     */
+   @Test
    public void testGetColumns() throws Exception
    {
       PSQueryResult r = buildResult();

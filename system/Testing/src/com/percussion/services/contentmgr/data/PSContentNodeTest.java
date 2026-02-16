@@ -20,6 +20,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,8 +28,9 @@ import org.junit.jupiter.api.Test;
  * 
  * @author dougrand
  */
-public class PSContentNodeTest extends TestCase
+public class PSContentNodeTest
 {
+   @Test
    public void testGetNodeMethods() throws RepositoryException
    {
       PSContentNode parent = new PSContentNode(null, "parent", null, null,

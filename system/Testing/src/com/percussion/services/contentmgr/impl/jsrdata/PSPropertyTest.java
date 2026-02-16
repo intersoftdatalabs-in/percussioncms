@@ -28,6 +28,7 @@ import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.Value;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -35,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author dougrand
  */
-public class PSPropertyTest extends TestCase
+public class PSPropertyTest
 {
    PSValueFactory fact = new PSValueFactory();
 
@@ -154,6 +155,7 @@ public class PSPropertyTest extends TestCase
     * Test various methods on the Property interface
     * @throws Exception
     */
+   @Test
    public void testMethods() throws Exception
    {
       Object val = new TestMappingClass();
@@ -196,6 +198,7 @@ public class PSPropertyTest extends TestCase
     * @throws Exception
     */
    @SuppressWarnings("unchecked")
+   @Test
    public void testMulti() throws Exception
    {
       Collection<Long> longs = new ArrayList<Long>();

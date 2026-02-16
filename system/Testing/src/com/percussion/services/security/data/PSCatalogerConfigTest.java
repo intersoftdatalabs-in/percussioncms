@@ -19,6 +19,7 @@ package com.percussion.services.security.data;
 import com.percussion.services.security.data.PSCatalogerConfig.ConfigTypes;
 import com.percussion.utils.tools.PSTestUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
@@ -28,13 +29,13 @@ import java.util.Map;
 /**
  * Test case for the {@link PSCatalogerConfig}.
  */
-public class PSCatalogerConfigTest extends TestCase
-{
+public class PSCatalogerConfigTest
    /**
     * Test the parameterized constructor.
     * 
     * @throws Exception If the test fails.
     */
+   @Test
    public void testCtor() throws Exception
    {
       Object[] args = ARGS.clone();
@@ -82,6 +83,7 @@ public class PSCatalogerConfigTest extends TestCase
     * 
     * @throws Exception If the test fails.
     */
+   @Test
    public void testAccessors() throws Exception
    {
       PSCatalogerConfig config = (PSCatalogerConfig) PSTestUtils.testCtor(
@@ -130,6 +132,7 @@ public class PSCatalogerConfigTest extends TestCase
     * 
     * @throws Exception If the test fails.
     */
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -160,6 +163,7 @@ public class PSCatalogerConfigTest extends TestCase
     * 
     * @throws Exception If the test fails.
     */   
+   @Test
    public void testEquals() throws Exception
    {
       PSCatalogerConfig config1 = (PSCatalogerConfig) PSTestUtils.testCtor(
