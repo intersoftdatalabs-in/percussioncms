@@ -23,30 +23,12 @@ import java.util.List;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSTableChangeDataTest extends TestCase
+public class PSTableChangeDataTest
 {
-   /**
-    * Constructs an instance of this class to run the test implemented by the
-    * named method.
-    *
-    * @param methodName name of the method that implements a test
-    */
-   public PSTableChangeDataTest(String name)
-   {
-      super( name );
-   }
 
-   /**
-    * Collects all the tests implemented by this class into a single suite.
-    */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSTableChangeDataTest( "testListenerComm" ) );
-      return suite;
-   }
 
    /**
     * Tests the communication of table change data object with the listeners set
@@ -72,6 +54,7 @@ public class PSTableChangeDataTest extends TestCase
     * </ol>
     * @throws Exception
     */
+   @Test
    public void testListenerComm() throws Exception
    {
       List interestedChanges1 = new ArrayList();
