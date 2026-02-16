@@ -22,6 +22,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -30,23 +31,15 @@ import org.w3c.dom.Element;
 /**
  * Unit test class for the <code>PSKey</code> class.
  */
-public class PSKeyTest extends TestCase
+public class PSKeyTest
 {
-   /**
-    * Construct this unit test
-    *
-    * @param name The name of this test.
-    */
-    public PSKeyTest(String name)
-   {
-      super(name);
-   }
 
    /**
     * Test constructing this object using parameters
     *
     * @throws Exception If there are any errors.
     */
+   @Test
    public void testConstructor() throws Exception
    {
 
@@ -84,6 +77,7 @@ public class PSKeyTest extends TestCase
     *
     * @throws Exception if there are any errors.
     */
+   @Test
    public void testEquals() throws Exception
    {
       String[] def1 = new String[] {"name2", "Name1"};
@@ -126,6 +120,7 @@ public class PSKeyTest extends TestCase
     *
     * @throws Exception if there are any errors.
     */
+   @Test
    public void testSimpleKey() throws Exception
    {
       PSSimpleKey sk1 = new PSSimpleKey("simple", 12);
@@ -141,6 +136,7 @@ public class PSKeyTest extends TestCase
     *
     * @throws Exception if there are any errors.
     */
+   @Test
    public void testLocator() throws Exception
    {
       // testing isPersisted and not needGenerate
@@ -211,22 +207,5 @@ public class PSKeyTest extends TestCase
       return true;
    }
 
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSKeyTest("testConstructor"));
-      suite.addTest(new PSKeyTest("testEquals"));
-      suite.addTest(new PSKeyTest("testSimpleKey"));
-      suite.addTest(new PSKeyTest("testLocator"));
-      
-      return suite;
-   }
-
-
-   public static void main(String args[]) 
-   {         
-      junit.textui.TestRunner.run(PSKeyTest.class);
-   }
 
 }
