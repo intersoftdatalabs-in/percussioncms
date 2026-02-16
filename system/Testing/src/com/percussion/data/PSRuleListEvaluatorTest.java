@@ -24,15 +24,17 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.server.PSRequest;
 import com.percussion.util.PSCollection;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for the <code>PSRuleListEvaluator</code>.
  */
-public class PSRuleListEvaluatorTest extends TestCase
+public class PSRuleListEvaluatorTest
 {
    /**
     * Test AND rule evaluations.
     */
+   @Test
    public void testAndEvaluation() throws PSNotFoundException, 
       PSExtensionException
    {
@@ -118,6 +120,7 @@ public class PSRuleListEvaluatorTest extends TestCase
    /**
     * Test OR rule evaluations.
     */
+   @Test
    public void testOrEvaluation() throws PSNotFoundException, 
       PSExtensionException
    {
@@ -194,6 +197,7 @@ public class PSRuleListEvaluatorTest extends TestCase
    /**
     * Test mixed rule evaluations.
     */
+   @Test
    public void testMixedEvaluation() throws PSNotFoundException, 
       PSExtensionException
    {
