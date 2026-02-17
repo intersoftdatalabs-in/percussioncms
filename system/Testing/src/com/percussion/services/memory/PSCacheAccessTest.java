@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 @DisplayName("Cache Access Service Tests")
 class PSCacheAccessTest {
 

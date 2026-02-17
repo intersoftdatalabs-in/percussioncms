@@ -42,7 +42,7 @@ import java.net.URI;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 class FolderAdaptorTest extends PSServletTestCase {
   private static final String tempPrefix = "FolderAdaptorTest";
   private static final String FIXTURE_SITE_NAME = "PSSiteDataServletTestCaseFixtureSite";

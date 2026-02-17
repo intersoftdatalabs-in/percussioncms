@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  *   Unit tests for the PSDebugLogHandler class
  */
-@Tag("IntegrationTest")
+
 public class PSDebugLogHandlerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {
@@ -79,27 +79,27 @@ public class PSDebugLogHandlerTest extends PSConfigHelperTestCase
        * and option basic request enabled
        */
       PSLogger logger = new PSLogger();
-      
+
 
       // create an app to use
       FileInputStream in = new FileInputStream("ObjectStore/sys_ActionPage.xml");
-      
+
       Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
       PSApplication app = new PSApplication(doc);
 
 
       PSTraceInfo traceInfo = app.getTraceInfo();
-      
+
       PSDebugLogHandler dh = new PSDebugLogHandler(logger, traceInfo, app);
-      
+
       /* add logHandler as listener to PSTraceInfo to be notified
        * of trace start/stop
        */
       traceInfo.addTraceStateListener(dh);
-      
+
       traceInfo.setTraceEnabled(true);
       traceInfo.setTraceEnabled(PSTraceMessageFactory.BASIC_REQUEST_INFO_FLAG, true);
-      
+
       // check that we get back what we gave it
       assertTrue(traceInfo == dh.getTraceInfo());
       assertTrue(traceInfo.isTraceEnabled(PSTraceMessageFactory.BASIC_REQUEST_INFO_FLAG) &&

@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Tag;
  * @author YuBingChen
  */
 @SuppressWarnings("unchecked")
-@Tag("IntegrationTest")
+
 public class PSTemplateSlotSetterTest extends PSConfigurationTest // TestCase
 {
   public void testSlotProperties() throws Exception {

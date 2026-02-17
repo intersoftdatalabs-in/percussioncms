@@ -35,7 +35,7 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Deprecated
-@Tag("IntegrationTest")
+
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class HTTPClientTest extends PSClientTestCase
 {

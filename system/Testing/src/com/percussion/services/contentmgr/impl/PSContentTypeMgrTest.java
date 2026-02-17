@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author dougrand
  */
 //TODO:  Duplicate Test?
-@Tag("IntegrationTest")
+
 public class PSContentTypeMgrTest
       implements IPSCustomJunitTest
 {

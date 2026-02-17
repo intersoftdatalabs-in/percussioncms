@@ -16,7 +16,7 @@
  */
 
 /**
- * 
+ *
  */
 package com.percussion.widgets.image.services.impl;
 
@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author matthew.ernewein
- * 
+ *
  */
 public class ImageReaderTest
 {
@@ -70,25 +70,25 @@ public class ImageReaderTest
    @Test
    public void testPng() throws IOException
    {
-      testImage("png_test.png"); 
+      testImage("png_test.png");
    }
-   
+
    @Test
    public void testAdobeIllistrator()throws IOException
    {
       testImage("Adobe_Illistrator_test.jpg");
    }
-   
+
    @Test
    public void testAdobePhotoshop()throws IOException
    {
-      testImage("Adobe_Photoshop_test.jpg"); 
+      testImage("Adobe_Photoshop_test.jpg");
    }
-   
+
    @Test
    public void testAdobePhotoshopTwo()throws IOException
    {
-      testImage("Adobe_Photoshop_test_2.jpg"); 
+      testImage("Adobe_Photoshop_test_2.jpg");
    }
 
    @Test

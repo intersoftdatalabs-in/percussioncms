@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Unit tests for the {@link PSObjectLock} class.
  */
-@Tag("IntegrationTest")
+
 public class PSObjectLockTest
 {
    /**

@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  *   Unit tests for the PSDebugManager class
  */
-@Tag("IntegrationTest")
+
 public class PSDebugManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {
@@ -50,7 +50,7 @@ public class PSDebugManagerTest extends PSConfigHelperTestCase
    {
       super(name);
    }
-   
+
 
    /**
     * The loadable handler will call this method once before any test method.
@@ -69,8 +69,8 @@ public class PSDebugManagerTest extends PSConfigHelperTestCase
    @AfterAll
    public void oneTimeTearDown() {
       // TODO Auto-generated method stub
-      
-   }   
+
+   }
 
    @Test
    public void testManager() throws Exception

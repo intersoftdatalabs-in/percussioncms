@@ -130,7 +130,6 @@ import com.percussion.webservices.system.PSWorkflow;
 import com.percussion.webservices.system.SwitchCommunityRequest;
 import com.percussion.webservices.system.SystemSOAPStub;
 
-import junit.framework.AssertionFailedError;
 import org.apache.axis.attachments.AttachmentPart;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.ArrayUtils;
@@ -162,15 +161,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-/** 
+/**
  * Test case for all public content services
  */
-@Tag("IntegrationTest")
+
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class ContentTestCase extends PSContentTestBase
 {
-   public enum BinaryFiles 
-   { 
+   public enum BinaryFiles
+   {
       SKIP, LARGE, SMALL
    }
 
@@ -178,7 +177,7 @@ public class ContentTestCase extends PSContentTestBase
     * Construct the default content test case.
     */
    public ContentTestCase()
-   {}      
+   {}
 
    public ContentTestCase(String name)
    {
@@ -3604,7 +3603,7 @@ public class ContentTestCase extends PSContentTestBase
          request.setId(ids);
          PSItem[] loadedItems = binding.loadItems(request);
          assertTrue(loadedItems != null && loadedItems.length == ids.length);
-         validateBinaryField(loadedItems, "field_2", 
+         validateBinaryField(loadedItems, "field_2",
                                           false, BinaryFiles.SKIP, binding);
          validateRequestParts(loadedItems, false, false, false);
 
@@ -3615,7 +3614,7 @@ public class ContentTestCase extends PSContentTestBase
          request.setIncludeBinary(true);
          loadedItems = binding.loadItems(request);
          assertTrue(loadedItems != null && loadedItems.length == ids.length);
-         validateBinaryField(loadedItems, "field_2", 
+         validateBinaryField(loadedItems, "field_2",
                                           true, BinaryFiles.SKIP, binding);
          validateRequestParts(loadedItems, false, false, false);
 
@@ -3627,7 +3626,7 @@ public class ContentTestCase extends PSContentTestBase
          request.setAttachBinaries(true);
          loadedItems = binding.loadItems(request);
          assertTrue(loadedItems != null && loadedItems.length == ids.length);
-         validateBinaryField(loadedItems, "field_2", 
+         validateBinaryField(loadedItems, "field_2",
                              true, BinaryFiles.SMALL, binding);
          validateRequestParts(loadedItems, false, false, false);
 
@@ -3638,7 +3637,7 @@ public class ContentTestCase extends PSContentTestBase
          request.setIncludeChildren(true);
          loadedItems = binding.loadItems(request);
          assertTrue(loadedItems != null && loadedItems.length == ids.length);
-         validateBinaryField(loadedItems, "field_2", 
+         validateBinaryField(loadedItems, "field_2",
                              false, BinaryFiles.SKIP, binding);
          validateRequestParts(loadedItems, true, false, false);
 
@@ -3649,7 +3648,7 @@ public class ContentTestCase extends PSContentTestBase
          request.setIncludeRelated(true);
          loadedItems = binding.loadItems(request);
          assertTrue(loadedItems != null && loadedItems.length == ids.length);
-         validateBinaryField(loadedItems, "field_2", 
+         validateBinaryField(loadedItems, "field_2",
                              false, BinaryFiles.SKIP, binding);
          validateRequestParts(loadedItems, false, true, false);
 
@@ -3660,7 +3659,7 @@ public class ContentTestCase extends PSContentTestBase
          request.setIncludeFolderPath(true);
          loadedItems = binding.loadItems(request);
          assertTrue(loadedItems != null && loadedItems.length == ids.length);
-         validateBinaryField(loadedItems, "field_2", 
+         validateBinaryField(loadedItems, "field_2",
                              false, BinaryFiles.SKIP, binding);
          validateRequestParts(loadedItems, false, false, true);
       }
@@ -3739,8 +3738,8 @@ public class ContentTestCase extends PSContentTestBase
     *    <code>null</code> or empty.
     * @param loaded <code>true</code> if the identified binary field must be
     *    loaded, <code>false</code> otherwise.
-    * @param binaryFile <code>LARGE</code> or <code>SMALL</code> if the 
-    *    identified binary field is expected as attachment, <code>SKIP</code> 
+    * @param binaryFile <code>LARGE</code> or <code>SMALL</code> if the
+    *    identified binary field is expected as attachment, <code>SKIP</code>
     *    if it is expected base64 encoded.
     * @param binding the binding used, assumed not <code>null</code>.
     * @throws Exception for any error.
@@ -3820,7 +3819,7 @@ public class ContentTestCase extends PSContentTestBase
 
    /**
     * Get the attachment file based on the item index.
-    * 
+    *
     * @param index the item index for which to get the attachment file.
     * @param binaryFile <code>LARGE</code> or <code>SMALL</code> if the
     *    identified binary field is expected as attachment, <code>SKIP</code>
@@ -3837,7 +3836,7 @@ public class ContentTestCase extends PSContentTestBase
       {
          if(binaryFile == BinaryFiles.SMALL)
          {
-            return new File(directory, "attachment_1.doc");            
+            return new File(directory, "attachment_1.doc");
          }
          else
          {
@@ -6146,8 +6145,8 @@ public class ContentTestCase extends PSContentTestBase
     *    all children empty.
     * @param updateId an update identifier used to differentiate contents
     *    between updates.
-    * @param binaryFile <code>LARGE</code> or <code>SMALL</code> if the 
-    *    identified binary field is expected as attachment, <code>SKIP</code> 
+    * @param binaryFile <code>LARGE</code> or <code>SMALL</code> if the
+    *    identified binary field is expected as attachment, <code>SKIP</code>
     *    if it is expected base64 encoded.
     * @param session the user session, assumed not <code>null</code> or empty.
     * @param binding the stub used, assumed not <code>null</code>.

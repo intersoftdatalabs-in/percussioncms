@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit tests for the {@link PSKeyword} class.
  */
-@Tag("IntegrationTest")
+
 public class PSKeywordTest
 {
 

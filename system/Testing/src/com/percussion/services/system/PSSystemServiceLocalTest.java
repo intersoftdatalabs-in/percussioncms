@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test case for system service calls that don't require a running server.
  */
-@Tag("IntegrationTest")
+
 public class PSSystemServiceLocalTest
 {
    /**
@@ -52,7 +52,7 @@ public class PSSystemServiceLocalTest
       List<PSContentStatusHistory> histList = svc.findContentStatusHistory(id);
       assertFalse(histList.isEmpty());
    }
-   
+
    /**
     * Test the read only ui component objects
     */
@@ -64,17 +64,17 @@ public class PSSystemServiceLocalTest
       assertNotNull(c);
       assertNotNull(c.getProperties());
       assertTrue(c.getProperties().size() > 0);
-      
+
       boolean found = false;
       for(PSUIComponentProperty prop : c.getProperties())
       {
-         if (prop.getName().equals("wfrole")) 
+         if (prop.getName().equals("wfrole"))
          {
             found = true;
             break;
          }
       }
-      
+
       assertTrue(found);
    }
 }

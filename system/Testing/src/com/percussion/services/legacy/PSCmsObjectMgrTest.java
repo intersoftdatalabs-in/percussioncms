@@ -70,7 +70,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author dougrand
  */
 @TestMethodOrder(MethodName.class)
-@Tag("IntegrationTest")
+
 public class PSCmsObjectMgrTest
 {
    /**
@@ -108,7 +108,7 @@ public class PSCmsObjectMgrTest
       // Make sure we start clean
       try
       {
-         List<PSLocale> locales = ms_cms.findLocales(null, "Test%");
+         List<PSLocale> locales = ms_cms.findLocales(null, "Test%").collect(Collectors.toList());
          for (PSLocale locale : locales)
          {
             ms_cms.deleteLocale(locale);
@@ -405,7 +405,7 @@ public class PSCmsObjectMgrTest
       items.clear();
       for(int i = 0; i < ALL_FF_TYPES.length; i++)
       {
-         for(Integer cid : ms_cms.findContentIdsByType(ALL_FF_TYPES[i]))
+         for(Integer cid : ms_cms.findContentIdsByType(ALL_FF_TYPES[i]).collect(Collectors.toList()))
          {
             items.add(new PSFilterItem(new PSLegacyGuid(cid, 1), null, null));
          }

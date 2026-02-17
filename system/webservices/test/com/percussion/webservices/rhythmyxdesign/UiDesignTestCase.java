@@ -81,12 +81,12 @@ import java.rmi.RemoteException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag("IntegrationTest")
+
 public class UiDesignTestCase extends PSUiTestBase
 {
    /**
     * Tests Search related operations
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    @Test
@@ -111,7 +111,7 @@ public class UiDesignTestCase extends PSUiTestBase
          // create an search
          CreateSearchesRequest req = new CreateSearchesRequest();
          req.setName(new String[] { "benSearch_1" });
-         CreateSearchesRequestType[] types = new CreateSearchesRequestType[] { 
+         CreateSearchesRequestType[] types = new CreateSearchesRequestType[] {
             CreateSearchesRequestType.fromString(
                CreateSearchesRequestType._custom) };
          req.setType(types);
@@ -133,7 +133,7 @@ public class UiDesignTestCase extends PSUiTestBase
          {
             assertTrue(true);
          }
-         
+
          // load the saved search and creat lock
          search = loadSearch(searches[0].getId(), binding);
          assertTrue(search != null);
@@ -149,7 +149,7 @@ public class UiDesignTestCase extends PSUiTestBase
          objects = findSearches("*search*", binding);
          assertTrue(objects.length > 0);
          updateSearches(objects, binding);
-         
+
          // try to load searches with invalid ids
          try
          {
@@ -167,7 +167,7 @@ public class UiDesignTestCase extends PSUiTestBase
          }
          catch (PSErrorResultsFault e)
          {
-            verifyErrorResultsFault(e, objects.length-1, 
+            verifyErrorResultsFault(e, objects.length-1,
                PSSearchDef.class.getName());
          }
       }
@@ -195,7 +195,7 @@ public class UiDesignTestCase extends PSUiTestBase
 
    /**
     * Tests View related operations
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    @Test
@@ -270,7 +270,7 @@ public class UiDesignTestCase extends PSUiTestBase
          }
          catch (PSErrorResultsFault e)
          {
-            verifyErrorResultsFault(e, objects.length-1, 
+            verifyErrorResultsFault(e, objects.length-1,
                PSViewDef.class.getName());
          }
       }
@@ -377,7 +377,7 @@ public class UiDesignTestCase extends PSUiTestBase
 
    /**
     * Tests findAction related operations
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    @Test
@@ -409,7 +409,7 @@ public class UiDesignTestCase extends PSUiTestBase
 
    /**
     * Tests Action related operations
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    @Test
@@ -431,18 +431,18 @@ public class UiDesignTestCase extends PSUiTestBase
          }
 
          // create an action
-         
+
          // create a MENU_ITEM type action
          CreateActionsRequest req = new CreateActionsRequest();
          req.setName(new String[] {"benAction_item"});
-         CreateActionsRequestType[] types = new CreateActionsRequestType[] { 
+         CreateActionsRequestType[] types = new CreateActionsRequestType[] {
             CreateActionsRequestType.item };
          req.setType(types);
          PSAction[] actions = binding.createActions(req);
          // validating
          assertTrue(actions.length == 1);
          assertTrue(actions[0].getType() == ActionType.item);
-         
+
          // save and delete to cleanup locks
          saveAction(actions[0], binding, true);
 
@@ -456,13 +456,13 @@ public class UiDesignTestCase extends PSUiTestBase
          {
             assertTrue(true);
          }
-         
+
          // delete to cleanup locks
-         deleteAction(actions[0].getId(), binding);         
+         deleteAction(actions[0].getId(), binding);
 
          // create a CASCADING type of action
          req.setName(new String[] {"benAction_cascading"});
-         types = new CreateActionsRequestType[] { 
+         types = new CreateActionsRequestType[] {
             CreateActionsRequestType.cascading };
          req.setType(types);
          actions = binding.createActions(req);
@@ -471,11 +471,11 @@ public class UiDesignTestCase extends PSUiTestBase
          assertTrue(actions[0].getType() == ActionType.cascading);
          // save and delete to cleanup locks
          saveAction(actions[0], binding, true);
-         deleteAction(actions[0].getId(), binding);         
+         deleteAction(actions[0].getId(), binding);
 
          // create an DYNAMIC type of action
          req.setName(new String[] {"benAction_dynamic"});
-         types = new CreateActionsRequestType[] { 
+         types = new CreateActionsRequestType[] {
             CreateActionsRequestType.dynamic };
          req.setType(types);
          actions = binding.createActions(req);
@@ -484,8 +484,8 @@ public class UiDesignTestCase extends PSUiTestBase
          assertTrue(actions[0].getType() == ActionType.dynamic);
          // save and delete to cleanup locks
          saveAction(actions[0], binding, true);
-         deleteAction(actions[0].getId(), binding);         
-         
+         deleteAction(actions[0].getId(), binding);
+
          // create an action and save it
          req.setName(new String[] { "benAction_1" });
          types = new CreateActionsRequestType[] { CreateActionsRequestType
@@ -520,7 +520,7 @@ public class UiDesignTestCase extends PSUiTestBase
          assertTrue(objects.length == 5);
          for (PSObjectSummary obj : objects)
             assertTrue(obj.getName().startsWith("Past"));
-         
+
          // try to load actions with invalid ids
          try
          {
@@ -538,7 +538,7 @@ public class UiDesignTestCase extends PSUiTestBase
          }
          catch (PSErrorResultsFault e)
          {
-            verifyErrorResultsFault(e, objects.length-1, 
+            verifyErrorResultsFault(e, objects.length-1,
                PSAction.class.getName());
          }
       }
@@ -604,14 +604,14 @@ public class UiDesignTestCase extends PSUiTestBase
    /**
     * Find actions with supplied name, which may contains wildcard on either
     * end.
-    * 
+    *
     * @param name the action name.
     * @param binding the object used to send the request, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return the actions with the supplied name, never <code>null</code>,
     * but may be empty.
-    * 
+    *
     * @throws Exception if error occurs.
     */
    private PSObjectSummary[] findActions(String name, UiDesignSOAPStub binding)
@@ -655,7 +655,7 @@ public class UiDesignTestCase extends PSUiTestBase
 
    /**
     * Loads an action with the given id.
-    * 
+    *
     * @param id the id of the action.
     * @param binding used to send request, assumed not <code>null</code>.
     * @return the loaded action.
@@ -686,7 +686,7 @@ public class UiDesignTestCase extends PSUiTestBase
 
    /**
     * Gets an action id that contains the action type and the given UUID itself.
-    * 
+    *
     * @param id the id without id.
     * @return the id with action type.
     */
@@ -697,7 +697,7 @@ public class UiDesignTestCase extends PSUiTestBase
 
    /**
     * Tests Action related operations
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    public void testDisplayFormat() throws Exception
@@ -721,7 +721,7 @@ public class UiDesignTestCase extends PSUiTestBase
          }
 
          // create a display format
-         String[] dfNames = new String[] { 
+         String[] dfNames = new String[] {
             "testDspFormat_1", "testDspFormat_2" };
          PSDisplayFormat[] dspFormats = binding.createDisplayFormats(dfNames);
          assertTrue(dspFormats.length == 2);
@@ -732,12 +732,12 @@ public class UiDesignTestCase extends PSUiTestBase
             assertTrue(df.getProperties().length > 0); // sys_community = -1
          }
 
-         long[] ids = new long[] { dspFormats[0].getId(), 
+         long[] ids = new long[] { dspFormats[0].getId(),
             dspFormats[1].getId() };
 
          // save the display formats & release lock
          saveDisplayFormats(dspFormats, binding, true);
-         
+
          // create with a dup names
          try
          {
@@ -748,7 +748,7 @@ public class UiDesignTestCase extends PSUiTestBase
          {
             assertTrue(true);
          }
-         
+
          // try to load display formats with invalid ids
          try
          {
@@ -762,7 +762,7 @@ public class UiDesignTestCase extends PSUiTestBase
          }
          catch (PSErrorResultsFault e)
          {
-            verifyErrorResultsFault(e, ids.length-1, 
+            verifyErrorResultsFault(e, ids.length-1,
                PSDisplayFormat.class.getName());
          }
 

@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("IntegrationTest")
+
 public class AssetsTest extends MainTest {
 
   private static final Logger log = LogManager.getLogger(AssetsTest.class);

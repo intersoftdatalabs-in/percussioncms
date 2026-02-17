@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Check validations
- * 
+ *
  * @author dougrand
  */
 public class PSFieldValidationTest
@@ -25,12 +25,12 @@ public class PSFieldValidationTest
    {
       return objects;
    }
-   
+
    @Test
    public void testRequired() throws Exception
    {
       PSValidateRequired vr = new PSValidateRequired();
-      
+
       assertFalse((Boolean) vr.processUdf(packageArgs((String) null), null));
       assertTrue((Boolean) vr.processUdf(packageArgs(1), null));
    }
@@ -72,7 +72,7 @@ public class PSFieldValidationTest
       assertFalse((Boolean) numberV.processUdf(packageArgs(0, 1, true, null,
             false), null));
       assertFalse((Boolean) numberV.processUdf(packageArgs(1, 1, false, null,
-            false), null));      
+            false), null));
       assertFalse((Boolean) numberV.processUdf(packageArgs(1, 0, false, 1,
             false), null));
       assertFalse((Boolean) numberV.processUdf(packageArgs(null, null, true,
@@ -133,7 +133,7 @@ public class PSFieldValidationTest
       assertFalse((Boolean) dateV.processUdf(
             packageArgs(min, min, false, max, false), null));
       assertFalse((Boolean) dateV.processUdf(
-            packageArgs(max, min, false, max, false), null));      
+            packageArgs(max, min, false, max, false), null));
 
       // Conversion
       String sval = "2005/01/02";

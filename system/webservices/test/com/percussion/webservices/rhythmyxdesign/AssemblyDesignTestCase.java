@@ -58,7 +58,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag("IntegrationTest")
+
 public class AssemblyDesignTestCase extends PSAssemblyTestBase
 {
    public void test1assemblyDesignSOAPCreateSlots() throws Exception
@@ -489,7 +489,7 @@ public class AssemblyDesignTestCase extends PSAssemblyTestBase
 
    /**
     * Tests save and update slot with child data.
-    * 
+    *
     * throws Exception if any error occurs.
     */
    public void testUpdateSlotsChildData() throws Exception
@@ -567,11 +567,11 @@ public class AssemblyDesignTestCase extends PSAssemblyTestBase
 
    /**
     * Removes the specified slot if exists, do nothing if no such slot exists.
-    * 
+    *
     * @param binding the object used to communicate with the server, assumed
     *    not <code>null</code>.
     * @param slotName the name of the to be removed slot, assumed not empty.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    private void cleanupSlot(AssemblySOAPStub binding, String slotName)
@@ -1007,7 +1007,7 @@ public class AssemblyDesignTestCase extends PSAssemblyTestBase
          // create template "testcreate"
          PSAssemblyTemplate testcreate = createTemplate(binding,
                "testcreate", "label");
-         
+
          saveTemplate(binding, testcreate, false);
 
          // update and save again
@@ -1091,7 +1091,7 @@ public class AssemblyDesignTestCase extends PSAssemblyTestBase
       saveRequest.setRelease(releaseLock);
       binding.saveAssemblyTemplates(saveRequest);
    }
-   
+
    public void test7assemblyDesignSOAPFindAssemblyTemplates() throws Exception
    {
       AssemblyDesignSOAPStub binding = getDesignBinding(null);
@@ -1631,7 +1631,7 @@ public class AssemblyDesignTestCase extends PSAssemblyTestBase
    }
 
    public void test10assemblyDesignSOAPDeleteAssemblyTemplates()
-         throws Exception 
+         throws Exception
    {
       AssemblyDesignSOAPStub binding = getDesignBinding(null);
 
@@ -1732,10 +1732,10 @@ public class AssemblyDesignTestCase extends PSAssemblyTestBase
 
          //add content type association to m_eigerTemplate
          PSContentTestBase ctypeTestCase = new ContentDesignTestCase();
-         
+
          PSObjectSummary[] ctypes = ctypeTestCase.findContentTypes(null,
                session);
-         assertTrue("Must have at least 2 content types for this test", 
+         assertTrue("Must have at least 2 content types for this test",
                ctypes.length > 1);
          long ctypeId;
          PSDesignGuid folderGuid = new PSDesignGuid(PSTypeEnum.NODEDEF, 101L);
@@ -1747,7 +1747,7 @@ public class AssemblyDesignTestCase extends PSAssemblyTestBase
          ctypeTestCase.loadTemplateAssociations(ctypeId, session, true);
          ctypeTestCase.saveTemplateAssociations(ctypeId,
                new long[] { m_eigerTemplate.getId() }, session, true);
-         
+
          // delete all templates
          request = new DeleteAssemblyTemplatesRequest();
          request.setId(ids);
@@ -1757,10 +1757,10 @@ public class AssemblyDesignTestCase extends PSAssemblyTestBase
 
          //make sure we can still load the associated template
          ctypeTestCase.loadContentTypes(new long[] {ctypeId}, session, false);
-         List<PSContentTemplateDesc> assoc = 
+         List<PSContentTemplateDesc> assoc =
             ctypeTestCase.loadTemplateAssociations(ctypeId, session, false);
          assertTrue(assoc.size() == 0);
-         
+
          // delete non-existing templates
          request = new DeleteAssemblyTemplatesRequest();
          request.setId(ids);

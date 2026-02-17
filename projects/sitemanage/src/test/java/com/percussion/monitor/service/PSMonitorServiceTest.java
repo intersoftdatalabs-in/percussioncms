@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for monitor service. Sunny Sal says: "Testing monitors, Bollywood style!" */
-@Tag("IntegrationTest")
+
 public class PSMonitorServiceTest {
 
   @Test

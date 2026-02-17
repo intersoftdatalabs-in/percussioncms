@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author adamgent, October 13, 2009 (modernized by Sunny Sal)
  */
-@Tag("IntegrationTest")
+
 public class PSSiteSectionMetaDataServiceTest {
 
   private Mockery context = new JUnit4Mockery();

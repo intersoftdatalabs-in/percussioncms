@@ -52,7 +52,6 @@ public class PSSecurityTestBase extends PSTestBase
     * @return the new binding, never <code>null</code>.
     */
    protected SecuritySOAPStub getBinding(Integer timeout)
-      throws AssertionFailedError
    {
       return getSecuritySOAPStub(timeout);
    }
@@ -63,11 +62,10 @@ public class PSSecurityTestBase extends PSTestBase
     * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new assembly
+    * @throws AssertionError for any error creating the new assembly
     *    binding.
     */
    protected static SecurityDesignSOAPStub getDesignBinding(Integer timeout)
-      throws AssertionFailedError
    {
       if (timeout != null && timeout < 1000)
          throw new IllegalArgumentException("timeout must be >= 1000");

@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Andriy Palamarchuk
  */
-@Tag("IntegrationTest")
+
 public class PSServerTest
 {
    /**
@@ -54,7 +54,7 @@ public class PSServerTest
    public static final String SERVER_TEST_PROPERTIES_DIRECTORY = "/com/percussion/server";
 
    /**
-    * Tests how default directory is defined. 
+    * Tests how default directory is defined.
     */
    public void testInitRxDir()
    {

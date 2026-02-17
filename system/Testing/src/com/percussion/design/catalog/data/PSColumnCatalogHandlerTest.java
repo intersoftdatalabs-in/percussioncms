@@ -25,7 +25,7 @@ import com.percussion.testing.PSClientTestCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSColumnCatalogHandlerTest extends PSClientTestCase
 {
 

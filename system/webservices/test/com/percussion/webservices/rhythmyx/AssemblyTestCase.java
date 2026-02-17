@@ -35,7 +35,7 @@ import java.rmi.RemoteException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag("IntegrationTest")
+
 public class AssemblyTestCase extends PSAssemblyTestBase
 {
    @Test

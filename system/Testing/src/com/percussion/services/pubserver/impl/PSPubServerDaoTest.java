@@ -29,19 +29,15 @@ import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.Random;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@Tag("IntegrationTest")
+
 public class PSPubServerDaoTest
 {
    /**

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit test class for the <code>PSDbmsMapManager</code> class. */
-@Tag("IntegrationTest")
+
 public class PSDbmsMapManagerTest {
 
   public PSDbmsMapManagerTest() {}

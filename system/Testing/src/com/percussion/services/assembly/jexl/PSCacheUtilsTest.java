@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.TimeUnit;
 
-@Tag("IntegrationTest")
+
 public class PSCacheUtilsTest {
 
 	private static Logger logger = Logger.getLogger(PSCacheUtilsTest.class.getName());
@@ -40,7 +40,7 @@ public class PSCacheUtilsTest {
 		cache_utils.put("testPrev", "I am testing prev!", PSCacheUtils.getVelocityPrevCache());
 		cache_utils.put("testPub", "I am testing pub!", PSCacheUtils.getVelocityPubCache());
 
-		super.setUp();
+		// no-op; removed legacy super.setUp()
 	}
 
 	@AfterEach
@@ -48,7 +48,7 @@ public class PSCacheUtilsTest {
 
 		cache_utils.flush(PSCacheUtils.getVelocityPrevCache());
 		cache_utils.flush(PSCacheUtils.getVelocityPubCache());
-		super.tearDown();
+		// no-op; removed legacy super.tearDown()
 	}
 
 	@Test
@@ -57,14 +57,14 @@ public class PSCacheUtilsTest {
 		// test cache object in preview cache
 		cache_value = (String)cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
 		assertNotNull(cache_value);
-		assertTrue(cache_value == "I am testing prev!");
+		assertEquals("I am testing prev!", cache_value);
 		cache_value = null;
 		assertNull(cache_value);
 
 		// test cache object in public cache
 		cache_value = (String)cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
 		assertNotNull(cache_value);
-		assertTrue(cache_value == "I am testing pub!");
+		assertEquals("I am testing pub!", cache_value);
 		cache_value = null;
 		assertNull(cache_value);
 
@@ -131,7 +131,7 @@ public class PSCacheUtilsTest {
 		// test with preview cache
 		cache_utils.put("testSetTimeToLivetestPrev", "I am testing prev from the testSetTimeToLive test method!", PSCacheUtils.getVelocityPrevCache());
 		cache_value = (String)cache_utils.get("testSetTimeToLivetestPrev", PSCacheUtils.getVelocityPrevCache());
-		assertTrue(cache_value == "I am testing prev from the testSetTimeToLive test method!");
+		assertEquals("I am testing prev from the testSetTimeToLive test method!", cache_value);
 
 		cache_utils.setTimeToLive("testSetTimeToLivetestPrev", PSCacheUtils.getVelocityPrevCache(), 1);
 
@@ -147,7 +147,7 @@ public class PSCacheUtilsTest {
 		// test with preview cache
 		cache_utils.put("testSetTimeToLivetestPub", "I am testing pub from the testSetTimeToLive test method!", PSCacheUtils.getVelocityPubCache());
 		cache_value = (String)cache_utils.get("testSetTimeToLivetestPub", PSCacheUtils.getVelocityPubCache());
-		assertTrue(cache_value == "I am testing pub from the testSetTimeToLive test method!");
+		assertEquals("I am testing pub from the testSetTimeToLive test method!", cache_value);
 
 		cache_utils.setTimeToLive("testSetTimeToLivetestPub", PSCacheUtils.getVelocityPubCache(), 1);
 
@@ -167,7 +167,7 @@ public class PSCacheUtilsTest {
 		// test with preview cache
 		cache_utils.put("testSetTimeToIdletestPrev", "I am testing prev from the testSetTimeToIdle test method!", PSCacheUtils.getVelocityPrevCache());
 		cache_value = (String)cache_utils.get("testSetTimeToIdletestPrev", PSCacheUtils.getVelocityPrevCache());
-		assertTrue(cache_value == "I am testing prev from the testSetTimeToIdle test method!");
+		assertEquals("I am testing prev from the testSetTimeToIdle test method!", cache_value);
 
 		cache_utils.setTimeToIdle("testSetTimeToIdletestPrev", PSCacheUtils.getVelocityPrevCache(), 1);
 
@@ -183,7 +183,7 @@ public class PSCacheUtilsTest {
 		// test with preview cache
 		cache_utils.put("testSetTimeToIdletestPub", "I am testing pub from the testSetTimeToIdle test method!", PSCacheUtils.getVelocityPubCache());
 		cache_value = (String)cache_utils.get("testSetTimeToIdletestPub", PSCacheUtils.getVelocityPubCache());
-		assertTrue(cache_value == "I am testing pub from the testSetTimeToIdle test method!");
+		assertEquals("I am testing pub from the testSetTimeToIdle test method!", cache_value);
 
 		cache_utils.setTimeToIdle("testSetTimeToIdletestPub", PSCacheUtils.getVelocityPubCache(), 1);
 

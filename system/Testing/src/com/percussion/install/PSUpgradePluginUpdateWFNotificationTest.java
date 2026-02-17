@@ -37,9 +37,9 @@ import org.xml.sax.SAXException;
 /**
  * Loads a test workflow from xml and runs the plugin against it to ensure expected
  * changes are made.
- * 
+ *
  */
-@Tag("IntegrationTest")
+
 public class PSUpgradePluginUpdateWFNotificationTest
 {
    @Test
@@ -47,7 +47,7 @@ public class PSUpgradePluginUpdateWFNotificationTest
    {
       PSUpgradePluginUpdateWFNotification plugin = new PSUpgradePluginUpdateWFNotification();
       plugin.setLogger(System.out);
-      
+
       File wfFile = PSResourceUtils.getFile(PSUpgradePluginFixWFNotificationTest.class,
               "/com/percussion/rxupgrade/FixWFNotificationWorkflow.xml",
               null);

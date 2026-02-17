@@ -31,7 +31,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Tag("IntegrationTest")
+
 public class PSAllowAllCtypeWorkflowsUpdaterTest
 {
 
@@ -41,12 +41,12 @@ public class PSAllowAllCtypeWorkflowsUpdaterTest
       PSAllowAllCtypeWorkflowsUpdater updater = new PSAllowAllCtypeWorkflowsUpdater();
       PSWorkflowInfo info = new PSWorkflowInfo(PSWorkflowInfo.TYPE_EXCLUSIONARY, new ArrayList());
       updater.updateInfo(info);
-      
+
       assertTrue(PSWorkflowInfo.TYPE_INCLUSIONARY.equals(info.getType()));
       assertFalse(info.isExclusionary());
       Iterator values = info.getValues();
       assertTrue(values.hasNext());
-      
+
       Set<Integer> wfIdSet = new HashSet<Integer>();
       IPSWorkflowService svc = PSWorkflowServiceLocator.getWorkflowService();
       List<PSObjectSummary> sums = svc.findWorkflowSummariesByName(null);
@@ -54,7 +54,7 @@ public class PSAllowAllCtypeWorkflowsUpdaterTest
       {
          wfIdSet.add(sum.getGUID().getUUID());
       }
-      
+
       assertEquals(wfIdSet, new HashSet<Integer>(IteratorUtils.toList(values)));
    }
 

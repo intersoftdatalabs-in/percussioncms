@@ -75,7 +75,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test case for all content design web services.
  */
-@Tag("IntegrationTest")
+
 public class ContentDesignTestCase extends PSContentTestBase
 {
   @BeforeAll
@@ -844,7 +844,7 @@ public class ContentDesignTestCase extends PSContentTestBase
    public void testLocalesCRUD() throws Exception
    {
       cleanupTestLocales();
-      
+
       List<PSLocale> locales = doCreateLocalesTest();
       doSaveLocalesTest(locales, true);
       doFindLocalesTest(locales);
@@ -994,11 +994,11 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests deleting locales
-    * 
-    * @param ids The ids of the locales to delete, assumed not <code>null</code> 
-    * or empty and to reference valid locales, which may or may not be 
+    *
+    * @param ids The ids of the locales to delete, assumed not <code>null</code>
+    * or empty and to reference valid locales, which may or may not be
     * locked.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    private void doDeleteLocalesTest(long[] ids) throws Exception
@@ -1109,12 +1109,12 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests loading locales.
-    * 
-    * @param ids The ids of the locales to load, assumed not 
+    *
+    * @param ids The ids of the locales to load, assumed not
     * <code>null</code> or empty and to have been saved.
-    * 
+    *
     * @return the loaded locales, never <code>null</code> or empty.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    private List<PSLocale> doLoadLocalesTest(long[] ids) throws Exception
@@ -1216,10 +1216,10 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests creating locales.
-    * 
-    * @return The list of created test locales, never <code>null</code> or 
+    *
+    * @return The list of created test locales, never <code>null</code> or
     * empty.
-    * 
+    *
     * @throws Exception If the test fails.
     */
    private List<PSLocale> doCreateLocalesTest() throws Exception
@@ -1305,12 +1305,12 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests saving locales.
-    * 
-    * @param locales The locales to save, assumed not <code>null</code> or empty 
+    *
+    * @param locales The locales to save, assumed not <code>null</code> or empty
     * and to have been locked.
     * @param release <code>true</code> leave the locks released when the test is
     * completed, <code>false</code> to leave the locks in place.
-    *  
+    *
     * @throws Exception if the test fails.
     */
    private void doSaveLocalesTest(List<PSLocale> locales, boolean release)
@@ -1411,10 +1411,10 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Test the <code>findLocales</code> webservice.
-    * 
-    * @param locales The list of locales to find, assumed not 
+    *
+    * @param locales The list of locales to find, assumed not
     * <code>null</code>.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    private void doFindLocalesTest(List<PSLocale> locales) throws Exception
@@ -1443,7 +1443,7 @@ public class ContentDesignTestCase extends PSContentTestBase
 
       try
       {
-         // test nulls, empty  
+         // test nulls, empty
          validateLocaleSummaries(findLocales(null, null, m_session), locales);
          validateLocaleSummaries(findLocales(null, "", m_session), locales);
          validateLocaleSummaries(findLocales("", null, m_session), locales);
@@ -1478,10 +1478,10 @@ public class ContentDesignTestCase extends PSContentTestBase
    }
 
    /**
-    * Validates that the supplied array of locale summaries contains the 
+    * Validates that the supplied array of locale summaries contains the
     * expected locales to be found.
-    * 
-    * @param sums The locale summaries to validate, assumed not 
+    *
+    * @param sums The locale summaries to validate, assumed not
     * <code>null</code>.
     * @param localesToFind The expected locales, assumed not <code>null</code>.
     */
@@ -1505,7 +1505,7 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests all CRUD services for content types design services.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    @Test
@@ -1545,7 +1545,7 @@ public class ContentDesignTestCase extends PSContentTestBase
             }
             catch (Exception e)
             {
-               // we only do this if there's another error, so just log this 
+               // we only do this if there's another error, so just log this
                // error
                System.out.println("Failed to clean up content types: "
                   + e.getLocalizedMessage());
@@ -1557,10 +1557,10 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Test the <code>findContentTypes</code> webservice.
-    * 
-    * @param typesToFind The list of content types to find, assumed not 
+    *
+    * @param typesToFind The list of content types to find, assumed not
     * <code>null</code>.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    private void doFindContentTypesTest(List<PSContentType> typesToFind)
@@ -1624,12 +1624,12 @@ public class ContentDesignTestCase extends PSContentTestBase
    }
 
    /**
-    * Creates a map of content type id to object summary from the supplied 
+    * Creates a map of content type id to object summary from the supplied
     * array.
-    * 
+    *
     * @param sums The array of summaries, assumed not <code>null</code>.
-    * 
-    * @return The map, where the key is the type id, and the value is the 
+    *
+    * @return The map, where the key is the type id, and the value is the
     * summary, never <code>null</code>.
     */
    private Map<Long, PSObjectSummary> getSummaryMap(PSObjectSummary[] sums)
@@ -1644,14 +1644,14 @@ public class ContentDesignTestCase extends PSContentTestBase
    }
 
    /**
-    * Test the find content types service using the supplied names and 
+    * Test the find content types service using the supplied names and
     * validating against the list of types to find.
-    * 
-    * @param typesToFind The list of types that are expected to be included in 
+    *
+    * @param typesToFind The list of types that are expected to be included in
     * the results, assumed not <code>null</code>.
     * @param names The names to search for, may be <code>null</code> or empty to
     * find all possibly content types.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    private void validateFindContentTypes(List<PSContentType> typesToFind,
@@ -1683,10 +1683,10 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests creating content types.
-    * 
-    * @return The list of created content types, never <code>null</code> or 
+    *
+    * @return The list of created content types, never <code>null</code> or
     * empty.
-    * 
+    *
     * @throws Exception If the test fails.
     */
    private List<PSContentType> doCreateContentTypesTest() throws Exception
@@ -1761,12 +1761,12 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests loading content types.
-    * 
-    * @param ids The ids of the content types to load, assumed not 
+    *
+    * @param ids The ids of the content types to load, assumed not
     * <code>null</code> or empty and to have been saved.
-    * 
+    *
     * @return the loaded types, never <code>null</code> or empty, locked.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    private List<PSContentType> doLoadContentTypesTest(long[] ids)
@@ -1870,12 +1870,12 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests saving content types.
-    * 
-    * @param ctypes The types to save, assumed not <code>null</code> or empty 
+    *
+    * @param ctypes The types to save, assumed not <code>null</code> or empty
     * and to have been locked.
     * @param release <code>true</code> leave the locks released when the test is
     * completed, <code>false</code> to leave the locks in place.
-    *  
+    *
     * @throws Exception if the test fails.
     */
    private void doSaveContentTypesTest(List<PSContentType> ctypes,
@@ -1978,10 +1978,10 @@ public class ContentDesignTestCase extends PSContentTestBase
    /**
     * Creates templates and tests associating them with content types, leaves
     * the content types unlocked.
-    * 
-    * @param ids The content types to associate to, assumed not 
+    *
+    * @param ids The content types to associate to, assumed not
     * <code>null</code> or empty.
-    * 
+    *
     * @throws Exception If the test fails.
     */
    private void doAssociatedTemplatesCRUDTest(long[] ids) throws Exception
@@ -2125,7 +2125,7 @@ public class ContentDesignTestCase extends PSContentTestBase
          }
          catch (PSErrorResultsFault e)
          {
-            verifyErrorResultsFault(e, -1, 
+            verifyErrorResultsFault(e, -1,
                PSContentTemplateDesc.class.getName());
          }
 
@@ -2151,7 +2151,7 @@ public class ContentDesignTestCase extends PSContentTestBase
          }
          catch (PSErrorResultsFault e)
          {
-            verifyErrorResultsFault(e, -1, 
+            verifyErrorResultsFault(e, -1,
                PSContentTemplateDesc.class.getName());
          }
 
@@ -2202,11 +2202,11 @@ public class ContentDesignTestCase extends PSContentTestBase
    /**
     * Creates <code>count</code> templates and returns them. These templates
     * have been persisted.
-    * 
+    *
     * @param count How many to make.
-    * 
+    *
     * @return The created templates. Never <code>null</code>.
-    * 
+    *
     * @throws Exception If any problems.
     */
    private List<PSAssemblyTemplate> createTemplates(int count)
@@ -2217,19 +2217,19 @@ public class ContentDesignTestCase extends PSContentTestBase
       for (int i = 0; i < count; i++)
       {
          PSAssemblyTemplate template = assemblyTest.createTemplate(
-            "assocTest" + i, "assembler",  OutputFormatType.page, 
-            TemplateType.shared, m_session); 
+            "assocTest" + i, "assembler",  OutputFormatType.page,
+            TemplateType.shared, m_session);
          templates.add(template);
       }
       return templates;
    }
-   
+
    /**
     * Uses another class to permanently remove all templates in the supplied
     * set.
-    * 
+    *
     * @param templates Assumed not <code>null</code>.
-    * 
+    *
     * @throws Exception If any problems.
     */
    private void deleteTemplates(Collection<PSAssemblyTemplate> templates)
@@ -2239,18 +2239,18 @@ public class ContentDesignTestCase extends PSContentTestBase
       for (PSAssemblyTemplate template : templates)
       {
          assemblyTest.deleteTemplate(template, m_session);
-      }            
+      }
    }
-   
-   
+
+
    /**
     * Validates that the loaded templates associates match the expected list.
-    *  
+    *
     * @param contentTypeId The content type id the templates are associated
     * with
     * @param templateIds The expected associated template ids, assumed not
     * <code>null</code> or empty.
-    * @param descList The list of loaded associations, assumed not 
+    * @param descList The list of loaded associations, assumed not
     * <code>null</code>.
     */
    private void validateTemplateAssociations(long contentTypeId,
@@ -2271,12 +2271,12 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Validates that the loaded templates associates match the expected list.
-    *  
+    *
     * @param ids The content type ids the templates are associated
     * with
     * @param templateIds The expected associated template ids, assumed not
     * <code>null</code> or empty.
-    * @param descList The list of loaded associations, assumed not 
+    * @param descList The list of loaded associations, assumed not
     * <code>null</code>.
     */
    private void validateTemplateAssociations(long[] ids, long[] templateIds,
@@ -2309,11 +2309,11 @@ public class ContentDesignTestCase extends PSContentTestBase
 
    /**
     * Tests deleting content types.
-    * 
-    * @param ids The ids of the types to delete, assumed not <code>null</code> 
-    * or empty and to reference valid content types, which may or may not be 
+    *
+    * @param ids The ids of the types to delete, assumed not <code>null</code>
+    * or empty and to reference valid content types, which may or may not be
     * locked.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    private void doDeleteContentTypesTest(long[] ids) throws Exception
@@ -2389,17 +2389,17 @@ public class ContentDesignTestCase extends PSContentTestBase
 
          // release, delete and search for results
          PSTestUtils.releaseLocks(session2, ids);
-         
+
          //add 2 template associations to make sure they are handled properly
          templates = createTemplates(2);
-         List<PSContentTemplateDesc> associations = 
+         List<PSContentTemplateDesc> associations =
             loadTemplateAssociations(ids[0], m_session, true);
          if (associations.size() == 0)
          {
             saveTemplateAssociations(ids[0], new long[] { templates.get(0)
                   .getId(), templates.get(1).getId() }, m_session, true);
          }
-         
+
          deleteContentTypes(ids, m_session);
 
          Set<Long> idSet = new HashSet<Long>();

@@ -40,12 +40,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test case for the {@link IPSLoginMgr}.
  */
-@Tag("IntegrationTest")
+
 public class PSLoginMgrTest
 {
    /**
     * Test login thru the backend table provider.
-    *  
+    *
     * @throws Exception if the test fails
     */
    @Test
@@ -57,41 +57,41 @@ public class PSLoginMgrTest
       PSSecurityProviderPool.init(config);
       CallbackHandler callbackHandler = new CallbackHandler() {
 
-         public void handle(Callback[] callbacks) throws IOException, 
+         public void handle(Callback[] callbacks) throws IOException,
             UnsupportedCallbackException
          {
             if (callbacks.length > 0)
                throw new UnsupportedCallbackException(callbacks[0]);
          }};
-         
+
       IPSLoginMgr mgr = PSLoginMgrLocator.getLoginManager();
       Subject sub = null;
       setRequestInfo("admin1");
-      
+
       sub = mgr.login("admin1", "demo", callbackHandler);
       assertTrue(sub != null);
       assertTrue(!sub.getPublicCredentials().isEmpty());
       assertTrue(sub.getPublicCredentials().contains("admin1"));
-      
+
       sub = mgr.login("admin1", "foo", callbackHandler);
       assertTrue(sub == null);
    }
-   
+
    private void setRequestInfo(String userName) {
-	   
+
 	   PSRequest newRequest = null;
-	   
+
 	   try {
 		   PSRequestInfo.resetRequestInfo();
 	       newRequest = PSRequest.getContextForRequest(true, false);
 	       PSRequestInfo.initRequestInfo((Map<String,Object>) null);
 	       PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, newRequest);
 	       PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_USER, userName);
-	   } 
+	   }
 	   finally {
           if (newRequest!=null)
              newRequest.release();
-          
+
          PSRequestInfo.resetRequestInfo();
       }
    }

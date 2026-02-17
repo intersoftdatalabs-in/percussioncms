@@ -41,11 +41,11 @@ import org.xml.sax.SAXException;
 /**
  * Loads a test workflow from xml and runs the plugin against it to ensure expected
  * changes are made.
- * 
+ *
  * @author JaySeletz
  *
  */
-@Tag("IntegrationTest")
+
 public class PSUpgradePluginFixWFNotificationTest
 {
 
@@ -53,8 +53,8 @@ public class PSUpgradePluginFixWFNotificationTest
    private static final String QUICK_EDIT = "Quick Edit";
    private static final String PENDING = "Pending";
    private static final String ADMIN_ROLE_GUID = "0-25-9";
-   
-   @BeforeEach 
+
+   @BeforeEach
    public void setup()
    {
       // initialize the locator for unit testing
@@ -66,30 +66,30 @@ public class PSUpgradePluginFixWFNotificationTest
    {
       PSUpgradePluginFixWFNotification plugin = new PSUpgradePluginFixWFNotification();
       plugin.setLogger(System.out);
-      
+
       File wfFile = PSResourceUtils.getFile(PSUpgradePluginFixWFNotificationTest.class,"/com/percussion/rxupgrade/FixWFNotificationWorkflow.xml",null);
       PSWorkflow testWF = new PSWorkflow();
       testWF.fromXML(FileUtils.readFileToString(wfFile));
-      
+
      // before, admin, pending=true, qe/live=false, means false
       setWFNotifForApproveStep(testWF, ADMIN_ROLE_GUID, true, false, false);
       plugin.fixWorkflow(testWF);
       // check that all transitions now have notification
       ensureNotificationsSet(testWF);
       checkWFNotifForApproveStep(testWF, ADMIN_ROLE_GUID, false, false, false);
-      
+
       // before, admin, all true, means true (notify pending)
       setWFNotifForApproveStep(testWF, ADMIN_ROLE_GUID, true, true, true);
       plugin.fixWorkflow(testWF);
       checkWFNotifForApproveStep(testWF, ADMIN_ROLE_GUID, true, false, false);
-      
+
       // before, admin, all false, means false
       setWFNotifForApproveStep(testWF, ADMIN_ROLE_GUID, false, false, false);
       plugin.fixWorkflow(testWF);
       checkWFNotifForApproveStep(testWF, ADMIN_ROLE_GUID, false, false, false);
 
    }
-   
+
    @Test
    public void fixDefaultWorkflow()
    {
@@ -97,14 +97,14 @@ public class PSUpgradePluginFixWFNotificationTest
       List<PSWorkflow> wfs = wfService.findWorkflowsByName("Default Workflow");
       assertTrue(wfs.size() == 1);
       PSWorkflow defaultWF = wfs.get(0);
-      
+
       PSUpgradePluginFixWFNotification plugin = new PSUpgradePluginFixWFNotification();
       plugin.setLogger(System.out);
-      
+
       plugin.fixWorkflow(defaultWF);
-      
+
       wfService.saveWorkflow(defaultWF);
-      
+
    }
 
 
@@ -121,7 +121,7 @@ public class PSUpgradePluginFixWFNotificationTest
          {
             List<PSNotification> notifications = transition.getNotifications();
             assertTrue(!notifications.isEmpty());
-         }      
+         }
       }
    }
 
@@ -132,7 +132,7 @@ public class PSUpgradePluginFixWFNotificationTest
       {
          if (!(state.getName().equals(PENDING) || state.getName().equals(QUICK_EDIT) || state.getName().equals(LIVE)))
             continue;
-         
+
          List<PSAssignedRole> roles = state.getAssignedRoles();
          for (PSAssignedRole role : roles)
          {
@@ -148,8 +148,8 @@ public class PSUpgradePluginFixWFNotificationTest
          }
       }
    }
-   
-   
+
+
    private void checkWFNotifForApproveStep(PSWorkflow workflow, String roleId, boolean notifyPending, boolean notifyQE, boolean notifyLive)
    {
       List<PSState> states = workflow.getStates();
@@ -157,7 +157,7 @@ public class PSUpgradePluginFixWFNotificationTest
       {
          if (!(state.getName().equals(PENDING) || state.getName().equals(QUICK_EDIT) || state.getName().equals(LIVE)))
             continue;
-         
+
          List<PSAssignedRole> roles = state.getAssignedRoles();
          for (PSAssignedRole role : roles)
          {

@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Tag;
  * maintenance manager using server-side APIs not exposed by the REST layer. Sunny Sal says:
  * "Server-side maintenance, Bollywood style!"
  */
-@Tag("IntegrationTest")
+
 public class PSMaintenanceManagerServerTest extends PSServletTestCase {
 
   IPSMaintenanceManager maintenanceManager;

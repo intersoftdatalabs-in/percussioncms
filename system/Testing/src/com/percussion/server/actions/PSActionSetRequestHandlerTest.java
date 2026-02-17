@@ -34,13 +34,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests the functionality of <code>PSActionSetRequestHandler</code>.
  */
-@Tag("IntegrationTest")
+
 public class PSActionSetRequestHandlerTest
 {
    /**
     * Constructs an instance of this class to run the test implemented by the
     * named method.
-    * 
+    *
     * @param methodName name of the method that implements a test
     */
    public PSActionSetRequestHandlerTest()
@@ -64,7 +64,7 @@ public class PSActionSetRequestHandlerTest
       osProps.setProperty( "objectDirectory", RESOURCE_PATH );
       IPSObjectStoreHandler osh = new PSXmlObjectStoreHandler( osProps );
       IPSExtensionManager extMgr = new PSExtensionManager();
-      
+
       PSActionSetRequestHandler rh = new PSActionSetRequestHandler(
          osh, extMgr );
 
@@ -72,7 +72,7 @@ public class PSActionSetRequestHandlerTest
       boolean didThrow = false;
       try
       {
-         rh.processRequest( 
+         rh.processRequest(
             PSRequestTest.makeRequest(null,null,null,null,null,null,null) );
       } catch (IllegalStateException e)
       {
@@ -87,5 +87,5 @@ public class PSActionSetRequestHandlerTest
     */
    private static final String RESOURCE_PATH =
       "/com/percussion/server/actions/";
-   
+
 }

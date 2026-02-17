@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit tests for the PSLogManager class. These are private and
  * are not to be shipped with the product.
  */
-@Tag("IntegrationTest")
+
 public class PSLogManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {

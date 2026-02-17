@@ -16,7 +16,7 @@
  */
 package com.percussion.util;
 
-import junit.framework.AssertionFailedError;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,17 +36,16 @@ public class PSStopwatchTest
     * can vary by around 20 ms.
     * @param time1
     * @param time2
-    * @throws AssertionFailedError
+    * @throws AssertionError
     */
    public void checkReasonable(double time1, double time2)
-   throws AssertionFailedError
    {
       double delta = Math.abs(time1 - time2);
 
       System.err.println("Delta: " + delta);
       if (delta > 30)
       {
-         throw new AssertionFailedError("Times varied by more than 30 millis. " +
+         throw new AssertionError("Times varied by more than 30 millis. " +
             "real variance was " + delta + " millis");
       }
    }

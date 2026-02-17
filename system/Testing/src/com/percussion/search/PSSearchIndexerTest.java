@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * @author paulhoward
  */
-@Tag("IntegrationTest")
+
 public class PSSearchIndexerTest
    implements IPSServerBasedJunitTest
 {

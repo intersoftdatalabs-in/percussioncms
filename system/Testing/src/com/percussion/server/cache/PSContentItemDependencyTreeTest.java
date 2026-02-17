@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for the {@link PSContentItemDependencyTree} class.
  */
-@Tag("IntegrationTest")
+
 public class PSContentItemDependencyTreeTest
 {
    // see base class

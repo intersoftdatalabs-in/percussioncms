@@ -32,39 +32,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test basic node definition methods, CRUD operations
- * 
+ *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 public class PSContentTypeMgrTest
 {
    private static IPSContentMgr ms_mgr = PSContentMgrLocator.getContentMgr();
-   
+
    static long start_count = System.currentTimeMillis() & 0x0FFFL;
-   
+
    /**
-    * Create a node definition object and setup basic relationships to templates. 
+    * Create a node definition object and setup basic relationships to templates.
     * @return the initialized object, but not a persisted object
     */
    public IPSNodeDefinition createND()
    {
       IPSNodeDefinition rval = ms_mgr.createNodeDefinition();
-      
+
       rval.setName("test_x_" + start_count++);
       rval.setDescription("test nodedef");
       rval.setLabel("test_node_definition");
       rval.setObjectType(1);
-      
+
       rval.addVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 501));
       rval.addVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 502));
       return rval;
    }
-   
+
    /**
     * Really a cleanup for any leftover test data
     */
    @Test
-   public void testDeleteNodeDefs() 
+   public void testDeleteNodeDefs()
    {
       try
       {
@@ -76,10 +76,10 @@ public class PSContentTypeMgrTest
          // OK, no existing test defs
       }
    }
-   
+
    /**
     * Test adding node definitions to the db
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -91,48 +91,48 @@ public class PSContentTypeMgrTest
       defs.add(createND());
       ms_mgr.saveNodeDefinitions(defs);
    }
-   
+
    /**
     * Perform modifications on one of the node definitions saved in the previous
     * test. Persist to exercise the machinery.
-    * 
+    *
     * @throws Exception
     */
    @Test
    public void testModifyNodeDefinition() throws Exception
    {
       List<IPSNodeDefinition> defs = ms_mgr.findNodeDefinitionsByName("test_x_%");
-      
+
       assertTrue(defs.size() > 0);
-      
+
       // Grab the first, remove a node def and persist
       IPSNodeDefinition def = defs.get(0);
-      
+
       def.removeVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 503));
-      
+
       List<IPSNodeDefinition> sdefs = new ArrayList<IPSNodeDefinition>();
       sdefs.add(def);
-      
+
       ms_mgr.saveNodeDefinitions(sdefs);
-      
+
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       ids.add(def.getGUID());
-      
+
       // Regrab the specific def and check the count
       defs = ms_mgr.loadNodeDefinitions(ids);
-      
+
       assertTrue(defs.size() == 1);
-      
+
       def = defs.get(0);
-      
+
       assertEquals(def.getVariantGuids().size(), 2);
    }
-   
+
    /**
     * Cleanup for any leftover test data
     */
    @Test
-   public void testDeleteNodeDefs2() 
+   public void testDeleteNodeDefs2()
    {
       try
       {

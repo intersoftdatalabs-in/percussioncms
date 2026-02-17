@@ -39,53 +39,53 @@ import java.util.Map;
 /**
  * Test the add and remove snippet actions
  */
-@Tag("IntegrationTest")
+
 public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
 {
 
    /**
     * Tests both add and remove snippet actions.
-    * 
+    *
     * @throws Exception if any unexpected error occurs.
     */
    public void testAddRemove() throws Exception
    {
       login("admin1", "demo");
-      
+
       // positive test the actions
 
       // make sure the item is in check out state
       int CONTENT_ID = 335;
       int SLOT_ID = 518;
       List<PSItemStatus> status = prepareItem(CONTENT_ID);
-      
+
       List<PSAaRelationship> rels = getRelationships(CONTENT_ID, SLOT_ID);
       assertTrue(rels.size() > 0);
-      
+
       PSAaRelationship rel = rels.get(rels.size()-1);
       removeRelationship(rel);
-      
+
       List<PSAaRelationship> rels2 = getRelationships(CONTENT_ID, SLOT_ID);
       assertTrue(rels2.size() == (rels.size() -1));
-      
+
       addRelationship(rel);
       rels2 = getRelationships(CONTENT_ID, SLOT_ID);
       assertTrue(rels2.size() == rels.size());
-      
+
       releaseItem(status);
-      
+
       // negative test the actions
       removeRelationshipWithError(rel);
       addRelationshipWithError(rel);
    }
-   
+
    /**
     * Make sure the given item is checked out.
-    * 
+    *
     * @param contentId the item in question.
-    * 
+    *
     * @return the status used for check in later, never <code>null</code>.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    private List<PSItemStatus> prepareItem(int contentId) throws Exception
@@ -95,15 +95,15 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
       IPSContentWs cservice = PSContentWsLocator.getContentWebservice();
       List<PSItemStatus> status = cservice.prepareForEdit(
          Collections.singletonList(id));
-      
+
       return status;
    }
 
    /**
     * Reverse the prepare action.
-    * 
+    *
     * @param status the to be reversed state.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    private void releaseItem(List<PSItemStatus> status) throws Exception
@@ -111,13 +111,13 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
       IPSContentWs cservice = PSContentWsLocator.getContentWebservice();
       cservice.releaseFromEdit(status, false);
    }
-   
+
    /**
     * Tests remove snippet action.
-    * 
-    * @param rel the to be removed snippet (or relationship), assumed not 
+    *
+    * @param rel the to be removed snippet (or relationship), assumed not
     *    <code>null</code>.
-    *    
+    *
     * @throws Exception if any error occurs.
     */
    private void removeRelationship(PSAaRelationship rel) throws Exception
@@ -125,9 +125,9 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
       IPSAAClientAction action = factory.getAction("RemoveSnippet");
       Map<String, Object> params = new HashMap<String, Object>();
-      params.put(PSRemoveSnippetAction.RELATIONSHIP_IDS, 
+      params.put(PSRemoveSnippetAction.RELATIONSHIP_IDS,
          String.valueOf(rel.getId()));
-      
+
       PSActionResponse aresponse = null;
       aresponse = action.execute(params);
       assertEquals(IPSAAClientAction.SUCCESS, aresponse.getResponseData());
@@ -141,18 +141,18 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
       IPSAAClientAction action = factory.getAction("RemoveSnippet");
       Map<String, Object> params = new HashMap<String, Object>();
-      params.put(PSRemoveSnippetAction.RELATIONSHIP_IDS, 
+      params.put(PSRemoveSnippetAction.RELATIONSHIP_IDS,
             String.valueOf(rel.getId()));
       executeWithError(action, params);
    }
 
    /**
     * Execute the action with exception
-    * 
+    *
     * @param action the action in question.
     * @param params the incomplete parameter.
     */
-   private void executeWithError(IPSAAClientAction action, 
+   private void executeWithError(IPSAAClientAction action,
       Map<String, Object> params)
    {
       try
@@ -167,10 +167,10 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
 
    /**
     * Tests add snippet action.
-    * 
-    * @param rel it contains the properties of the new snippet, assumed not 
+    *
+    * @param rel it contains the properties of the new snippet, assumed not
     *    <code>null</code>.
-    *    
+    *
     * @throws Exception if any error occurs.
     */
    private void addRelationship(PSAaRelationship rel) throws Exception
@@ -178,14 +178,14 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
       IPSAAClientAction action = factory.getAction("AddSnippet");
       Map<String, Object> params = new HashMap<String, Object>();
-      
-      params.put(PSAddSnippetAction.OWNER_ID, 
+
+      params.put(PSAddSnippetAction.OWNER_ID,
          String.valueOf(rel.getOwner().getId()));
-      params.put(PSAddSnippetAction.DEPENDENT_ID, 
+      params.put(PSAddSnippetAction.DEPENDENT_ID,
                String.valueOf(rel.getDependent().getId()));
-      params.put(PSAddSnippetAction.SLOT_ID, 
+      params.put(PSAddSnippetAction.SLOT_ID,
                String.valueOf(rel.getSlotId().longValue()));
-      params.put(PSAddSnippetAction.TEMPLATE_ID, 
+      params.put(PSAddSnippetAction.TEMPLATE_ID,
                String.valueOf(rel.getTemplateId().longValue()));
       if (rel.getFolderId() != -1)
       {
@@ -201,7 +201,7 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
          IPSSite site = mgr.loadSite(rel.getSiteId());
          params.put(PSAddSnippetAction.SITE_NAME, site.getName());
       }
-         
+
       PSActionResponse aresponse = null;
       aresponse = action.execute(params);
       assertTrue(aresponse.getResponseData().length() > 0);
@@ -209,10 +209,10 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
 
    /**
     * Negative tests the add snippet action.
-    * 
-    * @param rel it contains the properties of the new snippet, assumed not 
+    *
+    * @param rel it contains the properties of the new snippet, assumed not
     *    <code>null</code>.
-    *    
+    *
     * @throws Exception if any unexpected error occurs.
     */
    private void addRelationshipWithError(PSAaRelationship rel) throws Exception
@@ -220,14 +220,14 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
       IPSAAClientAction action = factory.getAction("AddSnippet");
       Map<String, Object> allParams = new HashMap<String, Object>();
-      
-      allParams.put(PSAddSnippetAction.OWNER_ID, 
+
+      allParams.put(PSAddSnippetAction.OWNER_ID,
          String.valueOf(rel.getOwner().getId()));
-      allParams.put(PSAddSnippetAction.DEPENDENT_ID, 
+      allParams.put(PSAddSnippetAction.DEPENDENT_ID,
                String.valueOf(rel.getDependent().getId()));
-      allParams.put(PSAddSnippetAction.SLOT_ID, 
+      allParams.put(PSAddSnippetAction.SLOT_ID,
                String.valueOf(rel.getSlotId().longValue()));
-      allParams.put(PSAddSnippetAction.TEMPLATE_ID, 
+      allParams.put(PSAddSnippetAction.TEMPLATE_ID,
                String.valueOf(rel.getTemplateId().longValue()));
 
       // missing OWNER_ID
@@ -258,12 +258,12 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
 
    /**
     * Gets a list of relationships with the specified parameters.
-    * 
+    *
     * @param contentId the owner id of the relationship.
     * @param slotId the slot id of the relationship property.
-    * 
+    *
     * @return the requested relationships, never <code>null</code>.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    private List<PSAaRelationship> getRelationships(int contentId, int slotId)
@@ -274,11 +274,11 @@ public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
       filter.setOwner(summ.getHeadLocator());
       filter.setProperty(PSRelationshipConfig.PDU_SLOTID, String.valueOf(slotId));
       filter.setCategory(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
-      
+
       IPSContentWs cservice = PSContentWsLocator.getContentWebservice();
       List<PSAaRelationship> rels = cservice.loadContentRelations(filter, false);
-      
+
       return rels;
    }
-   
+
 }

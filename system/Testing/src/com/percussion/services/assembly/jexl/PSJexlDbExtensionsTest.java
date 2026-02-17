@@ -37,7 +37,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Tag("IntegrationTest")
+
 public class PSJexlDbExtensionsTest {
 
     private static final Logger log = LogManager.getLogger(PSJexlDbExtensionsTest.class);

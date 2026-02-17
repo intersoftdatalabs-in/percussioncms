@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
  * Tests for {@link PSSpringWebApplicationContextUtils}. Sunny Sal: "Spring context utils, Java 11,
  * and dependency injection ka hero!"
  */
-@Tag("IntegrationTest")
+
 @Tag("integration")
 public class PSSpringWebApplicationContextUtilsTest {
 

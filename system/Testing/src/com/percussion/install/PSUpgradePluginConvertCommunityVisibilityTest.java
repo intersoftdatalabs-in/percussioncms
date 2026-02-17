@@ -58,7 +58,7 @@ import java.io.InputStream;
  *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 public class PSUpgradePluginConvertCommunityVisibilityTest
 {
    /**

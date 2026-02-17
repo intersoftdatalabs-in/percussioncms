@@ -64,7 +64,7 @@ import java.util.Map;
  *
  * @author paulhoward
  */
-@Tag("IntegrationTest")
+
 public class PSProcessDaemonTest implements IPSCustomJunitTest
 {
 
@@ -497,13 +497,5 @@ public class PSProcessDaemonTest implements IPSCustomJunitTest
    // JUnit 5 uses test discovery; explicit suite() removed.
    // (legacy JUnit3 `suite()` was deleted during migration)
 
-   /**
-    * Used to run the test from the command line.
-    * @param args unused
-    */
-   public static void main(String[] args)
-   {
-      TestRunner.run(PSProcessDaemonTest.class);
-   }
 
 }

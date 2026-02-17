@@ -23,29 +23,29 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.*;
-import java.util.Arrays;
+
 
 /**
  * Unit tests for <code>PSBase64Decoder</code> and <code>PSBase64Encoder</code>.
  */
-public class PSBase64Test 
+public class PSBase64Test
 {
    /**
     * Tests that a small string can be encoded and decoded.
     * @throws Exception if any error occurs
     */
-   
+
    public void testSmallString() throws Exception
    {
       String original = "This is a string that needs to be encoded.";
       String encoded;
       String decoded;
-      
+
       encoded = PSBase64Encoder.encode(original);
-      assertFalse(original.equals(encoded));     
+      assertFalse(original.equals(encoded));
       decoded = PSBase64Decoder.decode(encoded);
       assertEquals(original, decoded);
-      
+
       // check for compatibility with existing encoded strings
       original = "demo";
       encoded = PSBase64Encoder.encode(original);
@@ -53,9 +53,9 @@ public class PSBase64Test
       decoded = PSBase64Decoder.decode("ZGVtbw==");
       assertEquals(original, decoded);
    }
-   
-   
-   
+
+
+
    public void testIllegalArgs() throws Exception
    {
       // null stream throws exception
@@ -87,37 +87,37 @@ public class PSBase64Test
       }
       catch (IllegalArgumentException success) {}
    }
-   
+
    /**
     * Tests the stream methods for encoding and decoding.
     * @throws Exception if any error occurs
     */
-   
+
    public void testSmallStream() throws Exception
    {
       String original = "This is a string that needs to be encoded.";
-      byte[] originalBytes = original.getBytes();    
+      byte[] originalBytes = original.getBytes();
       InputStream in = new ByteArrayInputStream(originalBytes);
       OutputStream out = new ByteArrayOutputStream();
-      
+
       PSBase64Encoder.encode(in, out);
       String encoded = out.toString();
       assertFalse(original.equals(encoded));
-      
+
       byte[] encodedBytes = encoded.getBytes();
       in = new ByteArrayInputStream(encodedBytes);
       out = new ByteArrayOutputStream();
       PSBase64Decoder.decode(in, out);
       String decoded = out.toString();
-      assertEquals(original, decoded);  
+      assertEquals(original, decoded);
    }
- 
+
    /**
     * Tests the methods for encoding and decoding a string with a specified
     * encoding.
     * @throws Exception if any error occurs
     */
-   
+
    public void testEncodingName() throws Exception
    {
       String original = "This is a string that needs to be encoded.";
@@ -133,17 +133,17 @@ public class PSBase64Test
          threw = true;
       }
       assertTrue(threw);
-      
+
       String encoded = PSBase64Encoder.encode(original, "ISO-8859-1");
-      assertFalse(original.equals(encoded));     
+      assertFalse(original.equals(encoded));
       String decoded = PSBase64Decoder.decode(encoded);
-      assertEquals(original, decoded);  
-      
+      assertEquals(original, decoded);
+
       encoded = PSBase64Encoder.encode(original, "US-ASCII");
       assertFalse(original.equals(encoded));
       decoded = PSBase64Decoder.decode(encoded);
       assertEquals(original, decoded);
-      
+
       original = "\u4eca\u65e5\u306f\u4e16\u754c"; // Hello World (Japanese)
       encoded = PSBase64Encoder.encode(original, "Shift_JIS");
       assertFalse(original.equals(encoded));
@@ -155,7 +155,7 @@ public class PSBase64Test
     * Tests that a large binary file can be encoded and decoded.
     * @throws Exception if any error occurs
     */
-   
+
    public void testFile() throws Exception
    {
       InputStream file = new FileInputStream( RESOURCE_PATH + TEST_FILE );
@@ -163,16 +163,16 @@ public class PSBase64Test
       ByteArrayOutputStream bout = new ByteArrayOutputStream(4096);
       PSCopyStream.copyStream(file, bout);
       byte[] originalBytes = bout.toByteArray();
-     
+
       byte[] encodedBytes = PSBase64Encoder.encode(originalBytes);
       assertTrue(originalBytes.length < encodedBytes.length);
-      
+
       byte[] decodedBytes = PSBase64Decoder.decode(encodedBytes);
-      assertEquals(originalBytes.length, decodedBytes.length);     
-      assertEquals(Arrays, originalBytes, decodedBytes);     
+      assertEquals(originalBytes.length, decodedBytes.length);
+      assertArrayEquals(originalBytes, decodedBytes);
    }
-   
-   
+
+
    /**
     * Defines the path to the files used by this unit test, relative from the
     * root.

@@ -26,7 +26,7 @@ import jakarta.servlet.ServletException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Tag("IntegrationTest")
+
 public class PSSecurityFilterIntegrationTest {
 
 

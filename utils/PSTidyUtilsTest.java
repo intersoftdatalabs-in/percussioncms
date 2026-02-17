@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Testing {@link PSTidyUtils}. This test has to be run within server environment
  * because it is rely on PSServer.getRxDir() to load tidy property file.
  */
-@Tag("IntegrationTest")
+
 public class PSTidyUtilsTest
 {
 
@@ -76,9 +76,9 @@ public class PSTidyUtilsTest
         String missingPTag = "<html><head> <title>peter</title> </header> <body> <summary>hello</summary> <div> <p>Hello</div> </body></html>";
         String html = PSTidyUtils.applyTidy(missingPTag, null);
         assertTrue(html.contains("</p>"));
-        
+
         html = PSTidyUtils.applyTidy(MISSING_P_TAG, null);
-        
+
         // tidy will add HTML tag
 
         assertTrue(html.contains("<html>"));
@@ -95,7 +95,7 @@ public class PSTidyUtilsTest
 
        String html = PSTidyUtils.applyTidy(source, null);
        validateTags(html5Tags, html);
-       
+
        html = PSTidyUtils.applyTidy(MISSING_P_TAG, null);
     }
 
@@ -107,7 +107,7 @@ public class PSTidyUtilsTest
 
        String html = PSTidyUtils.applyTidy(source, null);
        validateTags(html5SelfClosedTags, html);
-       
+
        html = PSTidyUtils.applyTidy(MISSING_P_TAG, null);
     }
 
@@ -119,13 +119,13 @@ public class PSTidyUtilsTest
 
        String html = PSTidyUtils.applyTidy(source, null);
        validateTags(html5SelfClosedTags, html);
-       
+
        html = PSTidyUtils.applyTidy(MISSING_P_TAG, null);
     }
-    
+
     /**
      * Tidy cannot parse unknown (HTML) tags.
-     * 
+     *
      * @throws Exception if an error occurs.
      */
     @Test
@@ -141,12 +141,12 @@ public class PSTidyUtilsTest
         {
             System.out.println("got tidy error: " + e.getMessage());
         }
-        
+
     }
 
    /**
     * Checks that the given html contains the specified tags.
-    * 
+    *
     * @param tags {@link String String[]} with the tags to check. Assumed not
     *           <code>null</code>.
     * @param html the html content to verify that it contains the given tags.
@@ -159,7 +159,7 @@ public class PSTidyUtilsTest
           assertTrue("HTML after tidy: it should have contained tag: " + tag, html.contains("<" + tag));
        }
     }
-    
+
     static String MISSING_P_TAG = "<div> <p>Hello</div>";
 
     private String[] html5Tags = new String[]

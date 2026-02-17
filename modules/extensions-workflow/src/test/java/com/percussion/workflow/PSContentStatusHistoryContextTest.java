@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Tag;
  * The PSContentStatusHistoryContextTest class is a test class for the class
  * PSContentStatusHistoryContext
  */
-@Tag("IntegrationTest")
+
 public class PSContentStatusHistoryContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSContentStatusHistoryContextTest.class);

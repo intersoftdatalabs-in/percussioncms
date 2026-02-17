@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * Unit tests for the {@link PSSharedProperty} class.
  */
-@Tag("IntegrationTest")
+
 public class PSSharedPropertyTest
 {
    /**

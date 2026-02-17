@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Tag;
  * @author JaySeletz
  *
  */
-@Tag("IntegrationTest")
+
 public class PSManagedLinkDaoTest
 {
     private IPSManagedLinkDao m_dao;

@@ -209,7 +209,6 @@ public class PSTestBase extends PSClientTestCase
     * @return the new binding, never <code>null</code>.
     */
    protected ContentSOAPStub getContentSOAPStub(Integer timeout)
-      throws AssertionFailedError
    {
       if (timeout != null && timeout < 1000)
          throw new IllegalArgumentException("timeout must be >= 1000");
@@ -253,7 +252,6 @@ public class PSTestBase extends PSClientTestCase
     * @throws AssertionFailedError for any error creating the new binding.
     */
    public SystemSOAPStub getSystemSOAPStub(Integer timeout)
-      throws AssertionFailedError
    {
       if (timeout != null && timeout < 1000)
          throw new IllegalArgumentException("timeout must be >= 1000");
@@ -297,7 +295,6 @@ public class PSTestBase extends PSClientTestCase
     * @throws AssertionFailedError for any error creating the new binding.
     */
    protected SecuritySOAPStub getSecuritySOAPStub(Integer timeout)
-      throws AssertionFailedError
    {
       if (timeout != null && timeout < 1000)
          throw new IllegalArgumentException("timeout must be >= 1000");

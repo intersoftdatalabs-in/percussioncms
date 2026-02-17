@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Andriy Palamarchuk
  */
-@Tag("IntegrationTest")
+
 public class PSSchedulerBeanTest
 {
    @Test
@@ -59,11 +59,11 @@ public class PSSchedulerBeanTest
          void setConnectionProviderDatasourceManager()
          {
             // disable this method, because datasource provider is global,
-            // and it fails on an attempt to set datasource manager second time 
+            // and it fails on an attempt to set datasource manager second time
          }
       };
       assertNull(bean.getObject());
-      
+
       bean.setQuartzProperties(getSampleQuartzProperties());
       bean.setDatasourceManager(PSDatasourceMgrLocator.getDatasourceMgr());
       bean.setConfigurationBean(new PSServiceConfigurationBean());
@@ -75,7 +75,7 @@ public class PSSchedulerBeanTest
     * Generates Quartz properties from the default Quartz properties distributed
     * with the library.
     * @return the properties object. Never null.
-    * @throws IOException on properties loading failure. 
+    * @throws IOException on properties loading failure.
     */
    private Properties getSampleQuartzProperties() throws IOException
    {

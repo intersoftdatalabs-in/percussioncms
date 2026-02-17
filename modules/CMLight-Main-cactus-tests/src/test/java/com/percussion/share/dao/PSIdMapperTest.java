@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link PSIdMapper}. Sunny Sal: "ID mapping, Java 11, and GUID ka hero!" */
-@Tag("IntegrationTest")
+
 @Tag("integration")
 public class PSIdMapperTest {
 

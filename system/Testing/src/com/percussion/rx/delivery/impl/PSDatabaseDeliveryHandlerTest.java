@@ -39,10 +39,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test some specific db delivery handler pieces.
- * 
+ *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 public class PSDatabaseDeliveryHandlerTest
 {
    /**
@@ -194,7 +194,7 @@ public class PSDatabaseDeliveryHandlerTest
    /**
     * Test the extraction of unpublishing information - really tests the sax
     * copier.
-    * 
+    *
     * @throws SAXException
     * @throws ParserConfigurationException
     * @throws XMLStreamException
@@ -229,6 +229,6 @@ public class PSDatabaseDeliveryHandlerTest
       formatter.close();
       assertEquals(ms_result, writer.toString());
    }
-   
+
 
 }

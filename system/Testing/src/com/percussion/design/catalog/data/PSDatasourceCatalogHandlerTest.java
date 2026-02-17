@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test class for the {@link PSDatasourceCatalogHandler} class.
  */
-@Tag("IntegrationTest")
+
 public class PSDatasourceCatalogHandlerTest extends PSObjectStoreTest
 {
    // see base class
@@ -48,10 +48,10 @@ public class PSDatasourceCatalogHandlerTest extends PSObjectStoreTest
    {
       super(name);
    }
-   
+
    /**
     * Tests cataloging datasources
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -63,18 +63,18 @@ public class PSDatasourceCatalogHandlerTest extends PSObjectStoreTest
       Properties req = new Properties();
       req.setProperty("RequestCategory", "data");
       req.setProperty("RequestType", "Datasource");
-      
+
       Document result = cataloger.catalog(req);
       Element root = result.getDocumentElement();
       assertNotNull(root);
-      
+
 
       assertEquals(root.getNodeName(), "PSXDatasourceCatalogResults");
       PSXmlTreeWalker tree = new PSXmlTreeWalker(root);
-      Element dsEl = tree.getNextElement("datasource", 
+      Element dsEl = tree.getNextElement("datasource",
          tree.GET_NEXT_ALLOW_CHILDREN);
       assertNotNull(dsEl);
-      
+
       boolean foundRepository = false;
       while (dsEl != null)
       {
@@ -86,16 +86,16 @@ public class PSDatasourceCatalogHandlerTest extends PSObjectStoreTest
          PSConnectionDetail detail = os.getConnectionDetail(dsName);
          assertEquals(detail.getDatasourceName(), tree.getElementData(
             "jndiDatasource", false));
-         assertEquals(detail.getJdbcUrl(), tree.getElementData("jdbcUrl", 
+         assertEquals(detail.getJdbcUrl(), tree.getElementData("jdbcUrl",
             false));
-         assertEquals(detail.getDatabase(), tree.getElementData("database", 
+         assertEquals(detail.getDatabase(), tree.getElementData("database",
             false));
-         assertEquals(detail.getOrigin(), tree.getElementData("origin", 
+         assertEquals(detail.getOrigin(), tree.getElementData("origin",
             false));
-         
+
          if (isRepository)
             assertEquals(detail, os.getConnectionDetail(null));
-         
+
          tree.setCurrent(dsEl);
          dsEl = tree.getNextElement("datasource", tree.GET_NEXT_ALLOW_SIBLINGS);
       }

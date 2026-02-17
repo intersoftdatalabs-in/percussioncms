@@ -43,9 +43,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test managing relationships in the persistent layer. 
+ * Test managing relationships in the persistent layer.
  */
-@Tag("IntegrationTest")
+
 public class PSRelationshipServiceTest
 {
    private static IPSRelationshipService ms_svc = PSRelationshipServiceLocator
@@ -64,7 +64,7 @@ public class PSRelationshipServiceTest
       ids.add(new Integer(489));
       ids.add(new Integer(490));
       filter.setDependentIds(ids);
-      
+
       List<PSRelationship> rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 2);
       assertTrue(rels.get(0).getDependent().getId() == 504);
@@ -75,7 +75,7 @@ public class PSRelationshipServiceTest
    public void testPerformance() throws Exception
    {
       int[] ownerIds = new int[] {313, 2, 1, 313};
-      
+
       for (int ownerId : ownerIds)
       {
          PSRelationshipFilter filter = new PSRelationshipFilter();
@@ -102,15 +102,15 @@ public class PSRelationshipServiceTest
                + " with rows = " + rels2.size());
          */
       }
-      
+
    }
-   
+
    /**
     * Test services that manages {@link PSRelationshipData} object.
     * It primarily tests the join for
-    * {@link IPSConstants#PSX_RELATIONSHIPS}.owner_id = CONTENTSTATUS.contentid. 
-    * 
-    * @throws Exception 
+    * {@link IPSConstants#PSX_RELATIONSHIPS}.owner_id = CONTENTSTATUS.contentid.
+    *
+    * @throws Exception
     */
    @Test
    public void testRelationshipDataWithOwnerJoin() throws Exception
@@ -121,8 +121,8 @@ public class PSRelationshipServiceTest
       ids.add(new Integer(-1));
       List<Integer>ids_2 = ms_svc.findPersistedRid(ids);
       assertTrue(ids_2.size() == 1);
-      
-      // load the FOLDER relationship with owner as the root folder. 
+
+      // load the FOLDER relationship with owner as the root folder.
       PSRelationshipFilter filter = new PSRelationshipFilter();
       filter.setOwner(new PSLocator(1, -1));
       List<PSRelationship> rels = ms_svc.findByFilter(filter);
@@ -136,7 +136,7 @@ public class PSRelationshipServiceTest
       List<PSRelationship> rels_2 = ms_svc.findByFilter(filter);
       // should be the same as above
       assertTrue(rels_2.size() == rels.size());
-      
+
       try
       {
          // cannot set content type id for both owner dependent
@@ -145,7 +145,7 @@ public class PSRelationshipServiceTest
       catch (IllegalStateException ie)
       {
       }
-      
+
       // query by both owner id and relationship name
       filter = new PSRelationshipFilter();
       filter.setOwner(new PSLocator(1, -1));
@@ -160,8 +160,8 @@ public class PSRelationshipServiceTest
       rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == rels.size());
       assertTrue(rels_2.containsAll(rels));
-      
-      
+
+
       // query by owner rev
       filter = new PSRelationshipFilter();
       filter.setOwner(new PSLocator(1, -1));
@@ -169,15 +169,15 @@ public class PSRelationshipServiceTest
       rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == rels.size());
       assertTrue(rels_2.containsAll(rels));
-      
+
       // query by dependent
       filter = new PSRelationshipFilter();
       filter.setDependent(new PSLocator(2, -1));
       rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == 1);
       assertTrue(rels.containsAll(rels_2));
-      
-      // query by more than one dependent. 
+
+      // query by more than one dependent.
       // id 2 & 3 should only have one parent -> 1
       filter = new PSRelationshipFilter();
       List<PSLocator> dependents = new ArrayList<PSLocator>();
@@ -187,27 +187,27 @@ public class PSRelationshipServiceTest
       rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == 2);
       assertTrue(rels_2.get(0).getOwner().equals(rels_2.get(1).getOwner()));
-            
-      // query by more than one dependent ID. 
+
+      // query by more than one dependent ID.
       // id 2 & 3 should only have one parent -> 1
       filter = new PSRelationshipFilter();
       filter.setDependents(dependents);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.equals(rels_2));
-      
+
       // query with additional FAKE id, should get the same result as above
-      dependents.add(new PSLocator(98888, -1)); 
+      dependents.add(new PSLocator(98888, -1));
       filter.setDependents(dependents);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.equals(rels_2));
-      
+
       // query by relationship names
       filter = new PSRelationshipFilter();
       filter.setName(PSRelationshipConfig.TYPE_FOLDER_CONTENT);
       int numFolderRels = ms_svc.findByFilter(filter).size();
       filter.setName(PSRelationshipConfig.TYPE_NEW_COPY);
       int numNewCopyRels = ms_svc.findByFilter(filter).size();
-      
+
       Collection<String> rnames = new ArrayList<String>();
       rnames.add(PSRelationshipConfig.TYPE_FOLDER_CONTENT);
       rnames.add(PSRelationshipConfig.TYPE_NEW_COPY);
@@ -220,13 +220,13 @@ public class PSRelationshipServiceTest
       filter.setCategory(PSRelationshipConfig.CATEGORY_TRANSLATION);
       rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == rels.size());
-      
+
       // add filtering by relationship "user" type
       // but there is no "user" type, so the result should be the same
       filter.setType(PSRelationshipFilter.FILTER_TYPE_USER);
       rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == rels.size());
-      
+
       // query by relationship "system" type
       filter = new PSRelationshipFilter();
       filter.setType(PSRelationshipFilter.FILTER_TYPE_SYSTEM);
@@ -239,11 +239,11 @@ public class PSRelationshipServiceTest
       filter.setType(PSRelationshipFilter.FILTER_TYPE_USER);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 0);
-      
+
       int FAKE_ID;
-      
+
       // test add and remove single entity
-      
+
       // create a FAKE FOLDER PSRelationshipData
       PSRelationship rdata = new PSRelationship(-1, new PSLocator(98888, -1),
          new PSLocator(97777, -1),
@@ -251,12 +251,12 @@ public class PSRelationshipServiceTest
       ms_svc.saveRelationship(rdata);
 
       FAKE_ID = rdata.getId();
-      
+
       // load by relationship id
       PSRelationship rdata1 = ms_svc.loadRelationship(FAKE_ID)
             .orElseThrow(() -> new AssertionError("Relationship not found"));
       assertTrue(rdata.equals(rdata1));
-      
+
       filter = new PSRelationshipFilter();
       filter.setRelationshipId(FAKE_ID);
       rels = ms_svc.findByFilter(filter);
@@ -275,28 +275,28 @@ public class PSRelationshipServiceTest
       ms_svc.deleteRelationship(rdata);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels == null || rels.size() == 0);
-      
-      
+
+
       // query and filter by the owner tip (edit or current) revision
       filter = new PSRelationshipFilter();
       filter.setDependent(new PSLocator(633, 1));
       filter.setName(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() > 1);
-      
+
       filter.limitToEditOrCurrentOwnerRevision(true);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 1);
-      
+
       // test filter by owner public revision, should be the same as above
-      // because the owner's (551) public-revision == current-revision 
+      // because the owner's (551) public-revision == current-revision
       filter.limitToEditOrCurrentOwnerRevision(false);
       filter.limitToPublicOwnerRevision(true);
       rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == 1);
       assertTrue(rels_2.get(0).equals(rels.get(0)));
-      
-      // cannot join both owner_id and dependent_id (from 
+
+      // cannot join both owner_id and dependent_id (from
       // IPSConstants.PSX_RELATIONSHIPS table) with COTNENTSTATUS.contentid
       Exception e = null;
       try
@@ -309,7 +309,7 @@ public class PSRelationshipServiceTest
       }
       assertTrue(e instanceof IllegalStateException);
 
-      // cannot join both owner_id and dependent_id (from 
+      // cannot join both owner_id and dependent_id (from
       // IPSConstants.PSX_RELATIONSHIPS table) with COTNENTSTATUS.contentid
       try
       {
@@ -320,7 +320,7 @@ public class PSRelationshipServiceTest
          e = ie;
       }
       assertTrue(e instanceof IllegalStateException);
-      
+
       // additionally filtered by the owner content type id
       filter.setOwnerContentTypeId(312); // Home content type id
       rels_2 = ms_svc.findByFilter(filter);
@@ -335,7 +335,7 @@ public class PSRelationshipServiceTest
       try // cannot set object type for both owner dependent
       { filter.setDependentObjectType(PSComponentSummary.TYPE_FOLDER);}
       catch (IllegalStateException ie){}
-      
+
       filter.setOwnerContentTypeId(307); // Image content type id
       rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == 0);
@@ -344,7 +344,7 @@ public class PSRelationshipServiceTest
 
    /**
     * Tests finding relationships by relationship names.
-    * 
+    *
     * @throws Exception for any errors.
     */
    @Test
@@ -355,11 +355,11 @@ public class PSRelationshipServiceTest
       List<PSRelationship> rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 0);
    }
-   
-   
+
+
    /**
     * Tests updating existing relationships.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    @Test
@@ -371,24 +371,24 @@ public class PSRelationshipServiceTest
       filter.setName(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
       List<PSRelationship> rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() > 0);
-      
+
       // validate sys_siteid=null and sys_folderid=null
       for (PSRelationship rel : rels)
       {
          assertTrue(rel.getProperty(PSRelationshipConfig.PDU_FOLDERID) == null);
          assertTrue(rel.getProperty(PSRelationshipConfig.PDU_SITEID) == null);
-         
+
          // reset to BAD string for integer
          rel.setProperty(PSRelationshipConfig.PDU_FOLDERID, "abc");
          rel.setProperty(PSRelationshipConfig.PDU_SITEID, "abc");
       }
-      
+
       // update exiting relationships
       ms_svc.saveRelationship(rels);
-      
+
       // retrieves the same set of relationships
       rels = ms_svc.findByFilter(filter);
-      
+
       // validate sys_siteid=null and sys_folderid=null
       for (PSRelationship rel : rels)
       {
@@ -396,11 +396,11 @@ public class PSRelationshipServiceTest
          assertTrue(rel.getProperty(PSRelationshipConfig.PDU_SITEID) == null);
       }
    }
-   
+
    /**
-    * Test save relationship with pre-defined and unknown (-1) relationship ids 
-    * 
-    * @throws Exception 
+    * Test save relationship with pre-defined and unknown (-1) relationship ids
+    *
+    * @throws Exception
     */
    @Test
    public void testSaveToRepository() throws Exception
@@ -408,12 +408,12 @@ public class PSRelationshipServiceTest
       int FAKE_ID = 1900000000;
       int FAKE_OWNER_ID = FAKE_ID + 1;
       int FAKE_SLOT_ID = FAKE_ID + 2;
-      
-      // clean up 
+
+      // clean up
       ms_svc.deleteRelationshipByRid(FAKE_ID);
-      
+
       PSLocator owner = new PSLocator(FAKE_OWNER_ID, 1);
-      
+
       // save with a pre-set relationship id
       PSRelationship rel = new PSRelationship(FAKE_ID, owner, new PSLocator(2, -1),
             getRelationshipConfig(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY));
@@ -423,13 +423,13 @@ public class PSRelationshipServiceTest
       rel.setProperty(PSRelationshipConfig.PDU_SITEID, "13");
       rel.setProperty(PSRelationshipConfig.PDU_VARIANTID, String.valueOf(FAKE_SLOT_ID));
       rel.setProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP, "body");
-      
+
       ms_svc.saveRelationship(rel);
       PSRelationship rel_2 = ms_svc.loadRelationship(FAKE_ID)
             .orElseThrow(() -> new AssertionError("Relationship not found"));
-      
+
       assertTrue(rel.equals(rel_2));
-      
+
       // retrieve relationship by relationship filter
       PSRelationshipFilter filter = new PSRelationshipFilter();
       filter.setOwner(owner);
@@ -438,21 +438,21 @@ public class PSRelationshipServiceTest
       assertTrue(rels.size() == 1);
       rel_2 = rels.get(0);
       assertTrue(rel.equals(rel_2));
-      
+
       // remove the above
       ms_svc.deleteRelationshipByRid(FAKE_ID);
       assertFalse(ms_svc.loadRelationship(FAKE_ID).isPresent());
-      
+
       // save a unknown relationship id
-      rel = new PSRelationship(-1, 
+      rel = new PSRelationship(-1,
             new PSLocator(1, 1), new PSLocator(2, -1),
             getRelationshipConfig(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY));
       assertFalse(rel.isPersisted());
       ms_svc.saveRelationship(rel);
-      
+
       FAKE_ID = rel.getId();
       assertTrue(ms_svc.loadRelationship(FAKE_ID).isPresent());
-      
+
       // remove the above
       ms_svc.deleteRelationshipByRid(FAKE_ID);
       assertFalse(ms_svc.loadRelationship(FAKE_ID).isPresent());
@@ -462,10 +462,10 @@ public class PSRelationshipServiceTest
    /**
     * Test services that manages {@link PSRelationshipData} object.
     * It primarily tests the join for
-    * {@link IPSConstants#PSX_RELATIONSHIPS}.dependent_id = 
-    *    CONTENTSTATUS.contentid. 
-    * 
-    * @throws Exception 
+    * {@link IPSConstants#PSX_RELATIONSHIPS}.dependent_id =
+    *    CONTENTSTATUS.contentid.
+    *
+    * @throws Exception
     */
    @Test
    public void testRelationshipDataWithDependentJoin() throws Exception
@@ -482,7 +482,7 @@ public class PSRelationshipServiceTest
       filter.setDependentContentTypeId(311); // there is no such dependent type
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 0);
-      
+
       // filter by more than one dependent content type ids
       filter = new PSRelationshipFilter();
       filter.setOwner(new PSLocator(1, -1));
@@ -499,7 +499,7 @@ public class PSRelationshipServiceTest
       filter.setDependentObjectType(PSComponentSummary.TYPE_FOLDER);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 2);
-      
+
       filter.setDependentObjectType(PSComponentSummary.TYPE_ITEM);
       rels = ms_svc.findByFilter(filter); // there is no such dependent item
       assertTrue(rels.size() == 0);
@@ -507,12 +507,12 @@ public class PSRelationshipServiceTest
 
    /**
     * Get relationship config from a given config name.
-    * 
+    *
     * @param configName the name of the relationship configuration, assumed
     *   not <code>null</code>.
-    *   
+    *
     * @return the relationship config object, never <code>null</code>.
-    * 
+    *
     * @throws PSMissingBeanConfigurationException
     * @throws PSException
     */
@@ -520,9 +520,9 @@ public class PSRelationshipServiceTest
          throws PSMissingBeanConfigurationException, PSException
    {
       // make sure the configs are loaded
-      PSRelationshipCommandHandler.loadConfigs();  
+      PSRelationshipCommandHandler.loadConfigs();
 
-      PSRelationshipConfig config = 
+      PSRelationshipConfig config =
          PSRelationshipCommandHandler.getRelationshipConfig(configName);
 
       if (config == null)
@@ -533,7 +533,7 @@ public class PSRelationshipServiceTest
    /**
     * Testing query the relationships which contains pre-defined user properties
     * such as Active Assembly Relationships.
-    * 
+    *
     * @throws Exception if an error occurs.
     */
    @Test
@@ -553,7 +553,7 @@ public class PSRelationshipServiceTest
       filter.setProperty(PSRelationshipConfig.PDU_SLOTID, "509");
       filter.setProperty(PSRelationshipConfig.PDU_VARIANTID, "504");
       filter.setProperty(PSRelationshipConfig.PDU_SORTRANK, "1");
-      
+
       Collection<PSRelationship>rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 1);
 
@@ -562,7 +562,7 @@ public class PSRelationshipServiceTest
       filter.limitToOwnerRevision(false);
       Collection<PSRelationship>rels_2 = ms_svc.findByFilter(filter);
       assertTrue(rels_2.size() == rels.size());
-      
+
       // unknown site
       filter = new PSRelationshipFilter();
       filter.setOwner(owner);
@@ -573,36 +573,36 @@ public class PSRelationshipServiceTest
       // unknown inline link property
       filter = new PSRelationshipFilter();
       filter.setOwner(owner);
-      filter.setProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP, 
+      filter.setProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP,
          "unknown");
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 0);
    }
-   
+
    /**
-    * Testing manage the relationships which contains additional CUSTOM 
+    * Testing manage the relationships which contains additional CUSTOM
     * properties
-    * 
+    *
     * @throws Exception if an error occurs.
     */
    @Test
    public void testCustomProperties() throws Exception
    {
       int FAKE_RID;
-      int FAKE_RID2; 
+      int FAKE_RID2;
       final int FAKE_OWNER_ID = 320;     // existing item in FastForward
       final int FAKE_DEPENDENT_ID = 321; // existing item in FastForward
 
       // Modify "NewCopy" with additional user properties
       PSRelationshipConfig newcopy = addUserRelationship(
-            PSRelationshipConfig.TYPE_NEW_COPY, 2);      
-      
+            PSRelationshipConfig.TYPE_NEW_COPY, 2);
+
       // Pre-cleanup
       PSRelationshipFilter filter = new PSRelationshipFilter();
       filter.setProperty(USER_PROP_NAME_1, "v1");
       Collection<PSRelationship>rels = ms_svc.findByFilter(filter);
       if (!rels.isEmpty()) ms_svc.deleteRelationship(rels);
-      
+
       filter = new PSRelationshipFilter();
       filter.setProperty(USER_PROP_NAME_2, "v2");
       rels = ms_svc.findByFilter(filter);
@@ -610,25 +610,25 @@ public class PSRelationshipServiceTest
 
       // make up a relationship with the extra properties
       PSRelationship rdata1 = new PSRelationship(-1,
-            new PSLocator(FAKE_OWNER_ID, 1), 
+            new PSLocator(FAKE_OWNER_ID, 1),
             new PSLocator(FAKE_DEPENDENT_ID, 1),
             newcopy);
       rdata1.setProperty(USER_PROP_NAME_1, "v1");
       rdata1.setProperty(USER_PROP_NAME_2, null); // test null value
-      
+
       ms_svc.saveRelationship(rdata1);
       FAKE_RID = rdata1.getId();
-      
+
       filter = new PSRelationshipFilter();
       filter.setRelationshipId(FAKE_RID);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 1);
-      
+
       PSRelationship rdata = rels.iterator().next();
       // exclude USER_PROP_NAME_2
       assertTrue(rdata.getUserProperties().size() == 1);
       assertTrue(rdata.equals(rdata1));
-      
+
       rdata = ms_svc.loadRelationship(FAKE_RID)
             .orElseThrow(() -> new AssertionError("Relationship not found"));
       assertTrue(rdata.equals(rdata1));
@@ -641,7 +641,7 @@ public class PSRelationshipServiceTest
       // include both USER_PROP_NAME_1 & 2
       assertTrue(rdata.getUserProperties().size() == 2);
       assertFalse(rdata.equals(rdata1));
-      
+
       // filter by custom properties
       filter = new PSRelationshipFilter();
       filter.setProperty(USER_PROP_NAME_1, "v1");
@@ -676,13 +676,13 @@ public class PSRelationshipServiceTest
       filter.setProperty(USER_PROP_NAME_1, "UNKNOWN v1");
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 0);
-      
+
       filter = new PSRelationshipFilter();
       filter.setProperty(USER_PROP_NAME_1, "v1");
       filter.setProperty(USER_PROP_NAME_2, "v2");
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 1);
-      
+
       filter = new PSRelationshipFilter();
       filter.setProperty(USER_PROP_NAME_1, "v1");
       filter.setProperty(USER_PROP_NAME_2, "UNKNOWN_v2");
@@ -690,31 +690,31 @@ public class PSRelationshipServiceTest
       assertTrue(rels.size() == 0);
 
       //\/\/\/\//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
-      // Testing remove custom (user) properties, 
+      // Testing remove custom (user) properties,
       // remove USER_PROP_NAME_2, but keep USER_PROP_NAME_1
       //\/\/\/\//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
-      
+
       // modify relationship config
       newcopy = addUserRelationship(PSRelationshipConfig.TYPE_NEW_COPY, 1);
 
       // make up a relationship with the extra properties
       PSRelationship rdata2 = new PSRelationship(-1,
-            new PSLocator(FAKE_OWNER_ID, 1), 
+            new PSLocator(FAKE_OWNER_ID, 1),
             new PSLocator(FAKE_DEPENDENT_ID, 1),
             newcopy);
       rdata2.setProperty(USER_PROP_NAME_1, "v1");
       ms_svc.saveRelationship(rdata2);
       FAKE_RID2 = rdata2.getId();
-      
+
       // retrieve the relationship data
       filter = new PSRelationshipFilter();
       filter.setRelationshipId(FAKE_RID2);
       rels = ms_svc.findByFilter(filter);
       assertTrue(rels.size() == 1);
-      
+
       rdata1 = rels.iterator().next();
       // should only have one user property
-      assertTrue(rdata2.getUserProperties().size() == 1); 
+      assertTrue(rdata2.getUserProperties().size() == 1);
       assertTrue(rdata2.equals(rdata1));
       assertFalse(rdata2.equals(rdata));
 
@@ -723,35 +723,35 @@ public class PSRelationshipServiceTest
       ms_svc.deleteRelationship(rdata2);
       newcopy.setUserDefProperties(Collections.emptyList().iterator());
    }
-   
+
    /**
     * Add user defined properties to the NewCopy relationship.
-    * 
+    *
     * @throws PSException if failed to load the relationship configurations
     */
    private PSRelationshipConfig addUserRelationship(String configName,
          int numProps) throws PSException
    {
       // make sure the configs are loaded
-      PSRelationshipCommandHandler.loadConfigs();  
+      PSRelationshipCommandHandler.loadConfigs();
 
       // add a couple of user properties to the "NewCopy" relationship
       PSRelationshipConfig newcopy = PSRelationshipCommandHandler
             .getRelationshipConfig(configName);
-      
+
       Collection<PSProperty> userProps = new ArrayList<PSProperty>();
       userProps.add(new PSProperty(USER_PROP_NAME_1));
       if (numProps == 2)
          userProps.add(new PSProperty(USER_PROP_NAME_2));
       newcopy.setUserDefProperties(userProps.iterator());
-      
+
       return newcopy;
    }
-   
+
    /**
     * Tests implicitely set the limitToOwnerRev flag if the 'useOwnerRevision'
     * flag is <code>true</code> for all requested relationship configs.
-    * 
+    *
     * @throws Exception for any errors.
     */
    @Test
@@ -762,12 +762,12 @@ public class PSRelationshipServiceTest
       PSComponentSummary summ = getItemSummary(335);
       filter.setOwner(summ.getHeadLocator());
       List<PSRelationship> rels = ms_svc.findByFilter(filter);
-      
+
       filter.limitToOwnerRevision(true);
       List<PSRelationship> rels2 = ms_svc.findByFilter(filter);
       // the size of implicite query == explicite one
       assertTrue(rels.size() == rels2.size());
-      
+
       if (summ.getHeadLocator().getRevision() > 1)
       {
          // make a query without owner revision should get relationships
@@ -776,7 +776,7 @@ public class PSRelationshipServiceTest
          filter.setCategory(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
          filter.setOwner(new PSLocator(summ.getContentId(), -1));
          rels2 = ms_svc.findByFilter(filter);
-         
+
          assertTrue(rels.size() < rels2.size());
       }
    }

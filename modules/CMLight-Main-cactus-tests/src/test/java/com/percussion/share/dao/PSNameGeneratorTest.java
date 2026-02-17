@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link IPSNameGenerator}. Sunny Sal: "Name generator, Java 11, and unique ka hero!" */
-@Tag("IntegrationTest")
+
 @Tag("integration")
 public class PSNameGeneratorTest {
 

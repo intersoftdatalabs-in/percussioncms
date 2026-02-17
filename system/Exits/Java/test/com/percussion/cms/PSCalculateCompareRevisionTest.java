@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test compare revision udf
- * 
+ *
  * @author dougrand
  */
 public class PSCalculateCompareRevisionTest
@@ -39,7 +39,7 @@ public class PSCalculateCompareRevisionTest
       doTest(111, 111, 3, 0, 2);
       doTest(111, 111, 3, 1, 1);
    }
-   
+
    /**
     * Test the algorithm specified in
     * @see PSCalculateCompareRevision
@@ -51,11 +51,11 @@ public class PSCalculateCompareRevisionTest
       doTest(111, 112, 1, 0, 0);
       doTest(111, 112, 1, 1, 1);
       doTest(111, 112, 1, 2, 2);
-   }   
+   }
 
    /**
     * Perform the test for a given set of values
-    * 
+    *
     * @param cid1
     * @param cid2
     * @param revision1
@@ -63,7 +63,7 @@ public class PSCalculateCompareRevisionTest
     * @param expectedrevision
     */
    private void doTest(int cid1, int cid2, int revision1, int revision2,
-         int expectedrevision) 
+         int expectedrevision)
    {
       PSRequest req = new PSRequest(null, null, null, null);
       IPSRequestContext ctx = new PSRequestContext(req);
@@ -81,7 +81,7 @@ public class PSCalculateCompareRevisionTest
 
    /**
     * Create an object parameter array with the arguments converted to strings
-    * 
+    *
     * @param cid1 content id 1, non-zero required
     * @param cid2 content id 2, if zero then this is passed as an empty string
     * @param r1 revision 1, non-zero required

@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
 /** The PSContentStatusContextTest class is a test class for the class PSContentStatusContext. */
-@Tag("IntegrationTest")
+
 public class PSContentStatusContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSContentStatusContextTest.class);

@@ -35,7 +35,7 @@ import javax.naming.InitialContext;
 
 //TODO: The spring tests need moved to a new jar.
 
-@Tag("IntegrationTest")
+
 @Tag("SpringContextTest")
 //@WebAppConfiguration("file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF")
 @ContextConfiguration(classes = {PSSpringContextTestConfig.class})
@@ -50,7 +50,8 @@ public class PSAbstractSpringContextTest {
 
     @BeforeEach
     public  void setContext(){
-        PSBaseServiceLocator.setCtx(ctx);
+        // No-op: PSBaseServiceLocator no longer exposes a public setCtx(ctx).
+        // The test harness provides application context via Spring annotations.
     }
     @BeforeAll
     public static void setupJndi() throws Exception {

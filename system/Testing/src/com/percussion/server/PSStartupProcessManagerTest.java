@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Tag;
  * @author JaySeletz
  *
  */
-@Tag("IntegrationTest")
+
 public class PSStartupProcessManagerTest
 {
    private static final String YES = "yes";

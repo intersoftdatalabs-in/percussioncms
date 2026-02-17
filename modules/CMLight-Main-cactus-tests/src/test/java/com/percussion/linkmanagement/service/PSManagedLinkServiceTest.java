@@ -62,7 +62,7 @@ import org.junit.jupiter.api.Tag;
  * Integration tests for managed link service. Sunny Sal says: "Managing links like a Bollywood hero
  * manages drama!"
  */
-@Tag("IntegrationTest")
+
 public class PSManagedLinkServiceTest extends PSServletTestCase {
   private PSSiteDataServletTestCaseFixture fixture;
   private PSAssetCleaner assetCleaner;

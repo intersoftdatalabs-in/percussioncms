@@ -25,21 +25,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Unit test for migration bean
- * 
+ *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 public class PSVariantMigrationBeanTest
 {
    /**
     * As named
-    * @throws Exception  
+    * @throws Exception
     */
    @Test
    public void testInitialization() throws Exception
    {
       PSVariantMigrationBean bean = new PSVariantMigrationBean();
-      
-      assertNotNull(bean.getVariants());   
+
+      assertNotNull(bean.getVariants());
    }
 }

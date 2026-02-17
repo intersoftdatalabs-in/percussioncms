@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,10 +50,7 @@ public class PSObjectSummaryTest
    @Test
    public void testSerialization() throws Exception
    {
-      PSObjectSummary nsum = new PSObjectSummary();
-      nsum.setGUID(new PSGuid(PSTypeEnum.ACL,ms_rand.nextInt(1000)));
-      nsum.setName("Test object summary");
-      nsum.setLabel("Test object summary label");
+      PSObjectSummary nsum = new PSObjectSummary(new PSGuid(PSTypeEnum.ACL, ms_rand.nextInt(1000)), "Test object summary", "Test object summary label", null);
       String ser = PSXmlSerializationHelper.writeToXml(nsum);
 
       PSObjectSummary restore =
@@ -71,10 +67,7 @@ public class PSObjectSummaryTest
    @Disabled ("TODO: Fix me.  Test fails on certain JRE versions / OS")
    public void testCompleteSerialization() throws Exception
    {
-      PSObjectSummary nsum = new PSObjectSummary();
-      nsum.setGUID(new PSGuid(PSTypeEnum.ACL,ms_rand.nextInt(1000)));
-      nsum.setName("Test object summary");
-      nsum.setLabel("Test object summary label");
+      PSObjectSummary nsum = new PSObjectSummary(new PSGuid(PSTypeEnum.ACL, ms_rand.nextInt(1000)), "Test object summary", "Test object summary label", null);
       nsum.setLockedInfo("session_1", "orange_julius", 123456789);
       Collection<PSPermissions> permissions = new ArrayList<PSPermissions>();
 

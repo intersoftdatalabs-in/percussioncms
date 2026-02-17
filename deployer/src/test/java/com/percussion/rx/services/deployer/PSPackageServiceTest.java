@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * @author erikserating
  */
-@Tag("IntegrationTest")
+
 public class PSPackageServiceTest {
 
   public PSPackageServiceTest() {

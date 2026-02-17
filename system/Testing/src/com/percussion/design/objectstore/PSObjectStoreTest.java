@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests for the object store. These tests require the server to be running.
  */
-@Tag("IntegrationTest")
+
 public class PSObjectStoreTest extends PSClientTestCase
 {
 

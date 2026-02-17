@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSActionSetterTest extends PSConfigurationTest {
   public void testConfigFiles() throws Exception {
     PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG);

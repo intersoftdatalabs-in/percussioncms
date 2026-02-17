@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test class for the <code>PSRemoteAgent</code> class.
  */
-@Tag("IntegrationTest")
+
 public class PSRemoteAgentTest extends PSClientTestCase
 {
 

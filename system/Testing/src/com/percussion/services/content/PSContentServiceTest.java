@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Unit test for the {@link IPSContentService}
  */
-@Tag("IntegrationTest")
+
 public class PSContentServiceTest
 {
 

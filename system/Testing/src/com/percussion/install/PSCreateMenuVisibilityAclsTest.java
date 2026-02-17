@@ -31,7 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 @Tag("SpringContextTest")
  @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @Disabled

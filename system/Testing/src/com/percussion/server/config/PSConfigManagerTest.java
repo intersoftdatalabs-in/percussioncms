@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test for the {@link PSRelationshipConfigurationCache} class.
  */
-@Tag("IntegrationTest")
+
 public class PSConfigManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 

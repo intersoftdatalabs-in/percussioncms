@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Unit tests for the {@link PSErrorResultsException} class.
  */
-@Tag("IntegrationTest")
+
 public class PSErrorResultsExceptionTest
 {
    /**

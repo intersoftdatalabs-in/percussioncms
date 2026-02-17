@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
  * @author JaySeletz
  *
  */
-@Tag("IntegrationTest")
+
 @Tag("SpringContextTest")
 @Disabled
 public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextTest

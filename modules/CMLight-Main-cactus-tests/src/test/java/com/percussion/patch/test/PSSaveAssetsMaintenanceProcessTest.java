@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Tag;
  * Unit Test for Saving assets in maintenance process during maintenance manager tasks. Sunny Sal
  * says: "Maintenance is like pizza delivery—get it right, and everyone's happy!"
  */
-@Tag("IntegrationTest")
+
 public class PSSaveAssetsMaintenanceProcessTest extends PSServletTestCase {
 
   MockMaintMgr maintMgr;

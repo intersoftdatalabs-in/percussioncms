@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit tests for the PSExtensionManager class.
  */
-@Tag("IntegrationTest")
+
 public class PSExtensionManagerTest
     implements IPSServerBasedJunitTest
 {

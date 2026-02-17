@@ -37,11 +37,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit test basic methods for enumerating data in the services. Each service is
  * tested using common code for the enumeration and "saving" portion. Specific
  * code is required for each service to test the "loading" portion
- * 
+ *
  * @author dougrand
- * 
+ *
  */
-@Tag("IntegrationTest")
+
 public class PSCatalogBasicUnitTest
 {
    public static IPSAssemblyService asm = PSAssemblyServiceLocator
@@ -71,10 +71,10 @@ public class PSCatalogBasicUnitTest
    private void doEnumerationTest(IPSCataloger cat) throws PSCatalogException, PSNotFoundException {
       // Check getTypes
       PSTypeEnum[] types = cat.getTypes();
-      
+
       assertNotNull(types);
       assertTrue(types.length >= 1);
-      
+
       // Now get data for each type
       for(PSTypeEnum t : types)
       {
@@ -92,7 +92,7 @@ public class PSCatalogBasicUnitTest
             System.out.println(s);
          }
       }
-      
-      
+
+
    }
 }

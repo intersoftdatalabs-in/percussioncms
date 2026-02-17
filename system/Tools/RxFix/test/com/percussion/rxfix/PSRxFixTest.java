@@ -32,10 +32,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Run the test framework and check the results for sanity
- * 
+ *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 public class PSRxFixTest
 {
    /**
@@ -51,20 +51,20 @@ public class PSRxFixTest
    {
       // Force instantiation of Spring
       PSCmsObjectMgrLocator.getObjectManager();
-      
+
       PSRxFix fixer = getFixer();
-      
+
       fixer.doFix(true);
-      
+
       List<PSRxFix.Entry> entries = fixer.getEntries();
-      
+
       // Check at least one results from each
       for(PSRxFix.Entry e : entries)
       {
          List<PSFixResult> result = e.getResults();
          assertNotNull(result);
       }
-      
+
       // Print out results
       for(PSRxFix.Entry e : entries)
       {
@@ -74,13 +74,13 @@ public class PSRxFixTest
          {
             System.out.println(r.toString());
          }
-      } 
+      }
    }
 
    private PSRxFix getFixer() throws Exception
    {
       PSRxFix fixer = new PSRxFix();
-      
+
       // TODO: only test running fixes that are used by the installer since others fail, and we aren't going to take the time to fix them now.
       Iterator<Entry> iter = fixer.getEntries().iterator();
       while (iter.hasNext())
@@ -97,7 +97,7 @@ public class PSRxFixTest
       }
       return fixer;
    }
-   
+
    /**
     * @throws Exception
     */
@@ -106,20 +106,20 @@ public class PSRxFixTest
    {
       // Force instantiation of Spring
       PSCmsObjectMgrLocator.getObjectManager();
-      
+
       PSRxFix fixer = getFixer();
-      
+
       fixer.doFix(false);
-      
+
       List<PSRxFix.Entry> entries = fixer.getEntries();
-      
+
       // Check at least one results from each
       for(PSRxFix.Entry e : entries)
       {
          List<PSFixResult> result = e.getResults();
          assertNotNull(result);
       }
-      
+
       // Print out results
       for(PSRxFix.Entry e : entries)
       {
@@ -129,6 +129,6 @@ public class PSRxFixTest
          {
             System.out.println(r.toString());
          }
-      } 
-   }   
+      }
+   }
 }

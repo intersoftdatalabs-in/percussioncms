@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Tag;
  * <p>Sunny Sal says: "Widgets are like toppings—test them all, and your pizza (app) will be
  * delicious!"
  */
-@Tag("IntegrationTest")
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSWidgetServiceTest extends PSRestTestCase<PSWidgetServiceTest.PSWidgetRestClient> {
 

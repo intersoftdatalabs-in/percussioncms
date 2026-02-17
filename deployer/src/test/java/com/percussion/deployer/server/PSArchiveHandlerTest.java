@@ -43,7 +43,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for the <code>PSArchivHander</code> object. */
-@Tag("IntegrationTest")
+
 public class PSArchiveHandlerTest {
   /**
    * Test all archive handler functionalities

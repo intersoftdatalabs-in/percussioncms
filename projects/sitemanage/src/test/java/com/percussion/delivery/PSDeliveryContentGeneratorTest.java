@@ -52,7 +52,7 @@ import org.junit.jupiter.api.Test;
 // @Disabled("There are no Tomcat running in the continuos machine. If you want to " +
 //        "run these unit tests, adjust the SERVER_URL constant and start your Tomcat " +
 //        "server. Be sure build and install the latest delivery services code.")
-// @Tag("IntegrationTest")
+//
 public class PSDeliveryContentGeneratorTest {
   private static final String SERVER_URL = "http://localhost:9970";
   private static final String SECURE_SERVER_URL = "https://localhost:8443";

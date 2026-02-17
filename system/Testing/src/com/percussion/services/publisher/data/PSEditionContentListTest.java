@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.percussion.services.publisher.data;
 
 
@@ -29,12 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test for the {@link PSEditionContentList} object.
  */
-@Tag("IntegrationTest")
+
 public class PSEditionContentListTest
 {
    /**
     * Test the xml serialization
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    @Test
@@ -48,7 +48,7 @@ public class PSEditionContentListTest
       ecl1.setAuthtype(new Integer(1));
       ecl1.setDeliveryContextId(new PSGuid("0-100-601"));
       ecl1.setSequence(new Integer(2));
-      
+
       String str = ecl1.toXML();
       PSEditionContentList ecl2 = new PSEditionContentList(
             new PSGuid("0-115-101"),
@@ -56,7 +56,7 @@ public class PSEditionContentListTest
             new PSGuid("0-105-401"));
       assertTrue(!ecl1.equals(ecl2));
       ecl2.fromXML(str);
-      
+
       assertTrue(ecl1.getAssemblyContextId().equals(
             ecl2.getAssemblyContextId()));
       assertTrue(ecl1.getAuthtype().equals(ecl2.getAuthtype()));

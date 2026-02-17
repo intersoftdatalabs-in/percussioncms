@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author YuBingChen
  */
-@Tag("IntegrationTest")
+
 public class PSSiteTemplateVisibilitySetterTest extends PSConfigurationTest {
 
   public void testConfigFiles() throws Exception {

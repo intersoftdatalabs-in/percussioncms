@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 public class PSJspHandlerTest
 {
    /**
