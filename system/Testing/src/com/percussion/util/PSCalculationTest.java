@@ -42,6 +42,18 @@ import java.util.Date;
  */
 public class PSCalculationTest
 {
+   private static final CalcAdapter calculate = new CalcAdapter();
+
+   private static class CalcAdapter {
+       Double add(Object a, Object b) { return PSCalculation.add(a, b); }
+       Double subtract(Object a, Object b) { return PSCalculation.subtract(a, b); }
+       Double multiply(Object a, Object b) { return PSCalculation.multiply(a, b); }
+       Double divide(Object a, Object b) { return PSCalculation.divide(a, b); }
+       Number numberVerify(Object o) { return PSCalculation.numberVerify(o); }
+       PSDate dateAdjust(java.util.Calendar c, int y, int m, int d, int h, int mi, int s) {
+           return PSCalculation.dateAdjust(c, y, m, d, h, mi, s);
+       }
+   }
 
 
 
@@ -49,7 +61,6 @@ public class PSCalculationTest
 
    public void testAdd() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object o1, o2, result;
       double resultValue = 0;
@@ -119,7 +130,6 @@ public class PSCalculationTest
 
    public void testSubtract() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object o1, o2, result;
       double resultValue = 0;
@@ -191,7 +201,6 @@ public class PSCalculationTest
 
    public void testMultiply() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object o1, o2, result;
       double resultValue = 0;
@@ -261,7 +270,6 @@ public class PSCalculationTest
 
    public void testDivide() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object o1, o2, result;
       double resultValue = 0;
@@ -339,7 +347,6 @@ public class PSCalculationTest
 
    public void testNumberVerify() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object result;
       boolean didThrow;
@@ -389,7 +396,6 @@ public class PSCalculationTest
 
     public void testDateAdjust() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object result = calculate.dateAdjust(null, 1, 1, 1, 1, 1, 1);
       assertTrue(result == null);

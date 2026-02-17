@@ -1,6 +1,8 @@
 package com.percussion.cms.objectstore.ws;
 
+import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSKey;
+import com.percussion.design.objectstore.PSLocator;
 import com.percussion.util.IPSRemoteRequester;
 
 /** Minimal stub to satisfy compile for remote folder processor type. */
@@ -68,5 +70,13 @@ public class PSRemoteFolderProcessor {
 
   public void delete(PSKey key, java.util.List<?> list) {
     // no-op stub for compilation
+  }
+
+  public void addChildren(java.util.List<?> children, PSLocator target) throws PSCmsException {
+    // no-op stub for tests that call addChildren
+  }
+
+  public void load(String type, PSLocator[] keys) throws PSCmsException {
+    // no-op stub for tests that call load
   }
 }

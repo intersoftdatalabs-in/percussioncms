@@ -221,10 +221,10 @@ public class PSSoapRequest
       if(bodyEntries.hasNext())
       {
          Element childEl = (Element)bodyEntries.next();
-         if(childEl.getLocalName().equals(Constants.ELEM_FAULT))
+         if ("Fault".equals(childEl.getLocalName()))
          {
             SOAPMappingRegistry soapRegistry = SOAPMappingRegistry.
-               getBaseRegistry(Constants.NS_URI_CURRENT_SCHEMA_XSI);
+               getBaseRegistry("http://www.w3.org/2001/XMLSchema-instance");
             Response resp = Response.extractFromEnvelope(
                respEnv, soapRegistry, respContext);
             m_fault = resp.getFault();

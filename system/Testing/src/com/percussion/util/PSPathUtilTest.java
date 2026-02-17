@@ -27,13 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PSPathUtilTest 
 {
    
-   public PSPathUtilTest(String s)
-   {
-      super(s);
-   }
+
    
    
    
+   @Test
    public void testIsPathUnderSiteFolderRoot()
    {
       String pathA = "//Folders/test/foo";
