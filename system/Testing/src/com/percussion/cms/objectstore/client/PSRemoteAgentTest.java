@@ -254,7 +254,7 @@ public class PSRemoteAgentTest extends PSClientTestCase
          displayTitle.addValue(titleVal);
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSLocator locator = remoteAgent.updateItem(item.toXml(doc), true);
+      PSLocator locator = remoteAgent.updateItem(item.toMinXml(doc, true, true, false, true), true);
 
       //System.out.println("contentId: " + locator.getId() +
       //   "  revision: " + locator.getRevision());
@@ -285,7 +285,7 @@ public class PSRemoteAgentTest extends PSClientTestCase
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       if (remoteAgent.checkOutItem(locator))
       {
-         locator = remoteAgent.updateItem(item.toXml(doc), true);
+         locator = remoteAgent.updateItem(item.toMinXml(doc, true, true, false, true), true);
       }
       else
       {

@@ -434,7 +434,7 @@ public class PSCmsObjectMgrTest
       }
 
       PSConfig cfg = ms_cms.findConfig(
-            PSConfigurationFactory.RELATIONSHIPS_CFG);
+            PSConfigurationFactory.RELATIONSHIPS_CFG).orElseThrow();
       assertNotNull(cfg);
 
       PSRelationshipConfigSet relConfigSet = loadRelationshipConfigSet();
@@ -875,39 +875,42 @@ public class PSCmsObjectMgrTest
       List<PSPersistentPropertyMeta> listMeta = ms_cms.findAllPersistentMeta().collect(Collectors.toList());
       assertTrue(listMeta.size() == 3);
 
-      // test find persistent meta by name
-      listMeta = ms_cms
+      // test find persistent meta by name (impl API exposed via impl class)
+      listMeta = ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms)
                .findPersistentMetaByName(PSPersistentPropertyManager.SYS_USER);
       assertTrue(listMeta.size() == 3);
 
-      // test find all properties
-      List<PSPersistentProperty> origProps = ms_cms.findAllPersistentProperties();
+      // test find all properties (impl API)
+      List<PSPersistentProperty> origProps = ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms)
+               .findAllPersistentProperties();
 
       String myUser = "myUser" + System.currentTimeMillis();
 
-      // test find by name
-      List<PSPersistentProperty> props = ms_cms
+      // test find by name (impl API)
+      List<PSPersistentProperty> props = ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms)
                .findPersistentPropertiesByName(myUser);
       assertTrue(props.size() == 0);
 
       // test insert / save property
       PSPersistentProperty prop = new PSPersistentProperty(myUser, "sys_lang",
                "sys_session", "private", "admin2 sys_lang private");
-      ms_cms.savePersistentProperty(prop);
-      props = ms_cms.findPersistentPropertiesByName(myUser);
+      ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms).savePersistentProperty(prop);
+      props = ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms)
+               .findPersistentPropertiesByName(myUser);
       assertTrue(props.size() == 1);
 
       // test modify / update property
       String newValue = "changed";
       prop.setValue(newValue);
-      ms_cms.updatePersistentProperty(prop);
+      ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms).updatePersistentProperty(prop);
 
       // test delete property
-      ms_cms.deletePersistentProperty(prop);
-      props = ms_cms.findPersistentPropertiesByName(myUser);
+      ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms).deletePersistentProperty(prop);
+      props = ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms)
+               .findPersistentPropertiesByName(myUser);
       assertTrue(props.size() == 0);
 
-      props = ms_cms.findAllPersistentProperties();
+      props = ((com.percussion.services.legacy.impl.PSCmsObjectMgr) ms_cms).findAllPersistentProperties();
       assertTrue(origProps.size() == props.size());
    }
 
@@ -915,7 +918,7 @@ public class PSCmsObjectMgrTest
    public void test17ClearStartDate() throws Exception
    {
       Set<Integer> ids = new HashSet<Integer>();
-      List<PSComponentSummary> sums = ms_cms.findComponentSummariesByType(311);
+      List<PSComponentSummary> sums = ms_cms.findComponentSummariesByType(311).collect(Collectors.toList());
 
       try
       {
@@ -927,7 +930,7 @@ public class PSCmsObjectMgrTest
 
          ms_cms.clearStartDate(ids);
 
-         for (PSComponentSummary sum : ms_cms.findComponentSummariesByType(311))
+         for (PSComponentSummary sum : ms_cms.findComponentSummariesByType(311).collect(Collectors.toList()))
          {
             assertNull(sum.getContentStartDate());
          }
@@ -949,7 +952,7 @@ public class PSCmsObjectMgrTest
    public void test18ClearExpiryDate() throws Exception
    {
       Set<Integer> ids = new HashSet<Integer>();
-      List<PSComponentSummary> sums = ms_cms.findComponentSummariesByType(311);
+      List<PSComponentSummary> sums = ms_cms.findComponentSummariesByType(311).collect(Collectors.toList());
 
       try
       {
@@ -963,14 +966,14 @@ public class PSCmsObjectMgrTest
 
          ms_cms.saveComponentSummaries(testSums);
 
-         for (PSComponentSummary sum : ms_cms.findComponentSummariesByType(311))
+         for (PSComponentSummary sum : ms_cms.findComponentSummariesByType(311).collect(Collectors.toList()))
          {
             assertNotNull(sum.getContentExpiryDate());
          }
 
          ms_cms.clearExpiryDate(ids);
 
-         for (PSComponentSummary sum : ms_cms.findComponentSummariesByType(311))
+         for (PSComponentSummary sum : ms_cms.findComponentSummariesByType(311).collect(Collectors.toList()))
          {
             assertNull(sum.getContentExpiryDate());
          }

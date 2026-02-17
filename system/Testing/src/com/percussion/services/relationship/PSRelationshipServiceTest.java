@@ -253,7 +253,8 @@ public class PSRelationshipServiceTest
       FAKE_ID = rdata.getId();
       
       // load by relationship id
-      PSRelationship rdata1 = ms_svc.loadRelationship(FAKE_ID);
+      PSRelationship rdata1 = ms_svc.loadRelationship(FAKE_ID)
+            .orElseThrow(() -> new AssertionError("Relationship not found"));
       assertTrue(rdata.equals(rdata1));
       
       filter = new PSRelationshipFilter();
@@ -424,7 +425,8 @@ public class PSRelationshipServiceTest
       rel.setProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP, "body");
       
       ms_svc.saveRelationship(rel);
-      PSRelationship rel_2 = ms_svc.loadRelationship(FAKE_ID);
+      PSRelationship rel_2 = ms_svc.loadRelationship(FAKE_ID)
+            .orElseThrow(() -> new AssertionError("Relationship not found"));
       
       assertTrue(rel.equals(rel_2));
       
@@ -439,8 +441,7 @@ public class PSRelationshipServiceTest
       
       // remove the above
       ms_svc.deleteRelationshipByRid(FAKE_ID);
-      rel = ms_svc.loadRelationship(FAKE_ID);
-      assertTrue(rel == null);
+      assertFalse(ms_svc.loadRelationship(FAKE_ID).isPresent());
       
       // save a unknown relationship id
       rel = new PSRelationship(-1, 
@@ -450,13 +451,11 @@ public class PSRelationshipServiceTest
       ms_svc.saveRelationship(rel);
       
       FAKE_ID = rel.getId();
-      rel = ms_svc.loadRelationship(FAKE_ID);
-      assertTrue(rel != null);
+      assertTrue(ms_svc.loadRelationship(FAKE_ID).isPresent());
       
       // remove the above
       ms_svc.deleteRelationshipByRid(FAKE_ID);
-      rel = ms_svc.loadRelationship(FAKE_ID);
-      assertTrue(rel == null);
+      assertFalse(ms_svc.loadRelationship(FAKE_ID).isPresent());
    }
 
 
@@ -630,13 +629,15 @@ public class PSRelationshipServiceTest
       assertTrue(rdata.getUserProperties().size() == 1);
       assertTrue(rdata.equals(rdata1));
       
-      rdata = ms_svc.loadRelationship(FAKE_RID);
+      rdata = ms_svc.loadRelationship(FAKE_RID)
+            .orElseThrow(() -> new AssertionError("Relationship not found"));
       assertTrue(rdata.equals(rdata1));
 
       // test to set non-null value to user properties
       rdata.setProperty(USER_PROP_NAME_2, "v2");
       ms_svc.saveRelationship(rdata);
-      rdata = ms_svc.loadRelationship(FAKE_RID);
+      rdata = ms_svc.loadRelationship(FAKE_RID)
+            .orElseThrow(() -> new AssertionError("Relationship not found"));
       // include both USER_PROP_NAME_1 & 2
       assertTrue(rdata.getUserProperties().size() == 2);
       assertFalse(rdata.equals(rdata1));

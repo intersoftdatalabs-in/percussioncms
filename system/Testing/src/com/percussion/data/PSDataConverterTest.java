@@ -83,7 +83,7 @@ public class PSDataConverterTest
       for (int i = 0; i < myTests.length; i++)
       {
          DateTest t = myTests[i];
-         Date day = PSDataConverter.parseStringToDate(t.dateText);
+         Date day = com.percussion.util.PSDataTypeConverter.parseStringToDate(t.dateText);
          Calendar cal = new GregorianCalendar();
          cal.setTime(day);
          assertEquals(t.year, cal.get(Calendar.YEAR), "For year in  " + t.dateText);

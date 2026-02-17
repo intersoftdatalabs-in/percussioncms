@@ -40,7 +40,7 @@ public class PSActionVisibilityCheckerTest
    {
       PSActionVisibilityChecker checker = new PSActionVisibilityChecker(-1,
             true, null);
-      assertTrue(checker.isVisible(null, (Collection<?>) null));
+      assertTrue(checker.isVisible((PSActionVisibilityGlobalState) null, (Collection<PSActionVisibilityObjectState>) null));
 
       assertTrue(checker.isVisible(
             new GenericGlobalState(new HashMap<String, Object>()),
@@ -101,18 +101,18 @@ public class PSActionVisibilityCheckerTest
       Map<String, Object> stateMap = new HashMap<String, Object>();
       stateMap.put(contextId, new PSFolderPermissions(0));
       GenericObjectState os = new GenericObjectState(stateMap);
-      assertFalse(checker.isVisible(null, os));
+      assertFalse(checker.isVisible((PSActionVisibilityGlobalState) null, os));
 
       stateMap.put(contextId, new PSFolderPermissions(
             PSObjectPermissions.ACCESS_READ));
       os.reset(stateMap);
-      assertFalse(checker.isVisible(null, os));
+      assertFalse(checker.isVisible((PSActionVisibilityGlobalState) null, os));
 
       stateMap.put(contextId,
             new PSFolderPermissions(PSObjectPermissions.ACCESS_READ
                   | PSObjectPermissions.ACCESS_WRITE));
       os.reset(stateMap);
-      assertTrue(checker.isVisible(null, os));
+      assertTrue(checker.isVisible((PSActionVisibilityGlobalState) null, os));
    }
 
    @SuppressWarnings("unchecked")
@@ -173,11 +173,11 @@ public class PSActionVisibilityCheckerTest
       Map<String, Object> stateMap = new HashMap<String, Object>();
       stateMap.put(contextId, new Integer(200));
       GenericObjectState os = new GenericObjectState(stateMap);
-      assertFalse(checker.isVisible(null, os));
+      assertFalse(checker.isVisible((PSActionVisibilityGlobalState) null, os));
 
       stateMap.put(contextId, new Integer(300));
       os.reset(stateMap);
-      assertTrue(checker.isVisible(null, os));
+      assertTrue(checker.isVisible((PSActionVisibilityGlobalState) null, os));
    }
 
    @SuppressWarnings("unchecked")

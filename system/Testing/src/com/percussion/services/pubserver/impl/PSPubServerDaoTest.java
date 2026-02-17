@@ -68,17 +68,17 @@ public class PSPubServerDaoTest
     }
 
    /**
-    * 
+    *
     */
    static final IPSSiteManager sitemgr = PSSiteManagerLocator.getSiteManager();
 
    /**
-    * 
+    *
     */
    static final IPSPubServerDao pubServerDao = PSPubServerDaoLocator.getPubServerManager();
 
    /**
-    * 
+    *
     */
    static SecureRandom ms_random = new SecureRandom();
 
@@ -100,9 +100,9 @@ public class PSPubServerDaoTest
    {
       sitemgr.deleteSite(instance.m_site);
    }
-   
+
    /**
-    * 
+    *
     * @throws PSSiteManagerException
     */
   @Test
@@ -130,11 +130,11 @@ public class PSPubServerDaoTest
    private void createAndDeleteServer(PublishType type) throws PSNotFoundException {
       List<PSPubServer> servers = pubServerDao.findPubServersBySite(m_site.getGUID());
       PSPubServer pubServer = createServerForSite(m_site, type);
-      
+
       PSPubServer pubServer_2 = pubServerDao.loadPubServer(pubServer.getGUID());
-      
+
       assertEquals(pubServer, pubServer_2);
-      
+
       List<PSPubServer> servers_2 = pubServerDao.findPubServersBySite(m_site.getGUID());
       assertTrue(servers.size() == servers_2.size() - 1);
 
@@ -148,27 +148,27 @@ public class PSPubServerDaoTest
    public void testFindPubServer()
    {
       PSPubServer pubServer = createServerForSite(m_site, PublishType.ftp);
-    
+
       PSPubServer pubServer_2 = pubServerDao.findPubServer(pubServer.getServerId()).orElseThrow();
       PSPubServer pubServer_3 = pubServerDao.findPubServer(pubServer.getGUID()).orElseThrow();
-      
+
       assertEquals(pubServer, pubServer_2);
       assertTrue(pubServer != pubServer_2);
-      
+
       assertTrue(pubServer_2 == pubServer_3);
-      
+
       pubServerDao.deletePubServer(pubServer_2);
-      
+
       assertFalse(pubServerDao.findPubServer(pubServer.getServerId()).isPresent());
    }
 
    @Test
    public void testLoadPubServer() throws PSNotFoundException {
       PSPubServer pubServer = createServerForSite(m_site, PublishType.ftp);
-    
+
       PSPubServer pubServer_2 = pubServerDao.loadPubServer(pubServer.getGUID());
       PSPubServer pubServer_3 = pubServerDao.loadPubServer(pubServer.getGUID());
-      
+
       assertTrue(pubServer_2 == pubServer_3);
       assertEquals(pubServer_2, pubServer_3);
 
@@ -176,7 +176,7 @@ public class PSPubServerDaoTest
       assertEquals(PASSWORD_VALUE, password);
 
       pubServerDao.deletePubServer(pubServer_2);
-      
+
       try
       {
          pubServerDao.loadPubServer(pubServer.getGUID());
@@ -190,10 +190,10 @@ public class PSPubServerDaoTest
    @Test
    public void testModifyPublishServer() throws PSNotFoundException {
       PSPubServer pubServer = createServerForSite(m_site, PublishType.ftp);
-      
+
       // cannot use object returned from "loadServer" to save
       PSPubServer pubServer_2 = pubServerDao.loadPubServer(pubServer.getGUID());
-      
+
       assertEquals(pubServer, pubServer_2);
       try
       {
@@ -218,12 +218,12 @@ public class PSPubServerDaoTest
 
       pubServerDao.savePubServer(pubServer);
       assertEquals(pubServer, pubServer_2);
-      
+
       pubServerDao.deletePubServer(pubServer);
    }
 
    final static String PASSWORD_VALUE = "cm1 password";
-   
+
    /**
     * @param testSite
     * @return
@@ -235,9 +235,9 @@ public class PSPubServerDaoTest
       pubServer.setName(testSite.getName() + testSite.getSiteId() + "-pubServer"
             + type.name());
       generatePropertiesForPublishType(pubServer, type, testSite);
-      
+
       pubServerDao.savePubServer(pubServer);
-      
+
       return pubServer;
    }
 
@@ -285,7 +285,7 @@ public class PSPubServerDaoTest
    {
       pubServer.addProperty(name, value);
    }
-   
+
    /**
     * @param site
     * @return
@@ -310,7 +310,7 @@ public class PSPubServerDaoTest
       addProperty(pubServer, IPSPubServerDao.PUBLISH_SERVER_IP_PROPERTY, "100.100.100.100");
       addProperty(pubServer, IPSPubServerDao.PUBLISH_PRIVATE_KEY_PROPERTY, "private.key");
       addProperty(pubServer, IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY, "false");
-      addProperty(pubServer, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY, "FTP");      
+      addProperty(pubServer, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY, "FTP");
    }
 
    private void generateCommonProperties(PSPubServer pubServer, IPSSite site)
@@ -331,9 +331,9 @@ public class PSPubServerDaoTest
       addProperty(pubServer, IPSPubServerDao.PUBLISH_SERVER_IP_PROPERTY, "100.100.100.100");
       addProperty(pubServer, IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY, PASSWORD_VALUE);
       addProperty(pubServer, IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY, "false");
-      addProperty(pubServer, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY, "FTP");      
+      addProperty(pubServer, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY, "FTP");
    }
-   
+
    private void setupDummySiteData(IPSSite site)
    {
       site.setBaseUrl(getRandomString());

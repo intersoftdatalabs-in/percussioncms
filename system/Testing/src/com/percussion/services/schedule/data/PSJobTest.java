@@ -66,10 +66,10 @@ public class PSJobTest extends PSScheduleTestBase
       }
       catch (IllegalArgumentException expected) {}
       schedule.setNotificationTemplateId(createTemplateGuid());
-      
+
       schedule.setNotifyWhen(PSNotifyWhen.NEVER);
       schedule.setNotificationTemplateId(null);
-      
+
       try{
          schedule.setNotificationTemplateId(
                new PSGuid(UUID, PSTypeEnum.SCHEDULED_TASK, HOST_ID));
@@ -77,13 +77,13 @@ public class PSJobTest extends PSScheduleTestBase
       }
       catch (IllegalArgumentException expected) {}
    }
-   
+
    @Override
    protected PSJob createSchedule()
    {
       return new PSTestSchedule();
    }
-   
+
    /**
     * A test implementation of the abstract schedule class.
     */
