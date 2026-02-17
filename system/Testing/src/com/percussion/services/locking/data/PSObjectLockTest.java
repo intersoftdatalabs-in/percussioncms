@@ -37,6 +37,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for the {@link PSObjectLock} class.
@@ -75,7 +76,7 @@ public class PSObjectLockTest
       try
       {
          service.createLock(propertyId, "session2", "locker2", 0, false);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (PSLockException e)
       {
@@ -88,7 +89,7 @@ public class PSObjectLockTest
       try
       {
          service.createLock(propertyId, "session2", "locker2", 0, true);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (PSLockException e)
       {
@@ -101,7 +102,7 @@ public class PSObjectLockTest
       try
       {
          service.createLock(propertyId, session, "locker2", 0, false);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (PSLockException e)
       {
@@ -114,7 +115,7 @@ public class PSObjectLockTest
       try
       {
          service.createLock(propertyId, session, "locker2", 0, true);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (PSLockException e)
       {
@@ -127,7 +128,7 @@ public class PSObjectLockTest
       try
       {
          service.createLock(propertyId, "session2", locker, 0, false);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (PSLockException e)
       {
