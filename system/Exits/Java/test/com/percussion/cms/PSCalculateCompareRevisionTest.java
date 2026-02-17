@@ -14,13 +14,14 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test compare revision udf
  * 
  * @author dougrand
  */
-public class PSCalculateCompareRevisionTest extends TestCase
+public class PSCalculateCompareRevisionTest
 {
    private static final String SYS_REVISION2 = "sys_revision2";
 
@@ -28,6 +29,7 @@ public class PSCalculateCompareRevisionTest extends TestCase
     * Test the algorithm specified in
     * @see PSCalculateCompareRevision
     */
+   @Test
    public void testRevisionCalculation1()
    {
       // cid1, cid2, r1, r2, expected value
@@ -42,6 +44,7 @@ public class PSCalculateCompareRevisionTest extends TestCase
     * Test the algorithm specified in
     * @see PSCalculateCompareRevision
     */
+   @Test
    public void testRevisionCalculation2()
    {
       // cid1, cid2, r1, r2, expected value

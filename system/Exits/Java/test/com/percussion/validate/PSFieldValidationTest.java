@@ -12,19 +12,21 @@ package com.percussion.validate;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Check validations
  * 
  * @author dougrand
  */
-public class PSFieldValidationTest extends TestCase
+public class PSFieldValidationTest
 {
    Object[] packageArgs(Object... objects)
    {
       return objects;
    }
    
+   @Test
    public void testRequired() throws Exception
    {
       PSValidateRequired vr = new PSValidateRequired();
@@ -33,6 +35,7 @@ public class PSFieldValidationTest extends TestCase
       assertTrue((Boolean) vr.processUdf(packageArgs(1), null));
    }
 
+   @Test
    public void testJexl() throws Exception
    {
       PSValidateJexlExpression je = new PSValidateJexlExpression();
@@ -41,6 +44,7 @@ public class PSFieldValidationTest extends TestCase
       assertFalse((Boolean) je.processUdf(packageArgs(0, "$value != 0"), null));
    }
 
+   @Test
    public void testNumber() throws Exception
    {
       PSValidateNumber numberV = new PSValidateNumber();
@@ -75,6 +79,7 @@ public class PSFieldValidationTest extends TestCase
             null, true), null));
    }
 
+   @Test
    public void testString() throws Exception
    {
       PSValidateStringLength stringV = new PSValidateStringLength();
@@ -100,6 +105,7 @@ public class PSFieldValidationTest extends TestCase
       assertFalse((Boolean) stringV.processUdf(packageArgs("abcd", 5, 8), null));
    }
 
+   @Test
    public void testDate() throws Exception
    {
       PSValidateDate dateV = new PSValidateDate();
