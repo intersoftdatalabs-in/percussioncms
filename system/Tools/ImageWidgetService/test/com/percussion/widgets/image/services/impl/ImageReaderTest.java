@@ -155,8 +155,8 @@ public class ImageReaderTest
       BufferedImage bufferedImage = ImageIO.read(getClass().getClassLoader()
               .getResourceAsStream(resourcePath));
       testResize(resourcePath);
-      assertNotNull("Buffered image is null after read:" + resourcePath,
-            bufferedImage);
+      org.junit.jupiter.api.Assertions.assertNotNull(bufferedImage,
+            "Buffered image is null after read:" + resourcePath);
    }
 
    private boolean testResize(String resourcePath)
@@ -173,8 +173,8 @@ public class ImageReaderTest
                .getClassLoader().getResourceAsStream(resourcePath));
 
          Assertions.assertTrue(
-               "Invalid ImageData for generateImage(InputStream input)",
-               validateImageData(resizedImage));
+               validateImageData(resizedImage),
+               "Invalid ImageData for generateImage(InputStream input)");
       }
       catch (Exception e)
       {

@@ -25,6 +25,7 @@ import com.percussion.server.PSResponse;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 
+import junit.framework.Test;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
 import junit.textui.TestRunner;
