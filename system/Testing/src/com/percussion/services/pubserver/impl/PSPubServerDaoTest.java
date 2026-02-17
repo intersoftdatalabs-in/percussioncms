@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Tag("IntegrationTest")
 public class PSPubServerDaoTest
@@ -148,8 +149,8 @@ public class PSPubServerDaoTest
    {
       PSPubServer pubServer = createServerForSite(m_site, PublishType.ftp);
     
-      PSPubServer pubServer_2 = pubServerDao.findPubServer(pubServer.getServerId());
-      PSPubServer pubServer_3 = pubServerDao.findPubServer(pubServer.getGUID());
+      PSPubServer pubServer_2 = pubServerDao.findPubServer(pubServer.getServerId()).orElseThrow();
+      PSPubServer pubServer_3 = pubServerDao.findPubServer(pubServer.getGUID()).orElseThrow();
       
       assertEquals(pubServer, pubServer_2);
       assertTrue(pubServer != pubServer_2);
@@ -158,8 +159,7 @@ public class PSPubServerDaoTest
       
       pubServerDao.deletePubServer(pubServer_2);
       
-      PSPubServer pubServer_5 = pubServerDao.findPubServer(pubServer.getServerId());
-      assertTrue(pubServer_5 == null);
+      assertFalse(pubServerDao.findPubServer(pubServer.getServerId()).isPresent());
    }
 
    @Test
@@ -172,8 +172,8 @@ public class PSPubServerDaoTest
       assertTrue(pubServer_2 == pubServer_3);
       assertEquals(pubServer_2, pubServer_3);
 
-      String password = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY);
-      assertEquals(password, PASSWORD_VALUE);
+      String password = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY).orElse(null);
+      assertEquals(PASSWORD_VALUE, password);
 
       pubServerDao.deletePubServer(pubServer_2);
       

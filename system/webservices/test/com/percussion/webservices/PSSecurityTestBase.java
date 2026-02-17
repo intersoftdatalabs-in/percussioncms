@@ -48,8 +48,8 @@ public class PSSecurityTestBase extends PSTestBase
 {
    /**
     * Create a new binding for the security SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
     * @throws AssertionFailedError for any error creating the new binding.
@@ -62,8 +62,8 @@ public class PSSecurityTestBase extends PSTestBase
 
    /**
     * Create a new binding for the security design SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
     * @throws AssertionFailedError for any error creating the new assembly
@@ -127,8 +127,8 @@ public class PSSecurityTestBase extends PSTestBase
 
    /**
     * Create a new community for the supplied name.
-    * 
-    * @param session the session used to perform the operation, not 
+    *
+    * @param session the session used to perform the operation, not
     *    <code>null</code> or empty.
     * @param name the community name, may be <code>null</code> or empty.
     * @return the new created community, never <code>null</code>.
@@ -174,7 +174,7 @@ public class PSSecurityTestBase extends PSTestBase
 
    /**
     * Creates all communities used for testing.
-    * 
+    *
     * @param session the session used to create the test communities,
     *    not <code>null</code> or empty.
     * @throws Exception for any error.
@@ -188,7 +188,7 @@ public class PSSecurityTestBase extends PSTestBase
 
    /**
     * Looks up all test communities by name and deletes all which exist.
-    * 
+    *
     * @param session the session used to execute the deletes, not
     *    <code>null</code> or empty.
     * @throws Exception for any error deleting the test communities.
@@ -236,7 +236,7 @@ public class PSSecurityTestBase extends PSTestBase
 
    /**
     * Lock all communities for the supplied ids.
-    * 
+    *
     * @param ids the ids of the communities to lock, not <code>null</code> or
     *    empty.
     * @param session the session for which to lock the objects, not

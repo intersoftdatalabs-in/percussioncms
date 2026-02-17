@@ -115,10 +115,10 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Create the endpoint url from the <code>conn_rxserver.properties</code>
-    * file if found, otherwise use the default of 
+    * file if found, otherwise use the default of
     * <code>http://localhost:9992/Rhythmyx/webservices/ + service</code>.
-    * 
-    * @param service the name of the service for which to create the endpoint, 
+    *
+    * @param service the name of the service for which to create the endpoint,
     *    e.g. assemblySOAP, contentSOAP, etc., not <code>null</code> or empty.
     * @return the endpoint url for the supplied service, never <code>null</code>
     *    or empty.
@@ -126,23 +126,23 @@ public class PSTestBase extends PSClientTestCase
    public static String getEndpoint(String service)
    {
       Properties properties = getServerProperties();
-      
-      String endpoint = 
-         properties.getProperty(PSDesignerConnection.PROPERTY_PROTOCOL) + 
-         "://" + properties.getProperty(PSDesignerConnection.PROPERTY_HOST) + 
-         ":" + properties.getProperty(PSDesignerConnection.PROPERTY_PORT) + 
+
+      String endpoint =
+         properties.getProperty(PSDesignerConnection.PROPERTY_PROTOCOL) +
+         "://" + properties.getProperty(PSDesignerConnection.PROPERTY_HOST) +
+         ":" + properties.getProperty(PSDesignerConnection.PROPERTY_PORT) +
          "/" + properties.getProperty("root") + "/webservices/" + service;
 
       return endpoint;
    }
-   
+
    /**
     * Get the server connection properties used for testing. If none are found
     * the defaults will be set for 'protocol', 'host', 'port' and 'root'.
-    * 
+    *
     * @return the server connection properties, never <code>null</code> or
     *    empty. At least the defaults for 'protocol', 'host', 'port' and 'root'
-    *    are returned. 
+    *    are returned.
     */
    protected static Properties getServerProperties()
    {
@@ -175,41 +175,41 @@ public class PSTestBase extends PSClientTestCase
          {
             String useSsl = properties.getProperty(
                IPSUnitTestConfigHelper.PROP_USESSL, "false");
-            if (useSsl.equalsIgnoreCase("true") || 
+            if (useSsl.equalsIgnoreCase("true") ||
                useSsl.equalsIgnoreCase("yes") || useSsl.equalsIgnoreCase("y"))
             {
-               properties.setProperty(PSDesignerConnection.PROPERTY_PROTOCOL, 
+               properties.setProperty(PSDesignerConnection.PROPERTY_PROTOCOL,
                   "https");
             }
             else
             {
-               properties.setProperty(PSDesignerConnection.PROPERTY_PROTOCOL, 
+               properties.setProperty(PSDesignerConnection.PROPERTY_PROTOCOL,
                   "http");
             }
          }
 
          if (properties.get(PSDesignerConnection.PROPERTY_HOST) == null)
-            properties.setProperty(PSDesignerConnection.PROPERTY_HOST, 
+            properties.setProperty(PSDesignerConnection.PROPERTY_HOST,
                "localhost");
 
          if (properties.get(PSDesignerConnection.PROPERTY_PORT) == null)
-            properties.setProperty(PSDesignerConnection.PROPERTY_PORT, 
+            properties.setProperty(PSDesignerConnection.PROPERTY_PORT,
                "9992");
 
          if (properties.get("root") == null)
             properties.setProperty("root", "Rhythmyx");
       }
-      
+
       return properties;
    }
 
    /**
     * Create a new binding for the content SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 10 minutes if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 10 minutes if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new 
+    * @throws AssertionFailedError for any error creating the new
     *    binding.
     */
    protected ContentSOAPStub getContentSOAPStub(Integer timeout)
@@ -250,8 +250,8 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Create a new binding for the system SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
     * @throws AssertionFailedError for any error creating the new binding.
@@ -294,8 +294,8 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Create a new binding for the security SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
     * @throws AssertionFailedError for any error creating the new binding.
@@ -319,7 +319,7 @@ public class PSTestBase extends PSClientTestCase
             binding.setTimeout(60000);
          else
             binding.setTimeout(timeout);
-         
+
          Call call = binding._getCall();
          if (call == null)
             call = binding._createCall();
@@ -383,7 +383,7 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Setup a community runtime permission for the supplied parameters.
-    * 
+    *
     * @param id the id of the object for which to setup a community runtime
     *    permission, assumed to be valid.
     * @param communityName the name for the community for which to setup the
@@ -453,7 +453,7 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Catalog all workflows.
-    * 
+    *
     * @param session the session to use for cataloging, not <code>null</code>
     *    or empty.
     * @return all defined workflows in the system, never <code>null</code>
@@ -477,15 +477,15 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Load relationships that match the supplied filter.
-    * 
+    *
     * @param binding Used to make the request. Never <code>null</code>.
-    * 
+    *
     * @param filter Which relationiships to retrieve. If <code>null</code>, all
     * rels are returned.
-    * 
+    *
     * @return The rels that pass the supplied filter. May be <code>null</code>
     * or empty if no matches.
-    * 
+    *
     * @throws Exception
     */
    protected PSRelationship[] loadRelationships(SystemSOAPStub binding,
@@ -493,7 +493,7 @@ public class PSTestBase extends PSClientTestCase
    {
       if (null == binding)
       {
-         throw new IllegalArgumentException("binding cannot be null");  
+         throw new IllegalArgumentException("binding cannot be null");
       }
       LoadRelationshipsRequest lrReq = new LoadRelationshipsRequest();
       lrReq.setPSRelationshipFilter(filter);
@@ -502,7 +502,7 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Delete the specified acls
-    * 
+    *
     * @param ids the acl ids, may be <code>null</code> to test contracts.
     * @param session the session to use, may be <code>null</code> or empty to
     *    test invalid sessions.
@@ -532,7 +532,7 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Get the default community from the active login information.
-    * 
+    *
     * @return the active default community, never <code>null</code>.
     * @throws IllegalStateException if the current login information is in
     *    an invalid state.
@@ -562,7 +562,7 @@ public class PSTestBase extends PSClientTestCase
 
    /**
     * Get the default locale from the active login information.
-    * 
+    *
     * @return the active default locale, never <code>null</code>.
     * @throws IllegalStateException if the current login information is in
     *    an invalid state.
@@ -590,9 +590,9 @@ public class PSTestBase extends PSClientTestCase
    /**
     * Creates a GUID id which is an instance of {@link PSLegacyGuid} with
     * the specified content id and <code>-1</code> revision.
-    *  
+    *
     * @param contentId the content id of the Legacy Guid.
-    * 
+    *
     * @return the value of the Legacy Guid described above.
     */
    protected long getLegacyGuid(int contentId)
@@ -600,22 +600,22 @@ public class PSTestBase extends PSClientTestCase
       PSLegacyGuid id = new PSLegacyGuid(contentId, -1);
       return new PSDesignGuid(id).getValue();
    }
-   
+
    /**
     * Verify that the error results fault defines the correct success or error.
-    * 
+    *
     * @param fault the error results fault to verify, not <code>null</code>.
-    * @param errorIndex the index which should contain an error, -1 if only 
+    * @param errorIndex the index which should contain an error, -1 if only
     *    errors are expected.
     * @param expectedObject the name or the object expected in the success case,
     *    may be <code>null</code> or empty to skip this test.
     */
-   protected void verifyErrorResultsFault(PSErrorResultsFault fault, 
+   protected void verifyErrorResultsFault(PSErrorResultsFault fault,
       int errorIndex, String expectedObject)
    {
       if (fault == null)
          throw new IllegalArgumentException("fault cannot be null");
-      
+
       PSErrorResultsFaultServiceCall[] calls = fault.getServiceCall();
       for (int i = 0; i < calls.length; i++)
       {
@@ -635,16 +635,16 @@ public class PSTestBase extends PSClientTestCase
          {
             assertTrue(call.getResult() != null);
             assertTrue(call.getError() == null);
-            
+
             verifyErrorResultsFaultResult(call.getResult(), expectedObject);
          }
       }
    }
-   
+
    /**
     * Verify that the supplied contains a result of the expecetd object type.
-    * 
-    * @param result the result to verify, not <code>null</code>. 
+    *
+    * @param result the result to verify, not <code>null</code>.
     * @param expectedObject the expected object type, may be <code>null</code>
     *    or empty to skip verification.
     */
@@ -653,7 +653,7 @@ public class PSTestBase extends PSClientTestCase
    {
       if (result == null)
          throw new IllegalArgumentException("result cannot be null");
-      
+
       if (!StringUtils.isBlank(expectedObject))
       {
          if (result.getPSAaRelationship() != null)
@@ -731,7 +731,7 @@ public class PSTestBase extends PSClientTestCase
    }
 
    /**
-    * The login object contains the session as well as default and user 
+    * The login object contains the session as well as default and user
     * communities and locales.
     */
    protected static PSLogin m_login = null;

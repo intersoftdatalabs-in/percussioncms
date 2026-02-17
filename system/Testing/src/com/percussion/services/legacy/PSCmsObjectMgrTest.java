@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Test;
@@ -95,8 +96,8 @@ public class PSCmsObjectMgrTest
    /**
     *  Locale counts before test
     */
-   private int ALL_LOCALES = ms_cms.findAllLocales().size();
-   private int ACTIVE_LOCALES = ms_cms.findLocaleByStatus(PSLocale.STATUS_ACTIVE).size();
+   private long ALL_LOCALES = ms_cms.findAllLocales().count();
+   private long ACTIVE_LOCALES = ms_cms.findLocalesByStatus(PSLocale.STATUS_ACTIVE).count();
 
    /**
     * @throws Exception
@@ -139,37 +140,37 @@ public class PSCmsObjectMgrTest
    @Test
    public void test02LocaleFinders() throws Exception
    {
-      PSLocale l = ms_cms.findLocaleByLanguageString("xy-zy");
+      PSLocale l = ms_cms.findLocaleByLanguageString("xy-zy").orElseThrow();
       assertNotNull(l);
 
       int id = l.getLocaleId();
       assertTrue(id > 0);
 
-      PSLocale l2 = ms_cms.loadLocale(id);
+      PSLocale l2 = ms_cms.loadLocale(id).orElseThrow();
       assertEquals(l, l2);
 
-      Collection locales = ms_cms.findLocaleByStatus(PSLocale.STATUS_ACTIVE);
+      List<PSLocale> locales = ms_cms.findLocalesByStatus(PSLocale.STATUS_ACTIVE).collect(Collectors.toList());
       assertTrue(locales.size() == ACTIVE_LOCALES + 1);
 
-      locales = ms_cms.findAllLocales();
+      locales = ms_cms.findAllLocales().collect(Collectors.toList());
       assertTrue(locales.size() == ALL_LOCALES + 2);
 
-      locales = ms_cms.findLocales(null, null);
+      locales = ms_cms.findLocales(null, null).collect(Collectors.toList());
       assertTrue(locales.size() == ALL_LOCALES + 2);
 
-      locales = ms_cms.findLocales("xy-zy", null);
+      locales = ms_cms.findLocales("xy-zy", null).collect(Collectors.toList());
       assertTrue(locales.size() == 1);
 
-      locales = ms_cms.findLocales("", "Test%");
+      locales = ms_cms.findLocales("", "Test%").collect(Collectors.toList());
       assertTrue(locales.size() == 2);
 
-      locales = ms_cms.findLocales("xy-zy", "Test%");
+      locales = ms_cms.findLocales("xy-zy", "Test%").collect(Collectors.toList());
       assertTrue(locales.size() == 1);
 
-      locales = ms_cms.findLocales("de-ch", "Test%");
+      locales = ms_cms.findLocales("de-ch", "Test%").collect(Collectors.toList());
       assertTrue(locales.size() == 1);
 
-      locales = ms_cms.findLocales("foo", "Test%");
+      locales = ms_cms.findLocales("foo", "Test%").collect(Collectors.toList());
       assertTrue(locales.size() == 0);
 
    }
@@ -180,10 +181,10 @@ public class PSCmsObjectMgrTest
    @Test
    public void test03LocaleRemove() throws Exception
    {
-      PSLocale l = ms_cms.findLocaleByLanguageString("xy-zy");
+      PSLocale l = ms_cms.findLocaleByLanguageString("xy-zy").orElseThrow();
       ms_cms.deleteLocale(l);
 
-      PSLocale l2 = ms_cms.findLocaleByLanguageString("de-ch");
+      PSLocale l2 = ms_cms.findLocaleByLanguageString("de-ch").orElseThrow();
       ms_cms.deleteLocale(l2);
    }
 
@@ -195,6 +196,7 @@ public class PSCmsObjectMgrTest
    {
       List<Integer> ids = new ArrayList<Integer>();
       List<PSComponentSummary> summaries;
+      List<PSComponentSummary> col;
       // Cleanup new item id, just in case we had a bad run
       ids.add(10000000);
       summaries = ms_cms.loadComponentSummaries(ids);
@@ -253,8 +255,7 @@ public class PSCmsObjectMgrTest
       // Remove
       ms_cms.deleteComponentSummaries(ret);
       // Find a group by type
-      Collection<PSComponentSummary> col;
-      col = ms_cms.findComponentSummariesByType(311); // Generic
+      col = ms_cms.findComponentSummariesByType(311).collect(Collectors.toList()); // Generic
       assertTrue(col.size() > 0);
       assertTrue(col.iterator().next().getContentTypeId() == 311);
 
@@ -292,9 +293,9 @@ public class PSCmsObjectMgrTest
    {
       List<Integer> cids = new ArrayList<Integer>();
 
-      cids.addAll(ms_cms.findContentIdsByType(311));
-      cids.addAll(ms_cms.findContentIdsByType(305));
-      cids.addAll(ms_cms.findContentIdsByType(313));
+      cids.addAll(ms_cms.findContentIdsByType(311).collect(Collectors.toList()));
+      cids.addAll(ms_cms.findContentIdsByType(305).collect(Collectors.toList()));
+      cids.addAll(ms_cms.findContentIdsByType(313).collect(Collectors.toList()));
 
       Set<Long> contenttypeids = ms_cms.findContentTypesForIds(cids);
       assertNotNull(contenttypeids);
@@ -308,7 +309,7 @@ public class PSCmsObjectMgrTest
 
       for(int i = 0; i < ALL_FF_TYPES.length; i++)
       {
-         cids.addAll(ms_cms.findContentIdsByType(ALL_FF_TYPES[i]));
+         cids.addAll(ms_cms.findContentIdsByType(ALL_FF_TYPES[i]).collect(Collectors.toList()));
       }
 
       contenttypeids = ms_cms.findContentTypesForIds(cids);
@@ -316,7 +317,7 @@ public class PSCmsObjectMgrTest
       assertTrue(contenttypeids.size() == ALL_FF_TYPES.length);
       for(int i = 0; i < ALL_FF_TYPES.length; i++)
       {
-         assertTrue(contenttypeids.contains(new Long(ALL_FF_TYPES[i])));
+         assertTrue(contenttypeids.contains((long) ALL_FF_TYPES[i]));
       }
    }
 
@@ -328,11 +329,11 @@ public class PSCmsObjectMgrTest
    public void test06ItemsByWorkflowStatus() throws Exception
    {
       Collection<PSComponentSummary> col;
-      col = ms_cms.findComponentSummariesByType(311); // Generic
+      col = ms_cms.findComponentSummariesByType(311).collect(Collectors.toList()); // Generic
       if(col.size()>0)
       {
          PSComponentSummary fitem = col.iterator().next();
-         Collection<Integer> cids = ms_cms.findContentIdsByWorkflowStatus(fitem.getWorkflowAppId(), fitem.getContentStateId());
+         List<Integer> cids = ms_cms.findContentIdsByWorkflowStatus(fitem.getWorkflowAppId(), fitem.getContentStateId()).collect(Collectors.toList());
          assertTrue(cids.size()>=1);
       }
    }
@@ -345,11 +346,11 @@ public class PSCmsObjectMgrTest
    public void test07ItemsByWorkflow() throws Exception
    {
       Collection<PSComponentSummary> col;
-      col = ms_cms.findComponentSummariesByType(311); // Generic
+      col = ms_cms.findComponentSummariesByType(311).collect(Collectors.toList()); // Generic
       if(col.size()>0)
       {
          PSComponentSummary fitem = col.iterator().next();
-         Collection<Integer> cids = ms_cms.findContentIdsByWorkflow(fitem.getWorkflowAppId());
+         List<Integer> cids = ms_cms.findContentIdsByWorkflow(fitem.getWorkflowAppId()).collect(Collectors.toList());
          assertTrue(cids.size()>=1);
       }
    }
@@ -360,7 +361,7 @@ public class PSCmsObjectMgrTest
    @Test
    public void test08ContentTypeFinders() throws Exception
    {
-      Collection<Integer> cids = ms_cms.findContentIdsByType(311);
+      List<Integer> cids = ms_cms.findContentIdsByType(311).collect(Collectors.toList());
       assertNotNull(cids);
       assertTrue(cids.size() > 0);
    }
@@ -398,7 +399,7 @@ public class PSCmsObjectMgrTest
       items.add(new PSFilterItem(new PSLegacyGuid(319, 1), null, null));
       items.add(new PSFilterItem(new PSLegacyGuid(320, 1), null, null));
       items.add(new PSFilterItem(new PSLegacyGuid(321, 1), null, null));
-      items = ms_cms.filterItemsByPublishableFlag(items, flags);
+      items = ms_cms.filterItemsByPublishableFlag(items, flags).collect(Collectors.toList());
       assertTrue(items.size() == 3);
 
       items.clear();
@@ -409,7 +410,7 @@ public class PSCmsObjectMgrTest
             items.add(new PSFilterItem(new PSLegacyGuid(cid, 1), null, null));
          }
       }
-      items = ms_cms.filterItemsByPublishableFlag(items, flags);
+      items = ms_cms.filterItemsByPublishableFlag(items, flags).collect(Collectors.toList());
       assertNotNull(items);
       assertTrue(items.size() > 50);
    }
@@ -422,11 +423,11 @@ public class PSCmsObjectMgrTest
    @Test
    public void test11RelationshipConfigIdName() throws Exception
    {
-      Collection<PSConfig> configs = ms_cms.findAllConfigs();
+      List<PSConfig> configs = ms_cms.findAllConfigs().collect(Collectors.toList());
       assertTrue(configs.size() == 2);
 
       List<PSRelationshipConfigName> aaList =
-         ms_cms.findRelationshipConfigNames("%Assembly%");
+         ms_cms.findRelationshipConfigNames("%Assembly%").collect(Collectors.toList());
       for (PSRelationshipConfigName cfg : aaList)
       {
          assertTrue(cfg.getName().contains("Assembly"));
@@ -547,19 +548,19 @@ public class PSCmsObjectMgrTest
    @Test
    public void test12LoadCmsObject() throws Exception
    {
-      PSCmsObject itemObject = ms_cms.loadCmsObject(PSCmsObject.TYPE_ITEM);
+      PSCmsObject itemObject = ms_cms.loadCmsObject(PSCmsObject.TYPE_ITEM).orElseThrow();
       assertTrue(itemObject.isRevisionable());
       assertTrue(itemObject.isWorkflowable());
 
-      PSCmsObject folderObject = ms_cms.loadCmsObject(PSCmsObject.TYPE_FOLDER);
+      PSCmsObject folderObject = ms_cms.loadCmsObject(PSCmsObject.TYPE_FOLDER).orElseThrow();
       assertTrue(!folderObject.isRevisionable());
       assertTrue(!folderObject.isWorkflowable());
 
-      PSCmsObject metaObject = ms_cms.loadCmsObject(PSCmsObject.TYPE_META);
+      PSCmsObject metaObject = ms_cms.loadCmsObject(PSCmsObject.TYPE_META).orElseThrow();
       assertTrue(!metaObject.isRevisionable());
       assertTrue(!metaObject.isWorkflowable());
 
-      List<PSCmsObject> cmsObjects = ms_cms.findAllCmsObjects();
+      List<PSCmsObject> cmsObjects = ms_cms.findAllCmsObjects().collect(Collectors.toList());
       assertTrue(cmsObjects.size() == 3);
    }
 
@@ -572,11 +573,11 @@ public class PSCmsObjectMgrTest
    @Test
    public void test13RelationshipConfigs() throws Exception
    {
-      Collection<PSConfig> configs = ms_cms.findAllConfigs();
+      List<PSConfig> configs = ms_cms.findAllConfigs().collect(Collectors.toList());
       assertTrue(configs.size() == 2);
 
       PSConfig cfg = ms_cms.findConfig(
-            PSConfigurationFactory.RELATIONSHIPS_CFG);
+            PSConfigurationFactory.RELATIONSHIPS_CFG).orElseThrow();
       assertNotNull(cfg);
 
       cfg.lock("Ben" + System.currentTimeMillis());
@@ -612,8 +613,8 @@ public class PSCmsObjectMgrTest
       assertTrue(origText.equals(newText));
 
       // add configuration
-      Collection<PSRelationshipConfigName> names = ms_cms
-      .findAllRelationshipConfigNames();
+      List<PSRelationshipConfigName> names = ms_cms
+      .findAllRelationshipConfigNames().collect(Collectors.toList());
       int currentSize = names.size();
 
       final String NEW_CFG_NAME = "CopyOfNewCopy";
@@ -627,7 +628,7 @@ public class PSCmsObjectMgrTest
       saveRelationshipConfigSet(relConfigSet, cfg);
 
       // the new relationship config name should be added also
-      names = ms_cms.findAllRelationshipConfigNames();
+      names = ms_cms.findAllRelationshipConfigNames().collect(Collectors.toList());
       assertTrue(names.size() == currentSize + 1);
       assertTrue(findRelCfgName(NEW_CFG_NAME, names));
 
@@ -637,7 +638,7 @@ public class PSCmsObjectMgrTest
       ms_cms.saveConfig(cfg);
 
       // the extra relationship config name should be removed also
-      names = ms_cms.findAllRelationshipConfigNames();
+      names = ms_cms.findAllRelationshipConfigNames().collect(Collectors.toList());
       assertTrue(names.size() == currentSize);
       assertFalse(findRelCfgName(NEW_CFG_NAME, names));
       relConfigSet = loadRelationshipConfigSet();
@@ -832,7 +833,7 @@ public class PSCmsObjectMgrTest
       System.out.println("testFindPublicGuids " + ids.size() + " items");
       // First
       sw.start();
-      guids = ms_cms.findPublicOrCurrentGuids(ids);
+      guids = ms_cms.findPublicOrCurrentGuids(ids).collect(Collectors.toList());
       sw.stop();
       System.out.println("testFindPublicGuids First run " + sw);
 
@@ -847,17 +848,17 @@ public class PSCmsObjectMgrTest
 
 
       sw.start();
-      guids = ms_cms.findPublicOrCurrentGuids(ids);
+      guids = ms_cms.findPublicOrCurrentGuids(ids).collect(Collectors.toList());
       sw.stop();
       System.out.println("testFindPublicGuids Second run " + sw);
 
       sw.start();
-      guids = ms_cms.findPublicOrCurrentGuids(ids);
+      guids = ms_cms.findPublicOrCurrentGuids(ids).collect(Collectors.toList());
       sw.stop();
       System.out.println("testFindPublicGuids Third run " + sw);
 
       sw.start();
-      guids = ms_cms.findPublicOrCurrentGuids(ids);
+      guids = ms_cms.findPublicOrCurrentGuids(ids).collect(Collectors.toList());
       sw.stop();
       System.out.println("testFindPublicGuids Fourth run " + sw);
    }
@@ -871,7 +872,7 @@ public class PSCmsObjectMgrTest
    public void test16PersistentProperty() throws Exception
    {
       // test find all meta
-      List<PSPersistentPropertyMeta> listMeta = ms_cms.findAllPersistentMeta();
+      List<PSPersistentPropertyMeta> listMeta = ms_cms.findAllPersistentMeta().collect(Collectors.toList());
       assertTrue(listMeta.size() == 3);
 
       // test find persistent meta by name
@@ -953,7 +954,7 @@ public class PSCmsObjectMgrTest
       try
       {
          Date date = new Date();
-         List<PSComponentSummary> testSums = ms_cms.findComponentSummariesByType(311);
+         List<PSComponentSummary> testSums = ms_cms.findComponentSummariesByType(311).collect(Collectors.toList());
          for (PSComponentSummary sum : testSums)
          {
             sum.setContentExpiryDate(date);

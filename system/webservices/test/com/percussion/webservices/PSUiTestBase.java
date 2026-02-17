@@ -50,8 +50,8 @@ public class PSUiTestBase extends PSTestBase
 {
    /**
     * Create a new binding for the ui SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
     * @throws AssertionFailedError for any error creating the new assembly
@@ -88,8 +88,8 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Create a new binding for the assembly design SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
     * @throws AssertionFailedError for any error creating the new assembly
@@ -173,7 +173,7 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Creates all hierarchy nodes used for testing.
-    * 
+    *
     * @throws Exception for any error.
     */
    protected static void createTestHierarchyNodes() throws Exception
@@ -208,7 +208,7 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Create a property for th esupplied parameters.
-    * 
+    *
     * @param name the property name, not <code>null</code> or empty.
     * @param value the property value, may be <code>null</code> or empty.
     * @return the new property, never <code>null</code>.
@@ -229,7 +229,7 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Deletes all hierarchy nodes used for testing.
-    * 
+    *
     * @param session the session to use, not <code>null</code>.
     * @throws Exception for any error.
     */
@@ -270,12 +270,12 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Create a new hierarcchy node for the specified name and parent.
-    * 
+    *
     * @param name the node name, not <code>null</code> or empty.
     * @param parent the parent to which to attach the new node as child,
     *    0 to create a new root node.
     * @param type the node type, not <code>null</code>.
-    * @param properties the node properties, may be <code>null</code> or empty. 
+    * @param properties the node properties, may be <code>null</code> or empty.
     * @param session the rhythmyx session to use for all service calls, not
     *    <code>null</code> or empty.
     * @return the new created hierarchy node, never <code>null</code>.
@@ -316,7 +316,7 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Delete the supplied hierarchy node.
-    * 
+    *
     * @param node the node to be deleted, may be <code>null</code>.
     * @param session the rhythmyx session to use for all service calls, not
     *    <code>null</code> or empty.
@@ -349,7 +349,7 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Lock all hierarchy nodes for the supplied ids.
-    * 
+    *
     * @param ids the ids of the nodes to lock, not <code>null</code> or
     *    empty.
     * @param session the session for which to lock the slots, not
@@ -390,7 +390,7 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Get the ids of all test hierarchy nodes.
-    * 
+    *
     * @return all ids, never <code>null</code> or empty.
     */
    protected long[] getHierachyNodeIds()
@@ -409,7 +409,7 @@ public class PSUiTestBase extends PSTestBase
 
    /**
     * Gte all test hierarchy nodes.
-    * 
+    *
     * @return all test hierarchy nodes, never <code>null</code> or empty.
     */
    protected PSHierarchyNode[] getHierarchyNodes()

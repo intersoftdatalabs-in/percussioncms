@@ -19,6 +19,7 @@ package com.percussion.services.schedule.data;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk

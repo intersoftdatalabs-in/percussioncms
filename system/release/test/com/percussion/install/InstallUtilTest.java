@@ -46,7 +46,7 @@ public class InstallUtilTest
 
    public InstallUtilTest(){}
 
-   @BeforeEach 
+   @BeforeEach
    public void setup() throws IOException {
       ms_root = temporaryFolder.toFile().getAbsolutePath();
    }
@@ -82,7 +82,7 @@ public class InstallUtilTest
       File orig = null;
       File backup = null;
       FileWriter fw = null;
-      
+
       try
       {
          // Create repository properties file, including necessary parent dirs
@@ -108,7 +108,7 @@ public class InstallUtilTest
          assertTrue(IOTools.getFileContent(backup).equals(origContent));
 
          // Modify original
-         fw = new FileWriter(orig);            
+         fw = new FileWriter(orig);
          fw.write("New content");
          fw.close();
          assertFalse(IOTools.getFileContent(orig).equals(origContent));
@@ -128,12 +128,12 @@ public class InstallUtilTest
          {
             fw.close();
          }
-         
+
          if (orig != null)
          {
             orig.delete();
          }
-         
+
          if (backup != null)
          {
             backup.delete();
@@ -146,12 +146,12 @@ public class InstallUtilTest
       PSLogger.init(ms_root);
       clearLogContent();
       assertTrue(getLogContent().isEmpty());
-      
+
       assertFalse(InstallUtil.isSilentInstall());
       Connection conn = InstallUtil.createConnection("jtds", "bar", "admin", "demo");
       assertNull(conn);
       assertTrue(getLogContent().isEmpty());
-      
+
       InstallUtil.setIsSilentInstall(true);
       conn = InstallUtil.createConnection("jtds", "bar", "admin", "demo");
       assertNull(conn);
@@ -161,10 +161,10 @@ public class InstallUtilTest
       clearLogContent();
       assertTrue(getLogContent().isEmpty());
    }
-   
+
    /**
-    * @throws IOException 
-    * 
+    * @throws IOException
+    *
     */
    private void clearLogContent() throws IOException
    {
@@ -180,11 +180,11 @@ public class InstallUtilTest
 
    /**
     * Tests the <code>getVariableName</code> method.
-    * 
+    *
     * @param fullClassName the full class name.
     * @param varName the variable name.
     * @param variableName the expected install variable name.
-    * 
+    *
     */
    private void testGetVariableName(String fullClassName, String varName,
          String variableName)
@@ -192,7 +192,7 @@ public class InstallUtilTest
       assertEquals(InstallUtil.getVariableName(fullClassName, varName),
             variableName);
    }
-   
+
    /**
     * Acts as the root directory for tests.
     */

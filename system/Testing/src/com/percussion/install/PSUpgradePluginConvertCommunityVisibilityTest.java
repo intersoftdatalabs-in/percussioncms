@@ -55,7 +55,7 @@ import java.io.InputStream;
 
 /**
  * Test the upgrade plugin by running it against the upgrade data
- * 
+ *
  * @author dougrand
  */
 @Tag("IntegrationTest")
@@ -76,7 +76,7 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
     */
    private static final int[] communities =
    {1001, 1003};
-   
+
    /**
     * The connection details, used to qualify the table name
     */
@@ -100,7 +100,7 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
       String defaultds = m_dbm.getRepositoryDatasource();
       m_info = new PSConnectionInfo(defaultds);
       m_details = m_dbm.getConnectionDetail(m_info);
-      
+
       // Create a bunch of data to do the upgrade with. This uses a dummy
       // table that is accessed using the upgrade configuration. The created
       // acls are removed at the end of this process.
@@ -115,12 +115,12 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
       {
          String tablename = PSSqlHelper.qualifyTableName(
                "RXTESTVARIANTCOMMUNITY",
-               m_details.getDatabase(), m_details.getOrigin(), 
+               m_details.getDatabase(), m_details.getOrigin(),
                m_details.getDriver());
          sws.start("setup");
          // Create dummy data
 
-         
+
          try
          {
             s.createQuery("drop table " + tablename).executeUpdate();
@@ -210,7 +210,7 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
    {
       IPSAclService acl = PSAclServiceLocator.getAclService();
       IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      
+
       for(long vid = MIN_TEST_OID; vid < (MIN_TEST_OID + OID_COUNT); vid++)
       {
          IPSGuid oguid = gmgr.makeGuid(vid, PSTypeEnum.TEMPLATE);

@@ -56,8 +56,8 @@ public class PSAssemblyTestBase extends PSTestBase
 {
    /**
     * Create a new binding for the assembly SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
     * @throws AssertionFailedError for any error creating the new assembly
@@ -96,8 +96,8 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Create a new binding for the assembly design SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
     * @throws AssertionFailedError for any error creating the new assembly
@@ -174,7 +174,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Creates all slots used for testing.
-    * 
+    *
     * @throws Exception for any error.
     */
    protected void createTestSlots() throws Exception
@@ -185,7 +185,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Creates all templates used for testing.
-    * 
+    *
     * @throws Exception for any error.
     */
    protected void createTestTemplates() throws Exception
@@ -199,7 +199,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Create a new slot for the supplied name.
-    * 
+    *
     * @param name the slot name, may be <code>null</code> or empty.
     * @param save <code>true</code> to save the new slot to the repository,
     *    <code>false</code> to return the created slot unsaved.
@@ -235,7 +235,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Lock all slots for the supplied ids.
-    * 
+    *
     * @param ids the ids of the slots to lock, not <code>null</code> or
     *    empty.
     * @param session the session for which to lock the slots, not
@@ -267,7 +267,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Delete the supplied slot.
-    * 
+    *
     * @param slot the slot to be deleted, may be <code>null</code>.
     * @param session the rhythmyx session to use for all service calls, not
     *    <code>null</code> or empty.
@@ -300,7 +300,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Create a new template for the supplied name.
-    * 
+    *
     * @param name the template name, may be <code>null</code> or empty.
     * @param assembler the assember, may be <code>null</code> or empty.
     * @param outputFormat the template output format, not <code>null</code>.
@@ -350,7 +350,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Lock all templates for the supplied ids.
-    * 
+    *
     * @param ids the ids of the templates to lock, not <code>null</code> or
     *    empty.
     * @param session the session for which to lock the templates, not
@@ -382,7 +382,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Delete the supplied template.
-    * 
+    *
     * @param template the template to be deleted, may be <code>null</code>.
     * @param session the rhythmyx session to use for all service calls, not
     *    <code>null</code> or empty.
@@ -415,8 +415,8 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Delete all test slots.
-    * 
-    * @param session the session used to perform the deletes, not 
+    *
+    * @param session the session used to perform the deletes, not
     *    <code>null</code> or empty.
     * @throws Exception for any error.
     */
@@ -454,8 +454,8 @@ public class PSAssemblyTestBase extends PSTestBase
 
    /**
     * Delete all test templates.
-    * 
-    * @param session the session used to perform the deletes, not 
+    *
+    * @param session the session used to perform the deletes, not
     *    <code>null</code> or empty.
     * @throws Exception for any error.
     */

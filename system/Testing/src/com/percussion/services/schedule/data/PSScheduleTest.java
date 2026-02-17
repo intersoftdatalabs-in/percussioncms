@@ -22,6 +22,7 @@ import com.percussion.services.schedule.data.PSScheduledTask.ByLabelComparator;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk

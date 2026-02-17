@@ -19,6 +19,7 @@ package com.percussion.services.linkmanagement;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.percussion.services.linkmanagement.data.PSManagedLink;
 
@@ -86,7 +87,7 @@ public class PSManagedLinkDaoTest
         
         PSManagedLink link = createLink(parentId, parentRev, childId);
         
-        PSManagedLink found = m_dao.findLinkByLinkId(link.getLinkId());
+        PSManagedLink found = m_dao.findLinkByLinkId(link.getLinkId()).orElseThrow();
         assertNotNull(found);
         assertEquals(link.getLinkId(), found.getLinkId());
         assertEquals(link.getParentId(), found.getParentId());
@@ -160,9 +161,9 @@ public class PSManagedLinkDaoTest
         
         for (PSManagedLink link : links)
         {
-            assertNotNull(m_dao.findLinkByLinkId(link.getLinkId()));
+            assertTrue(m_dao.findLinkByLinkId(link.getLinkId()).isPresent());
             m_dao.deleteLink(link);
-            assertTrue(m_dao.findLinkByLinkId(link.getLinkId()) == null);
+            assertFalse(m_dao.findLinkByLinkId(link.getLinkId()).isPresent());
         }
         
     }
