@@ -54,7 +54,7 @@ public class PSBackEndCredentialTest
       didThrow = false;
       try
       {
-         new PSBackEndCredential("","bar","baz");
+         new PSBackEndCredential("");
       }
       catch (IllegalArgumentException e)
       {

@@ -77,7 +77,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit test for the system services to test loading workflows. This has been
  * made a separate test since it can be executed without a running server.
  */
-@Tag("IntegrationTest")
+
 public class PSWorkflowServiceTest
 {
 
@@ -113,13 +113,13 @@ public class PSWorkflowServiceTest
    IPSGuid m_wf4Id;
    PSWorkflow m_wf4;
    PSState m_wf4State0;
-   
-   @BeforeEach 
+
+   @BeforeEach
    public void setUp()
    {
       m_service = PSWorkflowServiceLocator.getWorkflowService();
       m_gmgr = PSGuidManagerLocator.getGuidMgr();
-      
+
       m_wf4Id = m_gmgr.makeGuid(4, PSTypeEnum.WORKFLOW);
       m_wf4 = m_service.loadWorkflow(m_wf4Id);
       List<PSState> states = m_wf4.getStates();
@@ -131,34 +131,34 @@ public class PSWorkflowServiceTest
    {
       int wfRoleSize = m_wf4.getRoles().size();
       List<Integer> roleSizes = getStateRoleSizes(m_wf4.getStates());
-      
+
       String roleName = "role_name_" + System.currentTimeMillis();
-      
+
       // add role
       m_service.addWorkflowRole(m_wf4Id, roleName);
-      
+
       // validates the added role
       PSWorkflow wf = m_service.loadWorkflow(m_wf4Id);
       assertTrue(wfRoleSize == wf.getRoles().size() - 1);
       validateRoleSizes(wfRoleSize, roleSizes, -1);
-      
+
       // remove role
       m_service.removeWorkflowRole(m_wf4Id, roleName);
-      
+
       // validate remove role
       wf = m_service.loadWorkflow(m_wf4Id);
       assertTrue(wfRoleSize == wf.getRoles().size());
-      
+
       // validate removed role
       validateRoleSizes(wfRoleSize, roleSizes, 0);
-      
+
      // add a role to ALL workflows
       roleName = "role_name_" + System.currentTimeMillis();
       m_service.addWorkflowRole(null, roleName);
       wf = m_service.loadWorkflow(m_wf4Id);
       assertTrue(wfRoleSize == wf.getRoles().size() - 1);
       validateRoleSizes(wfRoleSize, roleSizes, -1);
-      
+
       // remove a role from ALL workflows
       m_service.removeWorkflowRole(null, roleName);
       wf = m_service.loadWorkflow(m_wf4Id);
@@ -187,7 +187,7 @@ public class PSWorkflowServiceTest
       }
       return result;
    }
-   
+
    /**
     * Test create state and transitions
     */
@@ -197,38 +197,38 @@ public class PSWorkflowServiceTest
       // validates the created IDs are unique
       PSState state1 = createState(m_wf4Id);
       PSState state2 = createState(m_wf4Id);
-      
+
       assertFalse(state1.getGUID().equals(state2.getGUID()));
-      
+
       PSTransition trans1 = m_service.createTransition(m_wf4Id, state1.getGUID());
       PSTransition trans2 = m_service.createTransition(m_wf4Id, state2.getGUID());
-      
+
       assertFalse(trans1.getGUID().equals(trans2.getGUID()));
-      
-      
+
+
       // add state to the workflow
       List<PSState> states = m_wf4.getStates();
       int initSize = states.size();
       states.add(state1);
       states.add(state2);
-      
+
       m_service.saveWorkflow(m_wf4);
-      
+
       PSWorkflow wf2 = m_service.loadWorkflow(m_wf4Id);
       List<PSState> states2 = wf2.getStates();
       assertTrue(states2.size() == initSize + 2);
-      
+
       // remove states from the workflow
       removeState(state1.getGUID(), states2);
       removeState(state2.getGUID(), states2);
-      
+
       m_service.saveWorkflow(wf2);
-      
+
       PSWorkflow wf3 = m_service.loadWorkflow(m_wf4Id);
       List<PSState> states3 = wf3.getStates();
       assertTrue(states3.size() == initSize);
    }
-   
+
    private void removeState(IPSGuid stateId, List<PSState> states)
    {
       Iterator<PSState> it = states.iterator();
@@ -242,16 +242,16 @@ public class PSWorkflowServiceTest
          }
       }
    }
-   
+
    private PSState createState(IPSGuid wfId)
    {
       PSState state = m_service.createState(wfId);
       state.setName("State_" + state.getGUID().getUUID());
       state.setDescription(state.getName());
-      
+
       return state;
    }
-   
+
    /**
     * Test load workflow state and transitions
     */
@@ -264,16 +264,16 @@ public class PSWorkflowServiceTest
 
       List<PSTransition> trans = state46.getTransitions();
       List<PSAgingTransition> agingTrans = state46.getAgingTransitions();
-      
+
       assertTrue(trans.size() == 2);
       assertTrue(agingTrans.size() == 2);
-      
+
       for (PSTransition t : trans)
       {
          assertFalse(t.isAllowAllRoles());
       }
    }
-   
+
    /**
     * Tests the CRUD operation for the transition notifications
     */
@@ -285,30 +285,30 @@ public class PSWorkflowServiceTest
 
       List<PSNotification> notifs = tran.getNotifications();
       int notifsSize = notifs.size();
-      
+
       PSNotification notif = new PSNotification();
       notif.setTransitionId(tran.getGUID().getUUID());
       notif.setNotificationId(1);
       notif.setWorkflowId(4);
       notif.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_NOTIFICATION, 100));
-      
+
       // add a notification
       notifs.add(notif);
       m_wf4State0.setTransitions(trans);
       m_service.saveWorkflow(m_wf4);
       verifyTransitionNotifsSize(m_wf4Id, notifsSize + 1);
-      
+
       // remove the notification
       PSWorkflow wf = m_service.loadWorkflow(m_wf4Id);
       List<PSState> states = wf.getStates();
       PSState state = states.get(0);
       trans = state.getTransitions();
       tran = trans.get(0);
-      
+
       tran.getNotifications().remove(notif);
       state.setTransitions(trans);
       m_service.saveWorkflow(wf);
-      
+
       verifyTransitionNotifsSize(m_wf4Id, notifsSize);
    }
 
@@ -320,7 +320,7 @@ public class PSWorkflowServiceTest
       List<PSTransition> trans = state.getTransitions();
       PSTransition tran = trans.get(0);
       int currSize = tran.getNotifications().size();
-      
+
       assertTrue(currSize == size);
    }
 
@@ -335,24 +335,24 @@ public class PSWorkflowServiceTest
       IPSGuid stateId = new PSGuid(PSTypeEnum.WORKFLOW_STATE, 5);
       PSState state = m_service.loadWorkflowState(stateId, m_wf4Id);
       verifyCachedState(wf, state, stateId);
-      
+
       List<PSTransition> trans = state.getTransitions();
       PSTransition tran = trans.get(0);
       List<PSTransitionRole> roles = tran.getTransitionRoles();
       int initRoleSize = roles.size();
-      
+
       PSTransitionRole role = new PSTransitionRole();
       role.setRoleId(3);
       role.setTransitionId(tran.getGUID().getUUID());
       role.setWorkflowId(4);
-      
+
       // add one role
       roles.add(role);
       state.setTransitions(trans);
       m_service.saveWorkflow(wf);
-      
+
       verifyTransitionRoleSize(m_wf4Id, initRoleSize +1);
-      
+
       // remove the role
       wf = m_service.loadWorkflow(m_wf4Id);
       state = m_service.loadWorkflowState(stateId, m_wf4Id);
@@ -361,7 +361,7 @@ public class PSWorkflowServiceTest
       tran = trans.get(0);
       roles = tran.getTransitionRoles();
       roles.remove(role);
-      
+
       state.setTransitions(trans);
       m_service.saveWorkflow(wf);
       verifyTransitionRoleSize(m_wf4Id, initRoleSize);
@@ -378,7 +378,7 @@ public class PSWorkflowServiceTest
          }
       }
    }
-   
+
    private void verifyTransitionRoleSize(IPSGuid wfId, int size)
    {
       IPSGuid stateId = new PSGuid(PSTypeEnum.WORKFLOW_STATE, 5);
@@ -386,10 +386,10 @@ public class PSWorkflowServiceTest
       List<PSTransition> trans = state.getTransitions();
       PSTransition tran = trans.get(0);
       List<PSTransitionRole> roles = tran.getTransitionRoles();
-      
+
       assertTrue(roles.size() == size);
    }
-   
+
    /**
     * Tests the cached (non-persisted) transitions.
     */
@@ -397,33 +397,33 @@ public class PSWorkflowServiceTest
    public void testStateTransitionCache()
    {
       PSState state = m_wf4State0;
-      
+
       // test transition list
       List<PSTransition> trans = state.getTransitions();
       List<PSTransition> trans_2 = state.getTransitions();
-      
+
       assertTrue(trans == trans_2);
 
       state.setTransitions(trans);
       trans_2 = state.getTransitions();
-      
+
       assertTrue(trans != trans_2);
       assertEquals(trans, trans_2);
-      
+
       // test aging transition list
-      
+
       List<PSAgingTransition> agingTrans = state.getAgingTransitions();
       List<PSAgingTransition> agingTrans_2 = state.getAgingTransitions();
-      
+
       assertTrue(agingTrans == agingTrans_2);
-      
+
       state.setAgingTransitions(agingTrans);
       agingTrans_2 = state.getAgingTransitions();
-      
+
       assertTrue(agingTrans != agingTrans_2);
       assertEquals(agingTrans, agingTrans_2);
    }
-   
+
    /**
     * Tests the CRUD operation for the state transitions.
     */
@@ -431,16 +431,16 @@ public class PSWorkflowServiceTest
    public void testStateTransitionCRUC()
    {
       List<PSTransition> trans = m_wf4State0.getTransitions();
-      
+
       int initTransSize = trans.size();
       PSTransition tran = trans.get(0);
-      
+
       // remove 1st transition
       trans.remove(tran);
       m_wf4State0.setTransitions(trans);
       m_service.saveWorkflow(m_wf4);
       verifyStateTransitionSize(m_wf4Id, initTransSize - 1);
-      
+
       // add 1st transition back
       PSWorkflow wf2 = m_service.loadWorkflow(m_wf4Id);
       List<PSState> states = wf2.getStates();
@@ -449,10 +449,10 @@ public class PSWorkflowServiceTest
       trans.add(tran);
       state.setTransitions(trans);
       m_service.saveWorkflow(wf2);
-      
+
       verifyStateTransitionSize(m_wf4Id, initTransSize);
    }
-   
+
    private void verifyStateTransitionSize(IPSGuid wfId, int size)
    {
       PSWorkflow wf = m_service.loadWorkflow(wfId);
@@ -461,7 +461,7 @@ public class PSWorkflowServiceTest
       List<PSTransition> trans = state.getTransitions();
       assertTrue(trans.size() == size);
    }
-   
+
    /**
     * Test the CRUD operation for the state roles
     */
@@ -470,24 +470,24 @@ public class PSWorkflowServiceTest
    {
       IPSGuid id1 = m_gmgr.makeGuid(4, PSTypeEnum.WORKFLOW);
       PSWorkflow wf = m_service.loadWorkflow(id1);
-    
+
       List<PSState> states = wf.getStates();
-      PSState state = states.get(0);      
+      PSState state = states.get(0);
       List<PSAssignedRole> roles = state.getAssignedRoles();
       int initRoleSize = roles.size();
       PSAssignedRole role = roles.get(0);
-      
+
       // remove 1st role
       roles.remove(role);
       m_service.saveWorkflow(wf);
-      
+
       // verify the remove
       verifyStateRoleSize(id1, initRoleSize -1);
-      
+
       // add the role
       roles.add(role);
       m_service.saveWorkflow(wf);
-      
+
       // verify add role
       verifyStateRoleSize(id1, initRoleSize);
    }
@@ -500,7 +500,7 @@ public class PSWorkflowServiceTest
       List<PSAssignedRole> roles = state.getAssignedRoles();
       assertTrue(roles.size() == roleSize);
    }
-   
+
    /**
     * Test the CRUD operation for workflow roles
     */
@@ -509,22 +509,22 @@ public class PSWorkflowServiceTest
    {
       IPSGuid id1 = m_gmgr.makeGuid(4, PSTypeEnum.WORKFLOW);
       PSWorkflow wf = m_service.loadWorkflow(id1);
-      
+
       List<PSWorkflowRole> roles = wf.getRoles();
       int initRoleSize = roles.size();
-      
+
       PSWorkflowRole role = new PSWorkflowRole();
       role.setWorkflowId(4);
       role.setName("Default");
       role.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_ROLE, 7));
-      
+
       roles.add(role);
-      
+
       m_service.saveWorkflow(wf);
       wf = m_service.loadWorkflow(id1);
       roles = wf.getRoles();
       assertTrue(roles.size() == initRoleSize + 1);
-      
+
       roles.remove(role);
       m_service.saveWorkflow(wf);
       wf = m_service.loadWorkflow(id1);
@@ -539,17 +539,17 @@ public class PSWorkflowServiceTest
    {
       IPSGuid id1 = m_gmgr.makeGuid(4, PSTypeEnum.WORKFLOW);
       PSWorkflow wf = m_service.loadWorkflow(id1);
-    
+
       List<PSNotificationDef> notifs = wf.getNotificationDefs();
       int initRoleSize = notifs.size();
-      
+
       PSNotificationDef notif = new PSNotificationDef();
       notif.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_NOTIFICATION, 301));
       notif.setWorkflowId(4);
       notif.setSubject("Content into Review");
       notif.setBody("A content item has transitioned into the review state.");
       notif.setDescription("Notification for transitions into review state");
-      
+
       // Add one notification
       notifs.add(notif);
       m_service.saveWorkflow(wf);
@@ -558,19 +558,19 @@ public class PSWorkflowServiceTest
       PSWorkflow wf2 = m_service.loadWorkflow(id1);
       assertTrue(wf != wf2);
       notifs = wf2.getNotificationDefs();
-      assertTrue(notifs.size() == initRoleSize + 1);      
+      assertTrue(notifs.size() == initRoleSize + 1);
 
       // Remove the added notification
       notifs.remove(notif);
       m_service.saveWorkflow(wf2);
-      
+
       // verify the removed notification
       PSWorkflow wf3 = m_service.loadWorkflow(id1);
       assertTrue(wf2 != wf3);
       notifs = wf3.getNotificationDefs();
-      assertTrue(notifs.size() == initRoleSize);             
+      assertTrue(notifs.size() == initRoleSize);
    }
-   
+
 
    /**
     * Setup additional information needed to test adhoc user assignment
@@ -634,10 +634,10 @@ public class PSWorkflowServiceTest
       assertEquals(2, adhoc.getRoleId());
       assertEquals(PSAdhocTypeEnum.ENABLED.getValue(), adhoc.getAdhocType());
       assertEquals(2, adhoc.getRoleId());
-      
+
       adhocs = service.findAdhocInfoByItem(new PSLegacyGuid(
          new PSLocator(ADHOC_CIDS[0])));
-      
+
       assertTrue(adhocs.size() == 1);
       PSContentAdhocUser a = adhocs.get(0);
       assertEquals(ADHOC_CIDS[0], a.getContentId());
@@ -645,7 +645,7 @@ public class PSWorkflowServiceTest
 
    /**
     * Test loading workflow objects.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Test
@@ -785,7 +785,7 @@ public class PSWorkflowServiceTest
    /**
     * Test the community - workflow relationships for the standard fast forward
     * setup.
-    * 
+    *
     * @throws Exception for any error.
     */
    @Test
@@ -852,11 +852,11 @@ public class PSWorkflowServiceTest
       assertTrue(wf3 == wf5);
       assertEquals(wf3.getName(), wf5.getName());
       assertEquals(wf3.getInitialStateId(), wf5.getInitialStateId());
-      
+
       // Check for equal but not the same after clear the EHCache
       IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
       cmsMgr.flushSecondLevelCache();
-      
+
       wf3 = service.loadWorkflow(id1);
       wf4 = service.loadWorkflow(id2);
       assertTrue(wf1 != wf3);
@@ -864,7 +864,7 @@ public class PSWorkflowServiceTest
       assertEquals(wf1.getName(), wf3.getName());
       assertEquals(wf1.getInitialStateId(), wf3.getInitialStateId());
 
-      // load from the EHCache 
+      // load from the EHCache
       PSWorkflow wf6 = service.loadWorkflow(id1);
       PSWorkflow wf7 = service.loadWorkflow(id2);
       assertTrue(wf6 == wf3);
@@ -874,7 +874,7 @@ public class PSWorkflowServiceTest
 
    /**
     * Test the workflow state extraction
-    * 
+    *
     * @throws PSORMException
     */
    @Test
@@ -884,7 +884,7 @@ public class PSWorkflowServiceTest
             .getWorkflowService();
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
       IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      List<PSComponentSummary> sums = cms.findComponentSummariesByType(311);
+      List<PSComponentSummary> sums = cms.findComponentSummariesByType(311).collect(java.util.stream.Collectors.toList());
       Map<IPSGuid, PSComponentSummary> smap = new HashMap<IPSGuid, PSComponentSummary>();
       List<IPSGuid> guids = new ArrayList<IPSGuid>();
       for (PSComponentSummary s : sums)
@@ -913,19 +913,19 @@ public class PSWorkflowServiceTest
       System.out.println("(WorkflowState) Took " + sw + " to load "
             + states.size());
    }
-   
+
    /**
     * Test creating, finding, and deleting content approvals
-    * 
+    *
     * @throws Exception if there are any errors
     */
    @Test
    public void testContentApprovals() throws Exception
    {
-      IPSWorkflowService service = 
+      IPSWorkflowService service =
          PSWorkflowServiceLocator.getWorkflowService();
       IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
-      
+
       Set<IPSGuid> contentIds1 = new HashSet<IPSGuid>();
       Set<IPSGuid> contentIds2 = new HashSet<IPSGuid>();
       List<PSContentApproval> approvals = null;
@@ -935,54 +935,54 @@ public class PSWorkflowServiceTest
          // delete existing
          deleteApprovals(TEST_USER, null);
          deleteApprovals(ADMIN1, null);
-         
+
          // create new
          int contentid1 = 1001;
          int contentid2 = 1002;
          IPSGuid guid1 = guidMgr.makeGuid(new PSLocator(contentid1));
          IPSGuid guid2 = guidMgr.makeGuid(new PSLocator(contentid2));
-         
-         PSContentApproval approval1 = new PSContentApproval(contentid1, 1003, 
+
+         PSContentApproval approval1 = new PSContentApproval(contentid1, 1003,
             TEST_USER, 4, 2, 2);
          service.saveContentApproval(approval1);
          contentIds1.add(guid1);
-               
-         
-         PSContentApproval approval2 = new PSContentApproval(contentid2, 1004, 
+
+
+         PSContentApproval approval2 = new PSContentApproval(contentid2, 1004,
             TEST_USER, 5, 3, 1);
          service.saveContentApproval(approval2);
          contentIds1.add(guid2);
-         
+
          approvals = service.findApprovalsByUser(TEST_USER);
          assertEquals(approvals.size(), 2);
          assertTrue(approvals.contains(approval1));
          assertTrue(approvals.contains(approval2));
-         
-         PSContentApproval approval3 = new PSContentApproval(contentid1, 1001, 
+
+         PSContentApproval approval3 = new PSContentApproval(contentid1, 1001,
             ADMIN1, 4, 2, 2);
          service.saveContentApproval(approval3);
          contentIds2.add(guid1);
-         
-         PSContentApproval approval4 = new PSContentApproval(contentid2, 1001, 
+
+         PSContentApproval approval4 = new PSContentApproval(contentid2, 1001,
             ADMIN1, 4, 2, 2);
          service.saveContentApproval(approval4);
          contentIds2.add(guid2);
-         
+
          approvals = service.findApprovalsByUser(ADMIN1);
          assertEquals(approvals.size(), 2);
          assertTrue(approvals.contains(approval3));
          assertTrue(approvals.contains(approval4));
-         
+
          approvals = service.findApprovalsByItem(guid1);
          assertEquals(approvals.size(), 2);
          assertTrue(approvals.contains(approval1));
          assertTrue(approvals.contains(approval3));
-         
+
          approvals = service.findApprovalsByItem(guid2);
          assertEquals(approvals.size(), 2);
          assertTrue(approvals.contains(approval2));
          assertTrue(approvals.contains(approval4));
-         
+
          service.deleteContentApprovals(guid1);
          approvals = service.findApprovalsByItem(guid1);
          assertTrue(approvals.isEmpty());
@@ -1002,28 +1002,28 @@ public class PSWorkflowServiceTest
    @Test
    public void testUpdateWorkflowVersion()
    {
-      IPSWorkflowService service = 
+      IPSWorkflowService service =
          PSWorkflowServiceLocator.getWorkflowService();
       IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-            
+
       // create test workflow
       PSWorkflow workflow = new PSWorkflow();
       workflow.setName("TestUpdateWorkflowVersion");
       workflow.setGUID(gmgr.makeGuid(9999, PSTypeEnum.WORKFLOW));
       service.saveWorkflow(workflow);
       IPSGuid wfGuid = workflow.getGUID();
-      
+
       // update NULL version
       service.updateWorkflowVersion(wfGuid);
       PSWorkflow wf2 = service.loadWorkflow(wfGuid);
       Integer wf2Ver = wf2.getVersion();
       assertEquals(wf2Ver.intValue(), 0);
-      
+
       // update non-NULL version
       service.updateWorkflowVersion(wfGuid);
       PSWorkflow wf3 = service.loadWorkflow(wfGuid);
       assertEquals(wf3.getVersion().intValue(), wf2Ver + 1);
-      
+
       // clean-up
       try
       {
@@ -1035,10 +1035,10 @@ public class PSWorkflowServiceTest
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
    }
-   
+
    /**
     * Delete approvals for the supplied user and ensure they are not found
-    * 
+    *
     * @param userName The username to use, assumed not <code>null</code> or
     * empty.
     * @param contentIds The set of content ids to delete,
@@ -1046,9 +1046,9 @@ public class PSWorkflowServiceTest
     */
    private void deleteApprovals(String userName, Set<IPSGuid> contentIds)
    {
-      IPSWorkflowService service = 
+      IPSWorkflowService service =
          PSWorkflowServiceLocator.getWorkflowService();
-      
+
       List<PSContentApproval> approvals;
       approvals = service.findApprovalsByUser(userName);
       for (PSContentApproval approval : approvals)

@@ -227,8 +227,7 @@ public class PSCharacterSetTest
          boolean outputEqualsInput = compare( testFile, output, encoding );
          if (!outputEqualsInput)
             writeOutputAsTempFile( output ); // assist debugging
-         assertTrue( "result of transforming " + testFile + " with " + 
-            stylesheet + " does not equal source", outputEqualsInput );
+         assertTrue(outputEqualsInput, "result of transforming " + testFile + " with " + stylesheet + " does not equal source");
 
          // test the two-step copy encoding->UTF8->encoding
          byte[] intertial = transform( sourceDoc, "copy.xsl", "UTF-8");
@@ -239,9 +238,7 @@ public class PSCharacterSetTest
          outputEqualsInput = compare( testFile, output, encoding );
          if (!outputEqualsInput)
             writeOutputAsTempFile( output ); // assist debugging
-         assertTrue( "result of transforming " + testFile +
-            " through UTF-8 and back with " + stylesheet +
-            " does not equal source", outputEqualsInput );
+         assertTrue(outputEqualsInput, "result of transforming " + testFile + " through UTF-8 and back with " + stylesheet + " does not equal source");
 
       } catch (Exception e)
       {

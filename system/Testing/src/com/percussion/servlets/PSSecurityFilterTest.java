@@ -71,8 +71,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PSSecurityFilterTest
 {
 
-   @ClassRule
-   public static Path tempFolder = TemporaryFolder.builder().build();
+   @TempDir
+   public static Path tempFolder;
 
    @AfterAll
    public static void tearDown() throws Exception
@@ -99,15 +99,15 @@ public class PSSecurityFilterTest
 
    @BeforeAll
    public static void setupClass() throws IOException, URISyntaxException {
-      System.setProperty(PathUtils.DEPLOY_DIR_PROP, tempFolder.getRoot().getAbsolutePath());
+      System.setProperty(PathUtils.DEPLOY_DIR_PROP, tempFolder.toAbsolutePath().toString());
 
       copyDirectory(Paths.get(
               PSSecurityFilterTest.class.getResource(PSSecurityFilterTest.TEST_FILE_DIR).toURI()).toString(),
-              tempFolder.getRoot().getAbsolutePath() );
+              tempFolder.toAbsolutePath().toString() );
 
    }
 
-   @BeforeEach 
+   @BeforeEach
    public void setup(){
          ms_filter = new PSSecurityFilter();
    }
@@ -118,7 +118,7 @@ public class PSSecurityFilterTest
       {
          if(path.startsWith("/"))
             path = path.substring(1);
-         return tempFolder.getRoot().toPath().resolve(path).toAbsolutePath().toString();
+         return tempFolder.resolve(path).toAbsolutePath().toString();
       }
 
    };
@@ -130,13 +130,13 @@ public class PSSecurityFilterTest
 
    /**
     * Test the security config init.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    @Test
    public void test10InitSecurityConfiguration() throws Exception
    {
-      ms_filter.initSecurityConfiguration(tempFolder.getRoot().getAbsolutePath());
+      ms_filter.initSecurityConfiguration(tempFolder.toAbsolutePath().toString());
       assertEquals(ms_configuredRequests, ms_filter.getConfiguredEntries());
       assertTrue(ms_filter.isSecureLogin());
    }
@@ -186,7 +186,7 @@ public class PSSecurityFilterTest
 
    /**
     * Test loading various security configurations.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    @Test
@@ -200,17 +200,17 @@ public class PSSecurityFilterTest
 
    /**
     * Tests loading a single security configuration.
-    * 
+    *
     * @param index The index of the config to load.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    public void doTestLoadConfig(int index) throws Exception
    {
       File securityConfig;
-      securityConfig = new File(tempFolder.getRoot().getAbsolutePath(), "test-security-conf-"
+      securityConfig = new File(tempFolder.toAbsolutePath().toString(), "test-security-conf-"
             + (index + 1) + ".xml");
-      boolean isSecure = PSSecurityFilter.loadConfig(securityConfig, false, 
+      boolean isSecure = PSSecurityFilter.loadConfig(securityConfig, false,
             new ArrayList<SecurityEntry>());
 
       assertEquals(isSecure, ms_testSecure[index]);
@@ -218,12 +218,12 @@ public class PSSecurityFilterTest
 
    /**
     * Tests the pattern matching.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    @Test
    public void test80Matching() throws Exception
-   {  
+   {
       ms_filter.init(config);
       assertEquals(AuthType.BASIC, match("/user/basic", "GET"));
       assertEquals(AuthType.BASIC, match("/user/basics", "GET"));
@@ -325,11 +325,11 @@ public class PSSecurityFilterTest
       Properties props = new Properties();
 
       try (FileInputStream in = new FileInputStream(
-              tempFolder.getRoot().getAbsolutePath() + "/rxconfig/Server/server.properties")) {
+              tempFolder.toAbsolutePath().toString() + "/rxconfig/Server/server.properties")) {
          props.load(in);
       }
 
-      try (FileOutputStream out = new FileOutputStream(tempFolder.getRoot().getAbsolutePath() + "/rxconfig/Server/server.properties")) {
+      try (FileOutputStream out = new FileOutputStream(tempFolder.toAbsolutePath().toString() + "/rxconfig/Server/server.properties")) {
          props.setProperty(IPSConstants.SERVER_PROP_PUBLIC_CMS_HOSTNAME, cmsHostName);
          props.setProperty(IPSConstants.SERVER_PROP_ALLOWED_ORIGINS, allowedOrigins);
          props.store(out, null);
@@ -343,7 +343,7 @@ public class PSSecurityFilterTest
     * @param url
     * @param method
     * @return the matching authtype
-    * @throws ServletException 
+    * @throws ServletException
     */
    private AuthType match(String url, String method) throws ServletException
    {
@@ -354,26 +354,26 @@ public class PSSecurityFilterTest
    }
 
    /**
-    * 
+    *
     */
    private static final String TEST_FILE_DIR
    = "/com/percussion/servlets";
 
    /**
-    * 
+    *
     */
    private static boolean[] ms_testSecure = new boolean[]
          {false, true, false};
 
    /**
-    * 
+    *
     */
    private static PSSecurityFilter ms_filter;
 
    /**
-    * 
+    *
     */
-   private static List<SecurityEntry> ms_configuredRequests = 
+   private static List<SecurityEntry> ms_configuredRequests =
          new ArrayList<SecurityEntry>();
 
    static

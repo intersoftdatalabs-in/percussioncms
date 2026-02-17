@@ -30,16 +30,16 @@ import static org.junit.jupiter.api.Assertions.*;
  *   Unit tests for the PSSortTool class
  */
 
-public class PSSortToolTest 
+public class PSSortToolTest
 {
 
-   
+
 
    /**
     * Test sorting a large-ish vector of Long objects
     * using QuickSort
     */
-   
+
    public void testVectorQuickSort()
    {
       class LongComp implements Comparator
@@ -61,13 +61,13 @@ public class PSSortToolTest
       PSSortTool.QuickSort(cloneVec, new LongComp());
       endTime = System.currentTimeMillis();
       System.err.println(
-         "QuickSort (vector) of " + cloneVec.size() + " elements took " + 
+         "QuickSort (vector) of " + cloneVec.size() + " elements took " +
          (endTime - startTime) + " milliseconds.");
       int compVal = 1;
       for (int i = 0; i < (cloneVec.size() - 1); i++)
       {
          compVal = ((Long)cloneVec.elementAt(i)).compareTo((Long)cloneVec.elementAt(i+1));
-         assertTrue("Element at: " + i, compVal <= 0);
+         assertTrue(compVal <= 0, "Element at: " + i);
       }
    }
 
@@ -75,7 +75,7 @@ public class PSSortToolTest
     * Test sorting a large-ish array of Long objects
     * using QuickSort
     */
-   
+
    public void testArrayQuickSort()
    {
       class LongComp implements Comparator
@@ -98,13 +98,13 @@ public class PSSortToolTest
       PSSortTool.QuickSort(cloneVec, new LongComp());
       endTime = System.currentTimeMillis();
       System.err.println(
-         "QuickSort (array) of " + cloneVec.length + " elements took " + 
+         "QuickSort (array) of " + cloneVec.length + " elements took " +
          (endTime - startTime) + " milliseconds.");
       int compVal = 1;
       for (int i = 0; i < (cloneVec.length - 1); i++)
       {
          compVal = ((Long)cloneVec[i]).compareTo((Long)cloneVec[i+1]);
-         assertTrue("Element at: " + i, compVal <= 0);
+         assertTrue(compVal <= 0, "Element at: " + i);
       }
    }
 
@@ -112,7 +112,7 @@ public class PSSortToolTest
     * Test sorting a large-ish array of Long objects
     * using MergeSort
     */
-   
+
    public void testArrayMergeSort()
    {
       class LongComp implements Comparator
@@ -135,18 +135,18 @@ public class PSSortToolTest
       PSSortTool.MergeSort(cloneVec, new LongComp());
       endTime = System.currentTimeMillis();
       System.err.println(
-         "MergeSort (array) of " + cloneVec.length + " elements took " + 
+         "MergeSort (array) of " + cloneVec.length + " elements took " +
          (endTime - startTime) + " milliseconds.");
       int compVal = 1;
       for (int i = 0; i < (cloneVec.length - 1); i++)
       {
          compVal = ((Long)cloneVec[i]).compareTo((Long)cloneVec[i+1]);
-         assertTrue("Element at: " + i, compVal <= 0);
+         assertTrue(compVal <= 0, "Element at: " + i);
       }
    }
 
 
-   
+
 
 
    public void testVectorJdkSort()
@@ -170,17 +170,17 @@ public class PSSortToolTest
       java.util.Collections.sort(cloneVec, new LongComp());
       endTime = System.currentTimeMillis();
       System.err.println(
-         "JDK sort (vector) of " + cloneVec.size() + " elements took " + 
+         "JDK sort (vector) of " + cloneVec.size() + " elements took " +
          (endTime - startTime) + " milliseconds.");
       int compVal = 1;
       for (int i = 0; i < (cloneVec.size() - 1); i++)
       {
          compVal = ((Long)cloneVec.elementAt(i)).compareTo((Long)cloneVec.elementAt(i+1));
-         assertTrue("Element at: " + i, compVal <= 0);
+         assertTrue(compVal <= 0, "Element at: " + i);
       }
    }
 
-   
+
 
    public void testArrayJdkSort()
    {
@@ -203,13 +203,13 @@ public class PSSortToolTest
       java.util.Arrays.sort(cloneVecArray, new LongComp());
       endTime = System.currentTimeMillis();
       System.err.println(
-         "JDK sort (array) of " + cloneVecArray.length + " elements took " + 
+         "JDK sort (array) of " + cloneVecArray.length + " elements took " +
          (endTime - startTime) + " milliseconds.");
       int compVal = 1;
       for (int i = 0; i < (cloneVecArray.length - 1); i++)
       {
          compVal = ((Long)cloneVecArray[i]).compareTo((Long)cloneVecArray[i+1]);
-         assertTrue("Element at: " + i, compVal <= 0);
+         assertTrue(compVal <= 0, "Element at: " + i);
       }
    }
 
@@ -224,7 +224,7 @@ public class PSSortToolTest
    }
 
    // collect all tests into a TestSuite and return it
-   
+
 
    private Vector m_randomLongVector;
    private static final int VECTOR_SIZE = 2048;
