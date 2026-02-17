@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Test the {@link IPSAclService} CRUD operations.  See
  * {@link PSAclServiceAccessTest} for other service functionality.
  */
-@Tag("IntegrationTest")
+
 public class PSAclServiceTest
 {
 
@@ -171,7 +171,7 @@ public class PSAclServiceTest
          acls.add(tmpAcl);
          svc.saveAcls(acls);
 
-         PSAclImpl savedAcl = (PSAclImpl)svc.loadAcl(tmpAcl.getGUID());
+         PSAclImpl savedAcl = (PSAclImpl) svc.loadAcls(Collections.singletonList(tmpAcl.getGUID())).get(0);
          assertEquals(tmpAcl, savedAcl);
       }
       finally
@@ -380,8 +380,7 @@ public class PSAclServiceTest
       //load same object should come from cache
       IPSAclService aclService = PSAclServiceLocator.getAclService();
       IPSAcl acl1 = aclService.loadAclForObject(ms_templateGuid);
-      assertTrue(acl1.equals(aclService.loadAcl(acl1
-            .getGUID())), "Cache not working");
+      assertTrue(acl1.equals(aclService.loadAcls(Collections.singletonList(acl1.getGUID())).get(0)), "Cache not working");
       assertTrue(acl1.equals(aclService.loadAclsForObjects(
             Collections.singletonList(ms_templateGuid)).get(0)), "Cache not working");
       // a load by aclId must come after a load by objectId because of
@@ -394,7 +393,7 @@ public class PSAclServiceTest
             .singletonList(acl1.getGUID()));
       IPSAcl modAcl = modAcls.get(0);
       assertFalse(acl1 == modAcl);
-      assertTrue(acl1.equals(aclService.loadAcl(acl1.getGUID())),
+      assertTrue(acl1.equals(aclService.loadAcls(Collections.singletonList(acl1.getGUID())).get(0)),
             "Cache evicted on load read/write");
       assertFalse(modAcl.equals(aclService.loadAclsModifiable(Collections
             .singletonList(acl1.getGUID()))));
@@ -402,7 +401,7 @@ public class PSAclServiceTest
       //save should evict cache - test load by aclId
       modAcl.setObjectId(120000);
       aclService.saveAcls(modAcls);
-      IPSAcl postModAcl = aclService.loadAcl(acl1.getGUID());
+      IPSAcl postModAcl = aclService.loadAcls(Collections.singletonList(acl1.getGUID())).get(0);
       assertFalse(acl1 == postModAcl);
 
       //save should evict cache - test load by objectId
@@ -410,7 +409,7 @@ public class PSAclServiceTest
             Collections.singletonList(postModAcl.getGUID())).get(0);
       modAcl.setObjectId(120001);
       aclService.saveAcls(Collections.singletonList(modAcl));
-      postModAcl = aclService.loadAcl(postModAcl.getGUID());
+      postModAcl = aclService.loadAcls(Collections.singletonList(postModAcl.getGUID())).get(0);
       assertFalse(modAcl == postModAcl);
 
 
@@ -433,9 +432,10 @@ public class PSAclServiceTest
       //delete should evict cache - test loading by aclId
       List<IPSAcl> testAcls = createTestAcls();
       IPSGuid testGuid = testAcls.get(0).getGUID();
-      readOnlyAcl = aclService.loadAcl(testGuid);
+      readOnlyAcl = aclService.loadAcls(Collections.singletonList(testGuid)).get(0);
+      IPSGuid objectGuidToCheck = readOnlyAcl.getObjectGuid();
       aclService.deleteAcl(readOnlyAcl.getGUID());
-      assertNull(aclService.loadAclForObject(testGuid));
+      assertNull(aclService.loadAclForObject(objectGuidToCheck));
    }
 
    /**
@@ -533,15 +533,8 @@ public class PSAclServiceTest
          IPSGuid aclGuid = ((PSAclImpl)acl).getGUID();
          aclService.deleteAcl(aclGuid);
 
-         try
-         {
-            aclService.loadAcl(aclGuid);
-            fail("Should have thrown");
-         }
-         catch (com.percussion.services.security.PSServiceSecurityException e)
-         {
-            // expected
-         }
+         List<IPSAcl> results = aclService.loadAcls(Collections.singletonList(aclGuid));
+         assertTrue(results.isEmpty(), "ACL was not deleted");
       }
    }
 
@@ -721,7 +714,7 @@ public class PSAclServiceTest
          IPSGuid guid = aclImpl.getGUID();
          IPSGuid objGuid = new PSGuid(PSTypeEnum.valueOf(
             aclImpl.getObjectType()), aclImpl.getObjectId());
-         IPSAcl idtest = aclService.loadAcl(guid);
+         IPSAcl idtest = aclService.loadAcls(Collections.singletonList(guid)).get(0);
          IPSAcl objtest = aclService.loadAclForObject(objGuid);
          assertTrue(idtest.equals(objtest));
 
@@ -733,8 +726,8 @@ public class PSAclServiceTest
       for (IPSAcl acl : loadList)
       {
          PSAclImpl aclImpl = (PSAclImpl)acl;
-         assertEquals(acl, aclService.loadAcl(
-            aclImpl.getGUID()));
+         assertEquals(acl, aclService.loadAcls(
+            Collections.singletonList(aclImpl.getGUID())).get(0));
       }
 
       assertEquals(loadList.size(),
