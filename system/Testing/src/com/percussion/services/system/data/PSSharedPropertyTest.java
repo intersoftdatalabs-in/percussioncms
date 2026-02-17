@@ -54,7 +54,7 @@ public class PSSharedPropertyTest
       try
       {
          property = new PSSharedProperty(null, value);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
@@ -65,7 +65,7 @@ public class PSSharedPropertyTest
       try
       {
          property = new PSSharedProperty(" ", value);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
@@ -82,7 +82,7 @@ public class PSSharedPropertyTest
       try
       {
          property.setVersion(-1);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
@@ -95,7 +95,7 @@ public class PSSharedPropertyTest
       try
       {
          property.setVersion(1);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (IllegalStateException e)
       {

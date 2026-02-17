@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for the {@link PSErrorResultsException} class.
@@ -65,7 +66,7 @@ public class PSErrorResultsExceptionTest
       try
       {
          exception.addError(null, error_1);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
@@ -76,7 +77,7 @@ public class PSErrorResultsExceptionTest
       try
       {
          exception.addError(guid_1, null);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
@@ -87,7 +88,7 @@ public class PSErrorResultsExceptionTest
       try
       {
          exception.addResult(null, result_1);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
@@ -98,7 +99,7 @@ public class PSErrorResultsExceptionTest
       try
       {
          exception.addResult(guid_1, null);
-         assertFalse("Should have thrown exception", false);
+         fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
