@@ -250,6 +250,63 @@ public interface IPSWorkflowService {
     void addRoleToWorkflow(IPSGuid id, String roleName, PSWorkflow wf);
 
     /**
+     * Add a role to a workflow by GUID (backwards-compatible signature).
+     * Implementations must provide a concrete implementation.
+     *
+     * @param wfId workflow id, may be {@code null} to affect all workflows
+     * @param roleName role name, not {@code null}
+     */
+    void addWorkflowRole(IPSGuid wfId, String roleName);
+
+    /**
+     * Remove a role from a workflow by GUID (backwards-compatible signature).
+     * Implementations must provide a concrete implementation.
+     *
+     * @param wfId workflow id, may be {@code null} to affect all workflows
+     * @param roleName role name, not {@code null}
+     * @return true if removed, false otherwise
+     */
+    boolean removeWorkflowRole(IPSGuid wfId, String roleName);
+
+    /**
+     * Save an adhoc user assignment for content.
+     * @param adhoc the adhoc user, not {@code null}
+     */
+    void saveContentAdhocUser(com.percussion.services.workflow.data.PSContentAdhocUser adhoc);
+
+    /**
+     * Find adhoc users by username.
+     * @param username the username, not {@code null}
+     * @return list of adhoc entries, never {@code null}
+     */
+    java.util.List<com.percussion.services.workflow.data.PSContentAdhocUser> findAdhocInfoByUser(String username);
+
+    /**
+     * Delete adhoc user assignment.
+     * @param adhoc the adhoc user to delete, not {@code null}
+     */
+    void deleteContentAdhocUser(com.percussion.services.workflow.data.PSContentAdhocUser adhoc);
+
+    /**
+     * Get workflow state information for a list of content GUIDs.
+     * @param guids list of content GUIDs, not {@code null}
+     * @return list of PSContentWorkflowState, never {@code null}
+     */
+    java.util.List<com.percussion.services.workflow.data.PSContentWorkflowState> getWorkflowStateForContent(java.util.List<IPSGuid> guids);
+
+    /**
+     * Delete content approvals for the supplied content id.
+     * @param contentid content guid, not {@code null}
+     */
+    void deleteContentApprovals(IPSGuid contentid);
+
+    /**
+     * Save a content approval record.
+     * @param approval approval to save, not {@code null}
+     */
+    void saveContentApproval(com.percussion.services.workflow.data.PSContentApproval approval);
+
+    /**
      * Delete the designated workflow. If the workflow does not exist, then this
      * call has no effect.
      *

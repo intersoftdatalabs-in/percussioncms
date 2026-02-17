@@ -66,7 +66,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 public class PSSiteManagerTest
 {
 
@@ -247,7 +247,7 @@ public class PSSiteManagerTest
     */
    @Test
    public void testModifyTemplateIds() throws PSSiteManagerException,
-           IOException, SAXException, PSNotFoundException {
+           IOException, SAXException, PSNotFoundException, com.percussion.utils.xml.PSInvalidXmlException {
       IPSSite site = sitemgr.createSite();
       setupDummySiteData(site);
       setupTemplateAssociations(site);
@@ -257,30 +257,41 @@ public class PSSiteManagerTest
       PSSite testSite = (PSSite) sitemgr.loadSite(site.getGUID());
 
       String siteStr = testSite.toXML();
-      Set<IPSGuid> tmpGuids = PSSite.getTemplateIdsFromSite(siteStr);
-      //we expect to have at least 2 templates in the system
+      // collect GUIDs from the deserialized site (replacement for removed helpers)
+      Set<IPSGuid> tmpGuids = new HashSet<>();
+      for (IPSAssemblyTemplate t : testSite.getAssociatedTemplates())
+      {
+         tmpGuids.add(t.getGUID());
+      }
+      // we expect to have at least 2 templates in the system
       assertTrue(tmpGuids.size() == 2);
-      Set<IPSGuid> newTmpGuids = new HashSet<IPSGuid>();
-      String modifiedSiteStr = PSSite.replaceTemplateIdsFromSite(siteStr,
-            newTmpGuids);
+
+      // create a copy with templates cleared and serialize it (equivalent to "removing" template ids)
+      PSSite cleared = (PSSite) sitemgr.createSite();
+      cleared.fromXML(siteStr);
+      cleared.getAssociatedTemplates().clear();
+      String modifiedSiteStr = cleared.toXML();
+
       PSSite dupe = (PSSite) sitemgr.createSite();
       dupe.fromXML(modifiedSiteStr);
       Set<IPSAssemblyTemplate> tmps = dupe.getAssociatedTemplates();
       assertEquals(0, tmps.size());
-      for (IPSAssemblyTemplate t : testSite.getAssociatedTemplates())
-      {
-         newTmpGuids.add(t.getGUID());
-      }
-      modifiedSiteStr = PSSite.replaceTemplateIdsFromSite(modifiedSiteStr,
-            newTmpGuids);
-      Set<IPSGuid> modifiedGuids = PSSite
-            .getTemplateIdsFromSite(modifiedSiteStr);
-      assertTrue(CollectionUtils.isEqualCollection(newTmpGuids, modifiedGuids));
 
-      // deserialize modified site and see the templates saved are
-      // indeed modified ones
+      // re-add original templates to the cleared XML via object model and reserialize
+      PSSite readded = (PSSite) sitemgr.createSite();
+      readded.fromXML(modifiedSiteStr);
+      readded.setAssociatedTemplates(testSite.getAssociatedTemplates());
+      String modifiedSiteStrWithTemplates = readded.toXML();
+
+      // verify GUIDs restored
+      Set<IPSGuid> modifiedGuids = new HashSet<>();
+      for (IPSAssemblyTemplate t : readded.getAssociatedTemplates())
+         modifiedGuids.add(t.getGUID());
+      assertTrue(CollectionUtils.isEqualCollection(tmpGuids, modifiedGuids));
+
+      // deserialize modified site and ensure templates are present
       PSSite dupe2 = (PSSite) sitemgr.createSite();
-      dupe2.fromXML(modifiedSiteStr);
+      dupe2.fromXML(modifiedSiteStrWithTemplates);
       tmps = dupe2.getAssociatedTemplates();
       assertEquals(2, tmps.size());
       for (IPSAssemblyTemplate t : tmps)
@@ -462,7 +473,7 @@ public class PSSiteManagerTest
       IPSGuid id = PSGuidUtils.makeGuid(314, PSTypeEnum.LOCATION_SCHEME);
       IPSLocationScheme scheme = sitemgr.loadScheme(id);
       assertEquals(314, scheme.getGUID().getUUID());
-      assertEquals(new Long(311), scheme.getContentTypeId());
+      assertEquals(Long.valueOf(311L), scheme.getContentTypeId());
       assertEquals("Generic", scheme.getName());
       assertSame(1, scheme.getParameterNames().size());
 
@@ -491,7 +502,7 @@ public class PSSiteManagerTest
       try
       {
          scheme.addParameter("x", -1, "x", "2");
-         Assertions.fail();
+         fail();
       }
       catch(Exception e)
       {
@@ -500,7 +511,7 @@ public class PSSiteManagerTest
       try
       {
          scheme.addParameter(null, 11, "x", "2");
-         Assertions.fail();
+         fail();
       }
       catch(Exception success)
       {}
@@ -541,8 +552,8 @@ public class PSSiteManagerTest
             PSTypeEnum.LOCATION_SCHEME));
       assertEquals(scheme.getName(), "xyzzy");
       assertEquals(scheme.getGenerator(), "dummy");
-      assertEquals(scheme.getTemplateId(), new Long(501));
-      assertEquals(scheme.getContentTypeId(), new Long(401));
+      assertEquals(Long.valueOf(501L), scheme.getTemplateId());
+      assertEquals(Long.valueOf(401L), scheme.getContentTypeId());
       assertEquals(scheme.getContextId(), sitemgr.loadContext("Publish")
             .getGUID());
 
