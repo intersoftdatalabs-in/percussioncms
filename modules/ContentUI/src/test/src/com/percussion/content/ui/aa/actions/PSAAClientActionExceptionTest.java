@@ -10,18 +10,20 @@
 package com.percussion.content.ui.aa.actions;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSAAClientActionExceptionTest extends TestCase
+public class PSAAClientActionExceptionTest
 {
    /**
     * {@link InvocationTargetException} requires special handling because it
     * does not return message from the exception it wraps.
     */
+   @Test
    public void testInvocationTargetExceptionHandling()
    {
       final String message = "Error Message!";

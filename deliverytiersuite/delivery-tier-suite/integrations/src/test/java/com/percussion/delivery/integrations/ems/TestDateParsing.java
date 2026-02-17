@@ -19,11 +19,10 @@ package com.percussion.delivery.integrations.ems;
 
 import org.junit.jupiter.api.Test;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 
-public class TestDateParsing extends TestCase{
+public class TestDateParsing {
 
 	@Test
 	public void testDateFormat() throws ParseException{

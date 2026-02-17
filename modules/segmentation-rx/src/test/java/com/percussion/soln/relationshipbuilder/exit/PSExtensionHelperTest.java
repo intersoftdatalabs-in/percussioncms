@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
@@ -38,22 +40,20 @@ import com.percussion.soln.relationshipbuilder.exit.PSExtensionHelper;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-public class PSExtensionHelperTest extends TestCase
+public class PSExtensionHelperTest
 {
 
    private Set<Integer> m_output;
    
 
-   /* (non-Javadoc)
-    * @see junit.framework.TestCase#setUp()
-    */
-   @Override
+   @BeforeEach
    protected void setUp() throws Exception
    {
       m_output = new HashSet<Integer>();
       XMLUnit.setIgnoreWhitespace(true);
    }
 
+   @Test
    public void testConvertRejectsNullOutput()
    {
       boolean threw = false;
@@ -68,6 +68,7 @@ public class PSExtensionHelperTest extends TestCase
       assertTrue(threw);
    }
 
+   @Test
    public void testConvertHandlesNullInput()
    {
       Collection<Object> invalids = PSExtensionHelper.convert(null, m_output);
@@ -75,6 +76,7 @@ public class PSExtensionHelperTest extends TestCase
       assertEquals(0, invalids.size());
    }
 
+   @Test
    public void testConvertHandlesAllNullsInInput()
    {
       Object[] input = new Object[] {null, null};
@@ -83,6 +85,7 @@ public class PSExtensionHelperTest extends TestCase
       assertEquals(2, invalids.size());
    }
 
+   @Test
    public void testConvertHandlesNullsInInput()
    {
       Object[] input = new Object[] {"700", null, 301};
@@ -92,6 +95,7 @@ public class PSExtensionHelperTest extends TestCase
       assertEquals(2, m_output.size());
    }
    
+   @Test
    public void testConvertHandlesEmptysInInput()
    {
       Object[] input = new Object[] {"700", "", 301};
@@ -101,6 +105,7 @@ public class PSExtensionHelperTest extends TestCase
       assertEquals(2, m_output.size());
    }
    
+   @Test
    public void testConvertSingleEmptyString() {
 	      Object[] input = new Object[] {""};
 	      Collection<Object> invalids = PSExtensionHelper.convert(input, m_output);
@@ -115,6 +120,7 @@ public class PSExtensionHelperTest extends TestCase
           }
    }
    
+   @Test
    public void testUpdateDisplayChoicesSelectAll() throws Exception {
        Map<String, String> params = new HashMap<String, String>();
        params.put(PSExtensionHelper.IDS_FIELD_NAME, "tree");
@@ -143,6 +149,7 @@ public class PSExtensionHelperTest extends TestCase
                 getClass().getResourceAsStream(resourceName), false);
     }
 
+   @Test
    public void testUpdateDisplayChoices() throws Exception {
        Map<String, String> params = new HashMap<String, String>();
        params.put(PSExtensionHelper.IDS_FIELD_NAME, "tree");
