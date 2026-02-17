@@ -23,35 +23,32 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 
-public class PSJexlAnnotationsTest 
+public class PSJexlAnnotationsTest
 {
-   
 
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSJexlAnnotationsTest.class);
-   }
+
 
    @IPSJexlMethod (
-         description = "A test method", 
+         description = "A test method",
          params = {
             @IPSJexlParam(name = "first", type = "int", description = "first parameter"),
             @IPSJexlParam(name = "second", description = "second parameter")
             }
          )
-   public void tryit(int param1, int param2) 
+   public void tryit(int param1, int param2)
    {
-      
+
    }
-         
-   
-         
+
+
+
+   @Test
    public void test1() throws Exception
    {
-      Class noargs[] = new Class[] { int.class, int.class } ;
+      Class<?> noargs[] = new Class<?>[] { int.class, int.class } ;
       Method m = this.getClass().getMethod("tryit", noargs);
       Annotation a[] = m.getAnnotations();
-      assertTrue(a.length == 1);
+      assertEquals(1, a.length);
       IPSJexlMethod method = (IPSJexlMethod) a[0];
       System.out.println(method.description());
       IPSJexlParam parameters[] = method.params();

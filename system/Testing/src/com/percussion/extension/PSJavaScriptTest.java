@@ -33,15 +33,12 @@ import java.util.Properties;
 /**
  * Unit tests for the JavaScript extension handler and supporting classes.
  */
-public class PSJavaScriptTest 
+public class PSJavaScriptTest
 {
-   public PSJavaScriptTest(String testName)
-   {
-      super(testName);
-   }
 
-   
 
+
+   @Test
    public void testAll() throws PSExtensionException, PSNonUniqueException, PSNotFoundException {
 
       File baseDir = Files.createTempDir();
@@ -87,16 +84,16 @@ public class PSJavaScriptTest
    }
 
    /** collect all tests into a TestSuite and return it */
-   
-   
+
+
    /**
     * Base directory for unit test resources
     */
    private static final String RESOURCE_BASE = "UnitTestResources";
-   
+
    /**
     * File to which extension def is written.
     */
-   private static final String RESULT_FILE = 
+   private static final String RESULT_FILE =
       "Extensions.xml";
 }

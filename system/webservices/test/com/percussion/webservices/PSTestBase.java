@@ -82,6 +82,37 @@ public class PSTestBase extends PSClientTestCase
    public PSTestBase()
    {}
 
+   /*
+    * Compatibility assertions (message-first) for legacy tests that still use
+    * the old JUnit message-first argument order. These delegate to
+    * JUnit Jupiter assertions (message-last) so existing tests compile
+    * without changing every call site.
+    */
+   protected void assertTrue(String message, boolean condition)
+   {
+      org.junit.jupiter.api.Assertions.assertTrue(condition, message);
+   }
+
+   protected void assertFalse(String message, boolean condition)
+   {
+      org.junit.jupiter.api.Assertions.assertFalse(condition, message);
+   }
+
+   protected void assertEquals(String message, Object expected, Object actual)
+   {
+      org.junit.jupiter.api.Assertions.assertEquals(expected, actual, message);
+   }
+
+   protected void assertNotNull(String message, Object actual)
+   {
+      org.junit.jupiter.api.Assertions.assertNotNull(actual, message);
+   }
+
+   protected void assertNull(String message, Object actual)
+   {
+      org.junit.jupiter.api.Assertions.assertNull(actual, message);
+   }
+
    /**
     * Create the endpoint url from the <code>conn_rxserver.properties</code>
     * file if found, otherwise use the default of 
@@ -193,7 +224,7 @@ public class PSTestBase extends PSClientTestCase
          locator.setcontentSOAPEndpointAddress(getEndpoint("contentSOAP"));
 
          ContentSOAPStub binding = (ContentSOAPStub) locator.getcontentSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(600000);
@@ -237,7 +268,7 @@ public class PSTestBase extends PSClientTestCase
          locator.setsystemSOAPEndpointAddress(getEndpoint("systemSOAP"));
 
          SystemSOAPStub binding = (SystemSOAPStub) locator.getsystemSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(60000);
@@ -282,7 +313,7 @@ public class PSTestBase extends PSClientTestCase
 
          SecuritySOAPStub binding = (SecuritySOAPStub) locator
             .getsecuritySOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(60000);

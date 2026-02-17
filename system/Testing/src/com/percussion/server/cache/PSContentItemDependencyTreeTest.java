@@ -36,9 +36,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for the {@link PSContentItemDependencyTree} class.
@@ -51,7 +49,7 @@ public class PSContentItemDependencyTreeTest
    {
 
    }
- 
+
    /**
     * Test all public interfaces includeing the constructor.
     * @throws Exception if any errors occur.
@@ -67,206 +65,206 @@ public class PSContentItemDependencyTreeTest
          Document doc = PSXmlDocumentBuilder.createXmlDocument(is, false);
          Element sourceNode = doc.getDocumentElement();
          assertNotNull(sourceNode);
-         
-         PSRelationshipSet relationships = 
+
+         PSRelationshipSet relationships =
             new PSRelationshipSet();
-         
-         PSRelationshipConfig config = 
+
+         PSRelationshipConfig config =
             PSRelationshipTest.getConfigs().getConfigByNameOrCategory(
             PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
          assertNotNull(config);
-         
+
          int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN |
             PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
          int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS |
             PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-         
+
          String data = null;
          Element node = null;
          PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-         
+
          node = tree.getNextElement(PSRelationship.XML_NODE_NAME, firstFlags);
          while (node != null)
          {
             PSRelationship relationship = new PSRelationship(
                (Element) tree.getCurrent(), null, null, config);
-      
+
             relationships.add(relationship);
-            
+
             node = tree.getNextElement(
                PSRelationship.XML_NODE_NAME, nextFlags);
-         }         
-         
+         }
+
          item = new PSContentItemDependencyTree(relationships);
-            
+
          assertEquals(item.toString(), result_1);
       }
       catch (Exception e)
       {
-         assertTrue("ctor failed", false);
+         fail("ctor failed: " + e.getMessage());
       }
-      
+
       try
       {
          List result = item.getDependentItems(1, 1, -1);
-         System.out.println("\n\ngetDependentItems(1, 1, -1)\n" + 
+         System.out.println("\n\ngetDependentItems(1, 1, -1)\n" +
             toString(result));
 
          assertEquals(toString(result), result_2);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("getDependentItems failed: " + e.getMessage());
       }
-      
+
       try
       {
          List result = item.getDependentItems(7, 1, -1);
-         System.out.println("\n\ngetDependentItems(7, 1, -1)\n" + 
+         System.out.println("\n\ngetDependentItems(7, 1, -1)\n" +
             toString(result));
 
          assertEquals(toString(result), result_3);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("getDependentItems failed: " + e.getMessage());
       }
-      
+
       try
       {
          List result = item.getDependentItems(6, 1, -1);
-         System.out.println("\n\ngetDependentItems(6, 1, -1)\n" + 
+         System.out.println("\n\ngetDependentItems(6, 1, -1)\n" +
             toString(result));
 
          assertEquals(toString(result), result_4);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("getDependentItems failed: " + e.getMessage());
       }
-      
+
       try
       {
          List result = item.getDependentItems(5, 1, -1);
-         System.out.println("\n\ngetDependentItems(5, 1, -1)\n" + 
+         System.out.println("\n\ngetDependentItems(5, 1, -1)\n" +
             toString(result));
 
          assertEquals(toString(result), result_5);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("getDependentItems failed: " + e.getMessage());
       }
 
       try
       {
          List result = item.getDependentItems(-1, -1, 100);
-         System.out.println("\n\ngetDependentItems(-1, -1, 100)\n" + 
+         System.out.println("\n\ngetDependentItems(-1, -1, 100)\n" +
             toString(result));
 
          assertEquals(toString(result), result_6);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("getDependentItems failed: " + e.getMessage());
       }
 
       try
       {
          List result = item.updateDependency(1, 4, 2, 5, 100, new HashMap());
-         System.out.println("\n\nupdateDependency(1, 4, 2, 5, 100)\n" + 
+         System.out.println("\n\nupdateDependency(1, 4, 2, 5, 100)\n" +
             toString(result));
 
          assertEquals(toString(result), result_7);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("getDependentItems failed: " + e.getMessage());
       }
-      
+
       try
       {
          List result = item.getDependentItems(5, 1, -1);
-         System.out.println("\n\ngetDependentItems(5, 1, -1)\n" + 
+         System.out.println("\n\ngetDependentItems(5, 1, -1)\n" +
             toString(result));
 
          assertEquals(toString(result), result_8);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("getDependentItems failed: " + e.getMessage());
       }
 
       try
       {
          List result = item.updateDependency(1, 4, 2, 5, 100, new HashMap());
-         System.out.println("\n\nupdateDependency(1, 4, 2, 5, 100)\n" + 
+         System.out.println("\n\nupdateDependency(1, 4, 2, 5, 100)\n" +
             toString(result));
 
          assertEquals(toString(result), result_10);
       }
       catch (Exception e)
       {
-         assertTrue("addDependency failed", false);
+         fail("addDependency failed: " + e.getMessage());
       }
 
       try
       {
 
          List result = item.addDependency(8, 2, 1, 8, 100, new HashMap());
-         System.out.println("\n\naddDependency(8, 2, 1, 8, 100)\n" + 
+         System.out.println("\n\naddDependency(8, 2, 1, 8, 100)\n" +
             toString(result));
 
          assertEquals(toString(result), result_12);
       }
       catch (Exception e)
       {
-         assertTrue("addDependency failed", false);
+         fail("addDependency failed: " + e.getMessage());
       }
-      
+
       try
       {
          List result = item.getDependentItems(8, 1, -1);
-         System.out.println("\n\ngetDependentItems(8, 1, -1)\n" + 
+         System.out.println("\n\ngetDependentItems(8, 1, -1)\n" +
             toString(result));
 
          assertEquals(toString(result), result_13);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("getDependentItems failed: " + e.getMessage());
       }
-      
+
       try
       {
          List result = item.removeDependency(8, new HashMap());
-         System.out.println("\n\nremoveDependency(8)\n" + 
+         System.out.println("\n\nremoveDependency(8)\n" +
             toString(result));
 
          assertEquals(toString(result), result_14);
       }
       catch (Exception e)
       {
-         assertTrue("removeDependency failed", false);
+         fail("removeDependency failed: " + e.getMessage());
       }
-      
+
       try
       {
          List result = item.getDependentItems(8, 1, -1);
-         System.out.println("\n\ngetDependentItems(8, 1, -1)\n" + 
+         System.out.println("\n\ngetDependentItems(8, 1, -1)\n" +
             toString(result));
 
          assertEquals(toString(result), result_15);
       }
       catch (Exception e)
       {
-         assertTrue("getDependentItems failed", false);
+         fail("removeDependency failed: " + e.getMessage());
       }
    }
-  
+
    /**
     * Returns a String representation for provided list.
-    * 
+    *
     * @param list the list to create a String for, assumed not <code>null</code>.
     * @return the list as String, never <code>null</code>.
     */
@@ -279,7 +277,7 @@ public class PSContentItemDependencyTreeTest
          buf.append(values[0] + ":" + values[1] + ", ");
       }
       buf.append(")");
-         
+
       return buf.toString();
    }
    /**
@@ -288,10 +286,10 @@ public class PSContentItemDependencyTreeTest
     */
    private static final String RESOURCE_PATH =
       "/com/percussion/server/cache/";
-    
+
    /**
     * Expected test results.
-    */  
+    */
    private static final String result_1 = "Dependencies(key= 7 value= dependency=(7, 6, 3, 1, 100), )key= 6 value= dependency=(6, 4, 3, 1, 100), )key= 5 value= dependency=(5, 1, 4, 1, 100), )key= 4 value= dependency=(4, 2, 2, 1, 100), )key= 3 value= dependency=(3, 5, 1, 1, 100), )key= 2 value= dependency=(2, 3, 1, 1, 100), )key= 1 value= dependency=(1, 7, 7, 1, 100), )";
    private static final String result_2 = "result(7:1, 3:1, )";
    private static final String result_3 = "result(1:1, 3:1, )";

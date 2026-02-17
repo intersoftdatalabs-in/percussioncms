@@ -36,9 +36,9 @@ import org.w3c.dom.Document;
 /**
  * Unit tests for the PSServerConfiguration class.
  */
-public class PSServerConfigurationTest 
+public class PSServerConfigurationTest
 {
-   
+
 
    /**
     * Expose the protected empty ctor for use by other unit test classes.
@@ -51,7 +51,7 @@ public class PSServerConfigurationTest
    }
 
 
-   
+
 
 
    public void testConstructors() throws Exception
@@ -81,7 +81,7 @@ public class PSServerConfigurationTest
     * @throws   Exception
     *
     */
-   
+
    public void testToFromXml() throws Exception
    {
       PSServerConfiguration a = new PSServerConfiguration();
@@ -102,24 +102,24 @@ public class PSServerConfigurationTest
       a.setUserSessionTimeout(117);
       xmlEq(a, b);
 
-      List<PSJdbcDriverConfig> driverConfigs = 
+      List<PSJdbcDriverConfig> driverConfigs =
          new ArrayList<PSJdbcDriverConfig>();
       a.setJdbcDriverConfigs(driverConfigs);
       xmlEq(a, b);
       assertEquals(driverConfigs, a.getJdbcDriverConfigs());
-      
-      driverConfigs.add(new PSJdbcDriverConfig("driver1", "class1", 
+
+      driverConfigs.add(new PSJdbcDriverConfig("driver1", "class1",
          "typeMap1"));
-      
+
       a.setJdbcDriverConfigs(driverConfigs);
       xmlEq(a, b);
       assertEquals(driverConfigs, a.getJdbcDriverConfigs());
-      
-      driverConfigs.add(new PSJdbcDriverConfig("driver2", "class2", 
+
+      driverConfigs.add(new PSJdbcDriverConfig("driver2", "class2",
          "typeMap2"));
-      driverConfigs.add(new PSJdbcDriverConfig("driver3", "class3", 
+      driverConfigs.add(new PSJdbcDriverConfig("driver3", "class3",
          "typeMap3"));
-      
+
       a.setJdbcDriverConfigs(driverConfigs);
       xmlEq(a, b);
       assertEquals(driverConfigs, a.getJdbcDriverConfigs());
@@ -131,11 +131,11 @@ public class PSServerConfigurationTest
     *
     * @throws Exception if there are any errors.
     */
-   
+
    public void testSecurityProviders() throws Exception
    {
       PSServerConfiguration cfg1 = new PSServerConfiguration();
-      
+
       PSCollection secProviders = new PSCollection(
          PSSecurityProviderInstance.class);
       PSSecurityProviderInstance secProv1 = new PSSecurityProviderInstance(
@@ -146,10 +146,10 @@ public class PSServerConfigurationTest
       props1.setProperty(PSJndiProvider.PROPS_PROVIDER_CLASS_NAME,
          "pkg.myClass1");
       secProv1.setProperties(props1);
-      PSReference ref1 = new PSReference("ref1", 
+      PSReference ref1 = new PSReference("ref1",
          PSDirectorySet.class.getName());
       PSProvider directoryProvider = new PSProvider(
-         PSBackEndTableDirectoryCataloger.class.getName(), 
+         PSBackEndTableDirectoryCataloger.class.getName(),
          PSProvider.TYPE_DIRECTORY, ref1);
       secProv1.setDirectoryProvider(directoryProvider);
       secProviders.add(secProv1);
@@ -161,7 +161,7 @@ public class PSServerConfigurationTest
     *
     * @throws Exception for any errors or failures during this test.
     */
-   
+
    public void testAuthentications() throws Exception
    {
       PSServerConfiguration config = new PSServerConfiguration();
@@ -263,7 +263,7 @@ public class PSServerConfigurationTest
     *
     * @throws Exception for any errors or failures during this test.
     */
-   
+
    public void testDirectories() throws Exception
    {
       PSServerConfiguration config = new PSServerConfiguration();
@@ -291,7 +291,7 @@ public class PSServerConfigurationTest
       // directories must be empty
       assertFalse(config.getDirectories().hasNext());
 
-      
+
       // test public interface
       boolean didThrow = false;
       try
@@ -367,7 +367,7 @@ public class PSServerConfigurationTest
       System.out.println("config1( config from XML ):\n" +
          PSXmlDocumentBuilder.toString(config1.toXml()));
       assertEquals(config, config1);
-      
+
       // test group providers
       dir1.setGroupProviderNames(groups1.iterator());
       PSCollection grpProviders = config.getGroupProviderInstances();
@@ -384,17 +384,16 @@ public class PSServerConfigurationTest
       config1 = new PSServerConfiguration(config.toXml());
       System.out.println("config 2:\n" +
          PSXmlDocumentBuilder.toString(config1.toXml()));
-      assertEquals("to/fromXml not equal", config, config1);
+      assertEquals(config, config1, "to/fromXml not equal");
 
       // now test extra group
       PSGroupProviderInstance group3 = new PSJndiGroupProviderInstance(
          "Group3", PSSecurityProvider.SP_TYPE_DIRCONN);
       config1.setGroupProviderInstance(group3);
-      assertTrue("equals should return false if group providers different",
-         !config.equals(config1));
+      assertTrue(!config.equals(config1), "equals should return false if group providers different");
       doc = config1.toXml();
       config1.fromXml(doc);
-      assertEquals("unused group provider not removed", config, config1);      
+      assertEquals(config, config1, "unused group provider not removed");
    }
 
    /**
@@ -402,7 +401,7 @@ public class PSServerConfigurationTest
     *
     * @throws Exception for any errors or failures during this test.
     */
-   
+
    public void testDirectorySets() throws Exception
    {
       PSServerConfiguration config = new PSServerConfiguration();
@@ -506,7 +505,7 @@ public class PSServerConfigurationTest
     *
     * @throws Exception for any errors or failures during this test.
     */
-   
+
    public void testRoleProviders() throws Exception
    {
       PSServerConfiguration config = new PSServerConfiguration();
@@ -613,5 +612,5 @@ public class PSServerConfigurationTest
       assertEquals(a, b);
    }
 
-   
+
 }

@@ -273,7 +273,7 @@ public class PSXmlDatabaseMetaDataTest
       xmlConn.close();
    }
 
-   @org.junit.Test
+   @Test
    public void testGetColumnsCgiVars() throws Exception
    {
       Connection xmlConn = DriverManager.getConnection("jdbc:psxml",
@@ -328,11 +328,11 @@ public class PSXmlDatabaseMetaDataTest
          String col_name = rs.getString(4);
          log.info(table_cat + "\t" + table_schem + "\t" +
             table_name + "\t" + col_name);
-          assertTrue(col_name, ef.containsKey(col_name));
+          assertTrue(ef.containsKey(col_name), col_name);
          ef.remove(col_name);
          assertFalse(ef.containsKey(col_name));
       }
-      assertTrue(ef.toString(), ef.isEmpty());
+      assertTrue(ef.isEmpty(), ef.toString());
    }
 
 

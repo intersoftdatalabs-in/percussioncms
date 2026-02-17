@@ -116,7 +116,7 @@ public class PSXPathEvaluatorTest
       {
          didThrow = true;
       }
-      assertTrue( "did not reject null stream", didThrow);
+      assertTrue(didThrow, "did not reject null stream");
    }
 
 
@@ -143,7 +143,7 @@ public class PSXPathEvaluatorTest
       {
          didThrow = true;
       }
-      assertTrue( "did not reject null document", didThrow);
+      assertTrue(didThrow, "did not reject null document");
 
       // try with empty document
       xp = new PSXPathEvaluator( PSXmlDocumentBuilder.createXmlDocument() );
@@ -171,7 +171,7 @@ public class PSXPathEvaluatorTest
       {
          didThrow = true;
       }
-      assertTrue( "did not reject null xpath", didThrow);
+      assertTrue(didThrow, "did not reject null xpath");
 
       didThrow = false;
       try
@@ -181,7 +181,7 @@ public class PSXPathEvaluatorTest
       {
          didThrow = true;
       }
-      assertTrue( "did not reject empty xpath", didThrow);
+      assertTrue(didThrow, "did not reject empty xpath");
 
       didThrow = false;
       try
@@ -191,7 +191,7 @@ public class PSXPathEvaluatorTest
       {
          didThrow = true;
       }
-      assertTrue( "did not reject syntax error in xpath", didThrow);
+      assertTrue(didThrow, "did not reject syntax error in xpath");
    }
 
    /**

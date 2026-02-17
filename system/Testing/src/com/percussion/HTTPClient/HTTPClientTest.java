@@ -107,9 +107,9 @@ public class HTTPClientTest extends PSClientTestCase
 
       NodeList nl = doc.getElementsByTagName("D:multistatus");
 
-      assertTrue("Not found expected webdav 'PROPFIND' " +
+      assertTrue(nl.getLength() > 0, "Not found expected webdav 'PROPFIND' " +
             "'/Rhythmyx/rxwebdav/Sites/CorporateInvestments/Files' response doesn't have:" +
-            " 'D:multistatus' ", nl.getLength() > 0);
+            " 'D:multistatus' ");
 
       log.info(respData);
 

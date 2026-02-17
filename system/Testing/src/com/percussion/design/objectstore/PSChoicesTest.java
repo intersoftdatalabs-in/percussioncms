@@ -28,19 +28,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 // Test case
-public class PSChoicesTest 
+public class PSChoicesTest
 {
-   
 
-   
-   
+
+
+
 
    public void testEquals() throws Exception
    {
    }
 
-   
 
+
+   @Test
    public void testXmlGlobal() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -56,8 +57,9 @@ public class PSChoicesTest
       assertEquals(testTo, testFrom);
    }
 
-   
 
+
+   @Test
    public void testXmlLocal() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -90,8 +92,9 @@ public class PSChoicesTest
       assertEquals(testTo, testFrom);
    }
 
-   
 
+
+   @Test
    public void testXmlLookup() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -115,8 +118,9 @@ public class PSChoicesTest
       assertEquals(testTo, testFrom);
    }
 
-   
 
+
+   @Test
    public void testChoiceFilter() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -153,5 +157,5 @@ public class PSChoicesTest
       assertEquals(testTo, testFrom);
    }
 
-   
+
 }

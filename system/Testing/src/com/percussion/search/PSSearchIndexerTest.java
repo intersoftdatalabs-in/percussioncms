@@ -21,11 +21,9 @@ import com.percussion.cms.objectstore.PSKey;
 import com.percussion.data.PSIdGenerator;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.testing.IPSServerBasedJunitTest;
-import com.percussion.testing.PSRequestHandlerTestSuite;
-
 
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Tag;
 
 import java.nio.charset.StandardCharsets;
@@ -39,30 +37,25 @@ import java.util.Map;
 /**
  * JUnit test that validates the indexing capability of the RW search engine.
  * The query handler is used to validate the indexing.
- * <p>This test must be run in the server context and requires the 
- * rxs_generic_ce content type to be present and running. This method clears 
- * the index, therefore don't run the test if you want to keep the currently 
+ * <p>This test must be run in the server context and requires the
+ * rxs_generic_ce content type to be present and running. This method clears
+ * the index, therefore don't run the test if you want to keep the currently
  * indexed data.
  *
  * @author paulhoward
  */
 @Tag("IntegrationTest")
-public class PSSearchIndexerTest 
+public class PSSearchIndexerTest
    implements IPSServerBasedJunitTest
 {
-   /**
-    * Only ctor. 
-    */
-   public PSSearchIndexerTest(String name)
-   {
-      super(name);
-   }
+
 
    /**
     * Validates the contract of the <code>update</code> method.
-    * 
+    *
     * @throws PSSearchException If any unexpected problems occur.
     */
+   @Test
    public void testUpdateValidation()
       throws PSSearchException
    {
@@ -72,13 +65,13 @@ public class PSSearchIndexerTest
       try
       {
          si.update(null, frags, true);
-         assertTrue("Search key contract validation failed", false);
+         fail("Search key contract validation failed");
       }
       catch (IllegalArgumentException iae)
       {
-         //expected
+         // expected
       }
-      
+
       PSKey cTypeKey = createContentTypeKey();
 
       //create fake items for searching
@@ -87,24 +80,23 @@ public class PSSearchIndexerTest
       try
       {
          si.update(id, null, true);
-         assertTrue(
-               "Fragment map contract validation failed (accepted null arg)", 
-               false);
+         fail("Fragment map contract validation failed (accepted null arg)");
       }
       catch (IllegalArgumentException iae)
       {
-         //expected
+         // expected
       }
-      
+
       eng.releaseSearchIndexer(si);
    }
-   
+
    /**
     * Adds some docs, then removes all content from the library under test.
-    * 
+    *
     * @throws PSSearchException If any unexpected problems occur.
     * @throws SQLException If content id can't be generated.
     */
+   @Test
    public void testClearIndex()
       throws PSSearchException, SQLException
    {
@@ -120,13 +112,12 @@ public class PSSearchIndexerTest
          addDocs(si, 3, testWord, true);
          //TODO need way to count all docs (query = "*" didn't work) how about ~*
          int startDocs = PSSearchQueryTest.getDocCount(eng, cTypeKey, testWord);
-         assertTrue("clear index test cannot run w/o docs in db", startDocs > 0);
-      
+         assertTrue(startDocs > 0, "clear index test cannot run w/o docs in db");
+
          si.clearIndex(cTypeKey);
-      
+
          //TODO - not a great test
-         assertEquals("Library not empty after clear index", 0, 
-               PSSearchQueryTest.getDocCount(eng, cTypeKey, testWord));
+         assertEquals(0, PSSearchQueryTest.getDocCount(eng, cTypeKey, testWord), "Library not empty after clear index");
       }
       finally
       {
@@ -138,9 +129,10 @@ public class PSSearchIndexerTest
    /**
     * Checks how many docs in library, inserts a new one, checks count again,
     * commits the insert, then checks one final time.
-    * 
+    *
     * @throws PSSearchException If any unexpected problems occur.
     */
+   @Test
    public void testUpdateNoCommit()
       throws PSSearchException, SQLException
    {
@@ -152,38 +144,36 @@ public class PSSearchIndexerTest
 
          //make sure there are no docs waiting to be commited
          si.commitAll();
-         //determine how many docs in db now    
-         String query = "score"; 
-         int originalDocCount = 
-               PSSearchQueryTest.getDocCount(eng, cTypeKey, query);     
+         //determine how many docs in db now
+         String query = "score";
+         int originalDocCount =
+               PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
 
          //create fake items for searching
          addDocs(si, 1, query, false);
-               
+
          int newCt = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
-         assertEquals("Wrong number of query results before commit. ", 
-               originalDocCount, newCt);
-         
+         assertEquals(originalDocCount, newCt, "Wrong number of query results before commit.");
+
          System.out.println("Committing index.");
          si.commit();
 
-         assertEquals("Wrong number of query results after commit. ", 
-               originalDocCount+1, 
-               PSSearchQueryTest.getDocCount(eng, cTypeKey, query));
+         assertEquals(originalDocCount+1, PSSearchQueryTest.getDocCount(eng, cTypeKey, query), "Wrong number of query results after commit.");
       }
       finally
       {
          if (null != si)
             eng.releaseSearchIndexer(si);
       }
-            
+
    }
 
    /**
     * Adds a new doc, then submits the same doc w/ changes.
-    * 
+    *
     * @throws PSSearchException If any unexpected problems.
     */
+   @Test
    public void testModifyDoc()
       throws PSSearchException, SQLException
    {
@@ -198,9 +188,8 @@ public class PSSearchIndexerTest
          String specialWord = "hubrusxx";
          //create fake items for searching
          Collection keys = addDocs(si, 1, specialWord, true);
-         assertEquals("Wrong number of query results after doc add. ", 
-               1, PSSearchQueryTest.getDocCount(eng, cTypeKey, specialWord));
-         
+         assertEquals(1, PSSearchQueryTest.getDocCount(eng, cTypeKey, specialWord), "Wrong number of query results after doc add.");
+
          String modifiedWord = "exactayy";
          Iterator it = keys.iterator();
          while (it.hasNext())
@@ -210,26 +199,25 @@ public class PSSearchIndexerTest
             si.update(skey, data, true);
          }
 
-         assertEquals("Original doc still present. ", 
-               0, PSSearchQueryTest.getDocCount(eng, cTypeKey, specialWord));
-         assertEquals("Wrong number of query results after doc mod. ", 
-               1, PSSearchQueryTest.getDocCount(eng, cTypeKey, modifiedWord));
+         assertEquals(0, PSSearchQueryTest.getDocCount(eng, cTypeKey, specialWord), "Original doc still present.");
+         assertEquals(1, PSSearchQueryTest.getDocCount(eng, cTypeKey, modifiedWord), "Wrong number of query results after doc mod.");
       }
       finally
       {
          if (null != si)
             eng.releaseSearchIndexer(si);
       }
-            
+
    }
 
    /**
-    * Performs a sequence of adding N docs several times, where n varies 
+    * Performs a sequence of adding N docs several times, where n varies
     * between 1 and 10.
-    * 
+    *
     * @throws PSSearchException If any unexpected problems occur.
     * @throws SQLException If content id can't be generated.
     */
+   @Test
    public void testMultiUpdate()
       throws PSSearchException, SQLException
    {
@@ -241,29 +229,25 @@ public class PSSearchIndexerTest
 
          //make sure there are no docs waiting to be commited
          si.commitAll();
-         //determine how many docs in db now    
-         String query = "score"; 
+         //determine how many docs in db now
+         String query = "score";
          int i=1;
-         int originalDocCount = 
-               PSSearchQueryTest.getDocCount(eng, cTypeKey, query);     
+         int originalDocCount =
+               PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
          addDocs(si, i, "", true);
          int newCt = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
-         assertEquals("Wrong number of query results:", 
-               originalDocCount+i, newCt);
+         assertEquals(originalDocCount+i, newCt, "Wrong number of query results:");
 
          i=5;
-         originalDocCount = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);     
+         originalDocCount = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
          addDocs(si, i, "", true);
          newCt = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
-         assertEquals("Wrong number of query results:", 
-               originalDocCount+i, newCt);
-
+         assertEquals(originalDocCount+i, newCt, "Wrong number of query results:");
          i=10;
-         originalDocCount = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);     
+         originalDocCount = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
          addDocs(si, i, "", true);
          newCt = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
-         assertEquals("Wrong number of query results:", 
-               originalDocCount+i, newCt);
+         assertEquals(originalDocCount+i, newCt, "Wrong number of query results:");
 
       }
       finally
@@ -271,16 +255,17 @@ public class PSSearchIndexerTest
          if (null != si)
             eng.releaseSearchIndexer(si);
       }
-            
+
    }
 
    /**
-    * Add docs, supplying <code>true</code> for the commit flag and verify 
+    * Add docs, supplying <code>true</code> for the commit flag and verify
     * the docs were really added w/o having to call commit directly.
-    * 
+    *
     * @throws PSSearchException If any unexpected problems occur.
     * @throws SQLException If content id can't be generated.
     */
+   @Test
    public void testUpdateCommit()
       throws PSSearchException, SQLException
    {
@@ -290,32 +275,32 @@ public class PSSearchIndexerTest
       {
          PSKey cTypeKey = createContentTypeKey();
 
-         //determine how many docs in db now    
-         String query = "score"; 
-         int originalDocCount = 
-               PSSearchQueryTest.getDocCount(eng, cTypeKey, query);     
+         //determine how many docs in db now
+         String query = "score";
+         int originalDocCount =
+               PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
 
          //create fake items for searching
          addDocs(si, 1, query, true);
-      
+
          int newCt = PSSearchQueryTest.getDocCount(eng, cTypeKey, query);
-         assertEquals("Wrong number of query results after doc added:", 
-               originalDocCount+1, newCt);
+         assertEquals(originalDocCount+1, newCt, "Wrong number of query results after doc added:");
       }
       finally
       {
          if (null != si)
             eng.releaseSearchIndexer(si);
       }
-            
+
    }
 
    /**
     * Adds 3 docs to the test library, then attempts to delete them.
-    * 
+    *
     * @throws PSSearchException If any problems w/ search engine.
     * @throws SQLException If next number generator fails.
     */
+   @Test
    public void testDelete()
       throws PSSearchException, SQLException
    {
@@ -323,30 +308,26 @@ public class PSSearchIndexerTest
       PSSearchEngine eng = PSSearchEngine.getInstance();
       PSSearchIndexer si = null;
       PSSearchQuery  sq = null;
-      
+
       try
       {
          si = eng.getSearchIndexer();
          sq = eng.getSearchQuery();
          String testWord = "xxxxyy";
-         int originalCount = PSSearchQueryTest.getDocCount(eng, 
+         int originalCount = PSSearchQueryTest.getDocCount(eng,
                createContentTypeKey(), testWord);
-         Collection keys = addDocs(si, 3, testWord, true);         
-         assertEquals("Added docs not found.", originalCount+3, 
-               PSSearchQueryTest.getDocCount(eng, createContentTypeKey(), 
-               testWord));
-         si.delete(keys);        
-         assertEquals("Wrong doc count after delete.", originalCount, 
-               PSSearchQueryTest.getDocCount(eng, createContentTypeKey(), 
-               testWord));
-               
-         
+         Collection keys = addDocs(si, 3, testWord, true);
+         assertEquals(originalCount+3, PSSearchQueryTest.getDocCount(eng, createContentTypeKey(), testWord), "Added docs not found.");
+         si.delete(keys);
+         assertEquals(originalCount, PSSearchQueryTest.getDocCount(eng, createContentTypeKey(), testWord), "Wrong doc count after delete.");
+
+
          //validate the contract 'end' conditions
          Collection emptyKeys = new ArrayList();
          si.delete(emptyKeys);
          emptyKeys.add(null);
          si.delete(emptyKeys);
-         PSSearchKey fakeKey = new PSSearchKey(createContentTypeKey(), 
+         PSSearchKey fakeKey = new PSSearchKey(createContentTypeKey(),
                new PSLocator(999999, 1), null);
          emptyKeys.add(fakeKey);
          si.delete(emptyKeys);
@@ -361,7 +342,7 @@ public class PSSearchIndexerTest
                eng.releaseSearchQuery(sq);
          }
          catch (PSSearchException se)
-         { 
+         {
             pse = se;
          }
          try
@@ -370,7 +351,7 @@ public class PSSearchIndexerTest
                eng.releaseSearchIndexer(si);
          }
          catch (PSSearchException se)
-         { 
+         {
             pse = se;
          }
          //we don't want to hide the exception if currently unwinding stack
@@ -380,22 +361,22 @@ public class PSSearchIndexerTest
    }
 
    /**
-    * Convenience method that calls {@link #addDocs(PSSearchIndexer, Map, int, 
-    * int,boolean) addDocs(suppliedSi, getDocData(specialWord), count, -1, 
+    * Convenience method that calls {@link #addDocs(PSSearchIndexer, Map, int,
+    * int,boolean) addDocs(suppliedSi, getDocData(specialWord), count, -1,
     * commit)}.
     * <p>Available for use by other unit tests.
-    * 
+    *
     * @param specialWord This word is prefixed on the standard body text. May
     * be <code>null</code>, in which case "" is used.
-    * 
+    *
     * @throws PSSearchException If any unexpected problems occur.
     * @throws SQLException If content id can't be generated.
     */
-   static Collection addDocs(PSSearchIndexer suppliedSi, int count, 
+   static Collection addDocs(PSSearchIndexer suppliedSi, int count,
          String specialWord, boolean commit)
       throws PSSearchException, SQLException
    {
-      System.out.println("Inserting " + count + " docs w/ special word: " 
+      System.out.println("Inserting " + count + " docs w/ special word: "
             + specialWord);
       if (null == specialWord)
          specialWord = "";
@@ -405,10 +386,10 @@ public class PSSearchIndexerTest
 
    /**
     * Adds several fields to a map for submission to the indexer.
-    * 
+    *
     * @param specialWord This word is prefixed on the standard body text. May
     * be <code>null</code>.
-    * 
+    *
     * @return A partial rx_generic_ce item. Never <code>null</code>.
     */
    static Map getDocData(String specialWord)
@@ -418,43 +399,43 @@ public class PSSearchIndexerTest
          data = new HashMap();
          data.put("sys_title", "First Doc");
          data.put("description", "This is George Bush's final hurrah.");
-         data.put("body", (specialWord 
+         data.put("body", (specialWord
                + " Four score and seven years ago our forefathers brought "
                + "forth on this great land.").getBytes(StandardCharsets.UTF_8));
-      return data;      
+      return data;
    }
 
    /**
     * Adds docs to the library associated with the content type returned by
-    * {@link #createContentTypeKey()}. 
-    * 
-    * @param suppliedSi The indexer to use. If <code>null</code>, an indexer 
+    * {@link #createContentTypeKey()}.
+    *
+    * @param suppliedSi The indexer to use. If <code>null</code>, an indexer
     * will be obtained from the search engine. The caller is responsible for
     * releasing it.
-    * 
-    * @param data The data for the doc. Each entry has a <code>String</code> 
-    * key that is the field name and a value that depends on the field type. 
-    * See the {@link PSSearchIndexer#update(PSSearchKey,Map,boolean)} for 
+    *
+    * @param data The data for the doc. Each entry has a <code>String</code>
+    * key that is the field name and a value that depends on the field type.
+    * See the {@link PSSearchIndexer#update(PSSearchKey,Map,boolean)} for
     * allowed types.
-    * 
+    *
     * @param count How many docs to add. Each will have a unique id.
-    * 
-    * @param revision If -1, use a revision of 1 for all docs. Otherwise, 
-    * create all docs w/ the same content id and an incrementing revision, 
+    *
+    * @param revision If -1, use a revision of 1 for all docs. Otherwise,
+    * create all docs w/ the same content id and an incrementing revision,
     * starting at this value. (Note, this functionality was removed from the
     * engine, so anything other than -1 will error. Left for future use.)
-    * 
+    *
     * @param commit A flag that indicates whether to actually write the docs
     * to the index.
-    * 
+    *
     * @return A bag of 0 or more PSSearchKey, 1 for each doc added.
     */
-   static Collection addDocs(PSSearchIndexer suppliedSi, Map data, int count, 
+   static Collection addDocs(PSSearchIndexer suppliedSi, Map data, int count,
          int revision, boolean commit)
       throws PSSearchException, SQLException
    {
       PSSearchEngine eng = PSSearchEngine.getInstance();
-      PSSearchIndexer si = 
+      PSSearchIndexer si =
             null == suppliedSi ? eng.getSearchIndexer() : suppliedSi;
       try
       {
@@ -470,7 +451,7 @@ public class PSSearchIndexerTest
                nextId = PSIdGenerator.getNextId("CONTENT");
             PSLocator itemKey = new PSLocator(nextId, revision == -1 ? 1 : rev++);
             PSSearchKey id = new PSSearchKey(cTypeKey, itemKey, null);
-            //we need to recopy the data into the map because the udpate 
+            //we need to recopy the data into the map because the udpate
             // method may modify it
             submitData.clear();
             Iterator iter = data.keySet().iterator();
@@ -496,39 +477,23 @@ public class PSSearchIndexerTest
    /**
     * Creates a key for the generic (fast-forward, #311) content type.
     * <p>Made available for other unit tests.
-    * 
+    *
     * @return Never <code>null</code>.
     */
    static PSKey createContentTypeKey()
    {
       PSKey id = PSContentType.createKey(311);
-      /* we must make it persisted or it won't match corresponding ids in the 
+      /* we must make it persisted or it won't match corresponding ids in the
        * server
        */
       id.setPersisted(true);
-      return id;            
+      return id;
    }
 
 
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new PSRequestHandlerTestSuite();
-      //test indexer and query handlers, use one to test other
-      suite.addTest(new PSSearchIndexerTest("testUpdateValidation"));
-      suite.addTest(new PSSearchIndexerTest("testMultiUpdate"));
-      suite.addTest(new PSSearchIndexerTest("testUpdateNoCommit"));
-      suite.addTest(new PSSearchIndexerTest("testClearIndex"));
-      suite.addTest(new PSSearchIndexerTest("testUpdateCommit"));
-      suite.addTest(new PSSearchIndexerTest("testDelete"));
-      suite.addTest(new PSSearchIndexerTest("testModifyDoc"));
-      
-      /*
-      suite.addTest(new PSSearchIndexerTest("testChildUpdate"));
-      suite.addTest(new PSSearchIndexerTest("test"));
-      */
-      return suite;
-   }
+   // JUnit 5 uses test discovery; explicit suite() removed.
+   // (legacy JUnit3 `suite()` was deleted during migration)
+
 
    /**
     * The loadable handler will call this method once before any test method.
@@ -546,6 +511,6 @@ public class PSSearchIndexerTest
     */
    public void oneTimeTearDown()
    {
-      // noop      
+      // noop
    }
 }

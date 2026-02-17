@@ -24,10 +24,8 @@ import com.percussion.utils.timing.PSStopwatch;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -40,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test the data collection helper for correct behavior.
- * 
+ *
  * @author dougrand
  */
 @Tag("IntegrationTest")
@@ -52,10 +50,10 @@ public class PSDataCollectionHelperTest
    @Test
    public void testCreateIdSet()
    {
-      SessionFactory sf = 
+      SessionFactory sf =
          (SessionFactory) PSBaseServiceLocator.getBean("sys_sessionFactory");
       Session s = sf.openSession();
-      
+
       List<Long> ids = new ArrayList<Long>();
       for (long i = 0; i < 1000; i++)
       {
@@ -84,7 +82,7 @@ public class PSDataCollectionHelperTest
       long idset4 = PSDataCollectionHelper.createIdSet(s, ids);
       sw.stop();
       System.out.println("Fourth set created in " + sw);
-      
+
       // Check contents
       CriteriaBuilder builder = s.getCriteriaBuilder();
       CriteriaQuery<PSTempId> criteria = builder.createQuery(PSTempId.class);
@@ -92,7 +90,7 @@ public class PSDataCollectionHelperTest
       criteria.where(builder.equal(critRoot.get("pk.id"), idset1));
       List results = s.createQuery(criteria).getResultList();
       assertEquals(ids.size(), results.size());
-      
+
       ids.clear();
       for (long i = 0; i < 10000; i++)
       {
@@ -109,8 +107,8 @@ public class PSDataCollectionHelperTest
       criteria.where(builder.equal(crit.get("pk.id"), idset5));
       results = s.createQuery(criteria).getResultList();
       assertEquals(ids.size(), results.size());
-      
-      
+
+
       // Clear
       sw.start();
       PSDataCollectionHelper.clearIdSet(s, idset1);
@@ -132,7 +130,7 @@ public class PSDataCollectionHelperTest
       PSDataCollectionHelper.clearIdSet(s, idset5);
       sw.stop();
       System.out.println("Fifth set cleared in " + sw);
-      
+
       s.close();
    }
 

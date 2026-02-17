@@ -24,7 +24,7 @@ import com.percussion.services.security.loginmods.data.PSGroup;
 import com.percussion.services.security.loginmods.data.PSPrincipal;
 
 import java.security.Principal;
-import com.percussion.security.Group;
+import com.percussion.security.shim.acl.Group;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
@@ -40,14 +41,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class InstallUtilTest
 {
-   @Rule
+   @TempDir
    public Path temporaryFolder;
 
    public InstallUtilTest(){}
 
    @BeforeEach 
    public void setup() throws IOException {
-      ms_root = temporaryFolder.newFolder().getAbsolutePath();
+      ms_root = temporaryFolder.toFile().getAbsolutePath();
    }
    /**
     * Tests the <code>getSubstituteName</code> method.

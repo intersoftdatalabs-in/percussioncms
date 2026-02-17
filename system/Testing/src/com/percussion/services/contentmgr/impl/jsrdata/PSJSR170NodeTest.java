@@ -26,30 +26,22 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSJSR170NodeTest 
+public class PSJSR170NodeTest
 {
    Node m_root;
-   
-   
 
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSJSR170NodeTest.class);
-   }
 
-   /* (non-Javadoc)
-    * @see junit.framework.TestCase#setUp()
-    */
-   @Override
-   protected void setUp() throws Exception
+
+   @BeforeEach
+   public void setUp() throws Exception
    {
-      super.setUp();
       PSContentNode aaa, bbb, current;
-      
+
       m_root = new PSContentNode(null, "root", null, null, null, null);
       aaa = (PSContentNode) m_root.addNode("aaa");
       aaa.addProperty(new PSProperty("rx:dog", aaa, "Fido"));
@@ -62,7 +54,7 @@ public class PSJSR170NodeTest
       bbb.addNode("ccc");
       fixupChildStatus(m_root);
    }
-   
+
    private void fixupChildStatus(Node n) throws RepositoryException
    {
       PSContentNode cur = (PSContentNode) n;
@@ -72,11 +64,12 @@ public class PSJSR170NodeTest
       {
          fixupChildStatus(niter.nextNode());
       }
-      
+
    }
 
-   
 
+
+   @Test
    public void testNodeAndPropertyAccess() throws Exception
    {
       String prop = m_root.getProperty("aaa/dog").getString();
@@ -90,9 +83,10 @@ public class PSJSR170NodeTest
       assertEquals("Tweetie", m_root.getProperty("aaa/canary").getString());
       assertTrue(m_root.getProperty("aaa/house").getBoolean());
    }
-   
-   
-   
+
+
+
+   @Test
    public void testPropIterator() throws Exception
    {
       Node aaa = m_root.getNode("aaa");
@@ -104,9 +98,10 @@ public class PSJSR170NodeTest
       iter = aaa.getProperties("rx:ca*");
       assertEquals(2, iter.getSize());
    }
-   
-   
-   
+
+
+
+   @Test
    public void testNodeIterator() throws Exception
    {
       Node bbb = m_root.getNode("bbb");

@@ -23,6 +23,8 @@ import com.percussion.xml.PSXmlTreeWalker;
 import junit.framework.AssertionFailedError;
 
 import junit.framework.TestResult;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +47,7 @@ import java.util.Properties;
  * <p>This class does not support the <code>useLocalClassLoader</code> property
  * of the handler.
  */
-public class PSRequestHandlerTestSuite extends TestSuite 
+public class PSRequestHandlerTestSuite extends TestSuite
 {
 
    private static final Logger log = LogManager.getLogger(PSRequestHandlerTestSuite.class);
@@ -63,13 +65,13 @@ public class PSRequestHandlerTestSuite extends TestSuite
         </RequestRoots>
       </RequestHandlerDef>
    */
-   
+
    /**
     * Create a new instance of the testsuite.
-    * 
+    *
     * @param clazz The class to use when constructing the
-    * test suite. {@link TestSuite} uses reflection to find all 
-    * the methods that start with "test" to construct a suite. 
+    * test suite. {@link TestSuite} uses reflection to find all
+    * the methods that start with "test" to construct a suite.
     * Must never be <code>null</code>.
     */
    public PSRequestHandlerTestSuite(Class clazz)
@@ -79,26 +81,26 @@ public class PSRequestHandlerTestSuite extends TestSuite
    }
 
    /**
-    * Ctor that can be used if the 
-    * {@link TestSuite#addTest(junit.framework.Test) addTest} methods are 
-    * needed. 
+    * Ctor that can be used if the
+    * {@link TestSuite#addTest(junit.framework.Test) addTest} methods are
+    * needed.
     */
-   public PSRequestHandlerTestSuite() 
+   public PSRequestHandlerTestSuite()
    {
-      try 
+      try
       {
          Exception e = new Exception();
          StackTraceElement[] stackTrace = e.getStackTrace();
          StackTraceElement el = stackTrace[1];
          m_testClass = Class.forName(el.getClassName());
-      } 
-      catch (ClassNotFoundException e) 
+      }
+      catch (ClassNotFoundException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
    }
-   
+
    /* (non-Javadoc)
     * @see junit.framework.Test#run(junit.framework.TestResult)
     */
@@ -129,12 +131,12 @@ public class PSRequestHandlerTestSuite extends TestSuite
     * Invoke runs the test inside of Rhythmyx. It does this by using
     * a special loadable request handler. The request handler is available on
     * the specific application sys_junitTestHandler. The results are
-    * returned from Rhythmyx and this code then parses the results 
+    * returned from Rhythmyx and this code then parses the results
     * and reflects the results onto the testResults object that this
     * is called with.
-    * 
-    * @param testResults A never <code>null</code> instance of 
-    * {@link TestResult} that is supplied by junit and modified 
+    *
+    * @param testResults A never <code>null</code> instance of
+    * {@link TestResult} that is supplied by junit and modified
     * using the results from the run.
     */
    private void invoke(TestResult testResults) throws Exception
@@ -204,13 +206,13 @@ public class PSRequestHandlerTestSuite extends TestSuite
                AssertionFailedError th = (AssertionFailedError) iter.next();
                testResults.addFailure(test, th);
             }
-         }         
+         }
          testResults.endTest(test);
       }
    }
 
    /**
-    * Adds the given information to a list on the passed map. 
+    * Adds the given information to a list on the passed map.
     * @param map A map, assumed to be not <code>null</code>.
     * @param key A key to the map, assumed to be not <code>null</code>.
     * @param value A value to be added, assumed to be not <code>null</code>.
@@ -227,9 +229,9 @@ public class PSRequestHandlerTestSuite extends TestSuite
    }
 
    /**
-    * Look through the test list and return the correct test for the 
+    * Look through the test list and return the correct test for the
     * given name.
-    * 
+    *
     * @param string A test name, must never be <code>null</code>
     * @return the given {@link Test} object, never <code>null</code>.
     * @throws Exception if test not found
@@ -263,7 +265,7 @@ public class PSRequestHandlerTestSuite extends TestSuite
     * in the constructor and never modified afterward. Never <code>null</code>.
     */
    private Class m_testClass;
-   
+
    /**
     * Config helper test case - a properties factory.
     */

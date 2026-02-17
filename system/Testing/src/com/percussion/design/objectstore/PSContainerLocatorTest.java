@@ -57,12 +57,6 @@ public class PSContainerLocatorTest
       assertTrue(testTo.equals(testFrom));
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSContainerLocatorTest("testXml"));
-
-      return suite;
-   }
+   // JUnit 5 uses test discovery; explicit suite() removed.
+   // (legacy JUnit3 `suite()` was deleted during migration)
 }

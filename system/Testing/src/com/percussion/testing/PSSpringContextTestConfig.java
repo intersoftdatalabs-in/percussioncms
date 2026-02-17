@@ -18,6 +18,7 @@
 package com.percussion.testing;
 
 import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
+import org.junit.jupiter.api.Disabled;
 
 /** @Configuration
 @ImportResource({        "classpath:/com/percussion/testing/test-spring-context.xml",
@@ -25,7 +26,7 @@ import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 "file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF/config/spring/" + PSServletUtils.DESIGN_BEANS_FILE_NAME
 })
  */
-@DisabledInWebAppSpringContext
+@Disabled
 public class PSSpringContextTestConfig {
 
 }

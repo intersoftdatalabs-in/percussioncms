@@ -37,20 +37,20 @@ import org.junit.jupiter.api.Tag;
  * Unit tests for the {@link PSSharedProperty} class.
  */
 @Tag("IntegrationTest")
-public class PSSharedPropertyTest 
+public class PSSharedPropertyTest
 {
    /**
     * Test all object contracts.
     */
    @Test
-   
+
    public void testContracts()
    {
       PSSharedProperty property = new PSSharedProperty();
-      
+
       String name = "name";
       String value = "value";
-      
+
       try
       {
          property = new PSSharedProperty(null, value);
@@ -61,7 +61,7 @@ public class PSSharedPropertyTest
          // expected exception
          assertTrue(true);
       }
-      
+
       try
       {
          property = new PSSharedProperty(" ", value);
@@ -74,11 +74,11 @@ public class PSSharedPropertyTest
       }
 
       property = new PSSharedProperty(name, null);
-      
+
       property = new PSSharedProperty(name, " ");
-      
+
       property = new PSSharedProperty(name, value);
-      
+
       try
       {
          property.setVersion(-1);
@@ -89,9 +89,9 @@ public class PSSharedPropertyTest
          // expected exception
          assertTrue(true);
       }
-      
+
       property.setVersion(0);
-      
+
       try
       {
          property.setVersion(1);
@@ -103,74 +103,74 @@ public class PSSharedPropertyTest
          assertTrue(true);
       }
    }
-   
+
    /**
     * Test all CRUD services.
     */
    @Test
-   
+
    public void testCRUD() throws Exception
    {
       IPSSystemService service = PSSystemServiceLocator.getSystemService();
-      
+
       // find all properties
-      List<PSSharedProperty> properties = 
+      List<PSSharedProperty> properties =
          service.findSharedPropertiesByName(null);
       int count = properties.size();
-      
+
       // create and save property
       PSSharedProperty property = new PSSharedProperty("name", "value");
       service.saveSharedProperty(property);
-      
+
       // find properties
       properties = service.findSharedPropertiesByName(null);
       assertTrue(properties != null && properties.size() == count+1);
-      
+
       // save the property
       property.setValue("new value");
       service.saveSharedProperty(property);
       PSSharedProperty property2 = service.loadSharedProperty(
          property.getGUID());
       assertEquals(property, property2);
-      
+
       // delete the property
       service.deleteSharedProperty(property.getGUID());
       properties = service.findSharedPropertiesByName(null);
       assertTrue(properties != null && properties.size() == count);
    }
-   
+
    /**
-    * Create a new shared property for the supplied parameters and save it to 
+    * Create a new shared property for the supplied parameters and save it to
     * the repository.
-    * 
+    *
     * @param name the property name, not <code>null</code> or empty.
     * @param value the property value, may be <code>null</code> or empty.
-    * @param session the session used to create the property, not 
+    * @param session the session used to create the property, not
     *    <code>null</code> or empty.
     * @param user the user used to create the property, not <code>null</code>
     *    or empty.
-    * @return the new shared property, saved in the repository, never 
+    * @return the new shared property, saved in the repository, never
     *    <code>null</code>.
     * @throws PSErrorsException if the property could not be created.
     */
-   public static PSSharedProperty createProperty(String name, String value, 
+   public static PSSharedProperty createProperty(String name, String value,
       String session, String user) throws PSErrorsException
    {
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name cannot be null or empty");
-      
+
       if (StringUtils.isBlank(session))
          throw new IllegalArgumentException("session cannot be null or empty");
-      
+
       if (StringUtils.isBlank(user))
          throw new IllegalArgumentException("user cannot be null or empty");
-      
+
       IPSSystemDesignWs service = PSSystemWsLocator.getSystemDesignWebservice();
-      
+
       List<PSSharedProperty> properties = new ArrayList<PSSharedProperty>();
       properties.add(new PSSharedProperty(name, value));
       service.saveSharedProperties(properties, true, session, user);
-      
+
       return properties.get(0);
    }
 }

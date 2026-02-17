@@ -39,11 +39,11 @@ public class PSKeywordTest
    public void testServiceContracts() throws Exception
    {
       IPSContentService service = PSContentServiceLocator.getContentService();
-      
+
       // create test keyword
       PSKeyword keyword = service.createKeyword(
          "keyword_A", "description_A");
-      
+
       for (int i=0; i<3; i++)
       {
          PSKeywordChoice choice = new PSKeywordChoice();
@@ -51,115 +51,115 @@ public class PSKeywordTest
          choice.setDescription("description_A." + i);
          choice.setValue("value_A." + i);
          choice.setSequence(i);
-         
+
          keyword.setChoice(choice);
       }
-      
+
       service.saveKeyword(keyword);
-      
+
       try
       {
          // try create with null label
          service.createKeyword(null, null);
-         assertFalse("Should have thrown exception", false);
+         assertFalse(false, "Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
          // expected exception
          assertTrue(true);
       }
-      
+
       try
       {
          // try create with empty label
          service.createKeyword(" ", null);
-         assertFalse("Should have thrown exception", false);
+         assertFalse(false, "Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
          // expected exception
          assertTrue(true);
       }
-      
+
       try
       {
          // try create with existing label
          service.createKeyword("keyword_a", null);
-         assertFalse("Should have thrown exception", false);
+         org.junit.jupiter.api.Assertions.fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
          // expected exception
-         assertTrue(true);
+         org.junit.jupiter.api.Assertions.assertTrue(true);
       }
-      
+
       try
       {
          // try find choices with null type
          service.createKeyword(null, null);
-         assertFalse("Should have thrown exception", false);
+         assertFalse(false, "Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
          // expected exception
          assertTrue(true);
       }
-      
+
       try
       {
          // try find choices with empty type
          service.createKeyword(" ", null);
-         assertFalse("Should have thrown exception", false);
+         assertFalse(false, "Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
          // expected exception
          assertTrue(true);
       }
-      
+
       try
       {
          // try load keyword with null id
          service.loadKeyword(null, null);
-         assertFalse("Should have thrown exception", false);
+         org.junit.jupiter.api.Assertions.fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
          // expected exception
-         assertTrue(true);
+         org.junit.jupiter.api.Assertions.assertTrue(true);
       }
-      
+
       try
       {
          // try save keyword with null keyword
          service.saveKeyword(null);
-         assertFalse("Should have thrown exception", false);
+         org.junit.jupiter.api.Assertions.fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
          // expected exception
-         assertTrue(true);
+         org.junit.jupiter.api.Assertions.assertTrue(true);
       }
-      
+
       try
       {
          // try delete keyword with null id
          service.deleteKeyword(null);
-         assertFalse("Should have thrown exception", false);
+         org.junit.jupiter.api.Assertions.fail("Should have thrown exception");
       }
       catch (IllegalArgumentException e)
       {
          // expected exception
-         assertTrue(true);
+         org.junit.jupiter.api.Assertions.assertTrue(true);
       }
-      
+
       // delete test keyword
       service.deleteKeyword(keyword.getGUID());
    }
-   
+
    /**
     * Test all CRUD services for keywords.
-    * 
+    *
     * @throws Exception for any error.
     */
    @Test
@@ -174,7 +174,7 @@ public class PSKeywordTest
       {
          PSKeyword keyword = service.createKeyword(
             "keyword_" + i, "description_" + i);
-         
+
          for (int j=0; j<choiceCount; j++)
          {
             PSKeywordChoice choice = new PSKeywordChoice();
@@ -182,13 +182,13 @@ public class PSKeywordTest
             choice.setDescription("description_" + i + "." + j);
             choice.setValue("value_" + i + "." + j);
             choice.setSequence(j);
-            
+
             keyword.setChoice(choice);
          }
-         
+
          service.saveKeyword(keyword);
       }
-      
+
       // find the created keywords
       List<PSKeyword> keywords = service.findKeywordsByLabel(
          "keyword_%", "label");
@@ -196,7 +196,7 @@ public class PSKeywordTest
       assertTrue(keywords.get(0).getChoices().size() == choiceCount);
       assertTrue(keywords.get(1).getChoices().size() == choiceCount);
       assertTrue(keywords.get(2).getChoices().size() == choiceCount);
-      
+
       // add some keyword choice and save
       PSKeyword keyword = keywords.get(0);
       PSKeywordChoice choice = new PSKeywordChoice();
@@ -208,7 +208,7 @@ public class PSKeywordTest
       service.saveKeyword(keyword);
       keywords = service.findKeywordsByLabel("keyword_%", "label");
       assertTrue(keywords.get(0).getChoices().size() == choiceCount+1);
-      
+
       // update some keyword choice and save
       keyword = keywords.get(0);
       choice = keyword.getChoices().get(choiceCount);
@@ -220,21 +220,21 @@ public class PSKeywordTest
       assertTrue(keywords.get(0).getChoices().size() == choiceCount+1);
       assertTrue(keywords.get(0).getChoices().get(choiceCount).getValue().equals(
          "value_changed"));
-      
+
       // remove some keyword choice and save
       keyword = keywords.get(0);
       keyword.getChoices().remove(choiceCount);
       service.saveKeyword(keyword);
       keywords = service.findKeywordsByLabel("keyword_%", "label");
       assertTrue(keywords.get(0).getChoices().size() == choiceCount);
-      
+
       // remove one keyword
       keyword = keywords.get(0);
       service.deleteKeyword(keyword.getGUID());
       List<PSKeyword> choices = service.findKeywordChoices(
          keyword.getValue(), null);
       assertTrue(choices.isEmpty());
-      
+
       // remove all test keywords
       keywords = service.findKeywordsByLabel("keyword_%", null);
       for (PSKeyword k : keywords)

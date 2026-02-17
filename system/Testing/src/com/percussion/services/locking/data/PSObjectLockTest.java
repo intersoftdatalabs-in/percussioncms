@@ -46,24 +46,24 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class PSObjectLockTest
 {
    /**
-    * Tests the CRUD functionality for object locks using the locking services. 
+    * Tests the CRUD functionality for object locks using the locking services.
     */
    @Test
    public void testCRUD() throws Exception
    {
       IPSGuid propertyId = m_property.getGUID();
-      
-      IPSObjectLockService service = 
+
+      IPSObjectLockService service =
          PSObjectLockServiceLocator.getLockingService();
-      
+
       // create a new lock
       String session = "session";
       String locker = "locker";
       List<PSObjectLock> locks = service.findLocksByUser(session, locker);
       int count = locks.size();
-      PSObjectLock lock = service.createLock(propertyId, session, locker, 0, 
+      PSObjectLock lock = service.createLock(propertyId, session, locker, 0,
          false);
-      
+
       // test find by user info
       locks = service.findLocksByUser(session, locker);
       assertTrue(locks != null && locks.size() == count+1);
@@ -81,7 +81,7 @@ public class PSObjectLockTest
       catch (PSLockException e)
       {
          // expected exception
-         assertTrue(e.getErrorCode() == 
+         assertTrue(e.getErrorCode() ==
             IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
       }
 
@@ -94,7 +94,7 @@ public class PSObjectLockTest
       catch (PSLockException e)
       {
          // expected exception
-         assertTrue(e.getErrorCode() == 
+         assertTrue(e.getErrorCode() ==
             IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
       }
 
@@ -107,7 +107,7 @@ public class PSObjectLockTest
       catch (PSLockException e)
       {
          // expected exception
-         assertTrue(e.getErrorCode() == 
+         assertTrue(e.getErrorCode() ==
             IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
       }
 
@@ -120,7 +120,7 @@ public class PSObjectLockTest
       catch (PSLockException e)
       {
          // expected exception
-         assertTrue(e.getErrorCode() == 
+         assertTrue(e.getErrorCode() ==
             IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
       }
 
@@ -133,19 +133,19 @@ public class PSObjectLockTest
       catch (PSLockException e)
       {
          // expected exception
-         assertTrue(e.getErrorCode() == 
+         assertTrue(e.getErrorCode() ==
             IPSLockErrors.LOCK_EXTENSION_INVALID_SESSION);
       }
 
       // lock the same object with different session with override
       service.createLock(propertyId, "session2", locker, 0, true);
       service.createLock(propertyId, session, locker, 0, true);
-      
+
       // find the created lock
-      PSObjectLock lock2 = service.findLockByObjectId(propertyId, session, 
+      PSObjectLock lock2 = service.findLockByObjectId(propertyId, session,
          locker);
       assertEquals(lock, lock2);
-      
+
       List<IPSGuid> propertyIds = new ArrayList<IPSGuid>();
       propertyIds.add(propertyId);
       locks = service.findLocksByObjectIds(propertyIds, session, locker);
@@ -153,7 +153,7 @@ public class PSObjectLockTest
 
       // is not in the list of expired locks
       assertFalse(service.findExpiredLocks().contains(lock));
-      
+
       // extend the lock for an interval of 1s
       service.extendLock(propertyId, session, locker, 0, 1000);
 
@@ -162,9 +162,9 @@ public class PSObjectLockTest
 
       // is in the list of expired locks
       assertFalse(service.findExpiredLocks().contains(lock));
-      
+
       service.releaseLock(lock);
-      
+
       // should ignore that the lock does not exist anymore
       service.releaseLocks(Collections.singletonList(lock));
    }
@@ -172,7 +172,7 @@ public class PSObjectLockTest
    @BeforeAll
    public static void setUp() throws Exception
    {
-      IPSSystemService systemService = 
+      IPSSystemService systemService =
          PSSystemServiceLocator.getSystemService();
       m_property = new PSSharedProperty("name", "value");
       systemService.saveSharedProperty(m_property);
@@ -186,12 +186,12 @@ public class PSObjectLockTest
    {
       if (m_property != null)
       {
-         IPSSystemService systemService = 
+         IPSSystemService systemService =
             PSSystemServiceLocator.getSystemService();
          systemService.deleteSharedProperty(m_property.getGUID());
       }
    }
-   
+
    // test property
    static PSSharedProperty m_property = null;
 }

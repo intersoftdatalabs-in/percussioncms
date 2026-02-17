@@ -44,6 +44,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import com.percussion.security.PSSecurityException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

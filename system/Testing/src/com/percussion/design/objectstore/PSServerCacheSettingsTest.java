@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
 /**
  * Tests the basic functionality of the <code>PSServerCacheSettings</code> class.
  */
-public class PSServerCacheSettingsTest 
+public class PSServerCacheSettingsTest
 {
    /**
     * Constructs an instance of this class to run the test implemented by the
@@ -37,12 +37,12 @@ public class PSServerCacheSettingsTest
     *
     * @param methodName name of the method that implements a test
     */
-   
+
 
    /**
     * Collects all the tests implemented by this class into a single suite.
     */
-   
+
 
 
    /**
@@ -50,7 +50,8 @@ public class PSServerCacheSettingsTest
     * default values to the members of the object and rejects invalid
     * parameters.
     */
-   
+
+   @Test
    public void testCtors() throws Exception
    {
       PSServerCacheSettings cacheSettings = new PSServerCacheSettings();
@@ -68,7 +69,7 @@ public class PSServerCacheSettingsTest
       assertTrue( cacheSettings.isEnabled());
       assertEquals( cacheSettings.getMaxMemoryUsage(), 10*1024*1024); //10MB
       assertEquals( cacheSettings.getMaxDiskUsage(), 100*1024*1024); //100 MB
-      assertEquals( cacheSettings.getMaxPageSize(), 100*1024); //100 KB      
+      assertEquals( cacheSettings.getMaxPageSize(), 100*1024); //100 KB
       assertEquals( cacheSettings.getAgingTime(), 300); //300 minutes
 
       //maximum memory usage can not be < -1
@@ -79,10 +80,10 @@ public class PSServerCacheSettingsTest
 
       //Both memory usage and disk usage can not be zero
       testFailCtor( true, true, 0, 0, 100*1024, 300 );
-      
+
       //maximum page size can not be < -1
       testFailCtor( true, true, 10*1024*1024, 100*1024*1024, -2, 300 );
-      
+
       //maximum page size can not be zero
       testFailCtor( true, true, 10*1024*1024, 100*1024*1024, 0, 300 );
 
@@ -105,14 +106,14 @@ public class PSServerCacheSettingsTest
     * @param pageSize the parameter required for creating the object.
     * @param agingTime the parameter required for creating the object.
     */
-   private void testFailCtor(boolean enabled, boolean folderCacheEnabled, 
+   private void testFailCtor(boolean enabled, boolean folderCacheEnabled,
       long memUsage, long diskUsage, long pageSize, long agingTime)
    {
       boolean didThrow = false;
       try
       {
          PSServerCacheSettings cacheSettings = new PSServerCacheSettings(
-            enabled, folderCacheEnabled, memUsage, diskUsage, pageSize, 
+            enabled, folderCacheEnabled, memUsage, diskUsage, pageSize,
             agingTime);
       }
       catch(IllegalArgumentException e)
@@ -137,7 +138,8 @@ public class PSServerCacheSettingsTest
     * </ol>
     * @throws Exception
     */
-   
+
+   @Test
    public void testXml() throws Exception
    {
       //Test through xml everything got initialized properly.
@@ -159,16 +161,16 @@ public class PSServerCacheSettingsTest
       assertEquals(cacheSettings, otherCacheSet);
 
       //maximum memory usage can not be a string
-      testFailXml( true, true, "test", String.valueOf(100*1024*1024), 
+      testFailXml( true, true, "test", String.valueOf(100*1024*1024),
          String.valueOf(100*1024), "300" );
 
       //maximum disk space usage can not be a string
-      testFailXml( true, true, String.valueOf(10*1024*1024), "test", 
+      testFailXml( true, true, String.valueOf(10*1024*1024), "test",
          String.valueOf(100*1024), "300" );
-         
+
       //maximum page size can not be a string
-      testFailXml( true, true, String.valueOf(10*1024*1024), 
-         String.valueOf(100*1024*1024), "test", "300" );         
+      testFailXml( true, true, String.valueOf(10*1024*1024),
+         String.valueOf(100*1024*1024), "test", "300" );
 
       //Cache aging time can not be a string
       testFailXml( true, true, String.valueOf(10*1024*1024),
@@ -188,7 +190,7 @@ public class PSServerCacheSettingsTest
       copy = (Element)cacheEl.cloneNode(true);
       copy.removeAttribute("maxDiskSpace");
       testFailXml( copy );
-      
+
       //missing "maxPageSize" attribute
       copy = (Element)cacheEl.cloneNode(true);
       copy.removeAttribute("maxPageSize");
@@ -275,7 +277,7 @@ public class PSServerCacheSettingsTest
          root.setAttribute("folderCacheEnabled", "no");
       root.setAttribute("maxMemory", memUsage);
       root.setAttribute("maxDiskSpace", diskUsage);
-      root.setAttribute("maxPageSize", pageSize);      
+      root.setAttribute("maxPageSize", pageSize);
       root.setAttribute("agingTime", agingTime);
 
       return root;

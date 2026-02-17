@@ -28,12 +28,12 @@ import org.w3c.dom.Element;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Test framework for JSP scanner. This has to run against a rhythmyx 
+ * Test framework for JSP scanner. This has to run against a rhythmyx
  * installation. Setup rxdeploydir before running this test.
- * 
+ *
  * @author dougrand
  */
-@Tag({IntegrationTest.class})
+@Tag("IntegrationTest")
 public class PSJspHandlerTest
 {
    /**
@@ -44,9 +44,9 @@ public class PSJspHandlerTest
    {
       // Disable logging
       PSCommandLineProcessor.setIsLogEnabled(false);
-      
+
       PSJspHandler jsph = new PSJspHandler();
-      
+
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element root = doc.createElement("rxltconfig");
       root.setAttribute("rxroot", System.getProperty("rxdeploydir"));
@@ -56,7 +56,7 @@ public class PSJspHandlerTest
       el.setAttribute("sectionid", "5");
       el.setAttribute("name", "JSP Files");
       el.setAttribute("process", "yes");
-      
+
       IPSTmxDocument result = jsph.process(el);
       assertNotNull(result);
    }

@@ -27,9 +27,10 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 /**
  * Unit tests for the PSBackEndCredential class.
  */
-public class PSBackEndCredentialTest 
+public class PSBackEndCredentialTest
 {
-   
+
+   @Test
    public void testConstructor() throws Exception
    {
       String alias = "foobarbaz";
@@ -48,22 +49,23 @@ public class PSBackEndCredentialTest
       {
          didThrow = true;
       }
-      assertTrue("Caught cons with null alias?", didThrow);
+      assertTrue(didThrow, "Caught cons with null alias?");
 
       didThrow = false;
       try
       {
-         new PSBackEndCredential("");
+         new PSBackEndCredential("","bar","baz");
       }
-      catch (IllegalArgumentException ex)
+      catch (IllegalArgumentException e)
       {
          didThrow = true;
       }
-      assertTrue("Caught cons with empty alias?", didThrow);
+      assertTrue(didThrow, "Caught cons with empty alias?");
    }
 
-   
 
+
+   @Test
    public void testGetSet() throws Exception
    {
       String alias = "alias";
@@ -83,8 +85,9 @@ public class PSBackEndCredentialTest
       assertEquals(comment, cred.getComment());
    }
 
-   
 
+
+   @Test
    public void testXml() throws Exception
    {
       String alias = "alias", ds = "datasource", comment = "comment";

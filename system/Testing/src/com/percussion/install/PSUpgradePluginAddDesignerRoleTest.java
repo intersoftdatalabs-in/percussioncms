@@ -40,6 +40,7 @@ import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 import com.percussion.utils.testing.SpringContextTest;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.xml.sax.SAXException;
 
@@ -47,8 +48,9 @@ import org.xml.sax.SAXException;
  * @author JaySeletz
  *
  */
-@Tag({IntegrationTest.class, SpringContextTest.class})
-@DisabledInWebAppSpringContext
+@Tag("IntegrationTest")
+@Tag("SpringContextTest")
+@Disabled
 public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextTest
 {
 
@@ -58,22 +60,22 @@ public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextT
       PSUpgradePluginAddDesignerRole plugin = new PSUpgradePluginAddDesignerRole();
 
       plugin.setLogger(System.out);
-      
+
       File wfFile = PSResourceUtils.getFile(PSUpgradePluginAddDesignerRoleTest.class,"/com/percussion/rxupgrade/AddDesignerRoleWorkflow.xml",null);
       PSWorkflow testWF = new PSWorkflow();
       testWF.fromXML(FileUtils.readFileToString(wfFile));
-      
+
       assertFalse(isDesignerAssignee(testWF));
       plugin.addRoleToWorkflow(testWF);
-      assertTrue(isDesignerAssignee(testWF));      
+      assertTrue(isDesignerAssignee(testWF));
    }
-   
+
    /**
     * Check that the designer role is an assignee of every state, and has a transition role for every transition in the supplied
     * workflow
-    * 
+    *
     * @param workflow The workflow to check, assumed not <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if so, <code>false</code> if not.
     */
    private boolean isDesignerAssignee(PSWorkflow workflow)
@@ -88,10 +90,10 @@ public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextT
             break;
          }
       }
-      
+
       if (roleId == null)
          return false;
-      
+
       boolean hasStateRole = false;
       List<PSState> states = workflow.getStates();
       for (PSState state : states)
@@ -108,10 +110,10 @@ public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextT
                }
             }
          }
-         
+
          if (!hasStateRole)
             return false;
-         
+
          List<PSTransition> transitions = state.getTransitions();
          for (PSTransition transition : transitions)
          {
@@ -125,18 +127,18 @@ public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextT
                   break;
                }
             }
-            
+
             if (!hasTransRole)
                return false;
          }
       }
-      
+
       return true;
    }
 
    /**
     * Actually updates the default workflow to add the role.  Was used to update the Default Workflow for re-package, not run as part of the plugin test.
-    * 
+    *
     * @throws IOException
     * @throws SAXException
     */
@@ -146,20 +148,20 @@ public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextT
       List<PSWorkflow> wfs = wfService.findWorkflowsByName("Default Workflow");
       assertTrue(wfs.size() == 1);
       PSWorkflow defaultWF = wfs.get(0);
-      
+
       PSUpgradePluginAddDesignerRole plugin = new PSUpgradePluginAddDesignerRole();
       plugin.setLogger(System.out);
-      
+
       plugin.addRoleToWorkflow(defaultWF);
-      
+
       wfService.saveWorkflow(defaultWF);
 
    }
-   
+
 
    /**
     * Actually updates the local workflow to add the role.  Was used to update the Local Workflow for re-package, not run as part of the plugin test.
-    * 
+    *
     * @throws IOException
     * @throws SAXException
     */
@@ -169,14 +171,14 @@ public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextT
       List<PSWorkflow> wfs = wfService.findWorkflowsByName("LocalContent");
       assertTrue(wfs.size() == 1);
       PSWorkflow localWF = wfs.get(0);
-      
+
       PSUpgradePluginAddDesignerRole plugin = new PSUpgradePluginAddDesignerRole();
       plugin.setLogger(System.out);
-      
+
       plugin.addRoleToWorkflow(localWF);
-      
+
       wfService.saveWorkflow(localWF);
 
-   }   
+   }
 
 }

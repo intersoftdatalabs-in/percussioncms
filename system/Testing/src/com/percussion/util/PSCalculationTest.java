@@ -40,12 +40,12 @@ import java.util.Date;
  * @version    2.0
  * @since      1.0
  */
-public class PSCalculationTest 
+public class PSCalculationTest
 {
-   
 
-   
-   
+
+
+
 
    public void testAdd() throws Exception
    {
@@ -115,7 +115,7 @@ public class PSCalculationTest
       assertTrue(didThrow);
    }
 
-   
+
 
    public void testSubtract() throws Exception
    {
@@ -187,7 +187,7 @@ public class PSCalculationTest
       assertTrue(didThrow);
    }
 
-   
+
 
    public void testMultiply() throws Exception
    {
@@ -257,7 +257,7 @@ public class PSCalculationTest
       assertTrue(didThrow);
    }
 
-   
+
 
    public void testDivide() throws Exception
    {
@@ -335,7 +335,7 @@ public class PSCalculationTest
       assertTrue(didThrow);
    }
 
-   
+
 
    public void testNumberVerify() throws Exception
    {
@@ -385,7 +385,7 @@ public class PSCalculationTest
       assertFalse(didThrow);
    }
 
-    
+
 
     public void testDateAdjust() throws Exception
    {
@@ -416,11 +416,10 @@ public class PSCalculationTest
             nMin, nSec);
       }
 
-      assertTrue("Could not parse date: " + strDate, dateNew != null);
-      assertTrue("(" + dateNew.toString() + ") equals (" + strDate + ")", (
-         dateNew.toString()).equals("2000-12-01 00:04:01"));
+      assertTrue(dateNew != null, "Could not parse date: " + strDate);
+      assertTrue((dateNew.toString()).equals("2000-12-01 00:04:01"), "(" + dateNew.toString() + ") equals (" + strDate + ")");
    }
 
    // collect all tests into a TestSuite and return it
-   
+
 }

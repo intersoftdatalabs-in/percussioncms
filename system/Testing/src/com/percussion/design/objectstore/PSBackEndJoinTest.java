@@ -29,12 +29,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the PSBackEndJoin class.
  */
-public class PSBackEndJoinTest 
+public class PSBackEndJoinTest
 {
-   
 
-   
-   
+
+
+
 
    public void testConstructor() throws Exception
    {
@@ -64,8 +64,9 @@ public class PSBackEndJoinTest
       assertFalse(join.equals(otherJoin));
    }
 
-   
 
+
+   @Test
    public void testXml() throws Exception
    {
       PSBackEndTable leftTab = new PSBackEndTable("leftTable");
@@ -89,5 +90,5 @@ public class PSBackEndJoinTest
       assertEquals(join, otherJoin);
    }
 
-   
+
 }

@@ -307,9 +307,6 @@ public class PSBaseHttpUtilsTest
       assertEquals(0, params.size());
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      return suite;
-   }
+   // JUnit 5 uses test discovery; explicit suite() removed.
+   // (legacy JUnit3 `suite()` was deleted during migration)
 }

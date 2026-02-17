@@ -20,7 +20,7 @@ import com.percussion.search.lucene.IPSLuceneConstants;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Disabled;
 
 import java.io.File;
@@ -33,13 +33,13 @@ import java.io.InputStream;
  */
 //TODO: Fix these tests - the failures are valid
 @Disabled
-public class PSTextConverterTest 
+public class PSTextConverterTest
 {
    /**
     * MS Word file text conversion test.
     * @throws Exception
     */
-   
+
    public void testWordConvertion() throws Exception
    {
       InputStream is = null;
@@ -48,7 +48,7 @@ public class PSTextConverterTest
          is = loadFile("word.doc");
          String text = new PSTextConverterMsWord().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_MSWORD);
          assertEquals(StringUtils.trim(text), "text from word");
-         
+
          String wordx = "Hello World";
          is = loadFile("word.docx");
          text = new PSTextConverterMsWord().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_OPENXML_MSWORD_DOC);
@@ -68,7 +68,7 @@ public class PSTextConverterTest
     * MS Word file text conversion test.
     * @throws Exception
     */
-   
+
    public void testTikaWordConvertion() throws Exception
    {
       InputStream is = null;
@@ -77,7 +77,7 @@ public class PSTextConverterTest
          is = loadFile("word.doc");
          String text = new PSTikaTextConvertor().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_MSWORD);
          assertEquals(StringUtils.trim(text), "text from word");
-         
+
          String wordx = "Hello World";
          is = loadFile("word.docx");
          text = new PSTextConverterMsWord().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_OPENXML_MSWORD_DOC);
@@ -93,12 +93,12 @@ public class PSTextConverterTest
 
    }
 
-   
+
    /**
     * MS Excel file text conversion test.
     * @throws Exception
     */
-   
+
    public void testExcelConversion() throws Exception
    {
       InputStream is = null;
@@ -107,7 +107,7 @@ public class PSTextConverterTest
          is = loadFile("excel.xls");
          String text = new PSTextConverterMsExcel().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_EXCEL);
          assertEquals(StringUtils.trim(text), "text from xls");
-         
+
          String excelx1 = "Hello";
          String excelx2 = "World";
          is = loadFile("excel.xlsx");
@@ -128,7 +128,7 @@ public class PSTextConverterTest
     * MS Excel file text conversion test.
     * @throws Exception
     */
-   
+
    public void testTikaExcelConversion() throws Exception
    {
       InputStream is = null;
@@ -137,7 +137,7 @@ public class PSTextConverterTest
          is = loadFile("excel.xls");
          String text = new PSTikaTextConvertor().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_EXCEL);
          assertTrue(text.indexOf("text from xls") != -1);
-         
+
          String excelx1 = "Hello";
          String excelx2 = "World";
          is = loadFile("excel.xlsx");
@@ -153,13 +153,13 @@ public class PSTextConverterTest
          }
       }
    }
-   
-   
-   
+
+
+
    public void testTikaUnsupportedMimeTypeConversion() throws Exception
    {
       InputStream is = null;
-      
+
       try
       {
          is = loadFile("jpeg.jpg");
@@ -172,12 +172,12 @@ public class PSTextConverterTest
       }
    }
 
-   
+
    /**
     * Pdf file text conversion test.
     * @throws Exception
     */
-   
+
    public void testPdfConvertion() throws Exception
    {
       InputStream is = null;
@@ -196,9 +196,9 @@ public class PSTextConverterTest
       }
 
    }
-   
-   
-   
+
+
+
    public void testTikaPdfConvertion() throws Exception
    {
       InputStream is = null;
@@ -222,7 +222,7 @@ public class PSTextConverterTest
     * Html file text conversion test.
     * @throws Exception
     */
-   
+
    public void testHtmlConversion() throws Exception
    {
       InputStream is = null;
@@ -241,12 +241,12 @@ public class PSTextConverterTest
       }
 
    }
-   
+
    /**
     * Html file text conversion test.
     * @throws Exception
     */
-   
+
    public void testTikaHtmlConversion() throws Exception
    {
       InputStream is = null;
@@ -270,7 +270,7 @@ public class PSTextConverterTest
     * Power Point file text conversion test.
     * @throws Exception
     */
-   
+
    public void testPowerPointConvertion() throws Exception
    {
       InputStream is = null;
@@ -279,7 +279,7 @@ public class PSTextConverterTest
          is = loadFile("ppt.ppt");
          String text = new PSTextConverterMsPowerPoint().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_MSPOWERPOINT);
          assertTrue(text.indexOf("text from power point") != -1);
-         
+
          String pptx = "Hello World";
          is = loadFile("ppt.pptx");
          text = new PSTextConverterMsPowerPoint().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_OPENXML_MSPOWERPOINT_PRES);
@@ -299,7 +299,7 @@ public class PSTextConverterTest
     * Power Point file text conversion test.
     * @throws Exception
     */
-   
+
    public void testTikaPowerPointConvertion() throws Exception
    {
       InputStream is = null;
@@ -308,7 +308,7 @@ public class PSTextConverterTest
          is = loadFile("ppt.ppt");
          String text = new PSTikaTextConvertor().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_MSPOWERPOINT);
          assertTrue(text.indexOf("text from power point") != -1);
-         
+
          String pptx = "Hello World";
          is = loadFile("ppt.pptx");
          text = new PSTikaTextConvertor().getConvertedText(is, IPSLuceneConstants.MIME_TYPE_APPLICATION_BY_OPENXML_MSPOWERPOINT_PRES);
@@ -328,7 +328,7 @@ public class PSTextConverterTest
     * RTF file text conversion test.
     * @throws Exception
     */
-   
+
    public void testRtfConversion() throws Exception
    {
       InputStream is = null;
@@ -347,12 +347,12 @@ public class PSTextConverterTest
       }
 
    }
-   
+
    /**
     * RTF file text conversion test.
     * @throws Exception
     */
-   
+
    public void testTikaRtfConversion() throws Exception
    {
       InputStream is = null;
@@ -376,7 +376,7 @@ public class PSTextConverterTest
     * Xml file text conversion test.
     * @throws Exception
     */
-   
+
    public void testXmlConvertion() throws Exception
    {
       InputStream is = null;
@@ -395,12 +395,12 @@ public class PSTextConverterTest
       }
 
    }
-   
+
    /**
     * Xml file text conversion test.
     * @throws Exception
     */
-   
+
    public void testTikaXmlConvertion() throws Exception
    {
       InputStream is = null;
@@ -419,8 +419,8 @@ public class PSTextConverterTest
       }
 
    }
-   
-  
+
+
    /**
     * Convenient function to load the files with the supplied name.
     * @param filename name of the file.

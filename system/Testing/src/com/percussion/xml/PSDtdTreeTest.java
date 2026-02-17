@@ -26,14 +26,14 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the PSDtdTree class.
  */
-public class PSDtdTreeTest 
+public class PSDtdTreeTest
 {
-   
+
 
    /**
     * Test the PSDtdTree.canonicalToArry method
     */
-   
+   @Test
    public void testCanonicalToArray()
    {
       // make sure it throws an IllegalArgumentException on a null String
@@ -46,11 +46,11 @@ public class PSDtdTreeTest
       {
          didThrow = true;
       }
-      assertTrue("throws on null String?", didThrow);
+      assertTrue(didThrow, "throws on null String?");
 
       CanonicalTest[] canon = new CanonicalTest[20];
       int numTests = 0;
-      
+
       canon[numTests++] = new CanonicalTest("/", new String[0]);
 
       canon[numTests++] = new CanonicalTest("", new String[0]);
@@ -111,6 +111,6 @@ public class PSDtdTreeTest
    }
 
    // collect all tests into a TestSuite and return it
-   
+
 
 }

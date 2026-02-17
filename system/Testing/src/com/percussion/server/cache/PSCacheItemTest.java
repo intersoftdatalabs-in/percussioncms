@@ -28,69 +28,69 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for the {@link PSCacheItem} class.
  */
-public class PSCacheItemTest 
+public class PSCacheItemTest
 {
    // see base class
-   
+
 
    /**
     * Test constructing the <code>PSCacheItem</code> class.
-    * 
+    *
     * @throws Exception if any errors occur.
     */
-   
+   @Test
    public void testCtor() throws Exception
    {
       PSCacheItem item = null;
       boolean didThrow = false;
-      
+
       // test valid object
       String test = "myTest";
       Object[] keys = {"one", "two", "Three"};
       long size = 256;
       item = new PSCacheItem(0, test, keys, size);
-      
+
       //test null object
       didThrow = false;
-      try 
+      try
       {
          item = new PSCacheItem(0, null, keys, size);
       }
-      catch (Exception ex) 
+      catch (Exception ex)
       {
          didThrow = true;
       }
-      assertTrue("ctor with null object", didThrow);
-      
+      assertTrue(didThrow, "ctor with null object");
+
       //test null keys
       didThrow = false;
-      try 
+      try
       {
          item = new PSCacheItem(0, test, null, size);
       }
-      catch (Exception ex) 
+      catch (Exception ex)
       {
          didThrow = true;
       }
-      assertTrue("ctor with null keys", didThrow);
-      
+      assertTrue(didThrow, "ctor with null keys");
+
       //test negative size
       didThrow = false;
-      try 
+      try
       {
          item = new PSCacheItem(0, test, keys, -1);
       }
-      catch (Exception ex) 
+      catch (Exception ex)
       {
          didThrow = true;
       }
-      assertTrue("ctor with negative size", didThrow);
-      
+      assertTrue(didThrow, "ctor with negative size");
+
    }
-   
+
    /**
     * Tests accessing a <code>PSCacheItem</code> once it is constructed.
-    * 
+    *
     * @throws Exception if any errors occur.
     */
    public void dontTestAccess() throws Exception
@@ -103,43 +103,40 @@ public class PSCacheItemTest
       Date start = new Date();
       item = new PSCacheItem(id, test, keys, size);
       Date end = new Date();
-      assertTrue("test is in memory after ctor", item.isInMemory());
-      assertTrue("test is on disk after ctor", !item.isOnDisk());
-      assertEquals("test getObject from memory", test, item.getObject());
-      assertEquals("test getCacheid", id, item.getCacheId());
-      assertEquals("test getKeys", keys, item.getKeys());
-      assertEquals("test getSize", size, item.getSize());
+      assertTrue(item.isInMemory(), "test is in memory after ctor");
+      assertTrue(!item.isOnDisk(), "test is on disk after ctor");
+      assertEquals(test, item.getObject(), "test getObject from memory");
+      assertEquals(id, item.getCacheId(), "test getCacheid");
+      assertEquals(keys, item.getKeys(), "test getKeys");
+      assertEquals(size, item.getSize(), "test getSize");
       Date created = item.getCreatedDate();
-      
-      assertTrue("test getCreatedDate", !created.before(start) && 
-         !created.after(end));
+
+      assertTrue(!created.before(start) && !created.after(end), "test getCreatedDate");
 
       Date accessed = item.getLastAccessedDate();
-      assertTrue("test last accessed from ctor", !accessed.before(start) &&
-         !accessed.after(end));
-         
+      assertTrue(!accessed.before(start) && !accessed.after(end), "test last accessed from ctor");
+
       start = new Date();
       Object o = item.getObject();
       end = new Date();
       accessed = item.getLastAccessedDate();
-      assertTrue("test last accessed after getObject", !accessed.before(start) 
-         && !accessed.after(end));
-      
-      assertTrue("test is in memory after access from memory", 
-         item.isInMemory());
-      assertTrue("test is on disk after access from memory", !item.isOnDisk());
-      
+      assertTrue(!accessed.before(start) && !accessed.after(end), "test last accessed after getObject");
+
+      assertTrue(item.isInMemory(), "test is in memory after access from memory");
+      assertTrue(!item.isOnDisk(), "test is on disk after access from memory");
+
       item.release();
       assertNull(item.getObject());
-         
+
    }
 
    /**
     * Tests storing a <code>PSCacheItem</code> on disk and then accessing it.
-    * 
+    *
     * @throws Exception if any errors occur.
     */
-   
+
+   @Test
    public void testDiskOps() throws Exception
    {
       PSCacheItem item = null;
@@ -148,37 +145,34 @@ public class PSCacheItemTest
       long size = 256;
       int id = 25;
       item = new PSCacheItem(id, test, keys, size);
-      
-      assertTrue("item is in memory", item.isInMemory());
-      
+
+      assertTrue(item.isInMemory(), "item is in memory");
+
       item.toDisk(new File("."));
-      assertTrue("item is on disk", item.isOnDisk());
-      assertTrue("item is not in memory", !item.isInMemory());
-      
+      assertTrue(item.isOnDisk(), "item is on disk");
+      assertTrue(!item.isInMemory(), "item is not in memory");
+
       Date start = new Date();
       Object o = item.getObject();
       Date end = new Date();
-      assertEquals("item from disk is equal", test, o);
-      assertTrue("item is in memory after getObject from disk", 
-         item.isInMemory());
-      assertTrue("item is not on disk after getObject from disk", 
-         !item.isOnDisk());
+      assertEquals(test, o, "item from disk is equal");
+      assertTrue(item.isInMemory(), "item is in memory after getObject from disk");
+      assertTrue(!item.isOnDisk(), "item is not on disk after getObject from disk");
       Date accessed = item.getLastAccessedDate();
-      assertTrue("test last accessed after getObject from disk", 
-         !accessed.before(start) 
-         && !accessed.after(end));
-         
+      assertTrue(!accessed.before(start) && !accessed.after(end), "test last accessed after getObject from disk");
+
       item.toDisk(new File("."));
       item.release();
       assertNull(item.getObject());
    }
-   
+
    /**
     * Tests using listeners for access and modified events.
-    * 
+    *
     * @throws Exception if any errors occur.
     */
-   
+
+   @Test
    public void testListeners() throws Exception
    {
       PSCacheItem item = null;
@@ -187,7 +181,7 @@ public class PSCacheItemTest
       long size = 256;
       int id = 25;
       item = new PSCacheItem(id, test, keys, size);
-      
+
       IPSCacheAccessedListener accessListener = new IPSCacheAccessedListener()
       {
          public void cacheAccessed(PSCacheEvent e)
@@ -197,7 +191,7 @@ public class PSCacheItemTest
          }
       };
       item.addCacheAccessedListener(accessListener);
-      
+
       IPSCacheModifiedListener modifyListener = new IPSCacheModifiedListener()
       {
          public void cacheModified(PSCacheEvent e)
@@ -205,58 +199,55 @@ public class PSCacheItemTest
             m_modifyAction = e.getAction();
             m_modifyItem = (PSCacheItem)e.getObject();
          }
-         
-         public void setCache(PSMultiLevelCache cache)         
+
+         public void setCache(PSMultiLevelCache cache)
          {
             //noop
          }
       };
       item.addCacheModifiedListener(modifyListener);
-      
+
       m_accessAction = -1;
       m_accessItem = null;
       item.getObject();
-      assertEquals(PSCacheEvent.CACHE_ITEM_ACCESSED_FROM_MEMORY, 
-         m_accessAction);
-      assertTrue(item == m_accessItem);
-         
+      assertEquals(PSCacheEvent.CACHE_ITEM_ACCESSED_FROM_MEMORY, m_accessAction, "access event should be CACHE_ITEM_ACCESSED_FROM_MEMORY");
+      assertTrue(item == m_accessItem, "access listener should have received the item");
+
       m_modifyAction = -1;
       m_modifyItem = null;
       item.toDisk(new File("."));
-      assertEquals(PSCacheEvent.CACHE_ITEM_STORED_TO_DISK, 
-         m_modifyAction);
-      assertTrue(item == m_modifyItem);
-         
+      assertEquals(PSCacheEvent.CACHE_ITEM_STORED_TO_DISK, m_modifyAction, "modify event should be CACHE_ITEM_STORED_TO_DISK");
+      assertTrue(item == m_modifyItem, "modify listener should have received the item");
+
       m_accessAction = -1;
       m_accessItem = null;
       m_modifyAction = -1;
       m_modifyItem = null;
       item.getObject();
-      assertEquals(PSCacheEvent.CACHE_ITEM_ACCESSED_FROM_DISK, 
-         m_accessAction);
-      assertTrue(item == m_accessItem);
-         
+      assertEquals(PSCacheEvent.CACHE_ITEM_ACCESSED_FROM_DISK, m_accessAction, "access event should be CACHE_ITEM_ACCESSED_FROM_DISK");
+      assertTrue(item == m_accessItem, "access listener should have received the item");
+
    }
 
-   
+
    // collect all tests into a TestSuite and return it - see base class
-   
- 
+
+
    /**
     * Stores action caused by access listener event.
     */
    private int m_accessAction = -1;
-   
+
    /**
     * Stores item passed by access listener event.
     */
    private PSCacheItem m_accessItem = null;
-   
+
    /**
     * Stores action caused by modify listener event.
     */
    private int m_modifyAction = -1;
-   
+
    /**
     * Stores item passed by access listener event.
     */

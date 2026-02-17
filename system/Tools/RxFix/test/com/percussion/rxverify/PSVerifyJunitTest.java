@@ -18,54 +18,39 @@ package com.percussion.rxverify;
 
 import com.percussion.rxverify.data.PSFileInfo;
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.*;
 
 /**
  * Unit tests for pieces of the verification application
  */
-public class PSVerifyJunitTest extends TestCase
+public class PSVerifyJunitTest
 {
-   /**
-    * Ctor
-    * @param name
-    */
-   public PSVerifyJunitTest(String name) {
-      super(name);
-   }
-   
-   /**
-    * @return the suite
-    */
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSVerifyJunitTest.class);
-   }
-   
+   @Test
    public void testFileInfo() throws Exception
    {
       File testFile = new File("build.xml");
       PSFileInfo fi1 = new PSFileInfo(testFile, "build.xml");
       PSFileInfo fi2 = new PSFileInfo(testFile, "build.xml");
-      
+
       String x = fi1.toString();
       assertTrue(x.length() > 0);
-      
+
       assertEquals(fi1, fi2);
-      
+
       // Save and restore
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(baos);
       oos.writeObject(fi1);
       oos.close();
       baos.close();
-      
+
       ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
       ObjectInputStream ois = new ObjectInputStream(bais);
       fi2 = (PSFileInfo) ois.readObject();
-      
-      assertEquals(fi1, fi2);      
+
+      assertEquals(fi1, fi2);
    }
 
 }

@@ -68,7 +68,7 @@ public class PSUiTestBase extends PSTestBase
          locator.setuiSOAPEndpointAddress(getEndpoint("uiSOAP"));
 
          UiSOAPStub binding = (UiSOAPStub) locator.getuiSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(60000);
@@ -108,7 +108,7 @@ public class PSUiTestBase extends PSTestBase
 
          UiDesignSOAPStub binding = (UiDesignSOAPStub) locator
             .getuiDesignSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(60000);

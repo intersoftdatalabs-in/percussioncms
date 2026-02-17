@@ -26,12 +26,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSBackEndTableTest 
+public class PSBackEndTableTest
 {
-   
 
-   
-   
+
+
+
 
    public void testEquals() throws Exception
    {
@@ -65,8 +65,9 @@ public class PSBackEndTableTest
 
    }
 
-   
 
+
+   @Test
    public void testCopyFrom() throws Exception
    {
       PSBackEndTable tab = new PSBackEndTable();
@@ -93,8 +94,9 @@ public class PSBackEndTableTest
       assertEquals(tab, otherTab);
    }
 
-   
 
+
+   @Test
    public void testXml() throws Exception
    {
       PSBackEndTable tab = new PSBackEndTable();
@@ -129,5 +131,5 @@ public class PSBackEndTableTest
    }
 
    // collect all tests into a TestSuite and return it
-   
+
 }

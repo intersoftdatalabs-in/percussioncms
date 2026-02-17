@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 
 /**
- * Test the {@link IPSAclService} CRUD operations.  See 
+ * Test the {@link IPSAclService} CRUD operations.  See
  * {@link PSAclServiceAccessTest} for other service functionality.
  */
 @Tag("IntegrationTest")
@@ -65,7 +65,7 @@ public class PSAclServiceTest
 
    private static IPSGuid ms_templateGuid2 = new PSGuid(PSTypeEnum.TEMPLATE,
          10024);
-   
+
    /**
     * object guid for slot
     */
@@ -76,32 +76,32 @@ public class PSAclServiceTest
     * Util method for MSM tests, where an ACL is created but either :
     *    1. persisted for deserialization and saveAcl
     *    2. created for serialization and saveAcl
-    *    
+    *
     * @param persist if <code>true</code> saveAcl, else just create and return
-    * 
+    *
     * @return The list, never <code>null</code>.
-    * 
+    *
     * @throws Exception
     */
    private List<IPSAcl> createAcl(boolean persist) throws Exception
    {
       IPSAclService aclService = PSAclServiceLocator.getAclService();
-      
+
       List<IPSAcl> aclList = new ArrayList<IPSAcl>();
-      PSAclImpl acl; 
-      acl = (PSAclImpl) aclService.createAcl(ms_templateGuid, 
+      PSAclImpl acl;
+      acl = (PSAclImpl) aclService.createAcl(ms_templateGuid,
          new PSTypedPrincipal("admin1", PrincipalTypes.USER));
       aclList.add(acl);
-      
+
       IPSAclEntry aclEntry;
       aclEntry = acl.getEntries().iterator().next();
       PSAccessLevelImpl perm = new PSAccessLevelImpl((PSAclEntryImpl)aclEntry,PSPermissions.READ);
-     
+
       if ( persist )
          aclService.saveAcls(aclList);
       return aclList;
    }
-   
+
    /**
     * Util method for testing deserialization by MSM
     * @param acl the acl that needs update
@@ -113,7 +113,7 @@ public class PSAclServiceTest
       aclEntry.addPermission(PSPermissions.RUNTIME_VISIBLE);
       acl.addEntry(aclEntry);
    }
-   
+
    /**
     * Util method for testing deserialization by MSM
     * @param acl
@@ -135,7 +135,7 @@ public class PSAclServiceTest
          entries.remove(adminAclEntry);
       }
    }
-   
+
    /**
     * MSM specific which creates a new acl and persists
     * @throws Exception
@@ -167,10 +167,10 @@ public class PSAclServiceTest
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
          }
-         
+
          acls.add(tmpAcl);
-         svc.saveAcls(acls);  
-         
+         svc.saveAcls(acls);
+
          PSAclImpl savedAcl = (PSAclImpl)svc.loadAcl(tmpAcl.getGUID());
          assertEquals(tmpAcl, savedAcl);
       }
@@ -215,10 +215,10 @@ public class PSAclServiceTest
             svc.deleteAcl(tmpAcl.getGUID());
       }
    }
-  
+
    /**
     * Test all CRUD operations
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    @Test
@@ -226,7 +226,7 @@ public class PSAclServiceTest
    {
       boolean success = false;
       List<IPSAcl> aclList = createTestAcls();
-      
+
       try
       {
          aclList = testLoadMethods(aclList);
@@ -243,14 +243,14 @@ public class PSAclServiceTest
          {
             if (success)
                throw (Exception)e.fillInStackTrace();
-            System.out.println("Failed to delete acls: " + 
+            System.out.println("Failed to delete acls: " +
                e.getLocalizedMessage());
          }
       }
    }
-   
+
    /**
-    * Tests 7 scenarios: 
+    * Tests 7 scenarios:
     * <ul>
     *    <li>AnyCommunity allowed, no specific entry</li>
     *    <li>AnyCommunity allowed, a specific entry allowed</li>
@@ -258,7 +258,7 @@ public class PSAclServiceTest
     * </ul>
     * Repeat all these tests cases w/ AnyCommunity not allowed.
     * Change case of community name on 1 test for 7th scenario.
-    * 
+    *
     * @throws Exception If test ACL creation fails.
     */
    @Test
@@ -267,7 +267,7 @@ public class PSAclServiceTest
    {
       IPSAclService aclService = PSAclServiceLocator.getAclService();
       List<IPSAcl> aclList = createTestAcls();
-      
+
       try
       {
          //use UPPER case name to test case-insensitivity
@@ -293,11 +293,11 @@ public class PSAclServiceTest
       {
          deleteAcls(aclList);
       }
-      
+
    }
 
    /**
-    * Verify that ACL count >> 450 is handled correctly. 
+    * Verify that ACL count >> 450 is handled correctly.
     * @throws Exception
     */
    @Disabled("org.hibernate.exception.SQLGrammarException: could not execute query on Derby")
@@ -305,12 +305,12 @@ public class PSAclServiceTest
    public void testLargeAclCount()
       throws Exception
    {
-      
+
       //TODO: Fix Me
       /*
        * The # of test acls must be > 2*MAX (as defined in the
        * doLoadModifiableAclsForObjects method in PSAclService
-       */ 
+       */
 //      List<IPSGuid> guids = create1000Acls();
 //      IPSAclService svc = PSAclServiceLocator.getAclService();
 //      //these params must be null to exercise the right code
@@ -321,12 +321,12 @@ public class PSAclServiceTest
 //      for (IPSGuid g : guids)
 //         svc.deleteAcl(g);
    }
-   
+
    /**
     * Creates and persists 1000 ACLs (they all are identical except for the
     * ids.) They all have a name of aclUnitTest so they can be cleaned up later
     * by name.
-    * 
+    *
     * @return Never <code>null</code>.
     * @throws Exception
     */
@@ -336,7 +336,7 @@ public class PSAclServiceTest
       IPSAclService svc = PSAclServiceLocator.getAclService();
       List<IPSGuid> aclGuids = new ArrayList<IPSGuid>();
       List<IPSAcl> aclList = new ArrayList<IPSAcl>();
-      PSAclImpl acl; 
+      PSAclImpl acl;
 
       for (int i = 0; i < 1000; i++)
       {
@@ -347,13 +347,13 @@ public class PSAclServiceTest
          IPSAclEntry aclEntry;
          aclEntry = acl.getEntries().iterator().next();
          aclEntry.addPermission(PSPermissions.READ);
-   
+
          aclEntry = new PSAclEntryImpl(new PSTypedPrincipal("Editor",
                PrincipalTypes.ROLE));
          aclEntry.addPermission(PSPermissions.UPDATE);
          aclEntry.addPermission(PSPermissions.READ);
          acl.addEntry((PSAclEntryImpl) aclEntry);
-   
+
          aclEntry = new PSAclEntryImpl(new PSTypedPrincipal(
                PSTypedPrincipal.ANY_COMMUNITY_ENTRY, PrincipalTypes.COMMUNITY));
          aclEntry.addPermission(PSPermissions.RUNTIME_VISIBLE);
@@ -380,22 +380,22 @@ public class PSAclServiceTest
       //load same object should come from cache
       IPSAclService aclService = PSAclServiceLocator.getAclService();
       IPSAcl acl1 = aclService.loadAclForObject(ms_templateGuid);
-      assertTrue("Cache not working", acl1.equals(aclService.loadAcl(acl1
-            .getGUID())));
-      assertTrue("Cache not working", acl1.equals(aclService.loadAclsForObjects(
-            Collections.singletonList(ms_templateGuid)).get(0)));
+      assertTrue(acl1.equals(aclService.loadAcl(acl1
+            .getGUID())), "Cache not working");
+      assertTrue(acl1.equals(aclService.loadAclsForObjects(
+            Collections.singletonList(ms_templateGuid)).get(0)), "Cache not working");
       // a load by aclId must come after a load by objectId because of
       // variations in implementation
-      assertTrue("Cache not working", acl1.equals(aclService.loadAcls(Collections
-            .singletonList(acl1.getGUID())).get(0)));
+      assertTrue(acl1.equals(aclService.loadAcls(Collections
+            .singletonList(acl1.getGUID())).get(0)), "Cache not working");
 
       //modifiable acl should not come from cache, but should not evict cache
       List<IPSAcl> modAcls = aclService.loadAclsModifiable(Collections
             .singletonList(acl1.getGUID()));
       IPSAcl modAcl = modAcls.get(0);
       assertFalse(acl1 == modAcl);
-      assertTrue("Cache evicted on load read/write", 
-            acl1.equals(aclService.loadAcl(acl1.getGUID())));
+      assertTrue(acl1.equals(aclService.loadAcl(acl1.getGUID())),
+            "Cache evicted on load read/write");
       assertFalse(modAcl.equals(aclService.loadAclsModifiable(Collections
             .singletonList(acl1.getGUID()))));
 
@@ -404,7 +404,7 @@ public class PSAclServiceTest
       aclService.saveAcls(modAcls);
       IPSAcl postModAcl = aclService.loadAcl(acl1.getGUID());
       assertFalse(acl1 == postModAcl);
-      
+
       //save should evict cache - test load by objectId
       modAcl = aclService.loadAclsModifiable(
             Collections.singletonList(postModAcl.getGUID())).get(0);
@@ -412,8 +412,8 @@ public class PSAclServiceTest
       aclService.saveAcls(Collections.singletonList(modAcl));
       postModAcl = aclService.loadAcl(postModAcl.getGUID());
       assertFalse(modAcl == postModAcl);
-      
-      
+
+
       //attempting to save read-only object should evict cache
       IPSAcl readOnlyAcl = aclService.loadAclForObject(ms_templateGuid2);
       try
@@ -424,12 +424,12 @@ public class PSAclServiceTest
       catch (IllegalArgumentException success)
       {}
       assertFalse(readOnlyAcl == aclService.loadAclForObject(ms_templateGuid2));
-      
+
       //delete should evict cache - test loading by objId
       readOnlyAcl = aclService.loadAclForObject(ms_slotTemplate);
       aclService.deleteAcl(readOnlyAcl.getGUID());
       assertNull(aclService.loadAclForObject(ms_slotTemplate));
-      
+
       //delete should evict cache - test loading by aclId
       List<IPSAcl> testAcls = createTestAcls();
       IPSGuid testGuid = testAcls.get(0).getGUID();
@@ -440,13 +440,13 @@ public class PSAclServiceTest
 
    /**
     * Test saving changes to acls
-    * 
-    * @param aclList The currently persisted acls, assumed not 
+    *
+    * @param aclList The currently persisted acls, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return The list of persisted acls after testing save, never
     * <code>null</code>.
-    * 
+    *
     * @throws Exception if the test fails
     */
    private List<IPSAcl> testSave(List<IPSAcl> aclList) throws Exception
@@ -467,7 +467,7 @@ public class PSAclServiceTest
          newEntry.addPermission(PSPermissions.DELETE);
          aclImpl.addEntry(newEntry);
       }
-      
+
       IPSAclService aclService = PSAclServiceLocator.getAclService();
       aclService.saveAcls(aclList);
       List<IPSAcl> loadList = aclService.loadAclsModifiable(aclGuids);
@@ -479,7 +479,7 @@ public class PSAclServiceTest
       loadList = aclService.loadAclsModifiable(aclGuids);
       assertEquals(aclList, loadList);
       aclList = loadList;
-      
+
       // remove a permission
       for (IPSAcl acl : aclList)
       {
@@ -490,7 +490,7 @@ public class PSAclServiceTest
             assertFalse(entry.checkPermission(PSPermissions.DELETE));
          }
       }
-      
+
       aclService.saveAcls(aclList);
       loadList = aclService.loadAclsModifiable(aclGuids);
       assertEquals(aclList, loadList);
@@ -510,19 +510,19 @@ public class PSAclServiceTest
             }
          }
       }
-      
+
       aclService.saveAcls(aclList);
       loadList = aclService.loadAcls(aclGuids);
       assertEquals(aclList, loadList);
-      
+
       return loadList;
    }
 
    /**
     * Tests deleting the supplied list of acls.
-    * 
+    *
     * @param aclList The acls to delete, assumed not <code>null</code>.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    public static void deleteAcls(List<IPSAcl> aclList) throws Exception
@@ -532,7 +532,7 @@ public class PSAclServiceTest
       {
          IPSGuid aclGuid = ((PSAclImpl)acl).getGUID();
          aclService.deleteAcl(aclGuid);
-         
+
          try
          {
             aclService.loadAcl(aclGuid);
@@ -546,7 +546,7 @@ public class PSAclServiceTest
    }
 
    /**
-    * Creates and saves 3 test acls. The first is for a template 
+    * Creates and saves 3 test acls. The first is for a template
     * ({@link #ms_templateGuid}) with the following entries:
     * <ul>
     * <li>admin1 (user) - OWNER, READ</li>
@@ -571,9 +571,9 @@ public class PSAclServiceTest
     * <li>comm1 (community) - no visibility</li>
     * <li>comm2 (community) - RUNTIME_VISIBLE</li>
     * </ul>
-    * 
+    *
     * @return The test acls, never <code>null</code> or empty.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    public static List<IPSAcl> createTestAcls() throws Exception
@@ -586,7 +586,7 @@ public class PSAclServiceTest
       ids.add(ms_slotTemplate);
       ids.add(ms_templateGuid);
       ids.add(ms_templateGuid2);
-      
+
       // because of the way the tests are setup, it is possible to get multiple
       // acls for a given object GUID, this loop will remedy that situation
       List<IPSAcl> toDelete = aclService.loadAclsForObjects(ids);
@@ -607,13 +607,13 @@ public class PSAclServiceTest
          }
          finishedCleanup = !found;
       }
-      
-      PSAclImpl acl; 
+
+      PSAclImpl acl;
       acl = (PSAclImpl) aclService.createAcl(ms_templateGuid,
          new PSTypedPrincipal("admin1", PrincipalTypes.USER));
       acl.setName(TEST_ACL_NAME);
       aclList.add(acl);
-      
+
       IPSAclEntry aclEntry;
       aclEntry = acl.getEntries().iterator().next();
       aclEntry.addPermission(PSPermissions.READ);
@@ -695,16 +695,16 @@ public class PSAclServiceTest
             PrincipalTypes.COMMUNITY));
       aclEntry.addPermission(PSPermissions.RUNTIME_VISIBLE);
       acl.addEntry((PSAclEntryImpl) aclEntry);
-      
+
       aclService.saveAcls(aclList);
-      
+
       return aclList;
    }
-   
-   
+
+
    /**
     * Test loading the acls
-    * 
+    *
     * @param aclList The list of acls to expect, assumed not <code>null</code>.
     * @return The loaded acls, never <code>null</code>. These are modifiable
     * and may be saved.
@@ -717,14 +717,14 @@ public class PSAclServiceTest
       List<IPSGuid> objectGuids = new ArrayList<IPSGuid>();
       for (IPSAcl acl : aclList)
       {
-         PSAclImpl aclImpl = (PSAclImpl)acl; 
+         PSAclImpl aclImpl = (PSAclImpl)acl;
          IPSGuid guid = aclImpl.getGUID();
          IPSGuid objGuid = new PSGuid(PSTypeEnum.valueOf(
             aclImpl.getObjectType()), aclImpl.getObjectId());
          IPSAcl idtest = aclService.loadAcl(guid);
          IPSAcl objtest = aclService.loadAclForObject(objGuid);
          assertTrue(idtest.equals(objtest));
-         
+
          aclGuids.add(guid);
          objectGuids.add(objGuid);
       }
@@ -732,17 +732,17 @@ public class PSAclServiceTest
       assertEquals(aclList, loadList);
       for (IPSAcl acl : loadList)
       {
-         PSAclImpl aclImpl = (PSAclImpl)acl; 
+         PSAclImpl aclImpl = (PSAclImpl)acl;
          assertEquals(acl, aclService.loadAcl(
             aclImpl.getGUID()));
       }
-      
-      assertEquals(loadList.size(), 
+
+      assertEquals(loadList.size(),
          aclService.loadAclsForObjects(objectGuids).size());
-      
+
       return loadList;
    }
-   
+
    //clean all test acls before starting test
    static
    {

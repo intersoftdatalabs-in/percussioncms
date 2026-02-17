@@ -44,23 +44,22 @@ public class PSJndiGroupProviderInstanceTest
       gp1.addGroupNode("o=com,o=Percussion,ou=MailGroups");
       gp1.addGroupNode("o=com,o=Percussion,ou=DevGroups");
 
-      assertEquals("same instance not equal", gp1, gp1);
+      assertEquals(gp1, gp1, "same instance not equal");
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element el1 = gp1.toXml(doc);
       IPSGroupProviderInstance igp2 = PSGroupProviderInstance.newInstance(el1);
 
-      assertTrue(
-         "newInstance() did not return instance of PSJndiGroupProviderInstance",
-         igp2 instanceof PSJndiGroupProviderInstance);
+      assertTrue(igp2 instanceof PSJndiGroupProviderInstance,
+         "newInstance() did not return instance of PSJndiGroupProviderInstance");
 
       PSJndiGroupProviderInstance gp2 = (PSJndiGroupProviderInstance)igp2;
-      assertEquals("to/fromXml object not equals", gp1, gp2);
+      assertEquals(gp1, gp2, "to/fromXml object not equals");
 
       PSJndiGroupProviderInstance clone =
          (PSJndiGroupProviderInstance)gp1.clone();
-      assertNotSame("cloned objects are not different instances", gp1, clone);
-      assertEquals("cloned objects are not equal", gp1, clone);
+      assertNotSame(gp1, clone, "cloned objects are not different instances");
+      assertEquals(gp1, clone, "cloned objects are not equal");
 
       gp1.clearGroupNodes();
       gp1.addGroupNode("o=com,o=Percussion,ou=DevGroups");
@@ -68,9 +67,9 @@ public class PSJndiGroupProviderInstanceTest
       gp1.addObjectClass("group", "member",
          PSJndiObjectClass.MEMBER_ATTR_STATIC);
 
-      assertNotEquals("different objects appear equal", gp1, gp2);
+      assertNotEquals(gp1, gp2, "different objects appear equal");
    }
-   
+
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
@@ -86,7 +85,7 @@ public class PSJndiGroupProviderInstanceTest
 
       assertNotEquals(provider, new PSJndiGroupProviderInstance(OTHER_STR, SP_TYPE_DIRCONN));
       assertNotEquals(provider, new PSJndiGroupProviderInstance(NAME, SP_TYPE_BETABLE));
-      
+
    }
 
    /**

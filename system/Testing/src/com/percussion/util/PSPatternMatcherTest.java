@@ -29,14 +29,14 @@ import com.percussion.utils.tools.PSPatternMatcher;
 /**
  * Unit tests for the PSPatternMatcher class
  */
-public class PSPatternMatcherTest 
+public class PSPatternMatcherTest
 {
-   
+
 
    /**
     * Assert that a newly constructed object is in the correct state
     */
-   
+   @Test
    public void testConstructor()
    {
       PSPatternMatcher matchAnything = new PSPatternMatcher('?', '*', "*");
@@ -45,8 +45,9 @@ public class PSPatternMatcherTest
       assertTrue(matchAnything.isCaseSensitive());
    }
 
-   
 
+
+   @Test
    public void testMatchAnything()
    {
       PSPatternMatcher matchAnything = new PSPatternMatcher('?', '*', "*");
@@ -55,12 +56,13 @@ public class PSPatternMatcherTest
       for (int i = 0; i < 100; i++)
       {
          randStr = randomString(rand);
-         assertTrue(randStr, matchAnything.doesMatchPattern(randStr));
+         assertTrue(matchAnything.doesMatchPattern(randStr), randStr);
       }
    }
 
-   
 
+
+   @Test
    public void testMatchSubstring()
    {
       PSPatternMatcher matchAnything = new PSPatternMatcher('?', '*', "*fa*");
@@ -70,29 +72,30 @@ public class PSPatternMatcherTest
       {
          randStr = randomString(rand);
          if (matchAnything.doesMatchPattern(randStr))
-            assertTrue(randStr, (-1 != randStr.indexOf("fa")));
+            assertTrue((-1 != randStr.indexOf("fa")), randStr);
       }
-      assertTrue("fa", matchAnything.doesMatchPattern("fa"));
-      assertTrue("fax", matchAnything.doesMatchPattern("fax"));
-      assertTrue("sfa", matchAnything.doesMatchPattern("sfa"));
-      assertTrue("sfax", matchAnything.doesMatchPattern("sfax"));
-      assertTrue("af", !matchAnything.doesMatchPattern("af"));
+      assertTrue(matchAnything.doesMatchPattern("fa"), "fa");
+      assertTrue(matchAnything.doesMatchPattern("fax"), "fax");
+      assertTrue(matchAnything.doesMatchPattern("sfa"), "sfa");
+      assertTrue(matchAnything.doesMatchPattern("sfax"), "sfax");
+      assertTrue(!matchAnything.doesMatchPattern("af"), "af");
    }
 
-   
 
+
+   @Test
    public void testMatchSplitString()
    {
       PSPatternMatcher matchAnything = new PSPatternMatcher('?', '*', "a*a");
-      assertTrue("a", !matchAnything.doesMatchPattern("a"));
-      assertTrue("aa", matchAnything.doesMatchPattern("aa"));
-      assertTrue("aaa", matchAnything.doesMatchPattern("aaa"));
-      assertTrue("aba", matchAnything.doesMatchPattern("aba"));
-      assertTrue("abababa", matchAnything.doesMatchPattern("abababa"));
-      assertTrue("abba", matchAnything.doesMatchPattern("abba"));
-      assertTrue("abb", !matchAnything.doesMatchPattern("abb"));
-      assertTrue("bba", !matchAnything.doesMatchPattern("bba"));
-      assertTrue("aaaaaaaa", matchAnything.doesMatchPattern("aaaaaaaa"));
+      assertTrue(!matchAnything.doesMatchPattern("a"), "a");
+      assertTrue(matchAnything.doesMatchPattern("aa"), "aa");
+      assertTrue(matchAnything.doesMatchPattern("aaa"), "aaa");
+      assertTrue(matchAnything.doesMatchPattern("aba"), "aba");
+      assertTrue(matchAnything.doesMatchPattern("abababa"), "abababa");
+      assertTrue(matchAnything.doesMatchPattern("abba"), "abba");
+      assertTrue(!matchAnything.doesMatchPattern("abb"), "abb");
+      assertTrue(!matchAnything.doesMatchPattern("bba"), "bba");
+      assertTrue(matchAnything.doesMatchPattern("aaaaaaaa"), "aaaaaaaa");
    }
 
    // utility method to generate a random String of length <= 100
@@ -102,7 +105,7 @@ public class PSPatternMatcherTest
    {
       byte[] bytes = new byte[rand.nextInt(99) + 1];
       rand.nextBytes(bytes);
-      
+
       // coerce all bytes into ASCII range 32 <= i >= 126
       byte b;
       for (int i = 0; i < bytes.length; i++)
@@ -121,5 +124,5 @@ public class PSPatternMatcherTest
    }
 
    // collect all tests into a TestSuite and return it
-   
+
 }

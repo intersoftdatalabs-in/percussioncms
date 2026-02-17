@@ -850,17 +850,7 @@ public class PSConditionalEvaluatorTest
       assertTrue(!didThrow);
       assertTrue(result == true); // expect true
    }
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSConditionalEvaluatorTest("testMakeComparable2Lists"));
-      suite.addTest(new PSConditionalEvaluatorTest("testMakeComparable2Number"));
-      suite.addTest(new PSConditionalEvaluatorTest("testMakeComparable2Date"));
-      suite.addTest(new PSConditionalEvaluatorTest("testMakeComparable2String"));
-      suite.addTest(new PSConditionalEvaluatorTest("testMakeComparable2PSDateLiteral"));
-      suite.addTest(new PSConditionalEvaluatorTest("testMakeComparable2PSNumericLiteral"));
-      suite.addTest(new PSConditionalEvaluatorTest("testMakeComparable2PSTextLiteral"));
-      return suite;
-   }
+   // JUnit 5 uses test discovery; explicit suite() removed.
+   // (legacy JUnit3 `suite()` was deleted during migration)
+
 }

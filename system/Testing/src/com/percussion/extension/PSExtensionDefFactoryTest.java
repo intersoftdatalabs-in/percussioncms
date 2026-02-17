@@ -36,13 +36,15 @@ import java.util.Properties;
  * equality.
  */
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
-public class PSExtensionDefFactoryTest 
+public class PSExtensionDefFactoryTest
 {
+
    /**
     * Does a round trip test, with all possible properties containing values.
     */
    @SuppressWarnings("unchecked")
-   
+
+   @Test
    public void testFull() throws Exception
    {
       // create an extension def, then round trip it thru the factory, then
@@ -73,7 +75,7 @@ public class PSExtensionDefFactoryTest
 
       PSExtensionDef def = new PSExtensionDef(ref, ifaces.iterator(), urls
          .iterator(), javaInitParams, runtimeParams.iterator());
-      
+
       int methodCount = 2;
       int paramCount = 3;
       for (int i=0; i<methodCount; i++)
@@ -83,7 +85,7 @@ public class PSExtensionDefFactoryTest
          for (int j=0; j<paramCount; j++)
          {
             PSExtensionMethodParam param = new PSExtensionMethodParam(
-               "name_" + i + "." + j, String.class.getName(), 
+               "name_" + i + "." + j, String.class.getName(),
                "description_" + i + "." + j);
             method.addParameter(param);
          }
@@ -103,7 +105,7 @@ public class PSExtensionDefFactoryTest
       catch (Exception e)
       {
          e.printStackTrace();
-         assertTrue("Failed serialization: " + e.toString(), false);
+         fail("Failed serialization: " + e.toString());
          return;
       }
 
@@ -116,11 +118,11 @@ public class PSExtensionDefFactoryTest
       {
          PSXmlDocumentBuilder.write(doc, System.out);
          e.printStackTrace();
-         assertTrue("Failed de-serialization: " + e.toString(), false);
+         fail("Failed de-serialization: " + e.toString());
          return;
       }
 
-      assertTrue("Full def failed comparison", def.equals(def2));
+         assertTrue(def.equals(def2), "Full def failed comparison");
    }
 
 
@@ -129,7 +131,8 @@ public class PSExtensionDefFactoryTest
     * parameters defined..
     */
    @SuppressWarnings("unchecked")
-   
+
+   @Test
    public void testNoUrlsNoRuntimeParams() throws Exception
    {
       // create an extension def, then round trip it thru the factory, then
@@ -164,7 +167,7 @@ public class PSExtensionDefFactoryTest
       catch (Exception e)
       {
          // e.printStackTrace();
-         assertTrue("Failed serialization: " + e.toString(), false);
+         fail("Failed serialization: " + e.toString());
          return;
       }
 
@@ -177,18 +180,19 @@ public class PSExtensionDefFactoryTest
       {
          PSXmlDocumentBuilder.write(doc, System.out);
          e.printStackTrace();
-         assertTrue("Failed de-serialization: " + e.toString(), false);
+         fail("Failed de-serialization: " + e.toString());
          return;
       }
 
-      assertTrue("Full def failed comparison", def.equals(def2));
+      assertTrue(def.equals(def2), "Full def failed comparison");
    }
 
    /**
     * Does a round trip test, using a def that has no URLs defined.
     */
    @SuppressWarnings("unchecked")
-   
+
+   @Test
    public void testNoUrls() throws Exception
    {
       // create an extension def, then round trip it thru the factory, then
@@ -232,7 +236,7 @@ public class PSExtensionDefFactoryTest
       catch (Exception e)
       {
          e.printStackTrace();
-         assertTrue("Failed serialization: " + e.toString(), false);
+         fail("Failed serialization: " + e.toString());
          return;
       }
 
@@ -245,11 +249,11 @@ public class PSExtensionDefFactoryTest
       {
          PSXmlDocumentBuilder.write(doc, System.out);
          e.printStackTrace();
-         assertTrue("Failed de-serialization: " + e.toString(), false);
+         fail("Failed de-serialization: " + e.toString());
          return;
       }
 
-      assertTrue("Full def failed comparison", def.equals(def2));
+         assertTrue(def.equals(def2), "Full def failed comparison");
    }
 
 
@@ -257,7 +261,8 @@ public class PSExtensionDefFactoryTest
     * Does a round trip test, using a def that has no runtime params defined.
     */
    @SuppressWarnings("unchecked")
-   
+
+   @Test
    public void testNoRuntimeParamst() throws Exception
    {
       // create an extension def, then round trip it thru the factory, then
@@ -295,7 +300,7 @@ public class PSExtensionDefFactoryTest
       catch (Exception e)
       {
          e.printStackTrace();
-         assertTrue("Failed serialization: " + e.toString(), false);
+         fail("Failed serialization: " + e.toString());
          return;
       }
 
@@ -308,11 +313,11 @@ public class PSExtensionDefFactoryTest
       {
          PSXmlDocumentBuilder.write(doc, System.out);
          e.printStackTrace();
-         assertTrue("Failed de-serialization: " + e.toString(), false);
+         fail("Failed de-serialization: " + e.toString());
          return;
       }
 
-      assertTrue("Full def failed comparison", def.equals(def2));
+      assertTrue(def.equals(def2), "Full def failed comparison");
    }
 }
 

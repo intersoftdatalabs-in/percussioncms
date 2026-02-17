@@ -109,7 +109,7 @@ public class PSSystemTestBase extends PSTestBase
 
          SystemDesignSOAPStub binding = (SystemDesignSOAPStub) locator
             .getsystemDesignSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(60000);

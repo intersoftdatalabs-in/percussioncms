@@ -30,8 +30,7 @@ import com.percussion.services.PSBaseServiceLocator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link PSBackEndTableDirectoryCataloger}.
@@ -44,7 +43,7 @@ public class PSBackEndTableDirectoryCatalogerTest
 
    /**
     * Test the cataloger
-    * 
+    *
     * @throws Exception if the test fails
     */
    @SuppressWarnings("unchecked")
@@ -52,84 +51,84 @@ public class PSBackEndTableDirectoryCatalogerTest
    public void testCataloger() throws Exception
    {
       PSBaseServiceLocator.getBean("sys_connectionHelper");
-      
+
       Properties props = new Properties();
       props.setProperty("tableName", "USERLOGIN");
       props.setProperty("datasourceName", "");
       props.setProperty("uidColumn", "USERID");
       props.setProperty("passwordColumn", "PASSWORD");
-      
+
       // reuse password col as an attribute
       String testAttr = "testAttr";
       props.setProperty(testAttr, "PASSWORD");
-      
-      PSBackEndTableDirectoryCataloger cat = 
+
+      PSBackEndTableDirectoryCataloger cat =
          new PSBackEndTableDirectoryCataloger(props);
-      
+
       // test user w/ single attribute
-      assertEquals("test user w/ single attribute", DEFAULT_PASSWORD, cat.getAttribute("admin1", testAttr));
-      
+      assertEquals(DEFAULT_PASSWORD, cat.getAttribute("admin1", testAttr), "test user w/ single attribute");
+
       // test subject and attr list
       PSSubject sub = cat.getAttributes("admin1");
       Collection<String> attrs = new ArrayList<String>(1);
       attrs.add(testAttr);
       PSSubject sub2 = cat.getAttributes("admin1", attrs);
-      assertEquals("test subject and attr list", sub, sub2);
-      assertEquals("test subject and attr list", sub.getAttributes().getAttribute(
-         testAttr).getValues().get(0), DEFAULT_PASSWORD);
-      
+      assertEquals(sub, sub2, "test subject and attr list");
+      assertEquals(DEFAULT_PASSWORD, sub.getAttributes().getAttribute(
+         testAttr).getValues().get(0), "test subject and attr list");
+
       // test subject and null attr list
       sub = cat.getAttributes("admin1");
       sub2 = cat.getAttributes("admin1", null);
-      assertEquals("test subject and null attr list", sub, sub2);
-      assertEquals("test subject and null attr list", sub.getAttributes().getAttribute(
-         testAttr).getValues().get(0), DEFAULT_PASSWORD);      
-      
+      assertEquals(sub, sub2, "test subject and null attr list");
+      assertEquals(DEFAULT_PASSWORD, sub.getAttributes().getAttribute(
+         testAttr).getValues().get(0), "test subject and null attr list");
+
       // test subject with extra non-present attribute
       Collection<String> attrs2 = new ArrayList<String>(attrs);
       attrs2.add("foo");
       sub2 = cat.getAttributes("admin1", attrs2);
-      assertTrue("test subject with extra non-present attribute", !sub.equals(sub2));
+      assertFalse(sub.equals(sub2), "test subject with extra non-present attribute");
 
       PSConditional cond;
       Collection subs;
       // test find user with user name
       cond = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
+         cat.getObjectAttributeName()),
          PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin1"));
       subs = cat.findUsers(new PSConditional[] {cond}, attrs);
-      assertTrue("should find user with user name", subs.size() > 0);
-      
+      assertTrue(subs.size() > 0, "should find user with user name");
+
       // test find user with equals
-      cond = new PSConditional(new PSTextLiteral(testAttr), 
+      cond = new PSConditional(new PSTextLiteral(testAttr),
          PSConditional.OPTYPE_EQUALS, new PSTextLiteral(DEFAULT_PASSWORD));
       subs = cat.findUsers(new PSConditional[] {cond}, attrs);
-      assertTrue("should find user with equals", subs.size() > 0);
+      assertTrue(subs.size() > 0, "should find user with equals");
 
       // test find user with like
-      cond = new PSConditional(new PSTextLiteral(testAttr), 
+      cond = new PSConditional(new PSTextLiteral(testAttr),
          PSConditional.OPTYPE_LIKE, new PSTextLiteral(DEFAULT_PARTIAL_PASSWORD + "%"));
       subs = cat.findUsers(new PSConditional[] {cond}, attrs);
-      assertTrue("should find user with like", subs.size() > 0);
+      assertTrue(subs.size() > 0, "should find user with like");
 
       // test find user with equals and bad criteria
-      cond = new PSConditional(new PSTextLiteral(testAttr), 
+      cond = new PSConditional(new PSTextLiteral(testAttr),
          PSConditional.OPTYPE_EQUALS, new PSTextLiteral(DEFAULT_PARTIAL_PASSWORD));
       subs = cat.findUsers(new PSConditional[] {cond}, attrs);
-      assertTrue("should not find user with equals and bad criteria", subs.isEmpty());
+      assertTrue(subs.isEmpty(), "should not find user with equals and bad criteria");
 
       // test find user with like and no attributes
-      cond = new PSConditional(new PSTextLiteral(testAttr), 
+      cond = new PSConditional(new PSTextLiteral(testAttr),
          PSConditional.OPTYPE_LIKE, new PSTextLiteral(DEFAULT_PARTIAL_PASSWORD + "%"));
       subs = cat.findUsers(new PSConditional[] {cond}, null);
-      assertTrue("should find user with like and no attributes", subs.size() > 0);
-      
+      assertTrue(subs.size() > 0, "should find user with like and no attributes");
+
       // test find user with bad criteria and no attributes
-      cond = new PSConditional(new PSTextLiteral(testAttr), 
+      cond = new PSConditional(new PSTextLiteral(testAttr),
          PSConditional.OPTYPE_EQUALS, new PSTextLiteral(DEFAULT_PARTIAL_PASSWORD));
       subs = cat.findUsers(new PSConditional[] {cond}, null);
-      assertTrue("should not find user with bad criteria and no attributes", subs.isEmpty());
-      
+      assertTrue(subs.isEmpty(), "should not find user with bad criteria and no attributes");
+
    }
 }
 

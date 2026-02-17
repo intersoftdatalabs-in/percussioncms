@@ -74,11 +74,11 @@ public class PSFileSystemConnectionTest
       Connection fileConn = DriverManager.getConnection("jdbc:psfilesystem",
             m_connProperties);
 
-      assertFalse("Connection initially open", fileConn.isClosed());
+      assertFalse(fileConn.isClosed(), "Connection initially open");
 
       fileConn.close();
 
-      assertTrue("Connection closes properly", fileConn.isClosed());
+      assertTrue(fileConn.isClosed(), "Connection closes properly");
    }
 
 

@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit test for the {@link PSRelationshipConfigurationCache} class.
  */
 @Tag("IntegrationTest")
-public class PSConfigManagerTest extends PSConfigHelperTestCase 
+public class PSConfigManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 
 {
@@ -46,7 +46,7 @@ public class PSConfigManagerTest extends PSConfigHelperTestCase
     */
    public void oneTimeSetUp(PSRequest req) {
       // TODO Auto-generated method stub
-      
+
    }
 
    /**
@@ -65,13 +65,13 @@ public class PSConfigManagerTest extends PSConfigHelperTestCase
     */
    public void oneTimeTearDown() {
       // TODO Auto-generated method stub
-      
+
    }
-   
+
    /**
     * Test all public interfaces including the constructor.
     * @throws Exception if any errors occur.
-    */  
+    */
    public void testConstruction() throws Exception
    {
       PSConfigManager manager = null;
@@ -82,7 +82,7 @@ public class PSConfigManagerTest extends PSConfigHelperTestCase
       }
       catch (Exception e)
       {
-         assertTrue("construction failed", false);
+         org.junit.jupiter.api.Assertions.fail("construction failed");
       }
    }
 }

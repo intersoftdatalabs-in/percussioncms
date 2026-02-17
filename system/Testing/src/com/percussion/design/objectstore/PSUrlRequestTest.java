@@ -32,18 +32,19 @@ import org.w3c.dom.Element;
 
 // Test case
 
-public class PSUrlRequestTest 
+public class PSUrlRequestTest
 {
-   
+
 
 
    /**
     * Tests that the <code>clone()</code> method creates a separate-but-equal
     * instance, and that the copy is deep.
-    * 
+    *
     * @throws Exception if the test fails.
-    */ 
-   
+    */
+
+   @Test
    public void testClone() throws Exception
    {
       PSCollection parameters = new PSCollection( PSParam.class );
@@ -62,7 +63,7 @@ public class PSUrlRequestTest
       assertEquals( foo, bar );
 
       param2.setName( "2p2" );  // mutate param
-      
+
       // expect foo to have been modified, but not bar
       boolean found = false;
       for (Iterator iter = foo.getQueryParameters(); iter.hasNext();)
@@ -74,7 +75,7 @@ public class PSUrlRequestTest
             break;
          }
       }
-      assertTrue( "foo has change", found );
+      assertTrue(found, "foo has change");
       found = false;
       for (Iterator iter = bar.getQueryParameters(); iter.hasNext();)
       {
@@ -85,13 +86,14 @@ public class PSUrlRequestTest
             break;
          }
       }
-      assertTrue( "bar does not have change", !found );
+      assertTrue(!found, "bar does not have change");
    }
 
 
-   
 
 
+
+   @Test
    public void testXmlParts() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -115,9 +117,10 @@ public class PSUrlRequestTest
    }
 
 
-   
 
 
+
+   @Test
    public void testXmlUdf() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -136,5 +139,5 @@ public class PSUrlRequestTest
    }
 
 
-   
+
 }

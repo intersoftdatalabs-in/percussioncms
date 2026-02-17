@@ -806,7 +806,7 @@ public abstract class PSContentTestBase extends PSTestBase
 
          ContentDesignSOAPStub binding = (ContentDesignSOAPStub) locator
             .getcontentDesignSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(600000);

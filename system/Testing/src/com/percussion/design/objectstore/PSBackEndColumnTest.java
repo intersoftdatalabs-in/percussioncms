@@ -29,12 +29,12 @@ import org.w3c.dom.Element;
 /**
  * Unit tests for the PSBackEndColumn class.
  */
-public class PSBackEndColumnTest 
+public class PSBackEndColumnTest
 {
-   
 
-   
-   
+
+
+
 
    public void testConstructors() throws Exception
    {
@@ -58,7 +58,7 @@ public class PSBackEndColumnTest
          {
             didThrow = true;
          }
-         assertTrue("Caught cons with null table?", didThrow);
+         assertTrue(didThrow, "Caught cons with null table?");
       }
 
       // try creating a column with a null col name, make sure it throws
@@ -73,7 +73,7 @@ public class PSBackEndColumnTest
          {
             didThrow = true;
          }
-         assertTrue("Caught cons with null col name?", didThrow);
+         assertTrue(didThrow, "Caught cons with null col name?");
       }
 
       // try creating a column with an empty col name, make sure it throws
@@ -88,12 +88,13 @@ public class PSBackEndColumnTest
          {
             didThrow = true;
          }
-         assertTrue("Caught cons with empty col name?", didThrow);
+         assertTrue(didThrow, "Caught cons with empty col name?");
       }
    }
 
-   
 
+
+   @Test
    public void testGetSetColumn() throws Exception
    {
       String colName = "zoo";
@@ -112,8 +113,8 @@ public class PSBackEndColumnTest
       {
          didThrow = true;
       }
-      assertTrue("Caught setColumn with empty col name?", didThrow);
-      assertEquals("Col name unchanged after illegal setColumn?", "bar", col.getColumn());
+      assertTrue(didThrow, "Caught setColumn with empty col name?");
+      assertEquals("bar", col.getColumn(), "Col name unchanged after illegal setColumn?");
 
       didThrow = false;
       try
@@ -124,12 +125,13 @@ public class PSBackEndColumnTest
       {
          didThrow = true;
       }
-      assertTrue("Caught setColumn with null col name?", didThrow);
-      assertEquals("Col name unchanged after illegal setColumn?", "bar", col.getColumn());
+      assertTrue(didThrow, "Caught setColumn with null col name?");
+      assertEquals("bar", col.getColumn(), "Col name unchanged after illegal setColumn?");
    }
 
-   
 
+
+   @Test
    public void testGetSetTable() throws Exception
    {
       PSBackEndTable tab = new PSBackEndTable("baz");
@@ -147,7 +149,8 @@ public class PSBackEndColumnTest
     *
     * @throws Exception if the test failed.
     */
-   
+
+   @Test
    public void testXml() throws Exception
    {
       PSBackEndTable tab = new PSBackEndTable( "baz" );
@@ -162,5 +165,5 @@ public class PSBackEndColumnTest
       assertEquals( col, new PSBackEndColumn( el, null, null ) );
    }
 
-   
+
 }

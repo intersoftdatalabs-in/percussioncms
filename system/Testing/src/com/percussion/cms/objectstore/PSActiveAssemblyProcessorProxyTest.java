@@ -32,21 +32,20 @@ public class PSActiveAssemblyProcessorProxyTest
    // see base class for documentation
    /**
     * Test all realtionship processor proxy constructors contracts.
-    * 
+    *
     * @throws Exception for any error.
     */
    @Test
-   @Test
-         public void testConstructors() throws Exception
+   public void testConstructors() throws Exception
    {
       String type = "type";
       Object context = new Object();
-      
+
       PSActiveAssemblyProcessorProxy processor = null;
 
       // avoid eclipse warning
       if (processor == null);
-      
+
       // test valid constructor
       Exception exception = null;
       try
@@ -58,9 +57,9 @@ public class PSActiveAssemblyProcessorProxyTest
          exception = e;
       }
       assertTrue(exception == null);
-      
+
       /*
-       * Test valid constructor: returns null pointer because we use an 
+       * Test valid constructor: returns null pointer because we use an
        * invalid type.
        */
       exception = null;
@@ -74,19 +73,18 @@ public class PSActiveAssemblyProcessorProxyTest
       }
       assertTrue(exception instanceof NullPointerException);
    }
-   
+
    /**
     * Test all public methods contracts.
-    * 
+    *
     * @throws Exception for any error.
     */
    @Test
-   @Test
          public void testPublicAPI() throws Exception
    {
-      PSActiveAssemblyProcessorProxy processor = 
+      PSActiveAssemblyProcessorProxy processor =
             new PSActiveAssemblyProcessorProxy("type", null);
-      
+
       PSAaRelationshipList list = new PSAaRelationshipList();
 
       // test valid parameters: newSlotRelations=null
@@ -196,7 +194,7 @@ public class PSActiveAssemblyProcessorProxyTest
          exception = e;
       }
       assertTrue(exception instanceof IllegalArgumentException);
-      
+
       // test valid parameters: slotRelations=null
       exception = null;
       try
@@ -220,7 +218,7 @@ public class PSActiveAssemblyProcessorProxyTest
          exception = e;
       }
       assertTrue(exception instanceof IllegalArgumentException);
-      
+
       // test valid parameters: existingSlotRelations=null
       exception = null;
       try
@@ -244,7 +242,7 @@ public class PSActiveAssemblyProcessorProxyTest
          exception = e;
       }
       assertTrue(exception instanceof IllegalArgumentException);
-      
+
       // test valid parameters: relationships=null
       exception = null;
       try
@@ -281,15 +279,7 @@ public class PSActiveAssemblyProcessorProxyTest
       }
       assertTrue(exception instanceof IllegalArgumentException);
    }
-   
-   // see base class for documentation
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      
-      suite.addTest(new PSActiveAssemblyProcessorProxyTest("testConstructors"));
-      suite.addTest(new PSActiveAssemblyProcessorProxyTest("testPublicAPI"));
-      
-      return suite;
-   }
+
+   // JUnit 5 uses test discovery; explicit suite() removed.
+   // (legacy JUnit3 `suite()` was deleted during migration)
 }

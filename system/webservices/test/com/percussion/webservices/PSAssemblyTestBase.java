@@ -117,7 +117,7 @@ public class PSAssemblyTestBase extends PSTestBase
 
          AssemblyDesignSOAPStub binding = (AssemblyDesignSOAPStub) locator
             .getassemblyDesignSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(60000);

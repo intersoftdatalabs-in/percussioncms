@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test the object summary object, primarily test the serialization using
  * the helper
- * 
+ *
  * @author dougrand
  */
 public class PSObjectSummaryTest
@@ -56,13 +56,13 @@ public class PSObjectSummaryTest
       nsum.setName("Test object summary");
       nsum.setLabel("Test object summary label");
       String ser = PSXmlSerializationHelper.writeToXml(nsum);
-      
-      PSObjectSummary restore = 
+
+      PSObjectSummary restore =
          (PSObjectSummary) PSXmlSerializationHelper.readFromXML(ser);
-      
+
       assertEquals(nsum, restore);
    }
-   
+
    /**
     * Test fully populated object summary object
     * @throws Exception
@@ -77,19 +77,19 @@ public class PSObjectSummaryTest
       nsum.setLabel("Test object summary label");
       nsum.setLockedInfo("session_1", "orange_julius", 123456789);
       Collection<PSPermissions> permissions = new ArrayList<PSPermissions>();
-      
+
       permissions.add(PSPermissions.RUNTIME_VISIBLE);
       permissions.add(PSPermissions.OWNER);
-      
+
       nsum.setPermissions(new PSUserAccessLevel(permissions));
-      
+
       String ser = PSXmlSerializationHelper.writeToXml(nsum);
       System.out.println(ser);
       System.out.println();
-      PSObjectSummary restore = 
+      PSObjectSummary restore =
          (PSObjectSummary) PSXmlSerializationHelper.readFromXML(ser);
       System.out.println(restore);
 
-      assertEquals("Expected to be equal", nsum, restore);
+      assertEquals(nsum, restore, "Expected to be equal");
    }
 }
