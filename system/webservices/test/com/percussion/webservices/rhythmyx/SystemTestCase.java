@@ -255,7 +255,7 @@ public class SystemTestCase extends PSSystemTestBase
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (RemoteException e)
@@ -1218,12 +1218,12 @@ public class SystemTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (Exception e2)
       {
-         throw new AssertionFailedError("Unexpected Exception caught: " + e2);
+         throw new AssertionError("Unexpected Exception caught: " + e2);
       }
    }
 

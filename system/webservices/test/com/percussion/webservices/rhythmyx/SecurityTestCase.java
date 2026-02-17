@@ -297,12 +297,12 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSContractViolationFault e2)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
    }
@@ -325,12 +325,12 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSContractViolationFault e2)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
    }
@@ -426,17 +426,17 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }
@@ -532,17 +532,17 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }

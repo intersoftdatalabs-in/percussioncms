@@ -124,17 +124,17 @@ public class AssemblyTestCase extends PSAssemblyTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }
@@ -240,17 +240,17 @@ public class AssemblyTestCase extends PSAssemblyTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }

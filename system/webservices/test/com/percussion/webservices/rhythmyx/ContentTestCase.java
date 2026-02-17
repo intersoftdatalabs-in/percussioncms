@@ -343,17 +343,17 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "RemoteException Exception caught: " + e);
       }
    }
@@ -656,17 +656,17 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "RemoteException Exception caught: " + e);
       }
 
@@ -799,17 +799,17 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "RemoteException Exception caught: " + e);
       }
 
@@ -962,17 +962,17 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "RemoteException Exception caught: " + e);
       }
 
@@ -1167,17 +1167,17 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "RemoteException Exception caught: " + e);
       }
 
@@ -1442,17 +1442,17 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       finally
@@ -1517,12 +1517,12 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (Exception e2)
       {
-         throw new AssertionFailedError("Unexpected Exception caught: " + e2);
+         throw new AssertionError("Unexpected Exception caught: " + e2);
       }
       finally
       {
@@ -1616,12 +1616,12 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (Exception e2)
       {
-         throw new AssertionFailedError("Unexpected Exception caught: " + e2);
+         throw new AssertionError("Unexpected Exception caught: " + e2);
       }
       finally
       {
@@ -1683,12 +1683,12 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (Exception e2)
       {
-         throw new AssertionFailedError("Unexpected Exception caught: " + e2);
+         throw new AssertionError("Unexpected Exception caught: " + e2);
       }
       finally
       {
@@ -2889,20 +2889,20 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -3142,23 +3142,23 @@ public class ContentTestCase extends PSContentTestBase
       catch (PSInvalidSessionFault e)
       {
 		 e.printStackTrace();
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
 		 e.printStackTrace();
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
 		 e.printStackTrace();
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (Throwable e)
       {
 		 e.printStackTrace();
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -3665,20 +3665,20 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -3990,20 +3990,20 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -4158,20 +4158,20 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -4331,20 +4331,20 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -4627,21 +4627,21 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (Throwable e)
       {
          e.printStackTrace();
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -4872,20 +4872,20 @@ public class ContentTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -4996,7 +4996,7 @@ public class ContentTestCase extends PSContentTestBase
       catch (Throwable e)
       {
          e.printStackTrace();
-         throw new junit.framework.AssertionFailedError("Unknown exception: " + e);
+         throw new AssertionError("Unknown exception: " + e);
       }
       finally
       {

@@ -239,7 +239,7 @@ public class PSTestBase extends PSClientTestCase
          if (e.getLinkedCause() != null)
             e.getLinkedCause().printStackTrace();
 
-         throw new AssertionFailedError("JAX-RPC ServiceException caught: " + e);
+         throw new AssertionError("JAX-RPC ServiceException caught: " + e);
       }
    }
 
@@ -249,7 +249,7 @@ public class PSTestBase extends PSClientTestCase
     * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new binding.
+    * @throws AssertionError for any error creating the new binding.
     */
    public SystemSOAPStub getSystemSOAPStub(Integer timeout)
    {
@@ -282,7 +282,7 @@ public class PSTestBase extends PSClientTestCase
          if (e.getLinkedCause() != null)
             e.getLinkedCause().printStackTrace();
 
-         throw new AssertionFailedError("JAX-RPC ServiceException caught: " + e);
+         throw new AssertionError("JAX-RPC ServiceException caught: " + e);
       }
    }
 
@@ -292,7 +292,7 @@ public class PSTestBase extends PSClientTestCase
     * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new binding.
+    * @throws AssertionError for any error creating the new binding.
     */
    protected SecuritySOAPStub getSecuritySOAPStub(Integer timeout)
    {
@@ -326,7 +326,7 @@ public class PSTestBase extends PSClientTestCase
          if (e.getLinkedCause() != null)
             e.getLinkedCause().printStackTrace();
 
-         throw new AssertionFailedError("JAX-RPC ServiceException caught: " + e);
+         throw new AssertionError("JAX-RPC ServiceException caught: " + e);
       }
    }
 

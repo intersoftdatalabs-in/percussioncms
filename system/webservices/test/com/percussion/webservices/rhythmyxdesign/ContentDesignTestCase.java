@@ -174,22 +174,22 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
       catch (PSContractViolationFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -299,17 +299,17 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }
@@ -519,27 +519,27 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }
@@ -677,27 +677,27 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }
@@ -815,27 +815,27 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }
@@ -1087,22 +1087,22 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
    }
@@ -1199,17 +1199,17 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e3);
       }
    }
@@ -1288,17 +1288,17 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1.dumpToString());
       }
       catch (PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e3.dumpToString());
       }
    }
@@ -1389,22 +1389,22 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e1.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4.dumpToString());
       }
    }
@@ -1472,7 +1472,7 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
    }
@@ -1618,7 +1618,7 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
    }
@@ -1744,17 +1744,17 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1.dumpToString());
       }
       catch (PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e3.dumpToString());
       }
    }
@@ -1853,17 +1853,17 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e3);
       }
    }
@@ -1955,22 +1955,22 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e1.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4.dumpToString());
       }
    }
@@ -2414,22 +2414,22 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       finally
@@ -2530,27 +2530,27 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (PSLockFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "LockFault Exception caught: " + e1);
       }
       catch (PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -2676,27 +2676,27 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (PSLockFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "LockFault Exception caught: " + e1);
       }
       catch (PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -2792,27 +2792,27 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (PSLockFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "LockFault Exception caught: " + e1);
       }
       catch (PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -2938,27 +2938,27 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
       catch (PSLockFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "LockFault Exception caught: " + e1);
       }
       catch (PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }

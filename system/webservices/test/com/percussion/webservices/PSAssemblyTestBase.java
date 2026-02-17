@@ -87,7 +87,7 @@ public class PSAssemblyTestBase extends PSTestBase
          if (e.getLinkedCause() != null)
             e.getLinkedCause().printStackTrace();
 
-         throw new AssertionFailedError("JAX-RPC ServiceException caught: " + e);
+         throw new AssertionError("JAX-RPC ServiceException caught: " + e);
       }
    }
 
@@ -97,7 +97,7 @@ public class PSAssemblyTestBase extends PSTestBase
     * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new assembly
+    * @throws AssertionError for any error creating the new assembly
     *    binding.
     */
    public static AssemblyDesignSOAPStub getDesignBinding(Integer timeout)
@@ -128,7 +128,7 @@ public class PSAssemblyTestBase extends PSTestBase
          if (e.getLinkedCause() != null)
             e.getLinkedCause().printStackTrace();
 
-         throw new AssertionFailedError("JAX-RPC ServiceException caught: " + e);
+         throw new AssertionError("JAX-RPC ServiceException caught: " + e);
       }
    }
 
