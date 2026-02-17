@@ -56,8 +56,6 @@ import java.util.Map;
 
 import javax.xml.rpc.ServiceException;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,7 +67,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Implements utilities used by all system test cases.
  */
-@Tag("IntegrationTest")
+
 public class PSSystemTestBase extends PSTestBase
 {
    /**
@@ -78,10 +76,8 @@ public class PSSystemTestBase extends PSTestBase
     * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new binding.
     */
    public SystemSOAPStub getBinding(Integer timeout)
-      throws AssertionFailedError
    {
       return getSystemSOAPStub(timeout);
    }
@@ -123,7 +119,7 @@ public class PSSystemTestBase extends PSTestBase
          if (e.getLinkedCause() != null)
             e.getLinkedCause().printStackTrace();
 
-         throw new AssertionFailedError("JAX-RPC ServiceException caught: " + e);
+         throw new AssertionError("JAX-RPC ServiceException caught: " + e);
       }
    }
 

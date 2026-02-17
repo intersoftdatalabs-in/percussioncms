@@ -40,8 +40,6 @@ import java.util.List;
 
 import javax.xml.rpc.ServiceException;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,7 +102,7 @@ public class PSAssemblyTestBase extends PSTestBase
     *    binding.
     */
    public static AssemblyDesignSOAPStub getDesignBinding(Integer timeout)
-      throws AssertionFailedError
+
    {
       if (timeout != null && timeout < 1000)
          throw new IllegalArgumentException("timeout must be >= 1000");

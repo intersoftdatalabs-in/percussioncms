@@ -57,8 +57,6 @@ import java.util.Properties;
 
 import javax.xml.rpc.ServiceException;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.axis.client.Call;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -71,7 +69,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Implements utilities used by all webservice test cases.
  */
-@Tag("IntegrationTest")
+
 public class PSTestBase extends PSClientTestCase
 {
    public PSTestBase(String name)
@@ -209,8 +207,6 @@ public class PSTestBase extends PSClientTestCase
     * @param timeout the timeout in milliseconds, defaults to 10 minutes if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new
-    *    binding.
     */
    protected ContentSOAPStub getContentSOAPStub(Integer timeout)
       throws AssertionFailedError

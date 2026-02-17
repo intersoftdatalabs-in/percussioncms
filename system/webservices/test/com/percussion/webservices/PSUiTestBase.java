@@ -33,8 +33,6 @@ import com.percussion.webservices.uidesign.UiDesignSOAPStub;
 
 import javax.xml.rpc.ServiceException;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * Implements utilities used by all ui test cases.
  */
-@Tag("IntegrationTest")
+
 public class PSUiTestBase extends PSTestBase
 {
    /**
@@ -57,7 +55,7 @@ public class PSUiTestBase extends PSTestBase
     * @throws AssertionFailedError for any error creating the new assembly
     *    binding.
     */
-   protected UiSOAPStub getBinding(Integer timeout) throws AssertionFailedError
+   protected UiSOAPStub getBinding(Integer timeout)
    {
       if (timeout != null && timeout < 1000)
          throw new IllegalArgumentException("timeout must be >= 1000");
