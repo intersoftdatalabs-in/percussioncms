@@ -17,7 +17,6 @@
 
 package com.percussion.ant.install;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionHandler;
