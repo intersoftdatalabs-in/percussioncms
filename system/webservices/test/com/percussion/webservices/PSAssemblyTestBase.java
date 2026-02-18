@@ -44,12 +44,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Implements utilities used by all assembly test cases.
  */
+@TestInstance(Lifecycle.PER_CLASS)
 public class PSAssemblyTestBase extends PSTestBase
 {
    /**
