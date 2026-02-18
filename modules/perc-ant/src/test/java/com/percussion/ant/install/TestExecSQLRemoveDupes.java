@@ -23,24 +23,21 @@ import com.percussion.install.PSLogger;
 import java.io.File;
 import java.nio.file.Files;
 import java.sql.*;
-import org.junit.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /***
  * Test the ant task
  */
 public class TestExecSQLRemoveDupes {
 
-  @ClassRule public static Path temporaryFolder;
-
-  private static String repoRoot;
-  private static String oldRepoRoot;
-  private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
-  private static final String connectionURL = "jdbc:derby:CMDB;create=true;user=CMDB;password=demo";
+    @TempDir public static Path temporaryFolder;
 
   @BeforeAll
   public static void setup() throws Exception {
-    temporaryFolder.create();
-    repoRoot = temporaryFolder.getAbsolutePath() + File.separator + "Repository";
+    repoRoot = temporaryFolder.resolve("Repository").toAbsolutePath().toString();
     oldRepoRoot = System.getProperty("derby.system.home");
     System.setProperty("derby.system.home", repoRoot);
 
@@ -73,10 +70,10 @@ public class TestExecSQLRemoveDupes {
       statement.execute(sql);
     }
 
-    Files.createDirectories(temporaryFolder.toPath().resolve("rxconfig/Installer/"));
+    Files.createDirectories(temporaryFolder.resolve("rxconfig/Installer/"));
     PSTaskTestUtils.copy(
         PSTaskTestUtils.getRepositoryFileFromResources(),
-        temporaryFolder.toPath().resolve("rxconfig/Installer/rxrepository.properties"));
+        temporaryFolder.resolve("rxconfig/Installer/rxrepository.properties"));
   }
 
   @AfterEach
@@ -94,7 +91,7 @@ public class TestExecSQLRemoveDupes {
     PSExecSQLRemoveDupes task = new PSExecSQLRemoveDupes();
     task.setQualifyingTableName("CT_PAGE_PAGE_CATEGORIES_SET");
     task.setColumns("CONTENTID,REVISIONID,PAGE_CATEGORIES_TREE");
-    task.setRootDir(temporaryFolder.getAbsolutePath() + File.separator);
+    task.setRootDir(temporaryFolder.toAbsolutePath().toString() + File.separator);
     task.execute();
 
     // Now make sure that the data was updated correctly
