@@ -21,12 +21,12 @@ import java.io.File;
 import com.percussion.utils.xml.PSEntityResolver;
 
 /**
- * The utility class to provide the default connection properties for the 
- * remote Rhythmyx Server. This should be used by all Junit tests that are 
+ * The utility class to provide the default connection properties for the
+ * remote Rhythmyx Server. This should be used by all Junit tests that are
  * invoked as a remote client.
  */
 public class PSClientTestCase extends PSConfigHelperTestCase implements
-      IPSClientBasedJunitTest 
+      IPSClientBasedJunitTest
 {
    /**
     * Default constructor.
@@ -51,13 +51,13 @@ public class PSClientTestCase extends PSConfigHelperTestCase implements
            PSEntityResolver.setResolutionHome(homeDir);
        }
    }
-   
+
    /**
     * Simply call super(String).
-    * 
+    *
     * @param arg0 the name of the TestCase.
     */
-   public PSClientTestCase(String arg0) 
+   public PSClientTestCase(String arg0)
    {
       super(arg0);
    }

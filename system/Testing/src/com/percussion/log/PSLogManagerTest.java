@@ -21,6 +21,8 @@ import com.percussion.testing.PSConfigHelperTestCase;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.Tag;
 
 import java.io.File;
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * are not to be shipped with the product.
  */
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class PSLogManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {
@@ -50,10 +53,6 @@ public class PSLogManagerTest extends PSConfigHelperTestCase
       </RequestHandlerDef>
    */
 
-   public PSLogManagerTest(String name)
-   {
-      super(name);
-   }
 
    /**
     * The loadable handler will call this method once before any test method.
@@ -196,7 +195,7 @@ public class PSLogManagerTest extends PSConfigHelperTestCase
     * @throws Exception
     */
    @BeforeAll
-   public void setUp() throws Exception
+   public static void setUp() throws Exception
    {
       m_validDBMSProps  = new Properties(getConnectionProps(CONN_TYPE_SQL));
       m_validDBMSProps.setProperty("logTo", "DBMS");
@@ -210,8 +209,8 @@ public class PSLogManagerTest extends PSConfigHelperTestCase
       m_emptyProps = new Properties();
    }
 
-   private Properties m_validDBMSProps = null;
-   private Properties m_validFileProps = null;
-   private Properties m_emptyProps = null;
+   private static Properties m_validDBMSProps = null;
+   private static Properties m_validFileProps = null;
+   private static Properties m_emptyProps = null;
 
 }

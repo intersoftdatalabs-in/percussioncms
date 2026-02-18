@@ -26,7 +26,7 @@ import com.percussion.widgets.image.data.MimeUtils;
 import com.percussion.widgets.image.web.impl.ImageReader;
 import com.percussion.widgets.image.web.impl.ImageReader.ImageReaderException;
 import org.apache.commons.imaging.ImageInfo;
-import org.apache.commons.imaging.ImageReadException;
+
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -234,13 +234,6 @@ public class ImageReaderTest
                + imageInfo.getColorType() + "\n");
 
          System.out.print(imageInfo.toString());
-      }
-      catch (ImageReadException e)
-      {
-         Assertions.fail("Caught image read exception getting image information:"
-               + e.getMessage());
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
       catch (IOException e)
       {

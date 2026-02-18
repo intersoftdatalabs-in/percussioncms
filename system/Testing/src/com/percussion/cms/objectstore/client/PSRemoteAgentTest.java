@@ -42,8 +42,13 @@ import java.util.List;
 
 
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Properties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -58,6 +63,22 @@ public class PSRemoteAgentTest extends PSClientTestCase
 
    public PSRemoteAgentTest()
    {
+   }
+
+   @BeforeAll
+   public static void checkRemoteServerAvailable()
+   {
+      try {
+         PSRemoteAgentTest tst = new PSRemoteAgentTest();
+         Properties props = tst.getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER);
+         String host = props.getProperty("hostName");
+         int port = Integer.parseInt(props.getProperty("port"));
+         try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress(host, port), 300);
+         }
+      } catch (Exception e) {
+         org.junit.jupiter.api.Assumptions.assumeTrue(false, "Remote Rhythmyx server not available - skipping PSRemoteAgentTest");
+      }
    }
 
 

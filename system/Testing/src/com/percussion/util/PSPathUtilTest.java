@@ -24,24 +24,24 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the PSPathUtil class
  */
-public class PSPathUtilTest 
+public class PSPathUtilTest
 {
-   
 
-   
-   
-   
+
+
+
+
    @Test
    public void testIsPathUnderSiteFolderRoot()
    {
       String pathA = "//Folders/test/foo";
       String pathB = "//Sites/test/bar";
-      
+
       assertFalse(PSPathUtil.isPathUnderSiteFolderRoot(pathA));
       assertTrue(PSPathUtil.isPathUnderSiteFolderRoot(pathB));
    }
-   
-   
+
+
    // collect all tests into a TestSuite and return it
-   
+
 }

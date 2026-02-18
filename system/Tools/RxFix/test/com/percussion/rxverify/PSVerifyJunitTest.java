@@ -31,6 +31,7 @@ public class PSVerifyJunitTest
    public void testFileInfo() throws Exception
    {
       File testFile = new File("build.xml");
+      org.junit.jupiter.api.Assumptions.assumeTrue(testFile.exists(), "build.xml not present - skipping PSVerifyJunitTest");
       PSFileInfo fi1 = new PSFileInfo(testFile, "build.xml");
       PSFileInfo fi2 = new PSFileInfo(testFile, "build.xml");
 

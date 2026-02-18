@@ -26,9 +26,9 @@ public class TestDateParsing {
 
 	@Test
 	public void testDateFormat() throws ParseException{
-		
+
 		// and format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
-	
+
 		System.out.println(FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").parse("2018-05-21T10:42:00".replace("T"," ")));
 	}
 }

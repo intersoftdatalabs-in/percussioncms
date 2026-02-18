@@ -33,9 +33,9 @@ import junit.textui.TestRunner;
 // JUnit Platform (Jupiter) support
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
-import org.junit.platform.launcher.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import org.junit.platform.launcher.listeners.TestExecutionListener;
+import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.TestDescriptor;
@@ -196,7 +196,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                   = Class.forName(strClassName, true,
                         classLoader);
 
-               TestResult result = null;
+               final TestResult[] result = new TestResult[1];
                String outputText = "";
                try {
                   Method suite = junitTest.getMethod("suite", (Class[]) null);
@@ -206,7 +206,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                   ByteArrayOutputStream bos = new ByteArrayOutputStream();
                   PrintStream output = new PrintStream(bos);
                   TestRunner runner = new TestRunner(output);
-                  result = runner.doRun(t, false);
+                  result[0] = runner.doRun(t, false);
                   System.out.println("JUnit (vintage) test finished.");
                   output.flush();
                   outputText = new String(bos.toByteArray());
@@ -222,7 +222,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                   System.out.println("No suite() method; attempting JUnit Platform run for: " + strClassName);
 
                   // create a junit3-style TestResult to collect translated results
-                  result = new TestResult();
+                  result[0] = new TestResult();
 
                   // Console output collector (not required but kept for parity)
                   StringBuilder consoleSb = new StringBuilder();
@@ -248,13 +248,13 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                               @Override
                               public String toString() { return display; }
                            };
-                           result.startTest(fakeTest);
+                           result[0].startTest(fakeTest);
                         }
                      }
 
                      @Override
                      public void executionFinished(org.junit.platform.launcher.TestIdentifier testIdentifier,
-                                                   org.junit.platform.launcher.TestExecutionResult testExecutionResult) {
+                                                   org.junit.platform.engine.TestExecutionResult testExecutionResult) {
                         if (!testIdentifier.isTest())
                            return;
 
@@ -270,15 +270,15 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                         if (status == TestExecutionResult.Status.FAILED) {
                            Throwable ex = testExecutionResult.getThrowable().orElse(new AssertionError("Test failed"));
                            // Treat as a JUnit failure
-                           result.addFailure(fakeTest, new junit.framework.AssertionFailedError(ex.getMessage()));
+                           result[0].addFailure(fakeTest, new junit.framework.AssertionFailedError(ex.getMessage()));
                         }
                         else if (status == TestExecutionResult.Status.ABORTED) {
                            Throwable ex = testExecutionResult.getThrowable().orElse(new RuntimeException("Test aborted"));
                            // Treat as an error
-                           result.addError(fakeTest, ex);
+                           result[0].addError(fakeTest, ex);
                         }
 
-                        result.endTest(fakeTest);
+                        result[0].endTest(fakeTest);
                      }
 
                      @Override
@@ -292,8 +292,8 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                               @Override
                               public String toString() { return display; }
                            };
-                           result.startTest(fakeTest);
-                           result.endTest(fakeTest);
+                           result[0].startTest(fakeTest);
+                           result[0].endTest(fakeTest);
                         }
                      }
                   });
@@ -305,9 +305,9 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                }
 
                // create XML and append
-               if (result == null)
-                  result = new TestResult();
-               Element testResultEl = createTestResultResponse(m_responseDoc, result, strClassName, outputText);
+                  if (result[0] == null)
+                     result[0] = new TestResult();
+               Element testResultEl = createTestResultResponse(m_responseDoc, result[0], strClassName, outputText);
                root.appendChild(testResultEl);
                PSXmlDocumentBuilder.toString(m_responseDoc);
             }

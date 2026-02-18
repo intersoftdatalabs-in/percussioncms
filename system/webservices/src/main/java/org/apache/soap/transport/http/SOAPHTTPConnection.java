@@ -33,30 +33,34 @@ public class SOAPHTTPConnection
     {
     }
 
-    public void send(URL target, String soapAction, Hashtable headers, Envelope env, Object unused, SOAPContext ctx) throws Exception
+    public void send(URL target, String soapAction, Hashtable headers, Envelope env, Object unused, SOAPContext ctx) throws org.apache.soap.SOAPException
     {
-        HttpURLConnection conn = (HttpURLConnection) target.openConnection();
-        conn.setDoOutput(true);
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
-        if (soapAction != null)
-            conn.setRequestProperty("SOAPAction", soapAction);
-        if (headers != null) {
-            for (Object kobj : headers.keySet()) {
-                String key = kobj.toString();
-                Object val = headers.get(kobj);
-                conn.setRequestProperty(key, val == null ? "" : val.toString());
+        try {
+            HttpURLConnection conn = (HttpURLConnection) target.openConnection();
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
+            if (soapAction != null)
+                conn.setRequestProperty("SOAPAction", soapAction);
+            if (headers != null) {
+                for (Object kobj : headers.keySet()) {
+                    String key = kobj.toString();
+                    Object val = headers.get(kobj);
+                    conn.setRequestProperty(key, val == null ? "" : val.toString());
+                }
             }
+
+            String payload = buildEnvelopePayload(env);
+
+            try (OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), "UTF-8")) {
+                out.write(payload);
+                out.flush();
+            }
+
+            this.lastResponseReader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        } catch (Exception e) {
+            throw new org.apache.soap.SOAPException(e.getMessage(), e);
         }
-
-        String payload = buildEnvelopePayload(env);
-
-        try (OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), "UTF-8")) {
-            out.write(payload);
-            out.flush();
-        }
-
-        this.lastResponseReader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
     }
 
     public BufferedReader receive() throws Exception

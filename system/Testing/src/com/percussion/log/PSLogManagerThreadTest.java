@@ -21,6 +21,8 @@ import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSConfigHelperTestCase;
 
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class PSLogManagerThreadTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {
@@ -47,10 +50,6 @@ public class PSLogManagerThreadTest extends PSConfigHelperTestCase
       </RequestHandlerDef>
    */
 
-   public PSLogManagerThreadTest(String name)
-   {
-      super(name);
-   }
 
 
    /**

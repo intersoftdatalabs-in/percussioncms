@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -42,6 +43,16 @@ public class PSRxFixTest
     * Default CTOR
     */
    public PSRxFixTest(){}
+
+   @BeforeAll
+   public static void checkApplicationContext()
+   {
+      try {
+         PSCmsObjectMgrLocator.getObjectManager();
+      } catch (Throwable t) {
+         org.junit.jupiter.api.Assumptions.assumeTrue(false, "Application Context not initialized - skipping PSRxFixTest");
+      }
+   }
 
    /**
     * @throws Exception

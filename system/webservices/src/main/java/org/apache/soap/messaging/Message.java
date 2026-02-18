@@ -14,7 +14,7 @@ public class Message
 
    public Message() {}
 
-   public void send(URL target, String actionURI, Envelope env) throws Exception
+   public void send(URL target, String actionURI, Envelope env) throws org.apache.soap.SOAPException
    {
       // delegate to the HTTP transport stub; headers and context are ignored
       transport.send(target, actionURI, null, env, null, new SOAPContext());

@@ -23,15 +23,15 @@ public class PSAAClientActionFactoryTest
    {
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
       assertNotNull(factory);
-      
+
       Object obj = factory.getAction("__WillNeverExistTestClass");
       assertNull(obj);
       obj = factory.getAction("Move");
       assertNotNull(obj);
-      
+
       String className = obj.getClass().getName();
       String expectedName = "com.percussion.content.ui.aa.actions.impl.PSMoveAction";
       assertEquals(className, expectedName);
    }
-   
+
 }

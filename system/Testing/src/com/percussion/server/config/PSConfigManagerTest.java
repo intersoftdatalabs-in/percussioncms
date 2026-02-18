@@ -24,6 +24,8 @@ import com.percussion.testing.PSRequestHandlerTestSuite;
 
 
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,15 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit test for the {@link PSRelationshipConfigurationCache} class.
  */
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class PSConfigManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 
 {
    // see base class
-   public PSConfigManagerTest(String name)
-   {
-      super(name);
-   }
 
    /* (non-Javadoc)
     * @see com.percussion.testing.IPSServerBasedJunitTest#oneTimeSetUp(com.percussion.server.PSRequest)

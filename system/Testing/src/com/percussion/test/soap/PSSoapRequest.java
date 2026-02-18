@@ -16,16 +16,16 @@
  */
 package com.percussion.test.soap;
 
-import com.percussion.util.PSCharSets; 
+import com.percussion.util.PSCharSets;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;   
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.URL; 
+import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.Iterator;
@@ -54,20 +54,20 @@ import org.xml.sax.SAXException;
  */
 public class PSSoapRequest
 {
-   /** 
+   /**
     * Default constructor for derived classes.
     */
    protected PSSoapRequest()
    {
    }
-   
+
    /**
     * Constructs this soap request object.
-    * 
+    *
     * @param reqUrl the url of the soap request listener, may not be <code>null
     * </code> or empty and must be a valid url.
     * @param msgEnv the message envelope to send, may not be <code>null</code>
-    * 
+    *
     * @throws IllegalArgumentException if any parameter is invalid.
     */
    public PSSoapRequest(String reqUrl, Envelope msgEnv)
@@ -77,19 +77,19 @@ public class PSSoapRequest
 
    /**
     * Sets the request url and envelope.
-    * 
+    *
     * @param reqUrl the url of the soap request listener, may not be <code>null
     * </code> or empty and must be a valid url.
     * @param msgEnv the message envelope to send, may not be <code>null</code>
-    * 
+    *
     * @throws IllegalArgumentException if any parameter is invalid.
-    */   
+    */
    protected void setRequestContent(String reqUrl, Envelope msgEnv)
    {
       if(reqUrl == null || reqUrl.trim().length() == 0)
          throw new IllegalArgumentException("reqUrl may not be null or empty.");
-         
-      try 
+
+      try
       {
          m_soapReqListenerURL = new URL(reqUrl);
       }
@@ -97,56 +97,56 @@ public class PSSoapRequest
       {
          throw new IllegalArgumentException("reqUrl is malformed.");
       }
-      
+
       if(msgEnv == null)
          throw new IllegalArgumentException("msgEnv may not be null.");
-         
+
       m_reqEnvelope = msgEnv;
    }
-   
+
    /**
-    * Checks whether the request made has generated a fault. Should be called 
+    * Checks whether the request made has generated a fault. Should be called
     * after calling {@link #sendRequest()} to make sure response is valid.
-    * 
+    *
     * @return <code>true</code> if the request generated a fault, otherwise
     * <code>false</code>.
-    * 
-    * @throws IllegalStateException if <code>sendRequest()</code> has not been 
+    *
+    * @throws IllegalStateException if <code>sendRequest()</code> has not been
     * called.
     */
    public boolean generatedFault()
    {
       checkRequestSent();
-      
+
       return m_fault != null;
    }
-   
+
    /**
-    * Gets the request fault detail. Should be called only if a call to {@link 
+    * Gets the request fault detail. Should be called only if a call to {@link
     * #generatedFault()} returns <code>true</code> to know the fault reason.
-    * 
+    *
     * @return the fault detail, may be <code>null</code> if the request has not
     * generated a fault.
-    * 
-    * @throws IllegalStateException if <code>sendRequest()</code> has not been 
+    *
+    * @throws IllegalStateException if <code>sendRequest()</code> has not been
     * called.
     */
    public String getFaultDetail()
-   {    
+   {
       checkRequestSent();
-      
+
       if(generatedFault())
          return m_fault.toString();
       else
          return null;
    }
-   
+
    /**
-    * Checks whether request is made yet or not. If the request is not made 
+    * Checks whether request is made yet or not. If the request is not made
     * response might have not initialized, so all methods that deal with the
     * response should call this method to make sure it is a valid call.
-    * 
-    * @throws IllegalStateException if <code>sendRequest()</code> has not been 
+    *
+    * @throws IllegalStateException if <code>sendRequest()</code> has not been
     * called.
     */
    protected void checkRequestSent()
@@ -154,14 +154,14 @@ public class PSSoapRequest
       if(m_fault == null && m_respBody == null)
          throw new IllegalStateException("request is not yet sent");
    }
-   
+
    /**
     * Gets the character set that should be used to convert the response content
     * bytes into characters.
-    * 
+    *
     * @return the character set, never <code>null</code> or empty.
-    * 
-    * @throws IllegalStateException if <code>sendRequest()</code> has not been 
+    *
+    * @throws IllegalStateException if <code>sendRequest()</code> has not been
     * called.
     */
    public String getCharacterSet()
@@ -179,7 +179,7 @@ public class PSSoapRequest
    public Header getResponseHeader()
    {
       checkRequestSent();
-      
+
       return m_respHeader;
    }
 
@@ -192,31 +192,42 @@ public class PSSoapRequest
     */
    public void sendRequest() throws SOAPException, SAXException, IOException
    {
-      Message msg = new Message ();    
+      Message msg = new Message ();
       //second argument actionURI is ignored because actual action uri in the
-      //envelope is processed.    
+      //envelope is processed.
       msg.send (m_soapReqListenerURL, "", m_reqEnvelope);
 
-      BufferedReader rdr = msg.getSOAPTransport().receive();
-      Document respEnvDoc;      
-      try 
+BufferedReader rdr;
+        try {
+            rdr = msg.getSOAPTransport().receive();
+        } catch (Exception e) {
+            throw new IOException("Failed to receive SOAP transport response", e);
+        }
+
+      Document respEnvDoc;
+      try
       {
-         DocumentBuilder xdb = XMLParserUtils.getXMLDocBuilder();
+         DocumentBuilder xdb;
+         try {
+            xdb = XMLParserUtils.getXMLDocBuilder();
+         } catch (Exception e) {
+            throw new IOException("Failed to create XML DocumentBuilder", e);
+         }
          respEnvDoc = xdb.parse (new InputSource(rdr) );
       }
       catch(SAXException e)
       {
          throw e;
       }
-      finally 
+      finally
       {
          rdr.close();
       }
-      
+
       SOAPContext respContext = msg.getResponseSOAPContext();
       Envelope respEnv = Envelope.unmarshall(
          respEnvDoc.getDocumentElement(), respContext);
-      
+
       Iterator bodyEntries = respEnv.getBody().getBodyEntries().iterator();
       if(bodyEntries.hasNext())
       {
@@ -229,8 +240,8 @@ public class PSSoapRequest
                respEnv, soapRegistry, respContext);
             m_fault = resp.getFault();
          }
-         else 
-         {         
+         else
+         {
             m_respBody = respEnv.getBody();
             m_respHeader = respEnv.getHeader();
          }
@@ -249,21 +260,21 @@ public class PSSoapRequest
    {
       checkRequestSent();
 
-      ByteArrayOutputStream outStream = new ByteArrayOutputStream();  
-      OutputStreamWriter writer = new OutputStreamWriter(outStream, 
+      ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+      OutputStreamWriter writer = new OutputStreamWriter(outStream,
          getCharacterSet());
       if(!m_respBody.getBodyEntries().isEmpty())
       {
          Iterator bodyEntries = m_respBody.getBodyEntries().iterator();
          while(bodyEntries.hasNext())
-            PSXmlDocumentBuilder.write((Element)bodyEntries.next(), writer);      
+            PSXmlDocumentBuilder.write((Element)bodyEntries.next(), writer);
       }
       ByteArrayInputStream inStream = new ByteArrayInputStream(
          outStream.toByteArray());
       outStream.close();
-      
+
       return inStream;
-   }  
+   }
 
    /**
     * The soap request listener url, initialized to <code>null</code>, modified
@@ -271,31 +282,31 @@ public class PSSoapRequest
     * <code>null</code> after that.
     */
    private URL m_soapReqListenerURL = null;
-   
+
    /**
     * The soap request envelope, initialized to <code>null</code>, modified
     * through calls to <code>setRequestContent(String, Envelope)</code>. Never
     * <code>null</code> after that.
     */
    private Envelope m_reqEnvelope = null;
-   
+
    /**
-    * The soap response body, initialized to <code>null</code> and modified 
-    * through calls to <code>sendRequest()</code>. If the request does not 
+    * The soap response body, initialized to <code>null</code> and modified
+    * through calls to <code>sendRequest()</code>. If the request does not
     * generate a soap fault, then it will not be <code>null</code>.
     */
-   protected Body m_respBody = null; 
-   
+   protected Body m_respBody = null;
+
    /**
-    * The soap response header, initialized to <code>null</code> and modified 
-    * through calls to <code>sendRequest()</code>. May be <code>null</code> if 
+    * The soap response header, initialized to <code>null</code> and modified
+    * through calls to <code>sendRequest()</code>. May be <code>null</code> if
     * the request generated a soap fault or response did not have a header.
     */
-   private Header m_respHeader = null; 
-   
+   private Header m_respHeader = null;
+
    /**
-    * The fault response, initialized to <code>null</code> and modified 
-    * through calls to <code>sendRequest()</code>. May be <code>null</code> if 
+    * The fault response, initialized to <code>null</code> and modified
+    * through calls to <code>sendRequest()</code>. May be <code>null</code> if
     * the request is successful (response is not an envelope with soap fault).
     */
    private Fault m_fault = null;

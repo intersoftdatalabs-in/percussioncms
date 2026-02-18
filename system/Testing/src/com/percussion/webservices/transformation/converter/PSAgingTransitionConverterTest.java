@@ -34,21 +34,21 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test the {@link PSAgingTransitionConverter}
  */
-public class PSAgingTransitionConverterTest 
+public class PSAgingTransitionConverterTest
 {
    /**
     * Test the converter
-    * 
+    *
     * @throws Exception if the test fails.
     */
-   
+
    public void testConverter() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
+
       // convert server to client object
       Converter converter = factory.getConverter(PSAgingTransition.class);
-      
+
       PSAgingTransition src = new PSAgingTransition();
       src.setDescription("desc");
       src.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_TRANSITION, 123));
@@ -59,28 +59,28 @@ public class PSAgingTransitionConverterTest
       notificationList.add(new PSNotification());
       notificationList.add(new PSNotification());
       src.setNotifications(notificationList);
-      
+
       src.setInterval(5);
       src.setSystemField("field1");
       src.setType(PSAgingTransition.PSAgingTypeEnum.REPEATED);
-      
-      com.percussion.webservices.system.PSAgingTransition tgt = 
-         (com.percussion.webservices.system.PSAgingTransition) 
+
+      com.percussion.webservices.system.PSAgingTransition tgt =
+         (com.percussion.webservices.system.PSAgingTransition)
          converter.convert(
-            com.percussion.webservices.system.PSAgingTransition.class, 
+            com.percussion.webservices.system.PSAgingTransition.class,
             src);
-      
+
       assertEquals(src.getDescription(), tgt.getDescription());
       assertEquals(src.getLabel(), tgt.getLabel());
       assertEquals(src.getTransitionAction(), tgt.getTransitionAction());
       assertEquals(src.getTrigger(), tgt.getTrigger());
       assertEquals(src.getGUID().longValue(), tgt.getId().longValue());
-      assertEquals(src.getNotifications().size(), 
-         tgt.getNotifications().length);
-      
+      assertEquals(src.getNotifications().size(),
+         (tgt.getNotifications() == null ? 0 : tgt.getNotifications().getPSNotification().size()));
+
       assertEquals(src.getInterval(), tgt.getInterval());
       assertEquals(src.getSystemField(), tgt.getSystemField());
-      assertEquals(PSStringUtils.toCamelCase(src.getType().name()), 
+      assertEquals(PSStringUtils.toCamelCase(src.getAgingTypeEnum().name()),
          tgt.getType().toString());
    }
 

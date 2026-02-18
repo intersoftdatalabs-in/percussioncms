@@ -48,9 +48,14 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Properties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -65,15 +70,28 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
 {
    private static final Logger ms_log = LogManager.getLogger(PSWsFolderProcessorTest.class);
 
+   @BeforeAll
+   public static void checkRemoteServerAvailable()
+   {
+      try {
+         PSWsFolderProcessorTest tst = new PSWsFolderProcessorTest();
+         Properties props = tst.getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER);
+         String host = props.getProperty("hostName");
+         int port = Integer.parseInt(props.getProperty("port"));
+         try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress(host, port), 300);
+         }
+      } catch (Exception e) {
+         org.junit.jupiter.api.Assumptions.assumeTrue(false, "Remote Rhythmyx server not available - skipping PSWsFolderProcessorTest");
+      }
+   }
+
    /**
     * Construct this unit test
     *
     * @param name The name of this test.
     */
-    public PSWsFolderProcessorTest(String name)
-   {
-      super(name);
-   }
+
 
    /**
     * Get component processor proxy for remote processor.
@@ -119,7 +137,6 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
     *
     * @throws Exception if an error occurs.
     */
-   @Test
    public static void testCopyFolderChildrenItem(PSLocator itemLocator)
       throws Exception
    {
@@ -216,7 +233,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
     */
    private static PSRemoteRequester getRemoteRequester() throws Exception
    {
-      PSWsFolderProcessorTest tst = new PSWsFolderProcessorTest("Test");
+      PSWsFolderProcessorTest tst = new PSWsFolderProcessorTest();
 
       return new PSRemoteRequester(
             tst.getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER));
