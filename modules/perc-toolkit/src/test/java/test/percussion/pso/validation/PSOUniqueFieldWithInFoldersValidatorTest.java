@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
@@ -44,8 +44,8 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PSOUniqueFieldWithInFoldersValidatorTest {
@@ -57,7 +57,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
   Mockery context;
   PSONodeCataloger nodeCataloger;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     validator = new TestablePSOUniqueFieldValidator();
     context =
@@ -138,7 +138,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
         });
 
     Integer fid = validator.getFolderId(req);
-    Assert.assertEquals(1234, fid.longValue());
+    Assertions.assertEquals(1234, fid.longValue());
     context.assertIsSatisfied();
   }
 
