@@ -45,8 +45,8 @@ public class PSFileFilterTest
    private String[] m_fileNames;
    private String[] m_dirNames;
 
-   @Rule
-   public Path temporaryFolder;
+   @TempDir
+   public File temporaryFolder;
 
    public PSFileFilterTest(){}
 
@@ -107,12 +107,13 @@ public class PSFileFilterTest
       assertEquals(9, files.length);
    }
 
-   @BeforeEach 
+   @BeforeEach
    public void setUp()  {
 
       try
       {
-      m_testDir = temporaryFolder.newFolder("PSFileFilterTest");
+      m_testDir = new File(temporaryFolder, "PSFileFilterTest");
+      m_testDir.mkdirs();
 
       m_dirNames = new String[] {
          "ad", "dda", "dad", "dada", "daad", "da", "adad"

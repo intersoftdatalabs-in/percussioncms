@@ -2,8 +2,8 @@
 
 
 <!-- edited with XMLSPY v5 rel. 2 U (http://www.xmlspy.com) by Paul Howard (Percussion Software) -->
-<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/system" xmlns:sys="urn:www.percussion.com/6.0.0/system" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/common" schemaLocation="../common.xsd"/>
+<xsd:schema targetNamespace="urn:www.percussion.com/8.2.0/system" xmlns:sys="urn:www.percussion.com/8.2.0/system" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/common" schemaLocation="../common.xsd"/>
    <xsd:simpleType name="RelationshipCategory">
       <xsd:annotation>
          <xsd:documentation>An enumeration of all supported relationship categories.</xsd:documentation>
@@ -414,6 +414,17 @@
          </xsd:complexContent>
       </xsd:complexType>
    </xsd:element>
+   <!-- Named enum for relationship filter categories; generating a top-level type ensures a Java enum is produced -->
+   <xsd:simpleType name="PSRelationshipFilterCategory">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="activeassembly"/>
+         <xsd:enumeration value="newcopy"/>
+         <xsd:enumeration value="promotableversion"/>
+         <xsd:enumeration value="translation"/>
+         <xsd:enumeration value="foldercontent"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+
    <xsd:element name="PSRelationshipFilter">
       <xsd:annotation>
          <xsd:documentation>Specifies all rules by which to filter relationship lookups for any relationship category. All specified rules will be AND'ed together except category, which will be OR'ed together with the relationship name and type before AND'ing with the other properties.</xsd:documentation>
@@ -422,20 +433,10 @@
          <xsd:complexContent>
             <xsd:extension base="com:RelationshipFilter">
                <xsd:sequence>
-                  <xsd:element name="Category" minOccurs="0">
+                  <xsd:element name="Category" minOccurs="0" type="sys:PSRelationshipFilterCategory">
                      <xsd:annotation>
-                        <xsd:documentation>The name of the relationship category for which to filter the results. This will be OR'ed together with the relationship 
-								name and type before AND'ing with the other properties.</xsd:documentation>
+                        <xsd:documentation>The name of the relationship category for which to filter the results. This will be OR'ed together with the relationship name and type before AND'ing with the other properties.</xsd:documentation>
                      </xsd:annotation>
-                     <xsd:simpleType>
-                        <xsd:restriction base="xsd:string">
-                           <xsd:enumeration value="activeassembly"/>
-                           <xsd:enumeration value="newcopy"/>
-                           <xsd:enumeration value="promotableversion"/>
-                           <xsd:enumeration value="translation"/>
-                           <xsd:enumeration value="foldercontent"/>
-                        </xsd:restriction>
-                     </xsd:simpleType>
                   </xsd:element>
                </xsd:sequence>
             </xsd:extension>

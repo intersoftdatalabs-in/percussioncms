@@ -20,10 +20,10 @@ import com.percussion.server.PSServer;
 import com.percussion.services.utils.jsf.validators.PSBaseValidator;
 import com.percussion.system.utils.IPSHtmlParameters;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.validator.ValidatorException;
 
 /**
  * Validates that the url for the content list is valid
@@ -34,13 +34,13 @@ public class PSContentListUrlValidator extends PSBaseValidator
 {
 
    /** (non-Javadoc)
-    * @see javax.faces.validator.Validator#validate(javax.faces.context.FacesContext, javax.faces.component.UIComponent, java.lang.Object)
+    * @see jakarta.faces.validator.Validator#validate(jakarta.faces.context.FacesContext, jakarta.faces.component.UIComponent, java.lang.Object)
     */
    @SuppressWarnings("unused")
    public void validate(FacesContext ctx, UIComponent comp, Object value)
          throws ValidatorException
    {
-      String url = getString(value, true).trim();
+      String url = safeToString(value).trim();
       if (!url.startsWith(PSServer.getRequestRoot()))
       {
          fail(FacesMessage.SEVERITY_ERROR, "jsf@content_list_url_request_root",

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Integration test for PSWidgetPackageBuilder. */
-@Tag("IntegrationTest")
+
 public class PSWidgetPackagerBuilderTest {
 
   @Test

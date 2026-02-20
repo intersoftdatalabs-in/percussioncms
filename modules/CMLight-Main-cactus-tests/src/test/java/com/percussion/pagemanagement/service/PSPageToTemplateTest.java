@@ -44,7 +44,7 @@ import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.system.IPSSystemWs;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSPageToTemplateTest extends PSServletTestCase {
 
   private PSSiteDataServletTestCaseFixture fixture;

@@ -41,7 +41,7 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;

@@ -20,7 +20,7 @@ package com.percussion.services.useritems.impl;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.useritems.IPSUserItemsDao;
 import com.percussion.services.useritems.data.PSUserItem;
-import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSBaseBean;
 
 import org.apache.commons.lang3.StringUtils;
@@ -85,7 +85,7 @@ public class PSUserItemsDao implements IPSUserItemsDao
     * @see com.percussion.services.userpages.IPSUserItemsDao#save(com.percussion.services.userpages.data.PSUserItem)
     */
    @Transactional
-   public void save(PSUserItem userItem) throws IPSGenericDao.SaveException {
+   public void save(PSUserItem userItem) throws PSDataServiceException {
       Validate.notNull(userItem);
 
       if (userItem.getUserItemId() == -1)
@@ -102,7 +102,7 @@ public class PSUserItemsDao implements IPSUserItemsDao
       {
           String msg = "database error " + e.getMessage();
           log.error(msg);
-          throw new IPSGenericDao.SaveException(msg, e);
+          throw new PSDataServiceException(msg, e);
       }
       finally
       {

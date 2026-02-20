@@ -52,7 +52,6 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
       super(NODE_TITLE, DELIVERY_TYPE_LIST);
    }
 
-   @Override
    /**
     * Gets the child nodes for all delivery types.
     * @return list of child nodes
@@ -85,7 +84,6 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
    }
 
    // see base
-   @Override
    /**
     * Finds a delivery type by name.
     * @param name delivery type name
@@ -102,7 +100,6 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
       }
    }
 
-   @Override
    /**
     * Gets all delivery type names.
     * @return set of names
@@ -145,7 +142,6 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
       return node.editNewNode(this, node);
    }
 
-   @Override
    /**
     * Returns to the delivery type list view.
     */
@@ -154,7 +150,6 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
       return DELIVERY_TYPE_LIST;
    }
 
-   @Override
    /**
     * Gets the help topic for this node.
     */

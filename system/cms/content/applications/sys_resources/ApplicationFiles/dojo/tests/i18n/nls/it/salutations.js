@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- it: "italiano",
- hello: "Ciao"
-}
+({
+  it: "italiano",
+  hello: "Ciao",
+});

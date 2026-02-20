@@ -1,5 +1,3 @@
-
-
 .perc-blog-list-calicon {
   margin-right: 15px;
   text-align: center;
@@ -8,14 +6,14 @@
   float: left;
   display: inline-block;
   background-color: #585858;
-  color: #FFF;
+  color: #fff;
 }
 .perc-blog-list-calicon-month {
   padding: 5px 15px;
 }
 .perc-blog-list-calicon-day {
-  background-color: #FFF;
-  color:#585858;
+  background-color: #fff;
+  color: #585858;
   width: 100%;
   display: block;
   font-size: 25px;

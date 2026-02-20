@@ -28,6 +28,7 @@ import java.util.Properties;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -35,12 +36,9 @@ import org.w3c.dom.Document;
 /**
  * Unit tests for the PSServerConfiguration class.
  */
-public class PSServerConfigurationTest extends TestCase
+public class PSServerConfigurationTest
 {
-   public PSServerConfigurationTest(String name)
-   {
-      super(name);
-   }
+
 
    /**
     * Expose the protected empty ctor for use by other unit test classes.
@@ -51,6 +49,9 @@ public class PSServerConfigurationTest extends TestCase
    {
       return new PSServerConfiguration();
    }
+
+
+
 
 
    public void testConstructors() throws Exception
@@ -80,6 +81,7 @@ public class PSServerConfigurationTest extends TestCase
     * @throws   Exception
     *
     */
+
    public void testToFromXml() throws Exception
    {
       PSServerConfiguration a = new PSServerConfiguration();
@@ -100,24 +102,24 @@ public class PSServerConfigurationTest extends TestCase
       a.setUserSessionTimeout(117);
       xmlEq(a, b);
 
-      List<PSJdbcDriverConfig> driverConfigs = 
+      List<PSJdbcDriverConfig> driverConfigs =
          new ArrayList<PSJdbcDriverConfig>();
       a.setJdbcDriverConfigs(driverConfigs);
       xmlEq(a, b);
       assertEquals(driverConfigs, a.getJdbcDriverConfigs());
-      
-      driverConfigs.add(new PSJdbcDriverConfig("driver1", "class1", 
+
+      driverConfigs.add(new PSJdbcDriverConfig("driver1", "class1",
          "typeMap1"));
-      
+
       a.setJdbcDriverConfigs(driverConfigs);
       xmlEq(a, b);
       assertEquals(driverConfigs, a.getJdbcDriverConfigs());
-      
-      driverConfigs.add(new PSJdbcDriverConfig("driver2", "class2", 
+
+      driverConfigs.add(new PSJdbcDriverConfig("driver2", "class2",
          "typeMap2"));
-      driverConfigs.add(new PSJdbcDriverConfig("driver3", "class3", 
+      driverConfigs.add(new PSJdbcDriverConfig("driver3", "class3",
          "typeMap3"));
-      
+
       a.setJdbcDriverConfigs(driverConfigs);
       xmlEq(a, b);
       assertEquals(driverConfigs, a.getJdbcDriverConfigs());
@@ -129,10 +131,11 @@ public class PSServerConfigurationTest extends TestCase
     *
     * @throws Exception if there are any errors.
     */
+
    public void testSecurityProviders() throws Exception
    {
       PSServerConfiguration cfg1 = new PSServerConfiguration();
-      
+
       PSCollection secProviders = new PSCollection(
          PSSecurityProviderInstance.class);
       PSSecurityProviderInstance secProv1 = new PSSecurityProviderInstance(
@@ -143,10 +146,10 @@ public class PSServerConfigurationTest extends TestCase
       props1.setProperty(PSJndiProvider.PROPS_PROVIDER_CLASS_NAME,
          "pkg.myClass1");
       secProv1.setProperties(props1);
-      PSReference ref1 = new PSReference("ref1", 
+      PSReference ref1 = new PSReference("ref1",
          PSDirectorySet.class.getName());
       PSProvider directoryProvider = new PSProvider(
-         PSBackEndTableDirectoryCataloger.class.getName(), 
+         PSBackEndTableDirectoryCataloger.class.getName(),
          PSProvider.TYPE_DIRECTORY, ref1);
       secProv1.setDirectoryProvider(directoryProvider);
       secProviders.add(secProv1);
@@ -158,6 +161,7 @@ public class PSServerConfigurationTest extends TestCase
     *
     * @throws Exception for any errors or failures during this test.
     */
+
    public void testAuthentications() throws Exception
    {
       PSServerConfiguration config = new PSServerConfiguration();
@@ -175,7 +179,7 @@ public class PSServerConfigurationTest extends TestCase
          PSAuthentication.SCHEME_SIMPLE, "user", "userAttr", "pw", null);
 
       // authentications must be empty
-      assertTrue(!config.getAuthentications().hasNext());
+      assertFalse(config.getAuthentications().hasNext());
 
       // test public interface
       boolean didThrow = false;
@@ -237,13 +241,13 @@ public class PSServerConfigurationTest extends TestCase
       replaced = config.addAuthentication(auth3);
       assertTrue(replaced == null);
       replaced = config.addAuthentication(auth2replacement);
-      assertTrue(replaced.equals(auth2));
+      assertEquals(replaced, auth2);
 
       // test remove
       PSAuthentication removed = config.removeAuthentication("notKnown");
       assertTrue(removed == null);
       removed = config.removeAuthentication("auth2");
-      assertTrue(removed.equals(auth2replacement));
+      assertEquals(removed, auth2replacement);
 
       // test toXml/fromXml
       System.out.println("config:\n" +
@@ -251,7 +255,7 @@ public class PSServerConfigurationTest extends TestCase
       PSServerConfiguration config1 = new PSServerConfiguration(config.toXml());
       System.out.println("config1( config from XML ):\n" +
          PSXmlDocumentBuilder.toString(config1.toXml()));
-      assertTrue(config.equals(config1));
+      assertEquals(config, config1);
    }
 
    /**
@@ -259,6 +263,7 @@ public class PSServerConfigurationTest extends TestCase
     *
     * @throws Exception for any errors or failures during this test.
     */
+
    public void testDirectories() throws Exception
    {
       PSServerConfiguration config = new PSServerConfiguration();
@@ -284,9 +289,9 @@ public class PSServerConfigurationTest extends TestCase
       groups1.add("Group2");
 
       // directories must be empty
-      assertTrue(!config.getDirectories().hasNext());
+      assertFalse(config.getDirectories().hasNext());
 
-      
+
       // test public interface
       boolean didThrow = false;
       try
@@ -347,13 +352,13 @@ public class PSServerConfigurationTest extends TestCase
       replaced = config.addDirectory(dir3);
       assertTrue(replaced == null);
       replaced = config.addDirectory(dir2replacement);
-      assertTrue(replaced.equals(dir2));
+      assertEquals(replaced, dir2);
 
       // test remove
       PSDirectory removed = config.removeDirectory("notKnown");
       assertTrue(removed == null);
       removed = config.removeDirectory("dir2");
-      assertTrue(removed.equals(dir2replacement));
+      assertEquals(removed, dir2replacement);
 
       // test toXml/fromXml
       System.out.println("config:\n" +
@@ -361,8 +366,8 @@ public class PSServerConfigurationTest extends TestCase
       PSServerConfiguration config1 = new PSServerConfiguration(config.toXml());
       System.out.println("config1( config from XML ):\n" +
          PSXmlDocumentBuilder.toString(config1.toXml()));
-      assertTrue(config.equals(config1));
-      
+      assertEquals(config, config1);
+
       // test group providers
       dir1.setGroupProviderNames(groups1.iterator());
       PSCollection grpProviders = config.getGroupProviderInstances();
@@ -379,17 +384,16 @@ public class PSServerConfigurationTest extends TestCase
       config1 = new PSServerConfiguration(config.toXml());
       System.out.println("config 2:\n" +
          PSXmlDocumentBuilder.toString(config1.toXml()));
-      assertEquals("to/fromXml not equal", config, config1);
+      assertEquals(config, config1, "to/fromXml not equal");
 
       // now test extra group
       PSGroupProviderInstance group3 = new PSJndiGroupProviderInstance(
          "Group3", PSSecurityProvider.SP_TYPE_DIRCONN);
       config1.setGroupProviderInstance(group3);
-      assertTrue("equals should return false if group providers different",
-         !config.equals(config1));
+      assertTrue(!config.equals(config1), "equals should return false if group providers different");
       doc = config1.toXml();
       config1.fromXml(doc);
-      assertEquals("unused group provider not removed", config, config1);      
+      assertEquals(config, config1, "unused group provider not removed");
    }
 
    /**
@@ -397,6 +401,7 @@ public class PSServerConfigurationTest extends TestCase
     *
     * @throws Exception for any errors or failures during this test.
     */
+
    public void testDirectorySets() throws Exception
    {
       PSServerConfiguration config = new PSServerConfiguration();
@@ -416,7 +421,7 @@ public class PSServerConfigurationTest extends TestCase
       dirSet2replacement.add(PSDirectorySetTest.ms_ref2);
 
       // directories must be empty
-      assertTrue(!config.getDirectorySets().hasNext());
+      assertFalse(config.getDirectorySets().hasNext());
 
       // test public interface
       boolean didThrow = false;
@@ -478,13 +483,13 @@ public class PSServerConfigurationTest extends TestCase
       replaced = config.addDirectorySet(dirSet3);
       assertTrue(replaced == null);
       replaced = config.addDirectorySet(dirSet2replacement);
-      assertTrue(replaced.equals(dirSet2));
+      assertEquals(replaced, dirSet2);
 
       // test remove
       PSDirectorySet removed = config.removeDirectorySet("notKnown");
       assertTrue(removed == null);
       removed = config.removeDirectorySet("dirSet2");
-      assertTrue(removed.equals(dirSet2replacement));
+      assertEquals(removed, dirSet2replacement);
 
       // test toXml/fromXml
       System.out.println("config:\n" +
@@ -492,7 +497,7 @@ public class PSServerConfigurationTest extends TestCase
       PSServerConfiguration config1 = new PSServerConfiguration(config.toXml());
       System.out.println("config1( config from XML ):\n" +
          PSXmlDocumentBuilder.toString(config1.toXml()));
-      assertTrue(config.equals(config1));
+      assertEquals(config, config1);
    }
 
    /**
@@ -500,6 +505,7 @@ public class PSServerConfigurationTest extends TestCase
     *
     * @throws Exception for any errors or failures during this test.
     */
+
    public void testRoleProviders() throws Exception
    {
       PSServerConfiguration config = new PSServerConfiguration();
@@ -517,7 +523,7 @@ public class PSServerConfigurationTest extends TestCase
          PSRoleProvider.TYPE_BACKEND, (String) null);
 
       // directories must be empty
-      assertTrue(!config.getRoleProviders().hasNext());
+      assertFalse(config.getRoleProviders().hasNext());
 
       // test public interface
       boolean didThrow = false;
@@ -579,13 +585,13 @@ public class PSServerConfigurationTest extends TestCase
       replaced = config.addRoleProvider(prov3);
       assertTrue(replaced == null);
       replaced = config.addRoleProvider(prov2replacement);
-      assertTrue(replaced.equals(prov2));
+      assertEquals(replaced, prov2);
 
       // test remove
       PSRoleProvider removed = config.removeRoleProvider("notKnown");
       assertTrue(removed == null);
       removed = config.removeRoleProvider("prov2");
-      assertTrue(removed.equals(prov2replacement));
+      assertEquals(removed, prov2replacement);
 
       // test toXml/fromXml
       System.out.println("config:\n" +
@@ -593,7 +599,7 @@ public class PSServerConfigurationTest extends TestCase
       PSServerConfiguration config1 = new PSServerConfiguration(config.toXml());
       System.out.println("config1( config from XML ):\n" +
          PSXmlDocumentBuilder.toString(config1.toXml()));
-      assertTrue(config.equals(config1));
+      assertEquals(config, config1);
    }
 
    protected void xmlEq(PSServerConfiguration a, PSServerConfiguration b)
@@ -606,18 +612,5 @@ public class PSServerConfigurationTest extends TestCase
       assertEquals(a, b);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
 
-      suite.addTest(new PSServerConfigurationTest("testConstructors"));
-      suite.addTest(new PSServerConfigurationTest("testToFromXml"));
-      suite.addTest(new PSServerConfigurationTest("testSecurityProviders"));
-      suite.addTest(new PSServerConfigurationTest("testAuthentications"));
-      suite.addTest(new PSServerConfigurationTest("testDirectories"));
-      suite.addTest(new PSServerConfigurationTest("testDirectorySets"));
-      suite.addTest(new PSServerConfigurationTest("testRoleProviders"));
-
-      return suite;
-   }
 }

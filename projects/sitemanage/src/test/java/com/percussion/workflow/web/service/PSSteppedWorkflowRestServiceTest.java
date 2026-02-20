@@ -41,8 +41,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -103,13 +103,13 @@ public class PSSteppedWorkflowRestServiceTest
     return workflowEditorRestServiceClient;
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setupSuite() throws Exception {
     workflowEditorRestServiceClient = new PSSteppedWorkflowRestServiceClient(baseUrl);
     setupClient(workflowEditorRestServiceClient);
   }
 
-  @Before
+  @BeforeEach
   public void setupClient() throws Exception {
     restClient = getRestClient(baseUrl);
     setupClient(restClient, "Admin", 10);

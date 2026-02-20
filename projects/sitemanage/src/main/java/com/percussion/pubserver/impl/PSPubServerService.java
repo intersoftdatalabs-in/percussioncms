@@ -19,7 +19,7 @@ package com.percussion.pubserver.impl;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeServerEntry;
-import static javax.ws.rs.client.ClientBuilder.newClient;
+import static jakarta.ws.rs.client.ClientBuilder.newClient;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -76,6 +76,11 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.service.IPSUtilityService;
 import com.percussion.webservices.publishing.IPSPublishingWs;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -84,11 +89,6 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -206,7 +206,7 @@ public class PSPubServerService implements IPSPubServerService {
     try {
       var site = siteMgr.findSite(getSiteGuid(siteId));
       if (site == null) throw new PSPubServerServiceException("Invalid site " + siteId);
-      var pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId));
+      var pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId)).orElse(null);
       if (pubServer == null) throw new PSPubServerServiceException("Invalid server " + serverId);
       if (!serverBelongsToSite(site.getGUID(), pubServer))
         throw new PSPubServerServiceException(
@@ -517,7 +517,7 @@ public class PSPubServerService implements IPSPubServerService {
 
     try {
       IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
-      PSPubServer pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId));
+      PSPubServer pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId)).orElse(null);
 
       if (pubServer == null) {
         throw new PSPubServerServiceException(
@@ -1109,7 +1109,7 @@ public class PSPubServerService implements IPSPubServerService {
         // in
         // deliverServer.xml and is not valid anymore, thus , need to fix it.
         if (IPSPubServerDao.PUBLISH_SERVER_PROPERTY.equalsIgnoreCase(propertyName)) {
-          String server = pubServer.getPublishServer();
+          String server = pubServer.getPublishServer().orElse("");
           if (!server.equalsIgnoreCase(propertyValue)) {
             needToSave = true;
           }
@@ -1271,7 +1271,7 @@ public class PSPubServerService implements IPSPubServerService {
 
     try {
       IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
-      PSPubServer pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId));
+      PSPubServer pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId)).orElse(null);
 
       if (pubServer == null) {
         throw new PSPubServerServiceException(
@@ -1863,7 +1863,7 @@ public class PSPubServerService implements IPSPubServerService {
         // in
         // deliverServer.xml and is not valid anymore, thus , need to fix it.
         if (IPSPubServerDao.PUBLISH_SERVER_PROPERTY.equalsIgnoreCase(propertyName)) {
-          String server = pubServer.getPublishServer();
+          String server = pubServer.getPublishServer().orElse("");
           if (!server.equalsIgnoreCase(propertyValue)) {
             needToSave = true;
           }
@@ -3032,7 +3032,7 @@ public class PSPubServerService implements IPSPubServerService {
       return null;
     } else {
       PSPubServer currentDefaultServer = getDefaultPubServer(site.getGUID());
-      String adminUrl = currentDefaultServer.getPublishServer();
+      String adminUrl = currentDefaultServer.getPublishServer().orElse(null);
       return adminUrl;
     }
   }

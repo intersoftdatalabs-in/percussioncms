@@ -15,38 +15,45 @@
  * limitations under the License.
  */
 
-(function($) {
-	$.PercRssService = {
-		getExternalFeed : getExternalFeed
-	};
+(function ($) {
+  $.PercRssService = {
+    getExternalFeed: getExternalFeed,
+  };
 
-	function getExternalFeed(feedUrl, queryString, callback) {
-		if(feedUrl === "" || typeof feedUrl === 'undefined'){
-			return "";
-		}
-    	var deliveryUrl = "";
-    	try{
-    		if ("undefined" !== typeof (queryString.deliveryurl)){
-    		    deliveryUrl = queryString.deliveryurl;
-    		    delete queryString.deliveryurl;
-    	    }
-    	}
-        catch (err) {
-		    console.error(err);
-	    }
-        feedUrl = feedUrl.split("&").join("%26");
-    	var feedsUrlData = {"feedsUrl" : feedUrl};
-		var serviceUrl = $.PercServiceUtils.joinURL(deliveryUrl, "/feeds/rss/readExternalFeed");
-		$.PercServiceUtils.makeXdmXmlRequest(null, serviceUrl, $.PercServiceUtils.TYPE_POST, function(status, results) {
-            if (status === $.PercServiceUtils.STATUS_SUCCESS) {
-                callback(true, results.data);
-            }
-            else
-            {
-                var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(results.request);
-                callback(false, defMsg);
-                }
-            }, feedsUrlData);
-		
-	}
+  function getExternalFeed(feedUrl, queryString, callback) {
+    if (feedUrl === "" || typeof feedUrl === "undefined") {
+      return "";
+    }
+    var deliveryUrl = "";
+    try {
+      if ("undefined" !== typeof queryString.deliveryurl) {
+        deliveryUrl = queryString.deliveryurl;
+        delete queryString.deliveryurl;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    feedUrl = feedUrl.split("&").join("%26");
+    var feedsUrlData = { feedsUrl: feedUrl };
+    var serviceUrl = $.PercServiceUtils.joinURL(
+      deliveryUrl,
+      "/feeds/rss/readExternalFeed"
+    );
+    $.PercServiceUtils.makeXdmXmlRequest(
+      null,
+      serviceUrl,
+      $.PercServiceUtils.TYPE_POST,
+      function (status, results) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback(true, results.data);
+        } else {
+          var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            results.request
+          );
+          callback(false, defMsg);
+        }
+      },
+      feedsUrlData
+    );
+  }
 })(jQuery);

@@ -38,10 +38,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 
 /**
  * This handler follows the ancestors of an item that has been updated or
@@ -108,15 +106,12 @@ public class PSTouchParentItemsHandler
       }
       m_session = session;
 
-      Criteria c = m_session.createCriteria(PSAssemblyTemplate.class);
-      c.add(Restrictions.isNotEmpty("slots"));
-      c.setProjection(Projections.property("id"));
-      m_templatesWithSlots.addAll(c.list());
+      Query<Long> q1 = m_session.createQuery("select t.id from PSAssemblyTemplate t where t.slots is not empty", Long.class);
+      m_templatesWithSlots.addAll(q1.list());
 
-      c = m_session.createCriteria(PSTemplateSlot.class);
-      c.add(Restrictions.eq("slottype", 1));
-      c.setProjection(Projections.property("id"));
-      m_inlineSlots.addAll(c.list());
+      Query<Long> q2 = m_session.createQuery("select s.id from PSTemplateSlot s where s.slottype = :type", Long.class)
+            .setParameter("type", 1);
+      m_inlineSlots.addAll(q2.list());
    }
 
    /**

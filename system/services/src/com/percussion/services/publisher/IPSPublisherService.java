@@ -228,6 +228,161 @@ public interface IPSPublisherService extends IPSCataloger {
         }
     }
 
+
+    /**
+     * Load a modifiable edition by GUID. Implementations should provide the concrete behavior.
+     *
+     * @param id the edition GUID, not {@code null}
+     * @return the modifiable edition instance
+     */
+    IPSEdition loadEditionModifiable(IPSGuid id) throws PSNotFoundException;
+
+    /**
+     * Create a new edition instance and edition content list. Kept for UI compatibility.
+     */
+    IPSEdition createEdition();
+
+    IPSEditionContentList createEditionContentList();
+
+    /**
+     * Find an edition task definition by id.
+     *
+     * @param id the task id
+     * @return the task definition or <code>null</code> if not found
+     */
+    IPSEditionTaskDef findEditionTaskById(IPSGuid id);
+
+    /**
+     * Find edition task log entries for a given publishing job id.
+     *
+     * @param jobId the publishing job id
+     * @return a list of task log entries, never <code>null</code>
+     */
+    java.util.List<IPSEditionTaskLog> findEditionTaskLogEntriesByJobId(Long jobId);
+
+    /**
+     * Get the edition id associated with a job.
+     *
+     * @param jobid the job id
+     * @return the edition id or <code>null</code>
+     */
+    IPSGuid findEditionIdForJob(long jobid);
+
+    /**
+     * Load an edition by GUID.
+     *
+     * @param id the edition guid
+     * @return the edition instance
+     * @throws PSNotFoundException if the edition does not exist
+     */
+    IPSEdition loadEdition(IPSGuid id) throws PSNotFoundException;
+
+    /**
+     * Save an edition instance.
+     */
+    void saveEdition(IPSEdition edition);
+
+    /**
+     * Find all editions matching a filter.
+     */
+    List<IPSEdition> findAllEditions(String filter);
+
+    /**
+     * Find all editions associated with a publishing server.
+     *
+     * @param pubServerId the publishing server GUID, not {@code null}
+     * @return a list of editions, never {@code null}
+     */
+    List<IPSEdition> findAllEditionsByPubServer(IPSGuid pubServerId);
+
+    /**
+     * Find publish status records for the specified site.
+     *
+     * @param siteId the site GUID, not {@code null}
+     * @return a list of publish status entries, never {@code null}
+     */
+    List<IPSPubStatus> findPubStatusBySite(IPSGuid siteId);
+
+    /**
+     * Find publish status records for the specified edition.
+     *
+     * @param editionId the edition GUID, not {@code null}
+     * @return a list of publish status entries, never {@code null}
+     */
+    List<IPSPubStatus> findPubStatusByEdition(IPSGuid editionId);
+
+    /**
+     * Load a delivery type for modification.
+     */
+    IPSDeliveryType loadDeliveryTypeModifiable(IPSGuid id);
+
+    /**
+     * Persist or update a delivery type.
+     */
+    void saveDeliveryType(IPSDeliveryType deliveryType);
+
+    /**
+     * Delete a delivery type.
+     */
+    void deleteDeliveryType(IPSDeliveryType deliveryType);
+
+    /**
+     * Notify the publisher that a set of folders moved under the supplied site. Implementations may
+     * (and typically do) update internal publish queues to account for the move. The caller must
+     * provide a collection of integer folder IDs.
+     */
+    default void markFolderIdsForMovedFolders(IPSGuid siteid, Collection<Integer> folderIds) {
+        throw new UnsupportedOperationException("markFolderIdsForMovedFolders not implemented");
+    }
+
+    /**
+     * Execute the given content list and return the results. Kept in the service
+     * interface for backward compatibility with callers that used the concrete
+     * implementation directly.
+     *
+     * @param list the content list to execute, not {@code null}
+     * @param overrides parameter overrides, may be {@code null}
+     * @param publish whether to publish
+     * @param deliveryContextId the delivery context id, not {@code null}
+     * @param siteId the site id, not {@code null}
+     * @return the content list results
+     * @throws PSPublisherException if execution fails
+     */
+    PSContentListResults runContentList(IPSContentList list, Map<String, String> overrides, boolean publish, IPSGuid deliveryContextId, IPSGuid siteId) throws PSPublisherException;
+
+    /**
+     * Convenience execution method that wraps {@link #runContentList(...)} and
+     * returns a simple list of {@link PSContentListItem} for callers that do not
+     * wish to deal with an iterator-based result.
+     */
+    List<PSContentListItem> executeContentList(IPSContentList list, Map<String, String> overrides, boolean publish, IPSGuid deliveryContextId, IPSGuid siteId) throws PSPublisherException;
+
+    /**
+     * Execute the generator and expander to produce content list items from a
+     * previously obtained {@link QueryResult}. This method is provided to allow
+     * callers that already have a JCR query result to proceed directly to
+     * expansion and filtering without re-running the generator.
+     *
+     * @param list the content list definition
+     * @param expander the template expander to use
+     * @param result the query result from the content list generator
+     * @param publish whether this is for publish (affects unpublishing behavior)
+     * @param siteId the site GUID, not {@code null}
+     * @param deliveryContextId the delivery context GUID, may be {@code null}
+     * @param expparams the expander parameters, not {@code null}
+     * @param overrideParams override parameters for filtering and expansion
+     * @return a list of {@link PSContentListItem}, never {@code null}
+     * @throws PSPublisherException if execution fails
+     */
+    List<PSContentListItem> getContentListItems(IPSContentList list,
+                                                IPSTemplateExpander expander,
+                                                QueryResult result,
+                                                boolean publish,
+                                                IPSGuid siteId,
+                                                IPSGuid deliveryContextId,
+                                                Map<String, String> expparams,
+                                                Map<String, String> overrideParams) throws PSPublisherException;
+
     /**
      * Save the passed content lists to the database with enhanced validation.
      * The content lists with {@code null} versions will be inserted and the others will be updated.
@@ -433,6 +588,256 @@ public interface IPSPublisherService extends IPSCataloger {
         return findContentList(id).isPresent();
     }
 
-    // Additional methods would continue here with similar Java 11 modernization patterns...
-    // This represents the core modernization approach for the publisher service interface
+    // Backwards-compatibility methods (delegated by implementation)
+
+    IPSDeliveryType loadDeliveryType(String dtypeName);
+
+    IPSDeliveryType loadDeliveryType(IPSGuid id);
+
+    List<IPSEditionContentList> loadEditionContentLists(IPSGuid editionId);
+
+    void deleteEditionContentList(IPSEditionContentList list);
+
+    void saveEditionContentList(IPSEditionContentList list);
+
+    /**
+     * Return all configured delivery types. Added for compatibility with legacy callers.
+     *
+     * @return a list of delivery types, never {@code null}
+     */
+    List<IPSDeliveryType> findAllDeliveryTypes();
+
+    /**
+     * Create a new delivery type instance. Kept for compatibility with UI code.
+     *
+     * @return a new delivery type instance, never {@code null}
+     */
+    IPSDeliveryType createDeliveryType();
+
+    /**
+     * Find all content lists associated with the given site.
+     *
+     * @param siteId the site GUID, not {@code null}
+     * @return a list of content lists, never {@code null}
+     * @throws PSNotFoundException if the site cannot be found
+     */
+    List<IPSContentList> findAllContentListsBySite(IPSGuid siteId) throws PSNotFoundException;
+
+    /**
+     * Find all content lists that are unused. Kept as a convenience for callers.
+     *
+     * @return a list of unused content lists, never {@code null}
+     */
+    List<IPSContentList> findAllUnusedContentLists();
+
+    /**
+     * Update publishing info (compatibility shim).
+     *
+     * @param stati the list of publisher item statuses, not {@code null}
+     */
+    void updatePublishingInfo(List<IPSPublisherItemStatus> stati);
+
+    /**
+     * Find publication status for a job id.
+     *
+     * @param jobid the job id
+     * @return the publication status or {@code null} if not found
+     */
+    IPSPubStatus findPubStatusForJob(long jobid);
+
+    /**
+     * Find all editions for the given site.
+     *
+     * @param siteId the site GUID, not {@code null}
+     * @return a list of editions, never {@code null}
+     */
+    List<IPSEdition> findAllEditionsBySite(IPSGuid siteId);
+
+    /**
+     * Find site items by content ids.
+     *
+     * @param siteid the site GUID, not {@code null}
+     * @param deliveryContext the delivery context id
+     * @param contentIds collection of content ids, not {@code null} or empty
+     * @return a collection of site items, never {@code null}
+     */
+    Collection<IPSSiteItem> findSiteItemsByIds(IPSGuid siteid, int deliveryContext, Collection<Integer> contentIds);
+
+    /**
+     * Find all published site items for a site and delivery context.
+     *
+     * @param siteid the site GUID, not {@code null}
+     * @param deliveryContext the delivery context identifier
+     * @return collection of site items, never {@code null}
+     */
+    Collection<IPSSiteItem> findSiteItems(IPSGuid siteid, int deliveryContext);
+
+    /**
+     * Find site items by content ids under READ_UNCOMMITTED transaction isolation.
+     */
+    Collection<IPSSiteItem> findSiteItemsByIds_ReadUncommit(IPSGuid siteid, int deliveryContext, Collection<Integer> contentIds);
+
+    /**
+     * Find server items by content ids.
+     *
+     * @param serverId the pub server GUID, not {@code null}
+     * @param deliveryContext the delivery context id
+     * @param contentIds collection of content ids, not {@code null} or empty
+     * @return a collection of site items for the server, never {@code null}
+     */
+    Collection<IPSSiteItem> findServerItemsByIds(IPSGuid serverId, int deliveryContext, Collection<Integer> contentIds);
+
+    void initPublishingStatus(long statusid, Date start, IPSGuid edition) throws PSNotFoundException;
+
+    void finishedPublishingStatus(long statusid, Date end, IPSPubStatus.EndingState endingStatus);
+
+    IPSPubStatus updateCounts(long statusid);
+
+    List<IPSEditionTaskDef> loadEditionTasks(IPSGuid editionid);
+
+    IPSEditionTaskLog createEditionTaskLog();
+
+    /**
+     * Create an edition task definition - compatibility helper for callers.
+     * Implementations should provide the concrete behavior.
+     *
+     * @return a new {@link IPSEditionTaskDef}
+     */
+    default IPSEditionTaskDef createEditionTask() {
+        return createEditionTaskImpl();
+    }
+
+    /**
+     * Internal implementation for creating an edition task definition.
+     */
+    IPSEditionTaskDef createEditionTaskImpl();
+
+    /**
+     * Purge the job log for the specified job id. Default no-op for
+     * compatibility; implementations may provide concrete behavior.
+     *
+     * @param jobId the job id to purge
+     */
+    default void purgeJobLog(Long jobId) {
+        // no-op default for compatibility
+    }
+
+    /**
+     * Delete all site items for the specified site. Default no-op for
+     * compatibility; implementations may provide concrete behavior.
+     *
+     * @param siteGuid the site GUID
+     */
+    default void deleteSiteItems(IPSGuid siteGuid) {
+        // no-op default for compatibility
+    }
+
+    /**
+     * Returns the server id string for the current server. Default returns
+     * <code>null</code> for compatibility; implementations should provide
+     * a concrete value where available.
+     *
+     * @return server identifier string or <code>null</code>
+     */
+    default String getServerId() {
+        return null;
+    }
+
+    void saveEditionTaskLog(IPSEditionTaskLog log);
+
+    void cancelUnfinishedJobItems(long jobId);
+
+    List<IPSPubItemStatus> findPubItemStatusForJob(long jobid);
+
+    /**
+     * Compatibility method returning an Iterable for legacy callers.
+     */
+    default Iterable<IPSPubItemStatus> findPubItemStatusForJobIterable(long jobid) {
+        return findPubItemStatusForJob(jobid);
+    }
+
+    List<Long> findReferenceIdsToUnpublishByServer(IPSGuid serverId, String flags);
+
+    List<IPSPubItemStatus> findPubItemStatusForReferenceIds(List<Long> refs);
+
+    /**
+     * Update published item dates for items produced by a given job. Added for legacy compatibility.
+     */
+    void updateItemPubDateByJob(long jobId, Date date);
+
+    /**
+     * Construct an assembly URL. Kept as a service method for backward compatibility with many callers.
+     */
+    String constructAssemblyUrl(String host, int port, String protocol,
+            IPSGuid siteguid, IPSGuid contentid, IPSGuid folderguid,
+            IPSAssemblyTemplate template, IPSItemFilter filter, int context,
+            boolean publish);
+
+    /**
+     * Find all items for the given content types, including their parents.
+     * @param ctypeids content type GUIDs
+     * @return collection of item ids
+     */
+    Collection<Integer> getContentTypeItems(Collection<IPSGuid> ctypeids);
+
+    /**
+     * Find items that have changed since last publish for a site and delivery context.
+     */
+    Collection<Integer> findItemsSinceLastPublish(IPSGuid siteId, int deliveryContext, Collection<Integer> cids);
+
+    /**
+     * Touch active assembly parents for the supplied content ids, returning those changed.
+     */
+    Collection<Integer> touchActiveAssemblyParents(Collection<Integer> cids);
+
+    /**
+     * Touch active assembly parents by content GUIDs.
+     */
+    Collection<Integer> touchActiveAssemblyParentsByGuids(Collection<IPSGuid> cids);
+
+    /**
+     * Touch specified items and their active assembly parents.
+     */
+    Collection<Integer> touchItemsAndActiveAssemblyParents(Collection<Integer> cids);
+
+    /**
+     * Find an edition by name. Backward compatibility convenience method.
+     */
+    IPSEdition findEditionByName(String name);
+
+    /**
+     * Save a edition task definition.
+     */
+    void saveEditionTask(IPSEditionTaskDef task);
+
+    /**
+     * Delete a edition task definition.
+     */
+    void deleteEditionTask(IPSEditionTaskDef task);
+
+    /**
+     * Delete an edition and its associated content lists and tasks.
+     */
+    void deleteEdition(IPSEdition edition);
+
+    List<PSSiteItem> findSiteItemsForReferenceIds(List<Long> refs);
+
+    Object[] findUnpublishInfoForAssemblyItem(IPSGuid contentId, IPSGuid contextId, IPSGuid templateId, IPSGuid siteId, Long serverId, String targetPath);
+
+    /**
+     * Find publishing job IDs that have expired before the provided date.
+     * @param beforeDate the cutoff date for expiration, not {@code null}
+     * @return list of expired job ids, never {@code null}
+     */
+    List<Long> findExpiredJobs(Date beforeDate);
+
+    /**
+     * Find publishing job IDs that are expired or marked hidden before the provided date.
+     * @param beforeDate the cutoff date for expiration, not {@code null}
+     * @return list of expired or hidden job ids, never {@code null}
+     */
+    List<Long> findExpiredAndHiddenJobs(Date beforeDate);
+
+    // Additional methods may be added as needed for compatibility
 }
+

@@ -23,20 +23,18 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSDefaultSelectedTest extends TestCase
+public class PSDefaultSelectedTest
 {
-   public PSDefaultSelectedTest(String name)
-   {
-      super(name);
-   }
-
+   @Test
    public void testEquals() throws Exception
    {
    }
 
+   @Test
    public void testXmlNullEntry() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -64,9 +62,10 @@ public class PSDefaultSelectedTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSDefaultSelected testFrom = new PSDefaultSelected(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
+   @Test
    public void testXmlText() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -79,17 +78,7 @@ public class PSDefaultSelectedTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSDefaultSelected testFrom = new PSDefaultSelected(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
-   }
-
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSDefaultSelectedTest("testXmlNullEntry"));
-      suite.addTest(new PSDefaultSelectedTest("testXmlSequence"));
-      suite.addTest(new PSDefaultSelectedTest("testXmlText"));
-      
-      return suite;
+      assertEquals(testTo, testFrom);
    }
 }
+

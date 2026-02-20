@@ -71,7 +71,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodName.class)
-@Tag("IntegrationTest")
+
 public class PSPageServiceTest extends PSServletTestCase {
 
   private PSSiteDataServletTestCaseFixture fixture;

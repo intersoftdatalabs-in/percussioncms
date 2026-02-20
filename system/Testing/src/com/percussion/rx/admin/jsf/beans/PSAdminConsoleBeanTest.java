@@ -21,12 +21,14 @@ import static com.percussion.rx.admin.jsf.beans.PSAdminConsoleBean.QUIT_CMD;
 import static com.percussion.rx.admin.jsf.beans.PSAdminConsoleBean.STOP_SERVER_CMD;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSAdminConsoleBeanTest extends TestCase
+public class PSAdminConsoleBeanTest 
 {
+   
    public void testGetCommand()
    {
       final PSAdminConsoleBean bean = new PSAdminConsoleBean("a", "b");
@@ -47,6 +49,8 @@ public class PSAdminConsoleBeanTest extends TestCase
       bean.setCommand(CMD.toUpperCase());
       assertFalse(CMD.toLowerCase().equals(bean.getCommand()));
    }
+   
+   
    
    public void testSetResult()
    {

@@ -33,7 +33,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSApplicationIDTypes</code> class. */
-@Tag("IntegrationTest")
+
 public class PSApplicationIDTypesTest {
   /**
    * Construct this unit test

@@ -27,7 +27,7 @@ import com.percussion.webservices.PSSystemTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.common.ObjectType;
 import com.percussion.webservices.common.Reference;
-import com.percussion.webservices.common.RelationshipFilterRelationshipType;
+// RelationshipFilterRelationshipType is represented as a String in generated classes
 import com.percussion.webservices.content.ContentSOAPStub;
 import com.percussion.webservices.content.PSContentType;
 import com.percussion.webservices.content.PSItem;
@@ -82,8 +82,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -94,7 +92,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test all system soap services
  */
-@Tag("IntegrationTest")
+
 public class SystemTestCase extends PSSystemTestBase
 {
    /**
@@ -120,7 +118,7 @@ public class SystemTestCase extends PSSystemTestBase
       {
          // try to cleanup the content type that may left from previous tests
          contentTest.cleanUpContentType(session, "test3");
-         
+
          // create the test content types
          contentType = contentTest.createContentType("test3", session, acls);
 
@@ -249,20 +247,20 @@ public class SystemTestCase extends PSSystemTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new junit.framework.AssertionFailedError("Invalid session: " + e);
+         throw new AssertionError("Invalid session: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new junit.framework.AssertionFailedError("Not authorized: " + e);
+         throw new AssertionError("Not authorized: " + e);
       }
       catch (PSUnknownContentTypeFault e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Unknown content type: " + e);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError("Unexpected error: "
+         throw new AssertionError("Unexpected error: "
             + e);
       }
       finally
@@ -316,8 +314,8 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Tests relationship instances related services.
-    * 
-    * @throws Exception if any error occurs. 
+    *
+    * @throws Exception if any error occurs.
     */
    @Test
    public void testSystemSOAPRelationships() throws Exception
@@ -329,7 +327,7 @@ public class SystemTestCase extends PSSystemTestBase
 
       final String USER_RELATIONSHIP = "BenRelationship";
 
-      try 
+      try
       {
          // cleanup
          cleanupRelationships(binding, USER_RELATIONSHIP);
@@ -349,7 +347,7 @@ public class SystemTestCase extends PSSystemTestBase
          rel = createRelationship(binding, 335, 460, USER_RELATIONSHIP);
          // validate the saved relationship
          assertTrue(getContentIdFromLegacyGuid(rel.getOwnerId()) == 335);
-         
+
          assertTrue(rel.getDependentId() == getLegacyGuid(460));
          // cleanup the created relationship
          binding.deleteRelationships(new long[] { rel.getId() });
@@ -399,15 +397,15 @@ public class SystemTestCase extends PSSystemTestBase
       PSLegacyGuid ctId = new PSLegacyGuid(legacyId);
       return ctId.getContentId();
    }
-   
+
    /**
     * Removes all relationship instances with the specified relationship name.
-    * 
+    *
     * @param binding the stub used to communicate with the server, assumed
     *    not <code>null</code>.
     * @param configName the name of the specified relationship config, assumed
     *    not <code>null</code> or empty.
-    * 
+    *
     * @throws Exception
     */
    private void cleanupRelationships(SystemSOAPStub binding, String configName)
@@ -443,7 +441,7 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Tests load relationship configurations
-    * @throws Exception 
+    * @throws Exception
     */
    @Test
    public void testSystemSOAPLoadRelationshipTypes() throws Exception
@@ -454,12 +452,12 @@ public class SystemTestCase extends PSSystemTestBase
 
       LoadRelationshipTypesRequest lreq = new LoadRelationshipTypesRequest();
       RelationshipConfigSummary[] result = binding.loadRelationshipTypes(lreq);
-      
+
       // should be all system type
       long[] allConfigIds = new long[result.length]; // collect ids used later
       for (int i = 0; i < result.length; i++)
       {
-         assertTrue(result[i].getType() == 
+         assertTrue(result[i].getType() ==
             RelationshipConfigSummaryType.system);
          allConfigIds[i] = result[i].getId();
       }
@@ -529,7 +527,7 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Tests load relationship with specified relationship filter.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    @Test
@@ -565,7 +563,7 @@ public class SystemTestCase extends PSSystemTestBase
       rels = loadRelationships(binding, filter);
       assertTrue(rels.length == 0);
 
-      // load the FOLDER relationship with owner as the root folder. 
+      // load the FOLDER relationship with owner as the root folder.
       filter = new PSRelationshipFilter();
       filter.setOwner(getLegacyGuid(1));
       rels = loadRelationships(binding, filter);
@@ -626,7 +624,7 @@ public class SystemTestCase extends PSSystemTestBase
       rels = loadRelationships(binding, filter);
       assertTrue(rels.length == 1);
 
-      // cannot join both owner_id and dependent_id (from 
+      // cannot join both owner_id and dependent_id (from
       // IPSConstants.PSX_RELATIONSHIPS table) with COTNENTSTATUS.contentid
       filter = new PSRelationshipFilter();
       filter.setDependent(new long[] { getLegacyGuid(633) });
@@ -642,7 +640,7 @@ public class SystemTestCase extends PSSystemTestBase
          assertTrue(true); // should go through here
       }
 
-      // cannot join both owner_id and dependent_id (from 
+      // cannot join both owner_id and dependent_id (from
       // IPSConstants.PSX_RELATIONSHIPS table) with COTNENTSTATUS.contentid
       filter = new PSRelationshipFilter();
       filter.setOwner(getLegacyGuid(335));
@@ -675,14 +673,14 @@ public class SystemTestCase extends PSSystemTestBase
       rels = loadRelationships(binding, filter);
       assertTrue(rels.length == 1);
 
-      // query by more than one dependent. *** without using folder cache ***  
+      // query by more than one dependent. *** without using folder cache ***
       // id 2 & 3 should only have one parent -> 1
       filter = new PSRelationshipFilter();
       filter.setDependent(new long[] { getLegacyGuid(2), getLegacyGuid(3) });
       rels = loadRelationships(binding, filter);
       assertTrue(rels.length == 2);
 
-      // query by more than one dependent. +++ without using folder cache +++  
+      // query by more than one dependent. +++ without using folder cache +++
       // id 2 & 3 should only have one parent -> 1
       filter = new PSRelationshipFilter();
       filter.setConfigurations(folderConfigName);
@@ -713,7 +711,7 @@ public class SystemTestCase extends PSSystemTestBase
             SysConfigEnum.TRNASLATION_MANDATORY.getName() };
       transFilter.setConfigurations(transConfigNames);
       int numOfTransRels = loadRelationships(binding, transFilter).length;
-      
+
       // add translation category into the filter of Folder & NewCopy
       filter.setCategory(PSRelationshipFilterCategory.translation);
       rels = loadRelationships(binding, filter);
@@ -725,9 +723,9 @@ public class SystemTestCase extends PSSystemTestBase
       // filter by "system" or "user" type
       //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
 
-      // add filteringy by relationship "user" type
+      // add filtering by relationship "user" type
       // but there is no "user" type, so the result should be the same
-      filter.setRelationshipType(RelationshipFilterRelationshipType.user);
+      filter.setRelationshipType("user");
       rels_2 = loadRelationships(binding, filter);
       /* the counts are equal because config name, category and rel type are
        * OR'd together, not AND'd */
@@ -735,14 +733,14 @@ public class SystemTestCase extends PSSystemTestBase
 
       // query by relationship "system" type
       filter = new PSRelationshipFilter();
-      filter.setRelationshipType(RelationshipFilterRelationshipType.system);
+      filter.setRelationshipType("system");
       rels_2 = loadRelationships(binding, filter);
       assertTrue(rels_2.length > 0);
 
       // query by "user" type, the result should be empty
       // since there is no "user" type in FastForward
       filter = new PSRelationshipFilter();
-      filter.setRelationshipType(RelationshipFilterRelationshipType.user);
+      filter.setRelationshipType("user");
       rels_2 = loadRelationships(binding, filter);
       assertTrue(rels_2.length == 0);
 
@@ -962,9 +960,9 @@ public class SystemTestCase extends PSSystemTestBase
       filter.setDependent(new long[] { dependentId });
       filter.setOwner(ownerId);
       filter.setLimitToEditOrCurrentOwnerRevision(true);
-      String[] configs = new String[] { com.percussion.design.objectstore.PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY }; 
+      String[] configs = new String[] { com.percussion.design.objectstore.PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY };
       filter.setConfigurations(configs);
-      
+
       // get the relationship with owner_revision = CURRENTREVISION
       PSRelationship[] rels = loadRelationships(sysBinding, filter);
       assertEquals(rels.length, 1);
@@ -977,7 +975,7 @@ public class SystemTestCase extends PSSystemTestBase
       // Edit Revision == -1 if owner item is in public state
       PSRevisions[] revs = csBinding.findRevisions(new long[]{ownerId});
       assertEquals(revs[0].getEditRevision(), -1);
-      
+
       // check out the owner
       PSItemStatus[] statusarr = csBinding.prepareForEdit(new long[] {ownerId});
       assertEquals(statusarr.length, 1);
@@ -997,15 +995,15 @@ public class SystemTestCase extends PSSystemTestBase
       releaseReq.setPSItemStatus(statusarr);
       csBinding.releaseFromEdit(releaseReq);
    }
-   
+
    /**
     * Convenient method to create a relationship property from the
     * specified name and value.
-    * 
-    * @param name the name of the property, assumed not <code>null</code> or 
+    *
+    * @param name the name of the property, assumed not <code>null</code> or
     *    empty.
     * @param value the value of the property, may be <code>null</code> or empty.
-    * 
+    *
     * @return the created property, never <code>null</code>.
     */
    private com.percussion.webservices.common.Property getProperty(String name,
@@ -1017,8 +1015,8 @@ public class SystemTestCase extends PSSystemTestBase
    /**
     * Gets the long value of the GUID for the specified item's id and revision
     * @param id the content id of the item
-    * @param rev the revision of the item. It may be <code>-1</code> if it is 
-    *    undefined. 
+    * @param rev the revision of the item. It may be <code>-1</code> if it is
+    *    undefined.
     * @return the long value as described above.
     */
    public static long getLegacyGuid(int id, int rev)
@@ -1028,9 +1026,9 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Creates a content type reference for the specified content type id
-    *  
+    *
     * @param id the content type id for which to create the reference object.
-    * 
+    *
     * @return the reference object for the specified content type id.
     */
    private Reference getContentTypeRef(int id)
@@ -1041,9 +1039,9 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Gets the long value of the GUID for a specified relationship id.
-    * 
+    *
     * @param id the relationship id for which to get the GUID value.
-    * 
+    *
     * @return the long value as described above.
     */
    private long getRelationshipId(int id)
@@ -1052,9 +1050,9 @@ public class SystemTestCase extends PSSystemTestBase
    }
 
    /**
-    * Converts a specified relationship config from client (or webservice) to 
+    * Converts a specified relationship config from client (or webservice) to
     * server (or objectstore) object.
-    * 
+    *
     * @param source the client object, assumed not <code>null</code>.
     * @return the converted server object, never <code>null</code>.
     * @throws Exception if any error occurs.
@@ -1075,7 +1073,7 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Test the loadWorkflows service call
-    * 
+    *
     * @throws Exception if the test fails
     */
    @Test
@@ -1122,16 +1120,16 @@ public class SystemTestCase extends PSSystemTestBase
             int agingCount = 0;
             int transNotifCount = 0;
             int transRoleCount = 0;
-            
+
             String wfName = workflow.getName();
             req.setName(wfName);
-            
+
             boolean isLocalContent = false;
             if (wfName.equals("LocalContent"))
             {
                isLocalContent = true;
             }
-            
+
             PSWorkflow[] results = binding.loadWorkflows(req);
             assertNotNull(results);
             assertTrue(results.length == 1);
@@ -1142,7 +1140,7 @@ public class SystemTestCase extends PSSystemTestBase
 
             assertTrue(workflow.getStates().length > 0);
             assertTrue(workflow.getRoles().length > 0);
-            
+
             if (isLocalContent)
             {
                assertTrue(workflow.getNotifications().length == 0);
@@ -1151,11 +1149,11 @@ public class SystemTestCase extends PSSystemTestBase
             {
                assertTrue(workflow.getNotifications().length > 0);
             }
-            
+
             for (PSState state : workflow.getStates())
             {
                assertNotNull(state.getName());
-               
+
                if (isLocalContent)
                {
                   assertTrue(state.getTransitions().length == 0);
@@ -1164,7 +1162,7 @@ public class SystemTestCase extends PSSystemTestBase
                {
                   assertTrue(state.getTransitions().length > 0);
                }
-               
+
                assertTrue(state.getAssignedRoles().length > 0);
                agingCount += state.getAgingTransitions().length;
                for (PSTransition transition : state.getTransitions())
@@ -1203,7 +1201,7 @@ public class SystemTestCase extends PSSystemTestBase
                   }
                }
             }
-            
+
             if (isLocalContent)
             {
                assertTrue(agingCount == 0);
@@ -1220,18 +1218,18 @@ public class SystemTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (Exception e2)
       {
-         throw new AssertionFailedError("Unexpected Exception caught: " + e2);
+         throw new AssertionError("Unexpected Exception caught: " + e2);
       }
    }
 
    /**
     * Test switching community.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Test
@@ -1315,7 +1313,7 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Test switching locale.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Test
@@ -1374,12 +1372,12 @@ public class SystemTestCase extends PSSystemTestBase
    /**
     * Switch the current login to the specified community if the community of
     * the login is not the specified community.
-    * 
-    * @param binding the stub object used to communicate to server, 
+    *
+    * @param binding the stub object used to communicate to server,
     *   not <code>null</code>.
     * @param community the target or to be switched to community, not
     *   <code>null</code> or empty.
-    * 
+    *
     * @throws Exception for any error.
     */
    protected void switchCommunity(SystemSOAPStub binding, String community)
@@ -1404,7 +1402,7 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Test the getAllowedTransitions web service call.
-    * 
+    *
     * @throws Exception If the test fails.
     */
    @Test
@@ -1530,11 +1528,11 @@ public class SystemTestCase extends PSSystemTestBase
 
    /**
     * Get the resulting transitions as a map
-    * 
-    * @param resp The response from getAllowedTransitions(), assumed not 
+    *
+    * @param resp The response from getAllowedTransitions(), assumed not
     * <code>null</code>.
-    * 
-    * @return A map of transition trigger/name to label, never 
+    *
+    * @return A map of transition trigger/name to label, never
     * <code>null</code>.
     */
    private Map<String, String> getTransitionsMap(

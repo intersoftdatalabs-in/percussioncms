@@ -20,7 +20,7 @@ package com.percussion.cx;
 import com.percussion.border.PSFocusBorder;
 import com.percussion.cx.objectstore.PSNode;
 import java.awt.Component;
-import javax.accessibility.AccessibleContext;
+import jakarta.accessibility.AccessibleContext;
 import javax.swing.BorderFactory;
 import javax.swing.JTree;
 import javax.swing.UIManager;

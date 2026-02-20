@@ -96,7 +96,7 @@ import org.apache.logging.log4j.Logger;
  * stylesheet if possible
  * <li>Mark the old variant(s) as processed
  * </ul>
- * 
+ *
  * @author dougrand
  */
 public class PSVariantMigrationBean
@@ -110,7 +110,7 @@ public class PSVariantMigrationBean
     * The string used in the assembly url to allow existing preview and other
     * apps to "find" the assembly servlet.
     */
-   private static final String ASSEMBLER_RENDER = "../" 
+   private static final String ASSEMBLER_RENDER = "../"
       + IPSAssemblyService.ASSEMBLY_URL;
 
    /**
@@ -213,7 +213,7 @@ public class PSVariantMigrationBean
 
       /**
        * Ctor
-       * 
+       *
        * @param name the name, never <code>null</code> or empty
        * @param resource the resource, never <code>null</code> or empty
        * @param stylesheet the stylesheet, never <code>null</code> or empty
@@ -240,7 +240,7 @@ public class PSVariantMigrationBean
       /**
        * This is the name of the first variant found for the variant item. This
        * is a read only property.
-       * 
+       *
        * @return Returns the name, never <code>null</code> or empty.
        */
       public String getName()
@@ -252,7 +252,7 @@ public class PSVariantMigrationBean
        * The resource is the path to the application that implements the
        * variant. This will be the same for a group of variants that implement a
        * single logical template.
-       * 
+       *
        * @return the resource, never <code>null</code> or empty
        */
       public String getResource()
@@ -264,7 +264,7 @@ public class PSVariantMigrationBean
        * Each variant item is associated with at least one content type. Each
        * source variant must be associated with exactly one content type,
        * although the processing code does not enforce this.
-       * 
+       *
        * @return the contenttypes, never <code>null</code>
        */
       public Set<Integer> getContenttypes()
@@ -277,7 +277,7 @@ public class PSVariantMigrationBean
        * <code>true</code> after processing or if the template source for the
        * variant, which isn't used for any purpose in a variant, has a non-empty
        * value.
-       * 
+       *
        * @return the processed
        */
       public Boolean getProcessed()
@@ -288,7 +288,7 @@ public class PSVariantMigrationBean
       /**
        * This is the path to the stylesheet of the XSL variant. This plus the
        * resource identify a specific unique set of variants that work together.
-       * 
+       *
        * @return the stylesheet, never <code>null</code> or empty
        */
       public String getStylesheet()
@@ -299,7 +299,7 @@ public class PSVariantMigrationBean
       /**
        * The slots that are stored for the variant item represent the sum of all
        * associated slots from the variant.
-       * 
+       *
        * @return the slots never <code>null</code> but may be empty
        */
       public Set<IPSGuid> getSlots()
@@ -309,7 +309,7 @@ public class PSVariantMigrationBean
 
       /**
        * Set the processing flag, see {@link #getProcessed()}
-       * 
+       *
        * @param processed the processed to set
        */
       public void setProcessed(Boolean processed)
@@ -320,7 +320,7 @@ public class PSVariantMigrationBean
       /**
        * The selected flag is a property used to mark those items that will be
        * processed.
-       * 
+       *
        * @return the selected
        */
       public Boolean getSelected()
@@ -330,7 +330,7 @@ public class PSVariantMigrationBean
 
       /**
        * Set the selected flag, see {@link #getProcessed()}
-       * 
+       *
        * @param selected the selected to set
        */
       public void setSelected(Boolean selected)
@@ -341,7 +341,7 @@ public class PSVariantMigrationBean
       /**
        * If there are problems during processing, they are stored in the error
        * list.
-       * 
+       *
        * @return the errors
        */
       public List<String> getErrors()
@@ -352,7 +352,7 @@ public class PSVariantMigrationBean
       /**
        * This property stores the source variants that this variant item
        * represents.
-       * 
+       *
        * @return the variants
        */
       public Collection<IPSAssemblyTemplate> getVariants()
@@ -363,7 +363,7 @@ public class PSVariantMigrationBean
       /**
        * This property stores the communities that had runtime access to any of
        * the source variants.
-       * 
+       *
        * @return the communities may be empty but not <code>null</code>
        */
       public Set<String> getCommunities()
@@ -374,7 +374,7 @@ public class PSVariantMigrationBean
       /**
        * This property stores the sum of all sites associate with the source
        * variants.
-       * 
+       *
        * @return the sites the associated sites, may be empty but not
        *         <code>null</code>
        */
@@ -386,7 +386,7 @@ public class PSVariantMigrationBean
       /**
        * This property holds a new computed unique name for the processed
        * template.
-       * 
+       *
        * @return the newtemplatename
        */
       public String getNewtemplatename()
@@ -396,7 +396,7 @@ public class PSVariantMigrationBean
 
       /**
        * Set the new name, see {@link #getNewtemplatename()}
-       * 
+       *
        * @param newtemplatename the newtemplatename to set
        */
       public void setNewtemplatename(String newtemplatename)
@@ -411,7 +411,7 @@ public class PSVariantMigrationBean
       /**
        * Implementation of comparable simply compares the names of the two
        * variant items.
-       * 
+       *
        * @param o the second item
        * @return See {@link Comparable}
        */
@@ -434,7 +434,7 @@ public class PSVariantMigrationBean
 
    /**
     * Ctor
-    * 
+    *
     * @throws PSAssemblyException if there's a problem retrieving the templates
     */
    public PSVariantMigrationBean() throws PSAssemblyException
@@ -445,7 +445,7 @@ public class PSVariantMigrationBean
    /**
     * Get the variants from the assembly service and gather them together to
     * form the variant objects needed for the UI.
-    * 
+    *
     * @throws PSAssemblyException if there's a problem retrieving the templates
     */
    private void initialize() throws PSAssemblyException
@@ -541,7 +541,7 @@ public class PSVariantMigrationBean
     * Discover what communities are associated with the given variant. This uses
     * the security service to check each possible community to see if there's
     * access, then checks the "any" community.
-    * 
+    *
     * @param amgr the acl service, assumed not <code>null</code>
     * @param communities the list of communities, assumed not <code>null</code>
     * @param template the template being created, assumed not <code>null</code>
@@ -552,7 +552,14 @@ public class PSVariantMigrationBean
          List<PSCommunity> communities, IPSAssemblyTemplate template,
          Variant variantitem)
    {
-      IPSAcl acl = amgr.loadAclForObject(template.getGUID());
+      IPSAcl acl = null;
+      try {
+         acl = amgr.loadAclForObject(template.getGUID());
+      } catch (PSServiceSecurityException e) {
+         ms_log.warn("Failed to load ACL for template {}: {}", template.getGUID(), e.getMessage());
+         return; // Cannot determine communities without ACL
+      }
+
       if (acl != null)
       {
          IPSTypedPrincipal anycommunity = new PSTypedPrincipal(
@@ -564,7 +571,7 @@ public class PSVariantMigrationBean
                   IPSTypedPrincipal.PrincipalTypes.COMMUNITY);
             try
             {
-               if (acl.checkPermission(p, PSPermissions.RUNTIME_VISIBLE))
+               if (acl.checkPermission(new javax.security.auth.Subject(false, java.util.Set.of(p), java.util.Set.of(), java.util.Set.of()), PSPermissions.RUNTIME_VISIBLE))
                {
                   variantitem.getCommunities().add(c.getName());
                }
@@ -573,7 +580,7 @@ public class PSVariantMigrationBean
             {
                try
                {
-                  if (acl.checkPermission(anycommunity,
+                  if (acl.checkPermission(new javax.security.auth.Subject(false, java.util.Set.of(anycommunity), java.util.Set.of(), java.util.Set.of()),
                         PSPermissions.RUNTIME_VISIBLE))
                   {
                      variantitem.getCommunities().add(c.getName());
@@ -591,7 +598,7 @@ public class PSVariantMigrationBean
    /**
     * Find the sites that are associated with the given template. This currently
     * just cycles through all the sites as that is fast enough for UI code.
-    * 
+    *
     * @param template the template being processed, assumed not
     *           <code>null</code>
     * @return a collection of guids, possibly empty, but never <code>null</code>
@@ -616,7 +623,7 @@ public class PSVariantMigrationBean
 
    /**
     * Create a key from the template's resource and stylesheet information.
-    * 
+    *
     * @param t the template, assumed not <code>null</code>
     * @return the string key
     */
@@ -637,7 +644,7 @@ public class PSVariantMigrationBean
 
    /**
     * Get only those variants that have been selected.
-    * 
+    *
     * @return return the filtered collection of variants, never
     *         <code>null</code>
     */
@@ -659,7 +666,7 @@ public class PSVariantMigrationBean
     * create a template with a name derived from the variant's name by adding
     * "_v" after the name. If the name exists, then other names are tried by
     * adding a number to the suffix, i.e. _v1, _v2, etc.
-    * 
+    *
     * @return the outcome
     */
    public String process()
@@ -683,18 +690,18 @@ public class PSVariantMigrationBean
 
    /**
     * Get the help file name for the Convert Variable page.
-    * 
+    *
     * @return  the help file name, never <code>null</code> or empty.
     */
    public String getHelpFile()
    {
-      return PSHelpTopicMapping.getFileName("ConvertVariant");      
+      return PSHelpTopicMapping.getFileName("ConvertVariant");
    }
-   
+
    /**
     * Do the conversion. This just clones most of the variant's information, and
     * establishes relationships to the slots, sites and content types.
-    * 
+    *
     * @param v the variant to be converted, assumed not <code>null</code>
     * @throws PSAssemblyException if there's a problem saving the template(s)
     */
@@ -796,7 +803,7 @@ public class PSVariantMigrationBean
 
    /**
     * Clone the variant into a new template
-    * 
+    *
     * @param variantitem the item being processed, assumed never
     *           <code>null</code>.
     * @param asm the assembly service, assumed never <code>null</code>
@@ -832,7 +839,7 @@ public class PSVariantMigrationBean
    /**
     * Use the resource and stylesheet information to get the original html
     * source if it still exists under the src directory
-    * 
+    *
     * @param v the variant info, assumed not <code>null</code>
     * @return the source or empty if there's a problem
     */

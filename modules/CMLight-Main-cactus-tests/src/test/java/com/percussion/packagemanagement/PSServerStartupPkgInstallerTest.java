@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Tag;
  * Integration test for server startup package installer. Sunny Sal says: "Startup packages, Java 11
  * style!"
  */
-@Tag("IntegrationTest")
+
 public class PSServerStartupPkgInstallerTest extends PSServletTestCase {
 
   private PSStartupPkgInstaller pkgInstaller;

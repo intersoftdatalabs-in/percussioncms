@@ -20,7 +20,7 @@ import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 
-import com.percussion.security.Acl;
+import com.percussion.security.shim.acl.Acl;
 
 /**
  * Extends th interface {@link Acl} to support the id fo rth eACL object.

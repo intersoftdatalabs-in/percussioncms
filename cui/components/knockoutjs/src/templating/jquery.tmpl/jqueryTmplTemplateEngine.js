@@ -1,83 +1,108 @@
-(function() {
-    ko.jqueryTmplTemplateEngine = function () {
-        // Detect which version of jquery-tmpl you're using. Unfortunately jquery-tmpl
-        // doesn't expose a version number, so we have to infer it.
-        // Note that as of Knockout 1.3, we only support jQuery.tmpl 1.0.0pre and later,
-        // which KO internally refers to as version "2", so older versions are no longer detected.
-        var jQueryTmplVersion = this.jQueryTmplVersion = (function() {
-            if (!jQuery || !(jQuery['tmpl']))
-                return 0;
-            // Since it exposes no official version number, we use our own numbering system. To be updated as jquery-tmpl evolves.
-            try {
-                if (jQuery['tmpl']['tag']['tmpl']['open'].toString().indexOf('__') >= 0) {
-                    // Since 1.0.0pre, custom tags should append markup to an array called "__"
-                    return 2; // Final version of jquery.tmpl
-                }
-            } catch(ex) { /* Apparently not the version we were looking for */ }
-
-            return 1; // Any older version that we don't support
-        })();
-
-        function ensureHasReferencedJQueryTemplates() {
-            if (jQueryTmplVersion < 2)
-                throw new Error("Your version of jQuery.tmpl is too old. Please upgrade to jQuery.tmpl 1.0.0pre or later.");
+(function () {
+  ko.jqueryTmplTemplateEngine = function () {
+    // Detect which version of jquery-tmpl you're using. Unfortunately jquery-tmpl
+    // doesn't expose a version number, so we have to infer it.
+    // Note that as of Knockout 1.3, we only support jQuery.tmpl 1.0.0pre and later,
+    // which KO internally refers to as version "2", so older versions are no longer detected.
+    var jQueryTmplVersion = (this.jQueryTmplVersion = (function () {
+      if (!jQuery || !jQuery["tmpl"]) return 0;
+      // Since it exposes no official version number, we use our own numbering system. To be updated as jquery-tmpl evolves.
+      try {
+        if (
+          jQuery["tmpl"]["tag"]["tmpl"]["open"].toString().indexOf("__") >= 0
+        ) {
+          // Since 1.0.0pre, custom tags should append markup to an array called "__"
+          return 2; // Final version of jquery.tmpl
         }
+      } catch (ex) {
+        /* Apparently not the version we were looking for */
+      }
 
-        function executeTemplate(compiledTemplate, data, jQueryTemplateOptions) {
-            return jQuery['tmpl'](compiledTemplate, data, jQueryTemplateOptions);
-        }
+      return 1; // Any older version that we don't support
+    })());
 
-        this['renderTemplateSource'] = function(templateSource, bindingContext, options) {
-            options = options || {};
-            ensureHasReferencedJQueryTemplates();
+    function ensureHasReferencedJQueryTemplates() {
+      if (jQueryTmplVersion < 2)
+        throw new Error(
+          "Your version of jQuery.tmpl is too old. Please upgrade to jQuery.tmpl 1.0.0pre or later."
+        );
+    }
 
-            // Ensure we have stored a precompiled version of this template (don't want to reparse on every render)
-            var precompiled = templateSource['data']('precompiled');
-            if (!precompiled) {
-                var templateText = templateSource['text']() || "";
-                // Wrap in "with($whatever.koBindingContext) { ... }"
-                templateText = "{{ko_with $item.koBindingContext}}" + templateText + "{{/ko_with}}";
+    function executeTemplate(compiledTemplate, data, jQueryTemplateOptions) {
+      return jQuery["tmpl"](compiledTemplate, data, jQueryTemplateOptions);
+    }
 
-                precompiled = jQuery['template'](null, templateText);
-                templateSource['data']('precompiled', precompiled);
-            }
+    this["renderTemplateSource"] = function (
+      templateSource,
+      bindingContext,
+      options
+    ) {
+      options = options || {};
+      ensureHasReferencedJQueryTemplates();
 
-            var data = [bindingContext['$data']]; // Prewrap the data in an array to stop jquery.tmpl from trying to unwrap any arrays
-            var jQueryTemplateOptions = jQuery['extend']({ 'koBindingContext': bindingContext }, options['templateOptions']);
+      // Ensure we have stored a precompiled version of this template (don't want to reparse on every render)
+      var precompiled = templateSource["data"]("precompiled");
+      if (!precompiled) {
+        var templateText = templateSource["text"]() || "";
+        // Wrap in "with($whatever.koBindingContext) { ... }"
+        templateText =
+          "{{ko_with $item.koBindingContext}}" + templateText + "{{/ko_with}}";
 
-            var resultNodes = executeTemplate(precompiled, data, jQueryTemplateOptions);
-            resultNodes['appendTo'](document.createElement("div")); // Using "appendTo" forces jQuery/jQuery.tmpl to perform necessary cleanup work
+        precompiled = jQuery["template"](null, templateText);
+        templateSource["data"]("precompiled", precompiled);
+      }
 
-            jQuery['fragments'] = {}; // Clear jQuery's fragment cache to avoid a memory leak after a large number of template renders
-            return resultNodes;
-        };
+      var data = [bindingContext["$data"]]; // Prewrap the data in an array to stop jquery.tmpl from trying to unwrap any arrays
+      var jQueryTemplateOptions = jQuery["extend"](
+        { koBindingContext: bindingContext },
+        options["templateOptions"]
+      );
 
-        this['createJavaScriptEvaluatorBlock'] = function(script) {
-            return "{{ko_code ((function() { return " + script + " })()) }}";
-        };
+      var resultNodes = executeTemplate(
+        precompiled,
+        data,
+        jQueryTemplateOptions
+      );
+      resultNodes["appendTo"](document.createElement("div")); // Using "appendTo" forces jQuery/jQuery.tmpl to perform necessary cleanup work
 
-        this['addTemplate'] = function(templateName, templateMarkup) {
-            document.write("<script type='text/html' id='" + templateName + "'>" + templateMarkup + "<" + "/script>");
-        };
-
-        if (jQueryTmplVersion > 0) {
-            jQuery['tmpl']['tag']['ko_code'] = {
-                open: "__.push($1 || '');"
-            };
-            jQuery['tmpl']['tag']['ko_with'] = {
-                open: "with($1) {",
-                close: "} "
-            };
-        }
+      jQuery["fragments"] = {}; // Clear jQuery's fragment cache to avoid a memory leak after a large number of template renders
+      return resultNodes;
     };
 
-    ko.jqueryTmplTemplateEngine.prototype = new ko.templateEngine();
-    ko.jqueryTmplTemplateEngine.prototype.constructor = ko.jqueryTmplTemplateEngine;
+    this["createJavaScriptEvaluatorBlock"] = function (script) {
+      return "{{ko_code ((function() { return " + script + " })()) }}";
+    };
 
-    // Use this one by default *only if jquery.tmpl is referenced*
-    var jqueryTmplTemplateEngineInstance = new ko.jqueryTmplTemplateEngine();
-    if (jqueryTmplTemplateEngineInstance.jQueryTmplVersion > 0)
-        ko.setTemplateEngine(jqueryTmplTemplateEngineInstance);
+    this["addTemplate"] = function (templateName, templateMarkup) {
+      document.write(
+        "<script type='text/html' id='" +
+          templateName +
+          "'>" +
+          templateMarkup +
+          "<" +
+          "/script>"
+      );
+    };
 
-    ko.exportSymbol('jqueryTmplTemplateEngine', ko.jqueryTmplTemplateEngine);
+    if (jQueryTmplVersion > 0) {
+      jQuery["tmpl"]["tag"]["ko_code"] = {
+        open: "__.push($1 || '');",
+      };
+      jQuery["tmpl"]["tag"]["ko_with"] = {
+        open: "with($1) {",
+        close: "} ",
+      };
+    }
+  };
+
+  ko.jqueryTmplTemplateEngine.prototype = new ko.templateEngine();
+  ko.jqueryTmplTemplateEngine.prototype.constructor =
+    ko.jqueryTmplTemplateEngine;
+
+  // Use this one by default *only if jquery.tmpl is referenced*
+  var jqueryTmplTemplateEngineInstance = new ko.jqueryTmplTemplateEngine();
+  if (jqueryTmplTemplateEngineInstance.jQueryTmplVersion > 0)
+    ko.setTemplateEngine(jqueryTmplTemplateEngineInstance);
+
+  ko.exportSymbol("jqueryTmplTemplateEngine", ko.jqueryTmplTemplateEngine);
 })();

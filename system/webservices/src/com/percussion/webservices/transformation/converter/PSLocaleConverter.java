@@ -24,8 +24,8 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.i18n.PSLocale</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.i18n.PSLocale</code> and
  * <code>com.percussion.webservices.content.PSLocale</code>.
  */
 public class PSLocaleConverter extends PSConverter
@@ -46,65 +46,65 @@ public class PSLocaleConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
          if (value instanceof com.percussion.webservices.content.PSLocale)
          {
-            com.percussion.webservices.content.PSLocale source = 
+            com.percussion.webservices.content.PSLocale source =
                (com.percussion.webservices.content.PSLocale) value;
-   
-            PSLocale target = new PSLocale(source.getCode(), source.getLabel(), 
-               source.getDescription(), source.isEnabled() ? 
+
+            PSLocale target = new PSLocale(source.getCode(), source.getLabel(),
+               source.getDescription(), source.isEnabled() ?
                   PSLocale.STATUS_ACTIVE : PSLocale.STATUS_INACTIVE);
             PSGuid guid = new PSGuid(PSTypeEnum.LOCALE, source.getId());
             target.setLocaleId((int) guid.longValue());
-            
+
             return target;
          }
          else
          {
-            com.percussion.webservices.security.data.PSLocale source = 
+            com.percussion.webservices.security.data.PSLocale source =
                (com.percussion.webservices.security.data.PSLocale) value;
-   
-            PSLocale target = new PSLocale(source.getCode(), source.getLabel(), 
-               source.getDescription(), source.isEnabled() ? 
+
+            PSLocale target = new PSLocale(source.getCode(), source.getLabel(),
+               source.getDescription(), source.isEnabled() ?
                   PSLocale.STATUS_ACTIVE : PSLocale.STATUS_INACTIVE);
             PSGuid guid = new PSGuid(PSTypeEnum.LOCALE, source.getId());
             target.setLocaleId((int) guid.longValue());
-            
+
             return target;
          }
       }
       else
       {
          PSLocale source = (PSLocale) value;
-         PSDesignGuid guid = new PSDesignGuid(PSTypeEnum.LOCALE, 
+         PSDesignGuid guid = new PSDesignGuid(PSTypeEnum.LOCALE,
             source.getLocaleId());
-         
+
          if (type.getName().equals(
             com.percussion.webservices.content.PSLocale.class.getName()))
          {
-            com.percussion.webservices.content.PSLocale target = 
-               new com.percussion.webservices.content.PSLocale(
-                  guid.getValue(), 
-                  source.getDescription(),
-                  source.getLanguageString(), 
-                  source.getDisplayName(), 
-                  source.getStatus() == PSLocale.STATUS_ACTIVE);
-            
+            com.percussion.webservices.content.PSLocale target =
+               new com.percussion.webservices.content.PSLocale();
+            target.setId(guid.getValue());
+            target.setDescription(source.getDescription());
+            target.setCode(source.getLanguageString());
+            target.setLabel(source.getDisplayName());
+            target.setEnabled(source.getStatus() == PSLocale.STATUS_ACTIVE);
+
             return target;
          }
          else
          {
-            com.percussion.webservices.security.data.PSLocale target = 
-               new com.percussion.webservices.security.data.PSLocale(
-                  guid.getValue(), 
-                  source.getDescription(),
-                  source.getLanguageString(), 
-                  source.getDisplayName(), 
-                  source.getStatus() == PSLocale.STATUS_ACTIVE);
-            
+            com.percussion.webservices.security.data.PSLocale target =
+               new com.percussion.webservices.security.data.PSLocale();
+            target.setId(guid.getValue());
+            target.setDescription(source.getDescription());
+            target.setCode(source.getLanguageString());
+            target.setLabel(source.getDisplayName());
+            target.setEnabled(source.getStatus() == PSLocale.STATUS_ACTIVE);
+
             return target;
          }
       }

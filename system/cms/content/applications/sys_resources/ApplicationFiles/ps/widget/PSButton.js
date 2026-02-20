@@ -1,4 +1,3 @@
-
 /******************************************************************************
  *
  * [ ps.widget.PSButton.js ]
@@ -16,9 +15,6 @@ dojo.require("dojo.widget.Button");
 /**
  * The Button class overriden to customize style sheet
  */
-dojo.widget.defineWidget("ps.widget.PSButton", dojo.widget.Button,
-{    
-    templateCssPath: dojo.uri.moduleUri("ps", "widget/PSButton.css")    
+dojo.widget.defineWidget("ps.widget.PSButton", dojo.widget.Button, {
+  templateCssPath: dojo.uri.moduleUri("ps", "widget/PSButton.css"),
 });
-
-

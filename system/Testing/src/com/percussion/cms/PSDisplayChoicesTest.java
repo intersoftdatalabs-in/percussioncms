@@ -24,6 +24,7 @@ import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;
@@ -33,13 +34,14 @@ import java.util.List;
 /**
  * Test case for the {@link PSDisplayChoices} class.
  */
-public class PSDisplayChoicesTest extends TestCase
+public class PSDisplayChoicesTest
 {
    /**
     * Test the basic constructor
-    * 
+    *
     * @throws Exception if the test fails.
     */
+   @Test
    public void testCtor() throws Exception
    {
       PSDisplayChoices choices = new PSDisplayChoices(null, null);
@@ -47,13 +49,13 @@ public class PSDisplayChoicesTest extends TestCase
       assertNull(choices.getChoiceFilter());
       assertNotNull(choices.getChoices());
       assertFalse(choices.getChoices().hasNext());
-      
+
       // create choices
       int size = 3;
       List<PSEntry> entries = createEntries(size);
       PSChoiceFilter filter = createFilter();
       choices = new PSDisplayChoices(entries.iterator(), filter);
-      
+
       assertTrue(choices.areChoicesLoaded());
       Iterator<PSEntry> iter = choices.getChoices();
       for (int i = 0; i < size; i++)
@@ -61,22 +63,23 @@ public class PSDisplayChoicesTest extends TestCase
          assertTrue(iter.hasNext());
          assertEquals(entries.get(i), iter.next());
       }
-      
+
       assertEquals(choices.getChoiceFilter(), filter);
    }
-   
+
    /**
     * Test equals and hashcode
-    * 
+    *
     * @throws Exception if the test fails.
     */
+   @Test
    public void testEquals() throws Exception
    {
       PSDisplayChoices choices1 = new PSDisplayChoices(null, null);
       PSDisplayChoices choices2 = new PSDisplayChoices(null, null);
       assertEquals(choices1, choices2);
       assertEquals(choices1.hashCode(), choices2.hashCode());
-      
+
       int size = 0;
       List<PSEntry> entries = createEntries(size);
       choices1 = new PSDisplayChoices(entries.iterator(), null);
@@ -84,7 +87,7 @@ public class PSDisplayChoicesTest extends TestCase
       choices2 = new PSDisplayChoices(entries.iterator(), null);
       assertEquals(choices1, choices2);
       assertEquals(choices1.hashCode(), choices2.hashCode());
-      
+
       size = 2;
       entries = createEntries(size);
       choices1 = new PSDisplayChoices(entries.iterator(), null);
@@ -92,47 +95,48 @@ public class PSDisplayChoicesTest extends TestCase
       choices2 = new PSDisplayChoices(entries.iterator(), null);
       assertEquals(choices1, choices2);
       assertEquals(choices1.hashCode(), choices2.hashCode());
-      
+
       PSChoiceFilter filter = createFilter();
       choices1 = new PSDisplayChoices(null, filter);
       assertFalse(choices1.equals(choices2));
       choices2 = new PSDisplayChoices(null, filter);
       assertEquals(choices1, choices2);
       assertEquals(choices1.hashCode(), choices2.hashCode());
-      
+
       choices1 = new PSDisplayChoices(entries.iterator(), filter);
       assertFalse(choices1.equals(choices2));
       choices2 = new PSDisplayChoices(entries.iterator(), filter);
       assertEquals(choices1, choices2);
       assertEquals(choices1.hashCode(), choices2.hashCode());
    }
-   
+
    /**
     * Test XML serialization.
-    * 
+    *
     * @throws Exception if the test fails.
     */
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       PSDisplayChoices choices = new PSDisplayChoices(null, null);
       assertEquals(choices, new PSDisplayChoices(choices.toXml(doc)));
-      
+
       choices = new PSDisplayChoices(createEntries(0).iterator(), null);
       assertEquals(choices, new PSDisplayChoices(choices.toXml(doc)));
-      
+
       choices = new PSDisplayChoices(null, createFilter());
       assertEquals(choices, new PSDisplayChoices(choices.toXml(doc)));
-      
-      choices = new PSDisplayChoices(createEntries(3).iterator(), 
+
+      choices = new PSDisplayChoices(createEntries(3).iterator(),
          createFilter());
       assertEquals(choices, new PSDisplayChoices(choices.toXml(doc)));
    }
-   
+
    /**
     * Create a list of entries
     * @param size the size, assumed >= 0
-    * 
+    *
     * @return the list of entries, never <code>null</code>.
     */
    private List<PSEntry> createEntries(int size)
@@ -145,21 +149,21 @@ public class PSDisplayChoicesTest extends TestCase
 
       return entries;
    }
-   
+
    /**
     * Create a filter
-    * 
+    *
     * @return the filter, never <code>null</code>.
     */
    private PSChoiceFilter createFilter()
    {
       PSCollection fields = new PSCollection(DependentField.class);
-      fields.add(new DependentField("test", 
+      fields.add(new DependentField("test",
          PSChoiceFilter.DependentField.TYPE_REQUIRED));
       PSUrlRequest lookup = new PSUrlRequest("test", null, new PSCollection(
          PSParam.class));
-      
-      return new PSChoiceFilter(fields, lookup);      
+
+      return new PSChoiceFilter(fields, lookup);
    }
 }
 

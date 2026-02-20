@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSKeywordSetterTest extends PSConfigurationTest {
   @SuppressWarnings("unchecked")
   public void testKeywordSetter() throws PSNotFoundException {

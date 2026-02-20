@@ -19,7 +19,6 @@ package com.percussion.extension;
 
 import com.percussion.data.IPSDataErrors;
 import com.percussion.data.PSConversionException;
-import com.percussion.data.PSDataConverter;
 import com.percussion.design.objectstore.PSDateLiteral;
 import com.percussion.design.objectstore.PSNumericLiteral;
 import com.percussion.design.objectstore.PSTextLiteral;
@@ -143,9 +142,9 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
       java.util.Date d;
 
       try {
-        d = PSDataConverter.parseStringToDate(dateText);
+        d = com.percussion.util.PSDataTypeConverter.parseStringToDate(dateText);
         return d; // new java.lang.Long(d.getTime());
-      } catch (java.text.ParseException e) {
+      } catch (Exception e) {
         Object args[] = {o.getClass().getName(), "String", dateText};
         throw new com.percussion.data.PSConversionException(
             IPSDataErrors.UNSUPPORTED_CONVERSION, args);

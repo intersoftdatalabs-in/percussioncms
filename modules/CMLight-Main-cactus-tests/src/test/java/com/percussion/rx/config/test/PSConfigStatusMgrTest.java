@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSConfigStatusMgrTest extends ServletTestCase {
   public void testConfigStatus() throws PSNotFoundException {
     PSConfigService cfgSrvc = (PSConfigService) PSConfigServiceLocator.getConfigService();

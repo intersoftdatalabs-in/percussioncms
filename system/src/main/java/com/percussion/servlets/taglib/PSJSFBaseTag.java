@@ -16,12 +16,12 @@
  */
 package com.percussion.servlets.taglib;
 
-import javax.faces.application.Application;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.el.MethodBinding;
-import javax.faces.el.ValueBinding;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.el.MethodExpression;
+import jakarta.el.ValueExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.jsp.tagext.TagSupport;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -29,21 +29,31 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author dougrand
  */
-public abstract class PSJSFBaseTag extends UIComponentTag {
+public abstract class PSJSFBaseTag extends TagSupport {
+  /**
+   * Determine whether the supplied string is a value reference (EL expression). Simplified
+   * replacement for the old UIComponentTag.isValueReference.
+   *
+   * @param value the value to test
+   * @return true if it looks like an EL expression
+   */
+  protected boolean isValueReference(String value) {
+    return value != null && (value.startsWith("${") || value.startsWith("#{"));
+  }
+
   /** The label for the component. */
   private String m_label;
 
-  @Override
   public String getRendererType() {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see javax.faces.webapp.UIComponentTag#setProperties(javax.faces.component.UIComponent)
+  /*
+   * Set properties on the supplied component instance. This method is intentionally
+   * provided to mimic the old UIComponentTag.setProperties behavior so existing
+   * tag implementations can call super.setProperties(comp).
    */
-  @Override
   protected void setProperties(UIComponent comp) {
-    super.setProperties(comp);
     setValueBinding(comp, "label", m_label);
   }
 
@@ -70,8 +80,9 @@ public abstract class PSJSFBaseTag extends UIComponentTag {
     } else {
       FacesContext ctx = FacesContext.getCurrentInstance();
       Application app = ctx.getApplication();
-      ValueBinding vb = app.createValueBinding(value);
-      comp.setValueBinding(name, vb);
+      ValueExpression ve =
+          app.getExpressionFactory().createValueExpression(ctx.getELContext(), value, Object.class);
+      comp.setValueExpression(name, ve);
     }
   }
 
@@ -96,8 +107,10 @@ public abstract class PSJSFBaseTag extends UIComponentTag {
     }
     FacesContext ctx = FacesContext.getCurrentInstance();
     Application app = ctx.getApplication();
-    MethodBinding mb = app.createMethodBinding(value, params);
-    comp.getAttributes().put(name, mb);
+    MethodExpression me =
+        app.getExpressionFactory()
+            .createMethodExpression(ctx.getELContext(), value, Object.class, params);
+    comp.getAttributes().put(name, me);
   }
 
   /**

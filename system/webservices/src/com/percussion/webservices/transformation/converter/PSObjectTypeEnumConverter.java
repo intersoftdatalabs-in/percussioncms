@@ -23,7 +23,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
  * Converts objects between the classes
- * {@link com.percussion.services.content.data.PSItemSummary.ObjectTypeEnum} and 
+ * {@link com.percussion.services.content.data.PSItemSummary.ObjectTypeEnum} and
  * {@link com.percussion.webservices.common.ObjectType}.
  */
 public class PSObjectTypeEnumConverter extends PSConverter
@@ -35,7 +35,7 @@ public class PSObjectTypeEnumConverter extends PSConverter
    {
       super(beanUtils);
    }
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -44,12 +44,12 @@ public class PSObjectTypeEnumConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
          return PSItemSummary.ObjectTypeEnum.valueOf(
             value.toString().toUpperCase());
       else
-         return ObjectType.fromString(
+         return ObjectType.valueOf(
             value.toString().toLowerCase());
    }
 }

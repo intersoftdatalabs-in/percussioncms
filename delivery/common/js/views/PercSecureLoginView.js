@@ -15,28 +15,25 @@
  * limitations under the License.
  */
 
-(function($) {
-    $(document).ready(function() {
-        $.PercSecureLoginView.init();
+(function ($) {
+  $(document).ready(function () {
+    $.PercSecureLoginView.init();
+  });
+
+  $.PercSecureLoginView = {
+    init: init,
+  };
+
+  /**
+   * Initialize and configure each instance of login widget in the page.
+   */
+  function init() {
+    $(".percLogin-form").each(function () {
+      var urlstring = $.deparam.querystring();
+      if ("undefined" !== typeof urlstring.error) {
+        var div = $(this).find(".perc-secure-login-error-message");
+        div.show();
+      }
     });
-    
-    $.PercSecureLoginView = {
-        init : init
-    };
-    
-    /**
-     * Initialize and configure each instance of login widget in the page.
-     */
-    function init() {
-        $('.percLogin-form').each(function()
-        {
-            var urlstring = $.deparam.querystring();
-            if ("undefined" !== typeof (urlstring.error))
-            {
-                
-                var div = $(this).find(".perc-secure-login-error-message");
-                div.show();
-            }
-        });
-    }
+  }
 })(jQuery);

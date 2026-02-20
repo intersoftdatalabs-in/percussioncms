@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- he: "עברית",
- hello: "שלו�?"
-}
+({
+  he: "×¢××¨××ª",
+  hello: "×©×××?",
+});

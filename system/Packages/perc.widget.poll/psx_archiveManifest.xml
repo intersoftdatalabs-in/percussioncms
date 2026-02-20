@@ -2,93 +2,105 @@
 
 
 <PSXArchiveManifest>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--rx__resources_widgets_percPoll_images_widgetIconPollOver-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>D:\Percussion\ins\dev\rx_resources\widgets\percPoll\images\widgetIconPollOver.png</RxFile>
-         <ArchiveFile>sys__UserDependency--rx__resources_widgets_percPoll_images_widgetIconPollOver-png\widgetIconPollOver.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--rx__resources_widgets_percPoll_images_widgetpollSampleBackground-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>D:\Percussion\ins\dev\rx_resources\widgets\percPoll\images\widgetpollSampleBackground.png</RxFile>
-         <ArchiveFile>sys__UserDependency--rx__resources_widgets_percPoll_images_widgetpollSampleBackground-png\widgetpollSampleBackground.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="AclDef--6321548572395306937">
-      <PSXDependencyFile fileType="SERVICEGENERATED_XML">
-         <RxFile>C:\Users\Santi\AppData\Local\Temp\percPollAsset.contentType.aclDef</RxFile>
-         <ArchiveFile>AclDef--6321548572395306937\percPollAsset.contentType.aclDef</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="ContentType-365">
-      <PSXDependencyFile fileType="ITEM_DEFINITION">
-         <RxFile>C:\Users\Santi\AppData\Local\Temp\percPollAsset.itemDef.contentType</RxFile>
-         <ArchiveFile>ContentType-365\percPollAsset.itemDef.contentType</ArchiveFile>
-      </PSXDependencyFile>
-      <PSXDependencyFile fileType="NODE_DEFINITION">
-         <RxFile>C:\Users\Santi\AppData\Local\Temp\percPollAsset.nodeDef.contentType</RxFile>
-         <ArchiveFile>ContentType-365\percPollAsset.nodeDef.contentType</ArchiveFile>
-      </PSXDependencyFile>
-      <PSXDependencyFile fileType="DBMS_SCHEMA">
-         <RxFile>C:\Users\Santi\AppData\Local\Temp\percPollAsset.schemaDef.contentType</RxFile>
-         <ArchiveFile>ContentType-365\percPollAsset.schemaDef.contentType</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="SupportFile-rx_resources/widgets/percPoll/css/percPoll.min.css">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\Users\Santi\AppData\Local\Temp\percPoll.min.css</RxFile>
-         <ArchiveFile>SupportFile-rx_resources\widgets\percPoll\css\percPoll.min.css\percPoll.min.css</ArchiveFile>
-         <OriginalFile>widgets\percPoll\css\percPoll.min.css</OriginalFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="ImageFile-rx_resources/images/ContentTypeIcons/finderIconPolls.png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>D:\Percussion\ins\dev\rx_resources\images\ContentTypeIcons\finderIconPolls.png</RxFile>
-         <ArchiveFile>ImageFile-rx_resources\images\ContentTypeIcons\finderIconPolls.png\finderIconPolls.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--web__resources_widgets_percPoll_js_percPoll-min-js">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>D:\Percussion\ins\dev\web_resources\widgets\percPoll\js\percPoll.min.js</RxFile>
-         <ArchiveFile>sys__UserDependency--web__resources_widgets_percPoll_js_percPoll-min-js\percPoll.min.js</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--rxconfig_Widgets_percPoll-xml">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percPoll.xml</RxFile>
-         <ArchiveFile>sys__UserDependency--rxconfig_Widgets_percPoll-xml\percPoll.xml</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--rxconfig_Resources_percPoll-xml">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>D:\Percussion\ins\dev\rxconfig\Resources\percPoll.xml</RxFile>
-         <ArchiveFile>sys__UserDependency--rxconfig_Resources_percPoll-xml\percPoll.xml</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="SupportFile-rx_resources/widgets/percPoll/js/PercPollEditor.min.js">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\Users\Santi\AppData\Local\Temp\PercPollEditor.min.js</RxFile>
-         <ArchiveFile>SupportFile-rx_resources\widgets\percPoll\js\PercPollEditor.min.js\PercPollEditor.min.js</ArchiveFile>
-         <OriginalFile>widgets\percPoll\js\PercPollEditor.min.js</OriginalFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--web__resources_widgets_percPoll_css_percPoll-min-css">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>D:\Percussion\ins\dev\web_resources\widgets\percPoll\css\percPoll.min.css</RxFile>
-         <ArchiveFile>sys__UserDependency--web__resources_widgets_percPoll_css_percPoll-min-css\percPoll.min.css</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--rx__resources_widgets_percPoll_images_widgetIconPoll-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>D:\Percussion\ins\dev\rx_resources\widgets\percPoll\images\widgetIconPoll.png</RxFile>
-         <ArchiveFile>sys__UserDependency--rx__resources_widgets_percPoll_images_widgetIconPoll-png\widgetIconPoll.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="SupportFile-rx_resources/stylesheets/controls/percPollControl.xsl">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\Users\Santi\AppData\Local\Temp\percPollControl.xsl</RxFile>
-         <ArchiveFile>SupportFile-rx_resources\stylesheets\controls\percPollControl.xsl\percPollControl.xsl</ArchiveFile>
-         <OriginalFile>stylesheets\controls\percPollControl.xsl</OriginalFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--rx__resources_widgets_percPoll_images_widgetIconPollOver-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>D:\Percussion\ins\dev\rx_resources\widgets\percPoll\images\widgetIconPollOver.png</RxFile>
+			<ArchiveFile>sys__UserDependency--rx__resources_widgets_percPoll_images_widgetIconPollOver-png\widgetIconPollOver.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--rx__resources_widgets_percPoll_images_widgetpollSampleBackground-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>D:\Percussion\ins\dev\rx_resources\widgets\percPoll\images\widgetpollSampleBackground.png</RxFile>
+			<ArchiveFile>sys__UserDependency--rx__resources_widgets_percPoll_images_widgetpollSampleBackground-png\widgetpollSampleBackground.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="AclDef--6321548572395306937">
+		<PSXDependencyFile fileType="SERVICEGENERATED_XML">
+			<RxFile>C:\Users\Santi\AppData\Local\Temp\percPollAsset.contentType.aclDef</RxFile>
+			<ArchiveFile>AclDef--6321548572395306937\percPollAsset.contentType.aclDef</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes DependencyKey="ContentType-365">
+		<PSXDependencyFile fileType="ITEM_DEFINITION">
+			<RxFile>C:\Users\Santi\AppData\Local\Temp\percPollAsset.itemDef.contentType</RxFile>
+			<ArchiveFile>ContentType-365\percPollAsset.itemDef.contentType</ArchiveFile>
+		</PSXDependencyFile>
+		<PSXDependencyFile fileType="NODE_DEFINITION">
+			<RxFile>C:\Users\Santi\AppData\Local\Temp\percPollAsset.nodeDef.contentType</RxFile>
+			<ArchiveFile>ContentType-365\percPollAsset.nodeDef.contentType</ArchiveFile>
+		</PSXDependencyFile>
+		<PSXDependencyFile fileType="DBMS_SCHEMA">
+			<RxFile>C:\Users\Santi\AppData\Local\Temp\percPollAsset.schemaDef.contentType</RxFile>
+			<ArchiveFile>ContentType-365\percPollAsset.schemaDef.contentType</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="SupportFile-rx_resources/widgets/percPoll/css/percPoll.min.css">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\Users\Santi\AppData\Local\Temp\percPoll.min.css</RxFile>
+			<ArchiveFile>SupportFile-rx_resources\widgets\percPoll\css\percPoll.min.css\percPoll.min.css</ArchiveFile>
+			<OriginalFile>widgets\percPoll\css\percPoll.min.css</OriginalFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="ImageFile-rx_resources/images/ContentTypeIcons/finderIconPolls.png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>D:\Percussion\ins\dev\rx_resources\images\ContentTypeIcons\finderIconPolls.png</RxFile>
+			<ArchiveFile>ImageFile-rx_resources\images\ContentTypeIcons\finderIconPolls.png\finderIconPolls.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--web__resources_widgets_percPoll_js_percPoll-min-js">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>D:\Percussion\ins\dev\web_resources\widgets\percPoll\js\percPoll.min.js</RxFile>
+			<ArchiveFile>sys__UserDependency--web__resources_widgets_percPoll_js_percPoll-min-js\percPoll.min.js</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--rxconfig_Widgets_percPoll-xml">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>D:\Percussion\ins\dev\rxconfig\Widgets\percPoll.xml</RxFile>
+			<ArchiveFile>sys__UserDependency--rxconfig_Widgets_percPoll-xml\percPoll.xml</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--rxconfig_Resources_percPoll-xml">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>D:\Percussion\ins\dev\rxconfig\Resources\percPoll.xml</RxFile>
+			<ArchiveFile>sys__UserDependency--rxconfig_Resources_percPoll-xml\percPoll.xml</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="SupportFile-rx_resources/widgets/percPoll/js/PercPollEditor.min.js">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\Users\Santi\AppData\Local\Temp\PercPollEditor.min.js</RxFile>
+			<ArchiveFile>SupportFile-rx_resources\widgets\percPoll\js\PercPollEditor.min.js\PercPollEditor.min.js</ArchiveFile>
+			<OriginalFile>widgets\percPoll\js\PercPollEditor.min.js</OriginalFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--web__resources_widgets_percPoll_css_percPoll-min-css">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>D:\Percussion\ins\dev\web_resources\widgets\percPoll\css\percPoll.min.css</RxFile>
+			<ArchiveFile>sys__UserDependency--web__resources_widgets_percPoll_css_percPoll-min-css\percPoll.min.css</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--rx__resources_widgets_percPoll_images_widgetIconPoll-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>D:\Percussion\ins\dev\rx_resources\widgets\percPoll\images\widgetIconPoll.png</RxFile>
+			<ArchiveFile>sys__UserDependency--rx__resources_widgets_percPoll_images_widgetIconPoll-png\widgetIconPoll.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="SupportFile-rx_resources/stylesheets/controls/percPollControl.xsl">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\Users\Santi\AppData\Local\Temp\percPollControl.xsl</RxFile>
+			<ArchiveFile>SupportFile-rx_resources\stylesheets\controls\percPollControl.xsl\percPollControl.xsl</ArchiveFile>
+			<OriginalFile>stylesheets\controls\percPollControl.xsl</OriginalFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
 </PSXArchiveManifest>

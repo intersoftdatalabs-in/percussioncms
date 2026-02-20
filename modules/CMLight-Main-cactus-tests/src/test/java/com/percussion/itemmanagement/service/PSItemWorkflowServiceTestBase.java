@@ -42,7 +42,7 @@ import com.percussion.webservices.system.IPSSystemWs;
 import java.util.Collections;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSItemWorkflowServiceTestBase extends PSServletTestCase {
   protected PSSiteDataServletTestCaseFixture fixture;
   protected String templateId;

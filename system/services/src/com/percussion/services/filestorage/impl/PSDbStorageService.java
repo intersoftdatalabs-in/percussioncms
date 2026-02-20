@@ -201,6 +201,12 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
       return reparseMeta(binary);
    }
 
+   @Override
+   public java.util.concurrent.CompletableFuture<Boolean> reparseMetaAsync(String hash)
+   {
+      return java.util.concurrent.CompletableFuture.supplyAsync(() -> reparseMeta(hash));
+   }
+
    /*
     * (non-Javadoc)
     * 
@@ -239,6 +245,19 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
     * .lang.String)
     */
    @Transactional
+   public java.util.Optional<com.percussion.services.filestorage.IPSFileMeta> getMetaSafely(String hash)
+   {
+      PSMeta meta = getMeta(hash);
+      return java.util.Optional.ofNullable(meta);
+   }
+
+   @Transactional
+   public java.util.Optional<String> getTextSafely(String hash)
+   {
+      return java.util.Optional.ofNullable(getText(hash));
+   }
+
+   @Transactional
    public PSMeta getMeta(String hash)
    {
       return convertFromDbMeta(getDbMeta(hash));
@@ -251,6 +270,12 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
     * com.percussion.services.filestorage.IPSFileStorageService#getStream(java
     * .lang.String)
     */
+   @Transactional
+   public java.util.Optional<InputStream> getStreamSafely(String hash)
+   {
+      return java.util.Optional.ofNullable(getStream(hash));
+   }
+
    @Transactional
    public InputStream getStream(String hash)
    {
@@ -770,7 +795,6 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSFileStorageService#legacyTableExists()
     */
-   @Override
    @Transactional
    public boolean legacyTableExists()
    {
@@ -792,6 +816,18 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
          return true;
       }
       return false;
+   }
+
+   @Override
+   public java.util.concurrent.CompletableFuture<Boolean> exportAllLegacyBinaryAsync(String rootPath)
+   {
+      return java.util.concurrent.CompletableFuture.supplyAsync(() -> exportAllLegacyBinary(rootPath));
+   }
+
+   @Override
+   public java.util.concurrent.CompletableFuture<Boolean> exportAllBinaryAsync(String rootPath)
+   {
+      return java.util.concurrent.CompletableFuture.supplyAsync(() -> exportAllBinary(rootPath));
    }
 
    /* (non-Javadoc)
@@ -826,6 +862,12 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
          return true;
       }
       return false;
+   }
+
+   @Override
+   public java.util.concurrent.CompletableFuture<Boolean> importAllBinaryAsync(String rootPath)
+   {
+      return java.util.concurrent.CompletableFuture.supplyAsync(() -> importAllBinary(rootPath));
    }
 
 

@@ -71,17 +71,17 @@ public class PSCopyMethod extends PSWebdavMethod
     * header.
     *
     * @return the destination URL, never <code>null</code> or empty. It is the
-    *    path of the URL. It does not include protocal, host or port. For 
-    *    example, it returns "/rxwebdav/files" if the destination header is: 
+    *    path of the URL. It does not include protocal, host or port. For
+    *    example, it returns "/rxwebdav/files" if the destination header is:
     *    http://host:port/rxwebdav/files.
     *
-    * @throws PSWebdavException if the "destination" header is invalid. 
+    * @throws PSWebdavException if the "destination" header is invalid.
     *    The error status is set to 400 (Bad request).
     */
    private String getDestinationPath() throws PSWebdavException
    {
       String destination = getRequest().getHeader(H_DESTINATION);
-      
+
       if (destination == null || destination.trim().length() == 0)
       {
          throw new PSWebdavException(IPSWebdavErrors.HEADER_MISSING,
@@ -92,7 +92,7 @@ public class PSCopyMethod extends PSWebdavMethod
       {
          destination = URLDecoder.decode(destination, PSCharSets.rxJavaEnc());
          destination = PSWebdavUtils.stripTrailingSlash(destination);
-         
+
          URL url = new URL(destination);
          destination = url.getPath();
 
@@ -107,7 +107,7 @@ public class PSCopyMethod extends PSWebdavMethod
       {
          // ignore since it should never happen
       }
-      
+
       return destination;
    }
 
@@ -117,7 +117,7 @@ public class PSCopyMethod extends PSWebdavMethod
    {
       m_sourcePath = getRxVirtualPath();
       m_targetPath = getRxVirtualPath(getDestinationPath());
-      
+
       if (m_sourcePath.equalsIgnoreCase(m_targetPath))
       {
          String[] args = { m_sourcePath, getRequest().getMethod()};
@@ -133,7 +133,7 @@ public class PSCopyMethod extends PSWebdavMethod
          // if target not exist, make sure the parent folder exist
          m_targetParent = getParentSummary(m_targetPath);
       }
-      else if (! isOverwrite()) 
+      else if (! isOverwrite())
       {   // if request does not specify overwrite, fail with 412 status code
           throw new PSWebdavException(
              IPSWebdavErrors.METHOD_FAIL_CANNOT_OVERWRITE,
@@ -146,7 +146,7 @@ public class PSCopyMethod extends PSWebdavMethod
 
    /**
     * Get the supported depth by copy and move method.
-    * 
+    *
     * @return 0 or <code>INFINITY</code>.
     */
    protected int getSupportedDepth()
@@ -159,16 +159,16 @@ public class PSCopyMethod extends PSWebdavMethod
 
       return depth;
    }
-   
+
    /**
     * This need to be called at the beginning of {@link #processRequest()}.
-    * It does the prepare work, such as validation and delete target if 
+    * It does the prepare work, such as validation and delete target if
     * override is on.
-    * 
-    * @return <code>true</code> if successful done the prepare work; 
+    *
+    * @return <code>true</code> if successful done the prepare work;
     *    <code>false</code> if validation failed. Caller must stop current
     *    execution.
-    * 
+    *
     * @throws IOException if I/O error occurs.
     * @throws PSWebdavException if any other error occurs.
     */
@@ -177,7 +177,7 @@ public class PSCopyMethod extends PSWebdavMethod
       // if target exist, then make sure it is not checked out by other user
       if (m_targetSummary != null && (! validateLock(m_targetSummary)))
          return false;
-      
+
       try
       {
          // remove the target or destination if exist
@@ -188,19 +188,19 @@ public class PSCopyMethod extends PSWebdavMethod
       {
          throw new PSWebdavException(e);
       }
-      
+
       return true;
    }
-   
+
    // Implements PSWebdavMethod.processRequest()
    @Override
    protected void processRequest() throws PSWebdavException, IOException
    {
       if (! preProcessRequest())
          return;
-      
-      int depth = getSupportedDepth(); 
-      
+
+      int depth = getSupportedDepth();
+
       try
       {
          if (m_sourceSummary.isFolder())
@@ -224,11 +224,11 @@ public class PSCopyMethod extends PSWebdavMethod
       else
          setResponseStatus(PSWebdavStatus.SC_NO_CONTENT);
    }
-   
+
    /**
     * Copy a folder from the source to target (or destination). It is the
     * folder only, does not include items or sub-folders within the folder.
-    * 
+    *
     * @throws PSUnknownNodeTypeException if error occurs when constructing
     *    folder object from XML.
     * @throws PSCmsException if any other error occurs.
@@ -251,74 +251,74 @@ public class PSCopyMethod extends PSWebdavMethod
       IPSDbComponent[] comps = { targetFolder };
       proxy.save(comps);
       PSRelationshipProcessorProxy rsProxy = getFolderProxy();
-      List<PSLocator> sourceList = new ArrayList<>();
+      List<Object> sourceList = new ArrayList<>();
       sourceList.add(m_sourceSummary.getCurrentLocator());
       rsProxy.add(
          PSRelationshipConfig.TYPE_FOLDER_CONTENT,
          sourceList,
          m_targetParent.getCurrentLocator());
    }
-   
+
    /**
     * Copy an item or folder from the source to target (or destination).
-    * 
+    *
     * @throws PSCmsException if an error occurs.
     */
    private void copyComponent() throws PSCmsException
    {
       PSRelationshipProcessorProxy proxy = getFolderProxy();
-      
-      List<PSLocator> sourceList = new ArrayList<>();
+
+      List<Object> sourceList = new ArrayList<>();
       PSLocator srcLoc = m_sourceSummary.getCurrentLocator();
       String targetName = PSWebdavUtils.getFileName(m_targetPath);
-      PSLocatorWithName locator = new PSLocatorWithName(srcLoc.getId(), 
+      PSLocatorWithName locator = new PSLocatorWithName(srcLoc.getId(),
             srcLoc.getRevision(), targetName);
       sourceList.add(locator);
-      
+
       proxy.copy(
          PSRelationshipConfig.TYPE_FOLDER_CONTENT,
          sourceList,
          m_targetParent.getCurrentLocator());
    }
-   
+
    /**
     * The component summary of the requested source. It is initialized by
     * {@link #parseRequest()}, never <code>null</code> after that.
     */
    protected PSComponentSummary m_sourceSummary = null;
-   
+
    /**
     * The component summary of the requested destination. It is initialized by
     * {@link #parseRequest()}, it may be <code>null</code> if the target
     * does not exist.
     */
    protected PSComponentSummary m_targetSummary = null;
-   
+
    /**
     * The destination or target parent. It is initialized by
     * {@link #parseRequest()}, it may be <code>null</code> if the target
     * does not exist.
     */
    protected PSComponentSummary m_targetParent = null;
-   
+
    /**
     * The path of the requested source. It is the folder path in Rhythmyx.
-    * It is set by {@link #parseRequest()}, never <code>null</code> or 
+    * It is set by {@link #parseRequest()}, never <code>null</code> or
     * never modified after that.
     */
    protected String m_sourcePath = null;
-   
+
    /**
     * The path of the destination. It is the folder path in Rhythmyx.
-    * It is set by {@link #parseRequest()}, never <code>null</code> or 
+    * It is set by {@link #parseRequest()}, never <code>null</code> or
     * never modified after that.
     */
    protected String m_targetPath = null;
-   
+
    /**
-    * <code>true</code> if the current request has been forwarded to another 
+    * <code>true</code> if the current request has been forwarded to another
     * servlet; otherwise, <code>false</code>. Current servlet must do nothing
-    * after the request is forwarded to another servlet. Default to 
+    * after the request is forwarded to another servlet. Default to
     * <code>false</code>.
     */
    protected boolean m_hasForwarded = false;

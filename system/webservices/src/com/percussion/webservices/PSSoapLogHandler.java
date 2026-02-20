@@ -17,32 +17,59 @@
 
 package com.percussion.webservices;
 
-import org.apache.axis.AxisFault;
-import org.apache.axis.MessageContext;
-import org.apache.axis.handlers.BasicHandler;
+import jakarta.xml.ws.handler.MessageContext;
+import jakarta.xml.ws.handler.soap.SOAPHandler;
+import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
- 
+
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPMessage;
+import java.io.ByteArrayOutputStream;
+import java.util.Collections;
+import java.util.Set;
+
 /**
- * Log soap request and responses to log4j see server-config.wsdd and client-config.wsdd
- * for configuration.  Change log level of this class in log4j to see messages
+ * Compatibility SOAP logging handler that works with JAX-WS/CXF. This class
+ * replaces legacy Axis handlers and logs request/response SOAP messages when available.
  */
-public class PSSoapLogHandler extends BasicHandler {
- 
-    /**
-    * 
-    */
-   private static final long serialVersionUID = 1L;
-   
-   private static final Logger log =  LogManager.getLogger(PSSoapLogHandler.class);
+public class PSSoapLogHandler implements SOAPHandler<SOAPMessageContext> {
+
+    private static final Logger log = LogManager.getLogger(PSSoapLogHandler.class);
+
     @Override
-    public void invoke(MessageContext mc) throws AxisFault {
-        if (mc.getResponseMessage() != null && mc.getResponseMessage().getSOAPPartAsString() != null) {
-            String resMsg = mc.getResponseMessage().getSOAPPartAsString();
-            log.debug("SOAP Response: " + resMsg);
-        } else if (mc.getRequestMessage() != null && mc.getRequestMessage().getSOAPPartAsString() != null) {
-            String reqMsg = mc.getRequestMessage().getSOAPPartAsString();
-            log.debug("SOAP Request: " + reqMsg);
+    public boolean handleMessage(SOAPMessageContext context) {
+        Boolean outbound = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        try {
+            SOAPMessage msg = context.getMessage();
+            if (msg != null) {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                msg.writeTo(os);
+                String text = os.toString();
+                if (Boolean.TRUE.equals(outbound)) {
+                    log.debug("SOAP Response: {}", text);
+                } else {
+                    log.debug("SOAP Request: {}", text);
+                }
+            }
+        } catch (SOAPException | java.io.IOException e) {
+            log.debug("Failed to log SOAP message", e);
         }
+        return true; // continue processing
+    }
+
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        return handleMessage(context);
+    }
+
+    @Override
+    public void close(MessageContext context) {
+        // no-op
+    }
+
+    @Override
+    public Set getHeaders() {
+        return Collections.emptySet();
     }
 }

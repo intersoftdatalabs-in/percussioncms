@@ -23,31 +23,23 @@ import java.util.Map;
 
 
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.w3c.dom.Document;
 
-public class PSRequestTest extends TestCase
+public class PSRequestTest
 {
-   /**
-    * Constructs an instance of this class to run the test implemented by the
-    * named method.
-    * 
-    * @param methodName name of the method that implements a test
-    */
-   public PSRequestTest(String name)
-   {
-      super( name );
-   }
+   // legacy constructor removed - using @Test methods
+
 
 
    /**
-    * Constructs <code>PSRequest</code> objects for test classes outside the 
-    * server package (since the <code>PSRequest</code> constructors have 
+    * Constructs <code>PSRequest</code> objects for test classes outside the
+    * server package (since the <code>PSRequest</code> constructors have
     * package access).
-    * 
+    *
     * @return new <code>PSRequest</code> using supplied parameters
     */
    public static PSRequest makeRequest(String reqFileURL, String reqHookURL,
@@ -60,13 +52,13 @@ public class PSRequestTest extends TestCase
          for (String cgiName : cgiVars.keySet())
          {
             req.addParameter(cgiName, (String) cgiVars.get(cgiName));
-         }   
+         }
       }
       MockHttpServletResponse res = new MockHttpServletResponse();
 
       // TODO - Need to handle other data. Probably need to write more
       // complete Mock objects, or look for a better version of these
-      
+
       return new PSRequest( req, res, null, null);
    }
 
@@ -75,6 +67,7 @@ public class PSRequestTest extends TestCase
     * Tests the cloneRequest method to make sure the request parameter map is
     * cloned.
     */
+   @Test
    public void testClone() throws Exception
    {
       // build parameter map
@@ -88,17 +81,17 @@ public class PSRequestTest extends TestCase
       assertEquals( "beta", request.getParameter( "alpha" ) );
 
       PSRequest clone = request.cloneRequest();
-      
+
       // make sure we start from equivalence
       assertEquals( clone.getParameters(), request.getParameters() );
       // PSRequest does not override equals so can't assertEquals(clone, request);
-      
+
       // test modify
       clone.setParameter( "foo", "foo" );
       assertEquals( "foo", clone.getParameter( "foo" ) );
       assertEquals( "bar", request.getParameter( "foo" ) );
       assertTrue( !clone.getParameters().equals( request.getParameters() ) );
-      
+
       // test add
       clone.setParameter( "bar", "bar" );
       assertEquals( "bar", clone.getParameter( "bar" ) );
@@ -122,9 +115,10 @@ public class PSRequestTest extends TestCase
 
 
    /**
-    * Tests the putAllParameters method to make sure it add parameters and 
+    * Tests the putAllParameters method to make sure it add parameters and
     * replaces existing values.
     */
+   @Test
    public void testPutAllParameters() throws Exception
    {
       // build parameter map
@@ -148,14 +142,8 @@ public class PSRequestTest extends TestCase
 
 
    /**
-    * Collects all the tests implemented by this class into a single suite.
+    * JUnit 3 style suite removed; using JUnit 5 @Test methods instead
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSRequestTest( "testClone" ) );
-      suite.addTest( new PSRequestTest( "testPutAllParameters" ) );
-      return suite;
-   }
+
 
 }

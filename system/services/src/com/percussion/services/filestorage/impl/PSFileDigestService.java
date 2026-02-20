@@ -89,4 +89,27 @@ public class PSFileDigestService implements IPSFileDigestService
    {
       return algorithm;
    }
+
+   @Override
+   public java.util.concurrent.CompletableFuture<String> createChecksumAsync(InputStream stream)
+   {
+      return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+         try {
+            return createChecksum(stream);
+         } catch (Exception e) {
+            throw new java.util.concurrent.CompletionException(e);
+         }
+      });
+   }
+
+   @Override
+   public java.util.Optional<String> createChecksumSafely(InputStream stream)
+   {
+      try {
+         return java.util.Optional.ofNullable(createChecksum(stream));
+      } catch (Exception e) {
+         return java.util.Optional.empty();
+      }
+   }
 }
+

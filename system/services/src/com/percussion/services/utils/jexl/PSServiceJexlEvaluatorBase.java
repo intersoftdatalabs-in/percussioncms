@@ -151,13 +151,15 @@ public class PSServiceJexlEvaluatorBase extends PSJexlEvaluator implements IPSEx
      */
     private ToolManager createToolManager() throws FileNotFoundException, Exception {
         var configDir = PSServletUtils.getConfigDir();
-        var toolsPath = Paths.get(configDir, "velocity", "tools.xml");
+        var toolsPath = Paths.get(configDir.toString(), "velocity", "tools.xml");
 
         if (!Files.exists(toolsPath)) {
             throw new FileNotFoundException("Velocity tools configuration not found: " + toolsPath);
         }
 
         var manager = new ToolManager();
+        // ToolManager has differing overloads across versions; prefer String path to avoid
+        // ambiguous conversion problems during compilation.
         manager.configure(toolsPath.toString());
 
         ms_log.info("Successfully configured ToolManager with tools from: {}", toolsPath);
@@ -225,17 +227,18 @@ public class PSServiceJexlEvaluatorBase extends PSJexlEvaluator implements IPSEx
         }
 
         try {
-            var extensionRefs = extMgr.getExtensionNames(
+            Iterator<PSExtensionRef> extensionRefs = extMgr.getExtensionNames(
                 null, null, IPSJEXL_EXPRESSION, context);
 
-            if (extensionRefs.isEmpty()) {
+            if (extensionRefs == null || !extensionRefs.hasNext()) {
                 ms_log.debug("No JEXL extensions found for context: {}", context);
                 return Collections.emptyMap();
             }
 
             var functions = new HashMap<String, Object>();
 
-            for (var ref : extensionRefs) {
+            while (extensionRefs.hasNext()) {
+                PSExtensionRef ref = extensionRefs.next();
                 try {
                     var instance = extMgr.prepareExtension(ref, null);
                     if (instance != null) {
@@ -309,21 +312,28 @@ public class PSServiceJexlEvaluatorBase extends PSJexlEvaluator implements IPSEx
     }
 
     @Override
-    public void extensionAdded(PSExtensionRef ref) {
+    public void extensionAdded(PSExtensionRef ref, PSExtensionManager manager) {
         if (isJexlExtension(ref)) {
             invalidateCache("Extension added: " + ref.getExtensionName());
         }
     }
 
     @Override
-    public void extensionRemoved(PSExtensionRef ref) {
+    public void extensionShutdown(PSExtensionRef ref, IPSExtensionManager mgr) {
+        if (isJexlExtension(ref)) {
+            invalidateCache("Extension shutdown: " + ref.getExtensionName());
+        }
+    }
+
+    @Override
+    public void extensionRemoved(PSExtensionRef ref, IPSExtensionManager mgr) {
         if (isJexlExtension(ref)) {
             invalidateCache("Extension removed: " + ref.getExtensionName());
         }
     }
 
     @Override
-    public void extensionUpdated(PSExtensionRef ref) {
+    public void extensionUpdated(PSExtensionRef ref, IPSExtensionManager mgr) {
         if (isJexlExtension(ref)) {
             invalidateCache("Extension updated: " + ref.getExtensionName());
         }
@@ -347,8 +357,19 @@ public class PSServiceJexlEvaluatorBase extends PSJexlEvaluator implements IPSEx
             }
 
             var def = extMgr.getExtensionDef(ref);
-            return def != null &&
-                   def.getInterfaces().contains(IPSJEXL_EXPRESSION);
+            if (def == null) {
+                return false;
+            }
+            var interfaces = def.getInterfaces();
+            if (interfaces == null) {
+                return false;
+            }
+            while (interfaces.hasNext()) {
+                if (IPSJEXL_EXPRESSION.equals(interfaces.next())) {
+                    return true;
+                }
+            }
+            return false;
         } catch (Exception e) {
             ms_log.debug("Error checking if extension {} is JEXL extension: {}",
                 ref.getExtensionName(), e.getMessage());

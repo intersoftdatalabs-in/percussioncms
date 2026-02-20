@@ -2,19 +2,34 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="523" dependencyType="Local" displayName="rffAutoPressReleases2005" isIncluded="yes" objectType="SlotDef" objectTypeName="Slot Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no">
-         <Dependencies>
-            <PSXDeployableElement>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="316" dependencyType="Shared" displayName="rffPressRelease" isIncluded="no" objectType="ContentEditor" objectTypeName="Content Type" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
-               <Description/>
-            </PSXDeployableElement>
-            <PSXDeployableElement>
-               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="512" dependencyType="Shared" displayName="rffSnDateAndTitleLink" isIncluded="no" objectType="sys_Templates" objectTypeName="Template" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
-               <Description/>
-            </PSXDeployableElement>
-         </Dependencies>
-      </PSXDependency>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="523" dependencyType="Local"
+			displayName="rffAutoPressReleases2005" isIncluded="yes"
+			objectType="SlotDef" objectTypeName="Slot Definition"
+			supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no">
+			<Dependencies>
+				<PSXDeployableElement>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="316" dependencyType="Shared"
+						displayName="rffPressRelease" isIncluded="no"
+						objectType="ContentEditor" objectTypeName="Content Type"
+						supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="no" />
+					<Description />
+				</PSXDeployableElement>
+				<PSXDeployableElement>
+					<PSXDependency autoDep="no" autoExpand="yes"
+						dependencyId="512" dependencyType="Shared"
+						displayName="rffSnDateAndTitleLink" isIncluded="no"
+						objectType="sys_Templates" objectTypeName="Template"
+						supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no"
+						supportsUserDependencies="no" />
+					<Description />
+				</PSXDeployableElement>
+			</Dependencies>
+		</PSXDependency>
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

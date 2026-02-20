@@ -19,11 +19,11 @@ package com.percussion.sitemanage.web.service;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSAssetDropCriteria;
@@ -75,8 +75,8 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -111,7 +111,7 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
         }
       };
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -165,7 +165,7 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
     siteCleaner.clean();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     try {
       testSiteData.tearDown();

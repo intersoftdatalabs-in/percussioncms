@@ -20,6 +20,9 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.Vector;
 
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -28,7 +31,7 @@ import org.apache.commons.lang3.RandomStringUtils;
  * Unit tests for the PSResultSet class
  *
  */
-public class PSResultSetTest extends TestCase
+public class PSResultSetTest
 {
    /**
     * Set the result set's data to our data, then iterate through the
@@ -37,7 +40,7 @@ public class PSResultSetTest extends TestCase
    public void testRowValuesWithColumnIndices() throws java.sql.SQLException
    {
       PSResultSet result = new PSResultSet();
-      
+
       // set the data in the result set
       result.setResultData(m_columns, m_columnNames );
 
@@ -72,7 +75,7 @@ public class PSResultSetTest extends TestCase
    public void testRowValuesWithColumnNames() throws java.sql.SQLException
    {
       PSResultSet result = new PSResultSet();
-      
+
       // set the data in the result set
       result.setResultData(m_columns, m_columnNames );
 
@@ -100,11 +103,12 @@ public class PSResultSetTest extends TestCase
       assertTrue(i == NUM_ROWS);
    }
 
+   @BeforeEach
    @SuppressWarnings("unchecked")
    public void setUp()
    {
       m_columns = new Vector[3];
-      
+
       m_columns[0] = new Vector(NUM_ROWS);
       m_columns[1] = new Vector(NUM_ROWS);
       m_columns[2] = new Vector(NUM_ROWS);

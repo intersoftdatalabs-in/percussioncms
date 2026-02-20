@@ -177,7 +177,9 @@ span.fancytree-expander {
 .fancytree-fade-expander:hover span.fancytree-expander,
 .fancytree-fade-expander.fancytree-treefocus span.fancytree-expander,
 .fancytree-fade-expander .fancytree-treefocus span.fancytree-expander,
-.fancytree-fade-expander [class*="fancytree-statusnode-"] span.fancytree-expander {
+.fancytree-fade-expander
+  [class*="fancytree-statusnode-"]
+  span.fancytree-expander {
   transition: opacity 0.6s;
   opacity: 1;
 }
@@ -194,14 +196,29 @@ span.fancytree-checkbox {
 .fancytree-container.fancytree-checkbox-auto-hide span.fancytree-checkbox {
   visibility: hidden;
 }
-.fancytree-container.fancytree-checkbox-auto-hide .fancytree-node:hover span.fancytree-checkbox,
-.fancytree-container.fancytree-checkbox-auto-hide tr:hover td span.fancytree-checkbox,
-.fancytree-container.fancytree-checkbox-auto-hide .fancytree-node.fancytree-selected span.fancytree-checkbox,
-.fancytree-container.fancytree-checkbox-auto-hide tr.fancytree-selected td span.fancytree-checkbox {
+.fancytree-container.fancytree-checkbox-auto-hide
+  .fancytree-node:hover
+  span.fancytree-checkbox,
+.fancytree-container.fancytree-checkbox-auto-hide
+  tr:hover
+  td
+  span.fancytree-checkbox,
+.fancytree-container.fancytree-checkbox-auto-hide
+  .fancytree-node.fancytree-selected
+  span.fancytree-checkbox,
+.fancytree-container.fancytree-checkbox-auto-hide
+  tr.fancytree-selected
+  td
+  span.fancytree-checkbox {
   visibility: unset;
 }
-.fancytree-container.fancytree-checkbox-auto-hide.fancytree-treefocus .fancytree-node.fancytree-active span.fancytree-checkbox,
-.fancytree-container.fancytree-checkbox-auto-hide.fancytree-treefocus tr.fancytree-active td span.fancytree-checkbox {
+.fancytree-container.fancytree-checkbox-auto-hide.fancytree-treefocus
+  .fancytree-node.fancytree-active
+  span.fancytree-checkbox,
+.fancytree-container.fancytree-checkbox-auto-hide.fancytree-treefocus
+  tr.fancytree-active
+  td
+  span.fancytree-checkbox {
   visibility: unset;
 }
 /*------------------------------------------------------------------------------
@@ -347,16 +364,27 @@ table.fancytree-ext-table td.fancytree-status-merged {
   font-style: italic;
   color: silver;
 }
-table.fancytree-ext-table tr.fancytree-statusnode-error td.fancytree-status-merged {
+table.fancytree-ext-table
+  tr.fancytree-statusnode-error
+  td.fancytree-status-merged {
   color: red;
 }
-table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode > tbody > tr.fancytree-active > td {
+table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode
+  > tbody
+  > tr.fancytree-active
+  > td {
   background-color: #eee;
 }
-table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode > tbody > tr > td.fancytree-active-cell {
+table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode
+  > tbody
+  > tr
+  > td.fancytree-active-cell {
   background-color: #cbe8f6;
 }
-table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode.fancytree-cell-nav-mode > tbody > tr > td.fancytree-active-cell {
+table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode.fancytree-cell-nav-mode
+  > tbody
+  > tr
+  > td.fancytree-active-cell {
   background-color: #3875d7;
 }
 /*------------------------------------------------------------------------------
@@ -409,12 +437,16 @@ table.fancytree-ext-columnview .fancytree-has-children span.fancytree-cv-right {
   font-weight: lighter;
 }
 .fancytree-ext-filter-dimm tr.fancytree-submatch span.fancytree-title,
-.fancytree-ext-filter-dimm span.fancytree-node.fancytree-submatch span.fancytree-title {
+.fancytree-ext-filter-dimm
+  span.fancytree-node.fancytree-submatch
+  span.fancytree-title {
   color: black;
   font-weight: normal;
 }
 .fancytree-ext-filter-dimm tr.fancytree-match span.fancytree-title,
-.fancytree-ext-filter-dimm span.fancytree-node.fancytree-match span.fancytree-title {
+.fancytree-ext-filter-dimm
+  span.fancytree-node.fancytree-match
+  span.fancytree-title {
   color: black;
   font-weight: bold;
 }
@@ -423,22 +455,32 @@ table.fancytree-ext-columnview .fancytree-has-children span.fancytree-cv-right {
   display: none;
 }
 .fancytree-ext-filter-hide tr.fancytree-submatch span.fancytree-title,
-.fancytree-ext-filter-hide span.fancytree-node.fancytree-submatch span.fancytree-title {
+.fancytree-ext-filter-hide
+  span.fancytree-node.fancytree-submatch
+  span.fancytree-title {
   color: silver;
   font-weight: lighter;
 }
 .fancytree-ext-filter-hide tr.fancytree-match span.fancytree-title,
-.fancytree-ext-filter-hide span.fancytree-node.fancytree-match span.fancytree-title {
+.fancytree-ext-filter-hide
+  span.fancytree-node.fancytree-match
+  span.fancytree-title {
   color: black;
   font-weight: normal;
 }
 /* Hide expanders if all child nodes are hidden by filter */
 .fancytree-ext-filter-hide-expanders tr.fancytree-match span.fancytree-expander,
-.fancytree-ext-filter-hide-expanders span.fancytree-node.fancytree-match span.fancytree-expander {
+.fancytree-ext-filter-hide-expanders
+  span.fancytree-node.fancytree-match
+  span.fancytree-expander {
   visibility: hidden;
 }
-.fancytree-ext-filter-hide-expanders tr.fancytree-submatch span.fancytree-expander,
-.fancytree-ext-filter-hide-expanders span.fancytree-node.fancytree-submatch span.fancytree-expander {
+.fancytree-ext-filter-hide-expanders
+  tr.fancytree-submatch
+  span.fancytree-expander,
+.fancytree-ext-filter-hide-expanders
+  span.fancytree-node.fancytree-submatch
+  span.fancytree-expander {
   visibility: visible;
 }
 .fancytree-ext-childcounter span.fancytree-icon,

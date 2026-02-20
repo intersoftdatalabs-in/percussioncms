@@ -80,7 +80,7 @@ import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.notification.PSNotificationHelper;
 import com.percussion.services.relationship.data.PSRelationshipData;
 import com.percussion.services.utils.orm.data.PSTempId;
-import com.percussion.servlet_utils.jsr170.PSProperty;
+import com.percussion.system.utils.jsr170.PSProperty;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
@@ -109,7 +109,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.PropertyType;
@@ -2389,8 +2389,14 @@ public class PSContentRepository
             if (ic == null)
                 continue;
             Object data = null;
+            // Use JPA Metamodel to get attribute names since SessionFactory.getClassMetadata(Class) is removed
             //ms_log.info(getSessionFactory().getMetamodel().entity(ic).getAttributes());
-            String[] columnNames = getSessionFactory().getClassMetadata(ic).getPropertyNames();
+            java.util.Set<?> attrs = getSessionFactory().getMetamodel().entity(ic).getAttributes();
+                    java.util.List<String> names = new java.util.ArrayList<>();
+                    for (Object attr : attrs) {
+                        names.add(((jakarta.persistence.metamodel.Attribute<?, ?>) attr).getName());
+                    }
+                    String[] columnNames = names.toArray(new String[0]);
 
             if (cn.getConfiguration().isParent()) {
 

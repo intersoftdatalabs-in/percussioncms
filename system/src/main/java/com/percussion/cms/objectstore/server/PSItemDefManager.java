@@ -907,7 +907,7 @@ public class PSItemDefManager {
       throws PSInternalRequestCallException {
     if (request == null) throw new IllegalArgumentException("request cannot be null");
 
-    Map<String, String> params = new HashMap<>();
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_VARIANTID, Integer.toString(variantId));
 
     IPSInternalRequest ir =

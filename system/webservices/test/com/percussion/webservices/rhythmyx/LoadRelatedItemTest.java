@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test case for loading related items
  */
-@Tag("IntegrationTest")
+
 public class LoadRelatedItemTest extends PSTestBase
 {
    /**

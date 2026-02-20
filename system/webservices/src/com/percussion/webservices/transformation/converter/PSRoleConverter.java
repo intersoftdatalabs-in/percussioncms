@@ -30,8 +30,8 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.design.objectstore.PSRole</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.design.objectstore.PSRole</code> and
  * <code>com.percussion.webservices.security.data.PSRole</code>.
  */
 public class PSRoleConverter extends PSConverter
@@ -53,64 +53,60 @@ public class PSRoleConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.security.data.PSRole source = 
+         com.percussion.webservices.security.data.PSRole source =
             (com.percussion.webservices.security.data.PSRole) value;
 
          PSRole target = new PSRole(source.getName());
-         
+
          Long id = source.getId();
          if (id != null)
             target.setId((new PSGuid(id)).getUUID());
-         
-         PSRoleAttributesAttribute[] sourceAttrs = source.getAttributes();
-         if (sourceAttrs != null)
+
+         // Attributes is a wrapper with a live list in the generated DTO
+         com.percussion.webservices.security.data.PSRole.Attributes sourceAttrs = source.getAttributes();
+         if (sourceAttrs != null && sourceAttrs.getAttribute() != null)
          {
             PSAttributeList targetAttrs = new PSAttributeList();
-            for (int i=0; i<sourceAttrs.length; i++)
+            for (com.percussion.webservices.security.data.PSRole.Attributes.Attribute sourceAttr : sourceAttrs.getAttribute())
             {
-               PSRoleAttributesAttribute sourceAttr = sourceAttrs[i];
-               
                PSAttribute targetAttr = new PSAttribute(sourceAttr.getName());
-               targetAttr.setValues(Arrays.asList(sourceAttr.getValue()));
+               targetAttr.setValues(sourceAttr.getValue());
                targetAttrs.add(targetAttr);
             }
          }
-         
+
          return target;
       }
       else
       {
          PSRole source = (PSRole) value;
 
-         com.percussion.webservices.security.data.PSRole target = 
+         com.percussion.webservices.security.data.PSRole target =
             new com.percussion.webservices.security.data.PSRole();
 
          IPSGuid guid = source.getGUID();
          if (guid != null)
             target.setId(new PSDesignGuid(guid).getValue());
-         
+
          target.setName(source.getName());
-         
+
          PSAttributeList sourceAttrs = source.getAttributes();
-         PSRoleAttributesAttribute[] targetAttrs = 
-            new PSRoleAttributesAttribute[sourceAttrs.size()];
+         com.percussion.webservices.security.data.PSRole.Attributes attrsWrapper =
+            new com.percussion.webservices.security.data.PSRole.Attributes();
          for (int i=0; i<sourceAttrs.size(); i++)
          {
             PSAttribute sourceAttr = (PSAttribute) sourceAttrs.get(i);
-            
-            PSRoleAttributesAttribute targetAttr = 
-               new PSRoleAttributesAttribute();
+            com.percussion.webservices.security.data.PSRole.Attributes.Attribute targetAttr =
+               new com.percussion.webservices.security.data.PSRole.Attributes.Attribute();
             targetAttr.setName(sourceAttr.getName());
-            List<String> values = sourceAttr.getValues();
-            String[] valuesArray = values.toArray(new String[values.size()]);
-            targetAttr.setValue(valuesArray);
-            
-            targetAttrs[i] = targetAttr;
+            targetAttr.getValue().addAll(sourceAttr.getValues());
+            attrsWrapper.getAttribute().add(targetAttr);
          }
-         
+
+         target.setAttributes(attrsWrapper);
          return target;
       }
    }

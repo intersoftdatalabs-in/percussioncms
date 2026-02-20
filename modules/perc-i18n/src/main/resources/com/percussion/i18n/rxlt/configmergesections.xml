@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<!--
-This configuration file is used to merge all the CMS sections into one. The
-TMX bundle from the server is then merged with this one to generate the one to
-give to translation service.
-<!DOCTYPE tmxmergeconfig SYSTEM "tmxmergeconfig.dtd">
--->
+<!-- This configuration file is used to merge all the CMS sections into one.
+	The TMX bundle from the server is then merged with this one to generate the
+	one to give to translation service. <!DOCTYPE tmxmergeconfig SYSTEM "tmxmergeconfig.dtd"> -->
 <tmxmergeconfig>
 	<tu>
 		<config>

@@ -1,5 +1,3 @@
-
-
 <!--
    $Id: package.html 1.2 1999/01/13 15:50:44Z Administrator Release $
 
@@ -13,20 +11,26 @@
                       added RCS headers
 -->
 
-<BODY>
+<body>
+  <p>
+    The mail cataloger provides metadata about the installed mail providers. It
+    follows the specification defined by the cataloger for all catalog requests.
+    Mail catalog requests are handled internally by the Mail Manager.
+  </p>
 
-<P>The mail cataloger provides metadata about the installed mail providers.
-It follows the specification defined by the cataloger for all catalog
-requests. Mail catalog requests are handled internally by the
-Mail Manager.</P>
+  <p>
+    The Mail Manager supports the following request types, and their
+    corresponding handlers:
+  </p>
 
-<P>The Mail Manager supports the following request types, and their
-corresponding handlers:</P>
-
-<TABLE BORDER="1">
-   <TR><TH>Request Type</TH><TH>Handler</TH></TR>
-   <TR><TD>MailProvider</TD>
-       <TD>PSMailProviderCatalogHandler</TD></TR>
-</TABLE>
-
-</BODY>
+  <table border="1">
+    <tr>
+      <th>Request Type</th>
+      <th>Handler</th>
+    </tr>
+    <tr>
+      <td>MailProvider</td>
+      <td>PSMailProviderCatalogHandler</td>
+    </tr>
+  </table>
+</body>

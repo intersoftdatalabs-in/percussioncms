@@ -289,7 +289,7 @@ public class PSLocalDeliveryManager implements IPSDeliveryManager
             {
                IPSPubServerDao pubSrvMgr = PSSiteManagerLocator.getPubServerDao();
                if (result.getPubServerId() != null)
-                  server = pubSrvMgr.findPubServer(result.getPubServerId());
+                  server = pubSrvMgr.findPubServer(result.getPubServerId()).orElse(null);
             }
             
             handler = (IPSDeliveryHandler) PSBaseServiceLocator.getBean(loc

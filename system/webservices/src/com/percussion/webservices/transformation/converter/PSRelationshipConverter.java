@@ -25,7 +25,6 @@ import com.percussion.design.objectstore.PSRelationshipPropertyData;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.webservices.common.Relationship;
-import com.percussion.webservices.common.RelationshipPropertiesProperty;
 
 import java.util.List;
 
@@ -72,21 +71,21 @@ public class PSRelationshipConverter extends PSConverter
          com.percussion.webservices.system.PSRelationship target =
             new com.percussion.webservices.system.PSRelationship();
          setRelationshipFromServer(source, target);
-         
+
          return target;
       }
    }
-   
+
    /**
     * Copies relationship data from a specified objectstore to a specified
     * webservice object.
-    * 
+    *
     * @param source the objectstore or source object, never <code>null</code>.
     *    Note, this may be an instance of {@link PSAaRelationship} when it is
     *    called by the derived class (@link PSAaRelationshipConverter}.
     * @param target the webservice or target object.
     */
-   protected void setRelationshipFromServer(PSRelationship source, 
+   protected void setRelationshipFromServer(PSRelationship source,
       Relationship target)
    {
       long id = new PSDesignGuid(source.getGuid()).getValue();
@@ -99,34 +98,31 @@ public class PSRelationshipConverter extends PSConverter
       target.setDependentId(dependentId);
       target.setPersisted(source.isPersisted());
       target.setType(source.getConfig().getName());
-      
+
       List<PSRelationshipPropertyData> srcProps;
       if (source instanceof PSAaRelationship)
          srcProps = ((PSAaRelationship)source).getAllAaUserProperties();
       else
          srcProps = source.getAllUserProperties();
-      
-      RelationshipPropertiesProperty[] tgtProps = new RelationshipPropertiesProperty[srcProps
-            .size()];
-      int i = 0;
-      RelationshipPropertiesProperty tgtProp;
+
+      com.percussion.webservices.common.Relationship.Properties propsWrapper = new com.percussion.webservices.common.Relationship.Properties();
+      com.percussion.webservices.common.Relationship.Properties.Property tgtProp;
       for (PSRelationshipPropertyData srcProp : srcProps)
       {
-         tgtProp = new RelationshipPropertiesProperty();
+         tgtProp = new com.percussion.webservices.common.Relationship.Properties.Property();
          tgtProp.setName(srcProp.getName());
-         tgtProp.set_value(srcProp.getValue());
-         tgtProp.setPersisted(srcProp.isPersisted());
+         tgtProp.setValue(srcProp.getValue());
 
-         tgtProps[i++] = tgtProp;
+         propsWrapper.getProperty().add(tgtProp);
       }
-      target.setProperties(tgtProps);
+      target.setProperties(propsWrapper);
    }
-   
+
    /**
     * Converts relationship from webservice to objectstore object.
-    *  
+    *
     * @param source the source relationship, never <code>null</code>.
-    * 
+    *
     * @return the converted relationship, never <code>null</code>.
     */
    protected PSRelationship getRelationshipFromClient(Relationship source)
@@ -146,13 +142,15 @@ public class PSRelationshipConverter extends PSConverter
       PSRelationship target = new PSRelationship(id, owner, dependent,
             config);
       target.setPersisted(source.isPersisted());
-      
+
       PSRelationshipPropertyData tgtProp;
-      for (RelationshipPropertiesProperty prop : source.getProperties())
+      if (source.getProperties() != null && source.getProperties().getProperty() != null)
       {
-         tgtProp = target.getUserProperty(prop.getName());
-         tgtProp.setValue(prop.get_value());
-         tgtProp.setPersisted(prop.isPersisted());
+         for (com.percussion.webservices.common.Relationship.Properties.Property prop : source.getProperties().getProperty())
+         {
+            tgtProp = target.getUserProperty(prop.getName());
+            tgtProp.setValue(prop.getValue());
+         }
       }
 
       return target;

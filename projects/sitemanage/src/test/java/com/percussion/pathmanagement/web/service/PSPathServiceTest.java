@@ -17,12 +17,7 @@
 package com.percussion.pathmanagement.web.service;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship;
@@ -72,14 +67,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
   static String letters = "abcdefghijklmnopqrstuvwxyz";
 
@@ -110,7 +106,7 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
     return restClient;
   }
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     restClientEditor = new PSPathServiceRestClient(baseUrl);
     siteRestClient = new PSSiteRestClient(baseUrl);
@@ -227,14 +223,14 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       int itemsCountInPage,
       Integer totalItemsCount,
       Integer startIndex) {
-    assertNotNull("pathItems not null", pathItems);
-    assertNotNull("pathItems items not null", pathItems.getChildrenInPage());
-    assertNotNull("pathItems items count not null", pathItems.getChildrenCount());
+    assertNotNull(pathItems, "pathItems not null");
+    assertNotNull(pathItems.getChildrenInPage(), "pathItems items not null");
+    assertNotNull(pathItems.getChildrenCount(), "pathItems items count not null");
 
     assertEquals(
         "pathItems items count in page", itemsCountInPage, pathItems.getChildrenInPage().size());
-    assertEquals("pathItems children count", totalItemsCount, pathItems.getChildrenCount());
-    assertEquals("pathItems start index", startIndex, pathItems.getStartIndex());
+    assertEquals(totalItemsCount, pathItems.getChildrenCount(), "pathItems children count");
+    assertEquals(startIndex, pathItems.getStartIndex(), "pathItems start index");
   }
 
   private void validatePages(PSPagedItemList pathItems, Integer expectedStartIndex) {
@@ -283,9 +279,9 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       restClient.findChildren(path, -1, 5, null);
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
-      assertEquals("error code", 500, e.getStatus());
-      assertTrue(
-          "error details", e.getResponseBody().contains("java.lang.IllegalArgumentException"));
+      assertEquals(500, e.getStatus(), "error code");
+      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
+          "error details");
     }
 
     // startIndex == 0
@@ -293,9 +289,9 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       restClient.findChildren(path, 0, 5, null);
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
-      assertEquals("error code", 500, e.getStatus());
-      assertTrue(
-          "error details", e.getResponseBody().contains("java.lang.IllegalArgumentException"));
+      assertEquals(500, e.getStatus(), "error code");
+      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
+          "error details");
     }
   }
 
@@ -305,9 +301,9 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       restClient.findChildren(SITE_ROOT, 1, -1, null);
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
-      assertEquals("error code", 500, e.getStatus());
-      assertTrue(
-          "error details", e.getResponseBody().contains("java.lang.IllegalArgumentException"));
+      assertEquals(500, e.getStatus(), "error code");
+      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
+          "error details");
     }
   }
 
@@ -914,18 +910,18 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       restClient.findChildren(path, null, 0, "page003.xml");
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
-      assertEquals("error code", 500, e.getStatus());
-      assertTrue(
-          "error details", e.getResponseBody().contains("java.lang.IllegalArgumentException"));
+      assertEquals(500, e.getStatus(), "error code");
+      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
+          "error details");
     }
 
     try {
       restClient.findChildren(path, null, -1, "page003.xml");
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
-      assertEquals("error code", 500, e.getStatus());
-      assertTrue(
-          "error details", e.getResponseBody().contains("java.lang.IllegalArgumentException"));
+      assertEquals(500, e.getStatus(), "error code");
+      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
+          "error details");
     }
   }
 
@@ -954,9 +950,9 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       restClient.findChildren(path, null, 5, "");
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
-      assertEquals("error code", 500, e.getStatus());
-      assertTrue(
-          "error details", e.getResponseBody().contains("java.lang.IllegalArgumentException"));
+      assertEquals(500, e.getStatus(), "error code");
+      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
+          "error details");
     }
   }
 
@@ -1516,7 +1512,7 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
     assertEquals("", restClient.findLastExistingPath(SITE_ROOT + "foo/foo1/foo2"));
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     restClient.login("admin1", "demo");
 

@@ -16,7 +16,5 @@
     "jquery": "^3.6.0",
     "knockout": "^3.5.1"
   },
-  "devDependencies": {
-
-  }
+  "devDependencies": {}
 }

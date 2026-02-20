@@ -12,7 +12,7 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
 <xsl:output method="xml" encoding="UTF-8" />
-<xsl:template match="/"> 
+<xsl:template match="/">
     <html>
       <head>
         <meta name="generator" content="Percussion XSpLit Version 3.5"/>

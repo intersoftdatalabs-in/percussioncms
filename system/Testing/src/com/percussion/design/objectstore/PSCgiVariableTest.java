@@ -23,17 +23,18 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit tests for the PSCgiVariable class.
  */
-public class PSCgiVariableTest extends TestCase
+public class PSCgiVariableTest 
 {
-   public PSCgiVariableTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testConstructor() throws Exception
    {
@@ -76,6 +77,8 @@ public class PSCgiVariableTest extends TestCase
       }
    }
 
+   
+
    public void testXml() throws Exception
    {
       PSCgiVariable var = new PSCgiVariable("foobar");
@@ -93,6 +96,7 @@ public class PSCgiVariableTest extends TestCase
     * 
     * @throws Exception if the test fails.
     */ 
+   
    public void testClone() throws Exception
    {
       PSCgiVariable foo = new PSCgiVariable("foo");
@@ -101,16 +105,9 @@ public class PSCgiVariableTest extends TestCase
       assertEquals( foo, bar ); // I hope so!
       
       bar.setName( "bar" );
-      assertTrue( !foo.equals( bar ) );
+      assertFalse(foo.equals( bar ) );
    }
    
    
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSCgiVariableTest("testConstructor"));
-      suite.addTest(new PSCgiVariableTest("testXml"));
-      suite.addTest(new PSCgiVariableTest("testClone"));
-      return suite;
-   }
+   
 }

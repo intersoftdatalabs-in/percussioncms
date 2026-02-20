@@ -46,19 +46,19 @@ import com.percussion.sitemanage.data.PSUpdateSectionLink;
 import com.percussion.sitemanage.service.impl.PSSiteSectionService;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
 
 /**
  * Junit test case to test service {@link PSSiteSectionService}.
  *
  * @author Santiago M. Murchio
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class PSSiteSectionServiceTest extends PSRestTestCase<PSSiteSectionRestClient> {
   private static PSTestSiteData testSiteData;
   private static PSTemplateSummary renameTemplate;
@@ -69,7 +69,7 @@ public class PSSiteSectionServiceTest extends PSRestTestCase<PSSiteSectionRestCl
   static PSSiteTemplateRestClient siteTemplateRestClient;
   static PSTemplateServiceClient templateRestClient;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -84,7 +84,7 @@ public class PSSiteSectionServiceTest extends PSRestTestCase<PSSiteSectionRestCl
     setupClient(templateRestClient);
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
     testSiteData.tearDown();
   }

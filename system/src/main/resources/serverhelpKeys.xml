@@ -1,6 +1,7 @@
 
 
 <keys>
-   <mapping key="default" url="Maintaining_Server_Properties.htm"/>
-   <mapping key="PSServerPropertiesDialog" url="Maintaining_Server_Properties.htm"/>
+	<mapping key="default" url="Maintaining_Server_Properties.htm" />
+	<mapping key="PSServerPropertiesDialog"
+		url="Maintaining_Server_Properties.htm" />
 </keys>

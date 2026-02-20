@@ -26,26 +26,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.beanutils.Converter;
 
 /**
  * Test the {@link PSStateConverter}
  */
-public class PSStateConverterTest extends TestCase
+public class PSStateConverterTest
 {
    /**
     * Test the converter
-    * 
+    *
     * @throws Exception if the test fails
     */
+
    public void testConverter() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
+
       // convert server to client object
       Converter converter = factory.getConverter(PSState.class);
-      
+
       PSState src = new PSState();
       List<PSAgingTransition> agingTrans = new ArrayList<PSAgingTransition>();
       agingTrans.add(new PSAgingTransition());
@@ -65,21 +67,21 @@ public class PSStateConverterTest extends TestCase
       transitionList.add(new PSTransition());
       src.setTransitions(transitionList);
       src.setWorkflowId(456);
-      
-      com.percussion.webservices.system.PSState tgt = 
+
+      com.percussion.webservices.system.PSState tgt =
          (com.percussion.webservices.system.PSState) converter.convert(
             com.percussion.webservices.system.PSState.class, src);
-      
-      assertEquals(src.getAgingTransitions().size(), 
-         tgt.getAgingTransitions().length);
-      assertEquals(src.getAssignedRoles().size(), 
-         tgt.getAssignedRoles().length);
+
+      assertEquals(src.getAgingTransitions().size(),
+         (tgt.getAgingTransitions() == null ? 0 : tgt.getAgingTransitions().getPSAgingTransition().size()));
+      assertEquals(src.getAssignedRoles().size(),
+         (tgt.getAssignedRoles() == null ? 0 : tgt.getAssignedRoles().getPSAssignedRole().size()));
       assertEquals(src.getDescription(), tgt.getDescription());
       assertEquals(src.getName(), tgt.getName());
       Integer var1 = src.getSortOrder();
       Integer var2 = tgt.getSortOrder();
       assertEquals(var1,var2);
-      assertEquals(src.getTransitions().size(), tgt.getTransitions().length);
+      assertEquals(src.getTransitions().size(), (tgt.getTransitions() == null ? 0 : tgt.getTransitions().getPSTransition().size()));
    }
 }
 

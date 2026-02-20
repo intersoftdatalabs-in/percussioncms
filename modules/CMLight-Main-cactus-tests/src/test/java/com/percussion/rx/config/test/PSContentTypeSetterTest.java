@@ -59,7 +59,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author YuBingChen
  */
-@Tag("IntegrationTest")
+
 public class PSContentTypeSetterTest extends PSConfigurationTest {
   @SuppressWarnings("unchecked")
   public void testAddPropertyDefs() throws Exception {

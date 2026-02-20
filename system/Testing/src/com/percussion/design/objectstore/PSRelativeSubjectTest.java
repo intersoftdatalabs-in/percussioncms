@@ -20,6 +20,7 @@ package com.percussion.design.objectstore;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,17 +32,14 @@ import java.util.Iterator;
  * checking w/ simple relative subject classes.  Also includes
  * testing of accessor methods
  */
-public class PSRelativeSubjectTest extends TestCase
+public class PSRelativeSubjectTest 
 {
    /**
     * Constructor to call base class constructor.
     *
     * @see TestCase#TestCase(String) for more information.
     */
-   public PSRelativeSubjectTest(String name)
-   {
-      super(name);
-   }
+   
 
    // See base class
    public void setUp()
@@ -108,6 +106,7 @@ public class PSRelativeSubjectTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testEmptyEquals() throws Exception
    {
       PSRelativeSubject sub = new PSRelativeSubject();
@@ -122,6 +121,7 @@ public class PSRelativeSubjectTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testNameTypeConstructor() throws Exception
    {
       PSRelativeSubject sub =
@@ -196,6 +196,7 @@ public class PSRelativeSubjectTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testIllegalAccessorCalls() throws Exception
    {
       PSRelativeSubject sub = new PSRelativeSubject();
@@ -245,6 +246,7 @@ public class PSRelativeSubjectTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testXml() throws Exception
    {
       PSRelativeSubject sub = new PSRelativeSubject();
@@ -253,7 +255,7 @@ public class PSRelativeSubjectTest extends TestCase
 
       // block 1
       sub.setName("foobar");
-      assertTrue(!testRelativeSubjectEquals(sub,otherSub));
+      assertFalse(testRelativeSubjectEquals(sub,otherSub));
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element el = sub.toXml(doc);
@@ -264,7 +266,7 @@ public class PSRelativeSubjectTest extends TestCase
 
       // set a name and verify to/from loop
       sub.setName("taebo");
-      assertTrue(!testRelativeSubjectEquals(sub,otherSub));
+      assertFalse(testRelativeSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -275,7 +277,7 @@ public class PSRelativeSubjectTest extends TestCase
 
       // Add an empty att and verify to/from loop
       sub.getAttributes().add( new PSAttribute("att1") );
-      assertTrue(!testRelativeSubjectEquals(sub,otherSub));
+      assertFalse(testRelativeSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -286,7 +288,7 @@ public class PSRelativeSubjectTest extends TestCase
 
       // Add a second att and verify to/from loop
       sub.getAttributes().add( new PSAttribute("att2") );
-      assertTrue(!testRelativeSubjectEquals(sub,otherSub));
+      assertFalse(testRelativeSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -297,7 +299,7 @@ public class PSRelativeSubjectTest extends TestCase
 
       // Remove att and verify to/from loop
       sub.getAttributes().removeElementAt(0);
-      assertTrue(!testRelativeSubjectEquals(sub,otherSub));
+      assertFalse(testRelativeSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -308,7 +310,7 @@ public class PSRelativeSubjectTest extends TestCase
 
       // Remove last att and verify to/from loop
       sub.getAttributes().removeElementAt(0);
-      assertTrue(!testRelativeSubjectEquals(sub,otherSub));
+      assertFalse(testRelativeSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -323,14 +325,6 @@ public class PSRelativeSubjectTest extends TestCase
     *
     * @return The suite of test methods for this class.  Not <code>null</code>.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSRelativeSubjectTest("testEmptyEquals"));
-      suite.addTest(new PSRelativeSubjectTest("testNameTypeConstructor"));
-      suite.addTest(new PSRelativeSubjectTest("testIllegalAccessorCalls"));
-      suite.addTest(new PSRelativeSubjectTest("testXml"));
-      return suite;
-   }
+   
 }
 

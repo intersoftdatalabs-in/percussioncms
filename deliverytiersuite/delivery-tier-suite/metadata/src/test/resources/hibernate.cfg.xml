@@ -4,10 +4,14 @@
 		"file:hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
 
-<session-factory>
-	<mapping class="com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry"/>
-	<mapping class="com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty"/>   
-	<mapping class="com.percussion.delivery.metadata.rdbms.impl.PSDbBlogPostVisit"/>   
-    <mapping class="com.percussion.delivery.metadata.rdbms.impl.PSDbCookieConsent"/>
-</session-factory>
+	<session-factory>
+		<mapping
+			class="com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry" />
+		<mapping
+			class="com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty" />
+		<mapping
+			class="com.percussion.delivery.metadata.rdbms.impl.PSDbBlogPostVisit" />
+		<mapping
+			class="com.percussion.delivery.metadata.rdbms.impl.PSDbCookieConsent" />
+	</session-factory>
 </hibernate-configuration>

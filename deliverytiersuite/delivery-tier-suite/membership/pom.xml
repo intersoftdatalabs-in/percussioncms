@@ -10,7 +10,8 @@
     <artifactId>perc-membership-services</artifactId>
     <packaging>war</packaging>
     <name>Percussion Membership Services</name>
-    <description>Authentication and authorization services for secure DTS pages</description>
+    <description>Authentication and authorization services for secure DTS
+		pages</description>
     <properties>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <maven.compiler.source>${java.version}</maven.compiler.source>

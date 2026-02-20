@@ -6,9 +6,9 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -31,24 +31,19 @@ function _launchDialog(
   features,
   formName,
   postbackId,
-  partial)
-{
+  partial
+) {
   // Make sure we're calling submitForm() on the correct document
   var myself = self;
   var returnFromDialog;
 
-  if (partial)
-  {
-    returnFromDialog = function()
-    {
-      myself._submitPartialChange(formName, 0, {rtrn:postbackId});
+  if (partial) {
+    returnFromDialog = function () {
+      myself._submitPartialChange(formName, 0, { rtrn: postbackId });
     };
-  }
-  else
-  {
-    returnFromDialog = function()
-    {
-      myself.submitForm(formName, 0, {rtrn:postbackId});
+  } else {
+    returnFromDialog = function () {
+      myself.submitForm(formName, 0, { rtrn: postbackId });
     };
   }
 
@@ -57,7 +52,6 @@ function _launchDialog(
   srcURL = srcURL + "&_rtrnId=" + index;
   openWindow(window, srcURL, windowName, features, 1);
 }
-
 
 /**
  * Opens a new window, makes it active, and returns the Window
@@ -89,53 +83,43 @@ function openWindow(
   isModal,
   kind,
   closeCallback
-  )
-{
-  if (parentWindow)
-  {
+) {
+  if (parentWindow) {
     // default modality if none specified
-    if (isModal == (void 0))
-      isModal = false;
+    if (isModal == void 0) isModal = false;
 
     // if the kind isn't specified, default the kind off of the modality
-    if (!kind)
-    {
-      kind = (isModal) ? "dialog" : "document";
+    if (!kind) {
+      kind = isModal ? "dialog" : "document";
     }
 
     // default the window name to "_blank" if no
     // name is specified, in order to guarantee that a new window is
     // opened
-    if (!windowName)
-      windowName = "_blank";
+    if (!windowName) windowName = "_blank";
 
     //
     // pick the correct defaults and overrides
     //
     var defaults = _featureDefaults[kind];
 
-    if (defaults == (void 0))
-    {
+    if (defaults == void 0) {
       kind = "document";
       defaults = _featureDefaults[kind];
     }
 
-    var overrides = (isModal)
-                      ? _modalFeatureOverrides
-                      : _modelessFeatureOverrides;
+    var overrides = isModal
+      ? _modalFeatureOverrides
+      : _modelessFeatureOverrides;
 
     // determine the avialable features
-    var agentFeatures = (_agent.isIE)
-                          ? _ieFeatures
-                          : _nnFeatures;
+    var agentFeatures = _agent.isIE ? _ieFeatures : _nnFeatures;
 
     // we'll be hammering the features object, so make a copy
     var featuresCopy = null;
-    if (features)
-    {
+    if (features) {
       featuresCopy = new Object();
-      for (var f in features)
-      {
+      for (var f in features) {
         featuresCopy[f] = features[f];
       }
     }
@@ -146,39 +130,32 @@ function openWindow(
     var featureString = "";
 
     // loop through the available features for this platform
-    for (var featureName in agentFeatures)
-    {
+    for (var featureName in agentFeatures) {
       // get the overridden value of the feature
       var featureValue = overrides[featureName];
 
-      if (featureValue == (void 0))
-      {
+      if (featureValue == void 0) {
         // get the value of the feature if it isn't overridden
-        if (featuresCopy)
-        {
+        if (featuresCopy) {
           featureValue = featuresCopy[featureName];
           delete featuresCopy[featureName];
         }
 
         // if no value, get the default value, if any
-        if (featureValue == (void 0))
-          featureValue = defaults[featureName];
+        if (featureValue == void 0) featureValue = defaults[featureName];
       }
 
-      if (featureValue != (void 0))
-      {
+      if (featureValue != void 0) {
         // check if this is a boolean value
-        var isBoolean = _booleanFeatures[featureName] != (void 0);
+        var isBoolean = _booleanFeatures[featureName] != void 0;
 
         // output the value
-        if (featureValue || !isBoolean)
-        {
+        if (featureValue || !isBoolean) {
           // add the feature name
           featureString += featureName;
 
           // add the value for nonboolean features
-          if (!isBoolean)
-          {
+          if (!isBoolean) {
             featureString += "=" + featureValue;
           }
 
@@ -191,24 +168,20 @@ function openWindow(
     // Now tack on all the extra features that the user has requested.
     // These may or may not have meaning to the browser's implementation of
     // window.open().
-    for (var f in featuresCopy)
-    {
+    for (var f in featuresCopy) {
       featureString += f;
-      if (featuresCopy[f])
-        featureString += "=" + featuresCopy[f];
+      if (featuresCopy[f]) featureString += "=" + featuresCopy[f];
 
       featureString += ",";
     }
 
     // trim off last separator
-    if (featureString.length != 0)
-    {
+    if (featureString.length != 0) {
       featureString = featureString.substring(0, featureString.length - 1);
     }
 
     // register the closing callback
-    if (closeCallback)
-    {
+    if (closeCallback) {
       _setDependent(parentWindow, windowName, closeCallback);
     }
 
@@ -226,33 +199,25 @@ function openWindow(
     // Yahoo!:  The return value from window.open is a valid object which
     //          throws an exception when you try to do anything with it.
     var usableWindow = false;
-    if (newWindow != null)
-    {
+    if (newWindow != null) {
       var propCount = 0;
-      try
-      {
-        for (p in newWindow)
-        {
+      try {
+        for (p in newWindow) {
           propCount++;
           break;
         }
         // if (propCount == 0) this is Firefox popup blocker
-        if (propCount > 0)
-          usableWindow = true;
-      }
-      catch (e)
-      {
+        if (propCount > 0) usableWindow = true;
+      } catch (e) {
         // Yahoo! toolbar throws an exception when you try to access any of the
         // new window's properties.
       }
     }
     // else this is the Safari or Google Toolbar popup blocker
 
-    if (!usableWindow)
-    {
-      _setDependent(parentWindow, windowName, (void 0));
-      if (_AdfWindowOpenError != null)
-        alert(_AdfWindowOpenError);
+    if (!usableWindow) {
+      _setDependent(parentWindow, windowName, void 0);
+      if (_AdfWindowOpenError != null) alert(_AdfWindowOpenError);
       return;
     }
 
@@ -263,10 +228,8 @@ function openWindow(
     // body of the aprent window
     var parentBody = parentWindow.document.body;
 
-    if (isModal && !atMostIE4)
-    {
-      if (_agent.atLeast("ie", 4))
-      {
+    if (isModal && !atMostIE4) {
+      if (_agent.atLeast("ie", 4)) {
         parentBody.style.filter = "alpha(opacity=50)";
         alphaFilter = true;
       }
@@ -275,11 +238,9 @@ function openWindow(
       // and only apply the capture after window.open() has been
       // called.  See below for details.
       // XXXSafari: What to do for Safari?
-      if (_agent.isGecko)
-      {
+      if (_agent.isGecko) {
         // this should work, but doesn't appear to
-        if (parentBody != (void 0))
-          _addModalCaptureGecko(parentBody);
+        if (parentBody != void 0) _addModalCaptureGecko(parentBody);
       }
 
       parentWindow.onfocus = _onModalFocus;
@@ -294,8 +255,7 @@ function openWindow(
     // with the parent window even when a modal child is displayed.
     // Delaying our setCapture() call until after window.open()
     // seems to work around the problem.
-    if (isModal && (_agent.atLeast("ie", 5) && _agent.isWindows))
-    {
+    if (isModal && _agent.atLeast("ie", 5) && _agent.isWindows) {
       _addModalCaptureIE(parentBody);
 
       // Set up an onlosecapture handler so that we can
@@ -318,10 +278,12 @@ function openWindow(
       // A quick check for absolute URL is to test the presence of an
       // unescaped colon.
       //
-      var isAbsolute = (srcURL != null && srcURL.indexOf(':') != -1);
-      if (!isAbsolute)
-      {
-        var removeCapture = new Function("e", "_removeModalCaptureIE(window.document.body)");
+      var isAbsolute = srcURL != null && srcURL.indexOf(":") != -1;
+      if (!isAbsolute) {
+        var removeCapture = new Function(
+          "e",
+          "_removeModalCaptureIE(window.document.body)"
+        );
         newWindow.attachEvent("onunload", removeCapture);
       }
     }
@@ -342,8 +304,7 @@ function openWindow(
     newWindow.document.close();
         */
 
-    if (isModal && !atMostIE4)
-    {
+    if (isModal && !atMostIE4) {
       _setDependent(parentWindow, "modalWindow", newWindow);
     }
 
@@ -358,8 +319,7 @@ function openWindow(
     //   2. Does not get called when dialog is dismissed using the close
     //       button on the window, particularly for case of dialogs
     //       launched using openWindow().
-    if (isModal && self._pollManager)
-    {
+    if (isModal && self._pollManager) {
       _pollManager.deactivateAll();
       _pollWhenModalDependentCloses();
     }
@@ -367,31 +327,23 @@ function openWindow(
     // make the active window
     newWindow.focus();
 
-
     // Set up a timer to make sure that we reset the alpha filter.
-    if (alphaFilter)
-    {
+    if (alphaFilter) {
       parentWindow.setTimeout("_clearBodyModalEffects('alpha')", 1000);
     }
 
     return newWindow;
-  }
-  else
-  {
+  } else {
     return null;
   }
 }
 
 // Keeps checking for absence of a modal dependent, when found
 //  reactivates all poll, and stops checking any further
-function _pollWhenModalDependentCloses()
-{
-  if (!_getValidModalDependent(self))
-  {
+function _pollWhenModalDependentCloses() {
+  if (!_getValidModalDependent(self)) {
     _pollManager.reactivateAll();
-  }
-  else
-  {
+  } else {
     // pu: Call thyself to check again after a second
     //  If more accuracy required, set it to a millisecond
     self.setTimeout("_pollWhenModalDependentCloses()", 1000);
@@ -404,14 +356,12 @@ function _pollWhenModalDependentCloses()
 // we attempt to restore the capture so that users won't be
 // able to interact with the parent window while a modal child
 // is present.
-function _onModalLoseCapture()
-{
+function _onModalLoseCapture() {
   // We've lost our mouse capture.  Check to see whether
   // we still have any modal child windows.
   var modalDependent = _getValidModalDependent(self);
 
-  if (modalDependent)
-  {
+  if (modalDependent) {
     // If we still have a modal child, we need to re-apply
     // our mouse capture.  To do this, we just call _onModalFocus(),
     // which has the necessary code to set the capture.
@@ -426,13 +376,11 @@ function _onModalLoseCapture()
   }
 }
 
-
 /**
  * onFocus override when modal windows are up.
  * Handles moving the focus to the top and suppressing IE mouse clicks.
  */
-function _onModalFocus()
-{
+function _onModalFocus() {
   var theBody = self.document.body;
 
   // =-=ags Note: This used to call _getValidModalDependent(),
@@ -448,27 +396,21 @@ function _onModalFocus()
 
   var hasCapture = _agent.atLeast("ie", 5) && _agent.isWindows;
 
-  if (modalDependent && !modalDependent.closed)
-  {
+  if (modalDependent && !modalDependent.closed) {
     modalDependent.focus();
 
     // reset the capture on IE since it is released whenever
     // the focus moves to another window
-    if (hasCapture)
-    {
+    if (hasCapture) {
       theBody.setCapture();
     }
-  }
-  else
-  {
-    if (hasCapture)
-    {
+  } else {
+    if (hasCapture) {
       theBody.onlosecapture = null;
       _removeModalCaptureIE(theBody);
     }
   }
 }
-
 
 // A self-rescheduling function which clears out capture or alpha filtering
 // when modal windows are closed.  These effects are normally removed in
@@ -477,17 +419,12 @@ function _onModalFocus()
 // loading completes.  This function is used in conjunction with
 // Window.setTimeout() to make sure that the effects are cleared
 // in this case.
-function _clearBodyModalEffects(effect)
-{
-  if (_getValidModalDependent(self) != null)
-  {
+function _clearBodyModalEffects(effect) {
+  if (_getValidModalDependent(self) != null) {
     // If the modal window is still shown, re-schedule ourselves
     self.setTimeout("_clearBodyModalEffects('" + effect + "')", 1000);
-  }
-  else
-  {
-    if (effect == 'alpha')
-    {
+  } else {
+    if (effect == "alpha") {
       // No modal dependent - clear out the alpha filter and
       // don't bother rescheduling.
       self.document.body.style.filter = null;
@@ -498,42 +435,29 @@ function _clearBodyModalEffects(effect)
 /**
  * Returns the dependent which is modal and is still open.
  */
-function _getValidModalDependent(
-  parentWindow
-  )
-{
+function _getValidModalDependent(parentWindow) {
   var modalDependent = _getModalDependent(parentWindow);
 
-  if (modalDependent)
-  {
-    if (modalDependent.closed)
-    {
-      _setDependent(parentWindow, "modalWindow", (void 0));
-      modalDependent = (void 0);
+  if (modalDependent) {
+    if (modalDependent.closed) {
+      _setDependent(parentWindow, "modalWindow", void 0);
+      modalDependent = void 0;
     }
   }
 
   return modalDependent;
 }
 
-
 /**
  * Sizes the window to its preferred size.
  */
-function _sizeWin(
-  theWindow,
-  extraWidth,
-  extraHeight,
-  params
-  )
-{
-  var isGecko    = _agent.isGecko;
-  var isIE       = _agent.isIE;
-  var isSafari   = _agent.isSafari;
-  var isStandard = (isGecko || isSafari);
+function _sizeWin(theWindow, extraWidth, extraHeight, params) {
+  var isGecko = _agent.isGecko;
+  var isIE = _agent.isIE;
+  var isSafari = _agent.isSafari;
+  var isStandard = isGecko || isSafari;
 
-  if (!(isStandard || (isIE && _agent.isWindows)))
-    return;
+  if (!(isStandard || (isIE && _agent.isWindows))) return;
 
   /*
   // =-= bts theoretically, this would be all we need to do for Mozilla,
@@ -544,18 +468,17 @@ function _sizeWin(
     return;
   }
   */
-  var body =  theWindow.document.body;
+  var body = theWindow.document.body;
 
-  if (body)
-  {
+  if (body) {
     // width of the inside
-    var newWidth = (!isIE && (body.scrollWidth > body.clientWidth))
-                     ? body.scrollWidth
-                     : _getBodyWidth(body, body.offsetWidth, body.offsetLeft);
+    var newWidth =
+      !isIE && body.scrollWidth > body.clientWidth
+        ? body.scrollWidth
+        : _getBodyWidth(body, body.offsetWidth, body.offsetLeft);
     var newHeight = 0;
 
-    if (isStandard)
-    {
+    if (isStandard) {
       newHeight = body.offsetHeight + (window.outerHeight - window.innerHeight);
 
       // random extra space added in to make this work
@@ -568,10 +491,8 @@ function _sizeWin(
       // window shrinking.  Block this, though it'd be nice
       // to know what's really going on!
       if (window.outerWidth > body.offsetWidth)
-        newWidth  += (window.outerWidth - body.offsetWidth);
-    }
-    else
-    {
+        newWidth += window.outerWidth - body.offsetWidth;
+    } else {
       newHeight = body.scrollHeight + (body.offsetHeight - body.clientHeight);
       // if this method supported windows with toolbars, we would need to
       // add another 67 here, rather than the aribitrary 8 pixels
@@ -582,34 +503,27 @@ function _sizeWin(
       // add in the margins (MS bogusly uses Strings for these)
 
       newHeight += parseInt(body.topMargin) + parseInt(body.bottomMargin);
-      newWidth  += parseInt(body.leftMargin) + parseInt(body.rightMargin);
+      newWidth += parseInt(body.leftMargin) + parseInt(body.rightMargin);
     }
     //
     // allow the size to be a little bigger than currently necessary.
     // This is useful when we will be paging through multiple items and
     // later pages  might need a slightly larger window than the initial
     // page.
-    if (extraWidth)
-      newWidth += extraWidth;
+    if (extraWidth) newWidth += extraWidth;
 
-    if (extraHeight)
-      newHeight += extraHeight;
+    if (extraHeight) newHeight += extraHeight;
 
     // Make sure that width and height are at least as big as minimum requested
-    if (params != (void 0))
-    {
-      if (params['W'])
-      {
-        var minWidth = 0 + params['W'];
-        if (newWidth < minWidth)
-          newWidth = minWidth;
+    if (params != void 0) {
+      if (params["W"]) {
+        var minWidth = 0 + params["W"];
+        if (newWidth < minWidth) newWidth = minWidth;
       }
 
-      if (params['H'])
-      {
-        var minHeight = 0 + params['H'];
-        if (newHeight < minHeight)
-          newHeight = minHeight;
+      if (params["H"]) {
+        var minHeight = 0 + params["H"];
+        if (newHeight < minHeight) newHeight = minHeight;
       }
     }
 
@@ -621,10 +535,8 @@ function _sizeWin(
     var maxSHeight = newWin.screen.availHeight * 0.95;
     var maxSWidth = newWin.screen.availWidth * 0.95;
     // adjust if necessary
-    if (newHeight > maxSHeight)
-      newHeight = maxSHeight;
-    if (newWidth > maxSWidth)
-      newWidth = maxSWidth;
+    if (newHeight > maxSHeight) newHeight = maxSHeight;
+    if (newWidth > maxSWidth) newWidth = maxSWidth;
 
     // Finally, we can resize the window.
     // theWindow.parent.resizeTo(newWidth, newHeight);
@@ -632,30 +544,23 @@ function _sizeWin(
 
     // Check to make sure that our resize hasn't put the
     // window partially off screen.
-    var wLeft = isIE ? newWin.screenLeft: newWin.screenX;
-    var wTop = isIE ? newWin.screenTop: newWin.screenY;
+    var wLeft = isIE ? newWin.screenLeft : newWin.screenX;
+    var wTop = isIE ? newWin.screenTop : newWin.screenY;
     var moveit = false;
 
     // If we are off screen horizontal or vertical, center in that direction
-    if ((wLeft + newWidth) > (avLeft + maxSWidth))
-    {
-      wLeft = (newWin.screen.availWidth - newWidth)/2;
+    if (wLeft + newWidth > avLeft + maxSWidth) {
+      wLeft = (newWin.screen.availWidth - newWidth) / 2;
       moveit = true;
     }
 
-    if ((wTop + newHeight) > (avTop + maxSHeight))
-    {
-      wTop = (newWin.screen.availHeight - newHeight)/2;
+    if (wTop + newHeight > avTop + maxSHeight) {
+      wTop = (newWin.screen.availHeight - newHeight) / 2;
       moveit = true;
     }
 
-    if (moveit)
-    {
+    if (moveit) {
       newWin.moveTo(wLeft, wTop);
     }
   }
 }
-
-
-
-

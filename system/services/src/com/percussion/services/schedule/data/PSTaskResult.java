@@ -63,15 +63,20 @@ public class PSTaskResult implements IPSTaskResult
          throw new IllegalArgumentException(
                "problemDesc may not be null or empty if wasSuccess is false.");
       }
-        
-      
+
       m_wasCompleted = wasCompleted;
       m_problemDesc = problemDesc;
       if (variables != null)
-         m_variables.putAll(variables);
-      
-      m_variables.put("$sys.completed", wasCompleted);
-      m_variables.put("$sys.problemDesc", problemDesc);
+      {
+         variables.forEach((k, v) -> {
+            if (k != null && v != null) {
+               m_variables.put(k, String.valueOf(v));
+            }
+         });
+      }
+
+      m_variables.put("$sys.completed", String.valueOf(wasCompleted));
+      m_variables.put("$sys.problemDesc", problemDesc == null ? "" : problemDesc);
    }
    
    /*
@@ -93,7 +98,7 @@ public class PSTaskResult implements IPSTaskResult
    /*
     * //see base class method for details
     */
-   public Map<String,Object> getNotificationVariables()
+   public Map<String,String> getNotificationVariables()
    {
       return m_variables;
    }
@@ -111,5 +116,5 @@ public class PSTaskResult implements IPSTaskResult
    /**
     * See ctor, default to empty.
     */
-   private Map<String,Object> m_variables = new HashMap<>();
+   private Map<String,String> m_variables = new HashMap<>();
 }

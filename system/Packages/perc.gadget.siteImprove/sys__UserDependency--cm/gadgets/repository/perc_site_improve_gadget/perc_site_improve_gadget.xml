@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="Siteimprove" description="This gadget shows the Siteimprove integration with Percussion CMS." thumbnail="images/SIGadgetIcon.png" height="450" adminOnly="true">
-        <Require feature="perc_core"/>
-        <Require feature="perc_jquery_ui"/>
-        <Require feature="settitle" />
-    </ModulePrefs>
-    <Content type="html">
+	<ModulePrefs title="Siteimprove"
+		description="This gadget shows the Siteimprove integration with Percussion CMS."
+		thumbnail="images/SIGadgetIcon.png" height="450" adminOnly="true">
+		<Require feature="perc_core" />
+		<Require feature="perc_jquery_ui" />
+		<Require feature="settitle" />
+	</ModulePrefs>
+	<Content type="html">
         <![CDATA[
         <!DOCTYPE html>
 	   <link href="/cm/gadgets/repository/common/perc_common_gadget.css" rel="stylesheet" type="text/css" />
@@ -188,5 +190,5 @@
 			</div>
 		</div>
      ]]>
-    </Content>
+	</Content>
 </Module>

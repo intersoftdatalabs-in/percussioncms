@@ -37,7 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("IntegrationTest")
+
 class PSUpgradePageTemplateTest extends PSServletTestCase {
 
   private final Map<String, String> widgetMap = new HashMap<>();

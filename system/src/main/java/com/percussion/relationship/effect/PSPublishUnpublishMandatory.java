@@ -497,7 +497,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
       boolean forceDependent)
       throws PSCmsException {
     try {
-      Map<String, String> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_COMMAND, PSWorkflowCommandHandler.COMMAND_NAME);
       params.put(IPSConstants.DEFAULT_ACTION_TRIGGER_NAME, transition);
       params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(item.getId()));
@@ -548,7 +548,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
       throws PSInternalRequestCallException, PSNotFoundException {
     String resource = SYS_PSXRELATIONSHIPSUPPORT + "/" + GET_TRANSITIONS;
 
-    Map<String, String> params = new HashMap<>();
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_WORKFLOWID, workflowId);
     params.put(IPSConstants.DEFAULT_NEWSTATEID_NAME, stateId);
     IPSInternalRequest ir = request.getInternalRequest(resource, params, false);

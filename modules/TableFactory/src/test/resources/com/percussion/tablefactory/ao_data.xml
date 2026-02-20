@@ -15,8 +15,7 @@
 				xmlns:st1="urn:www.microsoft.com/smarttags"
 				xmlns:w="urn:www.microsoft.com/word"
 				xmlns:x="urn:www.microsoft.com/excel"&gt;&lt;p&gt;TEST -
-				Editorial&lt;/p&gt;&lt;/div&gt;
-			</column>
+				Editorial&lt;/p&gt;&lt;/div&gt; </column>
 			<column encoding="text" name="DEFAULT_LANGUAGE">338</column>
 			<column encoding="text" name="FULL_ARTICLE">
 				Detail Text
@@ -41,8 +40,7 @@
 				xmlns:st1="urn:www.microsoft.com/smarttags"
 				xmlns:w="urn:www.microsoft.com/word"
 				xmlns:x="urn:www.microsoft.com/excel"&gt;&lt;p&gt;TEST -
-				Editorial&lt;/p&gt;&lt;/div&gt;
-			</column>
+				Editorial&lt;/p&gt;&lt;/div&gt; </column>
 			<column encoding="text" name="DEFAULT_LANGUAGE">338</column>
 			<column encoding="text" name="FULL_ARTICLE">
 				Detail Text
@@ -67,8 +65,7 @@
 				xmlns:st1="urn:www.microsoft.com/smarttags"
 				xmlns:w="urn:www.microsoft.com/word"
 				xmlns:x="urn:www.microsoft.com/excel"&gt;&lt;p&gt;TEST -
-				Editorial1&lt;/p&gt;&lt;/div&gt;
-			</column>
+				Editorial1&lt;/p&gt;&lt;/div&gt; </column>
 			<column encoding="text" name="DEFAULT_LANGUAGE">338</column>
 			<column encoding="text" name="FULL_ARTICLE">
 				Detail Text
@@ -93,8 +90,7 @@
 				xmlns:st1="urn:www.microsoft.com/smarttags"
 				xmlns:w="urn:www.microsoft.com/word"
 				xmlns:x="urn:www.microsoft.com/excel"&gt;&lt;p&gt;TEST -
-				Editorial1&lt;/p&gt;&lt;/div&gt;
-			</column>
+				Editorial1&lt;/p&gt;&lt;/div&gt; </column>
 			<column encoding="text" name="DEFAULT_LANGUAGE">338</column>
 			<column encoding="text" name="FULL_ARTICLE">
 				Detail Text
@@ -119,8 +115,8 @@
 				xmlns:st1="urn:www.microsoft.com/smarttags"
 				xmlns:w="urn:www.microsoft.com/word"
 				xmlns:x="urn:www.microsoft.com/excel"&gt;&lt;p&gt;Test -
-				Editorial - Phil&lt;/p&gt;&lt;/div&gt;
-			</column>
+				Editorial -
+				Phil&lt;/p&gt;&lt;/div&gt; </column>
 			<column encoding="text" name="DEFAULT_LANGUAGE">338</column>
 			<column encoding="text" name="FULL_ARTICLE">
 				Detail Text
@@ -145,8 +141,8 @@
 				xmlns:st1="urn:www.microsoft.com/smarttags"
 				xmlns:w="urn:www.microsoft.com/word"
 				xmlns:x="urn:www.microsoft.com/excel"&gt;&lt;p&gt;Test -
-				Editorial - Mike&lt;/p&gt;&lt;/div&gt;
-			</column>
+				Editorial -
+				Mike&lt;/p&gt;&lt;/div&gt; </column>
 			<column encoding="text" name="DEFAULT_LANGUAGE">338</column>
 			<column encoding="text" name="FULL_ARTICLE">
 				Detail Text
@@ -171,8 +167,8 @@
 				xmlns:st1="urn:www.microsoft.com/smarttags"
 				xmlns:w="urn:www.microsoft.com/word"
 				xmlns:x="urn:www.microsoft.com/excel"&gt;&lt;p&gt;Test -
-				Editorial - AO&lt;/p&gt;&lt;/div&gt;
-			</column>
+				Editorial -
+				AO&lt;/p&gt;&lt;/div&gt; </column>
 			<column encoding="text" name="DEFAULT_LANGUAGE">338</column>
 			<column encoding="text" name="FULL_ARTICLE">
 				Detail Text
@@ -182,6 +178,6 @@
 			<column encoding="text" name="BODYSOURCE_ENCODING" />
 			<column encoding="text" name="BODYSOURCE_FILENAME" />
 			<column encoding="text" name="BODYCONTENT" />
-		</row> 	
+		</row>
 	</table>
 </tables>

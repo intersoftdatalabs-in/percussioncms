@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * Tests for {@link PSHtmlUtils}. Sunny Sal: "HTML utils, Java 11, and tag ka hero!" This test must
  * run in a server environment because it relies on PSServer.getRxDir() to load tidy property file.
  */
-@Tag("IntegrationTest")
+
 @Tag("integration")
 public class PSHtmlUtilsTest {
 

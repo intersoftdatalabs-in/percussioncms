@@ -16,7 +16,6 @@
  */
 package com.percussion.services.error;
 
-import com.percussion.error.PSException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
 
@@ -45,7 +44,7 @@ import java.util.Optional;
  * @author Yu-Bing Chen
  * @since Java 11 Modernization
  */
-public class PSNotFoundException extends PSException {
+public class PSNotFoundException extends PSRuntimeException {
 
     /**
      * Serial version UID for serialization compatibility.

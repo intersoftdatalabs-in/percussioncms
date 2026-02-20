@@ -35,7 +35,7 @@ import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.utils.guid.IPSGuid;
@@ -150,7 +150,7 @@ public class PSExitCreateDefaultCommunityAcl extends PSDefaultExtension
         errorMsg = "The community id ''{0}'' could not be parsed.";
         MessageFormat.format(errorMsg, commId);
       }
-    } catch (PSSecurityException e) {
+    } catch (PSServiceSecurityException e) {
       // couldn't load community
       errorMsg = "Failed to find community {0} when creating workflow {1}";
       MessageFormat.format(errorMsg, commId);

@@ -16,7 +16,7 @@
  */
 package com.percussion.webservices.security.impl;
 
-import com.percussion.design.objectstore.PSRole;
+
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.security.PSSecurityCatalogException;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -41,14 +41,35 @@ import com.percussion.services.security.IPSRoleMgr;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSServiceSecurityException;
+import com.percussion.services.security.IPSAclEntry;
 import com.percussion.services.security.data.PSAclEntryImpl;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.services.security.data.PSCommunity;
-import com.percussion.webservices.security.data.PSCommunityVisibility;
+import com.percussion.services.security.data.PSCommunityVisibility;
 import com.percussion.webservices.security.data.PSRole;
+import com.percussion.webservices.PSWebserviceUtils;
+import com.percussion.webservices.IPSWebserviceErrors;
+import com.percussion.webservices.PSWebserviceErrors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
+import com.percussion.webservices.security.IPSSecurityWs;
+import com.percussion.webservices.security.PSSecurityWsLocator;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.webservices.system.IPSSystemDesignWs;
+import com.percussion.webservices.system.PSSystemWsLocator;
+import com.percussion.webservices.ui.IPSUiDesignWs;
+import com.percussion.webservices.ui.PSUiWsLocator;
+import com.percussion.services.sitemgr.IPSSiteManager;
+import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.percussion.webservices.security.IPSSecurityDesignWs;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.system.utils.PSBaseBean;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.Subject;
@@ -185,7 +206,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
    public List<IPSCatalogSummary> findRoles(String name)
    {
       IPSSecurityWs service = PSSecurityWsLocator.getSecurityWebservice();
-      List<PSRole> roles = service.loadRoles(name);
+      var roles = service.loadRoles(name);
       return PSWebserviceUtils.toObjectSummaries(roles);
    }
 
@@ -207,36 +228,36 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
 
    /*
     * (non-Javadoc)
-    * 
-    * @see IPSSecurityDesign#loadCommunities(List, boolean, boolean, 
+    *
+    * @see IPSSecurityDesign#loadCommunities(List, boolean, boolean,
     *    String, String)
     */
    @SuppressWarnings("unchecked")
    public List<PSCommunity> loadCommunities(List<IPSGuid> ids, boolean lock,
-      boolean overrideLock, String session, String user) 
+      boolean overrideLock, String session, String user)
       throws PSErrorResultsException
    {
       if (PSGuidUtils.isBlank(ids))
          throw new IllegalArgumentException("ids cannot be null or empty");
-      
+
       if (lock && StringUtils.isBlank(session))
          throw new IllegalArgumentException("session cannot be null or empty");
-   
+
       if (lock && StringUtils.isBlank(user))
          throw new IllegalArgumentException("user cannot be null or empty");
 
-      IPSBackEndRoleMgr service = 
+      IPSBackEndRoleMgr service =
          PSRoleMgrLocator.getBackEndRoleManager();
-      
+
       PSErrorResultsException results = new PSErrorResultsException();
       PSCommunity[] communities = service.loadCommunities(ids
             .toArray(new IPSGuid[ids.size()]));
-   
+
       //check for error and handle it
       Exception e = new Exception();
       for (int i = 0, j=0; i < ids.size(); i++)
       {
-         IPSGuid id = ids.get(i); 
+         IPSGuid id = ids.get(i);
          if (communities.length > 0 && j < communities.length)
          {
             if (id.equals(communities[j].getGUID()))
@@ -246,7 +267,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                continue;
             }
          }
-         
+
          int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
          PSDesignGuid guid = new PSDesignGuid(id);
          PSErrorException error = new PSErrorException(code,
@@ -255,49 +276,49 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                .getFullStackTrace(e));
          results.addError(id, error);
       }
-   
+
       if (lock)
       {
-         IPSObjectLockService lockService = 
+         IPSObjectLockService lockService =
             PSObjectLockServiceLocator.getLockingService();
          lockService.createLocks(results, session, user, overrideLock);
       }
-      
+
       if (results.hasErrors())
          throw results;
-      
+
       return results.getResults(ids);
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSSecurityDesign#saveCommunities(List, boolean, String, String)
     */
    @Transactional
-   public void saveCommunities(List<PSCommunity> communities, boolean release, 
+   public void saveCommunities(List<PSCommunity> communities, boolean release,
       String session, String user) throws PSErrorsException
    {
       if (communities == null || communities.isEmpty())
          throw new IllegalArgumentException(
             "communities cannot be null or empty");
-      
+
       if (release && StringUtils.isBlank(session))
          throw new IllegalArgumentException("session cannot be null or empty");
-   
+
       if (release && StringUtils.isBlank(user))
          throw new IllegalArgumentException("user cannot be null or empty");
-      
-      IPSBackEndRoleMgr service = 
+
+      IPSBackEndRoleMgr service =
          PSRoleMgrLocator.getBackEndRoleManager();
-      
-      IPSObjectLockService lockService = 
+
+      IPSObjectLockService lockService =
          PSObjectLockServiceLocator.getLockingService();
 
       //todo: should check if the community is locked before renaming the acls
-      
+
       // rename acls first
-      Map<String, PSCommunity> renamedCommunities = 
+      Map<String, PSCommunity> renamedCommunities =
          getRenamedCommunities(communities, session, user);
       try
       {
@@ -315,34 +336,34 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                message.append(", ");
             }
          }
-         
+
          int code = IPSWebserviceErrors.FAILED_RENAMING_ACLS;
-         PSErrorException error = new PSErrorException(code, 
-            PSWebserviceErrors.createErrorMessage(code, 
-               PSCommunity.class.getName(), message), 
+         PSErrorException error = new PSErrorException(code,
+            PSWebserviceErrors.createErrorMessage(code,
+               PSCommunity.class.getName(), message),
             ExceptionUtils.getFullStackTrace(new Exception()));
-   
+
          PSErrorsException ex = new PSErrorsException();
          for (PSCommunity community : communities)
             ex.addError(community.getGUID(), error);
-         
+
          throw ex;
       }
       catch (RemoteException e)
       {
          int code = IPSWebserviceErrors.FAILED_RENAMING_ACLS;
-         PSErrorException error = new PSErrorException(code, 
-            PSWebserviceErrors.createErrorMessage(code, 
-               PSCommunity.class.getName(), e.getLocalizedMessage()), 
+         PSErrorException error = new PSErrorException(code,
+            PSWebserviceErrors.createErrorMessage(code,
+               PSCommunity.class.getName(), e.getLocalizedMessage()),
             ExceptionUtils.getFullStackTrace(new Exception()));
-   
+
          PSErrorsException ex = new PSErrorsException();
          for (PSCommunity community : communities)
             ex.addError(community.getGUID(), error);
-         
+
          throw ex;
       }
-   
+
       // then save the community
       PSErrorsException results = new PSErrorsException();
       List<PSObjectLock> locksToRelease = new ArrayList<PSObjectLock>();
@@ -363,10 +384,10 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                service.saveCommunity(community);
                if (!release)
                {
-                  lockService.extendLock(id, session, user, 
+                  lockService.extendLock(id, session, user,
                      community.getVersion());
                }
-               
+
                results.addResult(id);
             }
             else
@@ -376,9 +397,9 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                {
                   int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED;
                   PSDesignGuid guid = new PSDesignGuid(id);
-                  PSErrorException error = new PSErrorException(code, 
-                     PSWebserviceErrors.createErrorMessage(code, 
-                        PSCommunity.class.getName(), guid.getValue()), 
+                  PSErrorException error = new PSErrorException(code,
+                     PSWebserviceErrors.createErrorMessage(code,
+                        PSCommunity.class.getName(), guid.getValue()),
                         ExceptionUtils.getFullStackTrace(new Exception()));
                   results.addError(id, error);
                }
@@ -386,10 +407,10 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                {
                   int code = IPSWebserviceErrors.OBJECT_NOT_LOCKED_FOR_REQUESTOR;
                   PSDesignGuid guid = new PSDesignGuid(id);
-                  PSErrorException error = new PSErrorException(code, 
-                     PSWebserviceErrors.createErrorMessage(code, 
-                        PSCommunity.class.getName(), guid.getValue(), 
-                        lock.getLocker(), lock.getRemainingTime()), 
+                  PSErrorException error = new PSErrorException(code,
+                     PSWebserviceErrors.createErrorMessage(code,
+                        PSCommunity.class.getName(), guid.getValue(),
+                        lock.getLocker(), lock.getRemainingTime()),
                         ExceptionUtils.getFullStackTrace(new Exception()));
                   results.addError(id, error);
                }
@@ -399,15 +420,15 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
          {
             int code = IPSWebserviceErrors.SAVE_FAILED;
             PSDesignGuid guid = new PSDesignGuid(id);
-            PSErrorException error = new PSErrorException(code, 
-               PSWebserviceErrors.createErrorMessage(code, 
+            PSErrorException error = new PSErrorException(code,
+               PSWebserviceErrors.createErrorMessage(code,
                   PSCommunity.class.getName(), guid.getValue(),
-                  e.getLocalizedMessage()), 
+                  e.getLocalizedMessage()),
                   ExceptionUtils.getFullStackTrace(e));
             results.addError(id, error);
          }
       }
-      
+
       if (release)
       {
          lockService.releaseLocks(locksToRelease);
@@ -415,13 +436,13 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
       if (results.hasErrors())
          throw results;
    }
-   
+
     /**
     * Get all communities that were renamed with the current request.
-    * 
-    * @param communities the communities to test for rename, not 
+    *
+    * @param communities the communities to test for rename, not
     *    <code>null</code>, may be empty.
-    * @param session the session used for all requested, assuemd not 
+    * @param session the session used for all requested, assuemd not
     *    <code>null</code> or empty.
     * @param user the user making the request, assumed not <code>null</code>
     *    or empty.
@@ -430,14 +451,14 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
     *    be empty.
     */
    private Map<String, PSCommunity> getRenamedCommunities(
-      List<PSCommunity> communities, String session, String user) 
+      List<PSCommunity> communities, String session, String user)
    {
-      Map<String, PSCommunity> renamedCommunities = 
+      Map<String, PSCommunity> renamedCommunities =
          new HashMap<String, PSCommunity>();
-      
+
       if (communities.isEmpty())
          return renamedCommunities;
-      
+
       // load the current communities if available
       List<PSCommunity> currentCommunities = new ArrayList<PSCommunity>();
       try
@@ -445,8 +466,8 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
          List<IPSGuid> ids = new ArrayList<IPSGuid>();
          for (PSCommunity community : communities)
             ids.add(community.getGUID());
-   
-         currentCommunities.addAll(loadCommunities(ids, false, false, 
+
+         currentCommunities.addAll(loadCommunities(ids, false, false,
             session, user));
       }
       catch (PSErrorResultsException e)
@@ -458,7 +479,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                currentCommunities.add((PSCommunity) obj);
          }
       }
-      
+
       // weed out renamed communities
       for (PSCommunity community : communities)
       {
@@ -468,23 +489,23 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
             {
                if (!community.getName().equals(currentCommunity.getName()))
                   renamedCommunities.put(currentCommunity.getName(), community);
-               
+
                break;
             }
          }
       }
-      
+
       return renamedCommunities;
    }
 
    /**
     * Maps the <code>summaries</code> that are visible to each of the supplied
     * <code>communities</code>.
-    * 
+    *
     * @param catSummaries Assumed not <code>null</code>.
-    * 
+    *
     * @param communities Assumed not <code>null</code>.
-    * 
+    *
     * @return Never <code>null</code>. Each object in
     * <code>communities</code> is placed in the result as a key. Each value is
     * a non-<code>null</code> collection from the supplied <code>summaries</code>
@@ -495,19 +516,25 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
    {
       IPSAclService service = PSAclServiceLocator.getAclService();
 
-      Map<IPSGuid,IPSAcl> objectAcls = new HashMap<IPSGuid,IPSAcl>();
+      Map<IPSGuid,IPSAcl> objectAcls = new HashMap<>();
       for (IPSGuid g : catSummaries.keySet()) {
-         IPSAcl acl = service.loadAclForObject(g);
+         IPSAcl acl = null;
+         try {
+            acl = service.loadAclForObject(g);
+         } catch (PSServiceSecurityException e) {
+            // failed to load ACL for this object, continue with null
+            acl = null;
+         }
 
-         objectAcls.put(g ,acl);
+         objectAcls.put(g, acl);
       }
 
       Map<PSCommunity, List<PSObjectSummary>> filteredSummaries =
-         new HashMap<PSCommunity, List<PSObjectSummary>>();
+         new HashMap<>();
       Map<IPSGuid,PSObjectSummary> objSummaries = PSWebserviceUtils
               .toObjectSummaries(catSummaries, objectAcls);
 
-      List<PSObjectSummary> objSum = new ArrayList(objSummaries.values());
+      List<PSObjectSummary> objSum = new ArrayList<>(objSummaries.values());
       for (Map.Entry<IPSGuid,PSCommunity> comm : communities.entrySet()) {
          filteredSummaries.put(comm.getValue(), objSum);
       }
@@ -518,7 +545,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
 
    /**
     * Rename the acl entries for the supplied communities.
-    * 
+    *
     * @param communities the communities for which to rename the acl entries,
     * assumed not <code>null</code>, may be empty. The key holds the original
     * community name, the value the community with the new name.
@@ -531,25 +558,25 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
     * visibilities or loading/saving acls.
     */
    @SuppressWarnings("unused")  //RemoteException
-   private void renameAclEntries(Map<String, PSCommunity> communities, 
-      String session, String user) throws RemoteException, 
+   private void renameAclEntries(Map<String, PSCommunity> communities,
+      String session, String user) throws RemoteException,
          PSErrorResultsException
    {
       if (communities.isEmpty())
          return;
-      
+
       List<IPSGuid> commIds = new ArrayList<IPSGuid>();
       for (PSCommunity community : communities.values())
          commIds.add(community.getGUID());
-      
-      
-      IPSSystemDesignWs systemService = 
+
+
+      IPSSystemDesignWs systemService =
          PSSystemWsLocator.getSystemDesignWebservice();
-      IPSObjectLockService lockService = 
+      IPSObjectLockService lockService =
          PSObjectLockServiceLocator.getLockingService();
-      
+
       // find acls that are already locked by the current user
-      List<PSAclImpl> allAcls = systemService.loadAcls(null, false, false, 
+      List<PSAclImpl> allAcls = systemService.loadAcls(null, false, false,
          session, user);
       List<IPSGuid> aclIds = new ArrayList<IPSGuid>();
       for (PSAclImpl acl : allAcls)
@@ -557,21 +584,22 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
 
       List<PSObjectLock> existingLocks = lockService.findLocksByObjectIds(
          aclIds, session, user);
-      
-      
+
+
       //determine which acls actually need to be fixed
       List<IPSGuid> objRequireChangeIds= new ArrayList<IPSGuid>();
       List<IPSGuid> aclRequireChangeIds= new ArrayList<IPSGuid>();
       for (PSAclImpl acl : allAcls)
       {
-         Iterator entries = acl.getEntries().iterator();
+         Iterator<IPSAclEntry> entries = acl.getEntries().iterator();
          boolean modified = false;
          while (entries.hasNext())
          {
-            PSAclEntryImpl entry = (PSAclEntryImpl) entries.next();
+            IPSAclEntry ientry = entries.next();
+            PSAclEntryImpl entry = (PSAclEntryImpl) ientry;
             if (!entry.getType().equals(PrincipalTypes.COMMUNITY))
                continue;
-            
+
             for (String name : communities.keySet())
             {
                if (entry.getName().equals(name))
@@ -587,8 +615,8 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
             aclRequireChangeIds.add(acl.getGUID());
          }
       }
-      
-      
+
+
       try
       {
          List<PSAclImpl> toChangeAcls = new ArrayList<PSAclImpl>();
@@ -601,13 +629,14 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
 
          for (PSAclImpl acl : toChangeAcls)
          {
-            Iterator entries = acl.getEntries().iterator();
+            Iterator<IPSAclEntry> entries = acl.getEntries().iterator();
             while (entries.hasNext())
             {
-               PSAclEntryImpl entry = (PSAclEntryImpl) entries.next();
+               IPSAclEntry ientry = entries.next();
+               PSAclEntryImpl entry = (PSAclEntryImpl) ientry;
                if (!entry.getType().equals(PrincipalTypes.COMMUNITY))
                   continue;
-               
+
                for (String name : communities.keySet())
                {
                   if (entry.getName().equals(name))
@@ -640,7 +669,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
    }
 
    /* (non-Javadoc)
-    * @see IPSSecurityDesignWs#getVisibilityByCommunity(List, PSTypeEnum, 
+    * @see IPSSecurityDesignWs#getVisibilityByCommunity(List, PSTypeEnum,
     *    String, String)
     */
    @SuppressWarnings("unchecked")
@@ -660,7 +689,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
       {
          throw new IllegalArgumentException(e.getLocalizedMessage());
       }
-   
+
       PSErrorResultsException results = new PSErrorResultsException();
       List<PSCommunity> communities = loadCommunities(ids, false, false,
             session, user);
@@ -677,9 +706,9 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
       /*
        * value is a set of workflows that are visible to the keyed community
        */
-      Map<PSCommunity, List<PSObjectSummary>> filtered = 
+      Map<PSCommunity, List<PSObjectSummary>> filtered =
          filterByCommunityVisibility(summaryMap, communityMap);
-      
+
       for (PSCommunity community : communities)
       {
          PSCommunityVisibility visibility = new PSCommunityVisibility(
@@ -687,25 +716,25 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
          visibility.addAllVisibleObjects(filtered.get(community));
          results.addResult(community.getGUID(), visibility);
       }
-   
+
       if (results.hasErrors())
          throw results;
-   
+
       return results.getResults(ids);
    }
 
    /**
-    * Get all design object summaries for the specified type. Returns the 
-    * summaries for all design object types as defined in 
+    * Get all design object summaries for the specified type. Returns the
+    * summaries for all design object types as defined in
     * {@link #getDesignObjectTypes()} if no type was specified.
-    * 
-    * @param type the object type for which to get the summaries, 
+    *
+    * @param type the object type for which to get the summaries,
     *    <code>null</code> to get the summaries for all design object types.
     * @return the requested summaries, never <code>null</code>, may be empty.
     * @throws PSErrorException if an unsupported object type was supplied.
     * @throws PSAssemblyException if failed to load templates.
     */
-   private List<IPSCatalogSummary> getDesignObjectSummaries(PSTypeEnum type) 
+   private List<IPSCatalogSummary> getDesignObjectSummaries(PSTypeEnum type)
       throws PSErrorException, PSAssemblyException
    {
       List<PSTypeEnum> objectTypes = new ArrayList<PSTypeEnum>();
@@ -713,14 +742,14 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
          objectTypes.addAll(getDesignObjectTypes());
       else
          objectTypes.add(type);
-   
-      IPSAssemblyService assemblyService = 
+
+      IPSAssemblyService assemblyService =
          PSAssemblyServiceLocator.getAssemblyService();
-      IPSContentDesignWs contentService = 
+      IPSContentDesignWs contentService =
          PSContentWsLocator.getContentDesignWebservice();
-      IPSSystemDesignWs systemService = 
+      IPSSystemDesignWs systemService =
          PSSystemWsLocator.getSystemDesignWebservice();
-      IPSUiDesignWs uiService = 
+      IPSUiDesignWs uiService =
          PSUiWsLocator.getUiDesignWebservice();
       IPSSiteManager siteMgr = PSSiteManagerLocator.getSiteManager();
       List<IPSCatalogSummary> objects = new ArrayList<IPSCatalogSummary>();
@@ -731,7 +760,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
             case NODEDEF:
                objects.addAll(contentService.findContentTypes(null));
                break;
-               
+
             case TEMPLATE:
                Set<IPSAssemblyTemplate> templates = assemblyService
                      .findAllTemplates();
@@ -740,32 +769,32 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                   objects.add((IPSCatalogSummary)t);
                }
                break;
-               
+
             case WORKFLOW:
                objects.addAll(systemService.findWorkflows(null));
                break;
-               
+
             case ACTION:
                objects.addAll(uiService.findActions(null, null, null));
                break;
-               
+
             case DISPLAY_FORMAT:
                objects.addAll(uiService.findDisplayFormats(null, null));
                break;
-               
+
             case SEARCH_DEF:
                objects.addAll(uiService.findSearches(null, null));
                break;
-               
+
             case VIEW_DEF:
                objects.addAll(uiService.findViews(null, null));
                break;
-               
+
             case SITE:
                List<IPSCatalogSummary> s = null;
                try
                {
-                  s = siteMgr.getSummaries(objectType);   
+                  s = siteMgr.getSummaries(objectType);
                }
                catch (PSCatalogException | PSNotFoundException e)
                {
@@ -773,24 +802,24 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                }
                objects.addAll(s);
                break;
-               
+
             default:
                int code = IPSWebserviceErrors
                   .UNSUPPORTD_COMMUNITY_VISIBILITY_LOOKUP_TYPE;
-               throw new PSErrorException(code, 
-                  PSWebserviceErrors.createErrorMessage(code, 
-                     objectType.toString()), 
+               throw new PSErrorException(code,
+                  PSWebserviceErrors.createErrorMessage(code,
+                     objectType.toString()),
                   ExceptionUtils.getFullStackTrace(new Exception()));
          }
       }
-      
+
       return objects;
    }
 
    /**
-    * Get the list of design object types which are supported by the 
+    * Get the list of design object types which are supported by the
     * <code>getVisibilityByCommunity</code> webservice.
-    * 
+    *
     * @return the list of supported object types, never <code>null</code> or
     *    empty.
     */
@@ -805,7 +834,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
       designObjectTypes.add(PSTypeEnum.SEARCH_DEF);
       designObjectTypes.add(PSTypeEnum.VIEW_DEF);
       designObjectTypes.add(PSTypeEnum.SITE);
-      
+
       return designObjectTypes;
    }
 }

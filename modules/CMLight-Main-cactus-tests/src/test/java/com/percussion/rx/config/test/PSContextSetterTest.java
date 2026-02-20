@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSContextSetterTest extends PSConfigurationTest {
   public void testConfigFiles() throws Exception {
     PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG_2);

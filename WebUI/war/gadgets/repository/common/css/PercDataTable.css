@@ -25,192 +25,189 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.dataTables_wrapper
-{
-	height: 100%;
+.dataTables_wrapper {
+  height: 100%;
 }
 
 .perc-datatable {
-    table-layout:fixed;
+  table-layout: fixed;
 }
 
 .perc-datatable *,
 #chart1,
 .dataTables_empty {
-    font-size : 11px;
-    font-weight : normal;
+  font-size: 11px;
+  font-weight: normal;
 }
 
-.dataTables_wrapper .sorting_asc span{
-    background-image: url(/cm/gadgets/repository/common/images/perc-datatable-sort-ascending.png);
-    background-repeat:no-repeat;
-    background-position : 3px 15px;
+.dataTables_wrapper .sorting_asc span {
+  background-image: url(/cm/gadgets/repository/common/images/perc-datatable-sort-ascending.png);
+  background-repeat: no-repeat;
+  background-position: 3px 15px;
 }
 
 .dataTables_wrapper .sorting_desc span {
-    background-image: url(/cm/gadgets/repository/common/images/perc-datatable-sort-descending.png);
-    background-repeat:no-repeat;
-    background-position : 3px 15px;
+  background-image: url(/cm/gadgets/repository/common/images/perc-datatable-sort-descending.png);
+  background-repeat: no-repeat;
+  background-position: 3px 15px;
 }
 
 .perc-datatable {
-    width : 100%;
-}
-.perc-datatable-firstrow
-{
-    overflow    : hidden;
-    white-space : nowrap;
-    text-overflow : ellipsis;
-    /*display : block;*/
-}
-.perc-datatable-header {
-    cursor      : pointer;
-}
-#perc-formtracker-table th.perc-datatable-header.actionTitle {
-    cursor      : default;
+  width: 100%;
 }
 .perc-datatable-firstrow {
-    white-space : nowrap;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  /*display : block;*/
+}
+.perc-datatable-header {
+  cursor: pointer;
+}
+#perc-formtracker-table th.perc-datatable-header.actionTitle {
+  cursor: default;
+}
+.perc-datatable-firstrow {
+  white-space: nowrap;
 }
 
-.perc-datatable-header-menu *
-{
-    font-size   : 11px;
-    cursor      : default;
-    text-align  : left;
+.perc-datatable-header-menu * {
+  font-size: 11px;
+  cursor: default;
+  text-align: left;
 }
 
 .perc-datatable th {
-    padding : 10px 0px;
-    background : #63bcdc;
+  padding: 10px 0px;
+  background: #63bcdc;
 }
 .perc-datatable th span {
-    padding : 10px 0px 10px 10px;
-    color : white;
-    font-weight : bold;
-    white-space : nowrap;
+  padding: 10px 0px 10px 10px;
+  color: white;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 .perc-datatable td {
-    border-bottom : 1px solid #E6E6E9;
-    vertical-align : top;
-    padding-top    : 8px;
-    padding-right  : 0px;
-    padding-bottom : 7px;
-    padding-left   : 10px;
+  border-bottom: 1px solid #e6e6e9;
+  vertical-align: top;
+  padding-top: 8px;
+  padding-right: 0px;
+  padding-bottom: 7px;
+  padding-left: 10px;
 }
 
 table.perc-datatable th.sorting_asc {
-    background-position : 3px 15px;
+  background-position: 3px 15px;
 }
 table.perc-datatable th.sorting_desc {
-    background-position : 3px 15px;
+  background-position: 3px 15px;
 }
-.perc-percdatatable-active   {
-    color : #0099CC;
-    cursor : pointer;
+.perc-percdatatable-active {
+  color: #0099cc;
+  cursor: pointer;
 }
 .perc-percdatatable-disabled {
-    color : grey;
+  color: grey;
 }
 .perc-datatable {
-    width : 100%;
+  width: 100%;
 }
 .dataTables_info {
-    position : absolute;
-    bottom : 0px;
-    color : grey;
-    font-size : 11px;
-    font-weight : normal;
+  position: absolute;
+  bottom: 0px;
+  color: grey;
+  font-size: 11px;
+  font-weight: normal;
 }
 
 .dataTables_paginate * {
-    font-size : 11px;
-    font-weight : normal;
+  font-size: 11px;
+  font-weight: normal;
 }
 
 .dataTables_paginate {
-    position : absolute;
-    bottom : 0px;
-    right : 0px;
-    cursor : pointer;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  cursor: pointer;
 }
 .paginate_button {
-    padding : 10 0 0 10;
-    color : #0099CC;
-    cursor : pointer;
+  padding: 10 0 0 10;
+  color: #0099cc;
+  cursor: pointer;
 }
 .paginate_active {
-    padding-left : 10px;
-    color : black;
-    font-weight : bold;
-    cursor : default;
+  padding-left: 10px;
+  color: black;
+  font-weight: bold;
+  cursor: default;
 }
 .perc-datatable-secondrow {
-    color : grey;
-    white-space : nowrap;
+  color: grey;
+  white-space: nowrap;
 }
-.dataTables_scrollBody{
-    width : 100%;
+.dataTables_scrollBody {
+  width: 100%;
 }
 
 .alignRight {
-    text-align : right;
+  text-align: right;
 }
 .alignLeft {
-    text-align : left;
+  text-align: left;
 }
 .alignCenter {
-    text-align : center;
+  text-align: center;
 }
 
 #chart1 .dataTables_empty,
 .perc-gadget-errormessage {
-    text-align : center;
-    vertical-align : middle;
-    background : #F0F0F0 none repeat scroll 0 0;
-    border-bottom : 1px solid #E6E6E9;
-    padding : 20px;
+  text-align: center;
+  vertical-align: middle;
+  background: #f0f0f0 none repeat scroll 0 0;
+  border-bottom: 1px solid #e6e6e9;
+  padding: 20px;
 }
 
-#chart1 .dataTables_empty{
-    color : #000000;
+#chart1 .dataTables_empty {
+  color: #000000;
 }
 
 .sorting_disabled {
-    cursor : default;
+  cursor: default;
 }
 
 #perc-activity-table_paginate .perc-percdatatable-disabled {
-    color : #777777;
-    cursor : default;
+  color: #777777;
+  cursor: default;
 }
 .perc-percdatatable-active {
-    color : #0099CC;
-    cursor : pointer;
+  color: #0099cc;
+  cursor: pointer;
 }
-.alignCenter{
-    text-align : center;
+.alignCenter {
+  text-align: center;
 }
 
 .perc-gadget-errormessage {
-    color : #777777;
+  color: #777777;
 }
 
 .perc-datatable-cell-numeric {
-    text-align : right;
-    padding-left : 10px;
+  text-align: right;
+  padding-left: 10px;
 }
 
 .perc-datatable-cell-ellipsis {
-    overflow    : hidden;
-    white-space : nowrap;
-    text-overflow : ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .perc-datatable-cell-string,
 .perc-datatable-cell-date {
-    text-align : left;
+  text-align: left;
 }
 
 /* Assumes this is in the last column */
@@ -218,34 +215,34 @@ th.perc-datatable-cell-action,
 td.perc-datatable-cell-action,
 th.perc-datatable-cell-last,
 td.perc-datatable-cell-last {
-    padding-right : 10px;
-    padding-left  : 0px;
-    text-align    : right;
-/*
+  padding-right: 10px;
+  padding-left: 0px;
+  text-align: right;
+  /*
     float : right;
     position : absolute;
 */
 }
 
 .perc-simplemenu-menuitems {
-    text-align : left;
+  text-align: left;
 }
 
 .dataTables_paginate .perc-percdatatable-disabled {
-    color : #777777;
-    cursor : default;
+  color: #777777;
+  cursor: default;
 }
 
 .perc-datatable .dataTables_empty,
 .perc-gadget-errormessage {
-    text-align : center;
-    vertical-align : middle;
-    background : #F0F0F0 none repeat scroll 0 0;
-    border-bottom : 1px solid #E6E6E9;
-    padding : 20px;
-    color : #000000;
+  text-align: center;
+  vertical-align: middle;
+  background: #f0f0f0 none repeat scroll 0 0;
+  border-bottom: 1px solid #e6e6e9;
+  padding: 20px;
+  color: #000000;
 }
 
 body * {
-    font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }

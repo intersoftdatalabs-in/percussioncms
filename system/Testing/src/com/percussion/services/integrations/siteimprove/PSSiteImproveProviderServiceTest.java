@@ -20,11 +20,11 @@ package com.percussion.services.integrations.siteimprove;
 import com.percussion.services.integrations.IPSIntegrationProviderService;
 
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 
 import java.util.Collections;
@@ -50,21 +50,21 @@ public class PSSiteImproveProviderServiceTest {
 	private static String siteId;
 
 
-	@Override
+	@BeforeEach
 	public void setUp() {
 		testingCredentials.put(EMAIL, TESTING_USER);
 		testingCredentials.put(APIKEY, TESTING_TOKEN);
 	}
-	
+
 	//To prevent the test suite from failing.
 	public void testPlaceholderTest() throws Exception{
-	   
+
 	}
 
 	@Test
 	public void validateCredentialsTest() throws Exception {
 		//Ensure a valid username and email validates properly.
-		Assertions.assertTrue(providerService.validateCredentials(testingCredentials));
+		assertTrue(providerService.validateCredentials(testingCredentials));
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class PSSiteImproveProviderServiceTest {
 		badCredentials.put(EMAIL, UUID.randomUUID().toString());
 		badCredentials.put(APIKEY, UUID.randomUUID().toString());
 		Map<String, String> otherBadCredentials = new HashMap<String, String>(badCredentials);
-		Assert.assertFalse(providerService.validateCredentials(badCredentials));
+		assertFalse(providerService.validateCredentials(badCredentials));
 
 		//Remove email
 		try {
@@ -115,15 +115,15 @@ public class PSSiteImproveProviderServiceTest {
 
 	@Test
 	public void a_SiteImproveGetSiteTest() throws Exception {
-		siteId = providerService.retrieveSiteInfo(TESTING_SITE, testingCredentials);
-		Assertions.assertTrue(!siteId.isEmpty());
+		siteId = providerService.retrieveSiteInfo(TESTING_SITE, testingCredentials).orElseThrow();
+		assertTrue(!siteId.isEmpty());
 	}
 
 	@Test
 	public void b_SiteImproveGetPageTest() throws Exception {
 
-		String pageId = providerService.retrievePageInfo(siteId, TESTING_PAGE, testingCredentials);
-		Assertions.assertTrue(!pageId.isEmpty());
+		String pageId = providerService.retrievePageInfo(siteId, TESTING_PAGE, testingCredentials).orElseThrow();
+		assertTrue(!pageId.isEmpty());
 	}
 
 	@Test

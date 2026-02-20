@@ -18,6 +18,7 @@ package com.percussion.design.objectstore;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -26,21 +27,16 @@ import java.util.Date;
 /**
  * Unit tests for the <code>PSDateLiteralTest</code> class.
  */
-public class PSDateLiteralTest extends TestCase
+public class PSDateLiteralTest
 {
-   public PSDateLiteralTest(String name)
-   {
-      super( name );
-   }
-
-
-   /**
+/**
     * Tests that the <code>clone()</code> method creates a separate-but-equal
     * instance, including fields defined in the superclass, and that the copy
     * was deep.
-    * 
+    *
     * @throws Exception if the test fails.
-    */ 
+    */
+   @Test
    public void testClone() throws Exception
    {
       Date now = new Date();
@@ -50,20 +46,13 @@ public class PSDateLiteralTest extends TestCase
       PSDateLiteral bar = (PSDateLiteral) foo.clone();
 
       assertEquals( foo, bar );
-      assertTrue( "id copied", bar.getId() == 99 );
-      assertTrue( "m_date copied", bar.getDate().equals( now ) );
+      assertEquals(99, bar.getId(), "id copied");
+      assertEquals(now, bar.getDate(), "m_date copied");
 
       now.setTime( 1 ); // mutate
-      assertTrue( "foo changed", foo.getDate().getTime() == 1 );
-      assertTrue( "bar unchanged", bar.getDate().getTime() != 1 );
-      assertTrue( !foo.equals( bar ) );
-   }
-
-
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSDateLiteralTest( "testClone" ) );
-      return suite;
+      assertEquals(1L, foo.getDate().getTime(), "foo changed");
+      assertNotEquals(1L, bar.getDate().getTime(), "bar unchanged");
+      assertFalse(foo.equals( bar ));
    }
 }
+

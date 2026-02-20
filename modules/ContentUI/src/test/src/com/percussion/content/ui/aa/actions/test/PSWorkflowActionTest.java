@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Test workflow actions
  */
-@Tag("IntegrationTest")
+
 public class PSWorkflowActionTest extends PSAAClientActionTestBase
 {
 
@@ -51,7 +51,7 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
       // test operations without adhoc users
       performAll(null, null);
       performAll(COMMENT, null);
-      
+
       // test operations with adhoc users if enabled
       if ( adhocEnabled(WORKFLOW_ID, PUB_STATE_ID) &&
            adhocEnabled(WORKFLOW_ID, QE_STATE_ID))
@@ -59,19 +59,19 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
          List<String> users = new ArrayList<String>();
          users.add(USER);
          users.add("admin2");
-         
+
          performAll(null, users);
          performAll(COMMENT, users);
       }
    }
 
    /**
-    * Determines whether the adhoc user is enabled for the specified 
+    * Determines whether the adhoc user is enabled for the specified
     * workflow and state.
-    * 
-    * @param workflowId the id of the workflow in question. 
+    *
+    * @param workflowId the id of the workflow in question.
     * @param stateId the id of the state in question.
-    * 
+    *
     * @return <code>true</code> if the adhoc user is enabled; otherwise
     *    <code>false</code>.
     */
@@ -80,8 +80,8 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
       IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
       IPSGuid wfId = mgr.makeGuid(workflowId, PSTypeEnum.WORKFLOW);
       IPSGuid stId = mgr.makeGuid(stateId, PSTypeEnum.WORKFLOW_STATE);
-      
-      IPSWorkflowService service = 
+
+      IPSWorkflowService service =
          PSWorkflowServiceLocator.getWorkflowService();
       PSState state = service.loadWorkflowState(stId, wfId);
       List<PSAssignedRole> roles = state.getAssignedRoles();
@@ -95,14 +95,14 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
       }
       return false;
    }
-   
+
    /**
     * Performs all workflow operations with the given comment and adhoc users.
-    * 
+    *
     * @param comment the comment, may be <code>null</code> or empty.
-    * @param adhocUsers a list of add hoc users, may be <code>null</code> or 
+    * @param adhocUsers a list of add hoc users, may be <code>null</code> or
     *    empty.
-    *    
+    *
     * @throws Exception if an error occurs.
     */
    private void performAll(String comment, List<String>adhocUsers)
@@ -118,7 +118,7 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
       }
       else if (summ.getContentStateId() == QE_STATE_ID)
       {
-         transitionItem(CONTENT_ID, MOVE_TO_PUB, comment, adhocUsers);         
+         transitionItem(CONTENT_ID, MOVE_TO_PUB, comment, adhocUsers);
          transitionItem(CONTENT_ID, MOVE_TO_QE, comment, adhocUsers);
          checkinoutItem(CONTENT_ID, comment, PSWorkflowAction.CHECK_OUT);
          checkinoutItem(CONTENT_ID, comment, PSWorkflowAction.CHECK_IN);
@@ -127,18 +127,18 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
 
    /**
     * Performs a transition for the specified content item.
-    * 
+    *
     * @param contentId the id of the content item.
-    * @param trigger the trigger name of the transition, assumed not 
+    * @param trigger the trigger name of the transition, assumed not
     *    <code>null</code> or empty.
-    * @param comment the comment for this transition, may be <code>null</code> 
+    * @param comment the comment for this transition, may be <code>null</code>
     *    or empty.
     * @param adhocUsers the adhoc user list, may be <code>null</code> or
     *    empty.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
-   private void transitionItem(int contentId, String trigger, String comment, 
+   private void transitionItem(int contentId, String trigger, String comment,
       List<String> adhocUsers) throws Exception
    {
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
@@ -150,14 +150,14 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
       params.put(PSWorkflowAction.TRIGGER_NAME, trigger);
       params.put(PSWorkflowAction.COMMENT, comment);
       params.put(PSWorkflowAction.ADHOC_USERS, getAdHocUsers(adhocUsers));
-      
+
       PSActionResponse aresponse = action.execute(params);
       assertEquals(IPSAAClientAction.SUCCESS, aresponse.getResponseData());
-      
+
       // validate the adhoc users
       if (adhocUsers != null && (!adhocUsers.isEmpty()))
       {
-         IPSWorkflowService service = 
+         IPSWorkflowService service =
             PSWorkflowServiceLocator.getWorkflowService();
 
          for (String user : adhocUsers)
@@ -170,19 +170,19 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
          }
       }
    }
-   
+
    /**
     * Converts a list of string to a string with delimiter of ';'
-    * 
+    *
     * @param users the to be converted list, it may be <code>null</code> or empty.
-    * 
+    *
     * @return the converted string, may be <code>null</code> or empty.
     */
    private String getAdHocUsers(List<String> users)
    {
       if (users == null || users.isEmpty())
          return null;
-      
+
       StringBuffer userList = new StringBuffer();
       for (int i=0; i<users.size(); i++)
       {
@@ -195,13 +195,13 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
 
    /**
     * Checks in or out the specified item.
-    * 
+    *
     * @param contentId the id of the item.
-    * @param comment the comment for this operation, may be <code>null</code> 
+    * @param comment the comment for this operation, may be <code>null</code>
     *    or empty.
-    * @param op check in or out operation, assumed not <code>null</code> or 
+    * @param op check in or out operation, assumed not <code>null</code> or
     *    empty.
-    * 
+    *
     * @throws Exception if any error accurs.
     */
    private void checkinoutItem(int contentId, String comment, String op) throws Exception
@@ -213,11 +213,11 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
       params.put(PSWorkflowAction.OPERATION, op);
       params.put(PSWorkflowAction.CONTENT_ID, String.valueOf(contentId));
       params.put(PSWorkflowAction.COMMENT, comment);
-      
+
       PSActionResponse aresponse = action.execute(params);
       assertEquals(IPSAAClientAction.SUCCESS, aresponse.getResponseData());
    }
-   
+
    /**
     * private constants for the tests
     */
@@ -229,6 +229,6 @@ public class PSWorkflowActionTest extends PSAAClientActionTestBase
    private static int QE_STATE_ID = 6;
    private static String MOVE_TO_QE = "Quick Edit";
    private static String MOVE_TO_PUB = "ReturnToPublic";
-   
+
 
 }

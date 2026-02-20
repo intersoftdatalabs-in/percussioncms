@@ -1,92 +1,95 @@
 
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 
-   <bean id="propertyPlaceholderProps"
-         class="com.percussion.delivery.utils.spring.PSPropertiesFactoryBean">
-      <property name="ignoreResourceNotFound" value="true" />
-      <property name="autoSecure" value="true" />
-      <property name="securedProperties">
-         <list>
-            <value>db.password</value>
-         </list>
-      </property>
-      <property name="locations">
-         <!-- One or more locations of the property files. Properties with 
-            the same name override based on the order the file appears in the list last 
-            one defined wins -->
-         <list>
-            <value>perc-datasources.properties</value>
-         </list>
-      </property>
-      <!-- Local properties to default to if no file exists or the properties 
-         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the 
-         properties file where the password will be encrypted -->
-      <property name="properties">
-         <props>
-            <!-- Global and database-agnostic Hibernate properties -->
-            <prop key="datasource">percDataSource</prop>
-            <prop key="hibernateProperties">percHibernateProperties</prop>
-            <prop key="hibernate.cache.use_second_level_cache">false</prop>
-            <prop key="hibernate.cache.use_query_cache">false</prop>
+	<bean id="propertyPlaceholderProps"
+		class="com.percussion.delivery.utils.spring.PSPropertiesFactoryBean">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="autoSecure" value="true" />
+		<property name="securedProperties">
+			<list>
+				<value>db.password</value>
+			</list>
+		</property>
+		<property name="locations">
+			<!-- One or more locations of the property files. Properties with the
+				same name override based on the order the file appears in the list last one
+				defined wins -->
+			<list>
+				<value>perc-datasources.properties</value>
+			</list>
+		</property>
+		<!-- Local properties to default to if no file exists or the properties
+			do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the
+			properties file where the password will be encrypted -->
+		<property name="properties">
+			<props>
+				<!-- Global and database-agnostic Hibernate properties -->
+				<prop key="datasource">percDataSource</prop>
+				<prop key="hibernateProperties">percHibernateProperties</prop>
+				<prop key="hibernate.cache.use_second_level_cache">false</prop>
+				<prop key="hibernate.cache.use_query_cache">false</prop>
 
-            <!-- Apache Derby -->
-            <prop key="jdbcUrl">jdbc:derby:memory:percfeeds;create=true</prop>
-            <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
-            <prop key="db.username">test</prop>
-            <prop key="db.password">test</prop>
-            <prop key="db.schema">APP</prop>
-            <prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
-            <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
-            <prop key="tenant.cache.ttl">1440</prop>
-            <prop key="tenant.cache.reauth">true</prop>
-            <prop key="rss.feeds.ip">127.0.0.1</prop>
-            <prop key="maximumPoolSize">10</prop>
-         </props>
-      </property>
-   </bean>
-
-
-   <bean id="propertyConfigurer"
-         class="com.percussion.delivery.utils.spring.PSPropertyPlaceholderConfigurer">
-      <property name="properties" ref="propertyPlaceholderProps" />
-   </bean>
-
-   <import resource="perc-datasources.xml" />
-   <import resource="feeds.xml" />
-
-   <!-- Hibernate SessionFactory -->
-   <bean id="feedsSessionFactory"
-         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-      <property name="dataSource">
-         <ref bean="${datasource}" />
-      </property>
-      <property name="hibernateProperties">
-         <ref bean="${hibernateProperties}" />
-      </property>
-      <property name="configLocation">
-         <value>hibernate.cfg.xml</value>
-      </property>
-   </bean>
+				<!-- Apache Derby -->
+				<prop key="jdbcUrl">jdbc:derby:memory:percfeeds;create=true</prop>
+				<prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+				<prop key="db.username">test</prop>
+				<prop key="db.password">test</prop>
+				<prop key="db.schema">APP</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
+				<prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
+				<prop key="tenant.cache.ttl">1440</prop>
+				<prop key="tenant.cache.reauth">true</prop>
+				<prop key="rss.feeds.ip">127.0.0.1</prop>
+				<prop key="maximumPoolSize">10</prop>
+			</props>
+		</property>
+	</bean>
 
 
-   <tx:annotation-driven transaction-manager="txManager"/>
+	<bean id="propertyConfigurer"
+		class="com.percussion.delivery.utils.spring.PSPropertyPlaceholderConfigurer">
+		<property name="properties" ref="propertyPlaceholderProps" />
+	</bean>
 
-   <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-      <property name="sessionFactory" ref="feedsSessionFactory" />
-   </bean>
+	<import resource="perc-datasources.xml" />
+	<import resource="feeds.xml" />
 
-   <bean id="feedsDao" class="com.percussion.delivery.feeds.services.rdbms.PSFeedDao">
-      <constructor-arg ref="feedsSessionFactory" />
-   </bean>
+	<!-- Hibernate SessionFactory -->
+	<bean id="feedsSessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="${datasource}" />
+		</property>
+		<property name="hibernateProperties">
+			<ref bean="${hibernateProperties}" />
+		</property>
+		<property name="configLocation">
+			<value>hibernate.cfg.xml</value>
+		</property>
+	</bean>
 
-   <bean id="httpClient"
-      class="com.percussion.delivery.utils.security.PSHttpClient"
-      autowire="constructor">
-   </bean>
+
+	<tx:annotation-driven
+		transaction-manager="txManager" />
+
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="feedsSessionFactory" />
+	</bean>
+
+	<bean id="feedsDao"
+		class="com.percussion.delivery.feeds.services.rdbms.PSFeedDao">
+		<constructor-arg ref="feedsSessionFactory" />
+	</bean>
+
+	<bean id="httpClient"
+		class="com.percussion.delivery.utils.security.PSHttpClient"
+		autowire="constructor">
+	</bean>
 </beans>

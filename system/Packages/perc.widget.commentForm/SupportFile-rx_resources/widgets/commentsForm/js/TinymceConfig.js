@@ -15,24 +15,23 @@
  * limitations under the License.
  */
 
-tinymce.EditorManager.settings =
-	{
-		"selector": "textarea#elm1",
-		// General options
-		"theme" : "silver",
-		"plugins" : '-example', // - tells TinyMCE to skip the loading of the plugin
-		"branding": false,
-		// when tinymce is initialized, setup event handlers to detect changes and set dirty flag
-		// Theme options
-		"menubar": "null",
-		"toolbar": ["bold italic underline undo redo styleselect "],
-		"autosave_ask_before_unload": false,
-		// Example content CSS (should be your site CSS)
-		"content_css" : "../sys_resources/css/tinymce/content.css",
-		"auto_focus": 'elm1',
-		setup: function (editor) {
-			editor.on('click', function () {
-				console.log('Editor was clicked');
-			});
-		}
-	};
+tinymce.EditorManager.settings = {
+  selector: "textarea#elm1",
+  // General options
+  theme: "silver",
+  plugins: "-example", // - tells TinyMCE to skip the loading of the plugin
+  branding: false,
+  // when tinymce is initialized, setup event handlers to detect changes and set dirty flag
+  // Theme options
+  menubar: "null",
+  toolbar: ["bold italic underline undo redo styleselect "],
+  autosave_ask_before_unload: false,
+  // Example content CSS (should be your site CSS)
+  content_css: "../sys_resources/css/tinymce/content.css",
+  auto_focus: "elm1",
+  setup: function (editor) {
+    editor.on("click", function () {
+      console.log("Editor was clicked");
+    });
+  },
+};

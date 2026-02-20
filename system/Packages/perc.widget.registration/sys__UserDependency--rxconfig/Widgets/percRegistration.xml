@@ -1,41 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Registration"
-                 contenttype_name="percRegistrationAsset"
-                 category="integration"
-                 description="Widget to build and render a registration form"
-                 author="Percussion Software Inc"
-                 thumbnail="/rx_resources/widgets/registration/images/widgetIconRegistration.gif"
-                 preferred_editor_width="800"
-                 preferred_editor_height="450"
-                 is_responsive="true"/>
+	<WidgetPrefs title="Registration"
+		contenttype_name="percRegistrationAsset" category="integration"
+		description="Widget to build and render a registration form"
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/registration/images/widgetIconRegistration.gif"
+		preferred_editor_width="800" preferred_editor_height="450"
+		is_responsive="true" />
 
-    <UserPref name="perc-label-layout"
-              display_name="Label layout"
-              default_value="align_above"
-              datatype="enum">
-        <EnumValue value="align_above" display_value="Align above the field" />
-        <EnumValue value="align_left" display_value="Align to the left of the field" />
-    </UserPref>
-    <UserPref name="perc-registration-mode"
-              display_name="Registration mode"
-              default_value="registration"
-              datatype="enum">
-        <EnumValue value="registration" display_value="Registration" />
-        <EnumValue value="password_request" display_value="Password request" />
-        <EnumValue value="password_reset" display_value="Password reset" />
-    </UserPref>
-    <UserPref name="perc-email-verification-required"
-              display_name="Email verification required"
-              default_value="true"
-              datatype="bool"/>
-    <!-- CssPrefs are input fields exposed in the CSS config for a widget -->
-    <CssPref name="rootclass"
-             display_name="CSS root class"
-             datatype="string" />
+	<UserPref name="perc-label-layout" display_name="Label layout"
+		default_value="align_above" datatype="enum">
+		<EnumValue value="align_above"
+			display_value="Align above the field" />
+		<EnumValue value="align_left"
+			display_value="Align to the left of the field" />
+	</UserPref>
+	<UserPref name="perc-registration-mode"
+		display_name="Registration mode" default_value="registration"
+		datatype="enum">
+		<EnumValue value="registration" display_value="Registration" />
+		<EnumValue value="password_request"
+			display_value="Password request" />
+		<EnumValue value="password_reset"
+			display_value="Password reset" />
+	</UserPref>
+	<UserPref name="perc-email-verification-required"
+		display_name="Email verification required" default_value="true"
+		datatype="bool" />
+	<!-- CssPrefs are input fields exposed in the CSS config for a widget -->
+	<CssPref name="rootclass" display_name="CSS root class"
+		datatype="string" />
 
-    <Code type="jexl">
-        <!-- This section is used to set up data that will be used in the content section -->
+	<Code type="jexl">
+		<!-- This section is used to set up data that will be used in the content
+			section -->
         <![CDATA[
         $pageId = $perc.page.id;
         $widgetId = $perc.widget.item.id;
@@ -44,25 +42,25 @@
         $percregMode = $widgetProps.get('perc-registration-mode');
         $percEmailConfirmRequired = $widgetProps.get('perc-email-verification-required');
         $rootclass = $perc.widget.item.cssProperties.get('rootclass');
-        if (!empty($rootclass)) 
+        if (!empty($rootclass))
         {
             $rootclass = $rootclass + " ";
         }
         ## If we are in a template it doesn't have a $pageId
         $siteName = "";
-        if (!empty($pageId)) 
+        if (!empty($pageId))
         {
             $finderPath = $rx.pageutils.getItemPath($pageId);
             $pathParts = $finderPath.split("\/");
             $siteName = $pathParts[2];
             $percConfirmationPage  = $rx.pageutils.getSiteRegistrationConfirmationPage($pathParts[2]);
         }
-        
+
         ## Set default values for some variables if they are empty
         if (empty($percConfirmationPage)) {
             $percConfirmationPage = "";
         }
-        
+
         $data = "";
         $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);
         $perc.setWidgetContents($assetItems);
@@ -80,7 +78,7 @@
             }
 
             ## If the user didn't configure the Confirmation page, we must redirect to the home page
-            $finder="Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder"; 
+            $finder="Java/global/percussion/widgetcontentfinder/perc_NavWidgetContentFinder";
             $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finder, null, true);
             if ( ! $assetItems.isEmpty() ) {
                 $linkContext = $perc.linkContext;
@@ -92,10 +90,10 @@
         if ($dsUrl.indexOf("http://localhost") != -1 )
 			$dsUrl = "";
     ]]>
-    </Code>
+	</Code>
 
-    <Content type="velocity">
-        <!-- This section defines the rendered content -->
+	<Content type="velocity">
+		<!-- This section defines the rendered content -->
         <![CDATA[
     <div class="$!{rootclass} percRegistration" data="{&quot;homePageLink&quot;:&quot;$homePageLink&quot;,&quot;deliveryurl&quot;:&quot;$dsUrl&quot;}">
         #if( ! $perc.widgetContents.isEmpty())
@@ -107,7 +105,7 @@
                         <form name="perc-registration-form" id="perc-registration-form" method="post" action="#">
                     #end
                         <input value="$percConfirmationPage" name="perc-confirmation-page" id="perc-confirmation-page" type="hidden" />
-                        
+
                         <div class = "perc-registration-mode">
                             <div class="field-row">
                                 <div class="field-label-container $percLabelLayout fixed-width">
@@ -129,7 +127,7 @@
                             </div>
                             <div class="field-row">
                                 <div class="field-label-container $percLabelLayout fixed-width">
-                                    <span class="perc-form-error-asterisk">*</span>                        
+                                    <span class="perc-form-error-asterisk">*</span>
                                     <label for="perc-registration-password-confirm-field">$percConfirmPasswordLabel</label>
                                 </div>
                                 <div class="field-input-container">
@@ -162,7 +160,7 @@
                         </div>
                         <div class="field-row">
                             <input value="$percSubmitLabel" type="submit" />
-                        </div>                    
+                        </div>
                     </div>
                 </form>
             #elseif($percregMode == "password_reset")
@@ -188,7 +186,7 @@
                         </div>
                         <div class="field-row">
                             <div class="field-label-container $percLabelLayout fixed-width">
-                                <span class="perc-form-error-asterisk">*</span>                        
+                                <span class="perc-form-error-asterisk">*</span>
                                 <label for="perc-registration-password-confirm-field">$percConfirmPasswordLabel</label>
                             </div>
                             <div class="field-input-container">
@@ -221,5 +219,5 @@
             </script>
         #end
     </div>]]>
-    </Content>
+	</Content>
 </Widget>

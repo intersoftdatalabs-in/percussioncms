@@ -214,7 +214,7 @@ public class PSServerConfiguration implements IPSDocument {
 
     int adminAccess = PSAclEntry.SACE_ADMINISTER_SERVER;
 
-    ConcurrentHashMap<String, IPSGroupProviderInstance> names = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, PSAclEntry> names = new ConcurrentHashMap<>();
     boolean hasAdminAccess = false;
     PSAclEntry ace;
     String key;

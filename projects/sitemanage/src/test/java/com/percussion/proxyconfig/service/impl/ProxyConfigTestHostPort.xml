@@ -3,7 +3,7 @@
 
 <ProxyConfigurations>
 	<ProxyConfig>
-        <host>localhost</host>
-        <port>1531</port>
-    </ProxyConfig>
+		<host>localhost</host>
+		<port>1531</port>
+	</ProxyConfig>
 </ProxyConfigurations>

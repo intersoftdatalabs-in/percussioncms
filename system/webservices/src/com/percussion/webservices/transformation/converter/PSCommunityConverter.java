@@ -23,14 +23,14 @@ import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.data.PSBackEndRole;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.security.data.PSCommunityRolesRole;
+
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConversionException;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.services.security.data.PSCommunity</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.services.security.data.PSCommunity</code> and
  * <code>com.percussion.webservices.security.data.PSComunity</code>.
  */
 public class PSCommunityConverter extends PSConverter
@@ -56,59 +56,60 @@ public class PSCommunityConverter extends PSConverter
       Object result = super.convert(type, value);
       if (isClientToServer(value))
       {
-         com.percussion.webservices.security.data.PSCommunity orig = 
+         com.percussion.webservices.security.data.PSCommunity orig =
             (com.percussion.webservices.security.data.PSCommunity) value;
-         
+
          PSCommunity dest = (PSCommunity) result;
-         
+
          // convert id
          Long id = orig.getId();
          if (id != null)
             dest.setGUID(new PSDesignGuid(id));
-         
-         for (PSCommunityRolesRole role : orig.getRoles())
+
+         if (orig.getRoles() != null && orig.getRoles().getRole() != null)
          {
-            if (role != null)
-               dest.addRoleAssociation(new PSDesignGuid(role.getId()));
+            for (com.percussion.webservices.security.data.PSCommunity.Roles.Role role : orig.getRoles().getRole())
+            {
+               if (role != null)
+                  dest.addRoleAssociation(new PSDesignGuid(role.getId()));
+            }
          }
       }
       else
       {
          PSCommunity orig = (PSCommunity) value;
-         
-         com.percussion.webservices.security.data.PSCommunity dest = 
+
+         com.percussion.webservices.security.data.PSCommunity dest =
             (com.percussion.webservices.security.data.PSCommunity) result;
-         
+
          // convert id
          IPSGuid guid = orig.getGUID();
          if (guid != null)
             dest.setId(new PSDesignGuid(guid).getValue());
-         
-         int i = 0;
-         PSCommunityRolesRole[] roleAssociations = 
-            new PSCommunityRolesRole[orig.getRoleAssociations().size()];
+
+         com.percussion.webservices.security.data.PSCommunity.Roles rolesWrapper = new com.percussion.webservices.security.data.PSCommunity.Roles();
          for (IPSGuid roleId : orig.getRoleAssociations())
          {
             PSBackEndRole role = loadRole(roleId);
             if (role == null)
                throw new ConversionException(
                   "No role exists for id: " + roleId);
-            
-            roleAssociations[i++] = new PSCommunityRolesRole(
-               new PSDesignGuid(roleId).getValue(), role.getName());
+            com.percussion.webservices.security.data.PSCommunity.Roles.Role r = new com.percussion.webservices.security.data.PSCommunity.Roles.Role();
+            r.setId(new PSDesignGuid(roleId).getValue());
+            r.setName(role.getName());
+            rolesWrapper.getRole().add(r);
          }
-         dest.setRoles(roleAssociations);
-         
-         i = 0;
+         dest.setRoles(rolesWrapper);
+
       }
-      
+
       return result;
    }
 
    /**
     * Load the role specified with role GUID. This is a separate method so that
     * the derived class may override it.
-    * 
+    *
     * @param roleId must not be <code>null</code>.
     * @return the role object, may be <code>null</code> if one does not exist
     * corresponding to the given role id.

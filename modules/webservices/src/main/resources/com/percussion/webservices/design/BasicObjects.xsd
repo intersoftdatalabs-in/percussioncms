@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:com="urn:www.percussion.com/6.0.0/common" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:schema targetNamespace="urn:www.percussion.com/8.2.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:com="urn:www.percussion.com/8.2.0/common" elementFormDefault="qualified" attributeFormDefault="unqualified">
    <xsd:element name="ActionLinkRef" type="xsd:string"/>
-   <xsd:element name="Alias" type="xsd:string"/>
+   <xsd:element name="AliasElement" type="xsd:string">
+      <xsd:annotation>
+         <xsd:appinfo>
+            <jaxb:property name="aliasElement" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"/>
+         </xsd:appinfo>
+      </xsd:annotation>
+   </xsd:element>
    <xsd:element name="Anchor" type="xsd:string"/>
    <xsd:element name="CommandHandler">
       <xsd:complexType>
@@ -249,7 +255,7 @@
    <xsd:element name="PSXBackEndCredential">
       <xsd:complexType>
          <xsd:sequence>
-            <xsd:element ref="com:alias"/>
+            <xsd:element ref="com:aliasLower"/>
             <xsd:element ref="com:comment" minOccurs="0"/>
             <xsd:element ref="com:datasource"/>
          </xsd:sequence>
@@ -794,7 +800,7 @@
    <xsd:element name="PSXProperty">
       <xsd:complexType>
          <xsd:sequence>
-            <xsd:element ref="com:Value"/>
+            <xsd:element ref="com:ValueGlobal"/>
             <xsd:element ref="com:Description" minOccurs="0"/>
          </xsd:sequence>
          <xsd:attribute name="name" type="xsd:string" use="required"/>
@@ -903,7 +909,7 @@
             <xsd:choice>
                <xsd:choice>
                   <xsd:element ref="com:PSXBackEndCredential"/>
-                  <xsd:element ref="com:Alias"/>
+                  <xsd:element ref="com:AliasElement"/>
                </xsd:choice>
             </xsd:choice>
          </xsd:choice>
@@ -1038,7 +1044,7 @@
       </xsd:complexType>
    </xsd:element>
    <xsd:element name="TableLocatorAlias" type="xsd:string"/>
-   <xsd:element name="Value" type="com:ValueType0"/>
+   <xsd:element name="ValueGlobal" type="com:ValueType0"/>
 
    <xsd:complexType name="ValueType0">
       <xsd:simpleContent>
@@ -1058,6 +1064,11 @@
    </xsd:simpleType>
 
    <xsd:element name="value" type="com:value">
+      <xsd:annotation>
+         <xsd:appinfo>
+            <jaxb:property name="valueLower" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"/>
+         </xsd:appinfo>
+      </xsd:annotation>
 
    </xsd:element>
 
@@ -1078,7 +1089,13 @@
       </xsd:choice>
    </xsd:complexType>
 
-   <xsd:element name="alias" type="xsd:string"/>
+   <xsd:element name="aliasLower" type="xsd:string">
+      <xsd:annotation>
+         <xsd:appinfo>
+            <jaxb:property name="aliasLower" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"/>
+         </xsd:appinfo>
+      </xsd:annotation>
+   </xsd:element>
    <xsd:element name="boolean" type="xsd:string"/>
    <xsd:element name="column" type="xsd:string"/>
    <xsd:element name="columnAlias" type="xsd:string"/>

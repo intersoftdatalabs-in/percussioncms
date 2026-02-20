@@ -1,182 +1,180 @@
-
-
 .image_asset_rotate_left {
-	background:transparent url(../images/rotate_left.png) no-repeat scroll 0 0;
-	border:medium none;
-	cursor:pointer;
-	height:28px;
-	width:28px;
+  background: transparent url(../images/rotate_left.png) no-repeat scroll 0 0;
+  border: medium none;
+  cursor: pointer;
+  height: 28px;
+  width: 28px;
 }
 .image_asset_rotate_right {
-	background:transparent url(../images/rotate_right.png) no-repeat scroll 0 0;
-	border:medium none;
-	cursor:pointer;
-	height:28px;
-	width:28px;
+  background: transparent url(../images/rotate_right.png) no-repeat scroll 0 0;
+  border: medium none;
+  cursor: pointer;
+  height: 28px;
+  width: 28px;
 }
 #image_asset_upload_container {
-	width:400px;
+  width: 400px;
 }
 
 /* This is the full background panel of the custom control. */
 #imageWidgetPanel {
-	/* color to match background of containing editor */
-	background-color:#E6E6E9;
-	border: none;
+  /* color to match background of containing editor */
+  background-color: #e6e6e9;
+  border: none;
 }
 
-input.image_asset_rotate_right, input.image_asset_upload_image,input.image_asset_next_image{
-	margin-left:5px;
+input.image_asset_rotate_right,
+input.image_asset_upload_image,
+input.image_asset_next_image {
+  margin-left: 5px;
 }
 .image_resize_wrapper {
-	float: left;
-	width:600px;
+  float: left;
+  width: 600px;
 }
 
 .image_asset_prop_wrapper {
-	float: left;
-	margin-top:-9px;
+  float: left;
+  margin-top: -9px;
 }
 
 .image_asset_rotate {
-	width:600px;
-	border:1px solid white;
-	border-bottom:0px;
-	border-right:0px;
-	float:right;
-	text-align:right;
-	background-color:#E6E6E9;
+  width: 600px;
+  border: 1px solid white;
+  border-bottom: 0px;
+  border-right: 0px;
+  float: right;
+  text-align: right;
+  background-color: #e6e6e9;
 }
-
 
 .image_asset_navigation {
-	width:600px;
-	clear:both;
+  width: 600px;
+  clear: both;
 }
-
 
 #image_asset_main_goto_thumb {
-	float: right;
+  float: right;
 }
 #image_asset_thumb_change_photo {
-	float: right;
+  float: right;
 }
 
 #imageWidgetPanel label {
-	font-size:0.8em;
-	font-weight:bold;
-	margin-bottom:0.2em;
+  font-size: 0.8em;
+  font-weight: bold;
+  margin-bottom: 0.2em;
 }
 label.error {
-	color:red;
-	font-size:0.8em;
+  color: red;
+  font-size: 0.8em;
 }
 .image_asset_image {
-	background-color:#FFFFFF;
-	max-height:435px;
-	margin-bottom:0.5em;
-	padding:0.1em 0.1em 0;
-	max-width:600px;
-	object-fit: cover;
-	overflow: hidden;
+  background-color: #ffffff;
+  max-height: 435px;
+  margin-bottom: 0.5em;
+  padding: 0.1em 0.1em 0;
+  max-width: 600px;
+  object-fit: cover;
+  overflow: hidden;
 }
 
-#main_image_region, #thumb_image_region {
-	overflow:auto;
+#main_image_region,
+#thumb_image_region {
+  overflow: auto;
 }
 
 input.image_asset_upload_image {
-	float:none;
-
+  float: none;
 }
-input.image_asset_height, input.image_asset_width {
-	margin-bottom:9px;
-	margin-top:0px;
-	width: 67px;
+input.image_asset_height,
+input.image_asset_width {
+  margin-bottom: 9px;
+  margin-top: 0px;
+  width: 67px;
 }
-input[type="checkbox"].image_asset_constrain{
-	margin-bottom:9px;
-	margin-top:2px;
+input[type="checkbox"].image_asset_constrain {
+  margin-bottom: 9px;
+  margin-top: 2px;
 }
-.image_asset_prop_wrapper td{
-	padding:0px;
-}
-
-td.image-checkbox{
-	padding:3px 0px 2px 0px;
+.image_asset_prop_wrapper td {
+  padding: 0px;
 }
 
+td.image-checkbox {
+  padding: 3px 0px 2px 0px;
+}
 
 /* Styles for Image widget */
 
-#perc-asset-browser-dialog-direc{
-	padding:7px;
-	background-color:#FFFFFF;
-	border: 1px inset #FFFFFF;
-	width:304px;
+#perc-asset-browser-dialog-direc {
+  padding: 7px;
+  background-color: #ffffff;
+  border: 1px inset #ffffff;
+  width: 304px;
 }
 
-#perc-saveas-dialog-direc{
-	padding:7px;
-	background-color:#FFFFFF;
-	border: 1px inset #FFFFFF;
+#perc-saveas-dialog-direc {
+  padding: 7px;
+  background-color: #ffffff;
+  border: 1px inset #ffffff;
 }
 
-#perc-image-upload,#perc-image-resize,#perc-image-thumbnail {
-	font-size: 11px;
-	font-weight: normal;
-	color: #0099CC;
-	padding-left:25px;
-	padding-right:20px;
-	height:22px;
-	overflow:hidden;
-	vertical-align:top;
-	padding-top:2px;
-	background-image:url("../images/imageWidgetSteps.png");
-	background-repeat:no-repeat;
+#perc-image-upload,
+#perc-image-resize,
+#perc-image-thumbnail {
+  font-size: 11px;
+  font-weight: normal;
+  color: #0099cc;
+  padding-left: 25px;
+  padding-right: 20px;
+  height: 22px;
+  overflow: hidden;
+  vertical-align: top;
+  padding-top: 2px;
+  background-image: url("../images/imageWidgetSteps.png");
+  background-repeat: no-repeat;
 }
 
 .perc-image-label {
-	font-size: 11px;
-	font-weight: normal;
-	color: #000000;
+  font-size: 11px;
+  font-weight: normal;
+  color: #000000;
 }
 
-#perc-image-upload{
-	background-position: 0px -38px;
+#perc-image-upload {
+  background-position: 0px -38px;
 }
-#perc-image-resize{
-	background-position: 0px -152px;
-
+#perc-image-resize {
+  background-position: 0px -152px;
 }
-#perc-image-thumbnail{
-	background-position: 0px -76px;
-}
-
-#image_asset_upload_container{
-	width:500px;
+#perc-image-thumbnail {
+  background-position: 0px -76px;
 }
 
-.image-widget-step-header{
-	width:500px;
-	margin-bottom:17px;
+#image_asset_upload_container {
+  width: 500px;
+}
 
+.image-widget-step-header {
+  width: 500px;
+  margin-bottom: 17px;
 }
 #imageWidgetPanel label {
-	font-size: 11px;
-	font-weight:normal;
-	margin-bottom:0.2em;
+  font-size: 11px;
+  font-weight: normal;
+  margin-bottom: 0.2em;
 }
-.font_normal_07em_black{
-	font-weight:bold;
-	margin-bottom:17px;
-	font-size: 11px;
-	display:block;
-	color: #000000;
+.font_normal_07em_black {
+  font-weight: bold;
+  margin-bottom: 17px;
+  font-size: 11px;
+  display: block;
+  color: #000000;
 }
-.image-widget-step-header table{
-	border-spacing:0px;
+.image-widget-step-header table {
+  border-spacing: 0px;
 }
 body * {
-	font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }

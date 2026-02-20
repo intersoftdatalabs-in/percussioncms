@@ -38,6 +38,9 @@ import com.percussion.design.objectstore.PSRoleConfiguration;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.server.PSDatabaseComponentLoader;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.stream.Stream;
 import com.percussion.error.PSException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.i18n.PSLocale;
@@ -92,18 +95,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Cache;
 import org.hibernate.CacheMode;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.query.Query;
-import org.hibernate.type.IntegerType;
-import org.hibernate.type.LongType;
-import org.hibernate.type.ShortType;
-import org.hibernate.type.StringType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -226,7 +222,7 @@ public class PSCmsObjectMgr
         setPostDate(ids,new Date());
     }
 
-    public Date getFirstPublishDate(Integer contentId){
+    public Optional<LocalDateTime> getFirstPublishDate(Integer contentId){
         Date postDate  = null;
         Session session = getSession();
         Query q = session.getNamedQuery("getPostDate");
@@ -234,7 +230,8 @@ public class PSCmsObjectMgr
         List result = q.list();
         if(result != null && !result.isEmpty())
             postDate = (Date) result.get(0);
-        return postDate;
+        if (postDate == null) return Optional.empty();
+        return Optional.of(LocalDateTime.ofInstant(postDate.toInstant(), java.time.ZoneId.systemDefault()));
     }
    /*
     * (non-Javadoc)
@@ -265,7 +262,7 @@ public class PSCmsObjectMgr
     * Collection)
     */
     @Transactional
-   public void setPublishDate(List<Integer> ids, Date date)
+   public void setPublishDate(Collection<Integer> ids, Date date)
    {
       updateSummaryDate("m_contentPublishDate",date,ids,true);
       setPostDate(ids,date);
@@ -274,47 +271,49 @@ public class PSCmsObjectMgr
    
    
    
-    @Override
     public List<PSUIMode> findUiModes() {
         Session session = getSession();
-  		try{
-            return session.createCriteria(PSUIMode.class).list();
-        }catch(Exception e){
+        try {
+            return session.createQuery("from PSUIMode", PSUIMode.class).list();
+        } catch(Exception e) {
             logger.warn("An error occurred while listing UI Contexts: {}",
                     PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
-      }
-	}
+        }
+    }
 
-    @Override
     public List<PSActionMenu> findActionMenus() {
         Session session = getSession();
 
         try {
-            return session.createCriteria(PSActionMenu.class).addOrder(Order.asc("sortOrder")).list();
+            return session.createQuery("from PSActionMenu m order by m.sortOrder asc", PSActionMenu.class).list();
         } catch (Exception e) {
             logger.warn("An error occurred while listing action menus: {}" , PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
         }
     }
 
-    @Override
     public List<PSActionMenu> findActionMenusByType(String type) {
         Session session = getSession();
 
         try {
-            return session.createCriteria(PSActionMenu.class).add(Restrictions.ilike("type",type)).addOrder(Order.asc("sortOrder")).list();
+            if (type == null) {
+                return new ArrayList<>();
+            }
+            String t = type.toLowerCase();
+            return session.createQuery("from PSActionMenu m where lower(m.type) = :type order by m.sortOrder asc", PSActionMenu.class)
+                    .setParameter("type", t)
+                    .list();
         }catch(Exception e) {
             logger.warn("An error occurred while listing action menus by type: {}" , PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
         }
    }
 
-    @Override
     public List<PSUiContext> findUiContexts() {
         Session session = getSession();
         try {
-            return session.createCriteria(PSUiContext.class).list();
+            return session.createQuery("from PSUiContext", PSUiContext.class).list();
         }catch(Exception e) {
             logger.warn("An error occurred while listing UI Contexts: {}" ,PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
@@ -364,10 +363,9 @@ public class PSCmsObjectMgr
     * 
     * @see com.percussion.legacy.IPSCmsObjectMgr#getLocaleById(long)
     */
-   public PSLocale loadLocale(int id)
+   public Optional<PSLocale> loadLocale(int id)
    {
-      return getSession().get(PSLocale.class,
-              id);
+      return Optional.ofNullable(getSession().get(PSLocale.class, id));
    }
 
    /*
@@ -377,19 +375,19 @@ public class PSCmsObjectMgr
     * com.percussion.legacy.IPSCmsObjectMgr#getLocaleByName(java.lang.String)
     */
    @SuppressWarnings("unchecked")
-   public PSLocale findLocaleByLanguageString(String lang)
+   public Optional<PSLocale> findLocaleByLanguageString(String lang)
    {
 
-         Criteria c = getSession().createCriteria(PSLocale.class).add(
-               Restrictions.eq("m_languageString", lang));
-         List<PSLocale> locales = c.list();
+         Query<PSLocale> q = getSession().createQuery("from PSLocale where m_languageString = :lang", PSLocale.class)
+               .setParameter("lang", lang);
+         List<PSLocale> locales = q.list();
          if (locales != null && !locales.isEmpty())
          {
-            return locales.get(0);
+            return Optional.of(locales.get(0));
          }
          else
          {
-            return null;
+            return Optional.empty();
          }
 
    }
@@ -400,14 +398,14 @@ public class PSCmsObjectMgr
     * @see com.percussion.legacy.IPSCmsObjectMgr#getLocaleByStatus(int)
     */
    @SuppressWarnings("unchecked")
-   public List<PSLocale> findLocaleByStatus(int status)
+   public Stream<PSLocale> findLocalesByStatus(int status)
    {
       Session session = getSession();
 
-         Criteria c = session.createCriteria(PSLocale.class).add(Restrictions.eq("m_status", status))
-               .addOrder(Order.asc("m_displayName"));
-         List<PSLocale> locales = c.list();
-         return locales;
+         Query<PSLocale> q = session.createQuery("from PSLocale where m_status = :status order by m_displayName asc", PSLocale.class)
+               .setParameter("status", status);
+         List<PSLocale> locales = q.list();
+         return locales.stream();
       }
 
    /*
@@ -416,7 +414,7 @@ public class PSCmsObjectMgr
     * @see com.percussion.legacy.IPSCmsObjectMgr#findLocales(String, String)
     */
    @SuppressWarnings("unchecked")
-   public List<PSLocale> findLocales(String lang, String label)
+   public Stream<PSLocale> findLocales(String lang, String label)
    {
       Session session = getSession();
 
@@ -446,17 +444,17 @@ public class PSCmsObjectMgr
          Query query = session.createQuery(queryString);
          for (Map.Entry<String, String> entry : paramMap.entrySet())
          {
-            query.setString(entry.getKey(), entry.getValue());
+            query.setParameter(entry.getKey(), entry.getValue());
          }
 
          locales = (List<PSLocale>) query.list();
 
-         return locales;
+         return locales.stream();
 
       }
 
    @SuppressWarnings("unchecked")
-   public List<PSLocale> findAllLocales()
+   public Stream<PSLocale> findAllLocales()
    {
       Session session = getSession();
 
@@ -466,7 +464,7 @@ public class PSCmsObjectMgr
 
          locales = (List<PSLocale>) query.list();
 
-         return locales;
+         return locales.stream();
 
       }
 
@@ -477,12 +475,11 @@ public class PSCmsObjectMgr
     * com.percussion.services.legacy.IPSCmsObjectMgr#findAllPersistentMeta()
     */
    @SuppressWarnings("unchecked")
-   public List<PSPersistentPropertyMeta> findAllPersistentMeta()
+   public Stream<PSPersistentPropertyMeta> findAllPersistentMeta()
    {
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSPersistentPropertyMeta.class);
-         return (List<PSPersistentPropertyMeta>) c.list();
+         return s.createQuery("from PSPersistentPropertyMeta", PSPersistentPropertyMeta.class).list().stream();
 
       }
 
@@ -493,12 +490,12 @@ public class PSCmsObjectMgr
      * @return
      */
     @Override
-    public List<PSPersistentPropertyMeta> saveAllPersistentMeta(List<PSPersistentPropertyMeta> list) {
+    public Stream<PSPersistentPropertyMeta> saveAllPersistentMeta(List<PSPersistentPropertyMeta> list) {
 
         Session s = getSession();
         list.forEach(pm -> s.saveOrUpdate(pm));
 
-        return list;
+        return list.stream();
     }
 
     /***
@@ -518,7 +515,6 @@ public class PSCmsObjectMgr
      * @param meta
      * @return
      */
-    @Override
     public PSPersistentPropertyMeta savePersistentPropertyMeta(PSPersistentPropertyMeta meta) {
 
         PSPersistentPropertyMeta prop = findProperties(meta);
@@ -544,10 +540,13 @@ public class PSCmsObjectMgr
 
     private  PSPersistentPropertyMeta findProperties(PSPersistentPropertyMeta meta) {
         Session session = getSession();
-        Criteria criteria = session.createCriteria(PSPersistentPropertyMeta.class);
-        PSPersistentPropertyMeta prop = ((PSPersistentPropertyMeta) criteria.add(Restrictions.eq("propertyName", meta.getPropertyName()))
-                .add((Restrictions.eq("userName",meta.getUserName()))).uniqueResult());
-        return prop;
+        Query<PSPersistentPropertyMeta> q = session.createQuery(
+            "from PSPersistentPropertyMeta where propertyName = :prop and userName = :user", PSPersistentPropertyMeta.class)
+            .setParameter("prop", meta.getPropertyName())
+            .setParameter("user", meta.getUserName())
+            .setMaxResults(1);
+        List<PSPersistentPropertyMeta> list = q.list();
+        return list.isEmpty() ? null : list.get(0);
     }
 
 
@@ -581,8 +580,7 @@ public class PSCmsObjectMgr
    {
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSPersistentProperty.class);
-         return (List<PSPersistentProperty>) c.list();
+         return s.createQuery("from PSPersistentProperty", PSPersistentProperty.class).list();
 
       }
 
@@ -740,7 +738,7 @@ public class PSCmsObjectMgr
    }
 
    @SuppressWarnings("unchecked")
-   public List<PSComponentSummary> findComponentSummariesByCheckedOutUsers(Set<String> users) throws PSORMException
+   public Stream<PSComponentSummary> findComponentSummariesByCheckedOutUsers(Set<String> users) throws PSORMException
    {
       Session s = getSession();
 
@@ -748,53 +746,53 @@ public class PSCmsObjectMgr
                .createQuery("from PSComponentSummary c where c.m_checkoutUserName in (:users)")
                .setParameterList("users", users).list();
          fixupLocators(summaries);
-         return summaries;
+         return summaries.stream();
 
       }
    
    @SuppressWarnings("unchecked")
-   public List<PSComponentSummary> findComponentSummariesByType(long contentType) throws PSORMException
+   public Stream<PSComponentSummary> findComponentSummariesByType(long contentType) throws PSORMException
    {
       List<PSComponentSummary> summaries = getSession()
             .createQuery(
                   "from PSComponentSummary c where c.m_contentTypeId = :type").setParameter(
                   "type", contentType).list();
       fixupLocators(summaries);
-      return summaries;
+      return summaries.stream();
    }
 
    @SuppressWarnings("unchecked")
-   public Collection<Integer> findContentIdsByType(long contentType) throws PSORMException
+   public Stream<Integer> findContentIdsByType(long contentType) throws PSORMException
    {
-      return getSession()
+      return ((List<Integer>) getSession()
             .createQuery(
                   "select c.m_contentId "
                         + "from PSComponentSummary c where c.m_contentTypeId = :type").setParameter(
-                  "type", contentType).list();
+                  "type", contentType).list()).stream();
    }
 
    @SuppressWarnings("unchecked")
-   public Collection<Integer> findContentIdsByWorkflow(int workflowid) throws PSORMException
+   public Stream<Integer> findContentIdsByWorkflow(int workflowid) throws PSORMException
    {
-      return getSession()
+      return ((List<Integer>) getSession()
             .createQuery(
                   "select c.m_contentId "
                         + "from PSComponentSummary c where c.m_workflowAppId = :workflowid").setParameter(
-                  "workflowid", workflowid).list();
+                  "workflowid", workflowid).list()).stream();
    }
 
    @SuppressWarnings("unchecked")
-   public Collection<Integer> findContentIdsByWorkflowStatus(int workflowid, int stateid) throws PSORMException
+   public Stream<Integer> findContentIdsByWorkflowStatus(int workflowid, int stateid) throws PSORMException
    {
 
       
-      return getSession()
+      return ((List<Integer>) getSession()
             .createQuery(
                   "select c.m_contentId "
                         + "from PSComponentSummary c where c.m_workflowAppId = :workflowid " +
                         "and c.m_contentStateId = :stateid")
               .setParameter("workflowid",workflowid).setParameter("stateid",stateid)
-              .list();
+              .list()).stream();
 
    }
 
@@ -820,7 +818,7 @@ public class PSCmsObjectMgr
       }
    }
 
-   public IPSWorkflowAppsContext loadWorkflowAppContext(int workflowAppId)
+   public Optional<IPSWorkflowAppsContext> loadWorkflowAppContext(int workflowAppId)
    {
       IPSWorkflowAppsContext wf = null;
 
@@ -828,10 +826,10 @@ public class PSCmsObjectMgr
       if (workflow != null)
          wf = new PSWorkflowAppsContext(workflow);
 
-      return wf;
+      return Optional.ofNullable(wf);
    }
 
-   public IPSStatesContext loadWorkflowState(int workflowAppId, int stateid)
+   public Optional<IPSStatesContext> loadWorkflowState(int workflowAppId, int stateid)
    {
       IPSStatesContext statesCtx = null;
       IPSWorkflowService svc = PSWorkflowServiceLocator.getWorkflowService();
@@ -844,11 +842,11 @@ public class PSCmsObjectMgr
          statesCtx = new PSStatesContext(state);
       }
 
-      return statesCtx;
+      return Optional.ofNullable(statesCtx);
    }
 
    @SuppressWarnings("unchecked")
-   public <T extends IPSIdentifiableItem> List<T> filterItemsByPublishableFlag(List<T> items, List<String> flags)
+   public <T extends IPSIdentifiableItem> Stream<T> filterItemsByPublishableFlag(List<T> items, List<String> flags)
          throws PSORMException
    {
       Session s = getSession();
@@ -907,7 +905,7 @@ public class PSCmsObjectMgr
 
       }
 
-      return rval;
+      return rval.stream();
    }
 
    public void handleDataEviction(Class clazz, Serializable id) throws PSORMException
@@ -918,23 +916,14 @@ public class PSCmsObjectMgr
       {
          logger.debug("Evicting {} for class {}",id,  clazz);
          SessionFactory sf = s.getSessionFactory();
-         ClassMetadata cm = sf.getClassMetadata(clazz);
+         // ClassMetadata removed in Hibernate 6
+         // Assume id is correct type or handle conversion elsewhere
 
-         if (id instanceof String)
-         {
-            if (cm.getIdentifierType() instanceof LongType)
-               id = new Long((String) id);
-            else if (cm.getIdentifierType() instanceof IntegerType)
-               id = new Integer((String) id);
-            else if (cm.getIdentifierType() instanceof ShortType)
-               id = new Short((String) id);
-            else if (!(cm.getIdentifierType() instanceof StringType))
-               id = null;
-         }
          if (id != null)
-            s.getSessionFactory().getCache().evictEntity(clazz, id);
-         else
-            s.getSessionFactory().getCache().evictEntityRegion(clazz);
+            sf.getCache().evict(clazz, id);
+         // evictEntityRegion removed in Hibernate 6
+         // else
+         //    sf.getCache().evictEntityRegion(clazz);
          
          // Handle eviction from data object cache for classes that may be
          // cached in memory. Required until we eliminate applications. (if
@@ -961,22 +950,22 @@ public class PSCmsObjectMgr
    // implement IPSCmsObjectMgr.findAllConfigs()
    @SuppressWarnings(value =
    {"unchecked"})
-   public Collection<PSConfig> findAllConfigs() throws PSCmsException
+   public Stream<PSConfig> findAllConfigs() throws PSCmsException
    {
       Session s = getSession();
 
-         List<PSConfig> result = s.createCriteria(PSConfig.class).list();
+         List<PSConfig> result = s.createQuery("from PSConfig", PSConfig.class).list();
          for (PSConfig c : result)
          {
             if (PSConfigurationFactory.RELATIONSHIPS_CFG.equals(c.getName()))
                resetRelationshipConfigIds(c, s);
          }
-         return result;
+         return result.stream();
 
       }
 
    // implement IPSCmsObjectMgr.findConfig(String)
-   public PSConfig findConfig(String name) throws PSCmsException
+   public Optional<PSConfig> findConfig(String name) throws PSCmsException
    {
       Session s = getSession();
 
@@ -984,7 +973,7 @@ public class PSCmsObjectMgr
          if (PSConfigurationFactory.RELATIONSHIPS_CFG.equals(name))
             resetRelationshipConfigIds(config, s);
 
-         return config;
+         return Optional.ofNullable(config);
 
 
    }
@@ -1029,7 +1018,7 @@ public class PSCmsObjectMgr
    {
       PSRelationshipConfigSet configset = getRelationshipConfigSet(config);
 
-      Collection<PSRelationshipConfigName> names = findAllRelationshipConfigNames();
+      Collection<PSRelationshipConfigName> names = findAllRelationshipConfigNames().collect(java.util.stream.Collectors.toList());
       Collection<PSRelationshipConfigName> existNames = new ArrayList<>();
       Iterator configs = configset.iterator();
       PSRelationshipConfig rconfig;
@@ -1097,7 +1086,7 @@ public class PSCmsObjectMgr
    private boolean updateUserRelationshipConfigNameIds(PSRelationshipConfigSet configSet, Session s)
          throws PSCmsException
    {
-      Collection<PSRelationshipConfigName> names = findAllRelationshipConfigNames();
+      Collection<PSRelationshipConfigName> names = findAllRelationshipConfigNames().collect(java.util.stream.Collectors.toList());
       Collection<PSRelationshipConfigName> existNames = new ArrayList<>();
       PSRelationshipConfigName cfgName;
 
@@ -1318,25 +1307,25 @@ public class PSCmsObjectMgr
 
    // Implements IPSRelationshipService.findAllRelationshipConfigNames()
    @SuppressWarnings("unchecked")
-   public Collection<PSRelationshipConfigName> findAllRelationshipConfigNames()
+   public Stream<PSRelationshipConfigName> findAllRelationshipConfigNames()
    {
       List<PSRelationshipConfigName> names = getSession()
-              .createCriteria(PSRelationshipConfigName.class).list();
+              .createQuery("from PSRelationshipConfigName", PSRelationshipConfigName.class).list();
 
       if (names == null)
-         return Collections.emptyList();
+         return Stream.empty();
       else
-         return names;
+         return names.stream();
    }
 
    // Implements IPSRelationshipService.findRelationshipConfigNames()
    @SuppressWarnings("unchecked")
-   public List<PSRelationshipConfigName> findRelationshipConfigNames(String name)
+   public Stream<PSRelationshipConfigName> findRelationshipConfigNames(String name)
    {
       Session sess = getSession();
 
-         return sess.createCriteria(PSRelationshipConfigName.class).add(Restrictions.ilike("config_name", name))
-               .list();
+         return sess.createQuery("from PSRelationshipConfigName where lower(config_name) like :name", PSRelationshipConfigName.class)
+               .setParameter("name", name.toLowerCase()).list().stream();
 
       }
 
@@ -1345,7 +1334,7 @@ public class PSCmsObjectMgr
     * 
     * @see IPSCmsObjectMgr#findRolesByName(String)
     */
-   public List<PSRole> findRolesByName(String name)
+   public Stream<PSRole> findRolesByName(String name)
    {
       if (StringUtils.isBlank(name))
          name = "%";
@@ -1375,11 +1364,11 @@ public class PSCmsObjectMgr
             roles.add(role);
       }
 
-      return roles;
+      return roles.stream();
    }
 
    @SuppressWarnings("unchecked")
-   public List<IPSGuid> findPublicOrCurrentGuids(List<Integer> ids)
+   public Stream<IPSGuid> findPublicOrCurrentGuids(List<Integer> ids)
    {
       Session s = getSession();
 
@@ -1399,7 +1388,7 @@ public class PSCmsObjectMgr
          {
             rval.add(rmap.get(id));
          }
-         return rval;
+         return rval.stream();
 
       }
 
@@ -1408,12 +1397,12 @@ public class PSCmsObjectMgr
     * 
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#loadCmsObject(int)
     */
-   public PSCmsObject loadCmsObject(int objectType)
+   public Optional<PSCmsObject> loadCmsObject(int objectType)
    {
       Session s = getSession();
 
          PSCmsObject cmsObject = (PSCmsObject) s.get(PSCmsObject.class, objectType);
-         return cmsObject;
+         return Optional.ofNullable(cmsObject);
 
       }
 
@@ -1423,15 +1412,13 @@ public class PSCmsObjectMgr
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#findAllCmsObjects()
     */
    @SuppressWarnings("unchecked")
-   public List<PSCmsObject> findAllCmsObjects()
+   public Stream<PSCmsObject> findAllCmsObjects()
    {
       Session session = getSession();
 
          Query query = session.createQuery("from PSCmsObject");
 
-         return (List<PSCmsObject>) query.list();
-
-
+         return ((List<PSCmsObject>) query.list()).stream();
 
    }
 
@@ -1485,10 +1472,9 @@ public class PSCmsObjectMgr
             {
                end = ids.size();
             }
-            Criteria c = session.createCriteria(PSComponentSummary.class);
-            c.add(Restrictions.in("m_contentId", ids.subList(i, end)));
-            c.setProjection(Projections.distinct(Projections.property("m_contentTypeId")));
-            results.addAll(c.list());
+            List<Number> partResults = session.createQuery("select distinct cs.m_contentTypeId from PSComponentSummary cs where cs.m_contentId in (:ids)", Number.class)
+                .setParameterList("ids", ids.subList(i, end)).list();
+            results.addAll(partResults);
          }
          
          for(Number n : results)
@@ -1830,7 +1816,6 @@ public class PSCmsObjectMgr
       updateWorkflowAndState(workflowId, targetStateId, Arrays.asList(itemEntry), roleName, userReq);
    }
 
-   @Override
    public void forceCheckinUsers(HashMap<String, PSUserSession> usersMap)
    {
       Session session = getSession();
@@ -1841,7 +1826,7 @@ public class PSCmsObjectMgr
          
          IPSSystemService svc = PSSystemServiceLocator.getSystemService();
          try {
-         List<PSComponentSummary> summaries = findComponentSummariesByCheckedOutUsers(usersMap.keySet());
+         List<PSComponentSummary> summaries = findComponentSummariesByCheckedOutUsers(usersMap.keySet()).collect(java.util.stream.Collectors.toList());
          Date now = new Date();
          for (PSComponentSummary summary : summaries)
          {
@@ -2059,11 +2044,12 @@ public class PSCmsObjectMgr
             {
                end = ids.size();
             }
-            Criteria c = session.createCriteria(PSComponentSummary.class);
-            c.add(Restrictions.in("m_contentId", ids.subList(i, end)));
-            c.add(Restrictions.ne("m_checkoutUserName", ""));
-            c.setProjection(Projections.property("m_contentId"));
-            results.addAll(c.list());
+            List<Number> partResults = session.createQuery("select c.m_contentId from PSComponentSummary c where c.m_contentId in (:ids) and c.m_checkoutUserName != ''", Number.class)
+                .setParameterList("ids", ids.subList(i, end)).list();
+            for (Number n : partResults)
+            {
+               results.add(n.intValue());
+            }
          }
          
          return results;
@@ -2091,7 +2077,7 @@ public class PSCmsObjectMgr
       
       Date now = new Date();
       
-      IPSStatesContext state = loadWorkflowState(workflowId, stateId);
+      IPSStatesContext state = loadWorkflowState(workflowId, stateId).orElse(null);
       
       String sessid = req.getUserSessionId();
       String user = req.getUserSession().getRealAuthenticatedUserEntry();

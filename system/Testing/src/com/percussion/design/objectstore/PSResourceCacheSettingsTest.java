@@ -25,6 +25,7 @@ import java.util.List;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -33,28 +34,26 @@ import org.w3c.dom.Element;
 /**
  * Unit test for the <code>PSResourceCacheSettings</code> class.
  */
-public class PSResourceCacheSettingsTest extends TestCase
+public class PSResourceCacheSettingsTest 
 {
    /**
     * Construct this unit test
     * 
     * @param name The name of this test.
     */
-   public PSResourceCacheSettingsTest(String name)
-   {
-      super(name);
-   }
+   
    
    /**
     * Test all functionality of this object.
     * 
     * @throws Exception if there are any errors.
     */
+   
    public void testAll() throws Exception
    {
       // ensure ctor defaults to not enabled
       PSResourceCacheSettings settings = new PSResourceCacheSettings();
-      assertTrue(!settings.isCachingEnabled());
+      assertFalse(settings.isCachingEnabled());
       PSResourceCacheSettings settings2 = new PSResourceCacheSettings();
       assertEquals(settings, settings2);
       
@@ -65,7 +64,7 @@ public class PSResourceCacheSettingsTest extends TestCase
       
       // test equals on enabled, be sure it serializes
       settings.setIsCachingEnabled(true);
-      assertTrue(!settings.equals(settings2));
+      assertFalse(settings.equals(settings2));
       root = settings.toXml(doc);
       settings2 = new PSResourceCacheSettings(root);
       assertEquals(settings, settings2);
@@ -76,7 +75,7 @@ public class PSResourceCacheSettingsTest extends TestCase
       keys.add(new PSCgiVariable(IPSCgiVariables.CGI_AUTH_TYPE));
       keys.add(new PSUserContext("User/Name"));
       settings.setAdditionalKeys(keys.iterator());
-      assertTrue(!settings.equals(settings2));
+      assertFalse(settings.equals(settings2));
       root = settings.toXml(doc);
       settings2 = new PSResourceCacheSettings(root);
       assertEquals(settings, settings2);
@@ -87,7 +86,7 @@ public class PSResourceCacheSettingsTest extends TestCase
       deps.add("app3/resource3");
       
       settings.setDependencies(deps.iterator());
-      assertTrue(!settings.equals(settings2));
+      assertFalse(settings.equals(settings2));
       root = settings.toXml(doc);
       settings2 = new PSResourceCacheSettings(root);
       assertEquals(settings, settings2);
@@ -101,10 +100,5 @@ public class PSResourceCacheSettingsTest extends TestCase
    }
    
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSResourceCacheSettingsTest("testAll"));
-      return suite;
-   }
+   
 }

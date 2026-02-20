@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="Sitewide Framework" category="content"
-                 description="This gadget allows an administrator to override jQuery, jQueryUI and Foundation Framework for each site managed by CMS."
-                 thumbnail="images/gadgetConfigSitewiseFrmw.png" height="250" adminOnly="true">
-        <Require feature="perc_core"/>
-        <Require feature="perc_jquery_ui"/>
-        <Require feature="settitle" />
-    </ModulePrefs>
-    <Content type="html">
+	<ModulePrefs title="Sitewide Framework" category="content"
+		description="This gadget allows an administrator to override jQuery, jQueryUI and Foundation Framework for each site managed by CMS."
+		thumbnail="images/gadgetConfigSitewiseFrmw.png" height="250"
+		adminOnly="true">
+		<Require feature="perc_core" />
+		<Require feature="perc_jquery_ui" />
+		<Require feature="settitle" />
+	</ModulePrefs>
+	<Content type="html">
         <![CDATA[
         <!DOCTYPE html>
         <link rel="stylesheet" type="text/css" href="/cm/css/perc_default.css" />
@@ -23,5 +24,5 @@
 
         <div id="percSitewideFrameworkTarget"></div>
      ]]>
-    </Content>
+	</Content>
 </Module>

@@ -8,126 +8,140 @@
         %HTMLspecial;
 ]>
 
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns="http://www.w3.org/1999/xhtml"
-                extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
-   <xsl:output method="xml" encoding="UTF-8" />
-  <xsl:variable name="this" select="/"/>
-  <xsl:variable name="relatedlinks" select="/*/relatedlinks"/>
-  <xsl:variable name="componentcontext" select="/*/contexturl"/>
-  <xsl:variable name="userroles" select="/*/userrolesurl"/>
-   <xsl:variable name="userroles1" select="document(/*/userrolesurl)/UserStatus" /> 
-   <xsl:variable name="componentcontext1" select="document(/*/contexturl)/componentcontext/context"/>
-  <xsl:template match="/">
-    <html>
-      <head>
-        <meta name="generator" content="Percussion XSpLit Version 3.5"/>
-        <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-        <title>New Document</title>
-      </head>
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
+	<xsl:output method="xml" encoding="UTF-8" />
+	<xsl:variable name="this" select="/" />
+	<xsl:variable name="relatedlinks" select="/*/relatedlinks" />
+	<xsl:variable name="componentcontext"
+		select="/*/contexturl" />
+	<xsl:variable name="userroles" select="/*/userrolesurl" />
+	<xsl:variable name="userroles1"
+		select="document(/*/userrolesurl)/UserStatus" />
+	<xsl:variable name="componentcontext1"
+		select="document(/*/contexturl)/componentcontext/context" />
+	<xsl:template match="/">
+		<html>
+			<head>
+				<meta name="generator" content="Percussion XSpLit Version 3.5" />
+				<meta http-equiv="content-type"
+					content="text/html; charset=UTF-8" />
+				<title>New Document</title>
+			</head>
 
-      <body>        <!--     psx-docalias="newcontent" psx-docref="psx-newcontenturl"     -->
-        <!--     psx-docalias="mycontent" psx-docref="psx-mycontenturl"     -->
-        <!--     psx-docalias="allcontent" psx-docref="psx-allcontenturl"     -->
-        <!--     psx-docalias="userroles" psx-docref="psx-userrolesurl"     -->
-        <!--     psx-docalias="componentcontext" psx-docref="psx-contexturl"     -->
+			<body>        <!-- psx-docalias="newcontent" psx-docref="psx-newcontenturl" -->
+				<!-- psx-docalias="mycontent" psx-docref="psx-mycontenturl" -->
+				<!-- psx-docalias="allcontent" psx-docref="psx-allcontenturl" -->
+				<!-- psx-docalias="userroles" psx-docref="psx-userrolesurl" -->
+				<!-- psx-docalias="componentcontext" psx-docref="psx-contexturl" -->
 
-        <table height="100%" width="150" cellpadding="4" cellspacing="0" border="0">
-          <xsl:attribute name="id">
-            <xsl:value-of select="*/x"/>
+				<table height="100%" width="150" cellpadding="4"
+					cellspacing="0" border="0">
+					<xsl:attribute name="id">
+            <xsl:value-of select="*/x" />
           </xsl:attribute>
 
-          <xsl:apply-templates select="*" mode="mode0">
-               <xsl:with-param name="componentcontext1" select="$componentcontext1"/>
-               <xsl:with-param name="userroles1" select="$userroles1"/>
-          </xsl:apply-templates>
+					<xsl:apply-templates select="*" mode="mode0">
+						<xsl:with-param name="componentcontext1"
+							select="$componentcontext1" />
+						<xsl:with-param name="userroles1"
+							select="$userroles1" />
+					</xsl:apply-templates>
 
-          <tr class="outerboxcell">
-            <td height="100%">&nbsp;</td>
-            <!--   Fill down to the bottom   -->
+					<tr class="outerboxcell">
+						<td height="100%">&nbsp;
+						</td>
+						<!-- Fill down to the bottom -->
 
-          </tr>
+					</tr>
 
-        </table>
+				</table>
 
-      </body>
+			</body>
 
-    </html>
+		</html>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*">
-    <xsl:choose>
-      <xsl:when test="text()">
-        <xsl:choose>
-          <xsl:when test="@no-escaping">
-            <xsl:value-of select="." disable-output-escaping="yes"/>
-          </xsl:when>
+	<xsl:template match="*">
+		<xsl:choose>
+			<xsl:when test="text()">
+				<xsl:choose>
+					<xsl:when test="@no-escaping">
+						<xsl:value-of select="."
+							disable-output-escaping="yes" />
+					</xsl:when>
 
-          <xsl:otherwise>
-            <xsl:value-of select="."/>
-          </xsl:otherwise>
+					<xsl:otherwise>
+						<xsl:value-of select="." />
+					</xsl:otherwise>
 
-        </xsl:choose>
+				</xsl:choose>
 
-      </xsl:when>
+			</xsl:when>
 
-      <xsl:otherwise>&nbsp;</xsl:otherwise>
+			<xsl:otherwise>&nbsp;
+			</xsl:otherwise>
 
-    </xsl:choose>
+		</xsl:choose>
 
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="attribute::*">
-    <xsl:value-of select="."/>
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
+	<xsl:template match="attribute::*">
+		<xsl:value-of select="." />
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*" mode="mode0">
-   <xsl:param name="componentcontext1"/>
-   <xsl:param name="userroles1"/>
-   <xsl:for-each select=".">
-      <tr>
-        <td height="100%" valign="top" class="outerboxcell">          <!--   Function Boxes Start   -->
+	<xsl:template match="*" mode="mode0">
+		<xsl:param name="componentcontext1" />
+		<xsl:param name="userroles1" />
+		<xsl:for-each select=".">
+			<tr>
+				<td height="100%" valign="top" class="outerboxcell">          <!-- Function Boxes Start -->
 
-          <table width="100%" cellpadding="0" cellspacing="0" class="outerboxcell" border="0">
-            <xsl:attribute name="id">
-              <xsl:value-of select="."/>
+					<table width="100%" cellpadding="0" cellspacing="0"
+						class="outerboxcell" border="0">
+						<xsl:attribute name="id">
+              <xsl:value-of select="." />
             </xsl:attribute>
 
-            <tr>
-              <td valign="top">                <!--   new content menu slot   -->
-                <!-- begin XSL -->
-			<xsl:for-each select="document($relatedlinks)/*/component">
-				<xsl:copy-of select="document(url)/*/body/*" />
-			</xsl:for-each>
-			<!-- end XSL -->
-                <!--   end content menu slot   -->
-	      </td>
+						<tr>
+							<td valign="top">                <!-- new content menu slot -->
+								<!-- begin XSL -->
+								<xsl:for-each
+									select="document($relatedlinks)/*/component">
+									<xsl:copy-of select="document(url)/*/body/*" />
+								</xsl:for-each>
+								<!-- end XSL -->
+								<!-- end content menu slot -->
+							</td>
 
-            </tr>
+						</tr>
 
-            <tr class="outerboxcell">
-            <td class="datacell1font" align="center">
-              <br id="XSpLit"/>(c) Percussion Software 1999-@COPYRIGHTYEAR@
-            </td>
-            </tr>
+						<tr class="outerboxcell">
+							<td class="datacell1font" align="center">
+								<br id="XSpLit" />
+								(c) Percussion Software 1999-@COPYRIGHTYEAR@
+							</td>
+						</tr>
 
-          </table>
+					</table>
 
-        </td>
+				</td>
 
-      </tr>
+			</tr>
 
-    </xsl:for-each>
+		</xsl:for-each>
 
-  </xsl:template>
+	</xsl:template>
 
 </xsl:stylesheet>

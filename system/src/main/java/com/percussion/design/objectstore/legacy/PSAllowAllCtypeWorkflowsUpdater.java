@@ -28,7 +28,7 @@ import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSAclServiceLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
@@ -104,7 +104,14 @@ public class PSAllowAllCtypeWorkflowsUpdater implements IPSComponentUpdater {
 
             // ensure at least a default acl exists for each workflow
             IPSAclService aclSvc = PSAclServiceLocator.getAclService();
-            List<IPSAcl> acls = aclSvc.loadAclsForObjects(wfGuids);
+            List<IPSAcl> acls;
+            try {
+              acls = aclSvc.loadAclsForObjects(wfGuids);
+            } catch (PSServiceSecurityException e) {
+              Logger logger = LogManager.getLogger(this.getClass());
+              logger.error("Unable to load acls for workflows: {}", e.getMessage());
+              acls = Collections.nCopies(wfGuids.size(), (IPSAcl) null);
+            }
             for (int i = 0; i < acls.size(); i++) {
               IPSAcl acl = acls.get(i);
 
@@ -115,7 +122,7 @@ public class PSAllowAllCtypeWorkflowsUpdater implements IPSComponentUpdater {
                 IPSAcl newAcl = aclSvc.createAcl(wfGuid, owner);
                 try {
                   aclSvc.saveAcls(Collections.singletonList(newAcl));
-                } catch (PSSecurityException e) {
+                } catch (PSServiceSecurityException e) {
                   Logger logger = LogManager.getLogger(this.getClass());
                   logger.error("Unable to save default acl for workflow {}", wfGuid.getUUID());
                 }

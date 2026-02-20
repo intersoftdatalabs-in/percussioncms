@@ -18,24 +18,23 @@ package com.percussion.design.objectstore;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit test for the {@link PSRelationshipSet} class.
  */
-public class PSRelationshipSetTest extends TestCase
+public class PSRelationshipSetTest 
 {
    // see base class
-   public PSRelationshipSetTest(String name)
-   {
-      super(name);
-   }
+   
    
    /**
     * The all public constructor contracts.
     * 
     * @throws Exception for any error.
     */
+   
    public void testConstructors() throws Exception
    {
       Exception exception = null;
@@ -56,6 +55,7 @@ public class PSRelationshipSetTest extends TestCase
     * 
     * @throws Exception for all errors.
     */
+   
    public void testPublicAPI() throws Exception
    {
       Exception exception = null;
@@ -72,13 +72,5 @@ public class PSRelationshipSetTest extends TestCase
    }
    
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      
-      suite.addTest(new PSRelationshipSetTest("testConstructors"));
-      suite.addTest(new PSRelationshipSetTest("testPublicAPI"));
-      
-      return suite;
-   }
+   
 }

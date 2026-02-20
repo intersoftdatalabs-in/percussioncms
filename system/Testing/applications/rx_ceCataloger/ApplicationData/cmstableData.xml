@@ -2,7 +2,7 @@
 
 
 <tables>
-   <table name="CATALOGER"/>
-   <table name="CATALOGER_AVAILABLE_SET"/>
-   <table name="CATALOGER_CATALOGS"/>
+	<table name="CATALOGER" />
+	<table name="CATALOGER_AVAILABLE_SET" />
+	<table name="CATALOGER_CATALOGS" />
 </tables>

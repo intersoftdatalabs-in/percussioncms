@@ -14,18 +14,21 @@
 				>
 		%w3centities-f;
 		]>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-	<xsl:variable name="this" select="/"/>
+<xsl:stylesheet version="1.0"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:variable name="this" select="/" />
 	<xsl:template match="/">
 		<html>
 			<head>
-				<meta name="generator" content="Percussion XSpLit Version 3.0"/>
-				<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+				<meta name="generator" content="Percussion XSpLit Version 3.0" />
+				<meta http-equiv="content-type"
+					content="text/html; charset=UTF-8" />
 				<title>VARIANTLOOKUP Page</title>
 			</head>
 			<body>
 				<table>
-					<xsl:apply-templates select="*/item" mode="mode0"/>
+					<xsl:apply-templates select="*/item"
+						mode="mode0" />
 				</table>
 			</body>
 		</html>
@@ -35,42 +38,44 @@
 			<xsl:when test="text()">
 				<xsl:choose>
 					<xsl:when test="@no-escaping">
-						<xsl:value-of select="." disable-output-escaping="yes"/>
+						<xsl:value-of select="."
+							disable-output-escaping="yes" />
 					</xsl:when>
 					<xsl:otherwise>
-						<xsl:value-of select="."/>
+						<xsl:value-of select="." />
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:when>
-			<xsl:otherwise>&nbsp;</xsl:otherwise>
+			<xsl:otherwise>&nbsp;
+			</xsl:otherwise>
 		</xsl:choose>
 		<xsl:if test="not(position()=last())">
-			<br id="XSpLit"/>
+			<br id="XSpLit" />
 		</xsl:if>
 	</xsl:template>
 	<xsl:template match="attribute::*">
-		<xsl:value-of select="."/>
+		<xsl:value-of select="." />
 		<xsl:if test="not(position()=last())">
-			<br id="XSpLit"/>
+			<br id="XSpLit" />
 		</xsl:if>
 	</xsl:template>
 	<xsl:template match="*/item" mode="mode0">
 		<xsl:for-each select=".">
 			<tr>
 				<td>
-					<xsl:apply-templates select="value"/>
+					<xsl:apply-templates select="value" />
 				</td>
 				<td>
-					<xsl:apply-templates select="display"/>
+					<xsl:apply-templates select="display" />
 				</td>
 				<td>
-					<xsl:apply-templates select="contenttypeid"/>
+					<xsl:apply-templates select="contenttypeid" />
 				</td>
 				<td>
-					<xsl:apply-templates select="stylesheetname"/>
+					<xsl:apply-templates select="stylesheetname" />
 				</td>
 				<td>
-					<xsl:apply-templates select="assemblyurl"/>
+					<xsl:apply-templates select="assemblyurl" />
 				</td>
 			</tr>
 		</xsl:for-each>

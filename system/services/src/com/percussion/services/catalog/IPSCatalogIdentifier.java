@@ -75,19 +75,38 @@ public interface IPSCatalogIdentifier extends Serializable {
    }
 
    /**
+    * Get the (legacy) textual type identifier for this catalog object.
+    *
+    * <p>Historically many objects exposed a textual {@code getType()} method. To preserve
+    * backwards compatibility with those callers, this default returns the enum name if the
+    * underlying GUID provides a known type, or {@code null} otherwise.
+    *
+    * @return a textual representation of the type (enum name), or {@code null} when unknown
+    */
+   default String getType() {
+      PSTypeEnum te = getTypeEnum();
+      return te == null ? null : te.name();
+   }
+
+   /**
     * Get the type enumeration for this catalog object.
     *
-    * <p>The type information is essential for catalog operations, deployment,
-    * and service routing. This method extracts type information from the GUID
-    * when available.
+    * <p>Use this for new code that prefers the {@link PSTypeEnum} representation. It
+    * converts the underlying GUID numeric type into the enum where possible.
     *
-    * @return the object type, or {@code null} if GUID is not available
+    * @return the object type enum, or {@code null} if the underlying type is unknown
     */
-   PSTypeEnum getType() {
-      return getGUIDOptional()
-         .map(IPSGuid::getType)
-         .map(type -> PSTypeEnum.valueOf(type))
-         .orElse(null);
+   default PSTypeEnum getTypeEnum() {
+      return getGUIDOptional().map(g -> PSTypeEnum.valueOf(g.getType())).orElse(null);
+   }
+
+   /**
+    * Get the numeric type ordinal for legacy callers.
+    *
+    * @return the numeric ordinal, or {@code -1} if not available
+    */
+   default int getTypeOrdinal() {
+      return getGUIDOptional().map(IPSGuid::getType).map(Short::intValue).orElse(-1);
    }
 
    /**
@@ -96,7 +115,7 @@ public interface IPSCatalogIdentifier extends Serializable {
     * @return Optional containing the type if GUID is available, empty otherwise
     */
    default Optional<PSTypeEnum> getTypeOptional() {
-      return Optional.ofNullable(getType());
+      return Optional.ofNullable(getTypeEnum());
    }
 
    /**
@@ -128,6 +147,7 @@ public interface IPSCatalogIdentifier extends Serializable {
    default long getUUID() {
       return getGUIDOptional()
          .map(IPSGuid::getUUID)
+         .map(Integer::longValue)
          .orElse(0L);
    }
 
@@ -157,7 +177,7 @@ public interface IPSCatalogIdentifier extends Serializable {
     */
    default String getIdentifierString() {
       var guid = getGUID();
-      var type = getType();
+      var type = getTypeEnum();
 
       if (guid != null) {
          return String.format("%s:%d",

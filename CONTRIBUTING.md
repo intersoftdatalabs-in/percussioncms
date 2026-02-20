@@ -125,6 +125,30 @@ git pull
   - Linux/macOS: `./mvn-env.sh <maven-args>`
   - Windows: `mvn-env.bat <maven-args>`
 
+Editor / IDE note: To avoid IDEs (e.g., VS Code) writing build outputs into Maven's `target/` directory and conflicting with command-line builds, add the recommended workspace settings shown below to your local `.vscode/settings.json` (the repo ignores `.vscode/`, so the file is not committed).
+
+Copy this snippet into `.vscode/settings.json` in your workspace root:
+
+```json
+{
+  "java.autobuild.enabled": false,
+  "files.watcherExclude": {
+    "**/target/**": true,
+    "**/.git/**": true
+  },
+  "files.exclude": {
+    "**/target": true,
+    "**/.vscode/out": true
+  },
+  "search.exclude": {
+    "**/target": true
+  },
+  "java.project.outputPath": ".vscode/out"
+}
+```
+
+These settings disable automatic Java builds, prevent file-watch and search churn on `target/`, and optionally direct VS Code output to `.vscode/out` to avoid collisions with Maven's `target/`.
+
 ## Maven Configuration
 
 The project uses a Maven settings.xml and Maven toolchains.xml to control build properties on developer machines / CI environments.
@@ -151,7 +175,17 @@ Key store password properties can be encrypted in your setting.xml by following 
 ## Building
 
 ```
-mvn clean install
+# Use the project wrapper so Maven runs with JDK 21:
+./mvn-env.sh clean install
+
+# Build without DTS (default):
+./mvn-env.sh clean install
+
+# Build with DTS (opt-in profile):
+./mvn-env.sh -P with-dts clean install
+
+# One-off: Exclude DTS from the reactor (quote the leading ! to avoid shell history expansion):
+./mvn-env.sh -pl '!deliverytiersuite/delivery-tier-suite' -am clean install
 ```
 
 ## Working on the Code

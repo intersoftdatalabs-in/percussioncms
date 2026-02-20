@@ -87,6 +87,12 @@ public interface IPSPublisherServiceErrors {
    int FILTER_FAILED = 18;
 
    /**
+    * Alias for FILTER_FAILED to preserve older error identifiers that used
+    * a different name for the same condition.
+    */
+   int FILTER_MALFUNCTION = FILTER_FAILED;
+
+   /**
     * Publishing job failed.
     * <p>
     * Arguments: [0] Job ID, [1] Error details
@@ -100,6 +106,18 @@ public interface IPSPublisherServiceErrors {
     */
    int ITEM_PUBLISH_FAILED = 20;
 
+   /** General runtime error during publishing */
+   int RUNTIME_ERROR = 21;
+
+   /** Site is missing */
+   int SITE_MISSING = 22;
+
+   /** Publishing context missing */
+   int CONTEXT_MISSING = 23;
+
+   /** An unexpected error occurred */
+   int UNEXPECTED = 24;
+
    /** All defined error codes for validation and lookup operations */
    Set<Integer> ALL_ERROR_CODES = Set.of(
       LIST_MISSING,
@@ -112,22 +130,30 @@ public interface IPSPublisherServiceErrors {
       DB,
       FILTER_FAILED,
       JOB_FAILED,
-      ITEM_PUBLISH_FAILED
+      ITEM_PUBLISH_FAILED,
+      RUNTIME_ERROR,
+      SITE_MISSING,
+      CONTEXT_MISSING,
+      UNEXPECTED
    );
 
    /** Error code descriptions for enhanced error reporting */
-   Map<Integer, String> ERROR_DESCRIPTIONS = Map.of(
-      LIST_MISSING, "Content list not found",
-      BAD_QUERY, "Invalid query syntax",
-      REPOSITORY, "Repository access error",
-      SITE_LOAD, "Site loading failed",
-      MISSING_EXTENSION, "Extension not found",
-      EXTENSION_LOOKUP, "Extension lookup failed",
-      ROW_RETRIEVAL, "Query row retrieval failed",
-      DB, "Database operation failed",
-      FILTER_FAILED, "Content filter failed",
-      JOB_FAILED, "Publishing job failed",
-      ITEM_PUBLISH_FAILED, "Content item publishing failed"
+   Map<Integer, String> ERROR_DESCRIPTIONS = Map.ofEntries(
+      Map.entry(LIST_MISSING, "Content list not found"),
+      Map.entry(BAD_QUERY, "Invalid query syntax"),
+      Map.entry(REPOSITORY, "Repository access error"),
+      Map.entry(SITE_LOAD, "Site loading failed"),
+      Map.entry(MISSING_EXTENSION, "Extension not found"),
+      Map.entry(EXTENSION_LOOKUP, "Extension lookup failed"),
+      Map.entry(ROW_RETRIEVAL, "Query row retrieval failed"),
+      Map.entry(DB, "Database operation failed"),
+      Map.entry(FILTER_FAILED, "Content filter failed"),
+      Map.entry(JOB_FAILED, "Publishing job failed"),
+      Map.entry(ITEM_PUBLISH_FAILED, "Content item publishing failed"),
+      Map.entry(RUNTIME_ERROR, "Runtime exception during publishing"),
+      Map.entry(SITE_MISSING, "Site not found"),
+      Map.entry(CONTEXT_MISSING, "Publishing context missing"),
+      Map.entry(UNEXPECTED, "Unexpected error during publishing")
    );
 
    /**

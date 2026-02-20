@@ -15,35 +15,40 @@
  * limitations under the License.
  */
 
-(function($)
-{
-    $.PercResultService = {
-        getPageEntries : getPageEntries
-    };
-    function getPageEntries(queryString, callback)
-    {
-    	var deliveryUrl = "";
+(function ($) {
+  $.PercResultService = {
+    getPageEntries: getPageEntries,
+  };
+  function getPageEntries(queryString, callback) {
+    var deliveryUrl = "";
 
-    	try{
-    		if ("undefined" !== typeof (queryString.deliveryurl)){
-    		    deliveryUrl = queryString.deliveryurl;
-    		    delete queryString.deliveryurl;
-    	    }
-    	}
-        catch (err) {
-		    console.error(err);
-	    }
-        var serviceUrl = $.PercServiceUtils.joinURL(deliveryUrl, "/perc-metadata-services/metadata/get");
-        return $.PercServiceUtils.makeXdmJsonRequest(null,serviceUrl,$.PercServiceUtils.TYPE_POST,function(status, results)
-        {
-            if(status === $.PercServiceUtils.STATUS_SUCCESS){
-                callback(true,results.data);
-            }
-            else{
-              var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(results.request);
-              callback(false, defMsg);
-            }
-            
-        }, queryString);
+    try {
+      if ("undefined" !== typeof queryString.deliveryurl) {
+        deliveryUrl = queryString.deliveryurl;
+        delete queryString.deliveryurl;
+      }
+    } catch (err) {
+      console.error(err);
     }
+    var serviceUrl = $.PercServiceUtils.joinURL(
+      deliveryUrl,
+      "/perc-metadata-services/metadata/get"
+    );
+    return $.PercServiceUtils.makeXdmJsonRequest(
+      null,
+      serviceUrl,
+      $.PercServiceUtils.TYPE_POST,
+      function (status, results) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback(true, results.data);
+        } else {
+          var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            results.request
+          );
+          callback(false, defMsg);
+        }
+      },
+      queryString
+    );
+  }
 })(jQuery);

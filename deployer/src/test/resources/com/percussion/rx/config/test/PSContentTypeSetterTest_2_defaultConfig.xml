@@ -2,19 +2,20 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================
-        Content Type        "rffBrief"      
-        =========================================
--->	
-	<propertySet name="ct">
-  
-      <property name="fields"> 
-      </property>
-      
-	</propertySet>
-	
-   </SolutionConfig>
+		<!--- ======================================== Content Type "rffBrief"
+			========================================= -->
+		<propertySet name="ct">
+
+			<property name="fields">
+			</property>
+
+		</propertySet>
+
+	</SolutionConfig>
 </SolutionConfigurations>

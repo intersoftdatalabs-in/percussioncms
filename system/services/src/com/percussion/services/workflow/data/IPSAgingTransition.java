@@ -24,12 +24,30 @@ package com.percussion.services.workflow.data;
 public interface IPSAgingTransition extends IPSTransitionBase
 {
    /**
-    * Get the type of this aging transition.
+    * Get the type of this aging transition as a textual name (for compatibility
+    * with IPSCatalogIdentifier#getType()).
     * 
-    * @return the aging transition type, never <code>null</code>.
+    * @return the aging transition type name, may be {@code null}.
     */
-   PSAgingTransition.PSAgingTypeEnum getType();
-   
+   String getType();
+
+   /**
+    * Convenience method to get the type as the enum value.
+    * Default implementation maps the textual name to the enum, with ABSOLUTE
+    * as a safe fallback.
+    *
+    * @return the enum value, never {@code null}
+    */
+   /**
+    * Convenience method to get the aging transition type as an enum.
+    * Renamed to avoid clash with {@code IPSCatalogIdentifier#getTypeEnum()}.
+    */
+   default PSAgingTransition.PSAgingTypeEnum getAgingTypeEnum() {
+      String t = getType();
+      if (t == null) return PSAgingTransition.PSAgingTypeEnum.ABSOLUTE;
+      try { return PSAgingTransition.PSAgingTypeEnum.valueOf(t); } catch (Exception e) { return PSAgingTransition.PSAgingTypeEnum.ABSOLUTE; }
+   }
+
    /**
     * Set the type of this aging transition.
     * 

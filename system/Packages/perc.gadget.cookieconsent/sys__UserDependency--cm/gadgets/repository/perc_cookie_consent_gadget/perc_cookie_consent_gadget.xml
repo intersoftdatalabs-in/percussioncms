@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="Cookie Consent" description="This gadget provides statistics regarding cookie-consent entries." thumbnail="images/gadgetIconCookie.png" height="325" adminOnly="true">
-        <Require feature="perc_core"/>
-        <Require feature="perc_jquery_ui"/>
-        <Require feature="settitle" />
-        <Require feature="minimessage" />
-    </ModulePrefs>
-    <UserPref name="site" display_name="Site" required="true" datatype="enum" default_value="">
-        <EnumValue value="@url:/services/sitemanage/site/choices"/>
-    </UserPref>
-    <UserPref name="zrows" display_name="Display height" required="false" datatype="enum" default_value="5">
-        <EnumValue value="5" display_value="5 results"/>
-        <EnumValue value="10" display_value="10 results"/>
-        <EnumValue value="15" display_value="15 results"/>
-        <EnumValue value="20" display_value="20 results"/>
-        <EnumValue value="25" display_value="25 results"/>
-    </UserPref>
-    <Content type="html">
+	<ModulePrefs title="Cookie Consent"
+		description="This gadget provides statistics regarding cookie-consent entries."
+		thumbnail="images/gadgetIconCookie.png" height="325" adminOnly="true">
+		<Require feature="perc_core" />
+		<Require feature="perc_jquery_ui" />
+		<Require feature="settitle" />
+		<Require feature="minimessage" />
+	</ModulePrefs>
+	<UserPref name="site" display_name="Site" required="true"
+		datatype="enum" default_value="">
+		<EnumValue value="@url:/services/sitemanage/site/choices" />
+	</UserPref>
+	<UserPref name="zrows" display_name="Display height"
+		required="false" datatype="enum" default_value="5">
+		<EnumValue value="5" display_value="5 results" />
+		<EnumValue value="10" display_value="10 results" />
+		<EnumValue value="15" display_value="15 results" />
+		<EnumValue value="20" display_value="20 results" />
+		<EnumValue value="25" display_value="25 results" />
+	</UserPref>
+	<Content type="html">
         <![CDATA[
         <!DOCTYPE html>
         <link href="/cm/gadgets/repository/common/perc_common_gadget.css" rel="stylesheet" type="text/css" />
@@ -83,7 +87,7 @@
                 <div class="perc-gadget-separator">
                     <div class="perc-gadget-separator-inner"></div>
                 </div>
-                
+
                 <!-- export all consent entries button -->
                 <div class="export-button">
                     <a href="#" role="button" title= "Export All Cookie Consent Entries" tabindex="0" id="export-link">Export All Cookie Consent Entries</a>
@@ -143,5 +147,5 @@
             </div>
         </div>
      ]]>
-    </Content>
+	</Content>
 </Module>

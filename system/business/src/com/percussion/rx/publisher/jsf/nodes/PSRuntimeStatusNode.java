@@ -270,7 +270,6 @@ public class PSRuntimeStatusNode extends PSNodeBase
       return reval;
    }
    
-   @Override
    /**
     * Gets the help topic for this node.
     */

@@ -1,10 +1,6 @@
-
-
 .perc-global-variable-selected {
-	background-color:#CAF589;
+  background-color: #caf589;
 }
-.perc-global-variable-marker
-{
-    vertical-align: middle;
+.perc-global-variable-marker {
+  vertical-align: middle;
 }
-

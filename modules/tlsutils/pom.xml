@@ -48,6 +48,12 @@
             <version>5.2.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.21.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -67,9 +73,12 @@
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                        --add-opens java.base/sun.security.ssl=ALL-UNNAMED
-                        --add-opens java.base/sun.security.util=ALL-UNNAMED</argLine>
+						--add-opens
+						java.base/java.util=ALL-UNNAMED
+						--add-opens
+						java.base/sun.security.ssl=ALL-UNNAMED
+						--add-opens
+						java.base/sun.security.util=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
         </plugins>

@@ -20,6 +20,7 @@ package com.percussion.design.objectstore;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -32,15 +33,12 @@ import java.util.Iterator;
  * checking w/ simple role classes.  Also includes
  * testing of accessor methods
  */
-public class PSRoleTest extends TestCase
+public class PSRoleTest 
 {
    /**
     * @see TestCase#TestCase(String)
     */
-   public PSRoleTest(String name)
-   {
-      super(name);
-   }
+   
 
    // See super class
    public void setUp()
@@ -137,6 +135,7 @@ public class PSRoleTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testEmptyEquals() throws Exception
    {
       PSRole role = new PSRole();
@@ -149,6 +148,7 @@ public class PSRoleTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testNameTypeConstructor() throws Exception
    {
       PSRole role =
@@ -204,6 +204,7 @@ public class PSRoleTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testGetSetName() throws Exception
    {
       PSRole role = new PSRole();
@@ -253,6 +254,7 @@ public class PSRoleTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testXml() throws Exception
    {
       PSRole role = new PSRole();
@@ -260,7 +262,7 @@ public class PSRoleTest extends TestCase
       assertRoleEquals(role, otherRole);
 
       role.setName("foobar");
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element el = role.toXml(doc);
@@ -271,7 +273,7 @@ public class PSRoleTest extends TestCase
 
       // set a name and verify to/from loop
       role.setName("taebo");
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -283,7 +285,7 @@ public class PSRoleTest extends TestCase
       // add a subject and verify to/from loop
       role.getSubjects().add(new PSRelativeSubject("fred",
                PSSubject.SUBJECT_TYPE_USER, null) );
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -299,7 +301,7 @@ public class PSRoleTest extends TestCase
 
       // add an attribute and verify to/from loop
       role.getAttributes().setAttribute("fred",l);
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -310,7 +312,7 @@ public class PSRoleTest extends TestCase
 
       // add a second attribute and verify to/from loop
       role.getAttributes().setAttribute("joe",l);
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -322,7 +324,7 @@ public class PSRoleTest extends TestCase
       // add a second subject and verify to/from loop
       role.getSubjects().add(new PSRelativeSubject("joe",
          PSSubject.SUBJECT_TYPE_USER, null) );
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -332,7 +334,7 @@ public class PSRoleTest extends TestCase
 
       // remove subject and verify to/from loop
       role.getSubjects().removeElementAt(0);
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -343,7 +345,7 @@ public class PSRoleTest extends TestCase
 
       // remove last remaining subject and verify to/from loop
       role.getSubjects().removeElementAt(0);
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -354,7 +356,7 @@ public class PSRoleTest extends TestCase
 
       // remove attribute and verify to/from loop
       role.getAttributes().removeElementAt(0);
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -365,7 +367,7 @@ public class PSRoleTest extends TestCase
 
       // remove last remaining attribute and verify to/from loop
       role.getAttributes().removeElementAt(0);
-      assertTrue(!testRoleEquals(role,otherRole));
+      assertFalse(testRoleEquals(role,otherRole));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = role.toXml(doc);
@@ -381,14 +383,6 @@ public class PSRoleTest extends TestCase
     * @return The suite containing all tests for this class.
     * Not <code>null</code>.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSRoleTest("testEmptyEquals"));
-      suite.addTest(new PSRoleTest("testNameTypeConstructor"));
-      suite.addTest(new PSRoleTest("testGetSetName"));
-      suite.addTest(new PSRoleTest("testXml"));
-      return suite;
-   }
+   
 }
 

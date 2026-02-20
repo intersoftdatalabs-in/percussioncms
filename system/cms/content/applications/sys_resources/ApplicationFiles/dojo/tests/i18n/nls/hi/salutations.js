@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- hi: "हिन�?दी",
- hello: "नमस�?ते"
-}
+({
+  hi: "à¤¹à¤¿à¤¨à¥?à¤¦à¥",
+  hello: "à¤¨à¤®à¤¸à¥?à¤¤à¥",
+});

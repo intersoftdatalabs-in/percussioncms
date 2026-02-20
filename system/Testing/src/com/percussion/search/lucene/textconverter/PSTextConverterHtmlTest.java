@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,12 +30,13 @@ import com.percussion.utils.tools.IPSUtilsConstants;
  * Unit test for html text conversion.
  *
  */
-public class PSTextConverterHtmlTest extends TestCase
+public class PSTextConverterHtmlTest 
 {
    /**
     * Html text conversion test.
     * @throws Exception
     */
+   
    public void testHtmlConversion() throws Exception
    {
       InputStream is = null;
@@ -58,6 +60,7 @@ public class PSTextConverterHtmlTest extends TestCase
     * Bad html text conversion test.
     * @throws Exception
     */
+   
    public void testBadHtmlConversion() throws Exception
    {
       InputStream is = null;
@@ -81,6 +84,7 @@ public class PSTextConverterHtmlTest extends TestCase
     * Bad html text conversion test.
     * @throws Exception
     */
+   
    public void testBugCML4823FacebookLike() throws Exception
    {
       InputStream is = null;

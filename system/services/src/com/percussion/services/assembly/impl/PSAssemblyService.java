@@ -40,6 +40,7 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSAssemblyTemplate.AAType;
 import com.percussion.services.assembly.IPSAssemblyTemplate.OutputFormat;
 import com.percussion.services.assembly.IPSSlotContentFinder;
+import com.percussion.services.assembly.IPSContentFinder;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSTemplateNotImplementedException;
@@ -561,7 +562,12 @@ public class PSAssemblyService implements IPSAssemblyService
       rval.setNode(optNode);
       rval.setDebug(isDebug);
       rval.setUserName(rval.getParameterValue(IPSHtmlParameters.SYS_USER, null));
-      rval.normalize();
+      try {
+         rval.normalize();
+      } catch (PSAssemblyException e) {
+         log.error("Failed to normalize assembly item", e);
+         throw new RuntimeException(e);
+      }
 
       return rval;
    }
@@ -579,7 +585,7 @@ public class PSAssemblyService implements IPSAssemblyService
    /**
     * Process and evaluate the binding variables that are used to assemble the
     * given item.
-    * 
+    *
     * @param item the to be processed item, assumed not <code>null</code>.
     * @param paginatedItems this is used to collect the paginated items, assumed
     *           not <code>null</code>, but may be empty.
@@ -714,7 +720,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    /**
     * Group the given items by the name of the assembler.
-    * 
+    *
     * @param items to be sorted items, assumed not <code>null</code>.
     * @return the sorted map, never <code>null</code>, but may be empty if the
     *         items is empty.
@@ -728,7 +734,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    /**
     * Assemble given items with the specified assembler.
-    * 
+    *
     * @param assemblerName the name of the assembler, assumed not
     *           <code>null</code> or empty.
     * @param sws stop watch, assumed not <code>null</code> or empty.
@@ -738,7 +744,7 @@ public class PSAssemblyService implements IPSAssemblyService
     *           assembler.
     * @param assemblyResultMap the map that maps the item to its assembled
     *           result. This is used to collect the assembled result.
-    * 
+    *
     * @throws PSAssemblyException if there's a problem rendering the content
     * @throws ItemNotFoundException if an item is missing from the repository
     * @throws PSFilterException if there's a problem finding or interpreting the
@@ -786,7 +792,7 @@ public class PSAssemblyService implements IPSAssemblyService
    /**
     * Gets to be assembled items by a specific assembler, without the given
     * paginated items and items to be assembled by {@link #DEBUG_ASSEMBLER}.
-    * 
+    *
     * @param perAssemblerItems the original to be assembled items, which may
     *           include the paginated and debugged items. Assumed not
     *           <code>null</code>, but may be empty.
@@ -796,7 +802,7 @@ public class PSAssemblyService implements IPSAssemblyService
     *           assumed not <code>null</code>, but may be empty.
     * @param assemblyResultMap the map that maps the item to its assembled
     *           result. This is used to collect the assembled result.
-    * 
+    *
     * @return the items without paginated and debugged items, never
     *         <code>null</code>, but may be empty.
     */
@@ -831,12 +837,12 @@ public class PSAssemblyService implements IPSAssemblyService
    /**
     * Gets the assembly result and make sure to keep the results in the same
     * order as the input/original assembly items.
-    * 
+    *
     * @param items the original assembly items, never <code>null</code>, but may
     *           be empty.
     * @param assemblyResultMap the map that maps the item to its assembled
     *           result. This is used to collect the assembled result.
-    * 
+    *
     * @return the assembly result, which is in the same order as the given
     *         items, never <code>null</code>, but may be empty.
     */
@@ -902,55 +908,59 @@ public class PSAssemblyService implements IPSAssemblyService
     * @throws PSAssemblyException
     */
    @Transactional
-   public void handleItemTemplates(List<IPSAssemblyItem> items) throws PSAssemblyException
+   public void handleItemTemplates(List<IPSAssemblyItem> items)
    {
-      // Optimize in case the templates are already present, i.e. they
-      // were passed into the assembly engine
-      boolean allpresent = items.stream().allMatch(item -> item.getTemplate() != null);
-      if (allpresent)
-         return;
+      try {
+         // Optimize in case the templates are already present, i.e. they
+         // were passed into the assembly engine
+         boolean allpresent = items.stream().allMatch(item -> item.getTemplate() != null);
+         if (allpresent)
+            return;
 
-      // First see if any need additional work
-      var idsToLoad = items.stream()
-              .filter(i -> i.getTemplate() == null)
-              .map(i -> ((PSLegacyGuid) i.getId()).getContentId())
-              .collect(Collectors.toList());
+         // First see if any need additional work
+         var idsToLoad = items.stream()
+                 .filter(i -> i.getTemplate() == null)
+                 .map(i -> ((PSLegacyGuid) i.getId()).getContentId())
+                 .collect(Collectors.toList());
 
-      if (idsToLoad.isEmpty())
-         return;
+         if (idsToLoad.isEmpty())
+            return;
 
-      var cms = PSCmsObjectMgrLocator.getObjectManager();
-      var summaries = cms.loadComponentSummaries(idsToLoad);
-      var contentIdToType = summaries.stream()
-              .collect(Collectors.toMap(PSComponentSummary::getContentId, PSComponentSummary::getContentTypeId));
+         var cms = PSCmsObjectMgrLocator.getObjectManager();
+         var summaries = cms.loadComponentSummaries(idsToLoad);
+         var contentIdToType = summaries.stream()
+                 .collect(Collectors.toMap(PSComponentSummary::getContentId, PSComponentSummary::getContentTypeId));
 
-      for (var item : items)
-      {
-         if (item.getTemplate() == null)
+         for (var item : items)
          {
-            var templatename = item.getParameterValue(IPSHtmlParameters.SYS_TEMPLATE, null);
-            var variantid = item.getParameterValue(IPSHtmlParameters.SYS_VARIANTID, null);
-            IPSAssemblyTemplate template = null;
-            if (templatename == null && variantid == null)
+            if (item.getTemplate() == null)
             {
-               //TODO: Replace with AssemblyException or Illegal Argument
-               throw new RuntimeException("No template name or id present");
-            }
-            else if (StringUtils.isNumeric(templatename) || StringUtils.isNumeric(variantid))
-            {
-               var idstr = StringUtils.isNumeric(templatename) ? templatename : variantid;
-               template = loadUnmodifiableTemplate(idstr);
-               if (template == null)
+               var templatename = item.getParameterValue(IPSHtmlParameters.SYS_TEMPLATE, null);
+               var variantid = item.getParameterValue(IPSHtmlParameters.SYS_VARIANTID, null);
+               IPSAssemblyTemplate template = null;
+               if (templatename == null && variantid == null)
                {
-                  log.error("Template could not be loaded for id {}", idstr);
+                  //TODO: Replace with AssemblyException or Illegal Argument
+                  throw new RuntimeException("No template name or id present");
                }
+               else if (StringUtils.isNumeric(templatename) || StringUtils.isNumeric(variantid))
+               {
+                  var idstr = StringUtils.isNumeric(templatename) ? templatename : variantid;
+                  template = loadUnmodifiableTemplate(idstr);
+                  if (template == null)
+                  {
+                     log.error("Template could not be loaded for id {}", idstr);
+                  }
+               }
+               else if (StringUtils.isNotBlank(templatename) && !StringUtils.isNumeric(templatename))
+               {
+                  template = findTemplateByNameAndContentType(item, templatename, contentIdToType);
+               }
+               item.setTemplate(template);
             }
-            else if (StringUtils.isNotBlank(templatename) && !StringUtils.isNumeric(templatename))
-            {
-               template = findTemplateByNameAndContentType(item, templatename, contentIdToType);
-            }
-            item.setTemplate(template);
          }
+      } catch (PSAssemblyException e) {
+         throw new RuntimeException(e);
       }
    }
 
@@ -1123,7 +1133,7 @@ public class PSAssemblyService implements IPSAssemblyService
             loadContentItem(work, rval, isAA);
          }
 
-         if(isHummingbirdEnabled.equals("true")) 
+         if(isHummingbirdEnabled.equals("true"))
          {
             isHBE = true;
             rval.bind("$sys.isHummingbirdEnabled", isHBE);
@@ -1200,14 +1210,16 @@ public class PSAssemblyService implements IPSAssemblyService
       IPSCacheAccess cache = null;
       ContentCacheKey key = null;
       // long maxSize = m_configurationBean.getMaxCachedContentNodeSize();
-      // TODO: reconsider caching post marlin
       long maxSize = 0;
 
       if (maxSize > 0)
       {
          cache = PSCacheAccessLocator.getCacheAccess();
          key = new ContentCacheKey(work.getId(), work.getFilter().getGUID(), isAA, work.getContext());
-         item = (Node) cache.get(key, CONTENT_REGION);
+         var cached = cache.get(key, CONTENT_REGION);
+         if (cached.isPresent()) {
+             item = (Node) cached.get();
+         }
       }
       if (item == null)
       {
@@ -1229,7 +1241,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
          if (items.isEmpty())
             throw new ItemNotFoundException("Can't find item for guid: " + work.getId());
-         
+
          item = items.iterator().next();
 
          var node = (PSContentNode) item;
@@ -1617,7 +1629,8 @@ public class PSAssemblyService implements IPSAssemblyService
       query.setHint("org.hibernate.cacheable", true);
       query.setHint("org.hibernate.cacheRegion", CACHE_REGION);
 
-      List<IPSAssemblyTemplate> templates = query.getResultList();
+      List<PSAssemblyTemplate> templatesList = query.getResultList();
+      List<IPSAssemblyTemplate> templates = new ArrayList<>(templatesList);
 
       if (loadSlot)
       {
@@ -1705,7 +1718,7 @@ public class PSAssemblyService implements IPSAssemblyService
          query.setHint("org.hibernate.cacheable", true);
          query.setHint("org.hibernate.cacheRegion", CACHE_REGION);
 
-         Set<IPSAssemblyTemplate> templates = new HashSet<>(query.getResultList());
+         Set<IPSAssemblyTemplate> templates = query.getResultList().stream().collect(Collectors.toSet());
          Set<IPSAssemblyTemplate> cttemplates = new HashSet<>();
 
          if (!StringUtils.isBlank(contentType) && !contentType.equals("%"))
@@ -1733,7 +1746,7 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public Set<IPSAssemblyTemplate> findAllTemplates()
    {
-      List<IPSAssemblyTemplate> list=null;
+      List<PSAssemblyTemplate> list=null;
       var session = entityManager.unwrap(Session.class) ;
          var builder = session.getCriteriaBuilder();
          var criteria = builder.createQuery(PSAssemblyTemplate.class);
@@ -1743,7 +1756,7 @@ public class PSAssemblyService implements IPSAssemblyService
          Query query = session.createQuery(criteria);
          list = query.getResultList();
 
-      return list == null ? Collections.emptySet() : new HashSet<>(list);
+      return list == null ? Collections.emptySet() : new HashSet<>(new ArrayList<IPSAssemblyTemplate>(list));
    }
 
    /**
@@ -1758,7 +1771,9 @@ public class PSAssemblyService implements IPSAssemblyService
       CriteriaQuery<PSTemplateSlot> criteria = builder.createQuery(PSTemplateSlot.class);
       Root<PSTemplateSlot> root = criteria.from(PSTemplateSlot.class);
       criteria.select(root);
-      return session.createQuery(criteria).getResultList();
+      List<PSTemplateSlot> slots = session.createQuery(criteria).getResultList();
+      return new ArrayList<>(slots);
+
    }
 
    @Transactional
@@ -1770,7 +1785,7 @@ public class PSAssemblyService implements IPSAssemblyService
       Root<PSAssemblyTemplate> root = criteria.from(PSAssemblyTemplate.class);
       criteria.where(builder.equal(root.get("outputFormat"), OutputFormat.Global.ordinal()));
 
-      Set<IPSAssemblyTemplate> rval = new HashSet<>(session.createQuery(criteria).getResultList());
+      Set<IPSAssemblyTemplate> rval = session.createQuery(criteria).getResultList().stream().collect(Collectors.toSet());
       for (var template : rval)
       {
          forceSlotLoad(template);
@@ -1807,7 +1822,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    /**
     * Extracts the base XSL file name from the provided stylesheet.
-    * 
+    *
     * @param stylesheet the stylesheet file to extract file name from. Assumed
     *           not <code>null</code> and that it ends with
     *           {@link #XSL_EXTENSION}.
@@ -1888,7 +1903,7 @@ public class PSAssemblyService implements IPSAssemblyService
       var slot = findSlot(id);
       if (slot == null)
       {
-         throw new PSAssemblyException(PSAssemblyException.SLOT_NOT_FOUND);
+         throw new PSAssemblyException(IPSAssemblyErrors.MISSING_SLOT);
       }
 
       return slot;
@@ -1899,7 +1914,7 @@ public class PSAssemblyService implements IPSAssemblyService
       var slot = getSlotById(id);
       if (slot == null)
       {
-         throw new PSAssemblyException(PSAssemblyException.SLOT_NOT_FOUND,id);
+         throw new PSAssemblyException(IPSAssemblyErrors.MISSING_SLOT, id);
       }
 
       return slot;
@@ -1918,7 +1933,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    /**
     * Gets the slot from the repository.
-    * 
+    *
     * @param id the ID of the requested slot, assumed not <code>null</code>.
     * @return the slot object, which may be <code>null</code> if the slot does
     *         not exist.
@@ -2011,7 +2026,8 @@ public class PSAssemblyService implements IPSAssemblyService
       query.setHint("org.hibernate.cacheable", true);
       query.setHint("org.hibernate.cacheRegion", CACHE_REGION);
 
-      return query.getResultList();
+      List<PSTemplateSlot> slots = query.getResultList();
+      return slots.stream().map(s -> (IPSTemplateSlot) s).collect(Collectors.toList());
    }
 
    @Transactional
@@ -2066,6 +2082,37 @@ public class PSAssemblyService implements IPSAssemblyService
       catch (PSExtensionException | com.percussion.error.PSNotFoundException e)
       {
          throw new PSAssemblyException(IPSAssemblyErrors.MISSING_FINDER, e);
+      }
+   }
+
+   @Override
+   public IPSContentFinder loadContentFinder(String finder) throws PSAssemblyException
+   {
+      // Delegate to slot content finder loader; IPSSlotContentFinder implements IPSContentFinder
+      return (IPSContentFinder) loadFinder(finder);
+   }
+
+   @Override
+   public List<IPSAssemblyTemplate> findTemplatesByContentType(IPSGuid contenttype) throws PSAssemblyException
+   {
+      if (contenttype == null)
+         throw new IllegalArgumentException("contenttype may not be null");
+      try
+      {
+         @SuppressWarnings("unchecked")
+         var ids = (List<Long>) entityManager.createNamedQuery("template.findByType").setParameter("ctype", contenttype.longValue()).getResultList();
+         List<IPSAssemblyTemplate> results = new ArrayList<>();
+         for (Long id : ids)
+         {
+            PSAssemblyTemplate t = entityManager.find(PSAssemblyTemplate.class, id);
+            if (t != null)
+               results.add(t);
+         }
+         return results;
+      }
+      catch (Exception e)
+      {
+         throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_CRUD_ERROR, e);
       }
    }
 
@@ -2309,7 +2356,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.assembly.IPSTemplateService#createBindings(java
     * .util.LinkedHashMap)
@@ -2330,7 +2377,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    /**
     * Creates a filter filtering XSL files.
-    * 
+    *
     * @return the XSL files filter. Never <code>null</code>.
     */
    private FileFilter getXslFileFilter()
@@ -2340,7 +2387,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    /**
     * Directory where legacy 5.7 global templates reside.
-    * 
+    *
     * @return the global templates directory. Never <code>null</code>.
     */
    private File getGlobalTemplatesDir()

@@ -1,32 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Categories"
-                 contenttype_name="percCategoryList"
-                 category="blog,search"
-                 description="Display a hierarchical list of categories"
-                 author="Percussion Software Inc"
-                 thumbnail="/rx_resources/widgets/categoryList/images/widgetIconLinkCategoryList.png"
-                 preferred_editor_width="800"
-                 preferred_editor_height="685"
-                 is_responsive="true"/>
-    <Resource href="/perc-common-ui/js/perc_common_ui.js"
-              type="javascript"
-              placement="head" />
-    <UserPref name="perc_display_option"
-              display_name="Display"
-              default_value="expanded"
-              datatype="enum">
-        <EnumValue value="expanded" display_value="Expanded hierarchy" />
-        <EnumValue value="collapsible" display_value="Collapsible" />
-    </UserPref>
-    <UserPref name="perc_max_categories"
-              display_name="Maximum number of categories to show"
-              default_value="10"
-              datatype="number" />
-    <CssPref name="rootclass"
-             display_name="CSS root class"
-             datatype="string" />
-    <Code type="jexl">
+	<WidgetPrefs title="Categories"
+		contenttype_name="percCategoryList" category="blog,search"
+		description="Display a hierarchical list of categories"
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/categoryList/images/widgetIconLinkCategoryList.png"
+		preferred_editor_width="800" preferred_editor_height="685"
+		is_responsive="true" />
+	<Resource href="/perc-common-ui/js/perc_common_ui.js"
+		type="javascript" placement="head" />
+	<UserPref name="perc_display_option" display_name="Display"
+		default_value="expanded" datatype="enum">
+		<EnumValue value="expanded"
+			display_value="Expanded hierarchy" />
+		<EnumValue value="collapsible" display_value="Collapsible" />
+	</UserPref>
+	<UserPref name="perc_max_categories"
+		display_name="Maximum number of categories to show" default_value="10"
+		datatype="number" />
+	<CssPref name="rootclass" display_name="CSS root class"
+		datatype="string" />
+	<Code type="jexl">
         <![CDATA[
     $linkContext = $perc.linkContext;
     $isEditMode = $perc.isEditMode();
@@ -157,8 +151,8 @@
         ;
     }
     ]]>
-    </Code>
-    <Content type="velocity">
+	</Code>
+	<Content type="velocity">
         <![CDATA[
 <div class="$!{rootclass} perc-category-list" data-query="$!{dynamicListData}">
 ##This is a hidden div that holds the structure of the list when the category list output structure changes this hidden div and delivery side view
@@ -185,5 +179,5 @@
 #end###
 </div>
 </div>]]>
-    </Content>
+	</Content>
 </Widget>

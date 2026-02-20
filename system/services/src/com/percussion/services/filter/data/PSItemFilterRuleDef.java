@@ -398,12 +398,13 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
       return sb.toString();
    }
 
-   public int compareTo(Object o)
+   @Override
+   public int compareTo(IPSItemFilterRuleDef o)
    {
-      PSItemFilterRuleDef b = (PSItemFilterRuleDef) o;
+      if (o == null) return 1;
       try
       {
-         return b.getRule().getPriority() - getRule().getPriority();
+         return ((IPSItemFilterRuleDef)o).getRule().getPriority() - getRule().getPriority();
       }
       catch (PSFilterException e)
       {

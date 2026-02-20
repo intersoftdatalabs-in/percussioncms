@@ -33,11 +33,14 @@ import java.io.StringReader;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSQueryParserTest extends TestCase
+public class PSQueryParserTest 
 {
    static String example = "select * from rx:press_release "
          + "where rx:type <> 3 order by rx:title asc";
+
+   
 
    public void testSqlSimpleExpression() throws TokenStreamException,
          RecognitionException
@@ -68,6 +71,8 @@ public class PSQueryParserTest extends TestCase
    static String example2 = "select rx:title, rx:count, rx:url from rx:press_release "
          + "where rx:count > 3";
 
+   
+
    public void testSqlComplexProjection() throws RecognitionException,
          TokenStreamException
    {
@@ -93,6 +98,8 @@ public class PSQueryParserTest extends TestCase
 
    static String example3 = "select * from rx:generic,rx:press_release,rx:brief "
          + "where rx:contentStartDate < '10/3/99' and rx:title like 'john%smith'";
+
+   
 
    public void testSqlMoreStuff() throws RecognitionException,
          TokenStreamException
@@ -134,6 +141,8 @@ public class PSQueryParserTest extends TestCase
    static String example4 = "select * from nt:root "
          + "where rx:a > 3 and rx:b < 4.5 or rx:c = -1 and rx:d < -.5";
 
+   
+
    public void testSqlNumeric() throws Exception
    {
       Reader reader = new StringReader(example4);
@@ -153,6 +162,8 @@ public class PSQueryParserTest extends TestCase
    static String example5 = "select * from nt:root "
          + "where not rx:a > :avar and jcr:contains(rx:b,'foo')";
 
+   
+
    public void testSqlNot() throws Exception
    {
       Reader reader = new StringReader(example5);
@@ -168,6 +179,8 @@ public class PSQueryParserTest extends TestCase
 
    static String example6 = "select * from nt:root where not rx:a > rx:b";
 
+   
+
    public void testSqlTwoProperties() throws Exception
    {
       Reader reader = new StringReader(example6);
@@ -182,6 +195,8 @@ public class PSQueryParserTest extends TestCase
 
    static String example7 = "select * from nt:root "
          + "where not rx:a is null and rx:b is not null";
+
+   
 
    public void testSqlNullTest() throws Exception
    {
@@ -200,6 +215,8 @@ public class PSQueryParserTest extends TestCase
          + "where (not rx:a is null and rx:b is not null) and "
          + "(rx:c < 3 or (rx:d > 5 and rx:e = 10))";
 
+   
+
    public void testSqlNestedExpressions() throws Exception
    {
       Reader reader = new StringReader(example8);
@@ -217,6 +234,8 @@ public class PSQueryParserTest extends TestCase
    static String example9 = "select rx:displaytitle from rx:generic "
          + "where rx:sys_contentStartDate > '10/1/99' and "
          + " jcr:path like '//Sites/EnterpriseInvestments/%'";
+
+   
 
    public void testSqlPathExpression() throws Exception
    {
@@ -237,6 +256,8 @@ public class PSQueryParserTest extends TestCase
       + "jcr:primaryType = 'rx:press_release' and "
       + "rx:type <> 3 or rx:bar = 'foo' ) order by rx:title asc";
    
+   
+   
    public void testSqlComplex() throws Exception
    {
       Reader reader = new StringReader(example10);
@@ -255,6 +276,8 @@ public class PSQueryParserTest extends TestCase
          "where jcr:path like \'//Sites/EnterpriseInvestments%\' " +
          "and not jcr:path like \'//Sites/EnterpriseInvestments/Images/CreditCard%\'";
    
+   
+   
    public void testSqlCompoundNot() throws Exception
    {
       Reader reader = new StringReader(example11);
@@ -270,6 +293,8 @@ public class PSQueryParserTest extends TestCase
    
    static String example12 = "select * from rx:generic,rx:press_release,rx:brief "
          + "where rx:contentStartDate < '10/3/99' and rx:title like 'john%áéíóúÁÉÍÓÚñöü'";
+
+   
 
    public void testSqlSpecialCharacters() throws RecognitionException,
          TokenStreamException
@@ -310,6 +335,8 @@ public class PSQueryParserTest extends TestCase
 
    static String xpath1 = "//foo/bar";
 
+   
+
    public void testXpathSimple() throws Exception
    {
       Reader reader = new StringReader(xpath1);
@@ -329,6 +356,8 @@ public class PSQueryParserTest extends TestCase
 
    static String xpath2 = "/jcr:root/foo/bar[@rx:a > :var]";
 
+   
+
    public void testXpathAttrs() throws Exception
    {
       Reader reader = new StringReader(xpath2);
@@ -342,6 +371,8 @@ public class PSQueryParserTest extends TestCase
    }
 
    static String xpath3 = "/jcr:root/foo/bar/element(*, rx:generic)";
+
+   
 
    public void testXpathElements() throws Exception
    {
@@ -358,6 +389,8 @@ public class PSQueryParserTest extends TestCase
    }
 
    static String xpath4 = "//element(n, *)/@rx:x order by @rx:b descending";
+
+   
 
    public void testXpathSortOrder() throws Exception
    {
@@ -380,6 +413,8 @@ public class PSQueryParserTest extends TestCase
 
    static String xpath5 = "(@rx:x | @rx:y)";
 
+   
+
    public void testXpathJustProjection() throws Exception
    {
       Reader reader = new StringReader(xpath5);
@@ -393,6 +428,8 @@ public class PSQueryParserTest extends TestCase
 
    static String xpath6 = "[@rx:x < 6]";
 
+   
+
    public void testXpathJustWhere() throws Exception
    {
       Reader reader = new StringReader(xpath6);
@@ -404,6 +441,8 @@ public class PSQueryParserTest extends TestCase
    }
 
    static String xpath7 = "[(@rx:x < 7 and @rx:y >= 9) or @rx:z = 3 and (@rx:a = @rx:b or @rx:a = @rx:z)]";
+
+   
 
    public void testXpathJustComplex() throws Exception
    {
@@ -419,6 +458,8 @@ public class PSQueryParserTest extends TestCase
 
    static String xpath8 = "[@rx:x < 6](@rx:a)";
 
+   
+
    public void testXpathProjectionAndWhere() throws Exception
    {
       Reader reader = new StringReader(xpath8);
@@ -432,6 +473,8 @@ public class PSQueryParserTest extends TestCase
    }
 
    static String xpath9 = "[@rx:x < 6](@rx:a | @rx:b | @rx:c)";
+
+   
 
    public void testXpathLongerProjection() throws Exception
    {
@@ -450,6 +493,8 @@ public class PSQueryParserTest extends TestCase
          + "[@jcr:primaryType = 'rx:press_release'"
          + " and @rx:type != 3"
          + " or @rx:bar = 'foo'] order by @rx:title ascending";
+
+   
 
    public void testXpathComplex() throws Exception
    {

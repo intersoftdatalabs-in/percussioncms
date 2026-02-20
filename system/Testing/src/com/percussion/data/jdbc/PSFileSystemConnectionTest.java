@@ -45,16 +45,16 @@ public class PSFileSystemConnectionTest
    // the connection properties for the single root elem doc
    private Properties m_connProperties;
 
-   @Rule
-   public Path tempFolder = new TemporaryFolder();
+   @TempDir
+   public File tempFolder;
 
-   @BeforeEach 
+   @BeforeEach
    public void setUp()
    {
 
       try
       {
-         m_rootDir = tempFolder.newFolder("Testing");
+         m_rootDir = new File(tempFolder, "Testing");
          m_connProperties = new Properties();
          m_rootDir.mkdirs();
          m_connProperties.setProperty("catalog", m_rootDir.getCanonicalPath());
@@ -74,11 +74,11 @@ public class PSFileSystemConnectionTest
       Connection fileConn = DriverManager.getConnection("jdbc:psfilesystem",
             m_connProperties);
 
-      assertFalse("Connection initially open", fileConn.isClosed());
+      assertFalse(fileConn.isClosed(), "Connection initially open");
 
       fileConn.close();
 
-      assertTrue("Connection closes properly", fileConn.isClosed());
+      assertTrue(fileConn.isClosed(), "Connection closes properly");
    }
 
 

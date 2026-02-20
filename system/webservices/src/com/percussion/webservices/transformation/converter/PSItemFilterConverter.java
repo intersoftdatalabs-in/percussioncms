@@ -47,7 +47,7 @@ public class PSItemFilterConverter extends PSConverter
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see PSConverter#PSConvert(BeanUtilsUtil)
     */
    public PSItemFilterConverter(BeanUtilsBean beanUtils)
@@ -65,7 +65,7 @@ public class PSItemFilterConverter extends PSConverter
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see PSConverter#convert(Class, Object)
     */
    @Override
@@ -120,12 +120,9 @@ public class PSItemFilterConverter extends PSConverter
 
             // convert rules
             Set<IPSItemFilterRuleDef> rules = orig.getRuleDefs();
-            if (rules == null || rules.isEmpty())
-               dest.setRules(new PSFilterRule[0]);
-            else
+            com.percussion.webservices.system.PSItemFilter.Rules rulesWrapper = new com.percussion.webservices.system.PSItemFilter.Rules();
+            if (rules != null && !rules.isEmpty())
             {
-               PSFilterRule[] destRules = new PSFilterRule[rules.size()];
-               int index = 0;
                for (IPSItemFilterRuleDef rule : rules)
                {
                   if (rule == null) // only possible with WB side converter
@@ -134,10 +131,10 @@ public class PSItemFilterConverter extends PSConverter
                   destRule.setName(rule.getRuleName());
                   destRule.setParameters(convertParams(rule.getParams()));
 
-                  destRules[index++] = destRule;
+                  rulesWrapper.getPSFilterRule().add(destRule);
                }
-               dest.setRules(destRules);
             }
+            dest.setRules(rulesWrapper);
          }
       }
       catch (PSFilterException | PSNotFoundException e)
@@ -150,7 +147,7 @@ public class PSItemFilterConverter extends PSConverter
 
    /**
     * The WB converter can override this to merge rules without hitting server.
-    * 
+    *
     * @param orig web services item filter, must not be <code>null</code>.
     * @param dest the service item filter object, must not be <code>null</code>
     * and is assumed to be taken care of other field transformation.
@@ -179,14 +176,18 @@ public class PSItemFilterConverter extends PSConverter
          currentRules = new HashSet<>();
       else
          currentRules = currentFilter.getRuleDefs();
-      PSFilterRule[] rules = orig.getRules();
+      // extract rule list from the wrapper used by the generated DTO
+      com.percussion.webservices.system.PSItemFilter.Rules rulesWrapper = orig.getRules();
+      List<com.percussion.webservices.system.PSFilterRule> rules =
+         rulesWrapper == null ? new ArrayList<>() : rulesWrapper.getPSFilterRule();
+
       Set<IPSItemFilterRuleDef> destRules = new HashSet<>();
-      for (PSFilterRule rule : rules)
+      for (com.percussion.webservices.system.PSFilterRule rule : rules)
       {
          if (rule == null) // only possible with WB side converter
             continue;
          IPSItemFilterRuleDef destRule = null;
-         Iterator walker = currentRules.iterator();
+         Iterator<IPSItemFilterRuleDef> walker = currentRules.iterator();
          while (walker.hasNext() && destRule == null)
          {
             IPSItemFilterRuleDef test = (IPSItemFilterRuleDef) walker.next();
@@ -195,22 +196,26 @@ public class PSItemFilterConverter extends PSConverter
                destRule = test;
          }
 
-         PSFilterRuleParam[] params = rule.getParameters();
+         // get parameters from the wrapper
+         com.percussion.webservices.system.PSFilterRule.Parameters pWrapper = rule.getParameters();
+         List<com.percussion.webservices.system.PSFilterRuleParam> params =
+            pWrapper == null ? new ArrayList<>() : pWrapper.getPSFilterRuleParam();
+
          if (destRule != null)
          {
             currentRules.remove(destRule);
 
             // update existing rule
-            for (String paramName : destRule.getParams().keySet())
+            for (String paramName : new ArrayList<>(destRule.getParams().keySet()))
                destRule.removeParam(paramName);
-            for (PSFilterRuleParam param : params)
+            for (com.percussion.webservices.system.PSFilterRuleParam param : params)
                destRule.setParam(param.getName(), param.getValue());
          }
          else
          {
             // create a new rule
             Map<String, String> destParams = new HashMap<>();
-            for (PSFilterRuleParam param : params)
+            for (com.percussion.webservices.system.PSFilterRuleParam param : params)
                destParams.put(param.getName(), param.getValue());
 
             destRule = createRuleDef(rule.getName(), destParams);
@@ -224,7 +229,7 @@ public class PSItemFilterConverter extends PSConverter
    /**
     * Loads the filter for the supplied id through the
     * <code>IPSFilterService</code>.
-    * 
+    *
     * @param id th full id including type and uuid.
     * @return the filter for the supplied id, never <code>null</code>.
     * @throws PSFilterException if no filter is found for the supplied id.
@@ -242,34 +247,33 @@ public class PSItemFilterConverter extends PSConverter
    /**
     * Convert the supplied server side parameters to an array of client side
     * parameters.
-    * 
+    *
     * @param params the server side parameters, may be <code>null</code> or
     * empty.
     * @return the client sie parameter array, never <code>null</code>, may be
     * empty.
     */
-   private PSFilterRuleParam[] convertParams(Map<String, String> params)
+   private PSFilterRule.Parameters convertParams(Map<String, String> params)
    {
+      PSFilterRule.Parameters wrapper = new PSFilterRule.Parameters();
       if (params == null || params.size() == 0)
-         return new PSFilterRuleParam[0];
+         return wrapper;
 
-      PSFilterRuleParam[] destParams = new PSFilterRuleParam[params.size()];
-      int index = 0;
       for (String name : params.keySet())
       {
          PSFilterRuleParam destParam = new PSFilterRuleParam();
          destParam.setName(name);
          destParam.setValue(params.get(name));
 
-         destParams[index++] = destParam;
+         wrapper.getPSFilterRuleParam().add(destParam);
       }
 
-      return destParams;
+      return wrapper;
    }
 
    /**
     * Create a new rule definition for the summplied name and parameters.
-    * 
+    *
     * @param name the name of the new rule, assumed not <code>null</code> or
     * empty.
     * @param params the rule parameters, assumed not <code>null</code>, may

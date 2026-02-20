@@ -55,8 +55,8 @@ public class PSSchedulerBean implements FactoryBean<Scheduler>, InitializingBean
 
         var factory = new StdSchedulerFactory();
         var configBean = getConfigurationBean();
-        if (configBean != null && configBean.getQuartzProperties() != null) {
-            m_quartzProperties.putAll(configBean.getQuartzProperties());
+        if (configBean != null) {
+            configBean.getQuartzProperties().ifPresent(props -> m_quartzProperties.putAll(props));
         }
         factory.initialize(m_quartzProperties);
         m_scheduler = factory.getScheduler();

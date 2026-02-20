@@ -23,19 +23,19 @@
 		</row>
 	</table>
 	<table name="PSX_AUTOTRANSLATION" onCreateOnly="no">
-	   <row action="r" onTableCreateOnly="no">
+		<row action="r" onTableCreateOnly="no">
 			<column name="CONTENTTYPEID">302</column>
 			<column name="LOCALE">de-ch</column>
 			<column name="COMMUNITYID">10</column>
 			<column name="WORKFLOWID">4</column>
 			<column name="VERSION">0</column>
-	   </row>
-	   <row action="r" onTableCreateOnly="no">
+		</row>
+		<row action="r" onTableCreateOnly="no">
 			<column name="CONTENTTYPEID">302</column>
 			<column name="LOCALE">de-it</column>
 			<column name="COMMUNITYID">10</column>
 			<column name="WORKFLOWID">4</column>
 			<column name="VERSION">0</column>
-	   </row>
+		</row>
 	</table>
 </tables>

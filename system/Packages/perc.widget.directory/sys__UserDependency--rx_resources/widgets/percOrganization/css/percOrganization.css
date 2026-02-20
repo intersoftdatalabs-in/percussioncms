@@ -1,9 +1,8 @@
-
-
-.percOrganization-empty-style
-{
-    height: 100px;
-    background: transparent url(/Rhythmyx/rx_resources/widgets/percOrganization/images/percOrganizationPlaceholder.png) no-repeat scroll center center;
-    filter: alpha(opacity=50);
-    opacity: .50;
+.percOrganization-empty-style {
+  height: 100px;
+  background: transparent
+    url(/Rhythmyx/rx_resources/widgets/percOrganization/images/percOrganizationPlaceholder.png)
+    no-repeat scroll center center;
+  filter: alpha(opacity=50);
+  opacity: 0.5;
 }

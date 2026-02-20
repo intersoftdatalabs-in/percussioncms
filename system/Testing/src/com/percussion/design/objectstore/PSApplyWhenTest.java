@@ -23,20 +23,18 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSApplyWhenTest extends TestCase
+public class PSApplyWhenTest
 {
-   public PSApplyWhenTest(String name)
-   {
-      super(name);
-   }
-
+   @Test
    public void testEquals() throws Exception
    {
    }
 
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -50,15 +48,6 @@ public class PSApplyWhenTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSApplyWhen testFrom = new PSApplyWhen(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
-   }
-
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSApplyWhenTest("testXml"));
-
-      return suite;
+      assertEquals(testTo, testFrom);
    }
 }

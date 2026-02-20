@@ -32,7 +32,7 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -72,16 +72,16 @@ public class PSUiBaseWs
 
    /**
     * Finds components by name and/or label.
-    * 
-    * @param name the component name for which to find the summaries, may 
-    *    be <code>null</code> or empty, asterisk wildcards are accepted. If not 
+    *
+    * @param name the component name for which to find the summaries, may
+    *    be <code>null</code> or empty, asterisk wildcards are accepted. If not
     *    supplied or empty all component summaries will be returned.
-    * @param label the component label for which to find the summaries, may 
-    *    be <code>null</code> or empty, asterisk wildcards are accepted. If not 
+    * @param label the component label for which to find the summaries, may
+    *    be <code>null</code> or empty, asterisk wildcards are accepted. If not
     *    supplied or empty all component summaries will be returned.
-    * @param resourcePath the resource path used to lookup the components, 
+    * @param resourcePath the resource path used to lookup the components,
     *    not <code>null</code> or empty.
-    * @param nodeName the XML node name of the component, not 
+    * @param nodeName the XML node name of the component, not
     *    <code>null</code> or empty.
     * @param objClass the class of the component, not <code>null</code>.
     * @return the search result, never <code>null</code>, may be empty.
@@ -110,7 +110,7 @@ public class PSUiBaseWs
          label = "*";
       label = StringUtils.replaceChars(label, '*', '%');
 
-      // preparing for making an internal request 
+      // preparing for making an internal request
       PSRequest req = (PSRequest) PSRequestInfo
          .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
 
@@ -137,7 +137,7 @@ public class PSUiBaseWs
          }
          else
          {
-            // make the internal request, has to get the merged result 
+            // make the internal request, has to get the merged result
             // in case the child objects are processed by XSL
             try(ByteArrayOutputStream os = iReq.getMergedResult()) {
                try(StringReader reader = new StringReader(
@@ -173,8 +173,8 @@ public class PSUiBaseWs
    /**
     * Gets a list of search or view objects from a list of combined search
     * and view objects.
-    * 
-    * @param sv a list of combined search and view objects, not 
+    *
+    * @param sv a list of combined search and view objects, not
     *   <code>null</code>.
     * @param isView <code>true</code> if select view objects only; otherwise
     *   select search objects only.
@@ -207,7 +207,7 @@ public class PSUiBaseWs
 
    /**
     * Creates a component from its XML representation.
-    * @param source the XML format of the component, not 
+    * @param source the XML format of the component, not
     *    <code>null</code>.
     * @param objClass the component class, not <code>null</code>
     * @return the created component, never <code>null</code>.

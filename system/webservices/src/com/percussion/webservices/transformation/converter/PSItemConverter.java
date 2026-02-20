@@ -19,10 +19,12 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSItemDefinition;
-import com.percussion.services.assembly.PSAssemblyException;
+
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.webservices.content.PSItem;
 import com.percussion.webservices.content.PSItemFolders;
+import com.percussion.webservices.content.PSItemChildren;
+import com.percussion.webservices.content.PSItemSlots;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
  * Converts objects between the classes
  * {@link com.percussion.cms.objectstore.server.PSServerItem} and
  * {@link com.percussion.webservices.content.PSItem}
- * 
+ *
  * If the item contains related item, then the related item does not contain
  * its related items or binary data. See {@link PSRelatedItemConverter}
  */
@@ -59,17 +61,17 @@ public class PSItemConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       try
       {
          if (isClientToServer(value))
          {
             PSItem orig = (PSItem) value;
-            
+
             PSLegacyGuid guid = new PSLegacyGuid(orig.getId());
-            PSItemDefinition itemDefinition = 
+            PSItemDefinition itemDefinition =
                PSItemConverterUtils.getItemDefinition(orig.getContentType());
-            
+
             PSCoreItem dest = new PSCoreItem(itemDefinition);
             dest.setContentId(guid.getContentId());
             if (guid.getRevision() != -1)
@@ -79,26 +81,59 @@ public class PSItemConverter extends PSConverter
             if (!StringUtils.isBlank(orig.getDataLocale()))
                dest.setDataLocale(new Locale(orig.getDataLocale()));
             dest.setCheckedOutByName(orig.getCheckedOutBy());
-            
+
             // convert fields
-            PSItemConverterUtils.toServerFields(dest, guid, orig.getFields());
-            
+            if (orig.getFields() != null && orig.getFields().getPSField() != null) {
+               java.util.List<com.percussion.webservices.content.PSField> fList = orig.getFields().getPSField();
+               com.percussion.webservices.content.PSField[] fa = fList.toArray(new com.percussion.webservices.content.PSField[fList.size()]);
+               PSItemConverterUtils.toServerFields(dest, guid, fa);
+            }
+
             // convert children
-            PSItemConverterUtils.toServerChildren(dest, orig.getChildren(), 
-               this);
-            
+            if (orig.getChildren() != null && !orig.getChildren().isEmpty()) {
+               java.util.List<PSItemChildren> children = new java.util.ArrayList<>();
+               for (com.percussion.webservices.content.PSItem.Children c : orig.getChildren()) {
+                  PSItemChildren cc = new PSItemChildren();
+                  cc.setName(c.getName());
+                  cc.setDisplayName(c.getDisplayName());
+                  cc.setSequenced(c.isSequenced());
+                  cc.setPSChildEntry(c.getPSChildEntry());
+                  children.add(cc);
+               }
+               PSItemConverterUtils.toServerChildren(dest, children, this);
+            }
+
             // convert related content
-            PSItemConverterUtils.toServerRelatedContent(dest, orig.getSlots(), 
-               this);
-            
-            // convert folders
-            PSItemFolders[] folders = orig.getFolders();
-            if (folders != null)
+            if (orig.getSlots() != null && !orig.getSlots().isEmpty()) {
+               java.util.List<PSItemSlots> slots = new java.util.ArrayList<>();
+               for (com.percussion.webservices.content.PSItem.Slots s : orig.getSlots()) {
+                  PSItemSlots ss = new PSItemSlots();
+                  ss.setName(s.getName());
+                  ss.setPSRelatedItem(s.getPSRelatedItem());
+                  slots.add(ss);
+               }
+               PSItemConverterUtils.toServerRelatedContent(dest, slots, this);
+            }
+
+            // convert folders (support array or List depending on DTO shape)
+            Object foldersObj = orig.getFolders();
+            if (foldersObj != null)
             {
-               List<PSItemFolders> folderList = new ArrayList<>();
-               folderList = Arrays.asList(folders);
-               dest.setFolderPaths(PSItemConverterUtils.toServerFolders(
-                     folderList));
+               List<PSItemFolders> folderList = null;
+               if (foldersObj instanceof PSItemFolders[])
+               {
+                  folderList = Arrays.asList((PSItemFolders[]) foldersObj);
+               }
+               else if (foldersObj instanceof List)
+               {
+                  @SuppressWarnings("unchecked")
+                  List<PSItemFolders> tmp = (List<PSItemFolders>) foldersObj;
+                  folderList = tmp;
+               }
+
+               if (folderList != null && !folderList.isEmpty())
+                  dest.setFolderPaths(PSItemConverterUtils.toServerFolders(
+                        folderList));
             }
 
             return dest;
@@ -106,12 +141,12 @@ public class PSItemConverter extends PSConverter
          else
          {
             PSCoreItem orig = (PSCoreItem) value;
-            
-            PSLegacyGuid guid = new PSLegacyGuid(orig.getContentId(), 
+
+            PSLegacyGuid guid = new PSLegacyGuid(orig.getContentId(),
                orig.getRevision());
-            
+
             String contentType = orig.getItemDefinition().getName();
-            
+
             PSItem dest = new PSItem();
             dest.setId(guid.longValue());
             dest.setContentType(contentType);
@@ -120,27 +155,65 @@ public class PSItemConverter extends PSConverter
             if (orig.getDataLocale() != null)
                dest.setDataLocale(orig.getDataLocale().getLanguage());
             dest.setCheckedOutBy(orig.getCheckedOutByName());
-            
+
             // convert fields
-            dest.setFields(PSItemConverterUtils.toClientFields(
-               orig.getAllFields(), contentType, this));
+            try {
+               com.percussion.webservices.content.PSItem.Fields fwrap = new com.percussion.webservices.content.PSItem.Fields();
+               com.percussion.webservices.content.PSField[] farr = PSItemConverterUtils.toClientFields(
+                  orig.getAllFields(), contentType, this);
+               java.util.Collections.addAll(fwrap.getPSField(), farr);
+               dest.setFields(fwrap);
+            } catch (Exception e) {
+               throw new ConversionException(e.getLocalizedMessage());
+            }
 
             // convert children
-            dest.setChildren(PSItemConverterUtils.toClientChildren(
-               orig.getAllChildren(), this));
-            
+            try {
+               com.percussion.webservices.content.PSItemChildren[] carr = PSItemConverterUtils.toClientChildren(
+                  orig.getAllChildren(), this);
+               for (com.percussion.webservices.content.PSItemChildren top : carr) {
+                  com.percussion.webservices.content.PSItem.Children c = new com.percussion.webservices.content.PSItem.Children();
+                  c.setName(top.getName());
+                  c.setDisplayName(top.getDisplayName());
+                  c.setSequenced(top.getSequenced());
+                  c.getPSChildEntry().addAll(top.getPSChildEntry());
+                  dest.getChildren().add(c);
+               }
+            } catch (Exception e) {
+               throw new ConversionException(e.getLocalizedMessage());
+            }
+
             // convert related content
-            dest.setSlots(PSItemConverterUtils.toClientRelatedContent(
-               orig.getAllRelatedItems(), this));
-            
+            try {
+               com.percussion.webservices.content.PSItemSlots[] sarr = PSItemConverterUtils.toClientRelatedContent(
+                  orig.getAllRelatedItems(), this);
+               for (com.percussion.webservices.content.PSItemSlots top : sarr) {
+                  com.percussion.webservices.content.PSItem.Slots s = new com.percussion.webservices.content.PSItem.Slots();
+                  s.setName(top.getName());
+                  s.getPSRelatedItem().addAll(top.getPSRelatedItem());
+                  dest.getSlots().add(s);
+               }
+            } catch (Exception e) {
+               throw new ConversionException(e.getLocalizedMessage());
+            }
+
             // convert folders
-            dest.setFolders(PSItemConverterUtils.toClientFolders(
-               orig.getFolderPaths()));
-            
+            try {
+               com.percussion.webservices.content.PSItemFolders[] farr2 = PSItemConverterUtils.toClientFolders(
+                  orig.getFolderPaths());
+               for (com.percussion.webservices.content.PSItemFolders top : farr2) {
+                  com.percussion.webservices.content.PSItem.Folders f = new com.percussion.webservices.content.PSItem.Folders();
+                  f.setPath(top.getPath());
+                  dest.getFolders().add(f);
+               }
+            } catch (Exception e) {
+               throw new ConversionException(e.getLocalizedMessage());
+            }
+
             return dest;
          }
       }
-      catch (PSCmsException | PSAssemblyException e)
+      catch (PSCmsException e)
       {
          throw new ConversionException(e.getLocalizedMessage());
       }

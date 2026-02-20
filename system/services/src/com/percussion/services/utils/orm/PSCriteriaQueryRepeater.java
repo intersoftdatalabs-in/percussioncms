@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 
 /**
@@ -77,8 +76,17 @@ public abstract class PSCriteriaQueryRepeater<E>
     * {@link #query(List, Session, Class)} method. Will never be
     * <code>null</code> or empty.
     */
-   abstract public void add(Criteria c, List<IPSGuid> ids);
-   
+   /**
+    * Implementations should create a prepared HQL/jpa query for the supplied
+    * subset of ids using the provided session. The method returns a
+    * {@code org.hibernate.query.Query} ready to be executed.
+    *
+    * @param session the hibernate session, never null
+    * @param ids the subset of ids to include in the query, never null or empty
+    * @return a prepared Query instance
+    */
+   abstract public org.hibernate.query.Query<E> createQuery(Session session, List<IPSGuid> ids);
+
    /**
     * Makes 1 or more queries (depending on the number of ids supplied) against
     * hibernate to perform a search to load a set of objects of the supplied
@@ -86,8 +94,7 @@ public abstract class PSCriteriaQueryRepeater<E>
     * 
     * @param ids The ids of the objects being loaded. Never <code>null</code>.
     * If empty, no results are returned.
-    * @param sess Used to create the <code>Criteria</code> to make the query.
-    * Never <code>null</code>.
+    * @param sess Used to create the query. Never <code>null</code>.
     * @param clazz The object type that the query will return. Never
     * <code>null</code>.
     * @return An object for each id that is found in the database. The size may
@@ -108,8 +115,6 @@ public abstract class PSCriteriaQueryRepeater<E>
       List<E> results = new ArrayList<>();
       for (int i = 0; i < loops; i++)
       {
-         Criteria criteria = sess.createCriteria(clazz);
-
          int currentMax = (i+1)*MAX;
          if (currentMax > totalIds)
             currentMax = totalIds;
@@ -118,10 +123,15 @@ public abstract class PSCriteriaQueryRepeater<E>
          {
             currentIds.add(idsIter.next());
          }
-         add(criteria, currentIds);
-         List dbResults = criteria.list();
+
+         org.hibernate.query.Query<E> query = createQuery(sess, currentIds);
+         if (query == null) {
+            throw new IllegalStateException("createQuery must not return null");
+         }
+
+         List dbResults = query.list();
          if (dbResults != null)
-         results.addAll(dbResults);
+            results.addAll(dbResults);
       }
       
       return results;

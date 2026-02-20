@@ -26,14 +26,16 @@ import java.io.InputStream;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 
 
-public class PSFeatureSetTest extends TestCase
+public class PSFeatureSetTest 
 {
 	
 	//placeholder test so junit does not complain
+	
 	public void testPlaceholderTest() throws Exception{
 		assertTrue(true);
 	}

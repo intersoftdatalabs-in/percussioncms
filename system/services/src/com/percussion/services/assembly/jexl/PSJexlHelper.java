@@ -21,6 +21,8 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.server.PSServer;
 import com.percussion.services.utils.jexl.PSServiceJexlEvaluatorBase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,13 +41,13 @@ import static com.percussion.cms.IPSConstants.SYS_PARAM_USER;
 /**
  * Helper class loads bound jexl functions by reading them from the extensions
  * manager.
- * 
+ *
  * @author dougrand
  *
  */
 public class PSJexlHelper extends PSServiceJexlEvaluatorBase
 {
-   
+
    /**
     * Default ctor
     */
@@ -53,10 +55,10 @@ public class PSJexlHelper extends PSServiceJexlEvaluatorBase
       super(false);
       initExtensionNamesSet();
    }
-   
+
    /**
     * Top level method to extract the extension names given a JEXL expression
-    * This method will extract a hashmap of extension names based on $sys or 
+    * This method will extract a hashmap of extension names based on $sys or
     * $user variable
     * @param exp the jexl expression, cannot not be <code>null</code> or empty
     * @return the extensions map, never <code>null</code>
@@ -64,15 +66,15 @@ public class PSJexlHelper extends PSServiceJexlEvaluatorBase
    public static HashMap<String, List<String>> getExtensionsFromBindings(
          String exp)
    {
-      HashMap<String, List<String>> bindingsMap = 
+      HashMap<String, List<String>> bindingsMap =
          new HashMap<>();
       bindingsMap.put(SYS,  parseExpression(SYS_PREFIX, exp));
       bindingsMap.put(USER, parseExpression(USER_PREFIX, exp));
       return bindingsMap;
    }
-   
+
    /**
-    * Match a pattern such as "$sys.*.*(" like in 
+    * Match a pattern such as "$sys.*.*(" like in
     * "$sys.guid.getContentId($sys.assemblyitem.Id)"
     * @param exp
     * @return a list of string parts from the match
@@ -82,7 +84,7 @@ public class PSJexlHelper extends PSServiceJexlEvaluatorBase
       if (exp == null || exp.trim().length() == 0)
          throw new IllegalArgumentException(
                "JEXL expression may not be null or empty");
-      
+
       List<String> extNames = new ArrayList<>();
       // search for pattern such as "$sys.*.*("
       Pattern p = Pattern.compile((prefix==SYS_PREFIX?SYS_PATTERN:USER_PATTERN));
@@ -92,13 +94,13 @@ public class PSJexlHelper extends PSServiceJexlEvaluatorBase
       {
          String substr = m.group();
          StringTokenizer tok = new StringTokenizer(substr, ".");
-         if (tok.countTokens() > 2) 
+         if (tok.countTokens() > 2)
          {
             tok.nextToken();
             extNames.add(tok.nextToken());
          }
          index = m.end();
-      }      
+      }
       return extNames;
    }
 
@@ -131,39 +133,54 @@ public class PSJexlHelper extends PSServiceJexlEvaluatorBase
       }
       return found == true ? ref : null;
    }
-   
+
    /**
     * Init a map of jexl extensions
     *
     */
+   private static final Logger ms_log = LogManager.getLogger(PSJexlHelper.class);
+
    private void initExtensionNamesSet()
    {
-      m_sysFuncs  = getJexlFunctions(SYS_CONTEXT);
+      try {
+         m_sysFuncs  = getJexlFunctions(SYS_CONTEXT);
+      } catch (PSExtensionException e) {
+         ms_log.warn("Failed to load system JEXL functions: {}", e.getMessage());
+         m_sysFuncs = new HashMap<>();
+      }
+
       Set<String> skeys = m_sysFuncs.keySet();
       for (String key : skeys)
          m_extNameSet.add(SYS + "." + key);
-      m_userFuncs = getJexlFunctions(USER_CONTEXT);
+
+      try {
+         m_userFuncs = getJexlFunctions(USER_CONTEXT);
+      } catch (PSExtensionException e) {
+         ms_log.warn("Failed to load user JEXL functions: {}", e.getMessage());
+         m_userFuncs = new HashMap<>();
+      }
+
       Set<String> ukeys = m_userFuncs.keySet();
       for (String key: ukeys)
-         m_extNameSet.add(USER + "." + key);    
+         m_extNameSet.add(USER + "." + key);
    }
-   
+
    /**
     * A holder of extension names such as "$sys.codec", "$user.myext" etc
     */
    private HashSet<String> m_extNameSet   = new HashSet<>();
-   
+
    /**
     * Place holder for system Extensions that are used for JEXL context
     */
    private Map<String, Object>m_sysFuncs  = null;
-   
+
    /**
     * Place holder for system Extensions that are used for JEXL context
     */
 
    private Map<String, Object>m_userFuncs = null;
-   
+
    /**
     * Prefix for system extensions: JEXL expr has something like this:
     * $sys.codec etc
@@ -175,18 +192,18 @@ public class PSJexlHelper extends PSServiceJexlEvaluatorBase
     * $sys.codec etc
     */
    public static final String USER = SYS_PARAM_USER;
-   
+
    /**
     * Escape pattern for the regular expression
     */
    private static final String ESCAPE = "\\";
-   
+
    /**
     * The pattern: any "foo.bar("
     */
    private static final String PATTERN = "[a-z]+?.[a-z]+?\\(";
-   
-   private static final String SYS_PATTERN  = ESCAPE + SYS + "." + PATTERN;   
+
+   private static final String SYS_PATTERN  = ESCAPE + SYS + "." + PATTERN;
    private static final String USER_PATTERN = ESCAPE + USER + "." + PATTERN;
    private static final int SYS_PREFIX  = 1;
    private static final int USER_PREFIX = 2;

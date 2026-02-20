@@ -17,10 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.schedule.impl;
 
-import com.percussion.design.objectstore.PSAttribute;
-import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.design.objectstore.PSSubject;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionException;
@@ -39,7 +36,6 @@ import com.percussion.services.schedule.data.PSNotifyWhen;
 import com.percussion.services.schedule.data.PSScheduledTask;
 import com.percussion.services.schedule.data.PSScheduledTaskLog;
 import com.percussion.services.schedule.data.PSTaskResult;
-import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.utils.jexl.PSServiceJexlEvaluatorBase;
 import com.percussion.services.utils.jexl.PSVelocityUtils;
@@ -51,8 +47,6 @@ import com.percussion.workflow.mail.PSMailMessageContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.quartz.Job;
@@ -67,8 +61,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Adapts Rhythmyx scheduler tasks {@link IPSTask} to the Quartz job interface,
@@ -83,6 +77,15 @@ public class PSTaskAdapter implements Job {
      * Logger for this class.
      */
     private static final Logger log = LogManager.getLogger(PSTaskAdapter.class);
+
+    /**
+     * Get the scheduling service.
+     *
+     * @return the scheduling service, never null
+     */
+    private static IPSSchedulingService getScheduleService() {
+        return PSSchedulingServiceLocator.getSchedulingService();
+    }
 
     @Override
     public void execute(JobExecutionContext context) {
@@ -136,7 +139,7 @@ public class PSTaskAdapter implements Job {
                 .orElse("");
 
         var schedulingException = new PSSchedulingException(
-                Error.TASK_NOT_REGISTERED_SERVER.ordinal(),
+                Error.SCHEDULER.getCode(),
                 job.getId().toString(),
                 job.getName(),
                 job.getServer(),
@@ -165,8 +168,13 @@ public class PSTaskAdapter implements Job {
 
         try {
             var evaluator = getEvaluator(job, result);
-            var template = getScheduleService()
+            var templateOpt = PSSchedulingServiceLocator.getSchedulingService()
                     .findNotificationTemplateById(job.getNotificationTemplateId());
+            if (templateOpt.isEmpty()) {
+                log.debug("No notification template for job {}", job.getName());
+                return;
+            }
+            var template = templateOpt.get();
 
             var subject = getEvaluateSubject(template.getSubject(), evaluator);
             var message = getNotifyMessage(template, evaluator.getVars());
@@ -421,6 +429,7 @@ public class PSTaskAdapter implements Job {
       var directEmailAddresses = getEmailAddresses(job);
 
       var combinedAddresses = Stream.of(roleEmailAddresses, directEmailAddresses)
+              .filter(Objects::nonNull)
               .filter(StringUtils::isNotBlank)
               .collect(Collectors.joining(","));
 
@@ -480,407 +489,6 @@ public class PSTaskAdapter implements Job {
     *    specified in any of the members.
     */
    @SuppressWarnings("unchecked")
-   private static String getEmailAddressesFromNotifyRole(PSScheduledTask job)
-   {
-      String roleName = job.getNotify();
-      if (StringUtils.isBlank(roleName))
-         return null;
-      
-      StringBuilder emails = new StringBuilder();
-      boolean isFirst = true;
-      PSRoleManager rmgr = PSRoleManager.getInstance();
-      Set<PSSubject> users = rmgr.getSubjects(roleName, null);
-      for (PSSubject user : users)
-      {
-         PSAttributeList atts = user.getAttributes();
-         PSAttribute attr = atts.getAttribute("sys_email");
-         if (attr != null)
-         {
-            String email = attr.getValues().get(0).toString();
-            if (!isFirst)
-               emails.append(",");
-            isFirst = false;
-            emails.append(normalizeEmailAddress(email));
-         }
-      }
-      
-      return emails.toString();
-   }
-
-   /**
-    * Evaluate the supplied subject (in JEXL expression).
-    * 
-    * @param subject the subject in JEXL expression, 
-    *    assumed not <code>null</code>.
-    * @param eval the evaluator, assumed not <code>null</code>.
-    * 
-    * @return the evaluated subject, never <code>null</code>, may be empty.
-    */
-   private static String getEvaluateSubject(String subject,
-         PSJexlEvaluator eval)
-   {
-      try
-      {
-         Object v = eval.evaluate(eval.createScript(subject));
-         return v.toString();
-      }
-      catch (Exception e)
-      {
-         log.error("Failed to evaluate subject: " + subject, e);
-         return "";
-      }
-   }
-
-   /**
-    * Get the JEXL utilities / tools, which is loaded rom the tools.xml.
-    * @return the map of the tools. It is <code>null</code> if failed to
-    *    load the tools.
-    */
-   private static Map<String, Object> getToolsMap()
-   {
-      if (ms_toolsMap == null)
-      {
-         PSServiceJexlEvaluatorBase jexlBase = new PSServiceJexlEvaluatorBase(
-               false);
-         try
-         {
-            ms_toolsMap = jexlBase.getVelocityToolBindings();
-         }
-         catch (Exception e)
-         {
-            ms_toolsMap = null;
-            log.error("Failed to load Velocity Tools", e);
-         }
-      }
-      return ms_toolsMap;
-   }
-   
-   /**
-    * The Velocity Tools, initialized by 
-    * {@link #getToolsMap()}, never <code>null</code> after that.
-    */
-   private volatile static Map<String,Object> ms_toolsMap = null;
-   
-   /**
-    * Get the schedule service
-    * @return the schedule service, never <code>null</code>.
-    */
-   private static IPSSchedulingService getScheduleService()
-   {
-      return PSSchedulingServiceLocator.getSchedulingService();
-   }
-
-   /**
-    * Render the supplied job result with the specified notification template.
-    * 
-    * @param nt the notification template, assumed not
-    *    <code>null</code>.
-    * @param vars the job result, assumed not <code>null</code>.
-    * 
-    * @return the rendered text, never <code>null</code>, may be empty.
-    */
-   @SuppressWarnings("unchecked")
-   private static String getNotifyMessage(PSNotificationTemplate nt, Map vars)
-   {
-      VelocityContext ctx = PSVelocityUtils.getContext(vars);
-      
-      try
-      {
-         Template t = PSVelocityUtils.compileTemplate(nt.getTemplate(),
-               "EventNotification", getVelocityRS());         
-         StringWriter writer = new StringWriter();
-         t.merge(ctx, writer);
-         writer.close();
-         String message = writer.toString();
-         return message;
-      }
-      catch (Exception e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         log.error("Failed to format Notification Template id= {} : {}", nt.getId(),PSExceptionUtils.getMessageForLog(e));
-         return null;
-      }
-   }
-   
-   /**
-    * @return the Velocity Runtime object, never <code>null</code>.
-    * 
-    * @throws Exception if cannot get the velocity runtime.
-    */
-   private static RuntimeServices getVelocityRS() throws Exception
-   {
-      RuntimeServices rs = new RuntimeInstance();
-      rs.init();
-      
-      return rs;
-   }
-   
-   /**
-    * Determines if the suppled job need to be notified.
-    * @param job the job in question, assumed not <code>null</code>.
-    * @param result the job result, assumed not <code>null</code>.
-    * @return <code>true</code> if need to be notified.
-    */
-   private static boolean needToNotify(PSScheduledTask job, IPSTaskResult result)
-   {
-      if(PSWorkFlowUtils.getProperty(PSWorkFlowUtils.NOTIFICATION_ENABLE).equalsIgnoreCase("N"))
-         return false; //Notifications aren't configured so skip it.
-
-      PSNotifyWhen when = job.getNotifyWhen();
-      return (when.ordinal() == PSNotifyWhen.ALWAYS.ordinal()
-            || (when.ordinal() == PSNotifyWhen.FAILURE.ordinal() 
-                  && (!result.wasSuccess())));
-   }
-   
-   /**
-    * Determines if the given task needs to be fired or executed.
-    *
-    * @param task the task to be executed, never null
-    * @throws PSSchedulingException if should skip firing the task
-    */
-   private static void validateExecution(PSScheduledTask task) throws PSSchedulingException {
-      if (isJobActive(task.getId())) {
-         throw new PSSchedulingException(
-               Error.TASK_ALREADY_RUNNING.ordinal(),
-               task.getId().toString(),
-               task.getName());
-      }
-   }
-
-   /**
-    * Load the task using the extensions manager with enhanced error handling.
-    *
-    * @param name the name of the task, never null or empty
-    * @return the extension instance, never null
-    * @throws PSNotFoundException if cannot find the extension
-    * @throws PSExtensionException error on preparing the extension
-    */
-   @SuppressWarnings("unchecked")
-   private static IPSTask getTask(String name) throws PSNotFoundException, PSExtensionException {
-      if (StringUtils.isBlank(name)) {
-         throw new IllegalArgumentException("Task name cannot be null or empty");
-      }
-      var extensionManager = PSServer.getExtensionManager(null);
-      var extensionRef = new PSExtensionRef(name);
-      return (IPSTask) extensionManager.prepareExtension(extensionRef, null);
-   }
-
-   /**
-    * Execute the given task or job.
-    *
-    * @param curJob the executed job, assumed not <code>null</code>.
-    * @param isRunNow <code>true</code> if the task is manually invoked, in
-    *    this case, the task will be fired without check if the same task is
-    *    already running or not; otherwise, the execution of the task will be
-    *    skip if the same task is already running.
-    *
-    * @return the result of the execution if the job is successfully executed;
-    *    return <code>null</code> if failed to execute the job.
-    */
-   private static IPSTaskResult executeTask(PSScheduledTask curJob,
-         boolean isRunNow)
-   {
-      IPSTaskResult result = null;
-      long startTime = System.currentTimeMillis();
-
-      try
-      {
-         if (! isRunNow)
-            validateExecution(curJob);
-
-         addJobId(curJob.getId());
-         IPSTask task = getTask(curJob.getExtensionName());
-         result = task.perform(curJob.getParameters());
-         return result;
-      }
-      catch (Exception e)
-      {
-         log.error("Failed to execute job: " + curJob.toString(), e);
-         result = getErrorResult(curJob, e, startTime);
-         return result;
-      }
-      finally
-      {
-         logTaskExecution(curJob, result, startTime, getCurServer());
-         removeJobId(curJob.getId());
-      }
-   }
-
-   /**
-    * Gets the current server instance, name / port pair in the format of
-    * &lt;host>[:port]. The port is HTTP port if HTTP port is defined, or
-    * HTTPS port if HTTP port is not defined, but the HTTPS port is defined.
-    * The port may be empty if neither HTTP and HTTPS are not defined.
-    *
-    * @return the name and/or port pair, never <code>null</code> or empty.
-    */
-   private static String getCurServer()
-   {
-      String host = PSServer.getHostName();
-      String port = "";
-      if (PSServer.getListenerPort() != -1)
-         port = String.valueOf(PSServer.getListenerPort());
-      else if (PSServer.getSslListenerPort() != 0)
-         port = String.valueOf(PSServer.getSslListenerPort());
-
-      return (StringUtils.isBlank(port)) ? host : host + ":" + port;
-   }
-
-   /**
-    * Gets the host name from a given server instance.
-    * @param server the server instance in the format of &lt;host-name>[:port].
-    *    Assumed not <code>null</code> or empty.
-    * @return the host name part of the server instance.
-    *    Never <code>null</code>, but may be empty.
-    */
-   private static String getServerName(String server)
-   {
-      String[] result = server.split(":");
-      return result[0] == null ? "" : result[0];
-   }
-
-   /**
-    * Gets the port from a given server instance.
-    * @param server the server instance in the format of &lt;host-name>[:port].
-    *    Assumed not <code>null</code> or empty.
-    * @return the port part of the server instance.
-    *    Never <code>null</code>, but may be empty.
-    */
-   private static String getServerPort(String server)
-   {
-      String[] result = server.split(":");
-      return result.length > 1 ? result[1].trim() : "";
-   }
-
-   /**
-    * Determines if the given task is registered for the current server.
-    * @param curJob the task in question, assumed not <code>null</code>.
-    * @return <code>true</code> if the task is registered for the current
-    *    server.
-    */
-   private static boolean isRegisteredServer(PSScheduledTask curJob)
-   {
-      if (StringUtils.isBlank(curJob.getServer()))
-         return true;
-
-      String server = curJob.getServer().trim();
-      String host = getServerName(server);
-      String port = getServerPort(server);
-      boolean isHostMatch = false;
-
-      // compare the (optional) port of the server instance
-      boolean isPortMatch = true;
-      if (StringUtils.isNotBlank(port))
-      {
-         String httpPort = null;
-         if (PSServer.getListenerPort() != -1)
-            httpPort = String.valueOf(PSServer.getListenerPort());
-         String httpsPort = null;
-         if (PSServer.getSslListenerPort() != 0)
-            httpsPort = String.valueOf(PSServer.getSslListenerPort());
-
-         isPortMatch = (httpPort != null && httpPort.equals(port)) ||
-               (httpsPort != null && httpsPort.equals(port));
-      }
-
-      // compare the host name
-      try
-      {
-         isHostMatch = PSServer.getHostName().equalsIgnoreCase(host)
-               || PSServer.getFullyQualifiedHostName().equalsIgnoreCase(host)
-               || PSServer.getHostAddress().equalsIgnoreCase(host);
-      }
-      catch (Exception e)
-      {
-         log.error("Failed to identify server name or IP address.", e);
-      }
-
-      if (log.isDebugEnabled())
-      {
-         String hostName = PSServer.getHostName();
-         if (isHostMatch && isPortMatch)
-         {
-            log.debug("Task of '" + curJob.getName()
-                  + "' is registered for the server '" + hostName + "'.");
-         }
-         else
-         {
-            log.debug("Task of '" + curJob.getName()
-                  + "' is not registered for the server '" + hostName + "'.");
-         }
-      }
-
-      return isHostMatch && isPortMatch;
-   }
-
-   /**
-    * Creates the task result for the failed task and the exception.
-    * @param task the failed task, assumed not <code>null</code>.
-    * @param e the cause of the failure, assumed not <code>null</code>.
-    * @return the created task result, never <code>null</code>.
-    */
-   private static IPSTaskResult getErrorResult(PSScheduledTask task,
-         Exception e, long startTime)
-   {
-      Throwable cause = e;
-      if (e.getCause() != null)
-         cause = e.getCause();
-      String errorMsg = cause.getLocalizedMessage();
-      if (StringUtils.isBlank(errorMsg))
-         errorMsg = cause.toString();
-
-      return getErrorResult(task, errorMsg, startTime);
-   }
-
-   /**
-    * Creates a task result for the given failed or skipped task
-    * @param task the failed task, assumed not <code>null</code>.
-    * @param errorMsg the error message, assumed not <code>null</code> or empty.
-    * @param startTime the start time of the task.
-    * @return the created task result, never <code>null</code>.
-    */
-   private static IPSTaskResult getErrorResult(PSScheduledTask task,
-         String errorMsg, long startTime)
-   {
-      return new PSTaskResult(false, errorMsg, PSScheduleUtils.getContextVars(
-            task.getParameters(), startTime, System.currentTimeMillis()));
-   }
-
-
-   /**
-    * Log the result of the task execution.
-    *
-    * @param curJob the current job, assumed not <code>null</code>.
-    * @param result the result of the execution, it may be <code>null</code>
-    *    if fail or skip to execute the task.
-    * @param startTime the start time of the execution.
-    * @param server the server invoked or skipped the task, assumed not
-    *    <code>null</code>.
-    */
-   private static void logTaskExecution(PSScheduledTask curJob, IPSTaskResult result,
-                                       long startTime, String server) {
-        try {
-            var endTime = System.currentTimeMillis();
-            var logId = getScheduleService().createTaskLogId();
-            var wasSuccess = result != null && result.wasSuccess();
-            var resultMessage = result != null ? result.getProblemDescription() : "";
-
-            var taskLog = new PSScheduledTaskLog(
-                    logId,
-                    curJob.getId(),
-                    new Date(startTime),
-                    new Date(endTime),
-                    wasSuccess,
-                    resultMessage,
-                    server);
-
-            getScheduleService().saveTaskLog(taskLog);
-        } catch (Exception e) {
-            log.error("Failed to log task execution: {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
-    }
 
     /**
      * Get the Velocity Runtime Services with proper initialization.
@@ -930,8 +538,7 @@ public class PSTaskAdapter implements Job {
       if (isJobActive(task.getId()))
       {
          PSSchedulingException se = new PSSchedulingException(
-               Error.SKIP_FIRE_SCHEDULED_TASK.ordinal(), task.getId()
-                     .toString(), task.getName());
+               Error.SCHEDULER.getCode(), task.getId().toString(), task.getName());
          throw se;
       }
    }

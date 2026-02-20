@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.naming.NamingException;
 
@@ -423,7 +424,7 @@ public class PSFileStorageMigrator implements Runnable {
      */
     private Map<String, Map<String, String>> getHashFieldMigrateMap() {
         // Implementation would be migrated from original method
-        return migrationCache.computeIfAbsent("migrationMap", k -> new ConcurrentHashMap<>());
+        return new ConcurrentHashMap<>();
     }
 
     /**

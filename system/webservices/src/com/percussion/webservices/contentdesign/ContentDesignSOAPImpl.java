@@ -41,10 +41,14 @@ import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.content.PSKeyword;
 import com.percussion.webservices.content.PSLocale;
 import com.percussion.webservices.faults.PSLockFault;
+import com.percussion.webservices.faults.PSInvalidSessionFault;
+import com.percussion.webservices.faults.PSContractViolationFault;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.rmi.RemoteException;
+import com.percussion.webservices.faults.PSNotAuthorizedFault;
+import com.percussion.webservices.faults.PSErrorResultsFault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,12 +58,40 @@ import java.util.List;
  * <code>rhythmyxDesign.wsdl</code> for operations defined in the
  * <code>contentDesignSOAP</code> bindings.
  */
-public class ContentDesignSOAPImpl extends PSBaseSOAPImpl 
+public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
    implements ContentDesign
 {
    /*
+    * New binding: accept wrapper request with Name array element
+    */
+   public CreateContentTypesResponse createContentTypes(CreateContentTypesRequest request) throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
+   {
+      String[] names = request == null || request.getName() == null ? new String[0] : request.getName().toArray(new String[0]);
+      try {
+         PSContentType[] arr = createContentTypes(names);
+         CreateContentTypesResponse response = new CreateContentTypesResponse();
+         response.getPSContentType().addAll(Arrays.asList(arr));
+         return response;
+      } catch (RuntimeException e) {
+         Throwable cause = e.getCause();
+         if (cause instanceof PSInvalidSessionFault) {
+            PSInvalidSessionFault isf = (PSInvalidSessionFault) cause;
+            throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(isf.toString(), isf);
+         }
+         if (cause instanceof PSContractViolationFault) {
+            PSContractViolationFault cv = (PSContractViolationFault) cause;
+            throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv);
+         }
+         if (cause instanceof PSErrorsException) {
+            throw new RuntimeException(cause);
+         }
+         throw e;
+      } catch (RemoteException re) { throw new RuntimeException(re); }
+   }
+
+   /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#createContentTypes(String[])
     */
    public PSContentType[] createContentTypes(String[] names)
@@ -69,35 +101,68 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       try
       {
          String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
-         return (PSContentType[]) convert(PSContentType[].class, 
+
+         return (PSContentType[]) convert(PSContentType[].class,
             service.createContentTypes(Arrays.asList(names), session, user));
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RemoteException(cv.toString(), cv); }
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
+      }
+      catch (PSInvalidSessionFault e)
+      {
+         // Map to runtime to maintain compatibility with older SOAP signatures
+         throw new RuntimeException(e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // Should never get here - return empty array if we do
       return new PSContentType[]{};
    }
 
    /*
+    * New binding: accept wrapper request with Name array element
+    */
+   public CreateKeywordsResponse createKeywords(CreateKeywordsRequest request) throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
+   {
+      String[] names = request == null || request.getName() == null ? new String[0] : request.getName().toArray(new String[0]);
+      try {
+         PSKeyword[] arr = createKeywords(names);
+         CreateKeywordsResponse response = new CreateKeywordsResponse();
+         response.getPSKeyword().addAll(Arrays.asList(arr));
+         return response;
+      } catch (RuntimeException e) {
+         Throwable cause = e.getCause();
+         if (cause instanceof PSInvalidSessionFault) {
+            PSInvalidSessionFault isf = (PSInvalidSessionFault) cause;
+            throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(isf.toString(), isf);
+         }
+         if (cause instanceof PSContractViolationFault) {
+            PSContractViolationFault cv = (PSContractViolationFault) cause;
+            throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv);
+         }
+         if (cause instanceof PSErrorsException) {
+            throw new RuntimeException(cause);
+         }
+         throw e;
+      } catch (RemoteException re) { throw new RuntimeException(re); }
+   }
+
+   /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#createKeywords(String[])
     */
    public PSKeyword[] createKeywords(String[] names) throws RemoteException
@@ -105,864 +170,898 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
       final String serviceName = "createKeywords";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSContentDesignWs service = 
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
-         return (PSKeyword[]) convert(PSKeyword[].class, 
+
+         return (PSKeyword[]) convert(PSKeyword[].class,
             service.createKeywords(Arrays.asList(names), session, user));
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RemoteException(cv.toString(), cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new RuntimeException(naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // Should never get here - return an empty array in case
       return new PSKeyword[]{};
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#createLocales(CreateLocalesRequest)
     */
-   public PSLocale[] createLocales(
-      CreateLocalesRequest createLocalesRequest) throws RemoteException
+   public CreateLocalesResponse createLocales(
+      CreateLocalesRequest createLocalesRequest) throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "createLocales";
       try
       {
          String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
-         String[] codes = createLocalesRequest.getCode();
-         if (codes == null)
+
+         java.util.List<String> codesList = createLocalesRequest.getCode();
+         if (codesList == null)
             throw new IllegalArgumentException("codes may not be null");
-         String[] names = createLocalesRequest.getLabel();
-         if (names == null)
+         java.util.List<String> namesList = createLocalesRequest.getLabel();
+         if (namesList == null)
             throw new IllegalArgumentException("names may not be null");
-         
-         return (PSLocale[]) convert(PSLocale[].class, 
-            service.createLocales(Arrays.asList(codes), Arrays.asList(names), 
+
+         PSLocale[] locales = (PSLocale[]) convert(PSLocale[].class,
+            service.createLocales(codesList, namesList,
                session, user));
+         CreateLocalesResponse response = new CreateLocalesResponse();
+         response.getPSLocale().addAll(Arrays.asList(locales));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
+      }
+      catch (PSInvalidSessionFault e)
+      {
+         throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // will never get here
-      return new PSLocale[] {};
+      return new CreateLocalesResponse();
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#deleteContentTypes(DeleteContentTypesRequest)
     */
    public void deleteContentTypes(
       DeleteContentTypesRequest deleteContentTypesRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorsFaultMessage
    {
       final String serviceName = "deleteContentTypes";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            deleteContentTypesRequest.getId(), PSTypeEnum.NODEDEF);
+         java.util.List<Long> idList = deleteContentTypesRequest.getId();
+         java.util.List<IPSGuid> ids = idList == null ? java.util.Collections.emptyList() :
+             idList.stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.NODEDEF)).toList();
 
-         Boolean ignore = deleteContentTypesRequest.getIgnoreDependencies();
+         Boolean ignore = deleteContentTypesRequest.isIgnoreDependencies();
          boolean ignoreDependencies = ignore != null && ignore;
-         
+
          service.deleteContentTypes(ids, ignoreDependencies, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#deleteKeywords(DeleteKeywordsRequest)
     */
    public void deleteKeywords(DeleteKeywordsRequest deleteKeywordsRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorsFaultMessage
    {
       final String serviceName = "deleteKeywords";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSContentDesignWs service = 
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            deleteKeywordsRequest.getId(), PSTypeEnum.KEYWORD_DEF);
-         Boolean ignore = deleteKeywordsRequest.getIgnoreDependencies();
+
+         List<IPSGuid> ids = deleteKeywordsRequest.getId() == null ? java.util.Collections.emptyList() : deleteKeywordsRequest.getId().stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.KEYWORD_DEF)).toList();
+         Boolean ignore = deleteKeywordsRequest.isIgnoreDependencies();
          boolean ignoreDependencies = ignore != null && ignore;
          service.deleteKeywords(ids, ignoreDependencies, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#deleteLocales(DeleteLocalesRequest)
     */
    public void deleteLocales(DeleteLocalesRequest deleteLocalesRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorsFaultMessage
    {
       final String serviceName = "deleteLocales";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            deleteLocalesRequest.getId(), PSTypeEnum.LOCALE);
+         java.util.List<Long> idList = deleteLocalesRequest.getId();
+         java.util.List<IPSGuid> ids = idList == null ? java.util.Collections.emptyList() : idList.stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.LOCALE)).toList();
 
-         Boolean ignore = deleteLocalesRequest.getIgnoreDependencies();
+         Boolean ignore = deleteLocalesRequest.isIgnoreDependencies();
          boolean ignoreDependencies = ignore != null && ignore;
-         
+
          service.deleteLocales(ids, ignoreDependencies, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#findContentTypes(FindContentTypesRequest)
     */
-   public PSObjectSummary[] findContentTypes(
-      FindContentTypesRequest findContentTypesRequest) throws RemoteException
+   public FindContentTypesResponse findContentTypes(
+      FindContentTypesRequest findContentTypesRequest) throws com.percussion.webservices.contentdesign.InvalidSessionFaultMessage
    {
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
 
-         IPSContentDesignWs service = 
-            PSContentWsLocator.getContentDesignWebservice();
-         
+         IPSContentDesignWs service = PSContentWsLocator.getContentDesignWebservice();
+
          List<IPSCatalogSummary> sums = service.findContentTypes(
             findContentTypesRequest.getName());
-         
-         return (PSObjectSummary[]) convert(PSObjectSummary[].class, 
-            sums);
+
+         PSObjectSummary[] converted = (PSObjectSummary[]) convert(PSObjectSummary[].class, sums);
+
+         FindContentTypesResponse response = new FindContentTypesResponse();
+         response.getPSObjectSummary().addAll(Arrays.asList(converted));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "findContentTypes");
-         return new PSObjectSummary[]{};
+         try { handleInvalidContract(e, "findContentTypes"); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
+         FindContentTypesResponse response = new FindContentTypesResponse();
+         return response;
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#findKeywords(FindKeywordsRequest)
     */
-   public PSObjectSummary[] findKeywords(FindKeywordsRequest findKeywordsRequest)
-      throws RemoteException
+   public FindKeywordsResponse findKeywords(FindKeywordsRequest findKeywordsRequest)
+      throws com.percussion.webservices.contentdesign.InvalidSessionFaultMessage
    {
       final String serviceName = "findKeywords";
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
 
-         IPSContentDesignWs service = 
-            PSContentWsLocator.getContentDesignWebservice();
-         
+         IPSContentDesignWs service = PSContentWsLocator.getContentDesignWebservice();
+
          List<IPSCatalogSummary> summaries = service.findKeywords(findKeywordsRequest.getName());
 
-         return (PSObjectSummary[]) convert(PSObjectSummary[].class, summaries);
+         PSObjectSummary[] converted = (PSObjectSummary[]) convert(PSObjectSummary[].class, summaries);
+         FindKeywordsResponse response = new FindKeywordsResponse();
+         response.getPSObjectSummary().addAll(Arrays.asList(converted));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
+         return new FindKeywordsResponse();
       }
-      return new PSObjectSummary[]{};
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#findLocales(FindLocalesRequest)
     */
-   public PSObjectSummary[] findLocales(FindLocalesRequest findLocalesRequest)
-      throws RemoteException
+   public FindLocalesResponse findLocales(FindLocalesRequest findLocalesRequest)
+      throws com.percussion.webservices.contentdesign.InvalidSessionFaultMessage
    {
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
 
-         IPSContentDesignWs service = 
-            PSContentWsLocator.getContentDesignWebservice();
-         
+         IPSContentDesignWs service = PSContentWsLocator.getContentDesignWebservice();
+
          List<IPSCatalogSummary> sums = service.findLocales(findLocalesRequest.getCode(),
             findLocalesRequest.getName());
-         
-         return (PSObjectSummary[]) convert(PSObjectSummary[].class, 
-            sums);
+
+         PSObjectSummary[] converted = (PSObjectSummary[]) convert(PSObjectSummary[].class, sums);
+         FindLocalesResponse response = new FindLocalesResponse();
+         response.getPSObjectSummary().addAll(Arrays.asList(converted));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "findLocales");
+         try { handleInvalidContract(e, "findLocales"); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
+         return new FindLocalesResponse();
       }
-      return new PSObjectSummary[]{};
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#loadContentTypes(LoadContentTypesRequest)
     */
-   public PSContentType[] loadContentTypes(
-      LoadContentTypesRequest loadContentTypesRequest) throws RemoteException
+   public LoadContentTypesResponse loadContentTypes(
+      LoadContentTypesRequest loadContentTypesRequest) throws com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorResultsFaultMessage
    {
       final String serviceName = "loadContentTypes";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
-            PSContentWsLocator.getContentDesignWebservice();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            loadContentTypesRequest.getId(), PSTypeEnum.NODEDEF);
-         Boolean lockValue = loadContentTypesRequest.getLock();
-         boolean lock = lockValue != null && lockValue;
-         Boolean overrideLockValue = loadContentTypesRequest.getOverrideLock();
-         boolean overrideLock = overrideLockValue != null && overrideLockValue;
-         List<PSItemDefinition> defs = service.loadContentTypes(ids, lock, overrideLock, session,
-            user);
+         IPSContentDesignWs service = PSContentWsLocator.getContentDesignWebservice();
 
-         return (PSContentType[]) convert(PSContentType[].class, 
-            defs);
+         List<IPSGuid> ids = loadContentTypesRequest.getId().stream()
+            .map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.NODEDEF)).toList();
+         boolean lock = loadContentTypesRequest.isLock() != null && loadContentTypesRequest.isLock();
+         boolean overrideLock = loadContentTypesRequest.isOverrideLock() != null && loadContentTypesRequest.isOverrideLock();
+         List<PSItemDefinition> defs = service.loadContentTypes(ids, lock, overrideLock, session, user);
+
+         PSContentType[] converted = (PSContentType[]) convert(PSContentType[].class, defs);
+
+         LoadContentTypesResponse response = new LoadContentTypesResponse();
+         response.getPSContentType().addAll(Arrays.asList(converted));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // will never get here
-      return new PSContentType[]{};
+      return new LoadContentTypesResponse();
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#loadKeywords(LoadKeywordsRequest)
     */
-   public PSKeyword[] loadKeywords(LoadKeywordsRequest loadKeywordsRequest)
-      throws RemoteException
+   public LoadKeywordsResponse loadKeywords(LoadKeywordsRequest loadKeywordsRequest) throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorResultsFaultMessage
    {
       final String serviceName = "loadKeywords";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSContentDesignWs service = 
-            PSContentWsLocator.getContentDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            loadKeywordsRequest.getId(), PSTypeEnum.KEYWORD_DEF);
-         boolean lock = extractBooleanValue(
-            loadKeywordsRequest.getLock(), false);
-         boolean overrideLock = extractBooleanValue(
-            loadKeywordsRequest.getOverrideLock(), false);
-         List<com.percussion.services.content.data.PSKeyword> keywords = service.loadKeywords(ids, lock, overrideLock,
-            session, user);
+         IPSContentDesignWs service = PSContentWsLocator.getContentDesignWebservice();
 
-         return (PSKeyword[]) convert(PSKeyword[].class, keywords);
+         List<IPSGuid> ids = loadKeywordsRequest.getId().stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.KEYWORD_DEF)).toList();
+         boolean lock = extractBooleanValue(loadKeywordsRequest.isLock(), false);
+         boolean overrideLock = extractBooleanValue(loadKeywordsRequest.isOverrideLock(), false);
+         List<com.percussion.services.content.data.PSKeyword> keywords = service.loadKeywords(ids, lock, overrideLock, session, user);
+
+         PSKeyword[] converted = (PSKeyword[]) convert(PSKeyword[].class, keywords);
+         LoadKeywordsResponse response = new LoadKeywordsResponse();
+         response.getPSKeyword().addAll(Arrays.asList(converted));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // will never get here
-      return new PSKeyword[]{};
+      return new LoadKeywordsResponse();
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#loadLocales(LoadLocalesRequest)
     */
-   public PSLocale[] loadLocales(LoadLocalesRequest loadLocalesRequest)
-      throws RemoteException
+   public LoadLocalesResponse loadLocales(LoadLocalesRequest loadLocalesRequest) throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorResultsFaultMessage
    {
       final String serviceName = "loadLocales";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            loadLocalesRequest.getId(), PSTypeEnum.LOCALE);
-         Boolean lockValue = loadLocalesRequest.getLock();
-         boolean lock = lockValue != null && lockValue;
-         Boolean overrideLockValue = loadLocalesRequest.getOverrideLock();
-         boolean overrideLock = overrideLockValue != null && overrideLockValue;
-         List<com.percussion.i18n.PSLocale> locales = service.loadLocales(ids, lock, overrideLock, session,
-            user);
+         List<IPSGuid> ids = loadLocalesRequest.getId().stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.LOCALE)).toList();
+         boolean lock = loadLocalesRequest.isLock() != null && loadLocalesRequest.isLock();
+         boolean overrideLock = loadLocalesRequest.isOverrideLock() != null && loadLocalesRequest.isOverrideLock();
+         List<com.percussion.i18n.PSLocale> locales = service.loadLocales(ids, lock, overrideLock, session, user);
 
-         return (PSLocale[]) convert(PSLocale[].class, 
-            locales);
+         PSLocale[] converted = (PSLocale[]) convert(PSLocale[].class, locales);
+         LoadLocalesResponse response = new LoadLocalesResponse();
+         response.getPSLocale().addAll(Arrays.asList(converted));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // will never get here
-      return new PSLocale[]{};
+      return new LoadLocalesResponse();
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#saveContentTypes(SaveContentTypesRequest)
     */
    @SuppressWarnings(value={"unchecked"})
    public void saveContentTypes(
-      SaveContentTypesRequest saveContentTypesRequest) throws RemoteException
+      SaveContentTypesRequest saveContentTypesRequest) throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorsFaultMessage
    {
       final String serviceName = "saveContentTypes";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
          List contentTypes = (List) convert(
-            List.class, 
+            List.class,
             saveContentTypesRequest.getPSContentType());
-         boolean release = saveContentTypesRequest.getRelease() == null ?
-            Boolean.TRUE : saveContentTypesRequest.getRelease().booleanValue();
-         
-         service.saveContentTypes(contentTypes, release, 
+         boolean release = saveContentTypesRequest.isRelease() == null ?
+            Boolean.TRUE : saveContentTypesRequest.isRelease().booleanValue();
+
+         service.saveContentTypes(contentTypes, release,
             session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#saveKeywords(SaveKeywordsRequest)
     */
    @SuppressWarnings("unchecked")
    public void saveKeywords(SaveKeywordsRequest saveKeywordsRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorsFaultMessage
    {
       final String serviceName = "saveKeywords";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSContentDesignWs service = 
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
-         List keywords = (List) convert(List.class, 
+
+         List keywords = (List) convert(List.class,
             saveKeywordsRequest.getPSKeyword());
          boolean release = extractBooleanValue(
-            saveKeywordsRequest.getRelease(), true);
+            saveKeywordsRequest.isRelease(), true);
          service.saveKeywords(keywords, release, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#saveLocales(SaveLocalesRequest)
     */
    @SuppressWarnings(value={"unchecked"})
    public void saveLocales(SaveLocalesRequest saveLocalesRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorsFaultMessage
    {
       final String serviceName = "saveLocales";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
          List locales = (List) convert(
-            List.class, 
+            List.class,
             saveLocalesRequest.getPSLocale());
-         boolean release = saveLocalesRequest.getRelease() == null ?
-            Boolean.TRUE : saveLocalesRequest.getRelease().booleanValue();
-         
+         boolean release = saveLocalesRequest.isRelease() == null ?
+            Boolean.TRUE : saveLocalesRequest.isRelease().booleanValue();
+
          service.saveLocales(locales, release, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#loadSharedDefinition(LoadSharedDefinitionRequest)
     */
    public LoadSharedDefinitionResponse loadSharedDefinition(
       LoadSharedDefinitionRequest loadSharedDefinitionRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.LockFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "loadSharedDefinition";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSContentDesignWs service = 
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
+
          boolean lock = extractBooleanValue(
-            loadSharedDefinitionRequest.getLock(), false);
+            loadSharedDefinitionRequest.isLock(), false);
          boolean overrideLock = extractBooleanValue(
-            loadSharedDefinitionRequest.getOverrideLock(), false);
+            loadSharedDefinitionRequest.isOverrideLock(), false);
 
-         PSContentEditorSharedDef sharedDef = 
-            service.loadContentEditorSharedDef(lock, overrideLock, session, 
+         PSContentEditorSharedDef sharedDef =
+            service.loadContentEditorSharedDef(lock, overrideLock, session,
                user);
-         
-         PSContentEditorDefinition def = (PSContentEditorDefinition) convert(
-            PSContentEditorSystemDef.class, sharedDef);
 
-         return new LoadSharedDefinitionResponse(def);
+         PSContentEditorDefinition def = (PSContentEditorDefinition) convert(
+            PSContentEditorDefinition.class, sharedDef);
+
+         LoadSharedDefinitionResponse resp = new LoadSharedDefinitionResponse();
+         resp.setPSContentEditorDefinition(def);
+         return resp;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSLockErrorException e)
       {
-         throw new PSLockFault(e.getCode(), e.getLocalizedMessage(), 
-            e.getStack(), e.getLocker(), e.getRemainingTime());
+         throw (com.percussion.webservices.contentdesign.LockFaultMessage) convert(
+               com.percussion.webservices.contentdesign.LockFaultMessage.class, e);
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // will never get here
       return null;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#loadSystemDefinition(LoadSystemDefinitionRequest)
     */
    public LoadSystemDefinitionResponse loadSystemDefinition(
       LoadSystemDefinitionRequest loadSystemDefinitionRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.LockFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "loadSystemDefinition";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSContentDesignWs service = 
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
+
          boolean lock = extractBooleanValue(
-            loadSystemDefinitionRequest.getLock(), false);
+            loadSystemDefinitionRequest.isLock(), false);
          boolean overrideLock = extractBooleanValue(
-            loadSystemDefinitionRequest.getOverrideLock(), false);
+            loadSystemDefinitionRequest.isOverrideLock(), false);
 
-         PSContentEditorSystemDef systemDef = 
-            service.loadContentEditorSystemDef(lock, overrideLock, session, 
+         PSContentEditorSystemDef systemDef =
+            service.loadContentEditorSystemDef(lock, overrideLock, session,
                user);
-         
-         PSContentEditorDefinition def = (PSContentEditorDefinition) convert(
-            PSContentEditorSystemDef.class, systemDef);
 
-         return new LoadSystemDefinitionResponse(def);
+         PSContentEditorDefinition def = (PSContentEditorDefinition) convert(
+            PSContentEditorDefinition.class, systemDef);
+
+         LoadSystemDefinitionResponse resp = new LoadSystemDefinitionResponse();
+         resp.setPSContentEditorDefinition(def);
+         return resp;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSLockErrorException e)
       {
-         throw new PSLockFault(e.getCode(), e.getLocalizedMessage(), 
-            e.getStack(), e.getLocker(), e.getRemainingTime());
+         throw (com.percussion.webservices.contentdesign.LockFaultMessage) convert(
+               com.percussion.webservices.contentdesign.LockFaultMessage.class, e);
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // will never get here
       return null;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#saveSharedDefinition(SaveSharedDefinitionRequest)
     */
    public void saveSharedDefinition(
       SaveSharedDefinitionRequest saveSharedDefinitionRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.LockFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "saveSharedDefinition";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSContentDesignWs service = 
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
+
          PSContentEditorSharedDef def = (PSContentEditorSharedDef) convert(
-            PSContentEditorDefinition.class, 
+            PSContentEditorSharedDef.class,
             saveSharedDefinitionRequest.getPSContentEditorDefinition());
          boolean release = extractBooleanValue(
-            saveSharedDefinitionRequest.getRelease(), true);
+            saveSharedDefinitionRequest.isRelease(), true);
          service.saveContentEditorSharedDef(def, release, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
-         throw new PSLockFault(e.getCode(), e.getLocalizedMessage(), 
-            e.getStack(), e.getLocker(), e.getRemainingTime());
+         throw (com.percussion.webservices.contentdesign.LockFaultMessage) convert(
+               com.percussion.webservices.contentdesign.LockFaultMessage.class, e);
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see ContentDesign#saveSystemDefinition(SaveSystemDefinitionRequest)
     */
    public void saveSystemDefinition(
       SaveSystemDefinitionRequest saveSystemDefinitionRequest)
-      throws RemoteException
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.LockFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "saveSystemDefinition";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSContentDesignWs service = 
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
-         
+
          PSContentEditorSystemDef def = (PSContentEditorSystemDef) convert(
-            PSContentEditorDefinition.class, 
+            PSContentEditorSystemDef.class,
             saveSystemDefinitionRequest.getPSContentEditorDefinition());
          boolean release = extractBooleanValue(
-            saveSystemDefinitionRequest.getRelease(), true);
+            saveSystemDefinitionRequest.isRelease(), true);
          service.saveContentEditorSystemDef(def, release, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
-         throw new PSLockFault(e.getCode(), e.getLocalizedMessage(), 
-            e.getStack(), e.getLocker(), e.getRemainingTime());
+         throw (com.percussion.webservices.contentdesign.LockFaultMessage) convert(
+               com.percussion.webservices.contentdesign.LockFaultMessage.class, e);
       }
       catch (PSErrorException e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /* (non-Javadoc)
     * @see ContentDesign#loadAssociatedTemplates(LoadAssociatedTemplatesRequest)
     */
-   public PSContentTemplateDesc[] loadAssociatedTemplates(
-      LoadAssociatedTemplatesRequest loadAssociatedTemplatesRequest) 
-      throws RemoteException
+   public LoadAssociatedTemplatesResponse loadAssociatedTemplates(
+      LoadAssociatedTemplatesRequest loadAssociatedTemplatesRequest) throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorResultsFaultMessage
    {
       final String serviceName = "loadAssociatedTemplates";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
          long contentTypeId = loadAssociatedTemplatesRequest.getContentTypeId();
-         
-         Boolean lockValue = loadAssociatedTemplatesRequest.getLock();
+
+         Boolean lockValue = loadAssociatedTemplatesRequest.isLock();
          boolean lock = lockValue != null && lockValue;
-         Boolean overrideLockValue = 
-            loadAssociatedTemplatesRequest.getOverrideLock();
+         Boolean overrideLockValue =
+            loadAssociatedTemplatesRequest.isOverrideLock();
          boolean overrideLock = overrideLockValue != null && overrideLockValue;
          IPSGuid guid = null;
          if (contentTypeId != -1)
             guid = new PSGuid(PSTypeEnum.NODEDEF, contentTypeId);
-         
+
          List<com.percussion.services.contentmgr.data.PSContentTemplateDesc> results = service.loadAssociatedTemplates(guid, lock,
             overrideLock, session, user);
 
-         return (PSContentTemplateDesc[]) convert(PSContentTemplateDesc[].class, 
+         PSContentTemplateDesc[] converted = (PSContentTemplateDesc[]) convert(PSContentTemplateDesc[].class,
             results);
+
+         LoadAssociatedTemplatesResponse response = new LoadAssociatedTemplatesResponse();
+         response.getPSContentTemplateDesc().addAll(Arrays.asList(converted));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorResultsException e)
       {
-         handleErrorResultsException(e, serviceName);
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // will never get here
-      return new PSContentTemplateDesc[]{};
+      return new LoadAssociatedTemplatesResponse();
    }
 
    /* (non-Javadoc)
     * @see ContentDesign#saveAssociatedTemplates(SaveAssociatedTemplatesRequest)
     */
    public void saveAssociatedTemplates(
-      SaveAssociatedTemplatesRequest saveAssociatedTemplatesRequest) 
-      throws RemoteException
+      SaveAssociatedTemplatesRequest saveAssociatedTemplatesRequest)
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorsFaultMessage
    {
       final String serviceName = "saveContentTypes";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
          long contentTypeId = saveAssociatedTemplatesRequest.getContentTypeId();
-         long[] templateIds = saveAssociatedTemplatesRequest.getTemplateId();
+         java.util.List<Long> templateIds = saveAssociatedTemplatesRequest.getTemplateId();
          if (templateIds == null)
-            templateIds = new long[0];
-         
-         boolean release = saveAssociatedTemplatesRequest.getRelease() == null ?
-            Boolean.TRUE : 
-               saveAssociatedTemplatesRequest.getRelease().booleanValue();
-         
-         service.saveAssociatedTemplates(new PSGuid(PSTypeEnum.NODEDEF, 
-            contentTypeId), PSGuidUtils.toGuidList(templateIds, 
-               PSTypeEnum.TEMPLATE), release, 
+            templateIds = java.util.Collections.emptyList();
+
+         java.util.List<IPSGuid> templateGuids = templateIds.stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.TEMPLATE)).toList();
+
+         boolean release = saveAssociatedTemplatesRequest.isRelease() == null ?
+            Boolean.TRUE :
+               saveAssociatedTemplatesRequest.isRelease().booleanValue();
+
+         service.saveAssociatedTemplates(new PSGuid(PSTypeEnum.NODEDEF,
+            contentTypeId), templateGuids, release,
                session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.contentdesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /* (non-Javadoc)
     * @see ContentDesign#loadTranslationSettings(LoadTranslationSettingsRequest)
     */
-   public PSAutoTranslation[] loadTranslationSettings(
-      LoadTranslationSettingsRequest loadTranslationSettingsRequest) 
-      throws RemoteException
+   public LoadTranslationSettingsResponse loadTranslationSettings(
+      LoadTranslationSettingsRequest loadTranslationSettingsRequest)
+      throws com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.LockFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "loadTranslationSettings";
+      LoadTranslationSettingsResponse response = new LoadTranslationSettingsResponse();
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
-         Boolean lockValue = loadTranslationSettingsRequest.getLock();
+         Boolean lockValue = loadTranslationSettingsRequest.isLock();
          boolean lock = lockValue != null && lockValue;
-         Boolean overrideLockValue = 
-            loadTranslationSettingsRequest.getOverrideLock();
+         Boolean overrideLockValue =
+            loadTranslationSettingsRequest.isOverrideLock();
          boolean overrideLock = overrideLockValue != null && overrideLockValue;
          List<com.percussion.services.content.data.PSAutoTranslation> ats = service.loadTranslationSettings(lock, overrideLock,
             session, user);
 
-         return (PSAutoTranslation[]) convert(PSAutoTranslation[].class, ats);
+         PSAutoTranslation[] arr = (PSAutoTranslation[]) convert(PSAutoTranslation[].class, ats);
+         response.getPSAutoTranslation().addAll(Arrays.asList(arr));
+         return response;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSLockErrorException e)
       {
-         throw (PSLockFault) convert(
-                 PSLockFault.class, e);
+         throw (com.percussion.webservices.contentdesign.LockFaultMessage) convert(
+               com.percussion.webservices.contentdesign.LockFaultMessage.class, e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
-      return new PSAutoTranslation[]{};
+      return new LoadTranslationSettingsResponse();
    }
 
    /* (non-Javadoc)
@@ -970,16 +1069,17 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
     */
    @SuppressWarnings(value={"unchecked"})
    public void saveTranslationSettings(
-      SaveTranslationSettingsRequest saveTranslationSettingsRequest) 
-      throws RemoteException
+      SaveTranslationSettingsRequest saveTranslationSettingsRequest)
+      throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.LockFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "saveTranslationSettings";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
-         
-         IPSContentDesignWs service = 
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.contentdesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSContentDesignWs service =
             PSContentWsLocator.getContentDesignWebservice();
 
          List<com.percussion.services.content.data.PSAutoTranslation> ats;
@@ -990,31 +1090,30 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
          else
          {
             ats = (List<com.percussion.services.content.data.PSAutoTranslation>) convert(
-               List.class, 
+               List.class,
                saveTranslationSettingsRequest.getPSAutoTranslation());
          }
-         
-         boolean release = saveTranslationSettingsRequest.getRelease() == null ?
-            Boolean.TRUE : 
-               saveTranslationSettingsRequest.getRelease().booleanValue();
-         
+
+         boolean release = saveTranslationSettingsRequest.isRelease() == null ?
+            Boolean.TRUE :
+               saveTranslationSettingsRequest.isRelease().booleanValue();
+
          service.saveTranslationSettings(ats, release, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.contentdesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
-         
-         throw (PSLockFault) convert(
-                 PSLockFault.class, e);
+         throw (com.percussion.webservices.contentdesign.LockFaultMessage) convert(
+               com.percussion.webservices.contentdesign.LockFaultMessage.class, e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
-   
+
    private static final Logger log = LogManager.getLogger(IPSConstants.WEBSERVICES_LOG);
 }

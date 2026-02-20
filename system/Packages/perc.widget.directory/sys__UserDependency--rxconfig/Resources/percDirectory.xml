@@ -2,17 +2,23 @@
 
 
 <Resources>
-	    <file id="common_js"  path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript" >
-		     <dependency refid="percSystem.common_slim_js"/>
-		</file>
-    	<file id="perc_directory_css"  path="/web_resources/widgets/directory/css/perc-directory.css"  type="css" >
-        </file>
-        <file path="/web_resources/widgets/directory/js/lodash.min.js" type="javascript" id="lodash_min_js">
-        </file>
-        <file path="/web_resources/widgets/directory/js/list.min.js" type="javascript" id="list_min_js">
-            <dependency refid="percDirectory.lodash_min_js"/>
-        </file>
-        <file path="/web_resources/widgets/directory/js/perc-directory.js" type="javascript" id="perc_directory_js">
-            <dependency refid="percSystem.jquery"/>
-        </file>
-    </Resources>
+	<file id="common_js"
+		path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript">
+		<dependency refid="percSystem.common_slim_js" />
+	</file>
+	<file id="perc_directory_css"
+		path="/web_resources/widgets/directory/css/perc-directory.css"
+		type="css">
+	</file>
+	<file path="/web_resources/widgets/directory/js/lodash.min.js"
+		type="javascript" id="lodash_min_js">
+	</file>
+	<file path="/web_resources/widgets/directory/js/list.min.js"
+		type="javascript" id="list_min_js">
+		<dependency refid="percDirectory.lodash_min_js" />
+	</file>
+	<file path="/web_resources/widgets/directory/js/perc-directory.js"
+		type="javascript" id="perc_directory_js">
+		<dependency refid="percSystem.jquery" />
+	</file>
+</Resources>

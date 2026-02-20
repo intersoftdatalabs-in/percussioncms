@@ -57,6 +57,12 @@ public interface IPSWorkflowErrors {
     int STATE_NOT_FOUND = 2;
 
     /**
+     * Backwards-compatible alias used by older components referencing the error name
+     * ERROR_LOADING_WORKFLOW_STATE. This maps to STATE_NOT_FOUND for clarity.
+     */
+    int ERROR_LOADING_WORKFLOW_STATE = STATE_NOT_FOUND;
+
+    /**
      * Invalid workflow state operation.
      * <p>
      * The arguments passed in for this message are:

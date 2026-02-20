@@ -51,48 +51,51 @@ public class PSItemChildEntryConverter extends PSConverter
    {
       if (value == null)
          return null;
-    
+
       try
       {
          if (isClientToServer(value))
          {
             PSChildEntry orig = (PSChildEntry) value;
-            
+
             PSLegacyGuid guid = new PSLegacyGuid(orig.getId());
-            PSItemDefinition itemDefinition = 
+            PSItemDefinition itemDefinition =
                PSItemConverterUtils.getItemDefinition(guid.getContentTypeId());
-            
+
             PSCoreItem item = new PSCoreItem(itemDefinition);
             PSItemChild child = item.getChildById(guid.getChildId());
             if (child == null)
                throw new IllegalArgumentException("Invalid child entry id");
-            
+
             PSItemChildEntry dest = child.createChildEntry();
             dest.setAction(orig.getAction());
             dest.setChildRowId(guid.getUUID());
-            
-            PSItemConverterUtils.toServerFields(dest, guid, orig.getPSField());
-            
+
+            java.util.List<com.percussion.webservices.content.PSField> fields = orig.getPSField();
+            com.percussion.webservices.content.PSField[] fa = fields == null ? new com.percussion.webservices.content.PSField[0] : fields.toArray(new com.percussion.webservices.content.PSField[fields.size()]);
+            PSItemConverterUtils.toServerFields(dest, guid, fa);
+
             return dest;
          }
          else
          {
             PSItemChildEntry orig = (PSItemChildEntry) value;
-            
+
             PSLegacyGuid guid = orig.getGUID();
             if (guid == null)
                throw new IllegalArgumentException(
                   "guid must be set on the child entry");
-            PSItemDefinition itemDefinition = 
+            PSItemDefinition itemDefinition =
                PSItemConverterUtils.getItemDefinition(guid.getContentTypeId());
-            
+
             PSChildEntry dest = new PSChildEntry();
 
             dest.setAction(orig.getAction());
             dest.setId((new PSDesignGuid(guid)).getValue());
-            dest.setPSField(PSItemConverterUtils.toClientFields(
-               orig.getAllFields(), itemDefinition.getName(), this));
-            
+            com.percussion.webservices.content.PSField[] fields = PSItemConverterUtils.toClientFields(
+               orig.getAllFields(), itemDefinition.getName(), this);
+            java.util.Collections.addAll(dest.getPSField(), fields);
+
             return dest;
          }
       }

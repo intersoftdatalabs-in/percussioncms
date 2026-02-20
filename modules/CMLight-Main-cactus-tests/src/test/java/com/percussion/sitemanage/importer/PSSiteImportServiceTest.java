@@ -46,7 +46,7 @@ import org.junit.jupiter.api.*;
  *
  * @author LucasPiccoli, Sunny Sal (refactored)
  */
-@Tag("IntegrationTest")
+
 class PSSiteImportServiceTest extends PSSiteImportTestBase {
 
   private PSSiteDataServletTestCaseFixture fixture;

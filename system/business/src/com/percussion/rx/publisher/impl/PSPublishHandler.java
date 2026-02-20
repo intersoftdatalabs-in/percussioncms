@@ -594,7 +594,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
          try
          {
             site = smgr.loadSite(siteguid);
-            server = serverguid != null ? psmgr.findPubServer(serverguid) : null;
+            server = serverguid != null ? psmgr.findPubServer(serverguid).orElse(null) : null;
             long jobId = jc.getJobId();
             m_deliveryManager.init(jobId, site, server);
          }

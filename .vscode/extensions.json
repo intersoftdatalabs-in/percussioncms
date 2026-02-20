@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "EditorConfig.EditorConfig",
+    "esbenp.prettier-vscode",
+    "google.google-java-format",
+    "redhat.java",
+    "vscjava.vscode-java-pack"
+  ],
+  "unwantedRecommendations": []
+}

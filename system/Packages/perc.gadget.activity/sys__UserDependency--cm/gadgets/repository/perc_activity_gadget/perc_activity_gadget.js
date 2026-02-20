@@ -15,97 +15,113 @@
  * limitations under the License.
  */
 
-(function($){
+(function ($) {
+  var TABLE_STATUS_FOOTER_PADDING_TOP = 5;
+  // number of rows per page
+  var itemsPerPage = 5;
 
-    var TABLE_STATUS_FOOTER_PADDING_TOP = 5;
-    // number of rows per page
-    var itemsPerPage = 5;
-    
-    // grab necessary Perc APIs
-    var PercActivityService  = percJQuery.PercActivityService;
-    var PercServiceUtils     = percJQuery.PercServiceUtils;
-    var perc_paths           = percJQuery.perc_paths;
-    
-    var isLargeColumn = true;
-    var tableDiv;
+  // grab necessary Perc APIs
+  var PercActivityService = percJQuery.PercActivityService;
+  var PercServiceUtils = percJQuery.PercServiceUtils;
+  var perc_paths = percJQuery.perc_paths;
 
-    // API for this library
-    $.fn.PercActivityGadget = function(site, durationType, durationValue, rows) {
-        // never show a scrollbar in the gadget
-        $("body").css("overflow","hidden");
-        // resize gadget to fit the rows
-        itemsPerPage = rows;
-        
-        tableDiv = $(this);
-        if(site == null)
-            site="";
-        loadGadget(site, durationType, durationValue);
+  var isLargeColumn = true;
+  var tableDiv;
+
+  // API for this library
+  $.fn.PercActivityGadget = function (site, durationType, durationValue, rows) {
+    // never show a scrollbar in the gadget
+    $("body").css("overflow", "hidden");
+    // resize gadget to fit the rows
+    itemsPerPage = rows;
+
+    tableDiv = $(this);
+    if (site == null) site = "";
+    loadGadget(site, durationType, durationValue);
+  };
+
+  function loadGadget(site, durationType, durationValue) {
+    PercActivityService.getContentActivity(
+      perc_paths.SITES_ROOT + "/" + site,
+      durationType,
+      durationValue,
+      function (status, data) {
+        if (status == PercServiceUtils.STATUS_SUCCESS) {
+          createActivityTable(data);
+        } else {
+          displayErrorMessage(data);
+        }
+      }
+    );
+  }
+
+  function createActivityTable(data) {
+    var percData = [];
+    var contentActivity = data.ContentActivity;
+    for (var i in contentActivity) {
+      var activity = contentActivity[i];
+
+      var name = activity.name;
+      var title = name;
+      var total = activity.publishedItems;
+      var changes =
+        activity.newItems + activity.updatedItems + activity.archivedItems;
+      var news = activity.newItems;
+      var updates = activity.updatedItems;
+      var takeDowns = activity.archivedItems;
+      var pending = activity.pendingItems;
+
+      var row = {
+        rowContent: [name, total, changes, news, updates, takeDowns, pending],
+      };
+
+      percData.push(row);
+    }
+
+    var headers = [
+      I18N.message("perc.ui.folderPropsDialog.label@Name"),
+      I18N.message("perc.ui.forms.tracker.gadget@Total"),
+      I18N.message("perc.ui.activity.gadget@Changes"),
+      I18N.message("perc.ui.forms.tracker.gadget@New"),
+      I18N.message("perc.ui.activity.gadget@Updates"),
+      I18N.message("perc.ui.activity.gadget@Take Downs"),
+      I18N.message("perc.ui.workflow.status.gadget@Pending"),
+    ];
+
+    var aoColumns = [
+      { sType: "string" },
+      { sType: "numeric" },
+      { sType: "numeric" },
+      { sType: "numeric" },
+      { sType: "numeric" },
+      { sType: "numeric" },
+      { sType: "numeric" },
+    ];
+
+    var percVisibleColumns = null;
+    isLargeColumn = gadgets.window.getDashboardColumn() == 1;
+    if (!isLargeColumn) percVisibleColumns = [0, 1, 2, 6];
+
+    var percColumnWidths = ["*", "42", "64", "38", "60", "84", "60"];
+
+    var config = {
+      percColumnWidths: percColumnWidths,
+      percVisibleColumns: percVisibleColumns,
+      iDisplayLength: itemsPerPage,
+      percData: percData,
+      percHeaders: headers,
+      aoColumns: aoColumns,
     };
 
-    function loadGadget(site, durationType, durationValue) {
-        PercActivityService
-            .getContentActivity(
-                perc_paths.SITES_ROOT+'/'+site,
-                durationType,
-                durationValue,
-                function(status, data){
-                    if(status == PercServiceUtils.STATUS_SUCCESS) {
-                        createActivityTable(data);
-                    } else {
-                        displayErrorMessage(data);
-                    }
-                });
-    }
-    
-    function createActivityTable(data) {
-        var percData = [];
-        var contentActivity = data.ContentActivity;
-        for(var i in contentActivity)
-        {
-            var activity  = contentActivity[i];
-            
-            var name      = activity.name;
-            var title     = name;
-            var total     = activity.publishedItems;
-            var changes   = activity.newItems + activity.updatedItems + activity.archivedItems;
-            var news      = activity.newItems;
-            var updates   = activity.updatedItems;
-            var takeDowns = activity.archivedItems;
-            var pending   = activity.pendingItems;
-            
-            var row = {rowContent : [name, total, changes, news, updates, takeDowns, pending]};
-            
-            percData.push(row);
-        }
+    miniMsg.dismissMessage(loadingMsg);
 
-        var headers = [I18N.message("perc.ui.folderPropsDialog.label@Name"),I18N.message("perc.ui.forms.tracker.gadget@Total"),I18N.message("perc.ui.activity.gadget@Changes"),I18N.message("perc.ui.forms.tracker.gadget@New"),I18N.message("perc.ui.activity.gadget@Updates"), I18N.message("perc.ui.activity.gadget@Take Downs"), I18N.message("perc.ui.workflow.status.gadget@Pending")];
+    tableDiv.PercDataTable(config);
+  }
 
-        var aoColumns = [
-                { sType: "string"  },
-                { sType: "numeric" },
-                { sType: "numeric" },
-                { sType: "numeric" },
-                { sType: "numeric" },
-                { sType: "numeric" },
-                { sType: "numeric" }
-            ];
-                
-        var percVisibleColumns = null;
-        isLargeColumn = gadgets.window.getDashboardColumn() == 1;
-        if(!isLargeColumn)
-            percVisibleColumns = [0,1,2,6];
-
-        var percColumnWidths = ["*","42","64","38","60","84","60"];
-
-        var config = {percColumnWidths : percColumnWidths, percVisibleColumns : percVisibleColumns, iDisplayLength : itemsPerPage, percData : percData, percHeaders : headers, aoColumns : aoColumns};
-        
-        miniMsg.dismissMessage(loadingMsg);
-
-        tableDiv.PercDataTable(config);
-    }
-    
-    function displayErrorMessage(message) {
-        tableDiv.append("<div class='perc-gadget-errormessage'>" + message + "</div>");
-        miniMsg.dismissMessage(loadingMsg);
-    }
+  function displayErrorMessage(message) {
+    tableDiv.append(
+      "<div class='perc-gadget-errormessage'>" + message + "</div>"
+    );
+    miniMsg.dismissMessage(loadingMsg);
+  }
 })(jQuery);

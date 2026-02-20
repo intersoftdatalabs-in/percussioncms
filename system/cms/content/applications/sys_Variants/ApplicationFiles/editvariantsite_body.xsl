@@ -12,44 +12,66 @@
 				>
 		%w3centities-f;
 		]>
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns="http://www.w3.org/1999/xhtml" xmlns:psxi18n="com.percussion.i18n"
-                extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:psxi18n="com.percussion.i18n"
+	extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
 	<xsl:template mode="editvariantsite_mainbody" match="*">
-		<table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0">
+		<table width="100%" height="100%" cellpadding="0"
+			cellspacing="0" border="0">
 			<tr class="outerboxcell">
 				<td class="outerboxcellfont" align="right" valign="top">
-         Add Sites to Variant
-      </td>
+					Add Sites to
+					Variant
+				</td>
 			</tr>
 			<tr class="headercell">
 				<td>
-					<table width="100%" cellpadding="0" cellspacing="1" border="0">
+					<table width="100%" cellpadding="0" cellspacing="1"
+						border="0">
 						<tr class="headercell">
-							<td width="100%" align="left" valign="middle" class="headercellfont" colspan="2">Variant Name (ID) : <xsl:value-of select="variantname"/>(<xsl:value-of select="variantid"/>)</td>
+							<td width="100%" align="left" valign="middle"
+								class="headercellfont" colspan="2">
+								Variant Name (ID) :
+								<xsl:value-of select="variantname" />
+								(
+								<xsl:value-of select="variantid" />
+								)
+							</td>
 						</tr>
 						<tr class="headercell2">
-							<td width="5%" align="center" valign="middle" class="headercell2font">&nbsp;</td>
+							<td width="5%" align="center" valign="middle"
+								class="headercell2font">&nbsp;
+							</td>
 							<td align="left" width="95%" class="headercell2font">Site (ID)</td>
 						</tr>
 						<xsl:for-each select="site">
 							<tr class="datacell1">
-								<xsl:attribute name="class"><xsl:choose><xsl:when test="position() mod 2 = 1"><xsl:value-of select="'datacell1'"/></xsl:when><xsl:otherwise><xsl:value-of select="'datacell2'"/></xsl:otherwise></xsl:choose></xsl:attribute>
+								<xsl:attribute name="class"><xsl:choose><xsl:when
+									test="position() mod 2 = 1"><xsl:value-of select="'datacell1'" /></xsl:when><xsl:otherwise><xsl:value-of
+									select="'datacell2'" /></xsl:otherwise></xsl:choose></xsl:attribute>
 								<xsl:choose>
-									<xsl:when test="not(string-length(siteid)) and position()=1">
-										<td class="datacellnoentriesfound" colspan="2" align="center">
-                     No entries found.&nbsp;
-                  </td>
+									<xsl:when
+										test="not(string-length(siteid)) and position()=1">
+										<td class="datacellnoentriesfound" colspan="2"
+											align="center">
+											No entries found.&nbsp;
+										</td>
 									</xsl:when>
 									<xsl:otherwise>
 										<td width="5%" align="center" class="datacell1font">
 											<a href="{addurl}">
-												<img height="17" alt="Add" src="../sys_resources/images/new.gif" width="17" border="0"/>
+												<img height="17" alt="Add"
+													src="../sys_resources/images/new.gif" width="17" border="0" />
 											</a>
 										</td>
 										<td align="left" class="datacell1font">
-											<xsl:value-of select="sitename"/>(<xsl:value-of select="siteid"/>)
-						</td>
+											<xsl:value-of select="sitename" />
+											(
+											<xsl:value-of select="siteid" />
+											)
+										</td>
 									</xsl:otherwise>
 								</xsl:choose>
 							</tr>
@@ -58,8 +80,9 @@
 				</td>
 			</tr>
 			<tr class="headercell">
-				<td height="100%">&nbsp;</td>
-				<!--   Fill down to the bottom   -->
+				<td height="100%">&nbsp;
+				</td>
+				<!-- Fill down to the bottom -->
 			</tr>
 		</table>
 	</xsl:template>

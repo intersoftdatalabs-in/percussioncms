@@ -386,7 +386,7 @@ public class PSConfigManager {
   private void loadConfigs() throws PSServerConfigException {
     try {
       IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
-      Collection<PSConfig> configs = cmsMgr.findAllConfigs();
+      Collection<PSConfig> configs = cmsMgr.findAllConfigs().toList();
       for (PSConfig config : configs) {
         PSConsole.printMsg("Server", "Configuration loaded: " + config.getName());
 

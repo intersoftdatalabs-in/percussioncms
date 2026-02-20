@@ -36,8 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
@@ -98,7 +97,7 @@ public class PSContentService implements IPSContentService {
 
       var keyword = new PSKeyword(label, description, String.valueOf(id.getUUID()));
       keyword.setGUID(id);
-      
+
       return keyword;
    }
 
@@ -111,16 +110,16 @@ public class PSContentService implements IPSContentService {
       var session = getSession();
       var searchLabel = StringUtils.isBlank(label) ? "%" : label;
 
-      // Use deprecated API temporarily until full migration to JPA Criteria
-      var criteria = session.createCriteria(PSKeyword.class);
-      criteria.add(Restrictions.like("label", searchLabel));
-      criteria.add(Restrictions.eq("keywordType", String.valueOf(1)));
-
+      StringBuilder hql = new StringBuilder("from PSKeyword where label like :label and keywordType = :keywordType");
       Optional.ofNullable(sortProperty)
          .filter(prop -> !StringUtils.isBlank(prop))
-         .ifPresent(prop -> criteria.addOrder(Order.asc(prop)));
+         .ifPresent(prop -> hql.append(" order by ").append(prop).append(" asc"));
 
-      List<PSKeyword> rawKeywords = criteria.list();
+      Query<PSKeyword> q = session.createQuery(hql.toString(), PSKeyword.class)
+            .setParameter("label", searchLabel)
+            .setParameter("keywordType", String.valueOf(1));
+
+      List<PSKeyword> rawKeywords = q.list();
       var keywords = filterKeywordExcludes(rawKeywords);
 
       // Load choices for each keyword using streams
@@ -143,14 +142,14 @@ public class PSContentService implements IPSContentService {
       }
 
       var session = getSession();
-      var criteria = session.createCriteria(PSKeyword.class);
-      criteria.add(Restrictions.eq("keywordType", type));
-
+      StringBuilder hql = new StringBuilder("from PSKeyword where keywordType = :type");
       Optional.ofNullable(sortProperty)
          .filter(prop -> !StringUtils.isBlank(prop))
-         .ifPresent(prop -> criteria.addOrder(Order.asc(prop)));
+         .ifPresent(prop -> hql.append(" order by ").append(prop).append(" asc"));
+      Query<PSKeyword> q = session.createQuery(hql.toString(), PSKeyword.class)
+            .setParameter("type", type);
 
-      return criteria.list();
+      return q.list();
    }
 
    /**
@@ -164,12 +163,11 @@ public class PSContentService implements IPSContentService {
       }
 
       validateKeywordId(id);
-      
-      var session = getSession();
-      var criteria = session.createCriteria(PSKeyword.class);
-      criteria.add(Restrictions.eq("id", id.longValue()));
 
-      List<PSKeyword> keywords = criteria.list();
+      var session = getSession();
+      Query<PSKeyword> q = session.createQuery("from PSKeyword where id = :id", PSKeyword.class)
+            .setParameter("id", id.longValue());
+      List<PSKeyword> keywords = q.list();
       if (keywords.isEmpty()) {
          throw new PSContentException(IPSContentErrors.MISSING_KEYWORD, id);
       }
@@ -191,7 +189,7 @@ public class PSContentService implements IPSContentService {
       }
 
       validateKeywordId(keyword.getGUID());
-      
+
       var session = getSession();
       session.saveOrUpdate(keyword);
 
@@ -222,7 +220,7 @@ public class PSContentService implements IPSContentService {
    }
 
    /**
-    * Deletes a keyword choice. 
+    * Deletes a keyword choice.
     * @param id the id of the keyword implementing a keyword choice to delete.
     * Not <code>null</code>.
     */
@@ -251,10 +249,10 @@ public class PSContentService implements IPSContentService {
       }
 
       validateKeywordId(id);
-      
+
       try {
          PSKeyword keyword = loadKeyword(id, null);
-         
+
          if (!keyword.getKeywordType().equals("1")) {
             throw new IllegalArgumentException(
                   "deleteKeyword was called for a keyword choice, not a keyword. id: " + id);
@@ -264,7 +262,7 @@ public class PSContentService implements IPSContentService {
             var choices = findKeywordChoices(keyword.getValue(), null);
             choices.forEach(choice -> getSession().delete(choice));
          }
-         
+
          getSession().delete(keyword);
       } catch (PSContentException e) {
          // ignore non existing keyword
@@ -277,7 +275,7 @@ public class PSContentService implements IPSContentService {
     * @param keyword the keyword for which to load the choices,
     *    assumed not {@code null}.  This may be a keyword choice.
     *
-    * @param sortProperty the property name by which to sort the choices 
+    * @param sortProperty the property name by which to sort the choices
     *    ascending, may be {@code null} or empty to skip sorting.
     * @return the list of choices for the supplied keyword, not
     *    {@code null}, may be empty.  Returns an empty list if the supplied
@@ -323,10 +321,10 @@ public class PSContentService implements IPSContentService {
       }
 
       var session = getSession();
-      var criteria = session.createCriteria(PSAutoTranslation.class);
-      criteria.add(Restrictions.eq("contentTypeId", contentTypeId.longValue()));
+      Query<PSAutoTranslation> q = session.createQuery("from PSAutoTranslation where contentTypeId = :ctid", PSAutoTranslation.class)
+            .setParameter("ctid", contentTypeId.longValue());
 
-      return criteria.list();
+      return q.list();
    }
 
    /* (non-Javadoc)
@@ -361,7 +359,7 @@ public class PSContentService implements IPSContentService {
       }
 
       var guidManager = PSGuidManagerLocator.getGuidMgr();
-      var id = guidManager.createGuid(PSTypeEnum.CONTENT_TYPE); // Using available enum
+      var id = guidManager.createGuid(PSTypeEnum.CONTENT);
 
       var property = new PSFolderProperty();
       // Note: PSFolderProperty may need method signature verification
@@ -377,10 +375,10 @@ public class PSContentService implements IPSContentService {
       }
 
       var session = getSession();
-      var criteria = session.createCriteria(PSFolderProperty.class);
-      criteria.add(Restrictions.eq("folderId", folderId.longValue()));
+      Query<PSFolderProperty> q = session.createQuery("from PSFolderProperty where folderId = :fid", PSFolderProperty.class)
+            .setParameter("fid", folderId.longValue());
 
-      return criteria.list();
+      return q.list();
    }
 
    @Override
@@ -407,7 +405,7 @@ public class PSContentService implements IPSContentService {
    /**
     * Tests if the supplied id is in the excluded keyword list and throws
     * an <code>IllegalArgumentException</code> if so.
-    * 
+    *
     * @param id the keyword id to test, assumed not <code>null</code>.
     */
    private void validateKeywordId(IPSGuid id)
@@ -420,11 +418,11 @@ public class PSContentService implements IPSContentService {
                "you are not allowed to delete the keyword for the supplied id");
          });
    }
-   
+
    /**
-    * Remove all excluded keywords from the supplied keyword list. See 
+    * Remove all excluded keywords from the supplied keyword list. See
     * {@link #ms_keywordExcludes} for all defined excludes.
-    * 
+    *
     * @param keywords the list of keywords to filter, assumed not
     *    <code>null</code>, may be empty.
     * @return the filtered keyword list, never <code>null</code>, may be empty.
@@ -479,7 +477,7 @@ public class PSContentService implements IPSContentService {
          return List.of();
       }
    }
-   
+
    private static final List<IPSGuid> ms_keywordExcludes = List.of(
       new PSGuid(PSTypeEnum.KEYWORD_DEF, 1)
    );

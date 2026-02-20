@@ -465,24 +465,11 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
         </dependency>
-        <!--  <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-snowball</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-wordnet</artifactId>
-        </dependency>
-        -->
+        <!-- <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-analyzers</artifactId>
+			</dependency> <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-core</artifactId>
+			</dependency> <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-snowball</artifactId>
+			</dependency> <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-wordnet</artifactId>
+			</dependency> -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
@@ -532,11 +519,6 @@
             <artifactId>solr-solrj</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.any23</groupId>
-            <artifactId>apache-any23-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>net.sourceforge.owlapi</groupId>
             <artifactId>owlapi-distribution</artifactId>
             <scope>compile</scope>
@@ -547,7 +529,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
+            <artifactId>tika-parsers-standard-package</artifactId>
         </dependency>
         <dependency>
             <groupId>caja</groupId>
@@ -641,7 +623,8 @@
         </testResources>
         <pluginManagement>
             <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <!--This plugin's configuration is used to store Eclipse m2e settings
+					only. It has no influence on the Maven build itself. -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
@@ -776,7 +759,8 @@
                             <excludes/>
                         </resource>
                         <resource>
-                            <!--We need to pass in build property for version of ContentExplorer jar -->
+                            <!--We need to pass in build property for version of ContentExplorer
+								jar -->
                             <directory>../system/ear/jsps</directory>
                             <!-- override the destination directory for this resource -->
                             <targetPath/>
@@ -800,24 +784,24 @@
                         </resource>
                     </webResources>
                     <packagingExcludes>jsps,
-                        metadata,
-                        config,
-                        jboss-4.0,
-                        WEB-INF/lib/commons-logging-*.jar,
-                        WEB-INF/lib/log4j-*.jar,
-                        WEB-INF/lib/*slf4j*.jar,
-                        WEB-INF/lib/ehcache-core-*.jar,
-                        WEB-INF/lib/aspectjrt*.jar,
-                        WEB-INF/lib/jtidy-4aug2000r7-dev.jar,
-                        WEB-INF/lib/jstl-*.jar,
-                        WEB-INF/lib/jaxrpc-api-*.jar,
-                        WEB-INF/lib/grib-*.jar,
-                        WEB-INF/lib/httpservices-*.jar,
-                        WEB-INF/lib/servlet-api-*.jar,
-                        WEB-INF/lib/jna-*.jar,
-                        WEB-INF/lib/net-cdf4-*.jar,
-                        %regex[WEB-INF/lib/commons-beanutils-core.*.jar,
-                        WEB-INF/lib/httpclient-osgi*.jar</packagingExcludes>
+						metadata,
+						config,
+						jboss-4.0,
+						WEB-INF/lib/commons-logging-*.jar,
+						WEB-INF/lib/log4j-*.jar,
+						WEB-INF/lib/*slf4j*.jar,
+						WEB-INF/lib/ehcache-core-*.jar,
+						WEB-INF/lib/aspectjrt*.jar,
+						WEB-INF/lib/jtidy-4aug2000r7-dev.jar,
+						WEB-INF/lib/jstl-*.jar,
+						WEB-INF/lib/jaxrpc-api-*.jar,
+						WEB-INF/lib/grib-*.jar,
+						WEB-INF/lib/httpservices-*.jar,
+						WEB-INF/lib/servlet-api-*.jar,
+						WEB-INF/lib/jna-*.jar,
+						WEB-INF/lib/net-cdf4-*.jar,
+						%regex[WEB-INF/lib/commons-beanutils-core.*.jar,
+						WEB-INF/lib/httpclient-osgi*.jar</packagingExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -901,7 +885,8 @@
                         <configuration>
                             <target>
                                 <taskdef classpathref="maven.plugin.classpath" resource="net/sf/antcontrib/antlib.xml"/>
-                                <echo>changing to read write ${project.build.directory}/${project.artifactId}-${project.version}</echo>
+                                <echo>changing to read write
+									${project.build.directory}/${project.artifactId}-${project.version}</echo>
                                 <trycatch>
                                     <try>
                                         <!-- On nix based systems run chmod - will do nothing on Windows -->
@@ -1081,7 +1066,8 @@
                                 <phase>install</phase>
                                 <configuration>
                                     <target>
-                                        <echo>Make sure that you are passing -Dinstall.dir=path/to/your/dev/install...</echo>
+                                        <echo>Make sure that you are passing
+											-Dinstall.dir=path/to/your/dev/install...</echo>
                                         <echo>Refreshing dev install with updated JS...</echo>
                                         <echo>Installing to ${install.dir}</echo>
                                         <echo>Unzipping war....</echo>

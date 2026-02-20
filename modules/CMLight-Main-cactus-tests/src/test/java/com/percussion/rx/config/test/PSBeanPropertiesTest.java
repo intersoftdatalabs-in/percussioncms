@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author YuBingChen
  */
-@Tag("IntegrationTest")
+
 public class PSBeanPropertiesTest extends PSConfigurationTest {
   @Override
   protected void setUp() throws Exception {

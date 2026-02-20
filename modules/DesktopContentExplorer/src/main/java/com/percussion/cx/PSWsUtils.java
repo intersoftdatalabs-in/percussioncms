@@ -422,7 +422,7 @@ public class PSWsUtils {
    */
   public static void setRxSessionHeader(Stub binding, String rxSession) {
     binding.clearHeaders();
-    binding.setHeader("urn:www.percussion.com/6.0.0/common", "session", rxSession);
+    binding.setHeader("urn:www.percussion.com/8.2.0/common", "session", rxSession);
   }
 
   /** The protocol of the server connection. Defaults to 'http'. */

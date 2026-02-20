@@ -79,7 +79,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author peterfrontiero
  */
-@Tag("IntegrationTest")
+
 public class PSWidgetDialogGenerator extends PSServletTestCase {
   @Override
   public void setUp() throws Exception {

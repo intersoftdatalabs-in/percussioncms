@@ -2,20 +2,20 @@
 
 
 <PackageFileList>
-    <PackageFileEntry>
-        <packageName>perc.Test1</packageName>
-        <status>PENDING</status>
-    </PackageFileEntry>
-    <PackageFileEntry>
-        <packageName>perc.Test2</packageName>
-        <status>PENDING</status>
-    </PackageFileEntry>
-    <PackageFileEntry>
-        <packageName>perc.Test3</packageName>
-        <status>PENDING</status>
-    </PackageFileEntry>
-    <PackageFileEntry>
-        <packageName>perc.Test4</packageName>
-        <status>PENDING</status>
-    </PackageFileEntry>
+	<PackageFileEntry>
+		<packageName>perc.Test1</packageName>
+		<status>PENDING</status>
+	</PackageFileEntry>
+	<PackageFileEntry>
+		<packageName>perc.Test2</packageName>
+		<status>PENDING</status>
+	</PackageFileEntry>
+	<PackageFileEntry>
+		<packageName>perc.Test3</packageName>
+		<status>PENDING</status>
+	</PackageFileEntry>
+	<PackageFileEntry>
+		<packageName>perc.Test4</packageName>
+		<status>PENDING</status>
+	</PackageFileEntry>
 </PackageFileList>

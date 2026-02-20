@@ -43,7 +43,7 @@ public class PSWorkflowConverter extends PSConverter
 {
    /**
     * See {@link PSConverter#PSConverter(BeanUtilsBean) super()}
-    * 
+    *
     * @param beanUtils
     */
    public PSWorkflowConverter(BeanUtilsBean beanUtils)
@@ -60,7 +60,7 @@ public class PSWorkflowConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
          // only reading from server is supported
@@ -72,46 +72,55 @@ public class PSWorkflowConverter extends PSConverter
          try
          {
             PSWorkflow srcwf = (PSWorkflow) value;
-            com.percussion.webservices.system.PSWorkflow tgtwf = 
-               (com.percussion.webservices.system.PSWorkflow) 
+            com.percussion.webservices.system.PSWorkflow tgtwf =
+               (com.percussion.webservices.system.PSWorkflow)
                super.convert(type, value);
-            
+
             // handle id, this is the long value as it may be used for search
             tgtwf.setId(srcwf.getGUID().longValue());
-            
-            // handle the typed id, includes all id information 
+
+            // handle the typed id, includes all id information
             tgtwf.setTypedId(new PSDesignGuid(srcwf.getGUID()).getValue());
-            
-            // handle notification definitions
+
+            // handle notification definitions (generated wrapper)
             List<PSNotificationDef> notificationDefs = srcwf.getNotificationDefs();
-            com.percussion.webservices.system.PSNotificationDef[] notificationDefsArray = 
-               new com.percussion.webservices.system.PSNotificationDef[notificationDefs.size()];
-            int index = 0;
+            com.percussion.webservices.system.PSWorkflow.Notifications notificationsWrapper =
+               new com.percussion.webservices.system.PSWorkflow.Notifications();
             for (PSNotificationDef notificationDef : notificationDefs)
             {
                Converter converter = getConverter(notificationDef.getClass());
-               com.percussion.webservices.system.PSNotificationDef def = 
+               com.percussion.webservices.system.PSNotificationDef def =
                   (com.percussion.webservices.system.PSNotificationDef) converter.convert(
-                  com.percussion.webservices.system.PSNotificationDef.class, 
+                  com.percussion.webservices.system.PSNotificationDef.class,
                   notificationDef);
-               notificationDefsArray[index++] = def;
+               notificationsWrapper.getPSNotificationDef().add(def);
             }
-            tgtwf.setNotifications(notificationDefsArray);
-            
+            tgtwf.setNotifications(notificationsWrapper);
+
             // now handle child exceptions:
             Map<Long, PSState> stateMap = getStateMap(srcwf);
             Map<Long, PSWorkflowRole> roleMap = getRoleMap(tgtwf);
-            
-            com.percussion.webservices.system.PSState[] states = 
-               tgtwf.getStates();
-            for (int i = 0; i < states.length; i++)
+
+            List<com.percussion.webservices.system.PSState> states =
+               tgtwf.getStates() == null ? java.util.Collections.emptyList() :
+               tgtwf.getStates().getPSState();
+            for (int i = 0; i < states.size(); i++)
             {
+               // convert generated wrappers to arrays for fixupTransitions
+               Transition[] tgtTrans = new Transition[0];
+               if (states.get(i).getTransitions() != null)
+                  tgtTrans = states.get(i).getTransitions().getPSTransition().toArray(new Transition[0]);
+
+               Transition[] tgtAging = new Transition[0];
+               if (states.get(i).getAgingTransitions() != null)
+                  tgtAging = states.get(i).getAgingTransitions().getPSAgingTransition().toArray(new Transition[0]);
+
                fixupTransitions(srcwf.getStates().get(i).getTransitions(),
-                  states[i].getTransitions(), stateMap, roleMap);
+                  tgtTrans, stateMap, roleMap);
                fixupTransitions(srcwf.getStates().get(i).getAgingTransitions(),
-                  states[i].getAgingTransitions(), stateMap, roleMap);
+                  tgtAging, stateMap, roleMap);
             }
-            
+
             return tgtwf;
          }
          catch (Exception e)
@@ -123,78 +132,80 @@ public class PSWorkflowConverter extends PSConverter
 
    /**
     * Sets missing state names and role collections on the supplied transitions.
-    * 
-    * @param srcTrans The source transitions, assumed not <code>null</code>. 
-    * @param tgtTrans The target transitions to fixup, assumed not 
+    *
+    * @param srcTrans The source transitions, assumed not <code>null</code>.
+    * @param tgtTrans The target transitions to fixup, assumed not
     * <code>null</code> and to have the same number of elements as the source
     * transition list.
-    * @param stateMap Map of state ids to source state objects, assumed not 
+    * @param stateMap Map of state ids to source state objects, assumed not
     * <code>null</code> and to contain all states referenced by the source
     * transitions.
     * @param roleMap Map of role ids to target workflow roles, assumed not
     * <code>null</code> and to have all roles referenced by the source
     * transitions.
     */
-   private void fixupTransitions(List<? extends PSTransitionBase> srcTrans, 
-      Transition[] tgtTrans, Map<Long, PSState> stateMap, 
+   private void fixupTransitions(List<? extends PSTransitionBase> srcTrans,
+      Transition[] tgtTrans, Map<Long, PSState> stateMap,
       Map<Long, PSWorkflowRole> roleMap)
    {
       for (int i = 0; i < tgtTrans.length; i++)
       {
          PSTransitionBase src = srcTrans.get(i);
          Transition tgt = tgtTrans[i];
-         
+
          // set to and from state names
          tgt.setFromState(getStateName(src.getStateId(), stateMap));
          tgt.setToState(getStateName(src.getToState(), stateMap));
-         
-         // set transition roles 
+
+         // set transition roles
          if (src instanceof PSTransition)
          {
-            fixupTransitionRoles((PSTransition)src, 
-               (com.percussion.webservices.system.PSTransition)tgt, 
+            fixupTransitionRoles((PSTransition)src,
+               (com.percussion.webservices.system.PSTransition)tgt,
                roleMap);
          }
       }
    }
 
    /**
-    * Sets the list of workflow roles on the target transition using the source 
+    * Sets the list of workflow roles on the target transition using the source
     * transition data and the supplied role map.
-    * 
+    *
     * @param src The source transition, assumed not <code>null</code>.
     * @param tgt The target transition, assumed not <code>null</code>.
     * @param roleMap Map of role ids to target workflow roles, assumed not
     * <code>null</code> and to have all roles referenced by the source
     * transition.
     */
-   private void fixupTransitionRoles(PSTransition src, 
-      com.percussion.webservices.system.PSTransition tgt, Map<Long, 
+   private void fixupTransitionRoles(PSTransition src,
+      com.percussion.webservices.system.PSTransition tgt, Map<Long,
       PSWorkflowRole> roleMap)
    {
       List<PSTransitionRole> transRoleList = src.getTransitionRoles();
-      PSWorkflowRole[] roles = new PSWorkflowRole[transRoleList.size()];
-      for (int j = 0; j < roles.length; j++)
+      com.percussion.webservices.system.PSTransition.Roles rolesWrapper =
+         new com.percussion.webservices.system.PSTransition.Roles();
+      for (int j = 0; j < transRoleList.size(); j++)
       {
          long roleId = transRoleList.get(j).getRoleId();
-         roles[j] = roleMap.get(roleId);
-         if (roles[j] == null)
+         PSWorkflowRole role = roleMap.get(roleId);
+         if (role == null)
          {
             throw new ConversionException(
                "No workflow role found with id: " + roleId);
          }
+         rolesWrapper.getPSWorkflowRole().add(role);
       }
-      
-      tgt.setRoles(roles);
+
+      tgt.setRoles(rolesWrapper);
    }
 
    /**
     * Get the name of the specified state from the supplied map.
-    * 
+    *
     * @param stateId The id to get.
-    * @param stateMap Map of state ids to source states, assumed not 
+    * @param stateMap Map of state ids to source states, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return The specified state, never <code>null</code>.
     */
    private String getStateName(long stateId, Map<Long, PSState> stateMap)
@@ -209,9 +220,9 @@ public class PSWorkflowConverter extends PSConverter
 
    /**
     * Create a map target workflow roles.
-    * 
+    *
     * @param wf The target workflow object, may not be <code>null</code>.
-    * 
+    *
     * @return The map of role id to workflow role, never <code>null</code>.
     */
    public static Map<Long, PSWorkflowRole> getRoleMap(
@@ -221,33 +232,35 @@ public class PSWorkflowConverter extends PSConverter
          throw new IllegalArgumentException("wf may not be null");
 
       Map<Long, PSWorkflowRole> roleMap = new HashMap<Long, PSWorkflowRole>();
-      
-      for (PSWorkflowRole role : wf.getRoles())
-      {
-         roleMap.put(role.getId(), role);
+
+      if (wf.getRoles() != null) {
+         for (PSWorkflowRole role : wf.getRoles().getPSWorkflowRole())
+         {
+            roleMap.put(role.getId(), role);
+         }
       }
-      
+
       return roleMap;
    }
 
    /**
     * Create a map of source states.
-    * 
+    *
     * @param wf The source workflow object, may not be <code>null</code>.
-    * 
+    *
     * @return The map, never <code>null</code>.
     */
    public static Map<Long, PSState> getStateMap(PSWorkflow wf)
    {
       if (wf == null)
          throw new IllegalArgumentException("wf may not be null");
-      
+
       Map<Long, PSState> stateMap = new HashMap<Long, PSState>();
       for (PSState state : wf.getStates())
       {
          stateMap.put(state.getStateId(), state);
       }
-      
+
       return stateMap;
    }
 

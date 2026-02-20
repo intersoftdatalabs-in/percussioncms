@@ -40,7 +40,7 @@ import org.junit.jupiter.api.*;
  *
  * @author LucasPiccoli, Sunny Sal (refactored)
  */
-@Tag("IntegrationTest")
+
 class PSImportFromUrlJobTest extends PSSiteImportTestBase {
 
   private PSSiteDataServletTestCaseFixture fixture;

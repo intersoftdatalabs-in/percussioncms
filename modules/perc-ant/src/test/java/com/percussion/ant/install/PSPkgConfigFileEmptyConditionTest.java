@@ -27,10 +27,11 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 @Tag("UnitTest")
 public class PSPkgConfigFileEmptyConditionTest {
-  @Rule public Path temporaryFolder;
+  @TempDir public Path temporaryFolder;
 
   /** Constant for the non-empty package configuration file location. */
   private static final String TEST_CFG_FILE_NONEMPTY =
@@ -47,7 +48,7 @@ public class PSPkgConfigFileEmptyConditionTest {
 
   @Test
   public void testEval() throws IOException {
-    Path root = temporaryFolder.toPath();
+    Path root = temporaryFolder;
 
     PSPkgConfigFileEmptyCondition p = new PSPkgConfigFileEmptyCondition();
     p.setRootDir(root.toAbsolutePath().toString());

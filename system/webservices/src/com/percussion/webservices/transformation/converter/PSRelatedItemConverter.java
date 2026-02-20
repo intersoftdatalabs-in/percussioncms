@@ -41,7 +41,7 @@ import org.w3c.dom.Element;
  * Converts objects between the classes
  * {@link com.percussion.cms.objectstore.PSItemRelatedItem} and
  * {@link com.percussion.webservices.content.PSRelatedItem}
- * 
+ *
  * When converting from server to client, the converted item does not contain
  * its related item or binary data (if there is any).
  */
@@ -65,23 +65,23 @@ public class PSRelatedItemConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       try
       {
          if (isClientToServer(value))
          {
             PSRelatedItem orig = (PSRelatedItem) value;
-            
+
             PSItemRelatedItem dest = new PSItemRelatedItem();
             PSAaRelationship relationship = (PSAaRelationship) getConverter(
-               PSAaRelationship.class).convert(PSAaRelationship.class, 
+               PSAaRelationship.class).convert(PSAaRelationship.class,
                   orig.getPSAaRelationship());
-            dest.setAction(orig.getAction().getValue());
+            dest.setAction(String.valueOf(orig.getAction()));
             dest.setDependentId(relationship.getDependent().getId());
             dest.setRelatedType(relationship.getConfig().getName());
             dest.setRelationshipId(relationship.getId());
             dest.setRelationship(relationship);
-            
+
             PSItem relatedItem = orig.getPSItem();
             Converter itemConverter = getConverter(relatedItem.getClass());
             PSCoreItem destRelatedItem = (PSCoreItem) itemConverter.convert(
@@ -96,21 +96,20 @@ public class PSRelatedItemConverter extends PSConverter
             // the converted (client) item does not contain its related items
             // or binary data.
             PSItemRelatedItem orig = (PSItemRelatedItem) value;
-            
+
             PSRelatedItem dest = new PSRelatedItem();
-            dest.setAction((PSRelatedItemAction) getConverter(
-               PSRelatedItemAction.class).convert(PSRelatedItemAction.class, 
-                  orig.getAction()));
+            // action on the generated PSRelatedItem is a string attribute, copy it directly
+            dest.setAction(orig.getAction());
             dest.setPSAaRelationship(
                (com.percussion.webservices.content.PSAaRelationship) getConverter(
                   com.percussion.webservices.content.PSAaRelationship.class).convert(
-                     com.percussion.webservices.content.PSAaRelationship.class, 
+                     com.percussion.webservices.content.PSAaRelationship.class,
                      orig.getRelationship()));
-            
+
             PSCoreItem relatedItem = getCoreItemFromItemData(orig);
-            
+
             Converter itemConverter = getConverter(PSCoreItem.class);
-            
+
             // set the entry GUID needed for the converter
             Iterator<PSItemChild> children = relatedItem.getAllChildren();
             while (children.hasNext())
@@ -120,14 +119,14 @@ public class PSRelatedItemConverter extends PSConverter
                while (entries.hasNext())
                {
                   PSItemChildEntry entry = entries.next();
-                  entry.setGUID(new PSLegacyGuid(relatedItem.getContentTypeId(), 
+                  entry.setGUID(new PSLegacyGuid(relatedItem.getContentTypeId(),
                      child.getChildId(), entry.getChildRowId()));
                }
             }
-            
-            dest.setPSItem((PSItem) itemConverter.convert(PSItem.class, 
+
+            dest.setPSItem((PSItem) itemConverter.convert(PSItem.class,
                relatedItem));
-            
+
             return dest;
          }
       }
@@ -140,31 +139,31 @@ public class PSRelatedItemConverter extends PSConverter
 
    /**
     * Gets the {@link PSCoreItem} from the Item Data in XML
-    * 
+    *
     * @param itemData the Item Data in XML format, assumed not <code>null</code>.
-    * 
+    *
     * @return the created Item, never <code>null</code>.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
-   private PSCoreItem getCoreItemFromItemData(PSItemRelatedItem orig) 
+   private PSCoreItem getCoreItemFromItemData(PSItemRelatedItem orig)
       throws Exception
    {
       Element itemData = orig.getRelatedItemData();
       if (itemData == null)
          throw new IllegalStateException(
                "The related item data must not be null");
-      
+
       String contentTypeId = itemData.getAttribute(
             PSCoreItem.ATTR_CONTENTTYPE);
       PSItemDefinition def = PSItemConverterUtils.getItemDefinition(
             Long.valueOf(contentTypeId));
       PSCoreItem relatedItem = new PSCoreItem(def);
       relatedItem.loadXmlData(itemData);
-      
+
       return relatedItem;
    }
-   
+
    /**
     * Logger for the assembler.
     */

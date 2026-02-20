@@ -34,7 +34,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
 /** Test cases for the {@link PSSiteConfigUtils} class. Refactored for Java 11 and JUnit5. */
-@Tag("IntegrationTest")
+
 public class PSSiteConfigUtilsTest {
 
   private File secureSiteDefaultConfigFolder;

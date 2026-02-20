@@ -2,9 +2,9 @@
 
 
 <!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Melissa Morin (Percussion Software) -->
-<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/uiDesign" xmlns:uid="urn:www.percussion.com/6.0.0/uiDesign" xmlns:uis="urn:www.percussion.com/6.0.0/uiServices" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:flt="urn:www.percussion.com/6.0.0/faults" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/common" schemaLocation="../common.xsd"/>
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/uiServices" schemaLocation="uiServices.xsd"/>
+<xsd:schema targetNamespace="urn:www.percussion.com/8.2.0/uiDesign" xmlns:uid="urn:www.percussion.com/8.2.0/uiDesign" xmlns:uis="urn:www.percussion.com/8.2.0/uiServices" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:flt="urn:www.percussion.com/8.2.0/faults" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/common" schemaLocation="../common.xsd"/>
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/uiServices" schemaLocation="uiServices.xsd"/>
    <xsd:element name="CreateActionsRequest">
       <xsd:complexType>
          <xsd:sequence>

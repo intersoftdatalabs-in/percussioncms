@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * @author natechadwick
  * @author federicoromanelli
  */
-@Tag("IntegrationTest")
+
 public class PSDeliveryClientTests {
 
   private static final String NETSUITE_METHOD_URL =

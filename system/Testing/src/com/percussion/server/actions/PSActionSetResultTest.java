@@ -21,6 +21,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -28,7 +29,7 @@ import org.w3c.dom.Document;
 /**
  * Tests the basic functionality of the <code>PSActionSetResult</code> class.
  */
-public class PSActionSetResultTest extends TestCase
+public class PSActionSetResultTest 
 {
    /**
     * Constructs an instance of this class to run the test implemented by the
@@ -36,21 +37,13 @@ public class PSActionSetResultTest extends TestCase
     * 
     * @param methodName name of the method that implements a test
     */
-   public PSActionSetResultTest(String name)
-   {
-      super( name );
-   }
+   
    
    
    /**
     * Collects all the tests implemented by this class into a single suite.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSActionSetResultTest( "testIt" ) );
-      return suite;
-   }
+   
 
 
    /**
@@ -58,6 +51,7 @@ public class PSActionSetResultTest extends TestCase
     * parameters.  Make sure ctor can properly init state from provided
     * PSActionSet.  Make sure the set methods perform correctly.
     */
+   
    public void testIt() throws Exception
    {
       PSActionSetResult resultSet;

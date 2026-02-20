@@ -1,14 +1,9 @@
 
 
-<!--
-
-    Context configuration file for the Tomcat Balancer Web App
-    This is only needed to keep the distribution small and avoid duplicating
-    commons libraries
-
-    $Id: context.xml,v 1.1 2004/08/26 17:03:34 remm Exp $
-
--->
+<!-- Context configuration file for the Tomcat Balancer Web App This is only
+	needed to keep the distribution small and avoid duplicating commons libraries
+	$Id: context.xml,v 1.1 2004/08/26 17:03:34 remm Exp $ -->
 
 
-<Context privileged="true" antiResourceLocking="false" antiJARLocking="false" />
+<Context privileged="true" antiResourceLocking="false"
+	antiJARLocking="false" />

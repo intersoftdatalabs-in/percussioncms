@@ -24,18 +24,16 @@ import java.util.List;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit test for the PSView and PSViewSet classes.
  */
-public class PSViewSetTest extends TestCase
+public class PSViewSetTest
 {
    // see base class
-   public PSViewSetTest(String name)
-   {
-      super(name);
-   }
+
 
    /**
     * Tests creating views, adding them to a view set and retrieving them from
@@ -43,6 +41,8 @@ public class PSViewSetTest extends TestCase
     *
     * @throws Exception if the test fails or an error occurs
     */
+
+   @Test
    public void testViewSet() throws Exception
    {
       PSViewSet viewSet = new PSViewSet();
@@ -53,14 +53,12 @@ public class PSViewSetTest extends TestCase
       PSView view1 = new PSView("view1", fieldList.iterator());
       viewSet.addView(view1);
 
-      assertEquals("getView", viewSet.getView("VIEW1"), view1);
-      assertTrue("get non-existant view", null == viewSet.getView("VIEW2"));
+      assertEquals(view1, viewSet.getView("VIEW1"), "getView");
+      assertTrue(viewSet.getView("VIEW2") == null, "get non-existant view");
 
       // test conditional views
-      assertTrue("get invalid conditional views not null",
-         viewSet.getCondtionalViews("VIEW2") != null);
-      assertTrue("get invalid conditional views returns empty iterator",
-         !viewSet.getCondtionalViews("VIEW2").hasNext());
+      assertTrue(viewSet.getCondtionalViews("VIEW2") != null, "get invalid conditional views not null");
+      assertFalse(viewSet.getCondtionalViews("VIEW2").hasNext(), "get invalid conditional views returns empty iterator");
 
       boolean didThrow = false;
       PSCollection conditions = new PSCollection(PSConditional.class);
@@ -70,22 +68,14 @@ public class PSViewSetTest extends TestCase
       PSConditionalView condView = new PSConditionalView("VIEW1",
          fieldList.iterator(), conditions);
       viewSet.addConditionalView(condView);
-      assertTrue("getCondView not null",
-         viewSet.getCondtionalViews("VIEW1") != null);
-      assertTrue("getCondView has next",
-         viewSet.getCondtionalViews("VIEW1").hasNext());
-      assertEquals("getCondView equals", condView,
-         viewSet.getCondtionalViews("VIEW1").next());
+      assertTrue(viewSet.getCondtionalViews("VIEW1") != null, "getCondView not null");
+      assertTrue(viewSet.getCondtionalViews("VIEW1").hasNext(), "getCondView has next");
+      assertEquals(condView, viewSet.getCondtionalViews("VIEW1").next(), "getCondView equals");
 
    }
 
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSViewSetTest("testViewSet"));
-      return suite;
-   }
+
 
 
 }

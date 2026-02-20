@@ -34,8 +34,8 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.Converter;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.services.assembly.data.PSTemplateSlot</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.services.assembly.data.PSTemplateSlot</code> and
  * <code>com.percussion.webservices.assembly.data.PSTemplateSlot</code>.
  */
 public class PSTemplateSlotConverter extends PSConverter
@@ -66,14 +66,14 @@ public class PSTemplateSlotConverter extends PSConverter
    public Object convert(Class type, Object value)
    {
       Object result = super.convert(type, value);
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.assembly.data.PSTemplateSlot orig = 
+         com.percussion.webservices.assembly.data.PSTemplateSlot orig =
             (com.percussion.webservices.assembly.data.PSTemplateSlot) value;
-         
+
          PSTemplateSlot dest = (PSTemplateSlot) result;
-         
+
          // convert id
          Long id = orig.getId();
          if (id != null)
@@ -83,31 +83,28 @@ public class PSTemplateSlotConverter extends PSConverter
          Converter converter = getConverter(IPSTemplateSlot.SlotType.class);
          dest.setSlottype((IPSTemplateSlot.SlotType) converter.convert(
             IPSTemplateSlot.SlotType.class, orig.getType()));
-         
+
          // convert finder
          dest.setFinderName(orig.getFinder());
-         
+
          // convert system slot
          dest.setSystemSlot(orig.isIsSystemSlot());
-         
-         // convert finder arguments
-         if (orig.getArguments() != null)
+
+         // convert finder arguments (wrapper with a live list)
+         if (orig.getArguments() != null && orig.getArguments().getArgument() != null)
          {
             Map<String, String> arguments = new HashMap<String, String>();
-            for (PSTemplateSlotArgumentsArgument argument : orig.getArguments())
-               arguments.put(argument.getName(), argument.get_value());
+            for (com.percussion.webservices.assembly.data.PSTemplateSlot.Arguments.Argument argument : orig.getArguments().getArgument())
+               arguments.put(argument.getName(), argument.getValue());
             dest.setFinderArguments(arguments);
          }
-         
-         // convert allowed content
-         PSTemplateSlotAllowedContentContent[] allowedContents = 
-            orig.getAllowedContent();
-         if (allowedContents != null)
+
+         // convert allowed content (wrapper with content list)
+         if (orig.getAllowedContent() != null && orig.getAllowedContent().getContent() != null)
          {
-            Collection<PSPair<IPSGuid, IPSGuid>> slotAssociations = 
+            Collection<PSPair<IPSGuid, IPSGuid>> slotAssociations =
                new ArrayList<PSPair<IPSGuid, IPSGuid>>();
-            for (PSTemplateSlotAllowedContentContent allowedContent : 
-               allowedContents)
+            for (com.percussion.webservices.assembly.data.PSTemplateSlot.AllowedContent.Content allowedContent : orig.getAllowedContent().getContent())
             {
                PSPair<IPSGuid, IPSGuid> pair = new PSPair<IPSGuid, IPSGuid>(
                      new PSDesignGuid(allowedContent.getContentTypeId()),
@@ -120,61 +117,58 @@ public class PSTemplateSlotConverter extends PSConverter
       else
       {
          PSTemplateSlot orig = (PSTemplateSlot) value;
-         
-         com.percussion.webservices.assembly.data.PSTemplateSlot dest = 
+
+         com.percussion.webservices.assembly.data.PSTemplateSlot dest =
             (com.percussion.webservices.assembly.data.PSTemplateSlot) result;
-         
+
          // convert id
          IPSGuid guid = orig.getGUID();
          if (guid != null)
             dest.setId(new PSDesignGuid(guid).getValue());
-         
-         // convert type
+
+         // convert type -> generated DTO expects a String
          Converter converter = getConverter(PSTemplateSlotType.class);
-         dest.setType((PSTemplateSlotType) converter.convert(
-            PSTemplateSlotType.class, orig.getSlottypeEnum()));
-         
+         PSTemplateSlotType slotType = (PSTemplateSlotType) converter.convert(
+            PSTemplateSlotType.class, orig.getSlottypeEnum());
+         dest.setType(slotType.toString());
+
          // convert finder
          dest.setFinder(orig.getFinderName());
-         
+
          // convert system slot
          dest.setIsSystemSlot(orig.isSystemSlot());
-         
-         // convert finder arguments
+
+         // convert finder arguments into generated wrapper
          Map<String, String> finderArguments = orig.getFinderArguments();
-         PSTemplateSlotArgumentsArgument[] arguments = 
-            new PSTemplateSlotArgumentsArgument[finderArguments.size()];
-         int index = 0;
-         for (String key : finderArguments.keySet())
-         {
-            PSTemplateSlotArgumentsArgument argument = 
-               new PSTemplateSlotArgumentsArgument();
-            argument.setName(key);
-            argument.set_value(finderArguments.get(key));
-            
-            arguments[index++] = argument;
+         com.percussion.webservices.assembly.data.PSTemplateSlot.Arguments argsWrapper =
+            new com.percussion.webservices.assembly.data.PSTemplateSlot.Arguments();
+         for (Map.Entry<String, String> e : finderArguments.entrySet()) {
+            com.percussion.webservices.assembly.data.PSTemplateSlot.Arguments.Argument argument =
+               new com.percussion.webservices.assembly.data.PSTemplateSlot.Arguments.Argument();
+            argument.setName(e.getKey());
+            argument.setValue(e.getValue());
+            argsWrapper.getArgument().add(argument);
          }
-         dest.setArguments(arguments);
-         
-         // convert allowed content
-         Collection slotAssociations = orig.getSlotAssociations();
-         PSTemplateSlotAllowedContentContent[] allowedContents = 
-            new PSTemplateSlotAllowedContentContent[slotAssociations.size()];
-         index = 0;
-         for (Object slotAssociation : slotAssociations)
+         dest.setArguments(argsWrapper);
+
+         // convert allowed content into generated wrapper
+         Collection<PSPair<IPSGuid, IPSGuid>> slotAssociations = orig.getSlotAssociations();
+         com.percussion.webservices.assembly.data.PSTemplateSlot.AllowedContent allowedWrapper =
+            new com.percussion.webservices.assembly.data.PSTemplateSlot.AllowedContent();
+         if (slotAssociations != null)
          {
-            PSPair<IPSGuid, IPSGuid> pair = 
-               (PSPair<IPSGuid, IPSGuid>) slotAssociation;
-            PSTemplateSlotAllowedContentContent allowedContent = 
-               new PSTemplateSlotAllowedContentContent(
-                  new PSDesignGuid(pair.getFirst()).getValue(), 
-                  new PSDesignGuid(pair.getSecond()).getValue());
-            
-            allowedContents[index++] = allowedContent;
+            for (PSPair<IPSGuid, IPSGuid> pair : slotAssociations)
+            {
+               com.percussion.webservices.assembly.data.PSTemplateSlot.AllowedContent.Content allowedContent =
+                  new com.percussion.webservices.assembly.data.PSTemplateSlot.AllowedContent.Content();
+               allowedContent.setContentTypeId(new PSDesignGuid(pair.getFirst()).getValue());
+               allowedContent.setTemplateId(new PSDesignGuid(pair.getSecond()).getValue());
+               allowedWrapper.getContent().add(allowedContent);
+            }
          }
-         dest.setAllowedContent(allowedContents);
+         dest.setAllowedContent(allowedWrapper);
       }
-      
+
       return result;
    }
 }

@@ -1,0 +1,58 @@
+# .editorconfig — mirror of Spotless/Prettier/google-java-format defaults for this repository
+# Keep in sync with Spotless configuration in pom.xml
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# Markdown: trailing spaces are meaningful (two spaces == line break)
+[*.md]
+trim_trailing_whitespace = false
+
+# Java: Google Java Format (GJF) uses 2-space indentation
+[*.java]
+indent_style = space
+indent_size = 2
+charset = utf-8
+# (GJF default line width is project-specific; using 100 here to match common Google conventions)
+max_line_length = 100
+
+# Java properties files
+[*.properties]
+indent_style = space
+indent_size = 2
+
+# XML files: POM/SortPom uses 4-space indentation; keep XML at 4
+[*.xml]
+indent_style = space
+indent_size = 4
+
+# Explicit POM rules
+[pom.xml]
+indent_style = space
+indent_size = 4
+
+# HTML/CSS/JS/JSON/YAML: Prettier defaults to 2-space indentation
+[*.{html,htm,xhtml,css,scss,less,js,mjs,cjs,jsx,json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Shell scripts / CI files: keep LF and no trailing whitespace
+[*.{sh,bat,cmd}]
+trim_trailing_whitespace = false
+end_of_line = lf
+
+# Binary files (disable EditorConfig rules)
+[*.{png,jpg,jpeg,gif,ico,zip,jar,war,class}]
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+# Notes:
+# - This file aligns editor defaults with Spotless (google-java-format + Prettier) to avoid reformatting on save.
+# - EditorConfig "max_line_length" is non-standard but many editors respect it; adjust if your editor behaves differently.

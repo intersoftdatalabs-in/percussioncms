@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PSXApplication active="no" enabled="yes" hidden="no" id="462" startPriority="0" version="2.0">
+<PSXApplication active="no" enabled="yes" hidden="no"
+	id="462" startPriority="0" version="2.0">
 	<name>sys_psxWorkflowCataloger</name>
-	<description>This application is used to provide catalogs of workflow components. One consumer of these catalogs is the E2Designer via the CatalogWorkflow* classes and the ApplicationRequestor.</description>
+	<description>This application is used to provide catalogs of workflow
+		components. One consumer of these catalogs is the E2Designer via the
+		CatalogWorkflow* classes and the ApplicationRequestor.</description>
 	<requestRoot>sys_psxWorkflowCataloger</requestRoot>
-	<defaultRequestPage/>
+	<defaultRequestPage />
 	<appExtensionContext>application/_jamesschultz_1007476881687/</appExtensionContext>
 	<PSXRevisionHistory>
 		<PSXRevisionEntry majorVersion="1" minorVersion="0">
@@ -21,14 +24,18 @@
 		<PSXAclEntry id="0" type="user">
 			<name>Default</name>
 			<securityProviderType>Any</securityProviderType>
-			<securityProviderInstance/>
-			<applicationAccessLevel dataCreate="yes" dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="no" designRead="no" designUpdate="no" modifyAcl="no"/>
+			<securityProviderInstance />
+			<applicationAccessLevel dataCreate="yes"
+				dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="no"
+				designRead="no" designUpdate="no" modifyAcl="no" />
 		</PSXAclEntry>
 		<PSXAclEntry id="0" type="role">
 			<name>Admin</name>
 			<securityProviderType>Any</securityProviderType>
-			<securityProviderInstance/>
-			<applicationAccessLevel dataCreate="yes" dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="yes" designRead="yes" designUpdate="yes" modifyAcl="yes"/>
+			<securityProviderInstance />
+			<applicationAccessLevel dataCreate="yes"
+				dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="yes"
+				designRead="yes" designUpdate="yes" modifyAcl="yes" />
 		</PSXAclEntry>
 		<multiMembershipBehavior>mergeMaximumAccess</multiMembershipBehavior>
 	</PSXAcl>
@@ -44,16 +51,16 @@
 	<requestTypeValueDelete>DELETE</requestTypeValueDelete>
 	<PSXDataSet id="187">
 		<name>statelookup</name>
-		<description/>
+		<description />
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="3367">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="3362">
 				<PSXBackEndTable id="3361">
 					<alias>STATES</alias>
 					<table>STATES</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 			</PSXBackEndDataTank>
 			<PSXDataMapper id="3365" returnEmptyXml="no">
@@ -64,9 +71,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>STATES</tableAlias>
 						<column>STATENAME</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -75,12 +82,13 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>STATES</tableAlias>
 						<column>STATEID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="3363" method="whereClause" unique="no">
+			<PSXDataSelector id="3363" method="whereClause"
+				unique="no">
 				<WhereClauses>
 					<PSXWhereClause id="0" omitWhenNull="yes">
 						<PSXConditional id="0">
@@ -88,7 +96,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>STATES</tableAlias>
 									<column>WORKFLOWAPPID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>=</operator>
@@ -106,7 +114,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>STATES</tableAlias>
 									<column>WORKFLOWAPPID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>=</operator>
@@ -124,35 +132,36 @@
 						<PSXBackEndColumn id="0">
 							<tableAlias>STATES</tableAlias>
 							<column>WORKFLOWAPPID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</PSXSortedColumn>
 					<PSXSortedColumn id="0" isAscending="yes">
 						<PSXBackEndColumn id="0">
 							<tableAlias>STATES</tableAlias>
 							<column>STATEID</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</PSXSortedColumn>
 				</Sorting>
-				<nativeStatement/>
+				<nativeStatement />
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
 			</PSXDataSelector>
-			<PSXResourceCacheSettings enabled="no" id="0">
-				<Keys/>
-				<Dependencies/>
+			<PSXResourceCacheSettings enabled="no"
+				id="0">
+				<Keys />
+				<Dependencies />
 			</PSXResourceCacheSettings>
 		</PSXQueryPipe>
 		<PSXPageDataTank id="186">
 			<schemaSource>file:sys_Lookup.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>statelookup</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<html>
@@ -169,7 +178,7 @@
 		</PSXRequestor>
 		<PSXResultPageSet id="0">
 			<PSXResultPage allowNamespaceCleanup="false" id="188">
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 		<PSXResultPager id="3364">
@@ -180,16 +189,16 @@
 	</PSXDataSet>
 	<PSXDataSet id="190">
 		<name>Dataset3245</name>
-		<description/>
+		<description />
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="4098">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="4093">
 				<PSXBackEndTable id="4092">
 					<alias>CONTENTSTATUSHISTORY</alias>
 					<table>CONTENTSTATUSHISTORY</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 			</PSXBackEndDataTank>
 			<PSXDataMapper id="4096" returnEmptyXml="no">
@@ -200,9 +209,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>CONTENTSTATUSHISTORY</tableAlias>
 						<column>TRANSITIONID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -211,12 +220,13 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>CONTENTSTATUSHISTORY</tableAlias>
 						<column>TRANSITIONCOMMENT</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="4094" method="whereClause" unique="no">
+			<PSXDataSelector id="4094" method="whereClause"
+				unique="no">
 				<WhereClauses>
 					<PSXWhereClause id="0" omitWhenNull="no">
 						<PSXConditional id="0">
@@ -224,7 +234,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>CONTENTSTATUSHISTORY</tableAlias>
 									<column>CONTENTID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>=</operator>
@@ -242,7 +252,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>CONTENTSTATUSHISTORY</tableAlias>
 									<column>TRANSITIONID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>&lt;&gt;</operator>
@@ -261,28 +271,29 @@
 						<PSXBackEndColumn id="0">
 							<tableAlias>CONTENTSTATUSHISTORY</tableAlias>
 							<column>EVENTTIME</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</PSXSortedColumn>
 				</Sorting>
-				<nativeStatement/>
+				<nativeStatement />
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
 			</PSXDataSelector>
-			<PSXResourceCacheSettings enabled="no" id="0">
-				<Keys/>
-				<Dependencies/>
+			<PSXResourceCacheSettings enabled="no"
+				id="0">
+				<Keys />
+				<Dependencies />
 			</PSXResourceCacheSettings>
 		</PSXQueryPipe>
 		<PSXPageDataTank id="189">
 			<schemaSource>file:getLastTransitionHistory.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>getLastTransitionHistory</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<html>
@@ -299,7 +310,7 @@
 		</PSXRequestor>
 		<PSXResultPageSet id="0">
 			<PSXResultPage allowNamespaceCleanup="false" id="191">
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 		<PSXResultPager id="4095">
@@ -310,16 +321,16 @@
 	</PSXDataSet>
 	<PSXDataSet id="193">
 		<name>Dataset3615</name>
-		<description/>
+		<description />
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="157">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="153">
 				<PSXBackEndTable id="152">
 					<alias>TRANSITIONS</alias>
 					<table>TRANSITIONS</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 			</PSXBackEndDataTank>
 			<PSXDataMapper id="155" returnEmptyXml="no">
@@ -330,9 +341,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>TRANSITIONS</tableAlias>
 						<column>WORKFLOWAPPID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -341,9 +352,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>TRANSITIONS</tableAlias>
 						<column>TRANSITIONTOSTATEID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -352,9 +363,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>TRANSITIONS</tableAlias>
 						<column>TRANSITIONFROMSTATEID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -363,9 +374,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>TRANSITIONS</tableAlias>
 						<column>TRANSITIONID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -374,12 +385,13 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>TRANSITIONS</tableAlias>
 						<column>DEFAULTTRANSITION</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="154" method="whereClause" unique="no">
+			<PSXDataSelector id="154" method="whereClause"
+				unique="no">
 				<WhereClauses>
 					<PSXWhereClause id="0" omitWhenNull="yes">
 						<PSXConditional id="0">
@@ -387,7 +399,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>TRANSITIONS</tableAlias>
 									<column>WORKFLOWAPPID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>=</operator>
@@ -400,25 +412,26 @@
 						</PSXConditional>
 					</PSXWhereClause>
 				</WhereClauses>
-				<Sorting/>
-				<nativeStatement/>
+				<Sorting />
+				<nativeStatement />
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
 			</PSXDataSelector>
-			<PSXResourceCacheSettings enabled="no" id="0">
-				<Keys/>
-				<Dependencies/>
+			<PSXResourceCacheSettings enabled="no"
+				id="0">
+				<Keys />
+				<Dependencies />
 			</PSXResourceCacheSettings>
 		</PSXQueryPipe>
 		<PSXPageDataTank id="192">
 			<schemaSource>file:transitioninfo.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>transitioninfo</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<html>
@@ -435,22 +448,23 @@
 		</PSXRequestor>
 		<PSXResultPageSet id="0">
 			<PSXResultPage allowNamespaceCleanup="false" id="194">
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 	</PSXDataSet>
 	<PSXDataSet id="197">
 		<name>workflowinfo</name>
-		<description>Query request to give the workflow state and transition info.</description>
+		<description>Query request to give the workflow state and transition
+			info.</description>
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="182">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="178">
 				<PSXBackEndTable id="177">
 					<alias>STATES</alias>
 					<table>STATES</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 			</PSXBackEndDataTank>
 			<PSXDataMapper id="180" returnEmptyXml="no">
@@ -461,9 +475,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>STATES</tableAlias>
 						<column>CONTENTVALID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -472,9 +486,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>STATES</tableAlias>
 						<column>SORTORDER</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -483,9 +497,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>STATES</tableAlias>
 						<column>STATEID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -494,12 +508,13 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>STATES</tableAlias>
 						<column>WORKFLOWAPPID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="179" method="whereClause" unique="no">
+			<PSXDataSelector id="179" method="whereClause"
+				unique="no">
 				<WhereClauses>
 					<PSXWhereClause id="0" omitWhenNull="yes">
 						<PSXConditional id="0">
@@ -507,7 +522,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>STATES</tableAlias>
 									<column>WORKFLOWAPPID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>=</operator>
@@ -520,8 +535,8 @@
 						</PSXConditional>
 					</PSXWhereClause>
 				</WhereClauses>
-				<Sorting/>
-				<nativeStatement/>
+				<Sorting />
+				<nativeStatement />
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
@@ -540,8 +555,9 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="yes" id="0">
-				<Keys/>
+			<PSXResourceCacheSettings enabled="yes"
+				id="0">
+				<Keys />
 				<Dependencies>
 					<Dependency>sys_psxWorkflowCataloger/transitioninfo</Dependency>
 				</Dependencies>
@@ -549,12 +565,12 @@
 		</PSXQueryPipe>
 		<PSXPageDataTank id="196">
 			<schemaSource>file:workflowinfo.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>workflowinfo</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<html>
@@ -571,22 +587,25 @@
 		</PSXRequestor>
 		<PSXResultPageSet id="0">
 			<PSXResultPage allowNamespaceCleanup="false" id="198">
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 	</PSXDataSet>
 	<PSXDataSet id="200">
 		<name>getWorkflows</name>
-		<description>Provides a catalog of all the workflows registered in the WORKFLOWAPPS table.  An optional parameter "workflowid" may be provided to restrict the catalog to only that WORKFLOWAPPID.  Returns an empty document if the query returns no rows.</description>
+		<description>Provides a catalog of all the workflows registered in the
+			WORKFLOWAPPS table. An optional parameter "workflowid" may be
+			provided to restrict the catalog to only that WORKFLOWAPPID. Returns
+			an empty document if the query returns no rows.</description>
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="4091">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="4086">
 				<PSXBackEndTable id="4085">
 					<alias>WORKFLOWAPPS</alias>
 					<table>WORKFLOWAPPS</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 			</PSXBackEndDataTank>
 			<PSXDataMapper id="4089" returnEmptyXml="yes">
@@ -597,9 +616,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>WORKFLOWAPPS</tableAlias>
 						<column>ADMINISTRATOR</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -608,9 +627,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>WORKFLOWAPPS</tableAlias>
 						<column>WORKFLOWAPPNAME</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -619,9 +638,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>WORKFLOWAPPS</tableAlias>
 						<column>WORKFLOWAPPDESC</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -630,9 +649,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>WORKFLOWAPPS</tableAlias>
 						<column>INITIALSTATEID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="1" id="0">
 					<PSXXmlField id="0">
@@ -641,12 +660,13 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>WORKFLOWAPPS</tableAlias>
 						<column>WORKFLOWAPPID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="4087" method="whereClause" unique="no">
+			<PSXDataSelector id="4087" method="whereClause"
+				unique="no">
 				<WhereClauses>
 					<PSXWhereClause id="0" omitWhenNull="yes">
 						<PSXConditional id="0">
@@ -654,7 +674,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>WORKFLOWAPPS</tableAlias>
 									<column>WORKFLOWAPPID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>=</operator>
@@ -672,7 +692,7 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>WORKFLOWAPPS</tableAlias>
 									<column>WORKFLOWAPPID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</variable>
 							<operator>=</operator>
@@ -690,28 +710,29 @@
 						<PSXBackEndColumn id="0">
 							<tableAlias>WORKFLOWAPPS</tableAlias>
 							<column>WORKFLOWAPPNAME</column>
-							<columnAlias/>
+							<columnAlias />
 						</PSXBackEndColumn>
 					</PSXSortedColumn>
 				</Sorting>
-				<nativeStatement/>
+				<nativeStatement />
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
 			</PSXDataSelector>
-			<PSXResourceCacheSettings enabled="no" id="0">
-				<Keys/>
-				<Dependencies/>
+			<PSXResourceCacheSettings enabled="no"
+				id="0">
+				<Keys />
+				<Dependencies />
 			</PSXResourceCacheSettings>
 		</PSXQueryPipe>
 		<PSXPageDataTank id="199">
 			<schemaSource>file:getWorkflows.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>getWorkflows</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<html>
@@ -728,7 +749,7 @@
 		</PSXRequestor>
 		<PSXResultPageSet id="0">
 			<PSXResultPage allowNamespaceCleanup="false" id="201">
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 		<PSXResultPager id="4088">
@@ -737,14 +758,25 @@
 			<maxPageLinks>10</maxPageLinks>
 		</PSXResultPager>
 	</PSXDataSet>
-	<PSXLogger id="0" logAppStartStop="no" logAppStatistics="no" logBasicUserActivity="no" logDetailedUserActivity="no" logErrors="yes" logExecutionPlan="no" logFullUserActivity="no" logMultipleHandlers="no" logServerStartStop="no"/>
-	<PSXTraceInfo id="0" traceAppHandlerProc="yes" traceAppSecurity="yes" traceBasicRequestInfo="yes" traceConditionalEval="no" traceDbPool="no" traceEnabled="no" traceExitExec="no" traceExitProc="no" traceFileInfo="no" traceInitHttpVar="no" traceMapper="no" traceOutputColumnWidth="80" traceOutputConv="no" tracePostExitCgi="no" tracePostExitXml="no" tracePostPreProcHttpVar="no" traceResourceHandler="yes" traceResultSet="no" traceSessionInfo="no" traceTimestampOnlyEnabled="no"/>
-	<PSXErrorWebPages id="184" returnHtml="yes"/>
+	<PSXLogger id="0" logAppStartStop="no" logAppStatistics="no"
+		logBasicUserActivity="no" logDetailedUserActivity="no" logErrors="yes"
+		logExecutionPlan="no" logFullUserActivity="no"
+		logMultipleHandlers="no" logServerStartStop="no" />
+	<PSXTraceInfo id="0" traceAppHandlerProc="yes"
+		traceAppSecurity="yes" traceBasicRequestInfo="yes"
+		traceConditionalEval="no" traceDbPool="no" traceEnabled="no"
+		traceExitExec="no" traceExitProc="no" traceFileInfo="no"
+		traceInitHttpVar="no" traceMapper="no" traceOutputColumnWidth="80"
+		traceOutputConv="no" tracePostExitCgi="no" tracePostExitXml="no"
+		tracePostPreProcHttpVar="no" traceResourceHandler="yes"
+		traceResultSet="no" traceSessionInfo="no"
+		traceTimestampOnlyEnabled="no" />
+	<PSXErrorWebPages id="184" returnHtml="yes" />
 	<backEndLoginPassthru>no</backEndLoginPassthru>
 	<PSXNotifier id="185">
 		<providerType>SMTP</providerType>
 		<server>//devlaptop</server>
-		<from/>
+		<from />
 	</PSXNotifier>
 	<userProperty name="locationY188">162</userProperty>
 	<userProperty name="locationY187">137</userProperty>

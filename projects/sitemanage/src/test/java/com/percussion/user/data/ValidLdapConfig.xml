@@ -3,17 +3,17 @@
 
 <LdapConfig>
 
-    <LdapServer>
-        <host>ADServer</host>
-        <port>389</port>
-        <user>CN=Administrator</user>
-        <password>password</password>
-        <catalog>shallow</catalog>
-        <objectAttributeName>samaccountname</objectAttributeName>
-        <emailAttributeName>emailaddress</emailAttributeName>
-        <organizationalUnit>OU=Users,DC=org,DC=perc,DC=edu</organizationalUnit>
-        <organizationalUnit>OU=Members,DC=org,DC=perc,DC=edu</organizationalUnit>
-        <secure>false</secure>
-    </LdapServer>
-    
+	<LdapServer>
+		<host>ADServer</host>
+		<port>389</port>
+		<user>CN=Administrator</user>
+		<password>password</password>
+		<catalog>shallow</catalog>
+		<objectAttributeName>samaccountname</objectAttributeName>
+		<emailAttributeName>emailaddress</emailAttributeName>
+		<organizationalUnit>OU=Users,DC=org,DC=perc,DC=edu</organizationalUnit>
+		<organizationalUnit>OU=Members,DC=org,DC=perc,DC=edu</organizationalUnit>
+		<secure>false</secure>
+	</LdapServer>
+
 </LdapConfig>

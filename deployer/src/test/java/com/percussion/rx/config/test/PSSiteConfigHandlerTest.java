@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author YuBingChen
  */
-@Tag("IntegrationTest")
+
 public class PSSiteConfigHandlerTest {
   @Test
   public void testConfigHandler() throws Exception {

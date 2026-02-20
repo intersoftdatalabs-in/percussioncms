@@ -23,7 +23,6 @@ package com.percussion.servlets.taglib;
  * @author dougrand
  */
 public class PSCascadeMenuTag extends PSJSFBaseTag {
-  @Override
   public String getComponentType() {
     return "com.percussion.jsf.CascadeMenu";
   }

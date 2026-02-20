@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.jws.WebService;
-import javax.ws.rs.Path;
+import jakarta.jws.WebService;
+import jakarta.ws.rs.Path;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;

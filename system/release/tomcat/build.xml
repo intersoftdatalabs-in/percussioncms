@@ -2,46 +2,46 @@
 
 <project name="TomcatTestInstall" default="deploy">
 
-<property name="deploy.dir" value="c:/tomcat-4.1.27/" />
-<property name="port.server" value="9985"/>
-<property name="port.http" value="9980"/>
-<property name="port.ssl" value="9943"/>
+	<property name="deploy.dir" value="c:/tomcat-4.1.27/" />
+	<property name="port.server" value="9985" />
+	<property name="port.http" value="9980" />
+	<property name="port.ssl" value="9943" />
 
-<target name="init">
-	<tstamp/>
-</target>
+	<target name="init">
+		<tstamp />
+	</target>
 
-<target name="jar">
-	<jar destfile="tomcat.jar">
-		<fileset dir=".">
-			<include name="conf/**/*.*" />
-			<include name="Tomcat*/**/*.*" />
-		</fileset>
-	</jar>
-</target>
+	<target name="jar">
+		<jar destfile="tomcat.jar">
+			<fileset dir=".">
+				<include name="conf/**/*.*" />
+				<include name="Tomcat*/**/*.*" />
+			</fileset>
+		</jar>
+	</target>
 
-<target name="deploy" depends="init">
-	<!-- quietly remove current contents of deployment directory -->
-	<delete dir="${deploy.dir}" quiet="true" />
-	<!-- copy server.xml and filter values -->
-	<filter token="CATALINA_SERVER_PORT" value="${port.server}"/>
-	<filter token="CATALINA_HTTP_PORT" value="${port.http}"/>
-	<filter token="CATALINA_SSL_PORT" value="${port.ssl}"/>
-	<copy todir="${deploy.dir}/conf/" filtering="true">
-		<fileset dir="conf" includes="**/*.*"/>
-	</copy>	
-	<!-- copy pieces into place -->
-	<copy todir="${deploy.dir}">
-		<fileset dir="." includes="bin/**/*.*" />
-		<fileset dir="." includes="common/**/*.*" />
-		<fileset dir="." includes="logs/**/*.*" />
-		<fileset dir="." includes="server/**/*.*" />
-		<fileset dir="." includes="shared/**/*.*" />
-		<fileset dir="." includes="temp/**/*.*" />
-		<fileset dir="." includes="webapps/**/*.*" />
-		<fileset dir="." includes="*.txt"/>
-		<fileset dir="." includes="LICENSE"/>
-	</copy>
-</target>
+	<target name="deploy" depends="init">
+		<!-- quietly remove current contents of deployment directory -->
+		<delete dir="${deploy.dir}" quiet="true" />
+		<!-- copy server.xml and filter values -->
+		<filter token="CATALINA_SERVER_PORT" value="${port.server}" />
+		<filter token="CATALINA_HTTP_PORT" value="${port.http}" />
+		<filter token="CATALINA_SSL_PORT" value="${port.ssl}" />
+		<copy todir="${deploy.dir}/conf/" filtering="true">
+			<fileset dir="conf" includes="**/*.*" />
+		</copy>
+		<!-- copy pieces into place -->
+		<copy todir="${deploy.dir}">
+			<fileset dir="." includes="bin/**/*.*" />
+			<fileset dir="." includes="common/**/*.*" />
+			<fileset dir="." includes="logs/**/*.*" />
+			<fileset dir="." includes="server/**/*.*" />
+			<fileset dir="." includes="shared/**/*.*" />
+			<fileset dir="." includes="temp/**/*.*" />
+			<fileset dir="." includes="webapps/**/*.*" />
+			<fileset dir="." includes="*.txt" />
+			<fileset dir="." includes="LICENSE" />
+		</copy>
+	</target>
 
 </project>

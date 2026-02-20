@@ -21,13 +21,11 @@ import com.percussion.security.PSSecurityCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSBaseSOAPImpl;
-import com.percussion.webservices.PSErrorResultsException;
-import com.percussion.webservices.PSErrorsException;
-import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.common.PSObjectSummary;
 import com.percussion.webservices.faults.PSContractViolationFault;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.faults.PSErrorResultsFault;
 import com.percussion.webservices.faults.PSErrorsFault;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
@@ -36,7 +34,6 @@ import com.percussion.webservices.security.IPSSecurityDesignWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import com.percussion.webservices.security.data.PSCommunity;
 import com.percussion.webservices.security.data.PSCommunityVisibility;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.rmi.RemoteException;
 import java.util.Arrays;
@@ -51,248 +48,234 @@ public class SecurityDesignSOAPImpl extends PSBaseSOAPImpl implements SecurityDe
 {
    /*
     * (non-Javadoc)
-    * 
-    * @see SecurityDesign#createCommunities(String[])
+    *
+    * @see SecurityDesign#createCommunities(CreateCommunitiesRequest)
     */
    @SuppressWarnings("unused")
-   public PSCommunity[] createCommunities(String[] names) 
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault, 
-      PSNotAuthorizedFault
+   public CreateCommunitiesResponse createCommunities(CreateCommunitiesRequest createCommunitiesRequest)
+      throws com.percussion.webservices.securitydesign.InvalidSessionFaultMessage, com.percussion.webservices.securitydesign.ContractViolationFaultMessage, com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "createCommunities";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securitydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSSecurityDesignWs service = 
+         IPSSecurityDesignWs service =
             PSSecurityWsLocator.getSecurityDesignWebservice();
-         
-         return (PSCommunity[]) convert(PSCommunity[].class, 
-            service.createCommunities(Arrays.asList(names), session, user));
+
+         List<String> names = createCommunitiesRequest.getName() == null ? java.util.Collections.emptyList() : createCommunitiesRequest.getName();
+
+         PSCommunity[] converted = (PSCommunity[]) convert(PSCommunity[].class,
+            service.createCommunities(names, session, user));
+
+         CreateCommunitiesResponse resp = new CreateCommunitiesResponse();
+         resp.getPSCommunity().addAll(Arrays.asList(converted));
+         return resp;
       }
       catch (IllegalArgumentException e)
       {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.securitydesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       // will never get here
       return null;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see SecurityDesign#deleteCommunities(DeleteCommunitiesRequest)
     */
    @SuppressWarnings("unused")
    public void deleteCommunities(
       DeleteCommunitiesRequest deleteCommunitiesRequest)
-      throws RemoteException, PSInvalidSessionFault, PSErrorsFault,
-      PSContractViolationFault, PSNotAuthorizedFault
+      throws com.percussion.webservices.securitydesign.InvalidSessionFaultMessage, com.percussion.webservices.securitydesign.ContractViolationFaultMessage, com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage, com.percussion.webservices.securitydesign.ErrorsFaultMessage
    {
       final String serviceName = "deleteCommunities";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securitydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSSecurityDesignWs service = 
+         IPSSecurityDesignWs service =
             PSSecurityWsLocator.getSecurityDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            deleteCommunitiesRequest.getId(), PSTypeEnum.COMMUNITY_DEF);
+
+         List<IPSGuid> ids = deleteCommunitiesRequest.getId() == null ? java.util.Collections.emptyList() : deleteCommunitiesRequest.getId().stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.COMMUNITY_DEF)).toList();
          boolean ignoreDependencies = extractBooleanValue(
-            deleteCommunitiesRequest.getIgnoreDependencies(), false);
+            deleteCommunitiesRequest.isIgnoreDependencies(), false);
          service.deleteCommunities(ids, ignoreDependencies, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.securitydesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         PSErrorsFault fault = (PSErrorsFault) convert(
-            PSErrorsFault.class, e);
-         fault.setService(serviceName);
-         
-         throw fault;
+         try { handleErrorsException(e, serviceName); } catch (PSErrorsFault erf) { throw new com.percussion.webservices.securitydesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see SecurityDesign#findCommunities(FindCommunitiesRequest)
     */
-   public PSObjectSummary[] findCommunities(
-      FindCommunitiesRequest findCommunitiesRequest) throws RemoteException,
-      PSInvalidSessionFault, PSContractViolationFault
+   public FindCommunitiesResponse findCommunities(
+      FindCommunitiesRequest findCommunitiesRequest) throws com.percussion.webservices.securitydesign.InvalidSessionFaultMessage
    {
       final String serviceName = "findCommunities";
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securitydesign.InvalidSessionFaultMessage(e.toString(), e); }
 
-         IPSSecurityDesignWs service = 
+         IPSSecurityDesignWs service =
             PSSecurityWsLocator.getSecurityDesignWebservice();
-         
-         List summaries = service.findCommunities(
+
+         List<com.percussion.services.catalog.IPSCatalogSummary> summaries = service.findCommunities(
             findCommunitiesRequest.getName());
 
-         return (PSObjectSummary[]) convert(PSObjectSummary[].class, summaries);
+         PSObjectSummary[] converted = (PSObjectSummary[]) convert(PSObjectSummary[].class, summaries);
+         FindCommunitiesResponse resp = new FindCommunitiesResponse();
+         resp.getPSObjectSummary().addAll(Arrays.asList(converted));
+         return resp;
       }
       catch (IllegalArgumentException e)
       {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
-   }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see SecurityDesign#findRoles(FindRolesRequest)
-    */
-   public PSObjectSummary[] findRoles(FindRolesRequest findRolesRequest)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault
-   {
-      final String serviceName = "findRoles";
-      try
-      {
-         authenticate();
-
-         IPSSecurityDesignWs service = 
-            PSSecurityWsLocator.getSecurityDesignWebservice();
-         
-         List summaries = service.findRoles(findRolesRequest.getName());
-
-         return (PSObjectSummary[]) convert(PSObjectSummary[].class, summaries);
-      }
-      catch (IllegalArgumentException e)
-      {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
-      }
-   }
-
-   /*
-    * (non-Javadoc)
-    * 
-    * @see SecurityDesign#loadCommunities(LoadCommunitiesRequest)
-    */
-   @SuppressWarnings("unused")
-   public PSCommunity[] loadCommunities(
-      LoadCommunitiesRequest loadCommunitiesRequest) throws RemoteException,
-      PSErrorResultsFault, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
-   {
-      final String serviceName = "loadCommunities";
-      try
-      {
-         String session = authenticate();
-         String user = getRemoteUser();
-
-         IPSSecurityDesignWs service = 
-            PSSecurityWsLocator.getSecurityDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            loadCommunitiesRequest.getId(), PSTypeEnum.COMMUNITY_DEF);
-         boolean lock = extractBooleanValue(
-            loadCommunitiesRequest.getLock(), false);
-         boolean overrideLock = extractBooleanValue(
-            loadCommunitiesRequest.getOverrideLock(), false);
-         List communities = service.loadCommunities(ids, lock, overrideLock, 
-            session, user);
-
-         return (PSCommunity[]) convert(PSCommunity[].class, communities);
-      }
-      catch (IllegalArgumentException e)
-      {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
-      }
-      catch (RuntimeException e)
-      {
-         handleRuntimeException(e, serviceName);
-      }
-      catch (PSErrorResultsException e)
-      {
-         PSErrorResultsFault fault = (PSErrorResultsFault) convert(
-            PSErrorResultsFault.class, e);
-         fault.setService(serviceName);
-         
-         throw fault;
-      }
-      
       // will never get here
       return null;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
+    * @see SecurityDesign#findRoles(FindRolesRequest)
+    */
+   public FindRolesResponse findRoles(FindRolesRequest findRolesRequest)
+      throws com.percussion.webservices.securitydesign.InvalidSessionFaultMessage
+   {
+      final String serviceName = "findRoles";
+      try
+      {
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securitydesign.InvalidSessionFaultMessage(e.toString(), e); }
+
+         IPSSecurityDesignWs service =
+            PSSecurityWsLocator.getSecurityDesignWebservice();
+
+         List<com.percussion.services.catalog.IPSCatalogSummary> summaries = service.findRoles(findRolesRequest.getName());
+
+         PSObjectSummary[] converted = (PSObjectSummary[]) convert(PSObjectSummary[].class, summaries);
+         FindRolesResponse resp = new FindRolesResponse();
+         resp.getPSObjectSummary().addAll(Arrays.asList(converted));
+         return resp;
+      }
+      catch (IllegalArgumentException e)
+      {
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
+      }
+
+      // will never get here
+      return null;
+   }
+
+   /*
+    * (non-Javadoc)
+    *
+    * @see SecurityDesign#loadCommunities(LoadCommunitiesRequest)
+    */
+   @SuppressWarnings("unused")
+   public LoadCommunitiesResponse loadCommunities(
+      LoadCommunitiesRequest loadCommunitiesRequest) throws com.percussion.webservices.securitydesign.InvalidSessionFaultMessage, com.percussion.webservices.securitydesign.ContractViolationFaultMessage, com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage, com.percussion.webservices.securitydesign.ErrorResultsFaultMessage
+   {
+      final String serviceName = "loadCommunities";
+      try
+      {
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securitydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
+
+         IPSSecurityDesignWs service =
+            PSSecurityWsLocator.getSecurityDesignWebservice();
+
+         List<IPSGuid> ids = loadCommunitiesRequest.getId() == null ? java.util.Collections.emptyList() : loadCommunitiesRequest.getId().stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.COMMUNITY_DEF)).toList();
+         boolean lock = extractBooleanValue(
+            loadCommunitiesRequest.isLock(), false);
+         boolean overrideLock = extractBooleanValue(
+            loadCommunitiesRequest.isOverrideLock(), false);
+         List<com.percussion.services.security.data.PSCommunity> communities = service.loadCommunities(ids, lock, overrideLock,
+            session, user);
+
+         PSCommunity[] converted = (PSCommunity[]) convert(PSCommunity[].class, communities);
+         LoadCommunitiesResponse resp = new LoadCommunitiesResponse();
+         resp.getPSCommunity().addAll(Arrays.asList(converted));
+         return resp;
+      }
+      catch (IllegalArgumentException e)
+      {
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.securitydesign.ContractViolationFaultMessage(cv.toString(), cv); }
+      }
+      catch (RuntimeException e)
+      {
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
+      }
+      catch (PSErrorResultsException e)
+      {
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.securitydesign.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
+      }
+
+      // will never get here
+      return null;
+   }
+
+   /*
+    * (non-Javadoc)
+    *
     * @see SecurityDesign#saveCommunities(SaveCommunitiesRequest)
     */
    @SuppressWarnings({"unchecked","unused"})
    public void saveCommunities(
-      SaveCommunitiesRequest saveCommunitiesRequest) throws RemoteException,
-      PSErrorsFault, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+      SaveCommunitiesRequest saveCommunitiesRequest) throws com.percussion.webservices.securitydesign.ErrorsFaultMessage, com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage, com.percussion.webservices.securitydesign.ContractViolationFaultMessage, com.percussion.webservices.securitydesign.InvalidSessionFaultMessage
    {
       final String serviceName = "saveCommunities";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securitydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSSecurityDesignWs service = 
+         IPSSecurityDesignWs service =
             PSSecurityWsLocator.getSecurityDesignWebservice();
-         
-         List communities = (List) convert(List.class,
+
+         List<com.percussion.services.security.data.PSCommunity> communities = (List<com.percussion.services.security.data.PSCommunity>) convert(List.class,
             saveCommunitiesRequest.getPSCommunity());
          boolean release = extractBooleanValue(
-            saveCommunitiesRequest.getRelease(), true);
+            saveCommunitiesRequest.isRelease(), true);
          service.saveCommunities(communities, release, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.securitydesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         PSErrorsFault fault = (PSErrorsFault) convert(
-            PSErrorsFault.class, e);
-         fault.setService(serviceName);
-         
-         throw fault;
+         try { handleErrorsException(e, serviceName); } catch (PSErrorsFault erf) { throw new com.percussion.webservices.securitydesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
@@ -301,55 +284,55 @@ public class SecurityDesignSOAPImpl extends PSBaseSOAPImpl implements SecurityDe
     */
    public IsValidRhythmyxUserResponse isValidRhythmyxUser(
       IsValidRhythmyxUserRequest isValidRhythmyxUserRequest)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault
+      throws com.percussion.webservices.securitydesign.InvalidSessionFaultMessage, com.percussion.webservices.securitydesign.ContractViolationFaultMessage
    {
       final String serviceName = "isValidRhythmyxUser";
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securitydesign.InvalidSessionFaultMessage(e.toString(), e); }
 
-         IPSSecurityDesignWs service = 
+         IPSSecurityDesignWs service =
             PSSecurityWsLocator.getSecurityDesignWebservice();
-         
+
          boolean isValidUser = service.isValidRhythmyxUser(
             isValidRhythmyxUserRequest.getUsername());
 
-         return new IsValidRhythmyxUserResponse(isValidUser);
+         IsValidRhythmyxUserResponse resp = new IsValidRhythmyxUserResponse();
+         resp.setIsValid(isValidUser);
+         return resp;
       }
       catch (IllegalArgumentException e)
       {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.securitydesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSSecurityCatalogException e)
       {
-         // this should never happen
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         // should not occur; wrap in runtime to let framework handle
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
-   }
 
+      // will never get here
+      return null;
+   }
    /* (non-Javadoc)
     * @see SecurityDesign#getVisibilityByCommunity(
     *    GetVisibilityByCommunityRequest)
     */
-   public PSCommunityVisibility[] getVisibilityByCommunity(
-      GetVisibilityByCommunityRequest getVisibilityByCommunityRequest) 
-      throws RemoteException, PSErrorResultsFault, PSInvalidSessionFault, 
-         PSContractViolationFault, PSNotAuthorizedFault
+   public GetVisibilityByCommunityResponse getVisibilityByCommunity(
+      GetVisibilityByCommunityRequest getVisibilityByCommunityRequest)
+      throws com.percussion.webservices.securitydesign.ErrorResultsFaultMessage, com.percussion.webservices.securitydesign.NotAuthorizedFaultMessage, com.percussion.webservices.securitydesign.ContractViolationFaultMessage, com.percussion.webservices.securitydesign.InvalidSessionFaultMessage
    {
       final String serviceName = "getVisibilityByCommunity";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.securitydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSSecurityDesignWs service = 
+         IPSSecurityDesignWs service =
             PSSecurityWsLocator.getSecurityDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            getVisibilityByCommunityRequest.getId());
+
+         List<IPSGuid> ids = getVisibilityByCommunityRequest.getId() == null ? java.util.Collections.emptyList() : getVisibilityByCommunityRequest.getId().stream().map(id -> PSGuidUtils.makeGuid(id, null)).toList();
          PSTypeEnum type = null;
          if (getVisibilityByCommunityRequest.getType() != null)
          {
@@ -358,26 +341,29 @@ public class SecurityDesignSOAPImpl extends PSBaseSOAPImpl implements SecurityDe
             if (type == null)
                throw new IllegalArgumentException("unknown type was supplied");
          }
-         List visibilities = service.getVisibilityByCommunity(ids, type, 
+         List<com.percussion.services.security.data.PSCommunityVisibility> visibilities = service.getVisibilityByCommunity(ids, type,
             session, user);
 
-         return (PSCommunityVisibility[]) convert(PSCommunityVisibility[].class, 
+         PSCommunityVisibility[] converted = (PSCommunityVisibility[]) convert(PSCommunityVisibility[].class,
             visibilities);
+         GetVisibilityByCommunityResponse resp = new GetVisibilityByCommunityResponse();
+         resp.getPSCommunityVisibility().addAll(Arrays.asList(converted));
+         return resp;
       }
       catch (IllegalArgumentException e)
       {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.securitydesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorResultsException e)
       {
-         PSErrorResultsFault fault = (PSErrorResultsFault) convert(
-            PSErrorResultsFault.class, e);
-         fault.setService(serviceName);
-         
-         throw fault;
+         try { handleErrorResultsException(e, serviceName); } catch (PSErrorResultsFault erf) { throw new com.percussion.webservices.securitydesign.ErrorResultsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
+      catch (RemoteException re)
+      {
+         throw new RuntimeException(re);
+      }
+
+      // will never get here
+      return new GetVisibilityByCommunityResponse();
    }
 }

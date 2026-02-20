@@ -20,17 +20,19 @@ import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSDocumentUtilsTest extends TestCase
+public class PSDocumentUtilsTest 
 {
    
    /**
     * Tests {@link PSDocumentUtils#extractBody(IPSAssemblyResult)} and
     * {@link PSDocumentUtils#extractBody(String)}.
     */
+   
    public void testExtractBody() throws IOException
    {
       // empty result

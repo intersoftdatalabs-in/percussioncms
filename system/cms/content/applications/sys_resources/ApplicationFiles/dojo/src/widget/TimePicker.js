@@ -17,16 +17,19 @@ dojo.require("dojo.date.format");
 dojo.require("dojo.dom");
 dojo.require("dojo.html.style");
 
-dojo.requireLocalization("dojo.i18n.calendar", "gregorian", null, "de,en,es,fi,fr,ROOT,hu,it,ja,ko,nl,pt,pt-br,sv,zh,zh-cn,zh-hk,zh-tw");
+dojo.requireLocalization(
+  "dojo.i18n.calendar",
+  "gregorian",
+  null,
+  "de,en,es,fi,fr,ROOT,hu,it,ja,ko,nl,pt,pt-br,sv,zh,zh-cn,zh-hk,zh-tw"
+);
 dojo.requireLocalization("dojo.widget", "TimePicker", null, "ROOT");
 
-
 dojo.widget.defineWidget(
-	"dojo.widget.TimePicker",
-	dojo.widget.HtmlWidget,
-	function(){
-
-		/*
+  "dojo.widget.TimePicker",
+  dojo.widget.HtmlWidget,
+  function () {
+    /*
 		summary: 
 			Base class for a stand-alone TimePicker widget 
 			which makes it easy to select a time. 
@@ -45,357 +48,401 @@ dojo.widget.defineWidget(
 		 	 
 			<div dojoType="TimePicker"></div> 
 		*/
-	
-		// time: Date
-		//	selected time
-		this.time = "";
-		
-		// useDefaultTime: Boolean
-		//	set following flag to true if a default time should be set
-		this.useDefaultTime = false;
-		
-		// useDefaultMinutes: Boolean
-		//	set the following to true to set default minutes to current time, false to // use zero
-		this.useDefaultMinutes = false;
-		
-		// storedTime: String
-		//	rfc 3339 time
-		this.storedTime = "";
-		
-		// currentTime: Object
-		//	time currently selected in the UI, stored in hours, minutes, seconds in the format that will be actually displayed
-		this.currentTime = {};
-		
-		this.classNames = {
-		// summary:
-		//	stores a list of class names that may be overriden
-			selectedTime: "selectedItem"
-		};
-		
-		this.any = "any"; //FIXME: never used?
-		
-		// dom node indecies for selected hour, minute, amPm, and "any time option"
-		this.selectedTime = {
-			hour: "",
-			minute: "",
-			amPm: "",
-			anyTime: false
-		};
 
-		// minutes are ordered as follows: ["12", "6", "1", "7", "2", "8", "3", "9", "4", "10", "5", "11"]
-		this.hourIndexMap = ["", 2, 4, 6, 8, 10, 1, 3, 5, 7, 9, 11, 0];
-		
-		// minutes are ordered as follows: ["00", "30", "05", "35", "10", "40", "15", "45", "20", "50", "25", "55"]
-		this.minuteIndexMap = [0, 2, 4, 6, 8, 10, 1, 3, 5, 7, 9, 11];
-	},
-{
-	isContainer: false,
-	templatePath: dojo.uri.moduleUri("dojo.widget", "templates/TimePicker.html"),
-	templateCssPath: dojo.uri.moduleUri("dojo.widget", "templates/TimePicker.css"),
+    // time: Date
+    //	selected time
+    this.time = "";
 
-	postMixInProperties: function(localProperties, frag) {
-		// summary: see dojo.widget.DomWidget
-		dojo.widget.TimePicker.superclass.postMixInProperties.apply(this, arguments);
-		this.calendar = dojo.i18n.getLocalization("dojo.i18n.calendar", "gregorian", this.lang); // "am","pm"
-		this.widgetStrings = dojo.i18n.getLocalization("dojo.widget", "TimePicker", this.lang); // "any"
-	},
+    // useDefaultTime: Boolean
+    //	set following flag to true if a default time should be set
+    this.useDefaultTime = false;
 
-	fillInTemplate: function(args, frag){
-		// summary: see dojo.widget.DomWidget
+    // useDefaultMinutes: Boolean
+    //	set the following to true to set default minutes to current time, false to // use zero
+    this.useDefaultMinutes = false;
 
-		// Copy style info from input node to output node
-		var source = this.getFragNodeRef(frag);
-		dojo.html.copyStyle(this.domNode, source);
+    // storedTime: String
+    //	rfc 3339 time
+    this.storedTime = "";
 
-		if(args.value){
-			if(args.value instanceof Date){
-				this.storedTime = dojo.date.toRfc3339(args.value);
-			}else{
-				this.storedTime = args.value;
-			}
-		}		
-		
-		this.initData();
-		this.initUI();
-	},
+    // currentTime: Object
+    //	time currently selected in the UI, stored in hours, minutes, seconds in the format that will be actually displayed
+    this.currentTime = {};
 
-	initData: function() {
-		// FIXME: doesn't currently validate the time before trying to set it
-		// Determine the date/time from stored info, or by default don't 
-		//  have a set time
-		// FIXME: should normalize against whitespace on storedTime... for now 
-		// just a lame hack
-		if(this.storedTime.indexOf("T")!=-1 && this.storedTime.split("T")[1] && this.storedTime!=" " && this.storedTime.split("T")[1]!="any"){
-			this.time = dojo.widget.TimePicker.util.fromRfcDateTime(this.storedTime, this.useDefaultMinutes, this.selectedTime.anyTime);
-		}else if(this.useDefaultTime){
-			this.time = dojo.widget.TimePicker.util.fromRfcDateTime("", this.useDefaultMinutes, this.selectedTime.anyTime);
-		}else{
-			this.selectedTime.anyTime = true;
-			this.time = dojo.widget.TimePicker.util.fromRfcDateTime("", 0, 1);
-		}
-	},
+    this.classNames = {
+      // summary:
+      //	stores a list of class names that may be overriden
+      selectedTime: "selectedItem",
+    };
 
-	initUI: function() {
-		// set UI to match the currently selected time
-		if(!this.selectedTime.anyTime && this.time) {
-			var amPmHour = dojo.widget.TimePicker.util.toAmPmHour(this.time.getHours());
-			var hour = amPmHour[0];
-			var isAm = amPmHour[1];
-			var minute = this.time.getMinutes();
-			var minuteIndex = parseInt(minute/5);
-			this.onSetSelectedHour(this.hourIndexMap[hour]);
-			this.onSetSelectedMinute(this.minuteIndexMap[minuteIndex]);
-			this.onSetSelectedAmPm(isAm);
-		} else {
-			this.onSetSelectedAnyTime();
-		}
-	},
-	
-	setTime: function(date) {
-		//summary: set the current date and update the UI
-		if(date) {
-			this.selectedTime.anyTime = false;
-			this.setDateTime(dojo.date.toRfc3339(date));
-		} else {
-			this.selectedTime.anyTime = true;
-		}
-		this.initData();
-		this.initUI();
-	},
+    this.any = "any"; //FIXME: never used?
 
-	setDateTime: function(rfcDate) {
-		this.storedTime = rfcDate;
-	},
-	
-	onClearSelectedHour: function(evt) {
-		this.clearSelectedHour();
-	},
+    // dom node indecies for selected hour, minute, amPm, and "any time option"
+    this.selectedTime = {
+      hour: "",
+      minute: "",
+      amPm: "",
+      anyTime: false,
+    };
 
-	onClearSelectedMinute: function(evt) {
-		this.clearSelectedMinute();
-	},
+    // minutes are ordered as follows: ["12", "6", "1", "7", "2", "8", "3", "9", "4", "10", "5", "11"]
+    this.hourIndexMap = ["", 2, 4, 6, 8, 10, 1, 3, 5, 7, 9, 11, 0];
 
-	onClearSelectedAmPm: function(evt) {
-		this.clearSelectedAmPm();
-	},
+    // minutes are ordered as follows: ["00", "30", "05", "35", "10", "40", "15", "45", "20", "50", "25", "55"]
+    this.minuteIndexMap = [0, 2, 4, 6, 8, 10, 1, 3, 5, 7, 9, 11];
+  },
+  {
+    isContainer: false,
+    templatePath: dojo.uri.moduleUri(
+      "dojo.widget",
+      "templates/TimePicker.html"
+    ),
+    templateCssPath: dojo.uri.moduleUri(
+      "dojo.widget",
+      "templates/TimePicker.css"
+    ),
 
-	onClearSelectedAnyTime: function(evt) {
-		this.clearSelectedAnyTime();
-		if(this.selectedTime.anyTime) {
-			this.selectedTime.anyTime = false;
-			this.time = dojo.widget.TimePicker.util.fromRfcDateTime("", this.useDefaultMinutes);
-			this.initUI();
-		}
-	},
+    postMixInProperties: function (localProperties, frag) {
+      // summary: see dojo.widget.DomWidget
+      dojo.widget.TimePicker.superclass.postMixInProperties.apply(
+        this,
+        arguments
+      );
+      this.calendar = dojo.i18n.getLocalization(
+        "dojo.i18n.calendar",
+        "gregorian",
+        this.lang
+      ); // "am","pm"
+      this.widgetStrings = dojo.i18n.getLocalization(
+        "dojo.widget",
+        "TimePicker",
+        this.lang
+      ); // "any"
+    },
 
-	clearSelectedHour: function() {
-		var hourNodes = this.hourContainerNode.getElementsByTagName("td");
-		for (var i=0; i<hourNodes.length; i++) {
-			dojo.html.setClass(hourNodes.item(i), "");
-		}
-	},
+    fillInTemplate: function (args, frag) {
+      // summary: see dojo.widget.DomWidget
 
-	clearSelectedMinute: function() {
-		var minuteNodes = this.minuteContainerNode.getElementsByTagName("td");
-		for (var i=0; i<minuteNodes.length; i++) {
-			dojo.html.setClass(minuteNodes.item(i), "");
-		}
-	},
+      // Copy style info from input node to output node
+      var source = this.getFragNodeRef(frag);
+      dojo.html.copyStyle(this.domNode, source);
 
-	clearSelectedAmPm: function() {
-		var amPmNodes = this.amPmContainerNode.getElementsByTagName("td");
-		for (var i=0; i<amPmNodes.length; i++) {
-			dojo.html.setClass(amPmNodes.item(i), "");
-		}
-	},
+      if (args.value) {
+        if (args.value instanceof Date) {
+          this.storedTime = dojo.date.toRfc3339(args.value);
+        } else {
+          this.storedTime = args.value;
+        }
+      }
 
-	clearSelectedAnyTime: function() {
-		dojo.html.setClass(this.anyTimeContainerNode, "anyTimeContainer");
-	},
+      this.initData();
+      this.initUI();
+    },
 
-	onSetSelectedHour: function(evt) {
-		this.onClearSelectedAnyTime();
-		this.onClearSelectedHour();
-		this.setSelectedHour(evt);
-		this.onSetTime();
-	},
+    initData: function () {
+      // FIXME: doesn't currently validate the time before trying to set it
+      // Determine the date/time from stored info, or by default don't
+      //  have a set time
+      // FIXME: should normalize against whitespace on storedTime... for now
+      // just a lame hack
+      if (
+        this.storedTime.indexOf("T") != -1 &&
+        this.storedTime.split("T")[1] &&
+        this.storedTime != " " &&
+        this.storedTime.split("T")[1] != "any"
+      ) {
+        this.time = dojo.widget.TimePicker.util.fromRfcDateTime(
+          this.storedTime,
+          this.useDefaultMinutes,
+          this.selectedTime.anyTime
+        );
+      } else if (this.useDefaultTime) {
+        this.time = dojo.widget.TimePicker.util.fromRfcDateTime(
+          "",
+          this.useDefaultMinutes,
+          this.selectedTime.anyTime
+        );
+      } else {
+        this.selectedTime.anyTime = true;
+        this.time = dojo.widget.TimePicker.util.fromRfcDateTime("", 0, 1);
+      }
+    },
 
-	setSelectedHour: function(evt) {
-		if(evt && evt.target) {
-			if(evt.target.nodeType == dojo.dom.ELEMENT_NODE) {
-				var eventTarget = evt.target;
-			} else {
-				var eventTarget = evt.target.parentNode;
-			}
-			dojo.event.browser.stopEvent(evt);
-			dojo.html.setClass(eventTarget, this.classNames.selectedTime);
-			this.selectedTime["hour"] = eventTarget.innerHTML;
-		} else if (!isNaN(evt)) {
-			var hourNodes = this.hourContainerNode.getElementsByTagName("td");
-			if(hourNodes.item(evt)) {
-				dojo.html.setClass(hourNodes.item(evt), this.classNames.selectedTime);
-				this.selectedTime["hour"] = hourNodes.item(evt).innerHTML;
-			}
-		}
-		this.selectedTime.anyTime = false;
-	},
+    initUI: function () {
+      // set UI to match the currently selected time
+      if (!this.selectedTime.anyTime && this.time) {
+        var amPmHour = dojo.widget.TimePicker.util.toAmPmHour(
+          this.time.getHours()
+        );
+        var hour = amPmHour[0];
+        var isAm = amPmHour[1];
+        var minute = this.time.getMinutes();
+        var minuteIndex = parseInt(minute / 5);
+        this.onSetSelectedHour(this.hourIndexMap[hour]);
+        this.onSetSelectedMinute(this.minuteIndexMap[minuteIndex]);
+        this.onSetSelectedAmPm(isAm);
+      } else {
+        this.onSetSelectedAnyTime();
+      }
+    },
 
-	onSetSelectedMinute: function(evt) {
-		this.onClearSelectedAnyTime();
-		this.onClearSelectedMinute();
-		this.setSelectedMinute(evt);
-		this.selectedTime.anyTime = false;
-		this.onSetTime();
-	},
+    setTime: function (date) {
+      //summary: set the current date and update the UI
+      if (date) {
+        this.selectedTime.anyTime = false;
+        this.setDateTime(dojo.date.toRfc3339(date));
+      } else {
+        this.selectedTime.anyTime = true;
+      }
+      this.initData();
+      this.initUI();
+    },
 
-	setSelectedMinute: function(evt) {
-		if(evt && evt.target) {
-			if(evt.target.nodeType == dojo.dom.ELEMENT_NODE) {
-				var eventTarget = evt.target;
-			} else {
-				var eventTarget = evt.target.parentNode;
-			}
-			dojo.event.browser.stopEvent(evt);
-			dojo.html.setClass(eventTarget, this.classNames.selectedTime);
-			this.selectedTime["minute"] = eventTarget.innerHTML;
-		} else if (!isNaN(evt)) {
-			var minuteNodes = this.minuteContainerNode.getElementsByTagName("td");
-			if(minuteNodes.item(evt)) {
-				dojo.html.setClass(minuteNodes.item(evt), this.classNames.selectedTime);
-				this.selectedTime["minute"] = minuteNodes.item(evt).innerHTML;
-			}
-		}
-	},
+    setDateTime: function (rfcDate) {
+      this.storedTime = rfcDate;
+    },
 
-	onSetSelectedAmPm: function(evt) {
-		this.onClearSelectedAnyTime();
-		this.onClearSelectedAmPm();
-		this.setSelectedAmPm(evt);
-		this.selectedTime.anyTime = false;
-		this.onSetTime();
-	},
+    onClearSelectedHour: function (evt) {
+      this.clearSelectedHour();
+    },
 
-	setSelectedAmPm: function(evt) {
-		var eventTarget = evt.target;
-		if(evt && eventTarget) {
-			if(eventTarget.nodeType != dojo.dom.ELEMENT_NODE) {
-				eventTarget = eventTarget.parentNode;
-			}
-			dojo.event.browser.stopEvent(evt);
-			this.selectedTime.amPm = eventTarget.id;
-			dojo.html.setClass(eventTarget, this.classNames.selectedTime);
-		} else {
-			evt = evt ? 0 : 1;
-			var amPmNodes = this.amPmContainerNode.getElementsByTagName("td");
-			if(amPmNodes.item(evt)) {
-				this.selectedTime.amPm = amPmNodes.item(evt).id;
-				dojo.html.setClass(amPmNodes.item(evt), this.classNames.selectedTime);
-			}
-		}
-	},
+    onClearSelectedMinute: function (evt) {
+      this.clearSelectedMinute();
+    },
 
-	onSetSelectedAnyTime: function(evt) {
-		this.onClearSelectedHour();
-		this.onClearSelectedMinute();
-		this.onClearSelectedAmPm();
-		this.setSelectedAnyTime();
-		this.onSetTime();
-	},
+    onClearSelectedAmPm: function (evt) {
+      this.clearSelectedAmPm();
+    },
 
-	setSelectedAnyTime: function(evt) {
-		this.selectedTime.anyTime = true;
-		dojo.html.setClass(this.anyTimeContainerNode, this.classNames.selectedTime + " " + "anyTimeContainer");
-	},
+    onClearSelectedAnyTime: function (evt) {
+      this.clearSelectedAnyTime();
+      if (this.selectedTime.anyTime) {
+        this.selectedTime.anyTime = false;
+        this.time = dojo.widget.TimePicker.util.fromRfcDateTime(
+          "",
+          this.useDefaultMinutes
+        );
+        this.initUI();
+      }
+    },
 
-	onClick: function(evt) {
-		dojo.event.browser.stopEvent(evt);
-	},
+    clearSelectedHour: function () {
+      var hourNodes = this.hourContainerNode.getElementsByTagName("td");
+      for (var i = 0; i < hourNodes.length; i++) {
+        dojo.html.setClass(hourNodes.item(i), "");
+      }
+    },
 
-	onSetTime: function() {
-		if(this.selectedTime.anyTime) {
-			this.time = new Date();
-			var tempDateTime = dojo.widget.TimePicker.util.toRfcDateTime(this.time);
-			this.setDateTime(tempDateTime.split("T")[0]);
-		} else {
-			var hour = 12;
-			var minute = 0;
-			var isAm = false;
-			if(this.selectedTime["hour"]) {
-				hour = parseInt(this.selectedTime["hour"], 10);
-			}
-			if(this.selectedTime["minute"]) {
-				minute = parseInt(this.selectedTime["minute"], 10);
-			}
-			if(this.selectedTime["amPm"]) {
-				isAm = (this.selectedTime["amPm"].toLowerCase() == "am");
-			}
-			this.time = new Date();
-			this.time.setHours(dojo.widget.TimePicker.util.fromAmPmHour(hour, isAm));
-			this.time.setMinutes(minute);
-			this.setDateTime(dojo.widget.TimePicker.util.toRfcDateTime(this.time));
-		}
-		this.onValueChanged(this.time);
-	},
-	
-	onValueChanged: function(/*Date*/date) {
-		//summary: the set date event handler
-	}
-});
+    clearSelectedMinute: function () {
+      var minuteNodes = this.minuteContainerNode.getElementsByTagName("td");
+      for (var i = 0; i < minuteNodes.length; i++) {
+        dojo.html.setClass(minuteNodes.item(i), "");
+      }
+    },
 
-dojo.widget.TimePicker.util = new function() {
-	//summary: utility functions
-	
-	this.toRfcDateTime = function(jsDate) {
-		//summary: formats a Date object to RFC 3339 string
-		if(!jsDate) {
-			jsDate = new Date();
-		}
-		jsDate.setSeconds(0);
-		return dojo.date.strftime(jsDate, "%Y-%m-%dT%H:%M:00%z"); //FIXME: use dojo.date.toRfc3339 instead
-	}
+    clearSelectedAmPm: function () {
+      var amPmNodes = this.amPmContainerNode.getElementsByTagName("td");
+      for (var i = 0; i < amPmNodes.length; i++) {
+        dojo.html.setClass(amPmNodes.item(i), "");
+      }
+    },
 
-	this.fromRfcDateTime = function(rfcDate, useDefaultMinutes, isAnyTime) {
-		//summary: constructs a Date object from RFC 3339 string
-		var tempDate = new Date();
-		if(!rfcDate || rfcDate.indexOf("T")==-1) {
-			if(useDefaultMinutes) {
-				tempDate.setMinutes(Math.floor(tempDate.getMinutes()/5)*5);
-			} else {
-				tempDate.setMinutes(0);
-			}
-		} else {
-			var tempTime = rfcDate.split("T")[1].split(":");
-			// fullYear, month, date
-			var tempDate = new Date();
-			tempDate.setHours(tempTime[0]);
-			tempDate.setMinutes(tempTime[1]);
-		}
-		return tempDate;
-	}
+    clearSelectedAnyTime: function () {
+      dojo.html.setClass(this.anyTimeContainerNode, "anyTimeContainer");
+    },
 
-	this.toAmPmHour = function(hour) {
-		//summary: converts a 24-hour-based hour value to a 12-hour-based hour value, and an AM/PM flag
-		var amPmHour = hour;
-		var isAm = true;
-		if (amPmHour == 0) {
-			amPmHour = 12;
-		} else if (amPmHour>12) {
-			amPmHour = amPmHour - 12;
-			isAm = false;
-		} else if (amPmHour == 12) {
-			isAm = false;
-		}
-		return [amPmHour, isAm];
-	}
+    onSetSelectedHour: function (evt) {
+      this.onClearSelectedAnyTime();
+      this.onClearSelectedHour();
+      this.setSelectedHour(evt);
+      this.onSetTime();
+    },
 
-	this.fromAmPmHour = function(amPmHour, isAm) {
-		//summary: converts a 12-hour-based hour value and an AM/PM flag to a 24-hour-based hour value
-		var hour = parseInt(amPmHour, 10);
-		if(isAm && hour == 12) {
-			hour = 0;
-		} else if (!isAm && hour<12) {
-			hour = hour + 12;
-		}
-		return hour;
-	}
-}
+    setSelectedHour: function (evt) {
+      if (evt && evt.target) {
+        if (evt.target.nodeType == dojo.dom.ELEMENT_NODE) {
+          var eventTarget = evt.target;
+        } else {
+          var eventTarget = evt.target.parentNode;
+        }
+        dojo.event.browser.stopEvent(evt);
+        dojo.html.setClass(eventTarget, this.classNames.selectedTime);
+        this.selectedTime["hour"] = eventTarget.innerHTML;
+      } else if (!isNaN(evt)) {
+        var hourNodes = this.hourContainerNode.getElementsByTagName("td");
+        if (hourNodes.item(evt)) {
+          dojo.html.setClass(hourNodes.item(evt), this.classNames.selectedTime);
+          this.selectedTime["hour"] = hourNodes.item(evt).innerHTML;
+        }
+      }
+      this.selectedTime.anyTime = false;
+    },
+
+    onSetSelectedMinute: function (evt) {
+      this.onClearSelectedAnyTime();
+      this.onClearSelectedMinute();
+      this.setSelectedMinute(evt);
+      this.selectedTime.anyTime = false;
+      this.onSetTime();
+    },
+
+    setSelectedMinute: function (evt) {
+      if (evt && evt.target) {
+        if (evt.target.nodeType == dojo.dom.ELEMENT_NODE) {
+          var eventTarget = evt.target;
+        } else {
+          var eventTarget = evt.target.parentNode;
+        }
+        dojo.event.browser.stopEvent(evt);
+        dojo.html.setClass(eventTarget, this.classNames.selectedTime);
+        this.selectedTime["minute"] = eventTarget.innerHTML;
+      } else if (!isNaN(evt)) {
+        var minuteNodes = this.minuteContainerNode.getElementsByTagName("td");
+        if (minuteNodes.item(evt)) {
+          dojo.html.setClass(
+            minuteNodes.item(evt),
+            this.classNames.selectedTime
+          );
+          this.selectedTime["minute"] = minuteNodes.item(evt).innerHTML;
+        }
+      }
+    },
+
+    onSetSelectedAmPm: function (evt) {
+      this.onClearSelectedAnyTime();
+      this.onClearSelectedAmPm();
+      this.setSelectedAmPm(evt);
+      this.selectedTime.anyTime = false;
+      this.onSetTime();
+    },
+
+    setSelectedAmPm: function (evt) {
+      var eventTarget = evt.target;
+      if (evt && eventTarget) {
+        if (eventTarget.nodeType != dojo.dom.ELEMENT_NODE) {
+          eventTarget = eventTarget.parentNode;
+        }
+        dojo.event.browser.stopEvent(evt);
+        this.selectedTime.amPm = eventTarget.id;
+        dojo.html.setClass(eventTarget, this.classNames.selectedTime);
+      } else {
+        evt = evt ? 0 : 1;
+        var amPmNodes = this.amPmContainerNode.getElementsByTagName("td");
+        if (amPmNodes.item(evt)) {
+          this.selectedTime.amPm = amPmNodes.item(evt).id;
+          dojo.html.setClass(amPmNodes.item(evt), this.classNames.selectedTime);
+        }
+      }
+    },
+
+    onSetSelectedAnyTime: function (evt) {
+      this.onClearSelectedHour();
+      this.onClearSelectedMinute();
+      this.onClearSelectedAmPm();
+      this.setSelectedAnyTime();
+      this.onSetTime();
+    },
+
+    setSelectedAnyTime: function (evt) {
+      this.selectedTime.anyTime = true;
+      dojo.html.setClass(
+        this.anyTimeContainerNode,
+        this.classNames.selectedTime + " " + "anyTimeContainer"
+      );
+    },
+
+    onClick: function (evt) {
+      dojo.event.browser.stopEvent(evt);
+    },
+
+    onSetTime: function () {
+      if (this.selectedTime.anyTime) {
+        this.time = new Date();
+        var tempDateTime = dojo.widget.TimePicker.util.toRfcDateTime(this.time);
+        this.setDateTime(tempDateTime.split("T")[0]);
+      } else {
+        var hour = 12;
+        var minute = 0;
+        var isAm = false;
+        if (this.selectedTime["hour"]) {
+          hour = parseInt(this.selectedTime["hour"], 10);
+        }
+        if (this.selectedTime["minute"]) {
+          minute = parseInt(this.selectedTime["minute"], 10);
+        }
+        if (this.selectedTime["amPm"]) {
+          isAm = this.selectedTime["amPm"].toLowerCase() == "am";
+        }
+        this.time = new Date();
+        this.time.setHours(
+          dojo.widget.TimePicker.util.fromAmPmHour(hour, isAm)
+        );
+        this.time.setMinutes(minute);
+        this.setDateTime(dojo.widget.TimePicker.util.toRfcDateTime(this.time));
+      }
+      this.onValueChanged(this.time);
+    },
+
+    onValueChanged: function (/*Date*/ date) {
+      //summary: the set date event handler
+    },
+  }
+);
+
+dojo.widget.TimePicker.util = new (function () {
+  //summary: utility functions
+
+  this.toRfcDateTime = function (jsDate) {
+    //summary: formats a Date object to RFC 3339 string
+    if (!jsDate) {
+      jsDate = new Date();
+    }
+    jsDate.setSeconds(0);
+    return dojo.date.strftime(jsDate, "%Y-%m-%dT%H:%M:00%z"); //FIXME: use dojo.date.toRfc3339 instead
+  };
+
+  this.fromRfcDateTime = function (rfcDate, useDefaultMinutes, isAnyTime) {
+    //summary: constructs a Date object from RFC 3339 string
+    var tempDate = new Date();
+    if (!rfcDate || rfcDate.indexOf("T") == -1) {
+      if (useDefaultMinutes) {
+        tempDate.setMinutes(Math.floor(tempDate.getMinutes() / 5) * 5);
+      } else {
+        tempDate.setMinutes(0);
+      }
+    } else {
+      var tempTime = rfcDate.split("T")[1].split(":");
+      // fullYear, month, date
+      var tempDate = new Date();
+      tempDate.setHours(tempTime[0]);
+      tempDate.setMinutes(tempTime[1]);
+    }
+    return tempDate;
+  };
+
+  this.toAmPmHour = function (hour) {
+    //summary: converts a 24-hour-based hour value to a 12-hour-based hour value, and an AM/PM flag
+    var amPmHour = hour;
+    var isAm = true;
+    if (amPmHour == 0) {
+      amPmHour = 12;
+    } else if (amPmHour > 12) {
+      amPmHour = amPmHour - 12;
+      isAm = false;
+    } else if (amPmHour == 12) {
+      isAm = false;
+    }
+    return [amPmHour, isAm];
+  };
+
+  this.fromAmPmHour = function (amPmHour, isAm) {
+    //summary: converts a 12-hour-based hour value and an AM/PM flag to a 24-hour-based hour value
+    var hour = parseInt(amPmHour, 10);
+    if (isAm && hour == 12) {
+      hour = 0;
+    } else if (!isAm && hour < 12) {
+      hour = hour + 12;
+    }
+    return hour;
+  };
+})();

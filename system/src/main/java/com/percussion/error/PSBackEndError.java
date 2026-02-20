@@ -18,6 +18,7 @@
 package com.percussion.error;
 
 import com.percussion.log.PSLogError;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -92,7 +93,7 @@ public abstract class PSBackEndError extends PSLogError {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), m_errorCode, Objects.deepHashCode(m_errorArgs));
+    return Objects.hash(super.hashCode(), m_errorCode, Arrays.deepHashCode(m_errorArgs));
   }
 
   protected final int m_errorCode;

@@ -2,15 +2,16 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================
-        Context        "Site_Folder_Assembly"      
-        =========================================
--->
-	
-      <property name="defaultLocationScheme" value="" />
+		<!--- ======================================== Context "Site_Folder_Assembly"
+			========================================= -->
 
-   </SolutionConfig>
+		<property name="defaultLocationScheme" value="" />
+
+	</SolutionConfig>
 </SolutionConfigurations>

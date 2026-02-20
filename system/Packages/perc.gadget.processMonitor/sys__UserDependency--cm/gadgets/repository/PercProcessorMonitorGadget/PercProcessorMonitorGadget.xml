@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="Process Monitor" category="content,search" description="Background process monitor gadget shows details of background processes" thumbnail="images/gadgetIconProcessMonitor.png" height="300">
-        <Require feature="perc_core"/>
-        <Require feature="settitle" />
-        <Require feature="perc_getDashboardColumn" />
-        <Require feature="minimessage" />
-        <Require feature="perc_jquery_ui"/>
-    </ModulePrefs>
-    <Content type="html">
+	<ModulePrefs title="Process Monitor"
+		category="content,search"
+		description="Background process monitor gadget shows details of background processes"
+		thumbnail="images/gadgetIconProcessMonitor.png" height="300">
+		<Require feature="perc_core" />
+		<Require feature="settitle" />
+		<Require feature="perc_getDashboardColumn" />
+		<Require feature="minimessage" />
+		<Require feature="perc_jquery_ui" />
+	</ModulePrefs>
+	<Content type="html">
         <![CDATA[
     <!DOCTYPE html>
     <link rel="stylesheet" type="text/css" href="/cm/themes/smoothness/jquery-ui-1.8.9.custom.css" />
@@ -30,5 +33,5 @@
         }
     </script>
      ]]>
-    </Content>
+	</Content>
 </Module>

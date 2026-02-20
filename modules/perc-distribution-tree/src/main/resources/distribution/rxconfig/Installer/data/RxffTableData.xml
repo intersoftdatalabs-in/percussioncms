@@ -354,7 +354,7 @@
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
 	#linkback_head()
     &lt;link rel="stylesheet" href="$rxs_navbase/css/rxs_styles.css" type="text/css" /&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
   &lt;/head&gt;
   &lt;body&gt;
@@ -365,10 +365,10 @@
 	  &lt;div id="TopSearchBox"&gt;
 	    &lt;form name="QueryForm" method="post" action="#"&gt;
 	      &lt;div&gt;
-		&lt;input type="text" name="SearchString" size="10" 
+		&lt;input type="text" name="SearchString" size="10"
 		       maxlength="50" value="Search" /&gt;
-		&lt;input type="image" border="0" name="imageField" 
-		       src="${rxs_navbase}/images/go_black.gif" 
+		&lt;input type="image" border="0" name="imageField"
+		       src="${rxs_navbase}/images/go_black.gif"
 		       width="34" height="12" /&gt;
 	      &lt;/div&gt;
 	    &lt;/form&gt;
@@ -385,7 +385,7 @@
 	    &lt;/form&gt;
 	  &lt;/div&gt;
 	&lt;/div&gt;
-	
+
 	&lt;div id="horizontal_nav"&gt;
 	  #slot("perc.nav.slot" "" "" "" "" "template=rffSnEiNavTop")
 	&lt;/div&gt;
@@ -515,7 +515,7 @@
     &lt;title&gt;#displayfield("displaytitle")&lt;/title&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
     &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_styles.css" type="text/css" /&gt;
-    
+
   &lt;/head&gt;
   &lt;body style="background-image:none; background-color:#ffffff;"&gt;
     &lt;div&gt;
@@ -552,7 +552,7 @@
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
     &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_styles.css" type="text/css" /&gt;
 
-    
+
   &lt;/head&gt;
   &lt;body style="background-image:none; background-color:#ffffff;"&gt;
     &lt;a href="$pagelink"&gt;#slot_simple("rffImageLink")&lt;/a&gt;
@@ -586,7 +586,7 @@
     &lt;title&gt;#displayfield("displaytitle")&lt;/title&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
     &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_styles.css" type="text/css" /&gt;
-    
+
   &lt;/head&gt;
   &lt;body style="background-image:none; background-color:#ffffff;"&gt;
     &lt;div class="lead_snippet"&gt;
@@ -627,7 +627,7 @@
     &lt;title&gt;#displayfield("displaytitle")&lt;/title&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
     &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_styles.css" type="text/css" /&gt;
-    
+
   &lt;/head&gt;
   &lt;body style="background-image:none; background-color:#ffffff;"&gt;
     &lt;span class="lead_snippet"&gt;
@@ -689,7 +689,7 @@
 	#set( $start_snippet = '' )
 	#set( $end_snippet = '&lt;br/&gt;' )
 	#set( $end_slot = '&lt;/div&gt;' )
-	  
+
 	#slot("rffList" $start_slot $start_snippet $end_snippet $end_slot '')
 
   &lt;/body&gt;
@@ -743,7 +743,7 @@
 	#set( $start_snippet = '&lt;td&gt;' )
 	#set( $end_snippet = '&lt;/td&gt;' )
 	#set( $end_slot = '&lt;/tr&gt;&lt;/table&gt;' )
-	  
+
 	#slot("rffList" $start_slot $start_snippet $end_snippet $end_slot '')
 
       &lt;/div&gt;
@@ -818,10 +818,10 @@
 &lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;EI Top Nav&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css"&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
 
   &lt;/head&gt;
@@ -925,17 +925,17 @@
 &lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;Pre Load&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css" /&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
-    
+
   &lt;/head&gt;
   &lt;body&gt;
     &lt;script language="JavaScript" &gt;
       #set( $toplevel = $nav.root.getNodes("nav:submenu") )
-      function rxs_nav_preloads() { 
+      function rxs_nav_preloads() {
       #foreach ( $navon in $toplevel )
         #foreach ( $image in $navon.getNodes("nav:image") )
          #set($rollimage = "#imageurl($image 'rollover')" )
@@ -974,10 +974,10 @@
   &lt;head&gt;
     ## head is for preview only
     &lt;title&gt;EI Left Nav&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css"&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
   &lt;/head&gt;
   &lt;body&gt;
@@ -990,7 +990,7 @@
   #firstlevel ($navon)
   #end
   #end
-  
+
 #end
 
 #macro(firstlevel $node)
@@ -1000,7 +1000,7 @@
   #set($submenu = $node.getNodes("nav:submenu"))
   #set($axis = $node.getProperty("nav:axis").String)
   #set($indentclass = $axis.toLowerCase())
-  
+
   #if ( $landing_page )
     ## don't process this nav if there is no Landing page
     &lt;h3 class="$indentclass"&gt;
@@ -1090,12 +1090,12 @@
 &lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;bottom nav snippet&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css"/&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
-    
+
   &lt;/head&gt;
   &lt;body&gt;
     #set($toplevel = $nav.root.getNodes("nav:submenu"))
@@ -1118,7 +1118,7 @@
       #else
       $title
       #end
-      #end 
+      #end
     &lt;/div&gt;
   &lt;/body&gt;
 &lt;/html&gt;
@@ -1148,12 +1148,12 @@
 &lt;html&gt;
       &lt;head&gt;
 	&lt;title&gt;nav breadcrumb snippet&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css"&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
-    
+
     &lt;/head&gt;
     &lt;body&gt;
 
@@ -1282,7 +1282,7 @@
     &lt;/div&gt;
 
     &lt;div id="ContentBox"&gt;
-      #slot("rffSidebar" '&lt;div id="Related"&gt;&lt;div class="RelatedContent"&gt;' '' '' '&lt;/div&gt;&lt;/div&gt;' '') 
+      #slot("rffSidebar" '&lt;div id="Related"&gt;&lt;div class="RelatedContent"&gt;' '' '' '&lt;/div&gt;&lt;/div&gt;' '')
 
       &lt;div id="MainContent"&gt;
 	&lt;div class="ArticleAbstractChar"&gt;
@@ -1294,7 +1294,7 @@
 	  #set($start_slot = '&lt;span class="Contact"&gt;')
 	  #set($end_slot = '&lt;/span&gt;')
 
-	  #slot("rffContacts" $start_slot '' '' $end_slot '')	    
+	  #slot("rffContacts" $start_slot '' '' $end_slot '')
 	&lt;/div&gt;
 
 	  &lt;br /&gt;
@@ -1730,7 +1730,7 @@
       #slot("perc.nav.slot" "" "" "" "" "template=rffSnEiNavBreadcrumbs")
     &lt;/div&gt;
     &lt;div id="ContentBox"&gt;
-		
+
       &lt;div id="MainContent"&gt;
 	&lt;div class="ArticleAbstractChar"&gt;
 	  &lt;h1&gt;
@@ -1746,7 +1746,7 @@
 	  #set($event_type = $sys.item.getProperty("rx:event_type"))
 	  #if ($event_type)&lt;tr&gt;&lt;th align='left'&gt;Type:&lt;/th&gt;&lt;td&gt;$rx.keyword.getLabel("FF_Event_Types",$event_type.String)&lt;/td&gt;&lt;/tr&gt;#end
 	  &lt;/table&gt;
-	  #slot("rffContacts" '&lt;span class="Contact"&gt;Contact:' '' '' '&lt;/span&gt;' '')	    
+	  #slot("rffContacts" '&lt;span class="Contact"&gt;Contact:' '' '' '&lt;/span&gt;' '')
 	&lt;/div&gt;
 
 	#slot("rffList" '&lt;div class="list"&gt;&lt;span class="relatedHeader"&gt;Related...&lt;/span&gt;&lt;br /&gt;' '' '&lt;br /&gt;' '&lt;/div&gt;' '')
@@ -1853,7 +1853,7 @@
 &lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;#displayfield("displaytitle")&lt;/title&gt;
-    &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_styles.css" type="text/css" /&gt;  
+    &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_styles.css" type="text/css" /&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
   &lt;/head&gt;
   &lt;body style="background-image:none; background-color:#ffffff;"&gt;
@@ -1895,7 +1895,7 @@
     &lt;div id="MainContent"&gt;
       #initslot("rffAutoCalendarEvents" $slot_params)
       $month.setEvents($sys.currentslot.relresults)
-      
+
       &lt;table class="calendar" border="0" cellpadding="0" cellspacing="0"&gt;
 	&lt;tr&gt;
 	  &lt;th class="calmonths" colspan="7"&gt;$tools.date.format('MMMM yyyy', $month.StartDate.Time)&lt;/th&gt;
@@ -1918,7 +1918,7 @@
 					      &lt;td valign="top" width="14%"&gt;&amp;nbsp;&lt;/td&gt;
 					      #elseif ( ($week == $month.Weeks) &amp;&amp; ($dayofweek &gt; $month.LastDayOfWeek) )
 	    ## blank days after the month ends
-	    &lt;td valign="top" width="14%"&gt;&amp;nbsp;&lt;/td&gt;           
+	    &lt;td valign="top" width="14%"&gt;&amp;nbsp;&lt;/td&gt;
 	    #else
     	    &lt;td valign="top" width="14%"&gt;
     	      &lt;p class="calnumbers"&gt;$day&lt;/p&gt;
@@ -1930,7 +1930,7 @@
     	    #set($day = $day + 1)
 	    #end
 	    #end
-	&lt;/tr&gt;    
+	&lt;/tr&gt;
 	#end
       &lt;/table&gt;
     &lt;/div&gt;
@@ -1963,7 +1963,7 @@
   &lt;head&gt;
     &lt;title&gt;#displayfield("displaytitle")&lt;/title&gt;
     &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_styles.css" type="text/css" /&gt;
-    &lt;script src="${rxs_navbase}/js/mouseover.js" 
+    &lt;script src="${rxs_navbase}/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
     &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
     &lt;meta name="keywords" content="#displayfield('keywords')" /&gt;
@@ -2140,7 +2140,7 @@
                     			 $cellstart
                     			 $cellend
                     			 #set($index = $index + 1)
-                    		   #end		   
+                    		   #end
                 		   &lt;/table&gt;
                 		#end
 					    #endAASlot()
@@ -2295,32 +2295,32 @@
 			<column name="PUBLISHWHEN">n</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">##     desired output 
+			<column name="TEMPLATE">##     desired output
 ##	 &lt;div class="InvestmentAdviceTopNav"&gt;
-##	   &lt;a href="/ProductsAndServices/page487.html" 
-##	      onmouseover="MM_swapImage('img_a619','','/AboutCorporateInvestments/CI_AU_products_on.gif',1)" 
+##	   &lt;a href="/ProductsAndServices/page487.html"
+##	      onmouseover="MM_swapImage('img_a619','','/AboutCorporateInvestments/CI_AU_products_on.gif',1)"
 ##	      onmouseout="MM_swapImgRestore()"&gt;
-##	     &lt;img alt="Products and Services" border="0" 
-##		  src="/AboutCorporateInvestments/CI_AU_products_off.gif" 
+##	     &lt;img alt="Products and Services" border="0"
+##		  src="/AboutCorporateInvestments/CI_AU_products_off.gif"
 ##		  id="img_a619"/&gt;
 ##	   &lt;/a&gt;
-##	   &lt;a href="/AboutCorporateInvestments/page" 
-##	      onmouseover="MM_swapImage('img_a603','','/AboutCorporateInvestments/CI_AU_about_active.gif',1)" 
+##	   &lt;a href="/AboutCorporateInvestments/page"
+##	      onmouseover="MM_swapImage('img_a603','','/AboutCorporateInvestments/CI_AU_about_active.gif',1)"
 ##	      onmouseout="MM_swapImgRestore()"&gt;
-##	     &lt;img alt="About Corporate Investments" border="0" 
-##		  src="/AboutCorporateInvestments/CI_AU_about_active.gif" 
+##	     &lt;img alt="About Corporate Investments" border="0"
+##		  src="/AboutCorporateInvestments/CI_AU_about_active.gif"
 ##		  id="img_a603"/&gt;
 ##	   &lt;/a&gt;
 ##	   &lt;a href="/InvestmentAdvice/page476.html"&gt;
-##	     &lt;img alt="Investment Advice" border="0" 
-##		  src="/AboutCorporateInvestments/CI_AU_advice_off.gif" 
+##	     &lt;img alt="Investment Advice" border="0"
+##		  src="/AboutCorporateInvestments/CI_AU_advice_off.gif"
 ##		  id="img_a609"/&gt;
 ##	   &lt;/a&gt;
-##	   &lt;a href="/PortfolioManagers/page" 
-##	      onmouseover="MM_swapImage('img_a615','','/AboutCorporateInvestments/CI_AU_portfolio_on.gif',1)" 
+##	   &lt;a href="/PortfolioManagers/page"
+##	      onmouseover="MM_swapImage('img_a615','','/AboutCorporateInvestments/CI_AU_portfolio_on.gif',1)"
 ##	      onmouseout="MM_swapImgRestore()"&gt;
-##	     &lt;img alt="Portfolio Managers" border="0" 
-##		  src="/AboutCorporateInvestments/CI_AU_portfolio_off.gif" 
+##	     &lt;img alt="Portfolio Managers" border="0"
+##		  src="/AboutCorporateInvestments/CI_AU_portfolio_off.gif"
 ##		  id="img_a615"/&gt;
 ##	   &lt;/a&gt;
 ##	 &lt;/div&gt;
@@ -2329,9 +2329,9 @@
 &lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;CI Top Nav&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css"&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
     &lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
   &lt;/head&gt;
@@ -2395,7 +2395,7 @@
 
 	&lt;div class="$label"&gt;
 		#foreach($navon in $nav.root.getNodes("nav:submenu"))
-		  #rollover ($navon) 
+		  #rollover ($navon)
 		#end
 	&lt;/div&gt;
 
@@ -2422,14 +2422,14 @@
 			<column name="PUBLISHWHEN">n</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;   
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 
 &lt;html&gt;
       &lt;head&gt;
 	&lt;title&gt;nav breadcrumb snippet&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css"&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
 	&lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
     &lt;/head&gt;
@@ -2510,7 +2510,7 @@
 			<column name="PUBLISHWHEN">n</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;   
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
   &lt;head&gt;
@@ -2561,14 +2561,14 @@
 			<column name="PUBLISHWHEN">n</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;   
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 
 &lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;bottom nav snippet&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css"/&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
     &lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
   &lt;/head&gt;
@@ -2593,7 +2593,7 @@
       #else
       $title
       #end
-      #end 
+      #end
       &amp;#160;
     &lt;/div&gt;
   &lt;/body&gt;
@@ -2619,7 +2619,7 @@
 			<column name="PUBLISHWHEN">n</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 
 &lt;html lang="en" xmlns="http://www.w3.org/1999/xhtml"&gt;
@@ -2634,7 +2634,7 @@
 	#linkback_head()
     &lt;link rel="stylesheet" href="$rxs_navbase/css/rxs_styles.css" type="text/css" /&gt;
     &lt;link rel="stylesheet" href="$rxs_navbase/css/rxs_print_styles.css" type="text/css" media="print"/&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
   &lt;/head&gt;
   &lt;body onload="rxs_nav_preloads()"&gt;
@@ -2677,14 +2677,14 @@
 			<column name="PUBLISHWHEN">n</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;   
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 
  &lt;html&gt;
     &lt;head&gt;
     &lt;title&gt;CI Left Nav&lt;/title&gt;
-    &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+    &lt;link href="$rxs_navbase/css/rxs_styles.css"
 	  rel="stylesheet" type="text/css"/&gt;
-    &lt;script src="$rxs_navbase/js/mouseover.js" 
+    &lt;script src="$rxs_navbase/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
     &lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
     &lt;/head&gt;
@@ -2711,7 +2711,7 @@ $label
 
 #macro (firstlevel $node)
   #set($axis = $node.getProperty("nav:axis").String)
-  #if ($axis == "SELF" || $axis == "PARENT" || $axis == "ANCESTOR") 
+  #if ($axis == "SELF" || $axis == "PARENT" || $axis == "ANCESTOR")
   #set($submenu = $node.getNodes("nav:submenu"))
   #if ($submenu.hasNext())
       &lt;div class="$label_nav"&gt;
@@ -2731,7 +2731,7 @@ $label
   #set($submenu = $node.getNodes("nav:submenu"))
   #set($title = $node.getProperty("rx:displaytitle").String)
   #set($landing_page = $node.getProperty("nav:url").String)
-  #set($indentclass = $axis.toLowerCase())            
+  #set($indentclass = $axis.toLowerCase())
   ## In buildlinks
     &lt;li class="$indentclass"&gt;
 	#if ($landing_page)
@@ -2779,7 +2779,7 @@ $label
 			<column name="PUBLISHWHEN">d</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 
 &lt;html lang="en" xmlns="http://www.w3.org/1999/xhtml"&gt;
@@ -2794,11 +2794,11 @@ $label
 	  ##height = 30 removed
 	  &lt;form name="QueryForm" method="post" action="#"&gt;
 	    &lt;div&gt;
-	    &lt;input type="text" name="SearchString" size="18" maxlength="50" value="Search" 
+	    &lt;input type="text" name="SearchString" size="18" maxlength="50" value="Search"
 		   style="color:#999; padding-left:4px; height:20px; font-size:11px; text-transform:capitalize; " /&gt;
 	    &amp;#160; &amp;#160;
 	    ## border=0 removed
-	    &lt;input type="image" name="imageField" 
+	    &lt;input type="image" name="imageField"
 		   style="padding-left:10px;" src="$rxs_navbase/images/CI_siderelated_go.gif" /&gt;
 	    &lt;/div&gt;
 	  &lt;/form&gt;
@@ -2875,7 +2875,7 @@ $label
 			<column name="PUBLISHWHEN">d</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 &lt;html lang="en" xmlns="http://www.w3.org/1999/xhtml"&gt;
   &lt;head&gt;
@@ -2887,9 +2887,9 @@ $label
 	#linkback_head()
     &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_styles.css" type="text/css" /&gt;
     &lt;link rel="stylesheet" href="${rxs_navbase}/css/rxs_print_styles.css" type="text/css" media="print"/&gt;
-    &lt;script src="${rxs_navbase}/js/mouseover.js" 
+    &lt;script src="${rxs_navbase}/js/mouseover.js"
 	    language="javascript" &gt;;&lt;/script&gt;
-    
+
   &lt;/head&gt;
   &lt;body onload="rxs_nav_preloads()"&gt;
     #slot("perc.nav.slot" "" "" "" "" "template=rffSnNavPreload")
@@ -2908,12 +2908,12 @@ $label
 	      ##height=30 removed
 	      &lt;form name="QueryForm" method="post" action="#"&gt;
 		&lt;div&gt;
-		&lt;input type="text" name="SearchString" size="18" 
-		       maxlength="50" value="Search" 
+		&lt;input type="text" name="SearchString" size="18"
+		       maxlength="50" value="Search"
 		       style="color:#999; padding-left:4px; height:14px; font-size:11px; text-transform:capitalize; " /&gt;
 		&amp;nbsp; &amp;nbsp;
 		##border=0 removed
-		&lt;input type="image" name="imageField" style="padding-left:10px;" 
+		&lt;input type="image" name="imageField" style="padding-left:10px;"
 		       src="$rxs_navbase/images/CI_siderelated_go.gif"/&gt;
 		&lt;/div&gt;
 	      &lt;/form&gt;
@@ -2967,7 +2967,7 @@ $label
 			<column name="PUBLISHWHEN">d</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 &lt;html lang="en" xmlns="http://www.w3.org/1999/xhtml"&gt;
   &lt;head&gt;
@@ -2983,11 +2983,11 @@ $label
 	  ##height = 30 removed
 	  &lt;form name="QueryForm" method="post" action="#"&gt;
 	    &lt;div&gt;
-	    &lt;input type="text" name="SearchString" size="18" maxlength="50" value="Search" 
+	    &lt;input type="text" name="SearchString" size="18" maxlength="50" value="Search"
 		   style="color:#999; padding-left:4px; height:14px; font-size:11px; text-transform:capitalize; " /&gt;
 	    &amp;#160; &amp;#160;
 	    ## border=0 removed
-	    &lt;input type="image" name="imageField" 
+	    &lt;input type="image" name="imageField"
 		   style="padding-left:10px;" src="$rxs_navbase/images/CI_siderelated_go.gif" /&gt;
 	    &lt;/div&gt;
 	  &lt;/form&gt;
@@ -3035,7 +3035,7 @@ $label
 			<column name="PUBLISHWHEN">d</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 &lt;html lang="en" xmlns="http://www.w3.org/1999/xhtml"&gt;
   &lt;head&gt;
@@ -3050,11 +3050,11 @@ $label
 	  ##height = 30 removed
 	  &lt;form name="QueryForm" method="post" action="#"&gt;
 	    &lt;div&gt;
-	    &lt;input type="text" name="SearchString" size="18" maxlength="50" value="Search" 
+	    &lt;input type="text" name="SearchString" size="18" maxlength="50" value="Search"
 		   style="color:#999; padding-left:4px; height:14px; font-size:11px; text-transform:capitalize; " /&gt;
 	    &amp;#160; &amp;#160;
 	    ## border=0 removed
-	    &lt;input type="image" name="imageField" 
+	    &lt;input type="image" name="imageField"
 		   style="padding-left:10px;" src="$rxs_navbase/images/CI_siderelated_go.gif" /&gt;
 	    &lt;/div&gt;
 	  &lt;/form&gt;
@@ -3106,7 +3106,7 @@ $label
 			<column name="PUBLISHWHEN">d</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
   &lt;head&gt;
@@ -3120,11 +3120,11 @@ $label
 	&lt;div id="SearchForm"&gt;
 	  &lt;form name="QueryForm" method="post" action="#"&gt;
 	    &lt;div&gt;
-	      &lt;input type="text" name="SearchString" size="18" 
-		     maxlength="50" value="Search" 
+	      &lt;input type="text" name="SearchString" size="18"
+		     maxlength="50" value="Search"
 		     style="color:#999; padding-left:4px; height:14px; font-size:11px; text-transform:capitalize;"/&gt;
 	      &amp;nbsp; &amp;nbsp;
-	      &lt;input type="image" name="imageField" style="padding-left:10px;" 
+	      &lt;input type="image" name="imageField" style="padding-left:10px;"
 		     src="$rxs_navbase/images/CI_siderelated_go.gif"/&gt;
 	    &lt;/div&gt;
 	  &lt;/form&gt;
@@ -3211,14 +3211,14 @@ $label
 			<column name="PUBLISHWHEN">n</column>
 			<column name="LOCATIONPREFIX"/>
 			<column name="LOCATIONSUFFIX"/>
-			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;   
+			<column name="TEMPLATE">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 
 &lt;html&gt;
    &lt;head&gt;
       &lt;title&gt;nav breadcrumb snippet&lt;/title&gt;
-      &lt;link href="$rxs_navbase/css/rxs_styles.css" 
+      &lt;link href="$rxs_navbase/css/rxs_styles.css"
       rel="stylesheet" type="text/css"&gt;
-      &lt;script src="$rxs_navbase/js/mouseover.js" 
+      &lt;script src="$rxs_navbase/js/mouseover.js"
          language="javascript" &gt;;&lt;/script&gt;
 	  &lt;meta content="Percussion Rhythmyx" name="generator"/&gt;
    &lt;/head&gt;
@@ -3820,12 +3820,12 @@ $label
 			<column name="VARIABLE">$sys.template</column>
 			<column name="EXPRESSION">if ($sys.item.hasProperty("rx:usage"))
 {
-	$usage = $sys.item.getProperty("rx:usage").String; 
+	$usage = $sys.item.getProperty("rx:usage").String;
 }
 if (! empty($usage) and $usage == 'L') {
       'rffPgEiGenericCategoryPage';
 } else {
-     'rffPgEiGeneric'; 
+     'rffPgEiGeneric';
 }</column>
 		</row>
 	</table>
@@ -6783,7 +6783,7 @@ if (! empty($usage) and $usage == 'L') {
 			<column name="SEQUENCE">1</column>
 			<column name="TYPE">String</column>
 			<column name="NAME">expression</column>
-			<column name="VALUE">$sys.pub_path + $sys.template.prefix + 'item' + $sys.item.getProperty('rx:sys_contentid').String  + $sys.page_suffix + 
+			<column name="VALUE">$sys.pub_path + $sys.template.prefix + 'item' + $sys.item.getProperty('rx:sys_contentid').String  + $sys.page_suffix +
 $rx.location.getFirstDefined($sys.item,'rx:activeimg_ext,rx:sys_suffix', '.html')</column>
 		</row>
 		<row action="r" onTableCreateOnly="no">

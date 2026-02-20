@@ -213,4 +213,61 @@ public interface IPSExtensionDef {
    *     empty.
    */
   Iterator<PSExtensionMethod> getMethods();
+
+  /**
+   * Returns the stored version as an integer. Default implementation reads the {@link
+   * #INIT_PARAM_VERSION} initialization parameter and parses it as an integer.
+   *
+   * @return the extension version, or {@code 0} when not set or not parseable.
+   */
+  default int getVersion() {
+    String v = getInitParameter(INIT_PARAM_VERSION);
+    if (v == null) return 0;
+    try {
+      return Integer.parseInt(v);
+    } catch (NumberFormatException e) {
+      return 0;
+    }
+  }
+
+  /**
+   * Indicates whether this extension implements jexl extension methods. Default implementation
+   * returns true when {@link #getMethods()} is non-empty.
+   *
+   * @return {@code true} if this extension exposes jexl methods, {@code false} otherwise
+   */
+  default boolean isJexlExtension() {
+    Iterator<PSExtensionMethod> it = getMethods();
+    return it != null && it.hasNext();
+  }
+
+  /**
+   * Adds an extension method to this definition. Default implementation is a no-op to preserve
+   * backward compatibility for implementations that do not support mutation.
+   *
+   * @param method the extension method to add
+   */
+  default void addExtensionMethod(PSExtensionMethod method) {
+    // no-op for backward compatibility
+  }
+
+  /**
+   * Indicates whether this extension is deprecated. Default returns {@code false} to preserve
+   * backward compatibility when implementations do not provide this information.
+   *
+   * @return {@code true} if deprecated, {@code false} otherwise
+   */
+  default boolean isDeprecated() {
+    return false;
+  }
+
+  /**
+   * Indicates whether request parameters should be restored when an extension throws an error.
+   * Default returns {@code false} to preserve backward compatibility.
+   *
+   * @return {@code true} to restore request parameters on error, {@code false} otherwise
+   */
+  default boolean isRestoreRequestParamsOnError() {
+    return false;
+  }
 }

@@ -9,19 +9,19 @@ dojo.require("dojo.lang.declare");
 dojo.require("dojo.json");
 dojo.require("dojo.string");
 
+dojo.declare(
+  "ps.content.FolderSitesBaseTabPanel",
+  ps.content.BrowseTabPanel,
+  function (_parent) {
+    dojo.lang.assert(_parent, "Parent must be specified");
 
-dojo.declare("ps.content.FolderSitesBaseTabPanel", ps.content.BrowseTabPanel,
-	function(_parent){
-	   dojo.lang.assert(_parent, "Parent must be specified");
-
-      this.parent = _parent;      
-	},
-{
-   /**
-    * Parses the address bar panel controls and add appropriate events.
-    */
-   _parseAddressbarPanelControls: function()
-   {
+    this.parent = _parent;
+  },
+  {
+    /**
+     * Parses the address bar panel controls and add appropriate events.
+     */
+    _parseAddressbarPanelControls: function () {
       this.pathText = this._getElemById("pathText");
       this.refreshButton = this._getWidgetById("refreshButton");
       this.backButton = this._getWidgetById("backButton");
@@ -32,14 +32,13 @@ dojo.declare("ps.content.FolderSitesBaseTabPanel", ps.content.BrowseTabPanel,
       dojo.event.connect(this.pathText, "onchange", this, "_onPathTextChanged");
       dojo.event.connect(this.refreshButton, "onClick", this, "_onRefresh");
       dojo.event.connect(this.backButton, "onClick", this, "_onBack");
-      dojo.event.connect(this.upButton, "onClick", this, "_onUp");      
-   },
-	
-	/**
-    *  Parses all the expected controls for this tab.
-    */
-   parseControls: function()
-   {
+      dojo.event.connect(this.upButton, "onClick", this, "_onUp");
+    },
+
+    /**
+     *  Parses all the expected controls for this tab.
+     */
+    parseControls: function () {
       this._parseCommonControls();
       this._parseFilterPanelControls();
       this.contentTable = this._getWidgetById("FilteringTable");
@@ -47,14 +46,17 @@ dojo.declare("ps.content.FolderSitesBaseTabPanel", ps.content.BrowseTabPanel,
       this.contentTableColumns = this._cloneColumns(this.contentTable.columns);
       this._parseAddressbarPanelControls();
       dojo.event.connect(
-            this.contentTable, "onSelect", this, "_onContentTableSelect");      
-   },
-	
-	/**
-    * Parses the filter panel controls and add appropriate events.
-    */
-   _parseFilterPanelControls: function()
-   {
+        this.contentTable,
+        "onSelect",
+        this,
+        "_onContentTableSelect"
+      );
+    },
+
+    /**
+     * Parses the filter panel controls and add appropriate events.
+     */
+    _parseFilterPanelControls: function () {
       this.filterPanel = this._getWidgetById("filterpanel");
       this.filteringTablePanel = this._getWidgetById("tablepanel");
       this.filteringTable = this._getWidgetById("FilteringTable");
@@ -64,42 +66,46 @@ dojo.declare("ps.content.FolderSitesBaseTabPanel", ps.content.BrowseTabPanel,
 
       this._ctypeList = this._getElemById("ctypeList");
       dojo.event.connect(
-         this.getContentTypeList(), "onchange", this, "_onCTypeChanged");
+        this.getContentTypeList(),
+        "onchange",
+        this,
+        "_onCTypeChanged"
+      );
       dojo.event.connectBefore(
-         this.getContentTypeList(), "onfocus", this, "_onCTypeFocused");
-      
-   },
-	
-   /**
-    * Callback function called when the path text changes.
-    */
-   _onPathTextChanged: function()
-   {
+        this.getContentTypeList(),
+        "onfocus",
+        this,
+        "_onCTypeFocused"
+      );
+    },
+
+    /**
+     * Callback function called when the path text changes.
+     */
+    _onPathTextChanged: function () {
       this._goTo(this.pathText.value);
-   },
-   
-   /**
-    * Callback function called when the "Refresh" button is clicked.
-    */
-   _onRefresh: function()
-   {
+    },
+
+    /**
+     * Callback function called when the "Refresh" button is clicked.
+     */
+    _onRefresh: function () {
       this._refresh();
-   },
-   
-   /**
-    * Callback function called when the "Back" button is clicked.
-    */
-   _onBack: function()
-   {
+    },
+
+    /**
+     * Callback function called when the "Back" button is clicked.
+     */
+    _onBack: function () {
       this.pathHistory.back();
       this._refresh();
-   },
-   
-   /**
-    * Callback function called when the "Up" button is clicked.
-    */
-   _onUp: function()
-   {
+    },
+
+    /**
+     * Callback function called when the "Up" button is clicked.
+     */
+    _onUp: function () {
       this._goTo(this.getParentFolder());
-   }
-});
+    },
+  }
+);

@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -148,8 +147,10 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
             join(ncids, ","),
             allSharedAssetContentTypeIds,
             allValidRelationshipConfigs);
-    SQLQuery query = sess.createSQLQuery(sql);
-    return new HashSet(query.list());
+    org.hibernate.query.NativeQuery<Integer> query =
+        sess.createNativeQuery(sql)
+            .addScalar("DEPENDENT_ID", org.hibernate.type.StandardBasicTypes.INTEGER);
+    return new HashSet<>(query.list());
   }
 
   private Set<Integer> getPublishableRelatedItemIds(Session sess, Set<Integer> cids)
@@ -167,8 +168,10 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
             qualifyTableName("PSX_OBJECTRELATIONSHIP"),
             join(cids, ","),
             join(getPublishableContentTypeIds(sess), ","));
-    var query = sess.createSQLQuery(sql);
-    return new HashSet(query.list());
+    org.hibernate.query.NativeQuery<Integer> query =
+        sess.createNativeQuery(sql)
+            .addScalar("DEPENDENT_ID", org.hibernate.type.StandardBasicTypes.INTEGER);
+    return new HashSet<>(query.list());
   }
 
   private Set<Integer> getNonPublishableRelatedItemIds(Session sess, Set<Integer> cids)
@@ -185,8 +188,10 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
             qualifyTableName("PSX_OBJECTRELATIONSHIP"),
             join(cids, ","),
             join(getNonPublishableContentTypeIds(sess), ","));
-    SQLQuery query = sess.createSQLQuery(sql);
-    return new HashSet(query.list());
+    org.hibernate.query.NativeQuery<Integer> query =
+        sess.createNativeQuery(sql)
+            .addScalar("DEPENDENT_ID", org.hibernate.type.StandardBasicTypes.INTEGER);
+    return new HashSet<>(query.list());
   }
 
   private void initTypeIds(Session sess) {
@@ -234,7 +239,9 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
         String.format(
             "SELECT DISTINCT CONTENTTYPEID FROM %s WHERE CONTENTTYPENAME NOT IN (%s)",
             qualifyTableName("CONTENTTYPES"), binaryAssetTypesStr);
-    SQLQuery query = sess.createSQLQuery(sql);
+    org.hibernate.query.NativeQuery<Integer> query =
+        sess.createNativeQuery(sql)
+            .addScalar("CONTENTTYPEID", org.hibernate.type.StandardBasicTypes.INTEGER);
     return query.list();
   }
 
@@ -243,7 +250,9 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
         String.format(
             "SELECT DISTINCT CONFIG_ID FROM %s WHERE CONFIG_NAME NOT IN (%s)",
             qualifyTableName("PSX_RELATIONSHIPCONFIGNAME"), invalidRelationshipConfigName);
-    SQLQuery query = sess.createSQLQuery(sql);
+    org.hibernate.query.NativeQuery<Integer> query =
+        sess.createNativeQuery(sql)
+            .addScalar("CONFIG_ID", org.hibernate.type.StandardBasicTypes.INTEGER);
     return query.list();
   }
 

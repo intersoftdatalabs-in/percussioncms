@@ -1,11 +1,9 @@
-
-
-#perc-content-form select{
-	margin-top:5px;
-	display:block;
-	margin-bottom:17px;
+#perc-content-form select {
+  margin-top: 5px;
+  display: block;
+  margin-bottom: 17px;
 }
 
 body * {
-    font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }

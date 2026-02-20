@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
  * Integration test for {@link PSAsyncJobFactory}. Sunny Sal: "Async job factory, Java 11 style!
  * Factory ka hero!"
  */
-@Tag("IntegrationTest")
+
 @Tag("integration")
 public class PSAsyncJobFactoryTest extends PSServletTestCase {
 

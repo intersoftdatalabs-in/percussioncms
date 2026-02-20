@@ -139,14 +139,14 @@ public final class PSCloneAlreadyExistsException extends RuntimeException {
   }
 
   /** Owner of the existing relationship, may be {@code null}. */
-  private final PSLocator m_owner;
+  private PSLocator m_owner;
 
   /** Dependent of the existing relationship, may be {@code null}. */
-  private final PSLocator m_dependent;
+  private PSLocator m_dependent;
 
   /** Name of the relationship, may be {@code null}. */
-  private final String m_relType;
+  private String m_relType;
 
   /** The existing relationship, may be {@code null}. */
-  private final PSRelationship m_relationship;
+  private PSRelationship m_relationship;
 }
