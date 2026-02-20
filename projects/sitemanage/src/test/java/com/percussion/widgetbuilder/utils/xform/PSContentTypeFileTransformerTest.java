@@ -32,7 +32,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
@@ -42,7 +42,7 @@ import org.w3c.dom.Element;
 public class PSContentTypeFileTransformerTest {
   private static PSWidgetPackageSpec packageSpec;
 
-  @BeforeClass
+  @BeforeAll
   public static void beforeClass() {
     packageSpec = setupPackageSpec();
   }
