@@ -17,7 +17,6 @@
 package com.percussion.webservices.transformation.converter;
 
 import com.percussion.cms.objectstore.PSItemFieldMeta;
-import com.percussion.webservices.content.PSFieldTransferEncoding;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConversionException;
@@ -48,13 +47,12 @@ public class PSFieldTransferEncodingConverter extends PSConverter
       
       if (isClientToServer(value))
       {
-         PSFieldTransferEncoding orig = (PSFieldTransferEncoding) value;
+         String s = value.toString();
          
          Integer dest = 0;
-         //FB: EC_UNRELATED_TYPES NC 1-17-16
-         if (orig.getValue().equals(PSFieldTransferEncoding.base64.getValue()))
+         if (s.equalsIgnoreCase("base64"))
             dest = PSItemFieldMeta.ENCODING_TYPE_BASE64;
-         else if (orig.getValue().equals(PSFieldTransferEncoding.none.getValue()))
+         else if (s.equalsIgnoreCase("none"))
             dest = PSItemFieldMeta.ENCODING_TYPE_NONE;
          else
             throw new ConversionException(
@@ -69,9 +67,9 @@ public class PSFieldTransferEncodingConverter extends PSConverter
          switch (orig)
          {
             case PSItemFieldMeta.ENCODING_TYPE_BASE64:
-               return PSFieldTransferEncoding.base64;
+               return "base64";
             case PSItemFieldMeta.ENCODING_TYPE_NONE:
-               return PSFieldTransferEncoding.none;
+               return "none";
             default:
                throw new ConversionException(
                   "unknown item field transfer encoding");

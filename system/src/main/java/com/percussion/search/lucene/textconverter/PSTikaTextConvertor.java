@@ -145,7 +145,7 @@ public class PSTikaTextConvertor implements IPSLuceneTextConverter {
       tis.getFile();
       parser.parse(tis, bodyhandler, metadata, new ParseContext());
     } catch (Exception e) {
-      if (handler.isWriteLimitReached(e)) {
+      if (org.apache.tika.exception.WriteLimitReachedException.isWriteLimitReached(e)) {
         ms_log.warn(
             "Document text is larger than current index write limit of "
                 + INDEX_WRITE_LIMIT

@@ -26,6 +26,7 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.cache.PSCacheManager;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
+import com.percussion.services.legacy.impl.PSCmsObjectMgr;
 import com.percussion.utils.server.IPSCgiVariables;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -213,7 +214,8 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
     log.debug("Checking in content for logged out users " + usersToCleanUp);
     if (usersToCleanUp.size() > 0) {
       if (objMgr == null) objMgr = PSCmsObjectMgrLocator.getObjectManager();
-      objMgr.forceCheckinUsers(usersToCleanUp);
+      // forceCheckinUsers is implemented on the concrete PSCmsObjectMgr
+      ((PSCmsObjectMgr) objMgr).forceCheckinUsers(usersToCleanUp);
     }
   }
 

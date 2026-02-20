@@ -10,36 +10,38 @@
 package com.percussion.content.ui.aa.actions;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSAAClientActionExceptionTest extends TestCase
+public class PSAAClientActionExceptionTest
 {
    /**
     * {@link InvocationTargetException} requires special handling because it
     * does not return message from the exception it wraps.
     */
+   @Test
    public void testInvocationTargetExceptionHandling()
    {
       final String message = "Error Message!";
       final Throwable e = new Exception(message);
-      
+
       assertEquals(message, e.getMessage());
       final InvocationTargetException ie = new InvocationTargetException(e);
       assertNull("Message from the nested exception is not returned",
             ie.getMessage());
-      
+
       assertEquals(e.toString(),
             new PSAAClientActionException(ie).getMessage());
       assertEquals(e.toString(),
-            new PSAAClientActionException(ie).getLocalizedMessage()); 
+            new PSAAClientActionException(ie).getLocalizedMessage());
       final String message2 = "Error Message!";
       assertEquals(message2,
-            new PSAAClientActionException(message2, ie).getMessage()); 
+            new PSAAClientActionException(message2, ie).getMessage());
       assertEquals(message,
-            new PSAAClientActionException(message2, ie).getCause().getMessage()); 
+            new PSAAClientActionException(message2, ie).getCause().getMessage());
    }
 }

@@ -2,15 +2,24 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="315" dependencyType="Local" displayName="Unpublish" isIncluded="yes" objectType="ContentListDef" objectTypeName="Content List Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
-   <PSXApplicationIDTypesResource resourceName="ExpanderParams">
-      <PSXApplicationIDTypesElement elementName="ExpanderParams">
-         <PSXApplicationIDTypeMapping type="SiteDef" value="303">
-            <PSXAppNamedItemIdContext name="siteid" type="Param"/>
-         </PSXApplicationIDTypeMapping>
-      </PSXApplicationIDTypesElement>
-   </PSXApplicationIDTypesResource>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="315" dependencyType="Local" displayName="Unpublish"
+			isIncluded="yes" objectType="ContentListDef"
+			objectTypeName="Content List Definition" supportsIdMapping="yes"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
+	<PSXApplicationIDTypesResource
+		resourceName="ExpanderParams">
+		<PSXApplicationIDTypesElement
+			elementName="ExpanderParams">
+			<PSXApplicationIDTypeMapping
+				type="SiteDef" value="303">
+				<PSXAppNamedItemIdContext name="siteid"
+					type="Param" />
+			</PSXApplicationIDTypeMapping>
+		</PSXApplicationIDTypesElement>
+	</PSXApplicationIDTypesResource>
 </PSXApplicationIDTypes>

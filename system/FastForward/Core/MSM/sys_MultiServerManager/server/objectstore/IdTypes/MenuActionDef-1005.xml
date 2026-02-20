@@ -2,21 +2,34 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="1005" dependencyType="Local" displayName="IntranetItem_ActiveAssembly" isIncluded="yes" objectType="MenuActionDef" objectTypeName="Action Menu Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
-   <PSXApplicationIDTypesResource resourceName="URL">
-      <PSXApplicationIDTypesElement elementName="UrlParams">
-         <PSXApplicationIDTypeMapping type="sys_none" value="0">
-            <PSXAppNamedItemIdContext name="sys_authtype" type="Param"/>
-         </PSXApplicationIDTypeMapping>
-         <PSXApplicationIDTypeMapping type="sys_none" value="0">
-            <PSXAppNamedItemIdContext name="sys_context" type="Param"/>
-         </PSXApplicationIDTypeMapping>
-         <PSXApplicationIDTypeMapping type="SiteDef" value="301">
-            <PSXAppNamedItemIdContext name="sys_siteid" type="Param"/>
-         </PSXApplicationIDTypeMapping>
-      </PSXApplicationIDTypesElement>
-   </PSXApplicationIDTypesResource>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="1005" dependencyType="Local"
+			displayName="IntranetItem_ActiveAssembly" isIncluded="yes"
+			objectType="MenuActionDef" objectTypeName="Action Menu Definition"
+			supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
+	<PSXApplicationIDTypesResource
+		resourceName="URL">
+		<PSXApplicationIDTypesElement
+			elementName="UrlParams">
+			<PSXApplicationIDTypeMapping
+				type="sys_none" value="0">
+				<PSXAppNamedItemIdContext
+					name="sys_authtype" type="Param" />
+			</PSXApplicationIDTypeMapping>
+			<PSXApplicationIDTypeMapping
+				type="sys_none" value="0">
+				<PSXAppNamedItemIdContext
+					name="sys_context" type="Param" />
+			</PSXApplicationIDTypeMapping>
+			<PSXApplicationIDTypeMapping
+				type="SiteDef" value="301">
+				<PSXAppNamedItemIdContext name="sys_siteid"
+					type="Param" />
+			</PSXApplicationIDTypeMapping>
+		</PSXApplicationIDTypesElement>
+	</PSXApplicationIDTypesResource>
 </PSXApplicationIDTypes>

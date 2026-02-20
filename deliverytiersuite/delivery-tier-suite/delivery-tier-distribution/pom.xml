@@ -42,13 +42,8 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        <!--     <dependency>
-            <groupId>com.percussion.deliverytier</groupId>
-            <artifactId>perc-integrations</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
-        </dependency>
-        -->
+        <!-- <dependency> <groupId>com.percussion.deliverytier</groupId> <artifactId>perc-integrations</artifactId>
+			<version>${project.version}</version> <type>war</type> </dependency> -->
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-membership-services</artifactId>
@@ -295,12 +290,8 @@
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-web</artifactId>
-            <version>${log4j2.version}</version>
-            <scope>compile</scope>
-        </dependency> -->
+        <!--<dependency> <groupId>org.apache.logging.log4j</groupId> <artifactId>log4j-web</artifactId>
+			<version>${log4j2.version}</version> <scope>compile</scope> </dependency> -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
@@ -449,8 +440,9 @@
                 <configuration>
                     <container>
                         <containerId>tomcat10x</containerId>
-                        <!-- <type>embedded</type>-->
-                        <!-- TODO: This really should be moved to be mirrored on Percussion's nexus server -->
+                        <!-- <type>embedded</type> -->
+                        <!-- TODO: This really should be moved to be mirrored on Percussion's
+							nexus server -->
                         <zipUrlInstaller>
                             <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
                         </zipUrlInstaller>
@@ -726,10 +718,11 @@
                         </configfiles>
                         <properties>
                             <cargo.runtime.args>dts-realm.xml</cargo.runtime.args>
-                            <!--<cargo.logging>high</cargo.logging>-->
+                            <!--<cargo.logging>high</cargo.logging> -->
                             <cargo.jvmargs>-Xms256m -Xmx3072m -Xdebug -Xnoagent
-                                -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -XX:+DisableExplicitGC
-                                -Xverify:none -Djava.awt.headless=true</cargo.jvmargs>
+								-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
+								-XX:+DisableExplicitGC
+								-Xverify:none -Djava.awt.headless=true</cargo.jvmargs>
                             <cargo.servlet.port>9980</cargo.servlet.port>
                         </properties>
                         <users>
@@ -913,7 +906,7 @@
                                     <catalina.base>C:\temp</catalina.base>
                                     <catalina.home>.</catalina.home>
                                 </systemProperties>
-                                <!-- <type>embedded</type>-->
+                                <!-- <type>embedded</type> -->
                                 <zipUrlInstaller>
                                     <url>https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.12.v20180830/jetty-distribution-9.4.12.v20180830.zip</url>
                                 </zipUrlInstaller>
@@ -1023,13 +1016,13 @@
                                 <properties>
                                     <cargo.servlet.port>9980</cargo.servlet.port>
                                     <cargo.runtime.args>${project.basedir}/src/main/resources/etc/dts-realm.xml
-                                        ${project.basedir}/src/main/resources/etc/dts-realm.properties</cargo.runtime.args>
+										${project.basedir}/src/main/resources/etc/dts-realm.properties</cargo.runtime.args>
                                     <cargo.datasource.datasource.derby>cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
-                                        cargo.datasource.url=jdbc:derby:derbyDB;create=true|
-                                        cargo.datasource.jndi=jdbc/CargoDS|
-                                        cargo.datasource.username=APP|
-                                        cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
-                                    <!--  <cargo.jetty.realm.name>metadata</cargo.jetty.realm.name>-->
+										cargo.datasource.url=jdbc:derby:derbyDB;create=true|
+										cargo.datasource.jndi=jdbc/CargoDS|
+										cargo.datasource.username=APP|
+										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
+                                    <!-- <cargo.jetty.realm.name>metadata</cargo.jetty.realm.name> -->
                                 </properties>
                                 <configfiles>
                                     <configfile>

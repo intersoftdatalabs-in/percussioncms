@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- pt: "Português",
- hello: "Olá"
-}
+({
+  pt: "Português",
+  hello: "Olá",
+});

@@ -22,7 +22,6 @@ package com.percussion.servlets.taglib;
  * @author dougrand
  */
 public class PSMenuBarTag extends PSJSFBaseTag {
-  @Override
   public String getComponentType() {
     return "com.percussion.jsf.MenuBar";
   }

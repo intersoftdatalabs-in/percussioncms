@@ -1,9 +1,9 @@
 - Name: install_base_setup
-  Class : com.percussion.service.conf.tasks.impl.PSConfigTaskFileCopy
+  Class: com.percussion.service.conf.tasks.impl.PSConfigTaskFileCopy
   RunFrequency: ONCE
   RunAtState: BEFORE_CM1_STARTUP
-  RunInEnv :
-     - DOCKER
+  RunInEnv:
+    - DOCKER
   Parameters:
     Action: copy
     Type: directory

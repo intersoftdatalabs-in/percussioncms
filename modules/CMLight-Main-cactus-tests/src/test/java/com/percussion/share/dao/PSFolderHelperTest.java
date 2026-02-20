@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSFolderHelperTest {
 
   // Nested test class for folder path logic

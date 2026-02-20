@@ -19,6 +19,8 @@ package com.percussion.system.utils;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
+import com.percussion.util.IOTools;
+import com.percussion.util.PSPurgableTempFile;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;

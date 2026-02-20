@@ -170,4 +170,11 @@ public interface IPSItemFilterRuleDef extends Comparable<IPSItemFilterRuleDef> {
       if (other == null) return 1;
       return getGUID().compareTo(other.getGUID());
    }
+
+   /**
+    * Set the item filter that owns this rule definition.
+    *
+    * @param filter the owning filter, may be {@code null}
+    */
+   void setFilter(IPSItemFilter filter);
 }

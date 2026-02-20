@@ -21,9 +21,11 @@ import java.util.Comparator;
 import com.percussion.system.utils.PSIgnoreCaseStringComparator;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSIgnoreCaseStringComparatorTest extends TestCase
+public class PSIgnoreCaseStringComparatorTest 
 {
+   
    public void testStringComparator()
    {
       final Comparator<String> cmp = new PSIgnoreCaseStringComparator();

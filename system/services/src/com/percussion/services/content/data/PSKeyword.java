@@ -493,9 +493,10 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @see IPSCatalogSummary#getType()
     */
-   public PSTypeEnum getType()
+   @Override
+   public String getType()
    {
-      return PSTypeEnum.KEYWORD_DEF;
+      return PSTypeEnum.KEYWORD_DEF.name();
    }
 
    /*

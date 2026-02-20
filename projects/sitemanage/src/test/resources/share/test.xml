@@ -3,7 +3,7 @@
 <Data>
 	<Request>
 		<Settings>
-			<property name="property1" value="value1"/>
+			<property name="property1" value="value1" />
 			<property name="propertyWithPvalues">
 				<pvalues>
 					<pvalue>pvalue1</pvalue>
@@ -13,7 +13,7 @@
 		</Settings>
 		<Response>
 			<Result>
-				<property name="resultName" value="resultValue"/>
+				<property name="resultName" value="resultValue" />
 				<property name="dates">
 					<pvalues>
 						<pvalue>10/10/2010</pvalue>

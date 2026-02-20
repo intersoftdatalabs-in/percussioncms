@@ -18,7 +18,6 @@ package com.percussion.webservices.transformation.converter;
 
 import com.percussion.services.workflow.data.PSAgingTransition;
 import com.percussion.utils.string.PSStringUtils;
-import com.percussion.webservices.system.PSAgingTransitionType;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConversionException;
@@ -32,13 +31,13 @@ public class PSAgingTransitionConverter extends PSTransitionBaseConverter
 
    /**
     * See {@link PSConverter#PSConverter(BeanUtilsBean)}
-    * 
+    *
     * @param beanUtils
     */
    public PSAgingTransitionConverter(BeanUtilsBean beanUtils)
    {
       super(beanUtils);
-      
+
       m_specialProperties.add("type");
    }
 
@@ -47,21 +46,23 @@ public class PSAgingTransitionConverter extends PSTransitionBaseConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
          // only reading from server is supported
          throw new ConversionException(
             "Conversion not supported from client to server");
       }
-      
-      PSAgingTransition src = (PSAgingTransition) value; 
-      com.percussion.webservices.system.PSAgingTransition tgt = 
-         (com.percussion.webservices.system.PSAgingTransition) 
+
+      PSAgingTransition src = (PSAgingTransition) value;
+      com.percussion.webservices.system.PSAgingTransition tgt =
+         (com.percussion.webservices.system.PSAgingTransition)
          super.convert( type, value);
-      tgt.setType(PSAgingTransitionType.fromString(PSStringUtils.toCamelCase(
-         src.getType().name())));
-      
+      String typeStr = src.getType();
+      if (typeStr != null)
+         tgt.setType(PSStringUtils.toCamelCase(typeStr));
+
+
       return tgt;
    }
 }

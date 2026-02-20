@@ -21,13 +21,14 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test date utilities
  * 
  * @author dougrand
  */
-public class PSDateUtilsTest extends TestCase
+public class PSDateUtilsTest 
 {
    private static final PSDateUtils ms_utils = new PSDateUtils();
 
@@ -57,6 +58,7 @@ public class PSDateUtilsTest extends TestCase
     * Test method for
     * 'com.percussion.services.assembly.jexl.PSDateUtils.startOfWeek(Date, int)'
     */
+   
    public void testStartOfWeek()
    {
       Date d = ms_utils.startOfWeek(ms_test1, 0);
@@ -101,6 +103,7 @@ public class PSDateUtilsTest extends TestCase
     * 'com.percussion.services.assembly.jexl.PSDateUtils.startOfMonth(Date,
     * int)'
     */
+   
    public void testStartOfMonth()
    {
       Date d = ms_utils.startOfMonth(ms_test1, 0);
@@ -134,6 +137,7 @@ public class PSDateUtilsTest extends TestCase
     * Test method for
     * 'com.percussion.services.assembly.jexl.PSDateUtils.startOfYear(Date, int)'
     */
+   
    public void testStartOfYear()
    {
       Date d = ms_utils.startOfYear(ms_test1, 0);
@@ -160,6 +164,7 @@ public class PSDateUtilsTest extends TestCase
    /**
     * Test offset calc for day
     */
+   
    public void testDateOffset()
    {
       Date d = ms_utils.startOfYear(ms_test1, 0);

@@ -18,24 +18,26 @@
 package com.percussion.design.catalog.data.server;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSTableCatalogHandlerTest extends TestCase
+public class PSTableCatalogHandlerTest
 {
+   @Test
    public void testIsOracleRecycleBinObject()
    {
       assertTrue(isOracleRecycleBinObject("BIN$KGHNSSICRgW807Nul9jzZA==$0"));
       assertTrue(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==$0"));
-      
+
       //lesser length
       assertFalse(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==$"));
-      
+
       //no last $
       assertFalse(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==00"));
-      
+
       //no first $
       assertFalse(isOracleRecycleBinObject("BIN0/f2GYNKuTTadpSywb4pxaw==$0"));
    }
-   
+
    /**
     * Convenience method to access
     * {@link PSTableCatalogHandler#isOracleRecycleBinObject(String)}.

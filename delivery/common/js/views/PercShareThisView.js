@@ -15,33 +15,31 @@
  * limitations under the License.
  */
 
-(function($) {
+(function ($) {
+  function initShareThisWidget() {
+    // Required for sharethis.com
+    var switchTo5x = true;
+    // Public key for sharethis.com
+    stLight.options({
+      publisher: "9b8ea0ea-c2c0-4a43-a107-df0615eaa6eb",
+    });
 
-	function initShareThisWidget() {
-		// Required for sharethis.com
-		var switchTo5x = true;
-		// Public key for sharethis.com
-		stLight.options({
-			publisher : '9b8ea0ea-c2c0-4a43-a107-df0615eaa6eb'
-		});
+    // Facebook
+    $(".perc-share-this-widget-facebook-button").addClass("st_facebook_custom");
 
-		// Facebook
-		$('.perc-share-this-widget-facebook-button').addClass(
-				'st_facebook_custom');
+    // Twitter
+    $(".perc-share-this-widget-twitter-button").addClass("st_twitter_custom");
 
-		// Twitter
-		$('.perc-share-this-widget-twitter-button').addClass(
-				'st_twitter_custom');
+    // Digg
+    $(".perc-share-this-widget-digg-button").addClass("st_digg_custom");
+  }
 
-		// Digg
-		$('.perc-share-this-widget-digg-button').addClass(
-				'st_digg_custom');
-	}
-
-	$(document).ready(function() {
-		if(0 < $(".perc-share-this-widget").length){
-		$("head").append("<script src='/web_resources/cm/jslib/shareThis.js' type='text/javascript'></script>");
-		initShareThisWidget();
-		}
-	});
+  $(document).ready(function () {
+    if (0 < $(".perc-share-this-widget").length) {
+      $("head").append(
+        "<script src='/web_resources/cm/jslib/shareThis.js' type='text/javascript'></script>"
+      );
+      initShareThisWidget();
+    }
+  });
 })(jQuery);

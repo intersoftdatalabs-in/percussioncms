@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.percussion.server;
 
 import com.percussion.util.IOTools;
@@ -42,14 +42,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class PSCustomControlManagerTest
 {
-   @Rule
-   public Path tempFolder = new TemporaryFolder();
+   @TempDir
+   public File tempFolder;
 
    public PSCustomControlManagerTest(){}
 
    /**
     * Tests all control mgr functionality
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    @Test
@@ -59,17 +59,17 @@ public class PSCustomControlManagerTest
    {
       FileWriter fw = null;
       PSCustomControlManager ctrlMgr = null;
-            
+
       try
       {
          // create temporary directories
-         File sysStylesheetsDir = new File(tempFolder.getRoot() + RESOURCE_PATH + '/' +
+         File sysStylesheetsDir = new File(tempFolder.getAbsolutePath() + RESOURCE_PATH + '/' +
                PSCustomControlManager.SYS_STYLESHEETS_DIR);
          sysStylesheetsDir.deleteOnExit();
          assertTrue(sysStylesheetsDir.mkdirs());
-         
+
          // create temporary imports file
-         File importsFile = tempFolder.newFile();
+         File importsFile = File.createTempFile("imports", null, tempFolder);
          importsFile.deleteOnExit();
          fw = new FileWriter(importsFile);
          fw.write(CONTROL_IMPORTS_CONTENT);
@@ -87,15 +87,15 @@ public class PSCustomControlManagerTest
          singleFieldEdit.deleteOnExit();
 
          long singleFieldEditMod = singleFieldEdit.lastModified();
-         
+
          // get custom control manager, initialize
          ctrlMgr = PSCustomControlManager.getInstance();
-         ctrlMgr.init(tempFolder.getRoot());
-         
+         ctrlMgr.init(tempFolder);
+
          // touch files should have been modified
          assertTrue(activeEdit.lastModified() > activeEditMod);
          assertTrue(singleFieldEdit.lastModified() > singleFieldEditMod);
-         
+
          // initially two imports
          Set<String> imports = ctrlMgr.getImports();
          assertEquals(2, imports.size());
@@ -105,67 +105,71 @@ public class PSCustomControlManagerTest
                + "/control2.xsl";
          assertTrue(imports.contains(ctrlMgr.createImport(ctrlFile1Path)));
          assertTrue(imports.contains(ctrlMgr.createImport(ctrlFile2Path)));
-         
+
          // check multiple calls to init
          boolean didThrow = false;
          try
          {
-            ctrlMgr.init(tempFolder.getRoot());
+            ctrlMgr.init(tempFolder);
          }
          catch (IllegalStateException e)
          {
             didThrow = true;
          }
          assertTrue(didThrow);
-         
+
          // create temporary control file
-         File ctrlFile1 = tempFolder.newFile(ctrlFile1Path);
-         File ctrlFile2 = tempFolder.newFile(ctrlFile2Path);
+         File ctrlFile1 = new File(tempFolder, ctrlFile1Path);
+         ctrlFile1.getParentFile().mkdirs();
+         ctrlFile1.createNewFile();
+         File ctrlFile2 = new File(tempFolder, ctrlFile2Path);
+         ctrlFile2.getParentFile().mkdirs();
+         ctrlFile2.createNewFile();
          String ctrlFile1Content = IOTools.getFileContent(ctrlFile1);
          String ctrlFile3Content = ctrlFile1Content.replaceAll("control1",
                CTRL3_NAME);
          fw = new FileWriter(CTRL_FILE3);
          fw.write(ctrlFile3Content);
          fw.close();
-                       
+
          // create temporary non-control file
          String filePath = PSCustomControlManager.CUSTOM_CONTROLS_DIR
               + "/file.xml";
          File file = new File(RESOURCE_PATH + '/' + filePath);
          file.createNewFile();
-         
+
          // should be three control files
          List<File> ctrlFiles = ctrlMgr.getControlFiles();
          assertEquals(3, ctrlFiles.size());
          assertTrue(ctrlFiles.contains(ctrlFile1));
          assertTrue(ctrlFiles.contains(ctrlFile2));
          assertTrue(ctrlFiles.contains(CTRL_FILE3));
-         
+
          ctrlMgr.writeImports();
-         
+
          // should be three imports
          imports = ctrlMgr.getImports();
          assertEquals(3, imports.size());
          assertTrue(imports.contains(ctrlMgr.createImport(CTRL_FILE3_PATH)));
          assertFalse(imports.contains(ctrlMgr.createImport(filePath)));
-         
+
          // remove third control file, non-control file
          IOTools.deleteFile(CTRL_FILE3);
          IOTools.deleteFile(file);
-                           
+
          ctrlMgr.writeImports();
-         
+
          // third control import should not be there
          imports = ctrlMgr.getImports();
          assertEquals(2, imports.size());
          assertFalse(imports.contains(ctrlMgr.createImport(CTRL_FILE3_PATH)));
-         
+
          // test get control from file with one control
          assertNotNull(ctrlMgr.getControl("control1"));
-         
+
          // test non-existent control
          assertNull(ctrlMgr.getControl("foo"));
-         
+
          // test get control file
          assertNotNull(ctrlMgr.getControlFile("control1"));
          assertNull(ctrlMgr.getControlFile("foo"));
@@ -180,30 +184,30 @@ public class PSCustomControlManagerTest
             }
             catch (IOException e)
             {
-               
+
             }
          }
       }
-   }               
-      
+   }
+
    @AfterEach
    public void tearDown()
    {
       File resourcesDir = new File(RESOURCE_PATH + "/sys_resources");
       IOTools.deleteFile(resourcesDir);
-      
+
       IOTools.deleteFile(CTRL_FILE3);
    }
-   
+
    /**
     * Defines the path to the files used by this unit test.
     */
    private static final String RESOURCE_PATH =
       "/com/percussion/server/";
-  
+
    /**
     * The initial custom control imports file content.
-    */   
+    */
    private static final String CONTROL_IMPORTS_CONTENT =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
       "<!DOCTYPE xsl:stylesheet [\n" +
@@ -221,18 +225,18 @@ public class PSCustomControlManagerTest
       "exclude-result-prefixes=\"psxi18n\" " +
       "xmlns:psxi18n=\"urn:www.percussion.com/i18n\" >\n" +
       "</xsl:stylesheet>";
-   
+
    /**
     * The name of the temporary control.
     */
    private static final String CTRL3_NAME = "control3";
-   
+
    /**
     * The relative path of the temporary control file.
     */
-   private static final String CTRL_FILE3_PATH = 
+   private static final String CTRL_FILE3_PATH =
       PSCustomControlManager.CUSTOM_CONTROLS_DIR + '/' + CTRL3_NAME + ".xsl";
-   
+
    /**
     * The temporary control file.
     */

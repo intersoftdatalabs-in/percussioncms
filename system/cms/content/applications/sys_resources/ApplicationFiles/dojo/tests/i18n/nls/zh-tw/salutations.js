@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- 'zh-tw': "漢語",
- hello: "你好"
-}
+({
+  "zh-tw": "漢語",
+  hello: "你好",
+});

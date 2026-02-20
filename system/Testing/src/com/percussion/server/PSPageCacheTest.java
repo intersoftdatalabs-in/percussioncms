@@ -20,16 +20,20 @@ package com.percussion.server;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import static org.apache.commons.lang3.exception.ExceptionUtils.getFullStackTrace;
 
-public class PSPageCacheTest extends TestCase
+
+public class PSPageCacheTest
 {
 
+
+
+   @Test
    public void testPSPageCache()
    {
       PSPageCache cache = new PSPageCache();
@@ -66,7 +70,7 @@ public class PSPageCacheTest extends TestCase
             i++;
          }
          assertEquals(1000L, cache.getCacheSize());
-         
+
          // wait 3 seconds cache items should expire.
          Thread.sleep(3000);
 
@@ -77,7 +81,7 @@ public class PSPageCacheTest extends TestCase
       }
       catch (Exception e)
       {
-         assertEquals("Exception caught" + getFullStackTrace(e), 0, 1);
+         fail("Unexpected exception: " + e.getMessage());
       }
 
    }

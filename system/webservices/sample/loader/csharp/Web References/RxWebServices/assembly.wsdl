@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:flt="urn:www.percussion.com/6.0.0/faults" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:asm="urn:www.percussion.com/6.0.0/assembly" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="assembly" targetNamespace="urn:www.percussion.com/6.0.0/assembly" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:flt="urn:www.percussion.com/8.2.0/faults" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:asm="urn:www.percussion.com/8.2.0/assembly" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="assembly" targetNamespace="urn:www.percussion.com/8.2.0/assembly" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xsd:schema>
-      <xsd:import schemaLocation="../faults.xsd" namespace="urn:www.percussion.com/6.0.0/faults" />
+      <xsd:import schemaLocation="../faults.xsd" namespace="urn:www.percussion.com/8.2.0/faults" />
     </xsd:schema>
     <xsd:schema>
-      <xsd:import schemaLocation="assembly.xsd" namespace="urn:www.percussion.com/6.0.0/assembly" />
+      <xsd:import schemaLocation="assembly.xsd" namespace="urn:www.percussion.com/8.2.0/assembly" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="AuthenticationHeader">

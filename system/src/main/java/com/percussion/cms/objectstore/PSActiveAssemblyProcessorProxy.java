@@ -594,7 +594,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
     }
     List<String> result = new ArrayList<>();
 
-    Map<String, String> params = new HashMap<>();
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_CONTENTID, "" + parent.getId());
     params.put(IPSHtmlParameters.SYS_REVISION, "" + parent.getRevision());
     IPSInternalRequest ir = cxt.getInternalRequest(resource, params, true);

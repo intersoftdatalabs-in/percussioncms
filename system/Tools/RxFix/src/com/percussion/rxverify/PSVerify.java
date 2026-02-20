@@ -265,7 +265,7 @@ public class PSVerify
          .peek(checker -> log.debug("Running verification checker: {}", checker.getClass().getSimpleName()))
          .forEach(checker -> {
             try {
-               checker.verify(rxRoot, null, installation);
+               checker.verify(rxRoot, Optional.empty(), installation);
             } catch (Exception e) {
                log.error("Failed to run verification checker: {}", checker.getClass().getSimpleName(), e);
             }

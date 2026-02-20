@@ -23,8 +23,8 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Converts objects between the classes 
- * <code>IPSAssemblyTemplate.TemplateType</code> and 
+ * Converts objects between the classes
+ * <code>IPSAssemblyTemplate.TemplateType</code> and
  * <code>TemplateType</code>.
  */
 public class PSTemplateTypeConverter extends PSConverter
@@ -36,7 +36,7 @@ public class PSTemplateTypeConverter extends PSConverter
    {
       super(beanUtils);
    }
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -45,13 +45,13 @@ public class PSTemplateTypeConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
          return IPSAssemblyTemplate.TemplateType.valueOf(
             StringUtils.capitalize(value.toString()));
       else
-         return TemplateType.fromString(
-            value.toString().toLowerCase());
+         // use generated enum's fromValue to map string values like "local" -> enum
+         return TemplateType.fromValue(value.toString());
    }
 }
 

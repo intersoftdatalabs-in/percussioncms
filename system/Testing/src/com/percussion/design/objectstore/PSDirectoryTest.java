@@ -20,6 +20,8 @@ import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 
@@ -27,19 +29,13 @@ import org.w3c.dom.Document;
  * Directory object store class testing, including constructors,
  * <code>PSComponent</code> functionality, accessors and XML functionality.
  */
-public class PSDirectoryTest extends TestCase
+public class PSDirectoryTest
 {
    /**
     * Constructor to call base class constructor.
-    *
-    * @see TestCase#TestCase(String) for more information.
     */
-   public PSDirectoryTest(String name)
-   {
-      super(name);
-   }
 
-   // See base class
+   @BeforeEach
    public void setUp()
    {
    }
@@ -49,6 +45,7 @@ public class PSDirectoryTest extends TestCase
     *
     * @throws Exception if any exceptions occur or assertions fail.
     */
+   @Test
    public void testComponent() throws Exception
    {
       PSDirectory dir1 = new PSDirectory("dir1", PSDirectory.CATALOG_SHALLOW,
@@ -77,19 +74,19 @@ public class PSDirectoryTest extends TestCase
 
       // testing compare/equals
       assertTrue(dir1.compare(dir1, dir1));
-      assertTrue(!dir1.compare(dir1, dir2));
-      assertTrue(!dir2.compare(dir2, dir2_1));
-      assertTrue(!dir2.compare(dir2, dir2_2));
-      assertTrue(!dir2.compare(dir2, dir2_3));
-      assertTrue(!dir2.compare(dir2, dir2_4));
-      assertTrue(!dir2.compare(dir2, dir2_5));
+      assertFalse(dir1.compare(dir1, dir2));
+      assertFalse(dir2.compare(dir2, dir2_1));
+      assertFalse(dir2.compare(dir2, dir2_2));
+      assertFalse(dir2.compare(dir2, dir2_3));
+      assertFalse(dir2.compare(dir2, dir2_4));
+      assertFalse(dir2.compare(dir2, dir2_5));
       assertTrue(dir2.compare(dir2, dir2_6));
 
       // testing clone/copyFrom
       PSDirectory clone = (PSDirectory) dir1.clone();
-      assertTrue(clone.equals(dir1));
+      assertEquals(clone, dir1);
       dir2.copyFrom(dir1);
-      assertTrue(dir1.equals(dir2));
+      assertEquals(dir1, dir2);
 
       // testing name accessors
       boolean didThrow = false;
@@ -194,7 +191,7 @@ public class PSDirectoryTest extends TestCase
       }
       assertTrue(didThrow);
       assertTrue(dir1.isShallowCatalogOption());
-      assertTrue(!dir1.isDeepCatalogOption());
+      assertFalse(dir1.isDeepCatalogOption());
 
       // testing authentication reference accessors
       didThrow = false;
@@ -299,20 +296,8 @@ public class PSDirectoryTest extends TestCase
       assertTrue(dir3.equals(dir4));
    }
 
-   /**
-    * Collect all tests into a TestSuite and return it.
-    *
-    * @return The suite of test methods for this class.  Not <code>null</code>.
-    */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
+   // JUnit 5 uses test discovery; explicit suite() is not required and has been removed.
 
-      suite.addTest(new PSDirectoryTest("testComponent"));
-      suite.addTest(new PSDirectoryTest("testXml"));
-
-      return suite;
-   }
 
    /**
     * A provider url string.

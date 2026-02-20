@@ -47,14 +47,14 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
 {
    /**
     * Test the converter with existing conversions.
-    * 
+    *
     * @throws Exception if the test fails
     */
    @Test
    public void testConversionNoUpdate() throws Exception
    {
       IPSConfigFileLocator locator = initFileLocator();
-      
+
       // create the ctx
       PSConfigurationCtx ctx = (PSConfigurationCtx) new PSConfigurationCtxMock(locator,
               PSLegacyEncrypter.getInstance(
@@ -62,16 +62,16 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
               ).OLD_SECURITY_KEY());
       PSBackEndTable convTable;
       boolean didThrow;
-      
+
       // create repository info
       IPSRepositoryInfo repInfo = new PSTableRepositoryInfo(
          new PSLegacyBackEndTable(getTableXml("full-match"), null, null));
 
-      
+
       // test full match on repository
       convTable = convertTable("full-match", ctx, repInfo, false);
       assertTrue(convTable.getDataSource() == null);
-      
+
       // test no datasource match
       didThrow = false;
       try
@@ -83,7 +83,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
          didThrow = true;
       }
       assertTrue(didThrow);
-      
+
       // test no datasource match
       didThrow = false;
       try
@@ -95,7 +95,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
          didThrow = true;
       }
       assertTrue(didThrow);
-     
+
       // test no driver match
       didThrow = false;
       try
@@ -111,14 +111,14 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
 
    /**
     * Test the converter creating configurations on the fly.
-    * 
+    *
     * @throws Exception if the test fails
     */
   @Test
    public void testConversionWithUpdate() throws Exception
    {
       IPSConfigFileLocator locator = initFileLocator();
-      
+
       // create the ctx
       PSConfigurationCtx ctx = (PSConfigurationCtx) new PSConfigurationCtxMock(locator,
               PSLegacyEncrypter.getInstance(
@@ -126,16 +126,16 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
               ).OLD_SECURITY_KEY());
       PSBackEndTable convTable;
       boolean didThrow;
-      
+
       // create repository info
       IPSRepositoryInfo repInfo = new PSTableRepositoryInfo(new PSLegacyBackEndTable(
          getTableXml("full-match"), null, null));
-      
+
       // now test w/conversions
       List<IPSDatasourceConfig> configs;
       PSLegacyBackEndTable srcTable;
       IPSDatasourceConfig config;
-      
+
       // test existing
       configs = getDatasourceConfigs(ctx);
       assertTrue(configs.size() == 1);
@@ -144,9 +144,9 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       // shouldn't have created any
       configs = getDatasourceConfigs(ctx);
       assertTrue(configs.size() == 1);
-      
+
       // test existing jndi ds only
-      srcTable = new PSLegacyBackEndTable(getTableXml("jndi-match"), 
+      srcTable = new PSLegacyBackEndTable(getTableXml("jndi-match"),
          null, null);
       convTable = convertTable("jndi-match", ctx, repInfo, true);
       configs = getDatasourceConfigs(ctx);
@@ -155,7 +155,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       config = configs.get(1);
       assertEquals(srcTable.getDatabase(), config.getDatabase());
       assertEquals(srcTable.getOrigin(), config.getOrigin());
-      
+
       // test existing driver config only
       // reset the ctx
       ctx = new PSConfigurationCtx(locator, PSLegacyEncrypter.getInstance(
@@ -163,7 +163,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       ).OLD_SECURITY_KEY());
       List<IPSJndiDatasource> datasources = ctx.getJndiDatasources();
       assertTrue(datasources.size() == 1);
-      srcTable = new PSLegacyBackEndTable(getTableXml("driver-match"), 
+      srcTable = new PSLegacyBackEndTable(getTableXml("driver-match"),
          null, null);
       convTable = convertTable("driver-match", ctx, repInfo, true);
       configs = getDatasourceConfigs(ctx);
@@ -178,7 +178,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       assertEquals(newDS.getServer(), srcTable.getServer());
       assertEquals(newDS.getUserId(), "sa");
       assertEquals(newDS.getPassword(), "demo");
-      
+
       // test no matching driver in update mode
       didThrow = false;
       try
@@ -191,34 +191,34 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       }
       assertTrue(didThrow);
    }
-   
+
    /**
     * Test forced conversion with old, new, and bad xml.
-    * 
+    *
     * @throws Exception if the test fails
     */
    @Test
    public void testForcedConversion() throws Exception
    {
       IPSConfigFileLocator locator = initFileLocator();
-      
+
       // create the ctx
       PSConfigurationCtx ctx =  new PSConfigurationCtxMock(locator, PSLegacyEncrypter.getInstance(
               PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
       ).OLD_SECURITY_KEY());
       PSBackEndTable convTable;
       boolean didThrow;
-      
+
       // create repository info
       IPSRepositoryInfo repInfo = new PSTableRepositoryInfo(
          new PSLegacyBackEndTable(getTableXml("full-match"), null, null));
-      
+
       // test force
       convTable = convertTable("no-match", ctx, repInfo, false, true);
       assertTrue(convTable.getDataSource() == null);
-      
+
       // test force w/ new table
-      PSBackEndTable newTable = convertTable("driver-match", ctx, repInfo, 
+      PSBackEndTable newTable = convertTable("driver-match", ctx, repInfo,
          true);
       Element newSrc = newTable.toXml(PSXmlDocumentBuilder.createXmlDocument());
       convTable = convertTable(newSrc, ctx, repInfo, false, true);
@@ -226,7 +226,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       assertEquals(convTable.getAlias(), newTable.getAlias());
       assertEquals(convTable.getTable(), newTable.getTable());
       assertEquals(convTable.getId(), newTable.getId());
-      
+
       // test invalid xml
       didThrow = false;
       try
@@ -238,7 +238,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
          didThrow = true;
       }
       assertTrue(didThrow);
-      
+
       didThrow = false;
       try
       {
@@ -248,12 +248,12 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       {
          didThrow = true;
       }
-      assertTrue(didThrow);  
+      assertTrue(didThrow);
    }
-   
+
    /**
-    * Convenience method calls {@link #convertTable(String, PSConfigurationCtx, 
-    * IPSRepositoryInfo, boolean, boolean) 
+    * Convenience method calls {@link #convertTable(String, PSConfigurationCtx,
+    * IPSRepositoryInfo, boolean, boolean)
     * convertTable(name, ctx, repInfo, updateConfigs, false)}
     */
    private PSBackEndTable convertTable(String name, PSConfigurationCtx ctx,
@@ -261,44 +261,44 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
    {
       return convertTable(name, ctx, repInfo, updateConfigs, false);
    }
-   
+
    /**
     * Converts the table configuration identified by the supplied name and
     * tests that the converted table has the same name, alias, and id.  The
-    * params, return, and exceptions are the same as 
-    * {@link #convertTable(Element, PSConfigurationCtx, 
+    * params, return, and exceptions are the same as
+    * {@link #convertTable(Element, PSConfigurationCtx,
     * IPSRepositoryInfo, boolean, boolean)} except that the table config name
     * is supplied instead of the first <code>src</code> parameter.
-    *  
-    * @param name The configuration name, assumed not <code>null</code> or 
+    *
+    * @param name The configuration name, assumed not <code>null</code> or
     * empty.
     */
    private PSBackEndTable convertTable(String name, PSConfigurationCtx ctx,
-      IPSRepositoryInfo repInfo, boolean updateConfigs, boolean forceConversion) 
+      IPSRepositoryInfo repInfo, boolean updateConfigs, boolean forceConversion)
       throws Exception
    {
       Element src;
       PSLegacyBackEndTable srcTable;
-      
+
       src = getTableXml(name);
-      assertNotNull("Table xml is null", src);
+      Assertions.assertNotNull(src, "Table xml is null");
       srcTable = new PSLegacyBackEndTable(src, null, null);
-      
-      
+
+
       PSBackEndTable convTable = convertTable(src, ctx, repInfo, updateConfigs,
          forceConversion);
-       
+
       assertEquals(convTable.getAlias(), srcTable.getAlias());
       assertEquals(convTable.getTable(), srcTable.getTable());
       assertEquals(convTable.getId(), srcTable.getId());
 
-       
+
       return convTable;
-   }   
-   
+   }
+
    /**
     * Converts the supplied table xml.
-    * 
+    *
     * @param src The source xml, assumed not <code>null</code>.
     * @param ctx The config ctx to use, assumed not <code>null</code>.
     * @param repInfo The repository info to use, assumed not <code>null</code>.
@@ -307,9 +307,9 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
     * exist.
     * @param forceConversion <code>true</code> to simply convert to the
     * repository, <code>false</code> to perform the normal conversion.
-    * 
+    *
     * @return The resulting table.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    private PSBackEndTable convertTable(Element src, PSConfigurationCtx ctx,
@@ -317,26 +317,26 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       throws Exception
    {
 
-      PSBackendTableConverter converter = new PSBackendTableConverter(ctx, 
+      PSBackendTableConverter converter = new PSBackendTableConverter(ctx,
          repInfo, updateConfigs);
       converter.setForcedConversion(forceConversion);
-      
-      List<IPSComponentConverter> converters = 
+
+      List<IPSComponentConverter> converters =
          new ArrayList<IPSComponentConverter>(1);
       converters.add(converter);
       PSComponent.setComponentConverters(converters);
-      
+
       return new PSBackEndTable(src, null, null);
-   }      
+   }
 
    /**
     * Get the specified xml element
-    * 
+    *
     * @param name Identifies the file, assumed not <code>null</code> or empty.
-    * 
+    *
     * @return The element, never <code>null</code>.
-    * 
-    * @throws Exception if there are any errors. 
+    *
+    * @throws Exception if there are any errors.
     */
    private Element getTableXml(String name) throws Exception
    {
@@ -353,7 +353,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
    private class PSTableRepositoryInfo implements IPSRepositoryInfo
    {
       PSLegacyBackEndTable mi_table;
-      
+
       private PSTableRepositoryInfo(PSLegacyBackEndTable table)
       {
          mi_table = table;
@@ -377,7 +377,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       {
          return mi_table.getOrigin();
       }
-      
+
    }
 }
 

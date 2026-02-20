@@ -2,52 +2,60 @@
 
 
 <PSXArchiveManifest>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_PercAddVariableButton-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\images\PercAddVariableButton.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_PercAddVariableButton-png\PercAddVariableButton.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-xml">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\PercGlobalVariablesGadget.xml</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-xml\PercGlobalVariablesGadget.xml</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-js">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\PercGlobalVariablesGadget.js</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-js\PercGlobalVariablesGadget.js</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_gadgetIconGlobalVariables-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\images\gadgetIconGlobalVariables.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_gadgetIconGlobalVariables-png\gadgetIconGlobalVariables.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--web__resources_cm_common_js_PercGlobalVariables-js">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\web_resources\cm\common\js\PercGlobalVariables.js</RxFile>
-         <ArchiveFile>sys__UserDependency--web__resources_cm_common_js_PercGlobalVariables-js\PercGlobalVariables.js</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-css">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\PercGlobalVariablesGadget.css</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-css\PercGlobalVariablesGadget.css</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_gadgetIconGlobalVariablesOver-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\images\gadgetIconGlobalVariablesOver.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_gadgetIconGlobalVariablesOver-png\gadgetIconGlobalVariablesOver.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_PercAddVariableButtonOver-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\images\PercAddVariableButtonOver.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_PercAddVariableButtonOver-png\PercAddVariableButtonOver.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_PercAddVariableButton-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\images\PercAddVariableButton.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_PercAddVariableButton-png\PercAddVariableButton.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-xml">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\PercGlobalVariablesGadget.xml</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-xml\PercGlobalVariablesGadget.xml</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-js">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\PercGlobalVariablesGadget.js</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-js\PercGlobalVariablesGadget.js</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_gadgetIconGlobalVariables-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\images\gadgetIconGlobalVariables.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_gadgetIconGlobalVariables-png\gadgetIconGlobalVariables.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--web__resources_cm_common_js_PercGlobalVariables-js">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\web_resources\cm\common\js\PercGlobalVariables.js</RxFile>
+			<ArchiveFile>sys__UserDependency--web__resources_cm_common_js_PercGlobalVariables-js\PercGlobalVariables.js</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-css">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\PercGlobalVariablesGadget.css</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_PercGlobalVariablesGadget-css\PercGlobalVariablesGadget.css</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_gadgetIconGlobalVariablesOver-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\images\gadgetIconGlobalVariablesOver.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_gadgetIconGlobalVariablesOver-png\gadgetIconGlobalVariablesOver.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_PercAddVariableButtonOver-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercGlobalVariablesGadget\images\PercAddVariableButtonOver.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercGlobalVariablesGadget_images_PercAddVariableButtonOver-png\PercAddVariableButtonOver.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
 </PSXArchiveManifest>

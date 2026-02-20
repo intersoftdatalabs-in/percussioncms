@@ -26,8 +26,8 @@
   ~     along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<xsd:schema xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:asms="urn:www.percussion.com/6.0.0/assemblyServices" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:www.percussion.com/6.0.0/assemblyServices" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:import schemaLocation="../common.xsd" namespace="urn:www.percussion.com/6.0.0/common" />
+<xsd:schema xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:asms="urn:www.percussion.com/8.2.0/assemblyServices" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:www.percussion.com/8.2.0/assemblyServices" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import schemaLocation="../common.xsd" namespace="urn:www.percussion.com/8.2.0/common" />
   <xsd:simpleType name="OutputFormatType">
     <xsd:annotation>
       <xsd:documentation>An enumeration with all possible assembler output formats.</xsd:documentation>

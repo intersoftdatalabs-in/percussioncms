@@ -20,18 +20,18 @@ import java.util.ArrayList;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit tests for the PSExtensionRef class
  */
-public class PSExtensionRefTest extends TestCase
+public class PSExtensionRefTest
 {
-   public PSExtensionRefTest(String testName)
-   {
-      super(testName);
-   }
 
+
+
+   @Test
    public void testConstruct()
       throws Exception
    {
@@ -46,6 +46,9 @@ public class PSExtensionRefTest extends TestCase
       }
    }
 
+
+
+   @Test
    public void testConstructFull()
       throws Exception
    {
@@ -55,7 +58,7 @@ public class PSExtensionRefTest extends TestCase
 
          PSExtensionRef ref = new PSExtensionRef(test.full);
          assertEquals(test.handler, ref.getHandlerName());
-         
+
          // don't test context because the testcase's context may not
          // be canonicalized, whereas the constructed ref's context will
          // always be canonicalized
@@ -123,13 +126,7 @@ public class PSExtensionRefTest extends TestCase
    }
 
    /** collect all tests into a TestSuite and return it */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSExtensionRefTest("testConstruct"));
-      suite.addTest(new PSExtensionRefTest("testConstructFull"));
-      return suite;
-   }
+
 
    static
    {

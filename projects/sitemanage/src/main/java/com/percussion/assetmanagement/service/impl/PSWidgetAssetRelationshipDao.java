@@ -67,11 +67,11 @@ public class PSWidgetAssetRelationshipDao implements IPSWidgetAssetRelationshipD
               + qualifyTableName("CT_PAGE")
               + " where TEMPLATEID = :template)";
 
-      var query = sess.createSQLQuery(sql);
-      query.setString("name", widgetName);
-      query.setLong("slotid", widgetId);
-      query.setInteger("sortrank", sortRank);
-      query.setString("template", templateId);
+      org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
+      query.setParameter("name", widgetName);
+      query.setParameter("slotid", widgetId);
+      query.setParameter("sortrank", sortRank);
+      query.setParameter("template", templateId);
 
       int result = query.executeUpdate();
 

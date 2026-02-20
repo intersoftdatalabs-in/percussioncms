@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
 /** PSSendMailTest is a test class for the method PSExitNotifyAssignees.sendMail. */
-@Tag("IntegrationTest")
+
 public class PSSendMailTest extends PSAbstractWorkflowTest {
   private static final Logger log = LogManager.getLogger(PSSendMailTest.class);
 

@@ -102,16 +102,32 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    public static final String LICENSE = "LICENSE";
    
    /**
-    * @return the serverType
+    * @return the serverType wrapped in an Optional. If unset, defaults to {@link #PRODUCTION}.
     */
-   public String getServerType()
+   public java.util.Optional<String> getServerType()
    {
-      if (StringUtils.isBlank(serverType))
-        return PRODUCTION;
-
-      return serverType;
+      return java.util.Optional.of(StringUtils.isBlank(serverType) ? PRODUCTION : serverType);
    }
 
+   /**
+    * Returns whether this server has been fully published.
+    *
+    * @return {@code true} if fully published, {@code false} otherwise
+    */
+   public boolean hasFullPublished()
+   {
+      return "yes".equalsIgnoreCase(hasFullPublished) || Boolean.TRUE.toString().equalsIgnoreCase(hasFullPublished);
+   }
+
+   /**
+    * Set whether this server has been fully published.
+    *
+    * @param hasFullPublished true if fully published, false otherwise
+    */
+   public void setHasFullPublished(boolean hasFullPublished)
+   {
+      this.hasFullPublished = hasFullPublished ? "yes" : "no";
+   }
    /***
     *  Test validity of a publishing server type.
     * @param type A publishing server type
@@ -241,11 +257,11 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    /**
     * Get the description that describes this server.
     * 
-    * @return the description, can be <code>null</code> or empty.
+    * @return Optional containing the description if set, otherwise empty.
     */
-   public String getDescription()
+   public java.util.Optional<String> getDescription()
    {
-      return description;
+      return java.util.Optional.ofNullable(description);
    }
 
    /**
@@ -308,40 +324,40 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    public void addProperty(String pname, String pvalue)
    {
       notEmpty(pname);
-      
-      PSPubServerProperty p = getProperty(pname);
-      if (p != null)
+
+      java.util.Optional<PSPubServerProperty> pOpt = getProperty(pname);
+      if (pOpt.isPresent())
       {
-         p.setValue(pvalue);
+         pOpt.get().setValue(pvalue);
          return;
       }
-      
-      p = new PSPubServerProperty();
+
+      PSPubServerProperty p = new PSPubServerProperty();
       p.setServerId(serverId);
       p.setName(pname);
       p.setValue(pvalue);
-      
+
       properties.add(p);
    }
    
    /* (non-Javadoc)
     * @see com.percussion.services.pubserver.IPSPubServer#getProperty(java.lang.String)
     */
-   public PSPubServerProperty getProperty(String propertyName)
+   public java.util.Optional<PSPubServerProperty> getProperty(String propertyName)
    {
-      if(isBlank(propertyName) || properties.isEmpty())
+      if (isBlank(propertyName) || properties.isEmpty())
       {
-         return null;
+         return java.util.Optional.empty();
       }
-      
-      for(PSPubServerProperty property : properties)
+
+      for (PSPubServerProperty property : properties)
       {
-         if(equalsIgnoreCase(property.getName(), propertyName))
+         if (equalsIgnoreCase(property.getName(), propertyName))
          {
-            return property;
+            return java.util.Optional.of(property);
          }
-      }      
-      return null;
+      }
+      return java.util.Optional.empty();
    }
    
    /*
@@ -350,21 +366,21 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * @see
     * com.percussion.services.pubserver.IPSPubServer#getPropertyValue(String)
     */
-   public String getPropertyValue(String propertyName)
+   public java.util.Optional<String> getPropertyValue(String propertyName)
    {
       if (isBlank(propertyName) || properties.isEmpty())
       {
-         return null;
+         return java.util.Optional.empty();
       }
 
       for (PSPubServerProperty property : properties)
       {
          if (equalsIgnoreCase(property.getName(), propertyName))
          {
-            return property.getValue();
+            return java.util.Optional.ofNullable(property.getValue());
          }
       }
-      return null;
+      return java.util.Optional.empty();
    }
 
    /*
@@ -376,13 +392,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     */
    public String getPropertyValue(String propertyName, String defaultValue)
    {
-      String rawValue = getPropertyValue(propertyName);
-
-      if (rawValue == null)
-      {
-         return defaultValue;
-      }
-      return rawValue;
+      return getPropertyValue(propertyName).orElse(defaultValue);
    }
 
    /*
@@ -404,7 +414,9 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     */
    public boolean isDatabaseType()
    {
-      return equalsIgnoreCase(publishType, PublishType.database.name());
+      return getPublishTypeEnum()
+         .map(PublishType::isDatabase)
+         .orElse(false);
    }
 
    /**
@@ -412,18 +424,11 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     */
    public boolean isFtpType()
    {
-      return publishType.toLowerCase().contains(PublishType.ftp.toString());
+      return getPublishTypeEnum()
+         .map(PublishType::isFtpBased)
+         .orElse(false);
    }
 
-   public boolean hasFullPublished()
-   {
-      return "y".equals(hasFullPublished);
-   }
-
-   public void setHasFullPublisehd(boolean hasPublished)
-   {
-      this.hasFullPublished = hasPublished ? "y" : "n";
-   }
 
     /**
      * Returns whether or not the site has been renamed since the last full publish.
@@ -465,15 +470,15 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
        return true;
    }
 
-   public String getPublishServer(){
+   public java.util.Optional<String> getPublishServer(){
       PSDeliveryInfoService psDeliveryInfoService = (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
-      List psDeliveryInfoServiceList = psDeliveryInfoService.getAdminUrls(this.serverType);
-      String server = this.getPropertyValue(IPSPubServerDao.PUBLISH_SERVER_PROPERTY,null);
-      if(psDeliveryInfoServiceList.contains(server)){
-         return server;
-      }else{
-         addProperty(IPSPubServerDao.PUBLISH_SERVER_PROPERTY,DEFAULT_DTS);
-         return DEFAULT_DTS;
+      List<String> adminUrls = psDeliveryInfoService.getAdminUrls(this.serverType);
+      String server = this.getPropertyValue(IPSPubServerDao.PUBLISH_SERVER_PROPERTY, null);
+      if (server != null && adminUrls.contains(server)){
+         return java.util.Optional.of(server);
+      } else {
+         addProperty(IPSPubServerDao.PUBLISH_SERVER_PROPERTY, DEFAULT_DTS);
+         return java.util.Optional.of(DEFAULT_DTS);
       }
    }
 

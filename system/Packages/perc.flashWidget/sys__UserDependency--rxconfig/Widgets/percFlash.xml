@@ -1,102 +1,75 @@
+
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Flash"
-                 contenttype_name="percFlashAsset"
-                 category="rich media"
-                 description="Display a flash movie"
-                 author="Percussion Software Inc"
-                 thumbnail="/rx_resources/widgets/flash/images/widgetIconFlash.png"
-                 preferred_editor_width="605"
-                 preferred_editor_height="525"
-                 is_responsive="true"
-    />
+	<WidgetPrefs title="Flash"
+		contenttype_name="percFlashAsset" category="rich media"
+		description="Display a flash movie" author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/flash/images/widgetIconFlash.png"
+		preferred_editor_width="605" preferred_editor_height="525"
+		is_responsive="true" />
 
-    <!-- Resource href="/rx_resources/widgets/flash/css/perc-flash-widget.css"
-        type="css"
-        placement="head" />  -->
-    <UserPref name="height"
-              display_name="Height in pixels or percent"
-              required="false"
-              default_value=""
-              datatype="string"/>
-    <UserPref name="width"
-              display_name="Width in pixels or percent"
-              required="false"
-              default_value=""
-              datatype="string"/>
-    <UserPref name="rendering"
-              display_name="Embedding method"
-              required="true"
-              default_value="static"
-              datatype="enum">
-        <EnumValue value="static" display_value="Static embedded tags"/>
-        <EnumValue value="dynamic" display_value="Dynamic JavaScript"/>
-    </UserPref>
-    <UserPref name="play"
-              display_name="Play"
-              required="true"
-              default_value="true"
-              datatype="bool"/>
-    <UserPref name="loop"
-              display_name="Loop"
-              required="true"
-              default_value="true"
-              datatype="bool"/>
-    <UserPref name="menu"
-              display_name="Show full menu"
-              default_value="false"
-              datatype="bool"/>
-    <UserPref name="quality"
-              display_name="Quality"
-              required="false"
-              datatype="enum">
-        <EnumValue value="&quot;&quot;" display_value="-Not specified-"/>
-        <EnumValue value="low" display_value="Low"/>
-        <EnumValue value="medium" display_value="Medium"/>
-        <EnumValue value="high" display_value="High"/>
-        <EnumValue value="autolow" display_value="Auto-Low"/>
-        <EnumValue value="autohigh" display_value="Auto-High"/>
-        <EnumValue value="best" display_value="Best"/>
-    </UserPref>
-    <UserPref name="scale"
-              display_name="Scale"
-              required="false"
-              datatype="enum">
-        <EnumValue value="&quot;&quot;" display_value="-Not specified-"/>
-        <EnumValue value="default" display_value="Default"/>
-        <EnumValue value="noborder" display_value="No border"/>
-        <EnumValue value="exactfit" display_value="Exact fit"/>
-    </UserPref>
-    <UserPref name="wmode"
-              display_name="Window mode"
-              required="true"
-              default_value="transparent"
-              datatype="enum">
-        <EnumValue value="window" display_value="Window"/>
-        <EnumValue value="opaque" display_value="Opaque"/>
-        <EnumValue value="transparent" display_value="Transparent"/>
-    </UserPref>
-    <UserPref name="bgcolor"
-              display_name="Background color"
-              required="false"
-              datatype="string"/>
-    <UserPref name="flashvars"
-              display_name="Additional Flash variables"
-              required="false"
-              datatype="string"/>
-    <UserPref name="allowscriptaccess"
-              display_name="Allow script access"
-              default_value="samedomain"
-              datatype="enum">
-        <EnumValue value="always" display_value="Always"/>
-        <EnumValue value="samedomain" display_value="Same domain"/>
-        <EnumValue value="never" display_value="Never"/>
-    </UserPref>
+	<!-- Resource href="/rx_resources/widgets/flash/css/perc-flash-widget.css"
+		type="css" placement="head" /> -->
+	<UserPref name="height"
+		display_name="Height in pixels or percent" required="false"
+		default_value="" datatype="string" />
+	<UserPref name="width"
+		display_name="Width in pixels or percent" required="false"
+		default_value="" datatype="string" />
+	<UserPref name="rendering" display_name="Embedding method"
+		required="true" default_value="static" datatype="enum">
+		<EnumValue value="static"
+			display_value="Static embedded tags" />
+		<EnumValue value="dynamic"
+			display_value="Dynamic JavaScript" />
+	</UserPref>
+	<UserPref name="play" display_name="Play" required="true"
+		default_value="true" datatype="bool" />
+	<UserPref name="loop" display_name="Loop" required="true"
+		default_value="true" datatype="bool" />
+	<UserPref name="menu" display_name="Show full menu"
+		default_value="false" datatype="bool" />
+	<UserPref name="quality" display_name="Quality"
+		required="false" datatype="enum">
+		<EnumValue value="&quot;&quot;"
+			display_value="-Not specified-" />
+		<EnumValue value="low" display_value="Low" />
+		<EnumValue value="medium" display_value="Medium" />
+		<EnumValue value="high" display_value="High" />
+		<EnumValue value="autolow" display_value="Auto-Low" />
+		<EnumValue value="autohigh" display_value="Auto-High" />
+		<EnumValue value="best" display_value="Best" />
+	</UserPref>
+	<UserPref name="scale" display_name="Scale" required="false"
+		datatype="enum">
+		<EnumValue value="&quot;&quot;"
+			display_value="-Not specified-" />
+		<EnumValue value="default" display_value="Default" />
+		<EnumValue value="noborder" display_value="No border" />
+		<EnumValue value="exactfit" display_value="Exact fit" />
+	</UserPref>
+	<UserPref name="wmode" display_name="Window mode"
+		required="true" default_value="transparent" datatype="enum">
+		<EnumValue value="window" display_value="Window" />
+		<EnumValue value="opaque" display_value="Opaque" />
+		<EnumValue value="transparent" display_value="Transparent" />
+	</UserPref>
+	<UserPref name="bgcolor" display_name="Background color"
+		required="false" datatype="string" />
+	<UserPref name="flashvars"
+		display_name="Additional Flash variables" required="false"
+		datatype="string" />
+	<UserPref name="allowscriptaccess"
+		display_name="Allow script access" default_value="samedomain"
+		datatype="enum">
+		<EnumValue value="always" display_value="Always" />
+		<EnumValue value="samedomain" display_value="Same domain" />
+		<EnumValue value="never" display_value="Never" />
+	</UserPref>
 
-    <CssPref name="rootclass"
-             display_name="CSS Root Class"
-             datatype="string"/>
-    <Code type="jexl">
+	<CssPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
+	<Code type="jexl">
         <![CDATA[
         $rootclass = $perc.widget.item.cssProperties.get('rootclass');
         if(!empty($rootclass)) {
@@ -148,8 +121,8 @@
 			$dsUrl = "";
         $dynamicListData = $tools.esc.html("{ deliveryurl : '" + $dsUrl + "'}");
     ]]>
-    </Code>
-    <Content type="velocity">
+	</Code>
+	<Content type="velocity">
         <![CDATA[
 <div class="$!{rootclass}perc-flash" data="$!{dynamicListData}">
 #if( ! $perc.widgetContents.isEmpty() )
@@ -211,5 +184,5 @@
 #end
 </div>
     ]]>
-    </Content>
+	</Content>
 </Widget>

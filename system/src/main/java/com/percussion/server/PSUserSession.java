@@ -22,6 +22,7 @@ import com.percussion.i18n.PSLocale;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.PSRoleEntry;
+import com.percussion.security.PSSecurityException;
 import com.percussion.security.PSUserEntry;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -29,7 +30,6 @@ import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
 import com.percussion.services.security.PSServletRequestWrapper;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -296,7 +296,7 @@ public class PSUserSession {
     try {
       PSCommunity c = berm.loadCommunity(new PSGuid(PSTypeEnum.COMMUNITY_DEF, cid));
       return c.getName();
-    } catch (PSSecurityException e) {
+    } catch (PSSecurityException | com.percussion.services.security.PSServiceSecurityException e) {
       return null;
     }
   }
@@ -1016,16 +1016,21 @@ public class PSUserSession {
       String newValue = null;
       try {
         IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
-        PSLocale l = mgr.findLocaleByLanguageString(strValue);
-        if (l == null || l.getStatus() != PSLocale.STATUS_ACTIVE) {
-          l = mgr.findLocaleByLanguageString("en-us");
-          if (l != null && l.getStatus() != PSLocale.STATUS_ACTIVE) {
+        var currentOpt =
+            mgr.findLocaleByLanguageString(strValue)
+                .filter(locale -> locale.getStatus() == PSLocale.STATUS_ACTIVE);
+        if (currentOpt.isEmpty()) {
+          var enOpt =
+              mgr.findLocaleByLanguageString("en-us")
+                  .filter(locale -> locale.getStatus() == PSLocale.STATUS_ACTIVE);
+          if (enOpt.isPresent()) {
             newValue = "en-us";
           } else {
-            Collection active = mgr.findLocaleByStatus(PSLocale.STATUS_ACTIVE);
-            if (active.size() > 0) {
-              l = (PSLocale) active.iterator().next();
-              newValue = l.getLanguageString();
+            java.util.List<PSLocale> active =
+                mgr.findLocalesByStatus(PSLocale.STATUS_ACTIVE)
+                    .collect(java.util.stream.Collectors.toList());
+            if (!active.isEmpty()) {
+              newValue = active.iterator().next().getLanguageString();
             } else {
               throw new Exception("No locales found");
             }

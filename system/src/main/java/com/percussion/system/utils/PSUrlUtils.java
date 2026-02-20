@@ -19,6 +19,7 @@ package com.percussion.system.utils;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
+import com.percussion.util.PSURLEncoder;
 import com.percussion.utils.collections.PSIteratorUtils;
 import java.net.MalformedURLException;
 import java.net.URL;

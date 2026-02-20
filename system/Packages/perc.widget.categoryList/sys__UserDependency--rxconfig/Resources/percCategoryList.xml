@@ -2,16 +2,21 @@
 
 
 <Resources>
-	<file id="common_js"  path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript" >
-		     <dependency refid="percSystem.common_slim_js"/>
+	<file id="common_js"
+		path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript">
+		<dependency refid="percSystem.common_slim_js" />
 	</file>
-    <!--file path="/web_resources/widgets/category/css/perc-category-widget.css"   type="css"        id="perc-category-widget_css"/-->
-    <file path="/web_resources/widgets/category/js/category.min.js" type="javascript" id="category_js">
-        <dependency refid="percSystem.jquery"/>
-    </file>
-    <file path="/web_resources/cm/css/dynatree/skin/ui.dynatree.css" type="css" id="jquery-dynatree_css"/>
-    <file id="jquery-dynatree_js" path="/web_resources/cm/jslib/jquery.dynatree.js" type="javascript">
-        <dependency refid="percSystem.jquery" />
-        <dependency refid="percSystem.jquery-ui" />
-    </file>
+	<!--file path="/web_resources/widgets/category/css/perc-category-widget.css"
+		type="css" id="perc-category-widget_css"/ -->
+	<file path="/web_resources/widgets/category/js/category.min.js"
+		type="javascript" id="category_js">
+		<dependency refid="percSystem.jquery" />
+	</file>
+	<file path="/web_resources/cm/css/dynatree/skin/ui.dynatree.css"
+		type="css" id="jquery-dynatree_css" />
+	<file id="jquery-dynatree_js"
+		path="/web_resources/cm/jslib/jquery.dynatree.js" type="javascript">
+		<dependency refid="percSystem.jquery" />
+		<dependency refid="percSystem.jquery-ui" />
+	</file>
 </Resources>

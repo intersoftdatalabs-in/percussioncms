@@ -1,9 +1,8 @@
-
-
-.percPerson-empty-style
-{
-    height: 100px;
-    background: transparent url(/Rhythmyx/rx_resources/widgets/percPerson/images/percPersonPlaceholder.png) no-repeat scroll center center;
-    filter: alpha(opacity=50);
-    opacity: .50;
+.percPerson-empty-style {
+  height: 100px;
+  background: transparent
+    url(/Rhythmyx/rx_resources/widgets/percPerson/images/percPersonPlaceholder.png)
+    no-repeat scroll center center;
+  filter: alpha(opacity=50);
+  opacity: 0.5;
 }

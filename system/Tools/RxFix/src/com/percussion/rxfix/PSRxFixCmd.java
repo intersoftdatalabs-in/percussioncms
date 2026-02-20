@@ -23,7 +23,6 @@ import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.tools.PSParseArguments;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 
 import javax.naming.spi.NamingManager;
 import java.io.File;
@@ -374,9 +373,17 @@ public class PSRxFixCmd
          ctxfiles[0] = installbeans.getAbsolutePath();
 
          // The naming context builder can only be set once
-         if (!NamingManager.hasInitialContextFactoryBuilder())
-            NamingManager
-                  .setInitialContextFactoryBuilder(new SimpleNamingContextBuilder());
+         if (!NamingManager.hasInitialContextFactoryBuilder()) {
+            try {
+               Class<?> cls = Class.forName("org.springframework.mock.jndi.SimpleNamingContextBuilder");
+               Object inst = cls.getDeclaredConstructor().newInstance();
+               if (inst instanceof javax.naming.spi.InitialContextFactoryBuilder) {
+                  NamingManager.setInitialContextFactoryBuilder((javax.naming.spi.InitialContextFactoryBuilder) inst);
+               }
+            } catch (Exception e) {
+               log.debug("SimpleNamingContextBuilder not available: {}", e.toString());
+            }
+         }
 
          PSBaseServiceLocator.initCtx(ctxfiles);
 

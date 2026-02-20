@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<!--
-This configuration file is used to merge the server TMX resource bundle with
-that generated from the CMS by the Percussion Language Tool (RXLT). This merging is
-required to preserve the existing translations before giving the generated TMX
-resource bundle for translation service. This configuration file will generate
-only the keys that are present in the bundle generated from CMS and missing in the
-master or server resource bundle.
-<!DOCTYPE tmxmergeconfig SYSTEM "tmxmergeconfig.dtd">
--->
+<!-- This configuration file is used to merge the server TMX resource bundle
+	with that generated from the CMS by the Percussion Language Tool (RXLT).
+	This merging is required to preserve the existing translations before giving
+	the generated TMX resource bundle for translation service. This configuration
+	file will generate only the keys that are present in the bundle generated
+	from CMS and missing in the master or server resource bundle. <!DOCTYPE tmxmergeconfig
+	SYSTEM "tmxmergeconfig.dtd"> -->
 <tmxmergeconfig>
 	<tu>
 		<config>
@@ -19,7 +17,7 @@ master or server resource bundle.
 			<param name="modifyifexists">no</param>
 			<param name="ignoreifexists">no</param>
 			<param name="addifnotexists">no</param>
-			<!-- Do nothing if  if not present -->
+			<!-- Do nothing if if not present -->
 			<param name="ignoreifnotexists">yes</param>
 		</config>
 		<note>

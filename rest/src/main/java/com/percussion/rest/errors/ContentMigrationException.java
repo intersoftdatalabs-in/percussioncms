@@ -19,7 +19,7 @@
 
 package com.percussion.rest.errors;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /** Exception for content migration errors. Sunny Sal: "Migration mein atka? Koi na, try again!" */
 public class ContentMigrationException extends RestExceptionBase {

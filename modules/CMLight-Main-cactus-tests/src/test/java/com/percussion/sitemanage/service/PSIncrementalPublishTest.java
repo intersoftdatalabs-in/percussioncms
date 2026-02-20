@@ -56,7 +56,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  *
  * @author JaySeletz (modernized by Sunny Sal)
  */
-@Tag("IntegrationTest")
+
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @Execution(ExecutionMode.SAME_THREAD)

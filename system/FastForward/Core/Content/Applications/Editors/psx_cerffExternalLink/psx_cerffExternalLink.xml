@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<PSXApplication active="no" enabled="yes" hidden="no" id="1049" startPriority="0" version="2.0">
+<PSXApplication active="no" enabled="yes" hidden="no"
+	id="1049" startPriority="0" version="2.0">
 	<name>psx_cerffExternalLink</name>
 	<description>Creates External Link Content Items</description>
 	<requestRoot>psx_cerffExternalLink</requestRoot>
-	<defaultRequestPage/>
+	<defaultRequestPage />
 	<appExtensionContext>application/_stevegolinder_1069341442398/</appExtensionContext>
 	<PSXRevisionHistory>
 		<PSXRevisionEntry majorVersion="1" minorVersion="0">
@@ -19,17 +20,21 @@
 			<time>20040518T143058976</time>
 		</PSXRevisionEntry>
 	</PSXRevisionHistory>
-   <PSXAcl id="0">
-      <PSXAclEntry id="0" type="user">
-         <name>Anonymous</name>
-         <applicationAccessLevel dataCreate="yes" dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="no" designRead="no" designUpdate="no" modifyAcl="no"/>
-      </PSXAclEntry>
-      <PSXAclEntry id="0" type="user">
-         <name>Default</name>
-         <applicationAccessLevel dataCreate="yes" dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="yes" designRead="yes" designUpdate="yes" modifyAcl="yes"/>
-      </PSXAclEntry>
-      <multiMembershipBehavior/>
-   </PSXAcl>
+	<PSXAcl id="0">
+		<PSXAclEntry id="0" type="user">
+			<name>Anonymous</name>
+			<applicationAccessLevel dataCreate="yes"
+				dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="no"
+				designRead="no" designUpdate="no" modifyAcl="no" />
+		</PSXAclEntry>
+		<PSXAclEntry id="0" type="user">
+			<name>Default</name>
+			<applicationAccessLevel dataCreate="yes"
+				dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="yes"
+				designRead="yes" designUpdate="yes" modifyAcl="yes" />
+		</PSXAclEntry>
+		<multiMembershipBehavior />
+	</PSXAcl>
 	<maxThreads>-1</maxThreads>
 	<maxRequestTime>-1</maxRequestTime>
 	<maxRequestsInQueue>-1</maxRequestsInQueue>
@@ -46,17 +51,17 @@
 		<transactionType>forAllRows</transactionType>
 		<PSXUpdatePipe id="729">
 			<name>UpdatePipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="728">
 				<PSXBackEndTable id="726">
 					<alias>RXS_CT_EXTERNALLINK</alias>
 					<table>RXS_CT_EXTERNALLINK</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 				<PSXBackEndTable id="727">
 					<alias>RXS_CT_SHARED</alias>
 					<table>RXS_CT_SHARED</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 			</PSXBackEndDataTank>
 			<PSXDataMapper id="723" returnEmptyXml="no">
@@ -67,9 +72,9 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>RXS_CT_EXTERNALLINK</tableAlias>
 						<column>CONTENTID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="2" id="0">
 					<PSXSingleHtmlParameter id="0">
@@ -78,36 +83,37 @@
 					<PSXBackEndColumn id="0">
 						<tableAlias>RXS_CT_SHARED</tableAlias>
 						<column>CONTENTID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSynchronizer allowDeletes="yes" allowInserts="no" allowUpdates="no" id="724">
+			<PSXDataSynchronizer allowDeletes="yes"
+				allowInserts="no" allowUpdates="no" id="724">
 				<PSXUpdateColumn id="0" isEditable="no" isKey="yes">
 					<PSXBackEndColumn id="0">
 						<tableAlias>RXS_CT_EXTERNALLINK</tableAlias>
 						<column>CONTENTID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
 				</PSXUpdateColumn>
 				<PSXUpdateColumn id="0" isEditable="no" isKey="yes">
 					<PSXBackEndColumn id="0">
 						<tableAlias>RXS_CT_SHARED</tableAlias>
 						<column>CONTENTID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
 				</PSXUpdateColumn>
 			</PSXDataSynchronizer>
 		</PSXUpdatePipe>
 		<PSXPageDataTank id="730">
 			<schemaSource>file:rx_zho_RXS_CT_EXTERNALLINK.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>purge</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<htm>
@@ -123,23 +129,27 @@
 			</MimeProperties>
 		</PSXRequestor>
 	</PSXDataSet>
-   <PSXContentEditor contentType="308" enableRelatedContent="no" iconSource="1" iconValue="rffExternalLink.gif" objectType="1" workflowId="4">
+	<PSXContentEditor contentType="308"
+		enableRelatedContent="no" iconSource="1"
+		iconValue="rffExternalLink.gif" objectType="1" workflowId="4">
 		<PSXDataSet id="733">
 			<name>template</name>
 			<description>default template</description>
 			<transactionType>none</transactionType>
 			<PSXContentEditorPipe id="0">
 				<name>cePipe</name>
-				<description>This is the ContentEditorLocaDef for Default ContentType</description>
+				<description>This is the ContentEditorLocaDef for Default
+					ContentType</description>
 				<PSXContainerLocator>
 					<PSXTableSet>
 						<PSXTableLocator>
 							<PSXBackEndCredential id="275">
 								<alias>contentCredential</alias>
-								<datasource/>
+								<datasource />
 							</PSXBackEndCredential>
 						</PSXTableLocator>
-						<PSXTableRef alias="RXS_CT_EXTERNALLINK" name="RXS_CT_EXTERNALLINK"/>
+						<PSXTableRef alias="RXS_CT_EXTERNALLINK"
+							name="RXS_CT_EXTERNALLINK" />
 					</PSXTableSet>
 				</PSXContainerLocator>
 				<PSXContentEditorMapper>
@@ -153,34 +163,39 @@
 					<SharedFieldIncludes>
 						<SharedFieldGroupName>shared</SharedFieldGroupName>
 						<SharedFieldExcludes>
-						   <FieldRef>body</FieldRef>
-						   <FieldRef>filename</FieldRef>
-						   <FieldRef>keywords</FieldRef>
-						   <FieldRef>callout</FieldRef>
-						   <FieldRef>description</FieldRef>
+							<FieldRef>body</FieldRef>
+							<FieldRef>filename</FieldRef>
+							<FieldRef>keywords</FieldRef>
+							<FieldRef>callout</FieldRef>
+							<FieldRef>description</FieldRef>
 						</SharedFieldExcludes>
 					</SharedFieldIncludes>
-					<PSXFieldSet name="RXS_CT_EXTERNALLINK" repeatability="zeroOrMore" supportsSequencing="yes" type="parent">
-						<PSXField forceBinary="no" modificationType="user" name="url" showInPreview="yes" showInSummary="yes" type="local" userCustomizable="yes" userSearchable="yes">
+					<PSXFieldSet name="RXS_CT_EXTERNALLINK"
+						repeatability="zeroOrMore" supportsSequencing="yes" type="parent">
+						<PSXField forceBinary="no" modificationType="user"
+							name="url" showInPreview="yes" showInSummary="yes" type="local"
+							userCustomizable="yes" userSearchable="yes">
 							<DataLocator>
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXS_CT_EXTERNALLINK</tableAlias>
 									<column>URL</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
 							</DataLocator>
 							<DataType>text</DataType>
 							<DataFormat>2048</DataFormat>
-							 <DefaultValue>
+							<DefaultValue>
 								<DataLocator>
-								   <PSXTextLiteral id="0">
-									  <text>#</text>
-								   </PSXTextLiteral>
+									<PSXTextLiteral id="0">
+										<text>#</text>
+									</PSXTextLiteral>
 								</DataLocator>
-							 </DefaultValue>
-							<OccurrenceSettings delimiter=";" dimension="required" multiValuedType="delimited"/>
+							</DefaultValue>
+							<OccurrenceSettings delimiter=";"
+								dimension="required" multiValuedType="delimited" />
 							<FieldRules>
-								<PSXFieldValidationRules maxErrorsToStop="10" name="isValidSysTitle">
+								<PSXFieldValidationRules
+									maxErrorsToStop="10" name="isValidSysTitle">
 									<PSXRule boolean="and">
 										<PSXConditional id="1">
 											<variable>
@@ -191,13 +206,13 @@
 											<operator>IS NOT NULL</operator>
 											<value>
 												<PSXTextLiteral id="0">
-													<text/>
+													<text />
 												</PSXTextLiteral>
 											</value>
 											<boolean>AND</boolean>
 										</PSXConditional>
 									</PSXRule>
-									<PSXApplyWhen ifFieldEmpty="yes"/>
+									<PSXApplyWhen ifFieldEmpty="yes" />
 									<ErrorMessage>
 										<PSXDisplayText>URL field cannot be empty</PSXDisplayText>
 									</ErrorMessage>
@@ -206,22 +221,23 @@
 						</PSXField>
 					</PSXFieldSet>
 					<PSXUIDefinition>
-						<PSXDisplayMapper fieldSetRef="RXS_CT_EXTERNALLINK" id="0">
+						<PSXDisplayMapper
+							fieldSetRef="RXS_CT_EXTERNALLINK" id="0">
 							<PSXDisplayMapping>
 								<FieldRef>sys_title</FieldRef>
-                        <PSXUISet accessKey="t"/>
+								<PSXUISet accessKey="t" />
 							</PSXDisplayMapping>
 							<PSXDisplayMapping>
 								<FieldRef>displaytitle</FieldRef>
-                        <PSXUISet accessKey="t"/>
+								<PSXUISet accessKey="t" />
 							</PSXDisplayMapping>
 							<PSXDisplayMapping>
 								<FieldRef>url</FieldRef>
-                        <PSXUISet accessKey="U">
+								<PSXUISet accessKey="U">
 									<Label>
 										<PSXDisplayText>URL:</PSXDisplayText>
 									</Label>
-									<PSXControlRef id="4332" name="sys_TextArea"/>
+									<PSXControlRef id="4332" name="sys_TextArea" />
 									<ErrorLabel>
 										<PSXDisplayText>Url:</PSXDisplayText>
 									</ErrorLabel>
@@ -229,23 +245,23 @@
 							</PSXDisplayMapping>
 							<PSXDisplayMapping>
 								<FieldRef>sys_contentstartdate</FieldRef>
-                        <PSXUISet accessKey="D"/>
+								<PSXUISet accessKey="D" />
 							</PSXDisplayMapping>
 							<PSXDisplayMapping>
 								<FieldRef>sys_communityid</FieldRef>
-                        <PSXUISet accessKey="m"/>
+								<PSXUISet accessKey="m" />
 							</PSXDisplayMapping>
 							<PSXDisplayMapping>
 								<FieldRef>sys_workflowid</FieldRef>
-                        <PSXUISet accessKey="w"/>
+								<PSXUISet accessKey="w" />
 							</PSXDisplayMapping>
 							<PSXDisplayMapping>
 								<FieldRef>sys_lang</FieldRef>
-                        <PSXUISet accessKey="l"/>
+								<PSXUISet accessKey="l" />
 							</PSXDisplayMapping>
 							<PSXDisplayMapping>
 								<FieldRef>sys_currentview</FieldRef>
-								<PSXUISet/>
+								<PSXUISet />
 							</PSXDisplayMapping>
 						</PSXDisplayMapper>
 					</PSXUIDefinition>
@@ -253,12 +269,12 @@
 			</PSXContentEditorPipe>
 			<PSXPageDataTank id="732">
 				<schemaSource>file:unspecified</schemaSource>
-				<actionTypeXmlField/>
+				<actionTypeXmlField />
 			</PSXPageDataTank>
 			<PSXRequestor directDataStream="no" id="0">
 				<requestPage>rffExternalLink</requestPage>
-				<SelectionParams/>
-				<ValidationRules/>
+				<SelectionParams />
+				<ValidationRules />
 				<characterEncoding>UTF-8</characterEncoding>
 				<MimeProperties>
 					<htm>
@@ -274,19 +290,30 @@
 				</MimeProperties>
 			</PSXRequestor>
 		</PSXDataSet>
-		<PSXValidationRules maxErrorsToStop="10"/>
-		<PSXInputTranslations/>
-		<PSXOutputTranslations/>
-		<PSXWorkflowInfo type="inclusionary" values="4,5"/>
+		<PSXValidationRules maxErrorsToStop="10" />
+		<PSXInputTranslations />
+		<PSXOutputTranslations />
+		<PSXWorkflowInfo type="inclusionary" values="4,5" />
 	</PSXContentEditor>
-	<PSXLogger id="0" logAppStartStop="no" logAppStatistics="no" logBasicUserActivity="no" logDetailedUserActivity="no" logErrors="no" logExecutionPlan="no" logFullUserActivity="no" logMultipleHandlers="no" logServerStartStop="no"/>
-	<PSXTraceInfo id="0" traceAppHandlerProc="yes" traceAppSecurity="yes" traceBasicRequestInfo="yes" traceConditionalEval="no" traceDbPool="no" traceEnabled="no" traceExitExec="no" traceExitProc="no" traceFileInfo="no" traceInitHttpVar="no" traceMapper="no" traceOutputColumnWidth="80" traceOutputConv="no" tracePostExitCgi="no" tracePostExitXml="no" tracePostPreProcHttpVar="no" traceResourceHandler="yes" traceResultSet="no" traceSessionInfo="no" traceTimestampOnlyEnabled="no"/>
-	<PSXErrorWebPages id="720" returnHtml="yes"/>
+	<PSXLogger id="0" logAppStartStop="no" logAppStatistics="no"
+		logBasicUserActivity="no" logDetailedUserActivity="no" logErrors="no"
+		logExecutionPlan="no" logFullUserActivity="no"
+		logMultipleHandlers="no" logServerStartStop="no" />
+	<PSXTraceInfo id="0" traceAppHandlerProc="yes"
+		traceAppSecurity="yes" traceBasicRequestInfo="yes"
+		traceConditionalEval="no" traceDbPool="no" traceEnabled="no"
+		traceExitExec="no" traceExitProc="no" traceFileInfo="no"
+		traceInitHttpVar="no" traceMapper="no" traceOutputColumnWidth="80"
+		traceOutputConv="no" tracePostExitCgi="no" tracePostExitXml="no"
+		tracePostPreProcHttpVar="no" traceResourceHandler="yes"
+		traceResultSet="no" traceSessionInfo="no"
+		traceTimestampOnlyEnabled="no" />
+	<PSXErrorWebPages id="720" returnHtml="yes" />
 	<backEndLoginPassthru>no</backEndLoginPassthru>
 	<PSXNotifier id="721">
 		<providerType>SMTP</providerType>
 		<server>JB</server>
-		<from/>
+		<from />
 	</PSXNotifier>
 	<userProperty name="727readonly">false</userProperty>
 	<userProperty name="726locationy">20</userProperty>

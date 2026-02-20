@@ -22,19 +22,21 @@ import com.percussion.services.workflow.data.PSWorkflowRole;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.beanutils.Converter;
 
 /**
  * Test the {@link PSWorkflowRoleConverter}
  */
-public class PSWorkflowRoleConverterTest extends TestCase
+public class PSWorkflowRoleConverterTest 
 {
    /**
     * Test the converter
     * 
     * @throws Exception if the test fails
     */
+   
    public void testConverter() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();

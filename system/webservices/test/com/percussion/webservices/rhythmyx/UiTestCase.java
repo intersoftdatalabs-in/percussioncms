@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag("IntegrationTest")
+
 public class UiTestCase extends PSUiTestBase
 {
    /**
@@ -104,9 +104,9 @@ public class UiTestCase extends PSUiTestBase
    }
 
    /**
-    * Testing both load searches and views, make sure they don't 
+    * Testing both load searches and views, make sure they don't
     * load the same server object which has the same id.
-    * 
+    *
     * @throws Exception if an error occurs.
     */
    @Test

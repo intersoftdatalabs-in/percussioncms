@@ -44,9 +44,9 @@ import com.percussion.workflow.web.service.PSSteppedWorkflowRestServiceClient;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -210,12 +210,12 @@ public class PSFolderServiceTest extends PSRestTestCase<PSFolderServiceRestClien
     }
   }
 
-  @Before
+  @BeforeEach
   public void testSetup() {
     folderCleaner.clean();
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setup() throws Exception {
     siteRestClient = new PSSiteRestClient(baseUrl);
     setupClient(siteRestClient);
@@ -236,7 +236,7 @@ public class PSFolderServiceTest extends PSRestTestCase<PSFolderServiceRestClien
     workflow2 = workflowRestClient.getWorkflow(STANDARD_WORKFLOW);
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     restClient.login("admin1", "demo");
 

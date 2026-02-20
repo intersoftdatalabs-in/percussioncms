@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -110,7 +111,7 @@ public class PSFilterContextMenu implements IPSResultDocumentProcessor {
     // Get the user's roles
     Collection roles = (Collection) sess.getUserRoles();
 
-    IPSStatesContext state = null;
+    Optional<IPSStatesContext> stateOpt = Optional.empty();
     try {
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
       List<Integer> ids = new ArrayList<>();
@@ -130,13 +131,13 @@ public class PSFilterContextMenu implements IPSResultDocumentProcessor {
         checkedoutstate = IPSConstants.CHECKOUT_STATUS_NOBODY;
       }
 
-      state =
+      stateOpt =
           cms.loadWorkflowState(contentItem.getWorkflowAppId(), contentItem.getContentStateId());
     } catch (Exception e) {
       throw new PSExtensionProcessingException("Problem loading state information", e);
     }
 
-    String contentvalid = state != null ? state.getContentValidValue() : "n";
+    String contentvalid = stateOpt.map(IPSStatesContext::getContentValidValue).orElse("n");
 
     // Get a list of all action ids and ensure that these ids are all
     // loaded into the current user session. The actions and ids are merged

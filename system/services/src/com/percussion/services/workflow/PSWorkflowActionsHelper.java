@@ -81,7 +81,7 @@ public final class PSWorkflowActionsHelper {
     /**
      * The name of the parameter used to specify the workflow action trigger.
      */
-    private static final String ms_actionTriggerName = IPSHtmlParameters.SYS_WF_ACTION;
+    private static final String ms_actionTriggerName = PSWorkFlowUtils.DEFAULT_ACTION_TRIGGER_NAME;
 
     /**
      * Standard action URLs and labels.
@@ -193,11 +193,13 @@ public final class PSWorkflowActionsHelper {
      */
     private PSItemInfo createItemInfo(IPSGuid contentId, PSAssignmentTypeEnum assignmentType,
                                     PSComponentSummary summary) {
+        var wfGuid = new com.percussion.services.guidmgr.data.PSGuid(PSTypeEnum.WORKFLOW, summary.getWorkflowAppId());
+        var stateGuid = new com.percussion.services.guidmgr.data.PSGuid(PSTypeEnum.WORKFLOW_STATE, summary.getContentStateId());
         return new PSItemInfo(
             contentId,
             assignmentType,
-            summary.getWorkflowAppId(),
-            summary.getContentStateId(),
+            wfGuid,
+            stateGuid,
             summary.getCheckoutUserName()
         );
     }

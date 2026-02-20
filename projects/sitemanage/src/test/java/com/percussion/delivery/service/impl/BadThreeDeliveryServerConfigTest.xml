@@ -2,42 +2,42 @@
 
 
 <DeliveryServerConfig>
-    <DeliveryServer>
+	<DeliveryServer>
 		<connection-url>http://localhost:9980</connection-url>
 		<user>admin1</user>
 		<password>demo</password>
-        <admin-connection-url>https://localhost:8443</admin-connection-url>
+		<admin-connection-url>https://localhost:8443</admin-connection-url>
 		<allow-self-signed-certificate>true</allow-self-signed-certificate>
 		<availableServices>
-		   <service>perc-form-processor</service>
-           <service>feeds</service>
-		   <service>perc-comments-services</service>
-		   <service>perc-metadata-services</service>
-		   <service>perc-membership-services</service>
+			<service>perc-form-processor</service>
+			<service>feeds</service>
+			<service>perc-comments-services</service>
+			<service>perc-metadata-services</service>
+			<service>perc-membership-services</service>
 		</availableServices>
 	</DeliveryServer>
-    <DeliveryServer>
-        <connection-url>http://localhost:9970</connection-url>
-        <user>admin2</user>
+	<DeliveryServer>
+		<connection-url>http://localhost:9970</connection-url>
+		<user>admin2</user>
 		<password>demo</password>
-              <admin-connection-url>https://localhost:9443</admin-connection-url>
-        <allow-self-signed-certificate>true</allow-self-signed-certificate>
-        <availableServices>
-           <service>perc-form-processor</service>
-                 <service>feeds</service>
-           <service>perc-comments-services</service>
-           <service>perc-metadata-services</service>
-           <service>perc-membership-services</service>
-        </availableServices>
-    </DeliveryServer>
-    <DeliveryServer>
+		<admin-connection-url>https://localhost:9443</admin-connection-url>
+		<allow-self-signed-certificate>true</allow-self-signed-certificate>
+		<availableServices>
+			<service>perc-form-processor</service>
+			<service>feeds</service>
+			<service>perc-comments-services</service>
+			<service>perc-metadata-services</service>
+			<service>perc-membership-services</service>
+		</availableServices>
+	</DeliveryServer>
+	<DeliveryServer>
 		<connection-url>https://delivery.percussion.com</connection-url>
 		<user>admin3</user>
 		<password>demo</password>
-        <admin-connection-url>https://delivery.percussion.com</admin-connection-url>
+		<admin-connection-url>https://delivery.percussion.com</admin-connection-url>
 		<allow-self-signed-certificate>false</allow-self-signed-certificate>
 		<availableServices>
-		   <service>perc-thirdparty-services</service>
+			<service>perc-thirdparty-services</service>
 		</availableServices>
 	</DeliveryServer>
 </DeliveryServerConfig>

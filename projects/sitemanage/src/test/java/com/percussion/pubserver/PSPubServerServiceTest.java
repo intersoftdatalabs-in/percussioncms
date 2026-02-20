@@ -30,16 +30,16 @@ import com.percussion.share.test.PSRestTestCase;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.MethodSorters;
 
 /**
  * @author leonardohildt
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class PSPubServerServiceTest extends PSRestTestCase<PSPubServerServiceRestClient> {
 
   private static PSPubServerServiceRestClient pubServerRestServiceClient;
@@ -54,7 +54,7 @@ public class PSPubServerServiceTest extends PSRestTestCase<PSPubServerServiceRes
     return pubServerRestServiceClient;
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setupSuite() throws Exception {
     pubServerRestServiceClient = new PSPubServerServiceRestClient(baseUrl);
     setupClient(pubServerRestServiceClient);
@@ -63,7 +63,7 @@ public class PSPubServerServiceTest extends PSRestTestCase<PSPubServerServiceRes
     testSiteData.setUp();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     try {
       testSiteData.tearDown();

@@ -2,54 +2,67 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rxs_NavTree_cas" dependencyType="Local" displayName="rxs_NavTree_cas" isIncluded="yes" objectType="Application" objectTypeName="Application" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
-   <PSXApplicationIDTypesResource resourceName="navtree (Dataset2572)">
-      <PSXApplicationIDTypesElement elementName="ResultPages">
-         <PSXApplicationIDTypeMapping type="VariantDef" value="350">
-            <PSXAppConditionalContext type="value">
-               <PSXConditional id="0">
-                  <variable>
-                     <PSXSingleHtmlParameter id="0">
-                        <name>sys_variantid</name>
-                     </PSXSingleHtmlParameter>
-                  </variable>
-                  <operator>=</operator>
-                  <value>
-                     <PSXTextLiteral id="0">
-                        <text>350</text>
-                     </PSXTextLiteral>
-                  </value>
-                  <boolean>AND</boolean>
-               </PSXConditional>
-               <PSXAppNamedItemIdContext name="navtree.xsl" type="ResultPage"/>
-            </PSXAppConditionalContext>
-         </PSXApplicationIDTypeMapping>
-      </PSXApplicationIDTypesElement>
-   </PSXApplicationIDTypesResource>
-   <PSXApplicationIDTypesResource resourceName="navontree (Dataset2783)">
-      <PSXApplicationIDTypesElement elementName="ResultPages">
-         <PSXApplicationIDTypeMapping type="VariantDef" value="351">
-            <PSXAppConditionalContext type="value">
-               <PSXConditional id="0">
-                  <variable>
-                     <PSXSingleHtmlParameter id="0">
-                        <name>sys_variantid</name>
-                     </PSXSingleHtmlParameter>
-                  </variable>
-                  <operator>=</operator>
-                  <value>
-                     <PSXTextLiteral id="0">
-                        <text>351</text>
-                     </PSXTextLiteral>
-                  </value>
-                  <boolean>AND</boolean>
-               </PSXConditional>
-               <PSXAppNamedItemIdContext name="nav_sitemap.xsl" type="ResultPage"/>
-            </PSXAppConditionalContext>
-         </PSXApplicationIDTypeMapping>
-      </PSXApplicationIDTypesElement>
-   </PSXApplicationIDTypesResource>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="rxs_NavTree_cas" dependencyType="Local"
+			displayName="rxs_NavTree_cas" isIncluded="yes"
+			objectType="Application" objectTypeName="Application"
+			supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
+	<PSXApplicationIDTypesResource
+		resourceName="navtree (Dataset2572)">
+		<PSXApplicationIDTypesElement
+			elementName="ResultPages">
+			<PSXApplicationIDTypeMapping
+				type="VariantDef" value="350">
+				<PSXAppConditionalContext type="value">
+					<PSXConditional id="0">
+						<variable>
+							<PSXSingleHtmlParameter id="0">
+								<name>sys_variantid</name>
+							</PSXSingleHtmlParameter>
+						</variable>
+						<operator>=</operator>
+						<value>
+							<PSXTextLiteral id="0">
+								<text>350</text>
+							</PSXTextLiteral>
+						</value>
+						<boolean>AND</boolean>
+					</PSXConditional>
+					<PSXAppNamedItemIdContext
+						name="navtree.xsl" type="ResultPage" />
+				</PSXAppConditionalContext>
+			</PSXApplicationIDTypeMapping>
+		</PSXApplicationIDTypesElement>
+	</PSXApplicationIDTypesResource>
+	<PSXApplicationIDTypesResource
+		resourceName="navontree (Dataset2783)">
+		<PSXApplicationIDTypesElement
+			elementName="ResultPages">
+			<PSXApplicationIDTypeMapping
+				type="VariantDef" value="351">
+				<PSXAppConditionalContext type="value">
+					<PSXConditional id="0">
+						<variable>
+							<PSXSingleHtmlParameter id="0">
+								<name>sys_variantid</name>
+							</PSXSingleHtmlParameter>
+						</variable>
+						<operator>=</operator>
+						<value>
+							<PSXTextLiteral id="0">
+								<text>351</text>
+							</PSXTextLiteral>
+						</value>
+						<boolean>AND</boolean>
+					</PSXConditional>
+					<PSXAppNamedItemIdContext
+						name="nav_sitemap.xsl" type="ResultPage" />
+				</PSXAppConditionalContext>
+			</PSXApplicationIDTypeMapping>
+		</PSXApplicationIDTypesElement>
+	</PSXApplicationIDTypesResource>
 </PSXApplicationIDTypes>

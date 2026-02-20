@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 // REFACTORED: CP-JAVA11
-@Tag("IntegrationTest")
+
 class PSSitePublishStatusServiceTest {
 
   private static final Logger log = LogManager.getLogger(PSSitePublishStatusServiceTest.class);

@@ -34,7 +34,7 @@ public class PSObjectSummaryConverter extends PSConverter
 
    /**
     * See {@link PSConverter#PSConverter(BeanUtilsBean) super()}
-    * 
+    *
     * @param beanUtils
     */
    public PSObjectSummaryConverter(BeanUtilsBean beanUtils)
@@ -49,20 +49,20 @@ public class PSObjectSummaryConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       Object result = super.convert(type, value);
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.common.PSObjectSummary orig = 
+         com.percussion.webservices.common.PSObjectSummary orig =
             (com.percussion.webservices.common.PSObjectSummary) value;
          PSObjectSummary dest = (PSObjectSummary) result;
-         
-         int[] perms = orig.getPermissions();
-         if (perms != null)
+
+         com.percussion.webservices.common.PSObjectSummary.Permissions permsWrapper = orig.getPermissions();
+         if (permsWrapper != null && permsWrapper.getPermission() != null)
          {
             Set<PSPermissions> permset = new HashSet<PSPermissions>();
-            for (int permission : perms)
+            for (Integer permission : permsWrapper.getPermission())
             {
                permset.add(PSPermissions.valueOf(permission));
             }
@@ -73,23 +73,23 @@ public class PSObjectSummaryConverter extends PSConverter
       else
       {
          PSObjectSummary orig = (PSObjectSummary) value;
-         com.percussion.webservices.common.PSObjectSummary dest = 
+         com.percussion.webservices.common.PSObjectSummary dest =
             (com.percussion.webservices.common.PSObjectSummary) result;
-         
+
          PSUserAccessLevel accessLevel = orig.getPermissions();
 
          Set<PSPermissions> permset = accessLevel.getPermissions();
-         int[] perms = new int[permset.size()];
-         int i = 0;
+         com.percussion.webservices.common.PSObjectSummary.Permissions permsWrapper =
+            new com.percussion.webservices.common.PSObjectSummary.Permissions();
          for (PSPermissions permission : permset)
          {
-            perms[i++] = permission.getOrdinal();
+            permsWrapper.getPermission().add(Integer.valueOf(permission.getOrdinal()));
          }
-         
-         dest.setPermissions(perms);
+
+         dest.setPermissions(permsWrapper);
       }
-      
+
       return result;
-   }   
+   }
 }
 

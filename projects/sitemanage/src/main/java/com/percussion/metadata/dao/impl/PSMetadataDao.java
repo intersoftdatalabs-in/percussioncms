@@ -28,8 +28,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -141,8 +139,8 @@ public class PSMetadataDao implements com.percussion.metadata.dao.IPSMetadataDao
     var session = getSession();
     try {
       return session
-          .createCriteria(PSMetadata.class)
-          .add(Restrictions.ilike("key", prefix, MatchMode.START))
+          .createQuery("from PSMetadata where lower(key) like :p", PSMetadata.class)
+          .setParameter("p", prefix.toLowerCase() + "%")
           .list();
     } catch (HibernateException he) {
       var emsg = "findByPrefix(String prefix) database error " + he.getMessage();

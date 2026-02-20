@@ -28,7 +28,12 @@ import java.io.Serializable;
  *
  * @author dougrand
  */
-public interface IPSGuid extends Serializable {
+public interface IPSGuid extends Serializable, Comparable<IPSGuid> {
+  /** Default comparison implementation for compatibility. Compares the raw longValue(). */
+  default int compareTo(IPSGuid other) {
+    return Long.compare(this.longValue(), other.longValue());
+  }
+
   /**
    * Convert a numeric guid into a user readable form with no type integer. Appropriate for times
    * where the type is implied.

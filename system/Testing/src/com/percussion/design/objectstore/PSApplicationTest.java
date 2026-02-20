@@ -20,6 +20,7 @@ package com.percussion.design.objectstore;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.w3c.dom.Document;
@@ -33,19 +34,20 @@ import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
  *   Unit tests for the PSApplication class
  */
 
-public class PSApplicationTest extends TestCase
+public class PSApplicationTest
 {
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   @Test
    public void testEqualsHashCode()
    {
       final int ID = 123;
       final String NAME = "NAME " + RandomStringUtils.random(2);
       final String DESCRIPTION = "DESCRIPTION " + RandomStringUtils.random(2);
-      final String REQUEST_ROOT = "REQUEST ROOT " + RandomStringUtils.random(2); 
+      final String REQUEST_ROOT = "REQUEST ROOT " + RandomStringUtils.random(2);
 
-      final PSApplication a = new PSApplication(); 
+      final PSApplication a = new PSApplication();
 
       final PSApplication a2 = new PSApplication();
       assertEqualsWithHash(a, a2);
@@ -54,24 +56,25 @@ public class PSApplicationTest extends TestCase
       assertFalse(a.equals(a2));
       a.setId(ID);
       assertEqualsWithHash(a, a2);
-      
+
       a2.setName(NAME);
       assertFalse(a.equals(a2));
       a.setName(NAME);
       assertEqualsWithHash(a, a2);
-      
+
       a2.setDescription(DESCRIPTION);
       assertFalse(a.equals(a2));
       a.setDescription(DESCRIPTION);
       assertEqualsWithHash(a, a2);
-      
+
       a2.setRequestRoot(REQUEST_ROOT);
       assertFalse(a.equals(a2));
       a.setRequestRoot(REQUEST_ROOT);
       assertEqualsWithHash(a, a2);
 }
 
-   
+
+   @Test
    public void testXml() throws Exception
    {
       // assert that two empty apps are equal

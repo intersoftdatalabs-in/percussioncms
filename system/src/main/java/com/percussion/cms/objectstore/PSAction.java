@@ -40,7 +40,12 @@ import org.w3c.dom.Text;
 public class PSAction extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
 
   @Override
-  public PSTypeEnum getType() {
+  public String getType() {
+    return PSTypeEnum.ACTION.name();
+  }
+
+  @Override
+  public PSTypeEnum getTypeEnum() {
     return PSTypeEnum.ACTION;
   }
 

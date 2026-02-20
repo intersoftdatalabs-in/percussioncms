@@ -251,7 +251,28 @@ public final class PSGuidUtils {
      * @return {@code true} if the GUID is valid, {@code false} otherwise
      */
     public static boolean isValidGuid(IPSGuid guid) {
-        return guid != null && guid.getUUID() > 0 && guid.getType() != null;
+        return guid != null && guid.getUUID() > 0 && guid.getType() != 0;
+    }
+
+    /**
+     * Convenience to check if a list of GUIDs is blank (null or empty).
+     *
+     * @param ids the ids to check, may be {@code null}
+     * @return {@code true} if {@code null} or empty, {@code false} otherwise
+     */
+    public static boolean isBlank(java.util.List<IPSGuid> ids) {
+        return ids == null || ids.isEmpty();
+    }
+
+    /**
+     * Convert a list of GUIDs to a list of primitive long values for use in queries.
+     *
+     * @param ids the ids to convert, not {@code null}
+     * @return a list of long values in the same order as the supplied GUIDs
+     */
+    public static java.util.List<Long> toFullLongList(java.util.List<IPSGuid> ids) {
+        java.util.Objects.requireNonNull(ids, "ids cannot be null");
+        return ids.stream().map(IPSGuid::longValue).toList();
     }
 
     /**
@@ -303,4 +324,55 @@ public final class PSGuidUtils {
             totalCount, validCount, typeCount
         );
     }
+
+    /* -----------------------------------------------------------------
+     * Backwards-compatible helper overloads (legacy API)
+     * These methods provide commonly used conversions that older code
+     * expects (for example, toGuidList overloads used throughout the
+     * codebase). They are thin adapters to the newer type-safe APIs.
+     * ------------------------------------------------------------------*/
+
+    /**
+     * Return a singleton list for a single GUID, or an empty list if null.
+     */
+    public static java.util.List<IPSGuid> toGuidList(IPSGuid guid)
+    {
+        return guid == null ? java.util.List.of() : java.util.List.of(guid);
+    }
+
+
+    /**
+     * Convert a collection of catalog summary objects to their GUIDs.
+     */
+    public static java.util.List<IPSGuid> toGuidList(java.util.Collection<? extends IPSCatalogSummary> summaries)
+    {
+        return summaries == null ? java.util.List.of() : summaries.stream()
+                .map(IPSCatalogSummary::getGUID)
+                .toList();
+    }
+
+    /**
+     * Convert a list of template slots to their GUIDs.
+     */
+    public static java.util.List<IPSGuid> toGuidList(java.util.List<? extends com.percussion.services.assembly.IPSTemplateSlot> slots)
+    {
+        return slots == null ? java.util.List.of() : slots.stream()
+                .map(com.percussion.services.assembly.IPSTemplateSlot::getGUID)
+                .toList();
+    }
+
+    /**
+     * Convert a primitive long[] of legacy ids into a list of legacy guids.
+     */
+    public static java.util.List<IPSGuid> toGuidList(long[] ids)
+    {
+        if (ids == null || ids.length == 0)
+            return java.util.List.of();
+        java.util.List<IPSGuid> rval = new java.util.ArrayList<>(ids.length);
+        for (long id : ids)
+            rval.add(new PSLegacyGuid(id));
+        return java.util.List.copyOf(rval);
+    }
 }
+
+

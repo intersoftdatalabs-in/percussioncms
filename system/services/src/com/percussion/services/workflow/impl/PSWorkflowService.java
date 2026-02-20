@@ -53,15 +53,11 @@ import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.workflow.PSWorkFlowUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,12 +70,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang3.Validate.notEmpty;
-import static org.apache.commons.lang3.Validate.notNull;
-
 /**
  * Implementation of the workflow service
- * 
+ *
  * @author dougrand
  */
 @PSBaseBean("sys_workflowService")
@@ -102,7 +95,7 @@ public class PSWorkflowService
    static final String TRANSITION_NAME_ARCHIVE = "Archive";
    static final String TRANSITION_LIVE_TO_ARCHIVE_DESC = "Archive content from Live State";
 
- 
+
    /**
     * Commons logger
     */
@@ -154,7 +147,7 @@ public class PSWorkflowService
 
       /**
        * Ctor
-       * 
+       *
        * @param cache the cache accessor, never <code>null</code>
        */
       public EvictionListener(IPSCacheAccess cache) {
@@ -169,7 +162,7 @@ public class PSWorkflowService
       /**
        * This listener cares about the workflow id column only.
        */
-      public Iterator getColumns(String tableName, 
+      public Iterator getColumns(String tableName,
          int actionType)
       {
          if (StringUtils.isBlank(tableName))
@@ -177,10 +170,10 @@ public class PSWorkflowService
             throw new IllegalArgumentException("tableName may not be null or "
                   + "empty");
          }
-         
+
          List<String> columns = new ArrayList<>();
          columns.add(WORKFLOW_ID_COLUMN);
-         
+
          return columns.iterator();
       }
 
@@ -194,18 +187,18 @@ public class PSWorkflowService
       {
          if (e == null)
             throw new IllegalArgumentException("event may not be null");
-         
+
          // get the workflow id
          String strWfId = (String) e.getColumns().get(WORKFLOW_ID_COLUMN);
          if (strWfId != null)
          {
             // update the workflow version
-            IPSWorkflowService service = 
+            IPSWorkflowService service =
                PSWorkflowServiceLocator.getWorkflowService();
             service.updateWorkflowVersion(PSGuidUtils.makeGuid(strWfId,
                   PSTypeEnum.WORKFLOW));
          }
-         
+
          mi_cache.clear(CACHE_REGION);
          ms_log.debug("Clearing cache region: " + CACHE_REGION);
       }
@@ -221,17 +214,17 @@ public class PSWorkflowService
     * Workflow id column name.
     */
    private static final String WORKFLOW_ID_COLUMN = "WORKFLOWAPPID";
-   
+
    /**
     * Cache service, used to invalidate site information
     */
    IPSCacheAccess m_cache;
-   
+
    /**
     * GUID manager, initialized by the constructor.
     */
    IPSGuidManager m_guidMgr;
-   
+
 
    /**
     * Creates the workflow service.
@@ -241,13 +234,13 @@ public class PSWorkflowService
    @Autowired
    public PSWorkflowService(IPSCacheAccess cache, IPSGuidManager guidMgr)
    {
-      notNull(cache);
-      notNull(guidMgr);
-      
+      Objects.requireNonNull(cache);
+      Objects.requireNonNull(guidMgr);
+
       setCache(cache);
       m_guidMgr = guidMgr;
    }
-   
+
    //see interface
    @SuppressWarnings("unchecked")
    public List<PSObjectSummary> findWorkflowSummariesByName(String name)
@@ -258,21 +251,14 @@ public class PSWorkflowService
       else
          query = name;
       Session session = getSession();
-      Criteria c = session.createCriteria(PSWorkflow.class);
-      c.add(Restrictions.ilike("name", query));
-      /* use a projection to avoid loading all the states, if label gets added
-       * to PSWorkflow, then this will need to be modified`
-       */
-      c.setProjection(Projections.projectionList()
-         .add(Projections.property("name"))
-         .add(Projections.property("description"))
-         .add(Projections.property("id")));
+      String hql = "select w.name, w.description, w.id from PSWorkflow w where lower(w.name) like :name";
+      Query<Object[]> q = session.createQuery(hql, Object[].class)
+            .setParameter("name", query.toLowerCase());
 
-      List<Object> queryResults = c.list();
+      List<Object[]> queryResults = q.list();
       List<PSObjectSummary> sums = new ArrayList<>(queryResults.size());
-      for (Object o : queryResults)
+      for (Object[] oa : queryResults)
       {
-         Object[] oa = (Object[]) o;
          //name and id should never be null
          sums.add(new PSObjectSummary(new PSGuid(PSTypeEnum.WORKFLOW,
                  (Long) oa[2]), oa[0].toString(),
@@ -284,33 +270,36 @@ public class PSWorkflowService
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.system.IPSSystemService#loadWorkflow(com.percussion.utils.guid.IPSGuid)
     */
    public PSWorkflow loadWorkflow(IPSGuid id)
    {
-      notNull(id);
+      Objects.requireNonNull(id);
       //  We split out the actual request to the DB.  If this method
       // is transactional a request is made to db to start transaction even
       // if item is returned from cache.
-      PSWorkflow rval = (PSWorkflow) m_cache.get(id, CACHE_REGION);
+      PSWorkflow rval = null;
+      var cacheVal = m_cache.get(id, CACHE_REGION);
+      if (cacheVal.isPresent() && cacheVal.get() instanceof PSWorkflow) {
+         rval = (PSWorkflow) cacheVal.get();
+      }
       if (rval == null)
-      { 
-         
+      {
          rval = PSWorkflowServiceLocator.getWorkflowService().loadWorkflowDb(id);
       }
       return rval;
    }
 
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.system.IPSSystemService#loadWorkflow(com.percussion.utils.guid.IPSGuid)
     */
    public PSWorkflow loadWorkflowDb(IPSGuid id)
    {
-      
+
       PSWorkflow rval =  getSession().get(PSWorkflow.class,
             id.longValue());
 
@@ -400,7 +389,7 @@ public class PSWorkflowService
       }
       return stateFound;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.workflow.IPSWorkflowService#addWorkflowRole(com.percussion.utils.guid.IPSGuid, java.lang.String)
@@ -408,7 +397,10 @@ public class PSWorkflowService
    @Transactional
    public void addWorkflowRole(IPSGuid wfId, String roleName)
    {
-      notEmpty(roleName);
+      Objects.requireNonNull(roleName);
+      if (roleName.trim().isEmpty()) {
+         throw new IllegalArgumentException("roleName may not be null or empty");
+      }
 
       IPSGuid id = m_guidMgr.createGuid(PSTypeEnum.WORKFLOW_ROLE);
       if (wfId == null)
@@ -416,25 +408,28 @@ public class PSWorkflowService
          addRoleToAllWorkflows(id, roleName);
          return;
       }
-      
+
       PSWorkflow wf = loadWorkflow(wfId);
       addRoleToWorkflow(id, roleName, wf);
       saveWorkflow(wf);
    }
-   
+
    @Transactional
    public void addRoleToWorkflow(IPSGuid id, String roleName, PSWorkflow wf)
    {
-      
-      Validate.notNull(wf);
-      Validate.notEmpty(roleName);
-      
+
+      Objects.requireNonNull(wf);
+      Objects.requireNonNull(roleName);
+      if (roleName.trim().isEmpty()) {
+         throw new IllegalArgumentException("roleName may not be null or empty");
+      }
+
       if (id == null)
          id = m_guidMgr.createGuid(PSTypeEnum.WORKFLOW_ROLE);
-      
+
       PSWorkflowRole wfRole = createWorkflowRole(id, roleName, wf);
       wf.addRole(wfRole);
-      
+
       for (PSState state : wf.getStates())
       {
          PSAssignmentTypeEnum assignmentType = wf.getName().equalsIgnoreCase(
@@ -444,15 +439,15 @@ public class PSWorkflowService
          PSAssignedRole role = createPermissionStateRole(state, wfRole.getGUID(), assignmentType);
          state.addAssignedRole(role);
       }
-      
-      
+
+
    }
 
    /**
-    * Adds a role to all workflows. It does the same as 
+    * Adds a role to all workflows. It does the same as
     * {@link #addWorkflowRole(IPSGuid, String)}, except this will add the role
     * to all workflows.
-    * 
+    *
     * @param roleName the name of the role, assumed not empty.
     */
    private void addRoleToAllWorkflows(IPSGuid id, String roleName)
@@ -462,9 +457,9 @@ public class PSWorkflowService
       {
          addRoleToWorkflow(id, roleName, wf);
          saveWorkflow(wf);
-      }      
+      }
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.workflow.IPSWorkflowService#removeWorkflowRole(com.percussion.utils.guid.IPSGuid, java.lang.String)
@@ -472,11 +467,14 @@ public class PSWorkflowService
    @Transactional
    public boolean removeWorkflowRole(IPSGuid wfId, String roleName)
    {
-      notEmpty(roleName);
-      
+      Objects.requireNonNull(roleName);
+      if (roleName.trim().isEmpty()) {
+         throw new IllegalArgumentException("roleName may not be null or empty");
+      }
+
       if (wfId == null)
          return removeRoleFromAllWorkflows(roleName);
-      
+
       PSWorkflow wf = loadWorkflow(wfId);
       return removeRoleFromWorkflow(roleName, wf);
    }
@@ -597,9 +595,9 @@ public class PSWorkflowService
 
    /**
     * Removes the specified role from all workflows.
-    * 
+    *
     * @param roleName the name of the role in question, assumed not empty.
-    * 
+    *
     * @return <code>true</code> if the role has been removed from any of the workflows;
     * otherwise the role does not exist in any of the workflow and no role is removed.
     */
@@ -612,16 +610,16 @@ public class PSWorkflowService
          if (removeRoleFromWorkflow(roleName, wf))
             isRemoved = true;
       }
-      
+
       return isRemoved;
    }
-   
+
    /**
     * Find the specified workflow role from the given workflow.
-    * 
+    *
     * @param wf the workflow, assumed not <code>null</code>.
     * @param roleName the name of the role in question, assumed not empty.
-    * 
+    *
     * @return the workflow role with the specified name. It may be <code>null</code> if cannot find one.
     */
    private PSWorkflowRole findWorkflowRole(PSWorkflow wf, String roleName)
@@ -633,13 +631,13 @@ public class PSWorkflowService
             return r;
          }
       }
-      
+
       return null;
    }
-   
+
    /**
     * Removes the specified role from the specified state.
-    * 
+    *
     * @param state the state, assumed not <code>null</code>.
     * @param roleId the ID of the role in question, assumed not <code>null</code>.
     */
@@ -656,18 +654,18 @@ public class PSWorkflowService
          }
       }
    }
-   
+
    /**
     * Creates a read-only role in the specified workflow state.
-    * 
+    *
     * @param state the workflow state, assumed not <code>null</code>.
     * @param roleId the ID of the role, assumed not <code>null</code>.
     * @param assignmentType the <code>PSAssignmentTypeEnum</code>
     * to set, assumed not <code>null</code>.
-    * 
+    *
     * @return the created role, not <code>null</code>.
     */
-   private PSAssignedRole createPermissionStateRole(PSState state, 
+   private PSAssignedRole createPermissionStateRole(PSState state,
          IPSGuid roleId, PSAssignmentTypeEnum assignmentType)
    {
       PSAssignedRole role = new PSAssignedRole();
@@ -676,15 +674,15 @@ public class PSWorkflowService
       role.setStateId(state.getStateId());
       role.setAdhocType(PSAdhocTypeEnum.DISABLED);
       role.setAssignmentType(assignmentType);
-      
+
       return role;
    }
-   
+
    /**
     * Loads workflows objects using the supplied name filter.
-    * 
+    *
     * @param name The name, may be <code>null</code> or empty to find all.
-    * 
+    *
     * @return The list of workflows, never <code>null</code>, may be empty.
     *         The lazily loaded members of the returned objects have not yet
     *         been loaded - call {@link #forceLazyLoad(PSWorkflow)} to load
@@ -701,7 +699,7 @@ public class PSWorkflowService
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSSystemService#findWorkflowsByName(String)
     */
    public List<PSWorkflow> findWorkflowsByName(String name)
@@ -720,7 +718,7 @@ public class PSWorkflowService
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.system.IPSSystemService#loadWorkflowState(com.percussion.utils.guid.IPSGuid,
     *      com.percussion.utils.guid.IPSGuid)
     */
@@ -745,10 +743,10 @@ public class PSWorkflowService
          if (stateId.equals(state.getGUID()))
             return state;
       }
-      
-      return null;      
+
+      return null;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.workflow.IPSWorkflowService#loadWorkflowStateByName(String, com.percussion.utils.guid.IPSGuid)
@@ -773,13 +771,13 @@ public class PSWorkflowService
          if (stateName.equals(state.getName()))
             return state;
       }
-      
-      return null;      
+
+      return null;
    }
 
    /**
     * Forces lazy load of members.
-    * 
+    *
     * @param workflow the workflow to load members, assumed not
     *           <code>null</code>.
     */
@@ -803,7 +801,7 @@ public class PSWorkflowService
 
    /**
     * Make sure the entire state object is in memory
-    * 
+    *
     * @param state the state, assumed never <code>null</code>
     */
    private void forceLazyLoad(PSState state)
@@ -856,7 +854,7 @@ public class PSWorkflowService
 
    /**
     * Spring property accessor
-    * 
+    *
     * @return get the cache service
     */
    public IPSCacheAccess getCache()
@@ -866,7 +864,7 @@ public class PSWorkflowService
 
    /**
     * Set the cache service
-    * 
+    *
     * @param cache the service, never <code>null</code>
     */
    public void setCache(IPSCacheAccess cache)
@@ -899,27 +897,27 @@ public class PSWorkflowService
       }
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentAdhocUser.class);
-         c.add(Restrictions.eq("user", username));
-         return c.list();
+         Query<PSContentAdhocUser> q = s.createQuery("from PSContentAdhocUser where user = :user", PSContentAdhocUser.class)
+               .setParameter("user", username);
+         return q.list();
 
    }
-   
+
    @SuppressWarnings("unchecked")
    public List<PSContentAdhocUser> findAdhocInfoByItem(IPSGuid contentId)
    {
       if (contentId == null)
          throw new IllegalArgumentException("contentId may not be null");
-      
+
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentAdhocUser.class);
-         c.add(Restrictions.eq("contentId", contentId.getUUID()));
-         
-         return c.list();
+         Query<PSContentAdhocUser> q = s.createQuery("from PSContentAdhocUser where contentId = :cid", PSContentAdhocUser.class)
+               .setParameter("cid", contentId.getUUID());
+
+         return q.list();
 
    }
-   
+
    @Transactional
    public void saveContentAdhocUser(PSContentAdhocUser adhoc)
    {
@@ -931,7 +929,7 @@ public class PSWorkflowService
    }
 
    @Transactional
-   public void deleteWorkflow(IPSGuid wfid) throws Exception
+   public boolean deleteWorkflow(IPSGuid wfid) throws Exception
    {
       if (wfid == null)
       {
@@ -940,14 +938,17 @@ public class PSWorkflowService
       PSWorkflow workflow = loadWorkflow(wfid);
       if (workflow != null)
       {
-         // Check if it is the default workflow         
+         // Check if it is the default workflow
          if (workflow.getName().equalsIgnoreCase(getDefaultWorkflowName()))
          {
             throw new Exception("The workflow '"+ workflow.getName() + "' cannot be deleted because is the default workflow.");
          }
          getSession().delete(workflow);
+         m_cache.evict(wfid, CACHE_REGION);
+         return true;
       }
       m_cache.evict(wfid, CACHE_REGION);
+      return false;
    }
 
    @Transactional
@@ -976,14 +977,10 @@ public class PSWorkflowService
             PSLegacyGuid lg = (PSLegacyGuid) contentid;
             cidToGuid.put(lg.getContentId(), lg);
          }
-         Criteria c = s.createCriteria(PSComponentSummary.class);
-         c.add(Restrictions.in("m_contentId", cidToGuid.keySet()));
-         ProjectionList list = Projections.projectionList();
-         list.add(Projections.property("m_contentId"));
-         list.add(Projections.property("m_workflowAppId"));
-         list.add(Projections.property("m_contentStateId"));
-         c.setProjection(list);
-         List<Object[]> results = c.list();
+         String hql = "select c.m_contentId, c.m_workflowAppId, c.m_contentStateId from PSComponentSummary c where c.m_contentId in :ids";
+         Query<Object[]> q = s.createQuery(hql, Object[].class)
+               .setParameter("ids", cidToGuid.keySet());
+         List<Object[]> results = q.list();
          for (Object[] row : results)
          {
             int cid = (Integer) row[0];
@@ -1021,9 +1018,9 @@ public class PSWorkflowService
       }
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentApproval.class);
-         c.add(Restrictions.eq("user", username));
-         return c.list();
+         Query<PSContentApproval> q = s.createQuery("from PSContentApproval where user = :user", PSContentApproval.class)
+               .setParameter("user", username);
+         return q.list();
 
    }
 
@@ -1031,16 +1028,16 @@ public class PSWorkflowService
    {
       if (contentid == null)
          throw new IllegalArgumentException("contentid may not be null");
-      
+
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentApproval.class);
-         c.add(Restrictions.eq("contentId", contentid.getUUID()));
-         
-         return c.list();
+         Query<PSContentApproval> q = s.createQuery("from PSContentApproval where contentId = :cid", PSContentApproval.class)
+               .setParameter("cid", contentid.getUUID());
+
+         return q.list();
 
    }
-   
+
    @Transactional
    public void saveContentApproval(PSContentApproval approval)
    {
@@ -1065,12 +1062,12 @@ public class PSWorkflowService
    {
       if (id == null)
          throw new IllegalArgumentException("id may not be null");
-      
+
       long uuid = id.getUUID();
       List<Integer> verList = getWorkflowVersionForId(uuid);
       if (verList.isEmpty())
          return;
-      
+
       Integer version = verList.get(0);
       if (version != null)
       {
@@ -1080,20 +1077,17 @@ public class PSWorkflowService
       {
          version = 0;
       }
-      
-      Session s = getSession();
 
-         Query q = s.createQuery(
-               "update PSWorkflow w set w.version = :version "
-               + "where w.id = :id");
-         q.setInteger("version", version);
-         q.setLong("id", uuid);
+         jakarta.persistence.Query q = entityManager.createQuery(
+               "update PSWorkflow w set w.version = :version where w.id = :id");
+         q.setParameter("version", version);
+         q.setParameter("id", uuid);
          q.executeUpdate();
-         
+
          m_cache.evict(id, CACHE_REGION);
 
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.workflow.IPSWorkflowService#createState(com.percussion.utils.guid.IPSGuid)
@@ -1101,16 +1095,16 @@ public class PSWorkflowService
    @Transactional
    public PSState createState(IPSGuid workflowId)
    {
-      notNull(workflowId);
-      
+      Objects.requireNonNull(workflowId);
+
       PSState state = new PSState();
       IPSGuid stateId = m_guidMgr.createGuid(PSTypeEnum.WORKFLOW_STATE);
       state.setGUID(stateId);
       state.setWorkflowId(workflowId.longValue());
-      
-      return state; 
+
+      return state;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.workflow.IPSWorkflowService#createTransition(com.percussion.utils.guid.IPSGuid, com.percussion.utils.guid.IPSGuid)
@@ -1118,18 +1112,18 @@ public class PSWorkflowService
    @Transactional
    public PSTransition createTransition(IPSGuid wfId, IPSGuid stateId)
    {
-      notNull(wfId);
-      notNull(stateId);
-      
+      Objects.requireNonNull(wfId);
+      Objects.requireNonNull(stateId);
+
       PSTransition trans = new PSTransition();
       IPSGuid id = m_guidMgr.createGuid(PSTypeEnum.WORKFLOW_TRANSITION);
       trans.setGUID(id);
       trans.setWorkflowId(wfId.longValue());
       trans.setStateId(stateId.longValue());
-      
+
       return trans;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.workflow.IPSWorkflowService#createNotification(com.percussion.utils.guid.IPSGuid, com.percussion.utils.guid.IPSGuid)
@@ -1137,26 +1131,26 @@ public class PSWorkflowService
    @Transactional
    public PSNotification createNotification(IPSGuid wfId, IPSGuid transitionId)
    {
-      notNull(wfId);
-      notNull(transitionId);
-      
+      Objects.requireNonNull(wfId);
+      Objects.requireNonNull(transitionId);
+
       PSNotification notif = new PSNotification();
       IPSGuid id = m_guidMgr.createGuid(PSTypeEnum.WORKFLOW_NOTIFICATION);
       notif.setGUID(id);
       notif.setTransitionId(transitionId.longValue());
       notif.setWorkflowId(wfId.longValue());
-            
+
       return notif;
    }
-   
+
    /**
     * Creates a workflow role for the specified workflow and role name.
     *
     * @param id the ID of the created role, assumed not <code>null</code>.
     * @param roleName the name of the role, assumed not blank.
     * @param wf the workflow, assumed not <code>null</code>.
-    * 
-    * @return the created workflow role with created ID and the specified name, 
+    *
+    * @return the created workflow role with created ID and the specified name,
     * not <code>null</code>.
     */
    private PSWorkflowRole createWorkflowRole(IPSGuid id, String roleName, PSWorkflow wf)
@@ -1166,18 +1160,18 @@ public class PSWorkflowService
       role.setWorkflowId(wf.getGUID().longValue());
       role.setName(roleName);
       role.setDescription(roleName);
-      
+
       return role;
    }
-   
+
    /**
     * Get the version of a specified workflow.
-    * 
+    *
     * @param id the workflow id, assumed not <code>null</code>.
-    * 
+    *
     * @return list with one element, which is the version of the
     * workflow.  May be empty if a version could not be found for the specified
-    * workflow.  
+    * workflow.
     */
    @SuppressWarnings("unchecked")
    private List<Integer> getWorkflowVersionForId(long id)
@@ -1186,21 +1180,21 @@ public class PSWorkflowService
             "select w.version from PSWorkflow w " +
             "where w.id = :id").setParameter("id", id).list();
    }
-   
+
    /**
     * Gets the default workflow object.
-    * 
+    *
     * @return the a <code>PSWorkflow</code> object. Never empty or <code>null</code>.
-    * @throws RuntimeException if the workflow name in the property files is empty, 
+    * @throws RuntimeException if the workflow name in the property files is empty,
     * don't exist in the file or not exist in CMS.
     */
    @Transactional
    public PSWorkflow getDefaultWorkflow()
    {
       String defaultWorkflowName = PSWorkFlowUtils.getDefaultWorkflowProperty();
-      
+
       List<PSWorkflow> defaultWorkflows = findWorkflowsByName(defaultWorkflowName);
-      
+
       if (StringUtils.isBlank(defaultWorkflowName) || defaultWorkflows.isEmpty())
       {
          ms_log.warn("The default workflow with name: {} could not be found.  Changing the default workflow to the 1st defined workflow.", defaultWorkflowName );
@@ -1216,15 +1210,15 @@ public class PSWorkflowService
                     " workflow property file is empty or not exist.");
          }
       }
-      
+
       return defaultWorkflows.get(0);
    }
-   
+
    /**
     * Gets the name of the default workflow.
-    * 
+    *
     * @return the name of the default workflow. Never empty or <code>null</code>.
-    * @throws RuntimeException if the workflow name in the property files is empty, 
+    * @throws RuntimeException if the workflow name in the property files is empty,
     * don't exist in the file or not exist in CMS.
     */
    @Transactional
@@ -1232,7 +1226,7 @@ public class PSWorkflowService
    {
       String defaultWorkflowName = PSWorkFlowUtils.getDefaultWorkflowProperty();
 
-      if (StringUtils.isBlank(defaultWorkflowName) || 
+      if (StringUtils.isBlank(defaultWorkflowName) ||
             findWorkflowsByName(defaultWorkflowName).isEmpty())
       {
          ms_log.warn("The default workflow with name: {} could not be found.  Changing the default workflow to the 1st defined workflow.", defaultWorkflowName );
@@ -1249,13 +1243,13 @@ public class PSWorkflowService
                     " workflow property file is empty or not exist.");
          }
       }
-      
+
       return defaultWorkflowName;
    }
-   
+
    /**
     * Gets the default workflow ID.
-    * 
+    *
     * @return the workflow ID, never <code>null</code>.
     */
    @Transactional

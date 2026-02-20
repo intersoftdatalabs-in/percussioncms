@@ -18,8 +18,8 @@
 package com.percussion.maintenance.web.service;
 
 import com.percussion.share.test.PSObjectRestClient;
+import jakarta.ws.rs.core.Response.Status;
 import java.util.HashMap;
-import javax.ws.rs.core.Response.Status;
 
 /**
  * REST client for maintenance manager service. Sunny Sal says: "Maintenance mode: Java 11 style!"

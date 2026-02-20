@@ -47,9 +47,21 @@ public class PSAgingTransition extends PSTransitionBase implements IPSAgingTrans
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSAgingTransition#getType()
     */
-   public PSAgingTypeEnum getType()
+   /**
+    * Return the aging type enum. New method to support string-based {@code getType()} on the interface.
+    */
+   public PSAgingTypeEnum getAgingTypeEnum()
    {
       return PSAgingTypeEnum.valueOf(type);
+   }
+
+   /* (non-Javadoc)
+    * @see com.percussion.services.workflow.data.IPSAgingTransition#getType()
+    */
+   public String getType()
+   {
+      PSAgingTypeEnum t = getAgingTypeEnum();
+      return t == null ? null : t.name();
    }
 
    /*
@@ -105,12 +117,12 @@ public class PSAgingTransition extends PSTransitionBase implements IPSAgingTrans
       if (this == o) return true;
       if (!(o instanceof PSAgingTransition)) return false;
       PSAgingTransition that = (PSAgingTransition) o;
-      return getType() == that.getType() && Objects.equals(getInterval(), that.getInterval()) && Objects.equals(getSystemField(), that.getSystemField());
+      return Objects.equals(getAgingTypeEnum(), that.getAgingTypeEnum()) && Objects.equals(getInterval(), that.getInterval()) && Objects.equals(getSystemField(), that.getSystemField());
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(getType(), getInterval(), getSystemField());
+      return Objects.hash(getAgingTypeEnum(), getInterval(), getSystemField());
    }
 
    @Override

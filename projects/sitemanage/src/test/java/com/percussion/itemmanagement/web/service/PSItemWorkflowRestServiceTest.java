@@ -33,8 +33,8 @@ import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.share.test.PSRestClient.RestClientException;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class PSItemWorkflowRestServiceTest extends PSRestTestCase<PSItemWorkflowServiceRestClient> {
@@ -42,7 +42,7 @@ public class PSItemWorkflowRestServiceTest extends PSRestTestCase<PSItemWorkflow
   static PSItemWorkflowServiceRestClient restClient;
   private static PSTestSiteData testSiteData;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -227,7 +227,7 @@ public class PSItemWorkflowRestServiceTest extends PSRestTestCase<PSItemWorkflow
     assertTrue(results.getFailedAssets().isEmpty());
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
     assetCleaner.clean();
     testSiteData.tearDown();

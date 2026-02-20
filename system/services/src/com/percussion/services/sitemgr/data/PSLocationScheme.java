@@ -154,7 +154,15 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
         // Deep copy parameters using streams
         this.parameters = new HashSet<>();
         source.parameters.stream()
-            .map(PSLocationSchemeParameter::new)
+            .map(p -> {
+                PSLocationSchemeParameter copy = new PSLocationSchemeParameter();
+                copy.setName(p.getName());
+                copy.setType(p.getType());
+                copy.setValue(p.getValue());
+                copy.setSequence(p.getSequence());
+                copy.setScheme(this);
+                return copy;
+            })
             .forEach(this.parameters::add);
     }
 
@@ -175,12 +183,10 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
         this.schemeId = guid.longValue();
     }
 
-    @Override
     public long getId() {
         return schemeId;
     }
 
-    @Override
     public void setId(long id) {
         this.schemeId = id;
     }
@@ -216,31 +222,23 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
     }
 
     @Override
-    public IPSGuid getTemplateId() {
-        return Optional.ofNullable(templateId)
-            .map(id -> new PSGuid(PSTypeEnum.TEMPLATE, id))
-            .orElse(null);
+    public Long getTemplateId() {
+        return templateId;
     }
 
     @Override
-    public void setTemplateId(IPSGuid templateId) {
-        this.templateId = Optional.ofNullable(templateId)
-            .map(IPSGuid::longValue)
-            .orElse(null);
+    public void setTemplateId(Long templateId) {
+        this.templateId = templateId;
     }
 
     @Override
-    public IPSGuid getContentTypeId() {
-        return Optional.ofNullable(contentTypeId)
-            .map(id -> new PSGuid(PSTypeEnum.NODEDEF, id))
-            .orElse(null);
+    public Long getContentTypeId() {
+        return contentTypeId;
     }
 
     @Override
-    public void setContentTypeId(IPSGuid contentTypeId) {
-        this.contentTypeId = Optional.ofNullable(contentTypeId)
-            .map(IPSGuid::longValue)
-            .orElse(null);
+    public void setContentTypeId(Long contentTypeId) {
+        this.contentTypeId = contentTypeId;
     }
 
     @Override
@@ -257,12 +255,10 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
             .orElse(null);
     }
 
-    @Override
     public Set<PSLocationSchemeParameter> getParameterSet() {
         return new HashSet<>(parameters);
     }
 
-    @Override
     public void setParameterSet(Set<PSLocationSchemeParameter> parameters) {
         this.parameters = Optional.ofNullable(parameters)
             .map(HashSet::new)
@@ -272,7 +268,6 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
     /**
      * Enhanced parameter management using Java 11 patterns
      */
-    @Override
     public String getParameter(String name) {
         Objects.requireNonNull(name, "name cannot be null");
 
@@ -283,7 +278,6 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
             .orElse(null);
     }
 
-    @Override
     public void setParameter(String name, String value) {
         Objects.requireNonNull(name, "name cannot be null");
 
@@ -295,9 +289,83 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
             var parameter = new PSLocationSchemeParameter();
             parameter.setName(name);
             parameter.setValue(value);
-            parameter.setLocationSchemeId(schemeId);
+            parameter.setScheme(this);
             parameters.add(parameter);
         }
+    }
+
+    @Override
+    public java.util.List<String> getParameterNames() {
+        return parameters.stream()
+                .sorted((a, b) -> Integer.compare(a.getSequence(), b.getSequence()))
+                .map(PSLocationSchemeParameter::getName)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public String getParameterValue(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        return parameters.stream()
+                .filter(p -> Objects.equals(p.getName(), name))
+                .map(PSLocationSchemeParameter::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public String getParameterType(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        return parameters.stream()
+                .filter(p -> Objects.equals(p.getName(), name))
+                .map(PSLocationSchemeParameter::getType)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public Integer getParameterSequence(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        return parameters.stream()
+                .filter(p -> Objects.equals(p.getName(), name))
+                .map(PSLocationSchemeParameter::getSequence)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public void setParameter(String name, String type, String value) {
+        addParameter(name, 0, type, value);
+    }
+
+    @Override
+    public void addParameter(String name, int sequence, String type, String value) {
+        Objects.requireNonNull(name, "name cannot be null");
+        Objects.requireNonNull(type, "type cannot be null");
+        Objects.requireNonNull(value, "value cannot be null");
+
+        // If exists, update
+        for (PSLocationSchemeParameter p : parameters) {
+            if (Objects.equals(p.getName(), name)) {
+                p.setType(type);
+                p.setValue(value);
+                p.setSequence(sequence);
+                return;
+            }
+        }
+
+        PSLocationSchemeParameter param = new PSLocationSchemeParameter();
+        param.setName(name);
+        param.setType(type);
+        param.setValue(value);
+        param.setSequence(sequence);
+        param.setScheme(this);
+        parameters.add(param);
+    }
+
+    @Override
+    public void removeParameter(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        parameters.removeIf(p -> Objects.equals(p.getName(), name));
     }
 
     /**
@@ -314,12 +382,10 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
         this.isCloned = cloned;
     }
 
-    @Override
     public Integer getVersion() {
         return version;
     }
 
-    @Override
     public void setVersion(Integer version) {
         this.version = version;
     }
@@ -350,6 +416,59 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
             .append(contentTypeId)
             .append(contextId)
             .toHashCode();
+    }
+
+    @Override
+    public void copy(IPSLocationScheme other) {
+        if (other == null) {
+            throw new IllegalArgumentException("other cannot be null");
+        }
+        this.name = other.getName();
+        this.description = other.getDescription();
+        this.generator = other.getGenerator();
+        this.templateId = other.getTemplateId();
+        this.contentTypeId = other.getContentTypeId();
+        this.contextId = java.util.Optional.ofNullable(other.getContextId()).map(com.percussion.utils.guid.IPSGuid::longValue).orElse(null);
+        // Copy parameters
+        this.parameters.clear();
+        for (String paramName : other.getParameterNames()) {
+            this.addParameter(paramName, other.getParameterSequence(paramName),
+                            other.getParameterType(paramName), other.getParameterValue(paramName));
+        }
+    }
+
+    @Override
+    @Deprecated
+    public void setContext(IPSPublishingContext context) {
+        this.setContextId(context == null ? null : context.getGUID());
+    }
+
+    @Override
+    @Deprecated
+    public IPSPublishingContext getContext() {
+        // Deprecated API; prefer using getContextId(). Returning null as a
+        // minimal implementation to preserve backward compatibility.
+        return null;
+    }
+
+    @Override
+    public void fromXML(String xmlsource) throws java.io.IOException, org.xml.sax.SAXException, PSInvalidXmlException {
+        // Reset identifier and version to avoid restore issues
+        this.schemeId = -1;
+        this.version = null;
+        this.parameters = new HashSet<>();
+        com.percussion.services.utils.xml.PSXmlSerializationHelper.readFromXML(xmlsource, this);
+    }
+
+    @Override
+    public String toXML() throws java.io.IOException, org.xml.sax.SAXException {
+        return com.percussion.services.utils.xml.PSXmlSerializationHelper.writeToXml(this);
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        // Create a deep copy using copy constructor
+        return new PSLocationScheme(this);
     }
 
     @Override

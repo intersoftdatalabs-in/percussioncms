@@ -7,80 +7,103 @@
         %HTMLspecial;
 
         ]>
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns="http://www.w3.org/1999/xhtml" xmlns:psxi18n="com.percussion.i18n"
-                extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
- 
-  <xsl:strip-space elements="p b i em a u" /> 
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:psxi18n="com.percussion.i18n"
+	extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
 
-  <xsl:template match="body" mode="word2000">      
-  <xsl:apply-templates select="descendant::p" mode="word2000" />	
-  </xsl:template>
-  
-  <xsl:template match="p[@class='ArticleTitle']" mode="word2000" >
-     <font face="Arial" size="6"><p>
-	<xsl:apply-templates mode="word2000" />
-     </p></font>
-  </xsl:template>
+	<xsl:strip-space elements="p b i em a u" />
 
-  <xsl:template match="p[@class='ArticleAuthor']" mode="word2000" >
-	<p>By: <i><xsl:apply-templates mode="word2000" /></i></p>
-  </xsl:template>   
-  
-  <xsl:template match="p[@class='ArticleBody']" mode="word2000" > 
-	<p><xsl:apply-templates mode="word2000" /></p>
-  </xsl:template> 
- 
-  <xsl:template match="a" mode="word2000" >
-      <a href="{@href}">
-          <xsl:value-of select="." />
-	</a>
-  </xsl:template>
-  
-  <xsl:template match="b|em|i| u" mode="word2000">
-	<xsl:element name="{name()}"><xsl:value-of select="." /></xsl:element>
-  </xsl:template>
- 
-  <xsl:template match="em" mode="wordc2000">
-	<em><xsl:value-of select="." /></em>
-  </xsl:template>
+	<xsl:template match="body" mode="word2000">
+		<xsl:apply-templates select="descendant::p"
+			mode="word2000" />
+	</xsl:template>
 
-  <xsl:template match="i" mode="wordc2000">
-	<i><xsl:value-of select="." /></i>
-  </xsl:template>
+	<xsl:template match="p[@class='ArticleTitle']"
+		mode="word2000">
+		<font face="Arial" size="6">
+			<p>
+				<xsl:apply-templates mode="word2000" />
+			</p>
+		</font>
+	</xsl:template>
 
-  
-  <xsl:template match="p" mode="word2000" >	
-  </xsl:template>
+	<xsl:template match="p[@class='ArticleAuthor']"
+		mode="word2000">
+		<p>
+			By:
+			<i>
+				<xsl:apply-templates mode="word2000" />
+			</i>
+		</p>
+	</xsl:template>
 
-  <xsl:template match="*" mode="word2000-inside" >
-      <xsl:value-of select="." /> 
-  </xsl:template>
+	<xsl:template match="p[@class='ArticleBody']"
+		mode="word2000">
+		<p>
+			<xsl:apply-templates mode="word2000" />
+		</p>
+	</xsl:template>
 
-  <xsl:template match="*" mode="xxxxword2000-inside">  
-     
-  <xsl:choose>      
-     <xsl:when test="text()">   
-       <xsl:choose>     
-          <xsl:when test="@no-escaping">
-          <xsl:value-of select="." disable-output-escaping="yes"/>
-         </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="."/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>&nbsp;</xsl:otherwise>
-    </xsl:choose>
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
-  </xsl:template>
+	<xsl:template match="a" mode="word2000">
+		<a href="{@href}">
+			<xsl:value-of select="." />
+		</a>
+	</xsl:template>
 
-<xsl:template match="attribute::*" mode="word2000-inside" >
-    <xsl:value-of select="."/>
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
-  </xsl:template>
+	<xsl:template match="b|em|i| u" mode="word2000">
+		<xsl:element name="{name()}">
+			<xsl:value-of select="." />
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="em" mode="wordc2000">
+		<em>
+			<xsl:value-of select="." />
+		</em>
+	</xsl:template>
+
+	<xsl:template match="i" mode="wordc2000">
+		<i>
+			<xsl:value-of select="." />
+		</i>
+	</xsl:template>
+
+
+	<xsl:template match="p" mode="word2000">
+	</xsl:template>
+
+	<xsl:template match="*" mode="word2000-inside">
+		<xsl:value-of select="." />
+	</xsl:template>
+
+	<xsl:template match="*" mode="xxxxword2000-inside">
+
+		<xsl:choose>
+			<xsl:when test="text()">
+				<xsl:choose>
+					<xsl:when test="@no-escaping">
+						<xsl:value-of select="."
+							disable-output-escaping="yes" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:when>
+			<xsl:otherwise>&nbsp;
+			</xsl:otherwise>
+		</xsl:choose>
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
+	</xsl:template>
+
+	<xsl:template match="attribute::*" mode="word2000-inside">
+		<xsl:value-of select="." />
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
+	</xsl:template>
 </xsl:stylesheet>

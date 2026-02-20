@@ -45,12 +45,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.faces.validator.ValidatorException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.validator.ValidatorException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -755,7 +755,7 @@ public class PSContentListSelect
     */
    public int getType() 
    {
-      return m_current.getType().ordinal();
+      return m_current.getContentListType().ordinal();
    }
 
    /**
@@ -764,7 +764,7 @@ public class PSContentListSelect
     */
    public void setType(int ordinal)
    {
-      m_current.setType(IPSContentList.Type.valueOf(ordinal));
+      m_current.setContentListType(IPSContentList.Type.valueOf(ordinal));
    }
 
    /**
@@ -870,8 +870,8 @@ public class PSContentListSelect
       if (m_copyItemName != null)
       {
          PSContentList clist = (PSContentList) pub.loadContentList(m_copyItemName);
-         PSContentList nclist = (PSContentList) pub
-               .findContentListByName(m_copyItemNewName);
+         IPSContentList maybe = pub.findContentListByName(m_copyItemNewName).orElse(null);
+         PSContentList nclist = maybe == null ? null : (PSContentList) maybe;
          if (nclist != null)
          {
             // If we found the new one, then a different name is needed

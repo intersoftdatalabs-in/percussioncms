@@ -25,6 +25,7 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
@@ -32,11 +33,12 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * 
  * @author dougrand
  */
-public class PSExtensionParamsTest extends TestCase
+public class PSExtensionParamsTest 
 {
    /**
     * @throws Exception
     */
+   
    public void testRequiredArgs() throws Exception
    {
       Object params[] =
@@ -83,6 +85,7 @@ public class PSExtensionParamsTest extends TestCase
    /**
     * @throws Exception
     */
+   
    public void testReplacementValues() throws Exception
    {
       PSSingleHtmlParameter a = new PSSingleHtmlParameter("sys_a");
@@ -107,6 +110,7 @@ public class PSExtensionParamsTest extends TestCase
     * not <code>0</code>
     * @throws Exception
     */
+   
    public void testNumericEmptyHandling() throws Exception
    {
       Object params[] = {"", null};
@@ -120,6 +124,7 @@ public class PSExtensionParamsTest extends TestCase
     * Test default cases
     * @throws Exception 
     */
+   
    public void testDefaults() throws Exception
    {
       Object params[] =

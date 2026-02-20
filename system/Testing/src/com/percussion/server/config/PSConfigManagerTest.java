@@ -24,29 +24,28 @@ import com.percussion.testing.PSRequestHandlerTestSuite;
 
 
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for the {@link PSRelationshipConfigurationCache} class.
  */
-@Tag("IntegrationTest")
-public class PSConfigManagerTest extends PSConfigHelperTestCase 
+
+@TestInstance(Lifecycle.PER_CLASS)
+public class PSConfigManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 
 {
    // see base class
-   public PSConfigManagerTest(String name)
-   {
-      super(name);
-   }
 
    /* (non-Javadoc)
     * @see com.percussion.testing.IPSServerBasedJunitTest#oneTimeSetUp(com.percussion.server.PSRequest)
     */
    public void oneTimeSetUp(PSRequest req) {
       // TODO Auto-generated method stub
-      
+
    }
 
    /**
@@ -65,13 +64,13 @@ public class PSConfigManagerTest extends PSConfigHelperTestCase
     */
    public void oneTimeTearDown() {
       // TODO Auto-generated method stub
-      
+
    }
-   
+
    /**
     * Test all public interfaces including the constructor.
     * @throws Exception if any errors occur.
-    */  
+    */
    public void testConstruction() throws Exception
    {
       PSConfigManager manager = null;
@@ -82,7 +81,7 @@ public class PSConfigManagerTest extends PSConfigHelperTestCase
       }
       catch (Exception e)
       {
-         assertTrue("construction failed", false);
+         org.junit.jupiter.api.Assertions.fail("construction failed");
       }
    }
 }

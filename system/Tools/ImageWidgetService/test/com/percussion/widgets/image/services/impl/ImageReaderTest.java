@@ -16,7 +16,7 @@
  */
 
 /**
- * 
+ *
  */
 package com.percussion.widgets.image.services.impl;
 
@@ -26,12 +26,12 @@ import com.percussion.widgets.image.data.MimeUtils;
 import com.percussion.widgets.image.web.impl.ImageReader;
 import com.percussion.widgets.image.web.impl.ImageReader.ImageReaderException;
 import org.apache.commons.imaging.ImageInfo;
-import org.apache.commons.imaging.ImageReadException;
+
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.velocity.shaded.commons.io.FilenameUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author matthew.ernewein
- * 
+ *
  */
 public class ImageReaderTest
 {
@@ -70,25 +70,25 @@ public class ImageReaderTest
    @Test
    public void testPng() throws IOException
    {
-      testImage("png_test.png"); 
+      testImage("png_test.png");
    }
-   
+
    @Test
    public void testAdobeIllistrator()throws IOException
    {
       testImage("Adobe_Illistrator_test.jpg");
    }
-   
+
    @Test
    public void testAdobePhotoshop()throws IOException
    {
-      testImage("Adobe_Photoshop_test.jpg"); 
+      testImage("Adobe_Photoshop_test.jpg");
    }
-   
+
    @Test
    public void testAdobePhotoshopTwo()throws IOException
    {
-      testImage("Adobe_Photoshop_test_2.jpg"); 
+      testImage("Adobe_Photoshop_test_2.jpg");
    }
 
    @Test
@@ -155,8 +155,8 @@ public class ImageReaderTest
       BufferedImage bufferedImage = ImageIO.read(getClass().getClassLoader()
               .getResourceAsStream(resourcePath));
       testResize(resourcePath);
-      assertNotNull("Buffered image is null after read:" + resourcePath,
-            bufferedImage);
+      org.junit.jupiter.api.Assertions.assertNotNull(bufferedImage,
+            "Buffered image is null after read:" + resourcePath);
    }
 
    private boolean testResize(String resourcePath)
@@ -173,8 +173,8 @@ public class ImageReaderTest
                .getClassLoader().getResourceAsStream(resourcePath));
 
          Assertions.assertTrue(
-               "Invalid ImageData for generateImage(InputStream input)",
-               validateImageData(resizedImage));
+               validateImageData(resizedImage),
+               "Invalid ImageData for generateImage(InputStream input)");
       }
       catch (Exception e)
       {
@@ -234,13 +234,6 @@ public class ImageReaderTest
                + imageInfo.getColorType() + "\n");
 
          System.out.print(imageInfo.toString());
-      }
-      catch (ImageReadException e)
-      {
-         Assertions.fail("Caught image read exception getting image information:"
-               + e.getMessage());
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
       catch (IOException e)
       {

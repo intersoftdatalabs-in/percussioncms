@@ -151,6 +151,20 @@ public abstract class PSObjectStream<T> implements Iterable<T>, Closeable, AutoC
     }
 
     /**
+     * Backwards-compatible helper to write objects from an iterator.
+     * Collects iterator contents into a list and delegates to {@link #writeAll(Collection)}.
+     *
+     * @param objects iterator of objects to write, not {@code null}
+     * @throws IOException if an I/O error occurs
+     */
+    public void writeObjects(Iterator<? extends T> objects) throws IOException {
+        Objects.requireNonNull(objects, "Objects iterator cannot be null");
+        List<T> list = new ArrayList<>();
+        objects.forEachRemaining(o -> list.add(o));
+        writeAll(list);
+    }
+
+    /**
      * Get the current state of the stream
      *
      * @return the current state
@@ -268,6 +282,18 @@ public abstract class PSObjectStream<T> implements Iterable<T>, Closeable, AutoC
     }
 
     /**
+     * Backwards compatible dispose method. Calls {@link #close()} and suppresses IOExceptions to
+     * provide the legacy no-checked-exception behavior expected by callers.
+     */
+    public void dispose() {
+        try {
+            close();
+        } catch (IOException e) {
+            ms_log.warn("Exception while disposing PSObjectStream: {}", e.getMessage());
+        }
+    }
+
+    /**
      * Create a temporary file for object storage
      *
      * @return a new temporary file
@@ -276,7 +302,7 @@ public abstract class PSObjectStream<T> implements Iterable<T>, Closeable, AutoC
     protected PSPurgableTempFile createTempFile() throws IOException {
         try {
             var tempFile = new PSPurgableTempFile("obj_stream", ".dat", null);
-            ms_log.debug("Created temporary file: {}", tempFile.getFile().getAbsolutePath());
+            ms_log.debug("Created temporary file: {}", tempFile.getAbsolutePath());
             return tempFile;
         } catch (Exception e) {
             ms_log.error("Failed to create temporary file: {}", e.getMessage(), e);
@@ -391,7 +417,7 @@ public abstract class PSObjectStream<T> implements Iterable<T>, Closeable, AutoC
 
         if (tempFile != null) {
             try {
-                var file = tempFile.getFile();
+                var file = tempFile; // PSPurgableTempFile extends File
                 stats.put("tempFileSize", Files.size(file.toPath()));
                 stats.put("tempFilePath", file.getAbsolutePath());
             } catch (Exception e) {

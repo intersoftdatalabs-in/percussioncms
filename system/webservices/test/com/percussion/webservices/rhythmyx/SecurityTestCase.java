@@ -51,8 +51,6 @@ import com.percussion.webservices.system.SystemSOAPStub;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -63,12 +61,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test case for all public security web services
  */
-@Tag("IntegrationTest")
+
 public class SecurityTestCase extends PSSecurityTestBase
 {
    /**
     * Test login
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Test
@@ -210,7 +208,7 @@ public class SecurityTestCase extends PSSecurityTestBase
                assertEquals(newCommunity, login.getDefaultCommunity());
             if (!StringUtils.isBlank(newLocale))
                assertEquals(newLocale, login.getDefaultLocaleCode());
-            
+
             // test with whitespace
             loginRequest = new LoginRequest(" admin1 ", "demo", "workbench",
                newCommunity, newLocale);
@@ -220,7 +218,7 @@ public class SecurityTestCase extends PSSecurityTestBase
             if (!StringUtils.isBlank(newCommunity))
                assertEquals(newCommunity, login.getDefaultCommunity());
             if (!StringUtils.isBlank(newLocale))
-               assertEquals(newLocale, login.getDefaultLocaleCode());            
+               assertEquals(newLocale, login.getDefaultLocaleCode());
 
             // switch back
             loginRequest = new LoginRequest("admin1", "demo", "workbench",
@@ -231,19 +229,19 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSNotAuthenticatedFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "NotAuthenticatedFault Exception caught: " + e1);
       }
       catch (PSContractViolationFault e2)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
    }
 
    /**
     * Test logout
-    * 
+    *
     * @throws Exception if the test fails
     */
    @Test
@@ -299,19 +297,19 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSContractViolationFault e2)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
    }
 
    /**
     * Test refresh session
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -327,19 +325,19 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSContractViolationFault e2)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
    }
 
    /**
     * Test load communities
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -428,24 +426,24 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }
 
    /**
     * Test load roles
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -534,24 +532,24 @@ public class SecurityTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSNotAuthorizedFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e);
       }
    }
 
    /**
     * Test the FilterByRuntimeVisibility web service, assumes FF is installed.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Disabled
@@ -654,10 +652,10 @@ public class SecurityTestCase extends PSSecurityTestBase
       results = binding.filterByRuntimeVisibility(ids).getIds();
       assertEquals(results.length, 0);
    }
-   
+
    /**
     * Test the FilterByRuntimeVisibility web service, assumes FF is installed.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Test
@@ -665,32 +663,32 @@ public class SecurityTestCase extends PSSecurityTestBase
    {
       SecurityDesignSOAPStub secBinding = getDesignBinding(null);
       PSTestUtils.setSessionHeader(secBinding, m_session);
-      
+
       // ensure in EI community
       AssemblyDesignSOAPStub assemBinding = new PSAssemblyTestBase().getDesignBinding(null);
       PSTestUtils.setSessionHeader(assemBinding, m_session);
-      
-      
+
+
       GetVisibilityByCommunityRequest req = new GetVisibilityByCommunityRequest();
-      
+
       long[] ids = new long[1];
       ids[0] = new PSDesignGuid(PSTypeEnum.COMMUNITY_DEF, 1002).getValue();
       req.setId(ids);
       req.setType(4);
-      
+
       PSCommunityVisibility[] vises = secBinding.getVisibilityByCommunity(req);
-      
+
       // create an Template without Acl entry
       PSAssemblyTemplate tstTemplate = AssemblyDesignTestCase.createTemplate(
             assemBinding, "tstTemplate1", "tstTemplate1");
       AssemblyDesignTestCase.saveTemplate(assemBinding, tstTemplate, true);
-      
+
       PSCommunityVisibility[] vises_2 = secBinding.getVisibilityByCommunity(req);
-      
+
       // the visible # of objects should be the same as before, since
       // the created Template should not be visible yet.
       assertTrue(vises.length >= vises_2.length);
-      
+
       new PSAssemblyTestBase().deleteTemplate(tstTemplate, m_session);
    }
 }

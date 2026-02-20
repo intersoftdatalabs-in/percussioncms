@@ -6,12 +6,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="QUERY">
@@ -29,12 +29,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="PLACEHOLDER">
@@ -52,17 +52,17 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="CALENDAR_START">
 				<jdbctype>TIMESTAMP</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="QUERY">
@@ -80,12 +80,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="FIRSTNAME">
@@ -127,7 +127,7 @@
 				<jdbctype>VARCHAR</jdbctype>
 				<size>10</size>
 				<allowsnull>yes</allowsnull>
-			</column>			
+			</column>
 			<column name="COUNTRY">
 				<jdbctype>VARCHAR</jdbctype>
 				<size>100</size>
@@ -168,22 +168,22 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="EVENT_START">
 				<jdbctype>TIMESTAMP</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="EVENT_END">
 				<jdbctype>TIMESTAMP</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="EVENT_LOCATION">
@@ -206,12 +206,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="URL">
@@ -229,12 +229,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="FILE_CATEGORY">
@@ -252,12 +252,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="PLACEHOLDER">
@@ -269,7 +269,7 @@
 				<jdbctype>VARCHAR</jdbctype>
 				<size>1</size>
 				<allowsnull>yes</allowsnull>
-			</column>			
+			</column>
 		</row>
 		<primarykey>
 			<name>CONTENTID</name>
@@ -280,12 +280,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="AUTHORNAME">
@@ -314,12 +314,12 @@
 			</column>
 			<column name="BODYML">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="VARIANT">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 		</row>
@@ -332,12 +332,12 @@
 		<row>
 			<column name="HOLIDAYID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="DAY">
 				<jdbctype>TIMESTAMP</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="NAME">
@@ -354,12 +354,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="PLACEHOLDER">
@@ -377,12 +377,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="IMG_CATEGORY">
@@ -405,12 +405,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="ACTIVEIMG">
@@ -545,12 +545,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="NO_PROPAGATE">
@@ -578,12 +578,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="NT_THEME">
@@ -616,12 +616,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="INCLUDEHOME">
@@ -636,7 +636,7 @@
 			</column>
 			<column name="PR_SUMMARY">
 				<jdbctype>CLOB</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 		</row>
@@ -649,12 +649,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="FILENAME">
@@ -679,17 +679,17 @@
 			</column>
 			<column name="CALLOUT">
 				<jdbctype>CLOB</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="BODY">
 				<jdbctype>CLOB</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="DEFAULT_VARIANTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="WEBDAVOWNER">
@@ -707,12 +707,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="ITEM">
@@ -726,7 +726,7 @@
 			</column>
 			<column name="ITEM_SIZE">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 			<column name="ITEM_TYPE">
@@ -754,12 +754,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="IMG1">

@@ -19,7 +19,7 @@
 
 package com.percussion.rest.errors;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Exception thrown for unsupported user types. Sunny Sal: "User type unsupported? Upgrade kar lo,

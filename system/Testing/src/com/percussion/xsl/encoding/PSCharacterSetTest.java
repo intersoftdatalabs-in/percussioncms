@@ -99,7 +99,7 @@ public class PSCharacterSetTest
    /**
     * Make sure each characterset class can be constructed without error.
     * This tests that the resource file is available and readable.
-    * 
+    *
     * @throws IOException if one of the constructors reports an error.
     */
    @Test
@@ -157,7 +157,7 @@ public class PSCharacterSetTest
     * Tests that each character set class can be used in a transformation
     * without causing an error and that the output is actually in the expected
     * encoding.
-    * 
+    *
     * @throws Exception if any error occurs
     */
    @Test
@@ -179,7 +179,7 @@ public class PSCharacterSetTest
       runTest( "Yahoo-EUC-KR.xhtm", "EUC-KR", "copy.xsl" );
       runTest( "Yahoo-UTF16BE.xhtm", "UTF-16BE", "copy.xsl" );
       runTest( "Yahoo-UTF16LE.xhtm", "UTF-16LE", "copy.xsl" );
-      
+
       // there is no test for EUC_TW, as I was unable to find a sample document
       // using that encoding.
    }
@@ -189,16 +189,16 @@ public class PSCharacterSetTest
     * Builds an XML document from the specified file, transforms it using the
     * specified stylesheet, and asserts that the generated output is byte-for-
     * byte identical to the specified file.
-    * 
-    * @param testFile of the file containing the XML to be transformed and the 
+    *
+    * @param testFile of the file containing the XML to be transformed and the
     * expected bytes of the result, assumed not <code>null</code> or empty.
     * @param encoding name of the character encoding scheme of the test file,
     * assumed not <code>null</code> or empty.  Must be one of Java's
     * supported character encodings.
-    * 
-    * @param stylesheet name of the file containing the XSLT stylesheet that 
+    *
+    * @param stylesheet name of the file containing the XSLT stylesheet that
     * performs an identify copy.  Assumed not <code>null</code>.
-    * 
+    *
     * @throws Exception if any error occurs
     */
    private static void runTest(String testFile, String encoding,
@@ -206,7 +206,7 @@ public class PSCharacterSetTest
       throws Exception
    {
       String xslEncoding = encoding;
-      //for both UTF-16BE and UTF-16LE java encoding is UTF-16 and stylesheet 
+      //for both UTF-16BE and UTF-16LE java encoding is UTF-16 and stylesheet
       //encoding remains unchanged
       if(encoding.toUpperCase().startsWith("UTF-16"))
          encoding = "UTF-16";
@@ -227,8 +227,7 @@ public class PSCharacterSetTest
          boolean outputEqualsInput = compare( testFile, output, encoding );
          if (!outputEqualsInput)
             writeOutputAsTempFile( output ); // assist debugging
-         assertTrue( "result of transforming " + testFile + " with " + 
-            stylesheet + " does not equal source", outputEqualsInput );
+         assertTrue(outputEqualsInput, "result of transforming " + testFile + " with " + stylesheet + " does not equal source");
 
          // test the two-step copy encoding->UTF8->encoding
          byte[] intertial = transform( sourceDoc, "copy.xsl", "UTF-8");
@@ -239,9 +238,7 @@ public class PSCharacterSetTest
          outputEqualsInput = compare( testFile, output, encoding );
          if (!outputEqualsInput)
             writeOutputAsTempFile( output ); // assist debugging
-         assertTrue( "result of transforming " + testFile +
-            " through UTF-8 and back with " + stylesheet +
-            " does not equal source", outputEqualsInput );
+         assertTrue(outputEqualsInput, "result of transforming " + testFile + " through UTF-8 and back with " + stylesheet + " does not equal source");
 
       } catch (Exception e)
       {
@@ -266,7 +263,7 @@ public class PSCharacterSetTest
     * ignored.
     * @param output the byte array to be dumped to a temporary file, assumed
     * not <code>null</code>.
-    * 
+    *
     */
    private static void writeOutputAsTempFile(byte[] output)
    {
@@ -300,7 +297,7 @@ public class PSCharacterSetTest
     * Transforms <code>inDoc</code> by applying the supplied XSLT stylesheet.
     *
     * @param inDoc the source to be transformed, assumed not <code>null</code>.
-    * @param stylesheet name of the file containing the XSLT stylesheet that 
+    * @param stylesheet name of the file containing the XSLT stylesheet that
     * will be applied.  Assumed not <code>null</code>.
     * @param encoding
     *
@@ -337,23 +334,23 @@ public class PSCharacterSetTest
 
 
    /**
-    * Compares the characters of the expected file with the characters in the 
-    * supplied array, converting bytes to characters using the specified 
+    * Compares the characters of the expected file with the characters in the
+    * supplied array, converting bytes to characters using the specified
     * encoding.  Line break characters in either source will be normalized to
     * LF ('\n') characters.
-    * 
+    *
     * @param expectedFile name of the file containing the expected bytes,
     * assumed not <code>null</code>.
     * @param actualBytes the array of bytes to be tested against the expected
     * file.  If <code>null</code>, method will return <code>false</code>.
     * @param encoding name of the character encoding scheme used by both
-    * <code>expectedFile</code> and <code>actualBytes</code>.  Assumed to be 
+    * <code>expectedFile</code> and <code>actualBytes</code>.  Assumed to be
     * one of Java's supported character encodings and not <code>null</code> or
     * empty.
-    * 
-    * @return <code>true</code> if the file and the byte array are the same 
+    *
+    * @return <code>true</code> if the file and the byte array are the same
     * size and contain identical characters; <code>false</code> otherwise.
-    * 
+    *
     * @throws IOException if file is not found, or an I/O error occurs.
     */
    private static boolean compare(String expectedFile, byte[] actualBytes,
@@ -367,7 +364,7 @@ public class PSCharacterSetTest
       try
       {
          // we can't be sure of the line break style (CR, CR-LF, or LF) of the
-         // sources, so use a LineNumberReader to normalize them 
+         // sources, so use a LineNumberReader to normalize them
          expected = new LineNumberReader( new InputStreamReader(
                  PSCharacterSetTest.class.getResourceAsStream( RESOURCE_PATH + expectedFile ), encoding ) );
          actual = new LineNumberReader( new InputStreamReader(

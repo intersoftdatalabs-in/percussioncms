@@ -73,6 +73,34 @@ public abstract class PSBaseException extends Exception {
   }
 
   /**
+   * Convenience constructor that accepts a raw message string. Preserves legacy callers which
+   * provide a message directly rather than a numeric message code. This constructor is intended for
+   * small, behavior-preserving compatibility changes during migration to the newer message-code
+   * based API.
+   *
+   * @param message the exception message
+   */
+  public PSBaseException(String message) {
+    super(message);
+    this.m_code = 0;
+    this.m_args = new Object[] {message};
+  }
+
+  /**
+   * Convenience constructor that accepts a raw message string and a cause. Preserves legacy callers
+   * which expect this signature.
+   *
+   * @param message the exception message
+   * @param cause the causing throwable
+   */
+  public PSBaseException(String message, Throwable cause) {
+    super(message, cause);
+    this.m_code = 0;
+    this.m_args = new Object[] {message};
+    initCause(cause);
+  }
+
+  /**
    * Returns the localized detail message of this exception.
    *
    * @param locale The locale to generate the message in. If <code>null

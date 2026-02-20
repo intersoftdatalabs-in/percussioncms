@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- fr: "Français",
- hello: "Bonjour"
-}
+({
+  fr: "Français",
+  hello: "Bonjour",
+});

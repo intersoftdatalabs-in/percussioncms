@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -31,20 +32,19 @@ import org.w3c.dom.Element;
 
 // Test case
 
-public class PSUrlRequestTest extends TestCase
+public class PSUrlRequestTest
 {
-   public PSUrlRequestTest(String name)
-   {
-      super( name );
-   }
+
 
 
    /**
     * Tests that the <code>clone()</code> method creates a separate-but-equal
     * instance, and that the copy is deep.
-    * 
+    *
     * @throws Exception if the test fails.
-    */ 
+    */
+
+   @Test
    public void testClone() throws Exception
    {
       PSCollection parameters = new PSCollection( PSParam.class );
@@ -63,7 +63,7 @@ public class PSUrlRequestTest extends TestCase
       assertEquals( foo, bar );
 
       param2.setName( "2p2" );  // mutate param
-      
+
       // expect foo to have been modified, but not bar
       boolean found = false;
       for (Iterator iter = foo.getQueryParameters(); iter.hasNext();)
@@ -75,7 +75,7 @@ public class PSUrlRequestTest extends TestCase
             break;
          }
       }
-      assertTrue( "foo has change", found );
+      assertTrue(found, "foo has change");
       found = false;
       for (Iterator iter = bar.getQueryParameters(); iter.hasNext();)
       {
@@ -86,10 +86,14 @@ public class PSUrlRequestTest extends TestCase
             break;
          }
       }
-      assertTrue( "bar does not have change", !found );
+      assertTrue(!found, "bar does not have change");
    }
 
 
+
+
+
+   @Test
    public void testXmlParts() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -109,10 +113,14 @@ public class PSUrlRequestTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSUrlRequest testFrom = new PSUrlRequest( elem, null, null );
-      assertTrue( testTo.equals( testFrom ) );
+      assertEquals(testTo, testFrom );
    }
 
 
+
+
+
+   @Test
    public void testXmlUdf() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -127,18 +135,9 @@ public class PSUrlRequestTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSUrlRequest testFrom = new PSUrlRequest( elem, null, null );
-      assertTrue( testTo.equals( testFrom ) );
+      assertEquals(testTo, testFrom );
    }
 
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
 
-      suite.addTest( new PSUrlRequestTest( "testXmlParts" ) );
-      suite.addTest( new PSUrlRequestTest( "testXmlUdf" ) );
-      suite.addTest( new PSUrlRequestTest( "testClone" ) );
-
-      return suite;
-   }
 }

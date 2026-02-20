@@ -18,42 +18,47 @@
 /**
  * Page list service, makes a call to the server and gets the page list entries.
  */
-(function($)
-{
-    $.PercPageListService = {
-        getPageEntries : getPageEntries
-    };
-    function getPageEntries(queryString, callback)
-    {
-    	var deliveryUrl = "";
+(function ($) {
+  $.PercPageListService = {
+    getPageEntries: getPageEntries,
+  };
+  function getPageEntries(queryString, callback) {
+    var deliveryUrl = "";
 
-        //Skip DTS processing if we are in edit mode
-        if(queryString.isEditMode === "true"){
-            callback(false,"");
-            return;
-        }
-
-    	try{
-    		if ("undefined" !== typeof (queryString.deliveryurl)){
-    		    deliveryUrl = queryString.deliveryurl;
-    		    delete queryString.deliveryurl;
-    	    }
-    	}
-        catch (err) {
-		   console.error(err);
-	    }
-        var serviceUrl = $.PercServiceUtils.joinURL(deliveryUrl, "/perc-metadata-services/metadata/get");
-
-        $.PercServiceUtils.makeXdmJsonRequest(null, serviceUrl, $.PercServiceUtils.TYPE_POST, function(status, results)
-        {
-            if(status === $.PercServiceUtils.STATUS_SUCCESS){
-                callback(true,results.data);
-            }
-            else{
-              var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(results.request);
-              callback(false, defMsg);
-            }
-            
-        }, queryString);
+    //Skip DTS processing if we are in edit mode
+    if (queryString.isEditMode === "true") {
+      callback(false, "");
+      return;
     }
+
+    try {
+      if ("undefined" !== typeof queryString.deliveryurl) {
+        deliveryUrl = queryString.deliveryurl;
+        delete queryString.deliveryurl;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    var serviceUrl = $.PercServiceUtils.joinURL(
+      deliveryUrl,
+      "/perc-metadata-services/metadata/get"
+    );
+
+    $.PercServiceUtils.makeXdmJsonRequest(
+      null,
+      serviceUrl,
+      $.PercServiceUtils.TYPE_POST,
+      function (status, results) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback(true, results.data);
+        } else {
+          var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            results.request
+          );
+          callback(false, defMsg);
+        }
+      },
+      queryString
+    );
+  }
 })(jQuery);

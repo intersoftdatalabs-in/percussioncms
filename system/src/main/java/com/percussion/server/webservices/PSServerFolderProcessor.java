@@ -1237,7 +1237,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     if (!children.isEmpty()) {
       PSRelationshipProcessor relation = PSRelationshipProcessor.getInstance();
 
-      PSComponentSummaries childSummaries = getComponentSummaries(children.iterator(), null, false);
+      PSComponentSummaries childSummaries =
+          getComponentSummaries(
+              (Iterator<PSLocator>) (Iterator<?>) children.iterator(), null, false);
 
       validateChildNames(childSummaries, targetParent);
 
@@ -2138,7 +2140,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws PSException if an error occurs during the copy process.
    */
   private void processFolderChildren(
-      List<PSLocator> children, PSCloningOptions options, PSLocator targetParent, boolean copyItem)
+      List<?> children, PSCloningOptions options, PSLocator targetParent, boolean copyItem)
       throws PSException {
     validateKeys(children.iterator());
     validateKey(targetParent);
@@ -2147,7 +2149,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       boolean isOverrideName = false;
       if (children.get(0) instanceof PSLocatorWithName && copyItem) isOverrideName = true;
 
-      PSComponentSummaries childSummaries = getComponentSummaries(children.iterator(), null, false);
+      PSComponentSummaries childSummaries =
+          getComponentSummaries(
+              (Iterator<PSLocator>) (Iterator<?>) children.iterator(), null, false);
 
       // make sure targetParent is not a descendent of the childen
       validateTargetParentIsNotDescendent(
@@ -2167,16 +2171,19 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @param summaries the component summaries, assume not <code>null</code>, but may be empty.
    * @param locators the locators of the summaries, assume not <code>null</code>, but may be empty.
    */
-  private void setSummariesWithNewName(PSComponentSummaries summaries, List locators) {
+  private void setSummariesWithNewName(PSComponentSummaries summaries, List<?> locators) {
     PSComponentSummary[] sumArray = summaries.toArray();
     for (int i = 0; i < sumArray.length; i++) {
       // get the name from locators which has the same id as sumArray[i]
-      Iterator locs = locators.iterator();
+      Iterator<?> locs = locators.iterator();
       int id = sumArray[i].getCurrentLocator().getId();
       String name = null;
       while (locs.hasNext()) {
-        PSLocatorWithName locName = (PSLocatorWithName) locs.next();
-        if (locName.getId() == id) name = locName.getOverrideName();
+        Object o = locs.next();
+        if (o instanceof PSLocatorWithName) {
+          PSLocatorWithName locName = (PSLocatorWithName) o;
+          if (locName.getId() == id) name = locName.getOverrideName();
+        }
       }
       sumArray[i].setName(name);
     }

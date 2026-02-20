@@ -46,6 +46,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Executes a scheduled edition as a task. Handles publishing jobs and site management.
@@ -283,8 +284,8 @@ public class PSRunEdition implements IPSTask, IPSPublishingJobStatusCallback
       }
       else
       {
-         se = new PSSchedulingException(Error.EDITION_ABORTED.ordinal(), e,
-               id, edition.getName());         
+         se = new PSSchedulingException(Error.FAILED_RUN_EDITION.getCode(), e,
+               Optional.empty(), Optional.ofNullable(edition != null ? edition.getGUID() : null), edition.getName());         
       }
       return se.getLocalizedMessage();
    }

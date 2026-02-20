@@ -20,12 +20,12 @@ import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Common implementations used with the public and private content 
+ * Common implementations used with the public and private content
  * webservices.
  */
 public class PSContentBaseWs
@@ -43,10 +43,10 @@ public class PSContentBaseWs
    }
 
    /**
-    * Wraps the specified exception into a {@link PSErrorException} and 
+    * Wraps the specified exception into a {@link PSErrorException} and
     * rethrow the wrapped exception.
-    * 
-    * @param operation the description of the attempted operation, 
+    *
+    * @param operation the description of the attempted operation,
     *    not <code>null</code> or empty.
     * @param e the unexpected exception, not <code>null</code>.
     * @throws PSErrorException the rethrowed exception.
@@ -67,9 +67,9 @@ public class PSContentBaseWs
    }
 
    /**
-    * Wraps the specified exception into a {@link PSErrorException} and 
+    * Wraps the specified exception into a {@link PSErrorException} and
     * rethrows the wrapped exception.
-    * 
+    *
     * @param e the unexpected error, not <code>null</code>.
     * @throws PSErrorException the rethrowed exception.
     */

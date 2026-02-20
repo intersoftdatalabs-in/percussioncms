@@ -25,8 +25,8 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.search.objectstore.PSWSSearchField</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.search.objectstore.PSWSSearchField</code> and
  * <code>com.percussion.webservices.content.PSSearchField</code>.
  */
 public class PSSearchFieldConverter extends PSConverter
@@ -48,42 +48,42 @@ public class PSSearchFieldConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.content.PSSearchField source = 
+         com.percussion.webservices.content.PSSearchField source =
             (com.percussion.webservices.content.PSSearchField) value;
-         
-         ConnectorTypes sourceConnector = (source.getConnector() == null) ? ConnectorTypes.and
+
+         ConnectorTypes sourceConnector = (source.getConnector() == null) ? ConnectorTypes.AND
                : source.getConnector();
 
          Converter converter = getConverter(sourceConnector.getClass());
-         PSWSSearchField.PSConnectorEnum connector = 
+         PSWSSearchField.PSConnectorEnum connector =
             (PSWSSearchField.PSConnectorEnum) converter.convert(
                PSWSSearchField.PSConnectorEnum.class, sourceConnector);
-         
+
          PSWSSearchField target = null;
          if (StringUtils.isBlank(source.getExternalOperator()))
          {
-            OperatorTypes sourceOperator = (source.getOperator() == null) ? OperatorTypes.equal
+            OperatorTypes sourceOperator = (source.getOperator() == null) ? OperatorTypes.EQUAL
                   : source.getOperator();
 
             converter = getConverter(sourceOperator.getClass());
-            PSWSSearchField.PSOperatorEnum operator = 
+            PSWSSearchField.PSOperatorEnum operator =
                (PSWSSearchField.PSOperatorEnum) converter.convert(
                   PSWSSearchField.PSOperatorEnum.class, sourceOperator);
 
-            target = new PSWSSearchField(source.getName(), 
-               operator.getOrdinal(), source.getValue(), 
+            target = new PSWSSearchField(source.getName(),
+               operator.getOrdinal(), source.getValue(),
                connector.getOrdinal());
          }
          else
          {
-            target = new PSWSSearchField(source.getName(), 
-               source.getExternalOperator(), source.getValue(), 
+            target = new PSWSSearchField(source.getName(),
+               source.getExternalOperator(), source.getValue(),
                connector.getOrdinal());
          }
-         
+
          return target;
       }
       else
@@ -93,15 +93,15 @@ public class PSSearchFieldConverter extends PSConverter
          Converter converter = getConverter(
             PSWSSearchField.PSOperatorEnum.class);
          OperatorTypes operator = (OperatorTypes) converter.convert(
-            OperatorTypes.class, 
+            OperatorTypes.class,
             PSWSSearchField.PSOperatorEnum.valueOf(source.getOperator()));
 
          converter = getConverter(PSWSSearchField.PSConnectorEnum.class);
          ConnectorTypes connector = (ConnectorTypes) converter.convert(
-            ConnectorTypes.class, 
+            ConnectorTypes.class,
             PSWSSearchField.PSConnectorEnum.valueOf(source.getConnector()));
 
-         com.percussion.webservices.content.PSSearchField target = 
+         com.percussion.webservices.content.PSSearchField target =
             new com.percussion.webservices.content.PSSearchField();
          target.setName(source.getName());
          target.setValue(source.getValue());

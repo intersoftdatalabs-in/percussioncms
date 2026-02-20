@@ -1,203 +1,238 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Blog Post"
-                 contenttype_name="percBlogPostAsset"
-                 category="blog"
-                 description="Blog Post for your site"
-                 author="Percussion Software Inc"
-                 thumbnail="/rx_resources/widgets/blogPost/images/WidgetIconBlog.png"
-                 preferred_editor_width="780"
-                 preferred_editor_height="723"
-                 is_responsive="true"/>
-    <UserPref name="titleFormat"
-              display_name="Format of blog post title"
-              required="false"
-              datatype="enum" default_value="h1">
-        <EnumValue value="p" display_value="Paragraph" />
-        <EnumValue value="h1" display_value="Heading 1" />
-        <EnumValue value="h2" display_value="Heading 2" />
-        <EnumValue value="h3" display_value="Heading 3" />
-        <EnumValue value="h4" display_value="Heading 4" />
-        <EnumValue value="h5" display_value="Heading 5" />
-        <EnumValue value="h6" display_value="Heading 6" />
-    </UserPref>
-    <UserPref name="blogPostDateTimeFormat"
-              display_name="Format of blog post date"
-              default_value="EEE MMM d, yyyy 'at' hh:mm a"
-              datatype="string" />
-    <UserPref name="locale"
-              display_name="Date Format Locale"
-              required="true"
-              default_value="en-US"
-              datatype="enum">
-        <EnumValue value="sq-AL" display_value="Albanian Albania (AL)"/>
-        <EnumValue value="ar-DZ" display_value="Arabic Algeria (DZ)"/>
-        <EnumValue value="ar-BH" display_value="Arabic Bahrain (BH)"/>
-        <EnumValue value="ar-EG" display_value="Arabic Egypt (EG)"/>
-        <EnumValue value="ar-IQ" display_value="Arabic Iraq (IQ)"/>
-        <EnumValue value="ar-JO" display_value="Arabic Jordan (JO)"/>
-        <EnumValue value="ar-KW" display_value="Arabic Kuwait (KW)"/>
-        <EnumValue value="ar-LB" display_value="Arabic Lebanon (LB)"/>
-        <EnumValue value="ar-LY" display_value="Arabic Libya (LY)"/>
-        <EnumValue value="ar-MA" display_value="Arabic Morocco (MA)"/>
-        <EnumValue value="ar-OM" display_value="Arabic Oman (OM)"/>
-        <EnumValue value="ar-QA" display_value="Arabic Qatar (QA)"/>
-        <EnumValue value="ar-SA" display_value="Arabic Saudi Arabia (SA)"/>
-        <EnumValue value="ar-SD" display_value="Arabic Sudan (SD)"/>
-        <EnumValue value="ar-SY" display_value="Arabic Syria (SY)"/>
-        <EnumValue value="ar-TN" display_value="Arabic Tunisia (TN)"/>
-        <EnumValue value="ar-AE" display_value="Arabic United Arab Emirates (AE)"/>
-        <EnumValue value="ar-YE" display_value="Arabic Yemen (YE)"/>
-        <EnumValue value="be-BY" display_value="Belarusian Belarus (BY)"/>
-        <EnumValue value="bg-BG" display_value="Bulgarian Bulgaria (BG)"/>
-        <EnumValue value="ca-ES" display_value="Catalan Spain (ES)"/>
-        <EnumValue value="zh-CN" display_value="Chinese China (CN)"/>
-        <EnumValue value="zh-SG" display_value="Chinese Singapore (SG)"/>
-        <EnumValue value="zh-HK" display_value="Chinese Hong Kong (HK)"/>
-        <EnumValue value="zh-TW" display_value="Chinese Taiwan (TW)"/>
-        <EnumValue value="hr-HR" display_value="Croatian Croatia (HR)"/>
-        <EnumValue value="cs-CZ" display_value="Czech Czech Republic (CZ)"/>
-        <EnumValue value="da-DK" display_value="Danish Denmark (DK)"/>
-        <EnumValue value="nl-BE" display_value="Dutch Belgium (BE)"/>
-        <EnumValue value="nl-NL" display_value="Dutch Netherlands (NL)"/>
-        <EnumValue value="en-AU" display_value="English Australia (AU)"/>
-        <EnumValue value="en-CA" display_value="English Canada (CA)"/>
-        <EnumValue value="en-IN" display_value="English India (IN)"/>
-        <EnumValue value="en-IE" display_value="English Ireland (IE)"/>
-        <EnumValue value="en-MT" display_value="English Malta (MT)"/>
-        <EnumValue value="en-NZ" display_value="English New Zealand (NZ)"/>
-        <EnumValue value="en-PH" display_value="English Philippines (PH)"/>
-        <EnumValue value="en-SG" display_value="English Singapore (SG)"/>
-        <EnumValue value="en-ZA" display_value="English South Africa (ZA)"/>
-        <EnumValue value="en-GB" display_value="English United Kingdom (GB)"/>
-        <EnumValue value="en-US" display_value="English United States (US)"/>
-        <EnumValue value="et-EE" display_value="Estonian Estonia (EE)"/>
-        <EnumValue value="fi-FI" display_value="Finnish Finland (FI)"/>
-        <EnumValue value="fr-BE" display_value="French Belgium (BE)"/>
-        <EnumValue value="fr-CA" display_value="French Canada (CA)"/>
-        <EnumValue value="fr-FR" display_value="French France (FR)"/>
-        <EnumValue value="fr-LU" display_value="French Luxembourg (LU)"/>
-        <EnumValue value="fr-CH" display_value="French Switzerland (CH)"/>
-        <EnumValue value="de-AT" display_value="German Austria (AT)"/>
-        <EnumValue value="de-DE" display_value="German Germany (DE)"/>
-        <EnumValue value="de-LU" display_value="German Luxembourg (LU)"/>
-        <EnumValue value="de-CH" display_value="German Switzerland (CH)"/>
-        <EnumValue value="el-CY" display_value="Greek Cyprus (CY)"/>
-        <EnumValue value="el-GR" display_value="Greek Greece (GR)"/>
-        <EnumValue value="iw-IL" display_value="Hebrew Israel (IL)"/>
-        <EnumValue value="hi-IN" display_value="Hindi India (IN)"/>
-        <EnumValue value="hu-HU" display_value="Hungarian Hungary (HU)"/>
-        <EnumValue value="is-IS" display_value="Icelandic Iceland (IS)"/>
-        <EnumValue value="in-ID" display_value="Indonesian Indonesia (ID)"/>
-        <EnumValue value="ga-IE" display_value="Irish Ireland (IE)"/>
-        <EnumValue value="it-IT" display_value="Italian Italy (IT)"/>
-        <EnumValue value="it-CH" display_value="Italian Switzerland (CH)"/>
-        <EnumValue value="ja-JP" display_value="Japanese Japan (JP)"/>
-        <EnumValue value="ko-KR" display_value="Korean South Korea (KR)"/>
-        <EnumValue value="lv-LV" display_value="Latvian Latvia (LV)"/>
-        <EnumValue value="lt-LT" display_value="Lithuanian Lithuania (LT)"/>
-        <EnumValue value="mk-MK" display_value="Macedonian Macedonia (MK)"/>
-        <EnumValue value="ms-MY" display_value="Malay Malaysia (MY)"/>
-        <EnumValue value="mt-MT" display_value="Maltese (mt)	Malta (MT)"/>
-        <EnumValue value="no-NO" display_value="Norwegian Norway (NO)"/>
-        <EnumValue value="nb-NO" display_value="Norwegian Bokmal Norway (NO)"/>
-        <EnumValue value="nn-NO" display_value="Norwegian Nynorsk Norway (NO)"/>
-        <EnumValue value="pl-PL" display_value="Polish Poland (PL)"/>
-        <EnumValue value="pt-BR" display_value="Portuguese Brazil (BR)"/>
-        <EnumValue value="pt-PT" display_value="Portuguese Portugal (PT)"/>
-        <EnumValue value="ro-RO" display_value="Romanian Romania (RO)"/>
-        <EnumValue value="ru-RU" display_value="Russian Russia (RU)"/>
-        <EnumValue value="sr-BA" display_value="Serbian Bosnia and Herzegovina (BA)"/>
-        <EnumValue value="sr-ME" display_value="Serbian Montenegro (ME)"/>
-        <EnumValue value="sr-RS" display_value="Serbian Serbia (RS)"/>
-        <EnumValue value="sk-SK" display_value="Slovak Slovakia (SK)"/>
-        <EnumValue value="sl-SI" display_value="Slovenian Slovenia (SI)"/>
-        <EnumValue value="es-AR" display_value="Spanish Argentina (AR)"/>
-        <EnumValue value="es-BO" display_value="Spanish Bolivia (BO)"/>
-        <EnumValue value="es-CL" display_value="Spanish Chile (CL)"/>
-        <EnumValue value="es-CO" display_value="Spanish Colombia (CO)"/>
-        <EnumValue value="es-CR" display_value="Spanish Costa Rica (CR)"/>
-        <EnumValue value="es-DO" display_value="Spanish Dominican Republic (DO)"/>
-        <EnumValue value="es-EC" display_value="Spanish Ecuador (EC)"/>
-        <EnumValue value="es-SV" display_value="Spanish El Salvador (SV)"/>
-        <EnumValue value="es-GT" display_value="Spanish Guatemala (GT)"/>
-        <EnumValue value="es-HN" display_value="Spanish Honduras (HN)"/>
-        <EnumValue value="es-MX" display_value="Spanish Mexico (MX)"/>
-        <EnumValue value="es-NI" display_value="Spanish Nicaragua (NL)"/>
-        <EnumValue value="es-PA" display_value="Spanish Panama (PA)"/>
-        <EnumValue value="es-PY" display_value="Spanish Paraguay (PY)"/>
-        <EnumValue value="es-PE" display_value="Spanish Peru (PE)"/>
-        <EnumValue value="es-PR" display_value="Spanish Puerto Rico (PR)"/>
-        <EnumValue value="es-ES" display_value="Spanish Spain (ES)"/>
-        <EnumValue value="es-US" display_value="Spanish United States (US)"/>
-        <EnumValue value="es-UY" display_value="Spanish Uruguay (UY)"/>
-        <EnumValue value="es-VE" display_value="Spanish Venezuela (VE)"/>
-        <EnumValue value="sv-SE" display_value="Swedish Sweden (SE)"/>
-        <EnumValue value="th-TH" display_value="Thai Thailand (TH)"/>
-        <EnumValue value="tr-TR" display_value="Turkish Turkey (TR)"/>
-        <EnumValue value="uk-UA" display_value="Ukrainian Ukraine (UA)"/>
-        <EnumValue value="vi-VN" display_value="Vietnamese Vietnam (VN)"/>
-    </UserPref>
-    <UserPref name="perc_hidefield_blog_date"
-              display_name="Hide date and time"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="blogPostBylineText"
-              display_name='Text to use for "Author Byline"'
-              default_value="by"
-              datatype="string" />
-    <UserPref name="perc_hidefield_byline"
-              display_name="Hide byline"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_hidefield_tags"
-              display_name="Hide tags"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_tags_label"
-              display_name="Text to use for &quot;tags&quot; label"
-              default_value="Tags:"
-              datatype="string" />
-    <UserPref name="perc_hidefield_categories"
-              display_name="Hide categories"
-              default_value="false"
-              datatype="bool" />
-    <UserPref name="perc_categories_label"
-              display_name="Text to use for &quot;categories&quot; label"
-              default_value="Categories:"
-              datatype="string" />
-    <UserPref name="blogNavigationLocation"
-              display_name="Location of blog navigation"
-              required="false"
-              datatype="enum" default_value="none">
-        <EnumValue value="none" display_value="None" />
-        <EnumValue value="above" display_value="Above blog post" />
-        <EnumValue value="beneath" display_value="Beneath blog post" />
-        <EnumValue value="aboveBeneath" display_value="Above and beneath blog posting" />
-    </UserPref>
-    <UserPref name="blogNavigationContext"
-              display_name="Blog navigation context"
-              required="false"
-              datatype="enum" default_value="preNext">
-        <EnumValue value="preNext" display_value="User defined" />
-        <EnumValue value="blogTitle" display_value="Use blog title" />
-    </UserPref>
-    <UserPref name="blogPostNextPost"
-              display_name="Text to navigate to newer post"
-              default_value="Newer Post"
-              datatype="string" />
-    <UserPref name="blogPostPrePost"
-              display_name="Text to navigate to older post"
-              default_value="Older Post"
-              datatype="string" />
-    <UserPref name="trackBlogPost"
-              display_name="Track blog post"
-              default_value="false"
-              datatype="bool" />
-    <CssPref name="rootclass"
-             display_name="CSS Root Class"
-             datatype="string" />
-    <Code type="jexl">
+	<WidgetPrefs title="Blog Post"
+		contenttype_name="percBlogPostAsset" category="blog"
+		description="Blog Post for your site" author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/blogPost/images/WidgetIconBlog.png"
+		preferred_editor_width="780" preferred_editor_height="723"
+		is_responsive="true" />
+	<UserPref name="titleFormat"
+		display_name="Format of blog post title" required="false"
+		datatype="enum" default_value="h1">
+		<EnumValue value="p" display_value="Paragraph" />
+		<EnumValue value="h1" display_value="Heading 1" />
+		<EnumValue value="h2" display_value="Heading 2" />
+		<EnumValue value="h3" display_value="Heading 3" />
+		<EnumValue value="h4" display_value="Heading 4" />
+		<EnumValue value="h5" display_value="Heading 5" />
+		<EnumValue value="h6" display_value="Heading 6" />
+	</UserPref>
+	<UserPref name="blogPostDateTimeFormat"
+		display_name="Format of blog post date"
+		default_value="EEE MMM d, yyyy 'at' hh:mm a" datatype="string" />
+	<UserPref name="locale" display_name="Date Format Locale"
+		required="true" default_value="en-US" datatype="enum">
+		<EnumValue value="sq-AL"
+			display_value="Albanian Albania (AL)" />
+		<EnumValue value="ar-DZ" display_value="Arabic Algeria (DZ)" />
+		<EnumValue value="ar-BH" display_value="Arabic Bahrain (BH)" />
+		<EnumValue value="ar-EG" display_value="Arabic Egypt (EG)" />
+		<EnumValue value="ar-IQ" display_value="Arabic Iraq (IQ)" />
+		<EnumValue value="ar-JO" display_value="Arabic Jordan (JO)" />
+		<EnumValue value="ar-KW" display_value="Arabic Kuwait (KW)" />
+		<EnumValue value="ar-LB" display_value="Arabic Lebanon (LB)" />
+		<EnumValue value="ar-LY" display_value="Arabic Libya (LY)" />
+		<EnumValue value="ar-MA" display_value="Arabic Morocco (MA)" />
+		<EnumValue value="ar-OM" display_value="Arabic Oman (OM)" />
+		<EnumValue value="ar-QA" display_value="Arabic Qatar (QA)" />
+		<EnumValue value="ar-SA"
+			display_value="Arabic Saudi Arabia (SA)" />
+		<EnumValue value="ar-SD" display_value="Arabic Sudan (SD)" />
+		<EnumValue value="ar-SY" display_value="Arabic Syria (SY)" />
+		<EnumValue value="ar-TN" display_value="Arabic Tunisia (TN)" />
+		<EnumValue value="ar-AE"
+			display_value="Arabic United Arab Emirates (AE)" />
+		<EnumValue value="ar-YE" display_value="Arabic Yemen (YE)" />
+		<EnumValue value="be-BY"
+			display_value="Belarusian Belarus (BY)" />
+		<EnumValue value="bg-BG"
+			display_value="Bulgarian Bulgaria (BG)" />
+		<EnumValue value="ca-ES" display_value="Catalan Spain (ES)" />
+		<EnumValue value="zh-CN" display_value="Chinese China (CN)" />
+		<EnumValue value="zh-SG"
+			display_value="Chinese Singapore (SG)" />
+		<EnumValue value="zh-HK"
+			display_value="Chinese Hong Kong (HK)" />
+		<EnumValue value="zh-TW" display_value="Chinese Taiwan (TW)" />
+		<EnumValue value="hr-HR"
+			display_value="Croatian Croatia (HR)" />
+		<EnumValue value="cs-CZ"
+			display_value="Czech Czech Republic (CZ)" />
+		<EnumValue value="da-DK" display_value="Danish Denmark (DK)" />
+		<EnumValue value="nl-BE" display_value="Dutch Belgium (BE)" />
+		<EnumValue value="nl-NL"
+			display_value="Dutch Netherlands (NL)" />
+		<EnumValue value="en-AU"
+			display_value="English Australia (AU)" />
+		<EnumValue value="en-CA" display_value="English Canada (CA)" />
+		<EnumValue value="en-IN" display_value="English India (IN)" />
+		<EnumValue value="en-IE"
+			display_value="English Ireland (IE)" />
+		<EnumValue value="en-MT" display_value="English Malta (MT)" />
+		<EnumValue value="en-NZ"
+			display_value="English New Zealand (NZ)" />
+		<EnumValue value="en-PH"
+			display_value="English Philippines (PH)" />
+		<EnumValue value="en-SG"
+			display_value="English Singapore (SG)" />
+		<EnumValue value="en-ZA"
+			display_value="English South Africa (ZA)" />
+		<EnumValue value="en-GB"
+			display_value="English United Kingdom (GB)" />
+		<EnumValue value="en-US"
+			display_value="English United States (US)" />
+		<EnumValue value="et-EE"
+			display_value="Estonian Estonia (EE)" />
+		<EnumValue value="fi-FI"
+			display_value="Finnish Finland (FI)" />
+		<EnumValue value="fr-BE" display_value="French Belgium (BE)" />
+		<EnumValue value="fr-CA" display_value="French Canada (CA)" />
+		<EnumValue value="fr-FR" display_value="French France (FR)" />
+		<EnumValue value="fr-LU"
+			display_value="French Luxembourg (LU)" />
+		<EnumValue value="fr-CH"
+			display_value="French Switzerland (CH)" />
+		<EnumValue value="de-AT" display_value="German Austria (AT)" />
+		<EnumValue value="de-DE" display_value="German Germany (DE)" />
+		<EnumValue value="de-LU"
+			display_value="German Luxembourg (LU)" />
+		<EnumValue value="de-CH"
+			display_value="German Switzerland (CH)" />
+		<EnumValue value="el-CY" display_value="Greek Cyprus (CY)" />
+		<EnumValue value="el-GR" display_value="Greek Greece (GR)" />
+		<EnumValue value="iw-IL" display_value="Hebrew Israel (IL)" />
+		<EnumValue value="hi-IN" display_value="Hindi India (IN)" />
+		<EnumValue value="hu-HU"
+			display_value="Hungarian Hungary (HU)" />
+		<EnumValue value="is-IS"
+			display_value="Icelandic Iceland (IS)" />
+		<EnumValue value="in-ID"
+			display_value="Indonesian Indonesia (ID)" />
+		<EnumValue value="ga-IE" display_value="Irish Ireland (IE)" />
+		<EnumValue value="it-IT" display_value="Italian Italy (IT)" />
+		<EnumValue value="it-CH"
+			display_value="Italian Switzerland (CH)" />
+		<EnumValue value="ja-JP" display_value="Japanese Japan (JP)" />
+		<EnumValue value="ko-KR"
+			display_value="Korean South Korea (KR)" />
+		<EnumValue value="lv-LV" display_value="Latvian Latvia (LV)" />
+		<EnumValue value="lt-LT"
+			display_value="Lithuanian Lithuania (LT)" />
+		<EnumValue value="mk-MK"
+			display_value="Macedonian Macedonia (MK)" />
+		<EnumValue value="ms-MY" display_value="Malay Malaysia (MY)" />
+		<EnumValue value="mt-MT"
+			display_value="Maltese (mt)	Malta (MT)" />
+		<EnumValue value="no-NO"
+			display_value="Norwegian Norway (NO)" />
+		<EnumValue value="nb-NO"
+			display_value="Norwegian Bokmal Norway (NO)" />
+		<EnumValue value="nn-NO"
+			display_value="Norwegian Nynorsk Norway (NO)" />
+		<EnumValue value="pl-PL" display_value="Polish Poland (PL)" />
+		<EnumValue value="pt-BR"
+			display_value="Portuguese Brazil (BR)" />
+		<EnumValue value="pt-PT"
+			display_value="Portuguese Portugal (PT)" />
+		<EnumValue value="ro-RO"
+			display_value="Romanian Romania (RO)" />
+		<EnumValue value="ru-RU" display_value="Russian Russia (RU)" />
+		<EnumValue value="sr-BA"
+			display_value="Serbian Bosnia and Herzegovina (BA)" />
+		<EnumValue value="sr-ME"
+			display_value="Serbian Montenegro (ME)" />
+		<EnumValue value="sr-RS" display_value="Serbian Serbia (RS)" />
+		<EnumValue value="sk-SK"
+			display_value="Slovak Slovakia (SK)" />
+		<EnumValue value="sl-SI"
+			display_value="Slovenian Slovenia (SI)" />
+		<EnumValue value="es-AR"
+			display_value="Spanish Argentina (AR)" />
+		<EnumValue value="es-BO"
+			display_value="Spanish Bolivia (BO)" />
+		<EnumValue value="es-CL" display_value="Spanish Chile (CL)" />
+		<EnumValue value="es-CO"
+			display_value="Spanish Colombia (CO)" />
+		<EnumValue value="es-CR"
+			display_value="Spanish Costa Rica (CR)" />
+		<EnumValue value="es-DO"
+			display_value="Spanish Dominican Republic (DO)" />
+		<EnumValue value="es-EC"
+			display_value="Spanish Ecuador (EC)" />
+		<EnumValue value="es-SV"
+			display_value="Spanish El Salvador (SV)" />
+		<EnumValue value="es-GT"
+			display_value="Spanish Guatemala (GT)" />
+		<EnumValue value="es-HN"
+			display_value="Spanish Honduras (HN)" />
+		<EnumValue value="es-MX" display_value="Spanish Mexico (MX)" />
+		<EnumValue value="es-NI"
+			display_value="Spanish Nicaragua (NL)" />
+		<EnumValue value="es-PA" display_value="Spanish Panama (PA)" />
+		<EnumValue value="es-PY"
+			display_value="Spanish Paraguay (PY)" />
+		<EnumValue value="es-PE" display_value="Spanish Peru (PE)" />
+		<EnumValue value="es-PR"
+			display_value="Spanish Puerto Rico (PR)" />
+		<EnumValue value="es-ES" display_value="Spanish Spain (ES)" />
+		<EnumValue value="es-US"
+			display_value="Spanish United States (US)" />
+		<EnumValue value="es-UY"
+			display_value="Spanish Uruguay (UY)" />
+		<EnumValue value="es-VE"
+			display_value="Spanish Venezuela (VE)" />
+		<EnumValue value="sv-SE" display_value="Swedish Sweden (SE)" />
+		<EnumValue value="th-TH" display_value="Thai Thailand (TH)" />
+		<EnumValue value="tr-TR" display_value="Turkish Turkey (TR)" />
+		<EnumValue value="uk-UA"
+			display_value="Ukrainian Ukraine (UA)" />
+		<EnumValue value="vi-VN"
+			display_value="Vietnamese Vietnam (VN)" />
+	</UserPref>
+	<UserPref name="perc_hidefield_blog_date"
+		display_name="Hide date and time" default_value="false"
+		datatype="bool" />
+	<UserPref name="blogPostBylineText"
+		display_name='Text to use for "Author Byline"' default_value="by"
+		datatype="string" />
+	<UserPref name="perc_hidefield_byline"
+		display_name="Hide byline" default_value="false" datatype="bool" />
+	<UserPref name="perc_hidefield_tags" display_name="Hide tags"
+		default_value="false" datatype="bool" />
+	<UserPref name="perc_tags_label"
+		display_name="Text to use for &quot;tags&quot; label"
+		default_value="Tags:" datatype="string" />
+	<UserPref name="perc_hidefield_categories"
+		display_name="Hide categories" default_value="false" datatype="bool" />
+	<UserPref name="perc_categories_label"
+		display_name="Text to use for &quot;categories&quot; label"
+		default_value="Categories:" datatype="string" />
+	<UserPref name="blogNavigationLocation"
+		display_name="Location of blog navigation" required="false"
+		datatype="enum" default_value="none">
+		<EnumValue value="none" display_value="None" />
+		<EnumValue value="above" display_value="Above blog post" />
+		<EnumValue value="beneath" display_value="Beneath blog post" />
+		<EnumValue value="aboveBeneath"
+			display_value="Above and beneath blog posting" />
+	</UserPref>
+	<UserPref name="blogNavigationContext"
+		display_name="Blog navigation context" required="false"
+		datatype="enum" default_value="preNext">
+		<EnumValue value="preNext" display_value="User defined" />
+		<EnumValue value="blogTitle" display_value="Use blog title" />
+	</UserPref>
+	<UserPref name="blogPostNextPost"
+		display_name="Text to navigate to newer post"
+		default_value="Newer Post" datatype="string" />
+	<UserPref name="blogPostPrePost"
+		display_name="Text to navigate to older post"
+		default_value="Older Post" datatype="string" />
+	<UserPref name="trackBlogPost" display_name="Track blog post"
+		default_value="false" datatype="bool" />
+	<CssPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
+	<Code type="jexl">
         <![CDATA[
     $rootClass = $perc.widget.item.cssProperties.get('rootclass');
     $isEditMode = $perc.isEditMode() || $perc.isPreviewMode();
@@ -222,7 +257,7 @@
         $newerPostClass = 'perc-newer-post-title';
     }
 
-    
+
 
     $blogNavigationLocation = $perc.widget.item.properties.get('blogNavigationLocation');
     $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);
@@ -316,7 +351,7 @@
            }
 
         }
-		
+
 		$pageId = $perc.page.id;
         if(!empty($pageId))
         {
@@ -350,8 +385,8 @@
         $dynamicListData = $dynamicListData + "}";
     }
     ]]>
-    </Code>
-    <Content type="velocity"><![CDATA[
+	</Code>
+	<Content type="velocity"><![CDATA[
 <div class="perc-blog $!rootClass" data-query="$!dynamicListData">
 #if( ! $perc.widgetContents.isEmpty() )##
 <div class = "perc-blog-wrapper">
@@ -459,5 +494,5 @@ $node.getProperty('rx:postbody').getString()##
 #createEmptyWidgetContent("blog-post-sample-content", "This blog post widget is showing sample content")##
 #end##
 </div>]]>
-    </Content>
+	</Content>
 </Widget>

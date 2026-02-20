@@ -66,13 +66,17 @@ public class PSContentTypeSummaryChildConverter extends PSConverter
             new com.percussion.webservices.content.PSContentTypeSummaryChild();
          dest.setName(orig.getName());
 
-         Class targetClass = com.percussion.webservices.content.PSFieldDescription[].class;
-         Converter converter = factory.getConverter(targetClass);
-
-         com.percussion.webservices.content.PSFieldDescription[] childFields = 
-            (com.percussion.webservices.content.PSFieldDescription[]) converter.convert(targetClass, orig.getChildFields());
-         
-         dest.setChildField(childFields);
+         com.percussion.webservices.content.PSContentTypeSummaryChild.ChildField childField = new com.percussion.webservices.content.PSContentTypeSummaryChild.ChildField();
+         if (orig.getChildFields() != null)
+         {
+            Converter itemConv = factory.getConverter(com.percussion.webservices.content.PSFieldDescription.class);
+            for (PSFieldDescription fd : orig.getChildFields())
+            {
+               com.percussion.webservices.content.PSFieldDescription wsFd = (com.percussion.webservices.content.PSFieldDescription) itemConv.convert(com.percussion.webservices.content.PSFieldDescription.class, fd);
+               childField.getPSFieldDescription().add(wsFd);
+            }
+         }
+         dest.setChildField(childField);
          return dest;
       }
    }

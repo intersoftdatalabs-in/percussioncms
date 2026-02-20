@@ -45,7 +45,7 @@ import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.Tag;
 
 /** This is used to test PSServletRequester class */
-@Tag("IntegrationTest")
+
 public class PSServletRequesterTest extends PSWebdavServlet {
 
   // see HttpServlet.service(HttpServletRequest req, HttpServletResponse resp)

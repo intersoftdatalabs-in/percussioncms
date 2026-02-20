@@ -33,7 +33,7 @@ public class PSNotificationConverter extends PSConverter
 {
    /**
     * See {@link PSConverter#PSConverter(BeanUtilsBean) super()}
-    * 
+    *
     * @param beanUtils
     */
    public PSNotificationConverter(BeanUtilsBean beanUtils)
@@ -46,29 +46,38 @@ public class PSNotificationConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
          // only reading from server is supported
          throw new ConversionException(
             "Conversion not supported from client to server");
       }
-      
-      PSNotification src = (PSNotification) value;
-      
-      com.percussion.webservices.system.PSNotification tgt = 
-         new com.percussion.webservices.system.PSNotification();
-      
-      tgt.setId(src.getGUID().longValue());
-      tgt.setStateRoleRecipientType(
-         PSNotificationStateRoleRecipientType.fromString(
-            PSStringUtils.toCamelCase(src.getStateRoleRecipientType().name())));
 
-      List<String> srcList;
-      srcList = src.getRecipients();
-      tgt.setRecipients(srcList.toArray(new String[srcList.size()]));
-      srcList = src.getCCRecipients();
-      tgt.setCCRecipients(srcList.toArray(new String[srcList.size()]));
+      PSNotification src = (PSNotification) value;
+
+      com.percussion.webservices.system.PSNotification tgt =
+         new com.percussion.webservices.system.PSNotification();
+
+      tgt.setId(src.getGUID().longValue());
+      // stateRoleRecipientType is a string in the generated DTO; convert to string
+      tgt.setStateRoleRecipientType(
+         PSStringUtils.toCamelCase(src.getStateRoleRecipientType().name()));
+
+      // Recipients/CCRecipients are wrapper types with a live list - populate them
+      if (src.getRecipients() != null && !src.getRecipients().isEmpty()) {
+         com.percussion.webservices.system.PSNotification.Recipients r =
+            new com.percussion.webservices.system.PSNotification.Recipients();
+         r.getPSRecipient().addAll(src.getRecipients());
+         tgt.setRecipients(r);
+      }
+
+      if (src.getCCRecipients() != null && !src.getCCRecipients().isEmpty()) {
+         com.percussion.webservices.system.PSNotification.CCRecipients c =
+            new com.percussion.webservices.system.PSNotification.CCRecipients();
+         c.getPSRecipient().addAll(src.getCCRecipients());
+         tgt.setCCRecipients(c);
+      }
       return tgt;
    }
 }

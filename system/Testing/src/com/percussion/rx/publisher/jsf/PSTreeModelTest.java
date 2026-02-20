@@ -30,13 +30,14 @@ import com.percussion.services.publisher.data.PSDeliveryType;
 import com.percussion.utils.guid.IPSGuid;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Create a tree and walk the tree using the tree model.
  * 
  * @author dougrand
  */
-public class PSTreeModelTest extends TestCase
+public class PSTreeModelTest 
 {
    /**
     * Tree model used in the tests. The tests have to be run from first to last.
@@ -57,6 +58,8 @@ public class PSTreeModelTest extends TestCase
     * 
     */
    public static IPSGuid ms_sftp_guid;
+   
+   
    
    public void testDummy()
    {

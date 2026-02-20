@@ -95,6 +95,24 @@ public class PSHashedColumn implements Serializable
       this.columnName = columnName;
    }
 
+   /**
+    * Compatibility accessor.
+    * @return the table name
+    */
+   public String getTable()
+   {
+      return tableName;
+   }
+
+   /**
+    * Compatibility accessor.
+    * @return the column name
+    */
+   public String getColumn()
+   {
+      return columnName;
+   }
+
    
    public boolean isColumnExists()
    {

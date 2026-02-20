@@ -18,10 +18,10 @@
 package com.percussion.searchmanagement;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
@@ -43,9 +43,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -89,7 +89,7 @@ public class PSSearchServiceTest extends PSRestTestCase<PSSearchServiceRestClien
     return searchServiceClient;
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setupSuite() throws Exception {
     pathServiceRestClient = new PSPathServiceRestClient(baseUrl);
     setupClient(pathServiceRestClient);
@@ -139,7 +139,7 @@ public class PSSearchServiceTest extends PSRestTestCase<PSSearchServiceRestClien
     return true;
   }
 
-  @Before
+  @BeforeEach
   public void setup() {
     searchCriteria = new PSSearchCriteria();
     searchCriteria.setQuery("sys_title:asset???");
@@ -148,7 +148,7 @@ public class PSSearchServiceTest extends PSRestTestCase<PSSearchServiceRestClien
     searchCriteria.setMaxResults(10);
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
     assetCleaner.clean();
     folderCleaner.clean();

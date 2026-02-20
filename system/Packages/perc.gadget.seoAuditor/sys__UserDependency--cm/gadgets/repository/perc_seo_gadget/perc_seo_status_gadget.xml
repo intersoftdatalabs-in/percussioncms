@@ -1,40 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-    <ModulePrefs title="SEO Audit" category="search" description="This gadget provides Search Engine Optimization scores." thumbnail="images/gadgetIconSeoAuditor.png" height="250">
-        <Require feature="perc_core"/>
-        <Require feature="perc_jquery_ui"/>
-        <Require feature="minimessage"/>
-        <Require feature="settitle" />
-        <Require feature="perc_getDashboardColumn" />
-    </ModulePrefs>
-    <UserPref name="status" display_name="Status" required="true" datatype="enum" default_value="Pending">
-        <EnumValue value="@url:/Rhythmyx/services/workflowmanagement/workflows/@ssworkflow@/states/choices"/>
-    </UserPref>
-    <!-- Used ss at the begining of the name to give the order in the dialog, all options are ordered using his name -->
-    <UserPref name="ssworkflow" display_name="Workflow" required="true" datatype="enum" default_value="Default Workflow">
-        <EnumValue value="@url:/Rhythmyx/services/workflowmanagement/workflows/"/>
-    </UserPref>
-    <UserPref name="site" display_name="Site" required="false" datatype="enum" default_value="@all">
-        <EnumValue value="@all" display_value="All Sites"/>
-        <EnumValue value="@url:/services/sitemanage/site/choices"/>
-    </UserPref>
-    <UserPref name="ykeyword" display_name="Keyword" required="false" datatype="string"/>
-    <UserPref name="zeverity" display_name="Severity" required="false" datatype="enum" default_value="MEDIUM">
-        <EnumValue value="SEVERE" display_value="Severe only"/>
-        <EnumValue value="HIGH" display_value="High or above"/>
-        <EnumValue value="MEDIUM" display_value="Medium or above"/>
-        <EnumValue value="MODERATE" display_value="Moderate or above"/>
-        <EnumValue value="ALL" display_value="All"/>
-    </UserPref>
-    <UserPref name="zrows" display_name="Display height" required="false" datatype="enum" default_value="5">
-        <EnumValue value="5" display_value="5 results"/>
-        <EnumValue value="10" display_value="10 results"/>
-        <EnumValue value="15" display_value="15 results"/>
-        <EnumValue value="20" display_value="20 results"/>
-        <EnumValue value="25" display_value="25 results"/>
-    </UserPref>
-    <Content type="html">
+	<ModulePrefs title="SEO Audit" category="search"
+		description="This gadget provides Search Engine Optimization scores."
+		thumbnail="images/gadgetIconSeoAuditor.png" height="250">
+		<Require feature="perc_core" />
+		<Require feature="perc_jquery_ui" />
+		<Require feature="minimessage" />
+		<Require feature="settitle" />
+		<Require feature="perc_getDashboardColumn" />
+	</ModulePrefs>
+	<UserPref name="status" display_name="Status" required="true"
+		datatype="enum" default_value="Pending">
+		<EnumValue
+			value="@url:/Rhythmyx/services/workflowmanagement/workflows/@ssworkflow@/states/choices" />
+	</UserPref>
+	<!-- Used ss at the begining of the name to give the order in the dialog,
+		all options are ordered using his name -->
+	<UserPref name="ssworkflow" display_name="Workflow"
+		required="true" datatype="enum" default_value="Default Workflow">
+		<EnumValue
+			value="@url:/Rhythmyx/services/workflowmanagement/workflows/" />
+	</UserPref>
+	<UserPref name="site" display_name="Site" required="false"
+		datatype="enum" default_value="@all">
+		<EnumValue value="@all" display_value="All Sites" />
+		<EnumValue value="@url:/services/sitemanage/site/choices" />
+	</UserPref>
+	<UserPref name="ykeyword" display_name="Keyword"
+		required="false" datatype="string" />
+	<UserPref name="zeverity" display_name="Severity"
+		required="false" datatype="enum" default_value="MEDIUM">
+		<EnumValue value="SEVERE" display_value="Severe only" />
+		<EnumValue value="HIGH" display_value="High or above" />
+		<EnumValue value="MEDIUM" display_value="Medium or above" />
+		<EnumValue value="MODERATE"
+			display_value="Moderate or above" />
+		<EnumValue value="ALL" display_value="All" />
+	</UserPref>
+	<UserPref name="zrows" display_name="Display height"
+		required="false" datatype="enum" default_value="5">
+		<EnumValue value="5" display_value="5 results" />
+		<EnumValue value="10" display_value="10 results" />
+		<EnumValue value="15" display_value="15 results" />
+		<EnumValue value="20" display_value="20 results" />
+		<EnumValue value="25" display_value="25 results" />
+	</UserPref>
+	<Content type="html">
         <![CDATA[
         <!DOCTYPE html>
     <link rel="stylesheet" type="text/css" href="/cm/themes/smoothness/jquery-ui-1.8.9.custom.css" />
@@ -130,5 +142,5 @@
     <div id="perc-seo-gadget">
     </div>
      ]]>
-    </Content>
+	</Content>
 </Module>

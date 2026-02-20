@@ -1,12 +1,15 @@
-
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-    <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1250">
-    <meta name="generator" content="PSPad editor, www.pspad.com">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1250" />
+    <meta name="generator" content="PSPad editor, www.pspad.com" />
     <title></title>
-    <link rel="stylesheet" media="screen" type="text/css" href="../css/testsuite.css" />
+    <link
+      rel="stylesheet"
+      media="screen"
+      type="text/css"
+      href="../css/testsuite.css"
+    />
     <script src="../jslib/jquery-1.3.2.js"></script>
     <script src="../jslib//jslib/profiles/3x/jquery/plugins/jquery-testrunner/testrunner.js"></script>
     <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/json2.js"></script>
@@ -20,74 +23,67 @@
     <script src="../controllers/PercAssetController.js"></script>
     <script src="../views/PercNewAssetDialog.js"></script>
     <script>
-    $(document).ready(function()
-    {
-        test("Test Asset Service", function()
-        {
-            var assetDropCriteria;
-            function callback(status, assetEditorLibrary)
-            {
-                ok(status == "success", "All ok");
-                var assetEditor = assetEditorLibrary.AssetEditor;
-//                console.log(assetEditor.length);
-                ok(assetEditor.length != 0, "AssetEditor not empty");
-                for(i in assetEditor)
-                {
-                    var icon = assetEditor[i].icon;
-                    var title = assetEditor[i].title;
-                    var url = assetEditor[i].url;
-                    ok(icon != "", "Icon not empty");
-                    ok(title != "", "Title not empty");
-                    ok(url != "", "Url not empty");
-                }
+      $(document).ready(function () {
+        test("Test Asset Service", function () {
+          var assetDropCriteria;
+          function callback(status, assetEditorLibrary) {
+            ok(status == "success", "All ok");
+            var assetEditor = assetEditorLibrary.AssetEditor;
+            //                console.log(assetEditor.length);
+            ok(assetEditor.length != 0, "AssetEditor not empty");
+            for (i in assetEditor) {
+              var icon = assetEditor[i].icon;
+              var title = assetEditor[i].title;
+              var url = assetEditor[i].url;
+              ok(icon != "", "Icon not empty");
+              ok(title != "", "Title not empty");
+              ok(url != "", "Url not empty");
             }
-            var service = $.PercAssetService;
-            service.getAssetEditorLibrary(callback);
+          }
+          var service = $.PercAssetService;
+          service.getAssetEditorLibrary(callback);
         });
 
-        test("Test Asset Controller", function()
-        {
-            function callback2(assetEditorLibrary)
-            {
-//                console.log("Test Asset Controller");
-                for(a in assetEditorLibrary)
-                {
-//                    assetEditorLibrary[a].log();
-                }
+        test("Test Asset Controller", function () {
+          function callback2(assetEditorLibrary) {
+            //                console.log("Test Asset Controller");
+            for (a in assetEditorLibrary) {
+              //                    assetEditorLibrary[a].log();
             }
-            ok(1==1,"ss");
-            var controller = $.PercAssetController;
-            controller.getAssetEditorLibrary(callback2);
+          }
+          ok(1 == 1, "ss");
+          var controller = $.PercAssetController;
+          controller.getAssetEditorLibrary(callback2);
         });
 
-        test("Test New Asset Dialog", function()
-        {
-        });
-        
-        test("Test Path Service", function()
-        {
-            var path = "/New Folder/New Folder";
-            $.PercPathService.getPathItemForPath(path, function(status, pathItemJson)
-            {
-            //    console.log(pathItemJson.PathItem.id);
-            });
+        test("Test New Asset Dialog", function () {});
+
+        test("Test Path Service", function () {
+          var path = "/New Folder/New Folder";
+          $.PercPathService.getPathItemForPath(
+            path,
+            function (status, pathItemJson) {
+              //    console.log(pathItemJson.PathItem.id);
+            }
+          );
         });
 
-        test("Test Asset Controller getPathItemForPath", function()
-        {
-            var path = "/New Folder/New Folder";
-            $.PercAssetController.getPathItemForPath(path, function(pathItemObj)
-            {
-                alert(pathItemObj.id);
-            });
+        test("Test Asset Controller getPathItemForPath", function () {
+          var path = "/New Folder/New Folder";
+          $.PercAssetController.getPathItemForPath(
+            path,
+            function (pathItemObj) {
+              alert(pathItemObj.id);
+            }
+          );
         });
-    });
+      });
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <h1 id="qunit-header">Testing: Asset Editor Library</h1>
     <h2 id="banner"></h2>
     <h2 id="userAgent"></h2>
     <ol id="tests"></ol>
-</body>
+  </body>
 </html>

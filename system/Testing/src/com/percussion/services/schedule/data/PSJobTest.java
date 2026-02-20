@@ -19,6 +19,7 @@ package com.percussion.services.schedule.data;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
@@ -65,10 +66,10 @@ public class PSJobTest extends PSScheduleTestBase
       }
       catch (IllegalArgumentException expected) {}
       schedule.setNotificationTemplateId(createTemplateGuid());
-      
+
       schedule.setNotifyWhen(PSNotifyWhen.NEVER);
       schedule.setNotificationTemplateId(null);
-      
+
       try{
          schedule.setNotificationTemplateId(
                new PSGuid(UUID, PSTypeEnum.SCHEDULED_TASK, HOST_ID));
@@ -76,13 +77,13 @@ public class PSJobTest extends PSScheduleTestBase
       }
       catch (IllegalArgumentException expected) {}
    }
-   
+
    @Override
    protected PSJob createSchedule()
    {
       return new PSTestSchedule();
    }
-   
+
    /**
     * A test implementation of the abstract schedule class.
     */

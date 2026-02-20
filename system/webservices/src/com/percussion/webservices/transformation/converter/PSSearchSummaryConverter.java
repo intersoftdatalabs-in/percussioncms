@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.ConversionException;
 
 /**
  * Converts objects between the classes
@@ -47,20 +48,28 @@ public class PSSearchSummaryConverter extends PSItemSummaryConverter
    {
       if (value == null)
          return null;
-      
+
       try
       {
          if (isClientToServer(value))
          {
-            com.percussion.webservices.content.PSSearchResults orig = 
+            com.percussion.webservices.content.PSSearchResults orig =
                (com.percussion.webservices.content.PSSearchResults) value;
-            
+
             PSSearchSummary dest =  new PSSearchSummary();
             toServer(orig, dest);
-            
+
             Map<String, String> fields = new HashMap<String, String>();
-            for (PSSearchResultsFields field : orig.getFields())
-               fields.put(field.getName(), field.get_value());
+            try {
+               for (Object fieldObj : (Object[]) getBeanUtils().getPropertyUtils().getSimpleProperty(orig, "fields")) {
+                  String name = String.valueOf(getBeanUtils().getPropertyUtils().getSimpleProperty(fieldObj, "name"));
+                  String val = String.valueOf(getBeanUtils().getPropertyUtils().getSimpleProperty(fieldObj, "value"));
+                  fields.put(name, val);
+               }
+            } catch (Exception e) {
+               throw new ConversionException(e.getLocalizedMessage());
+            }
+
             dest.setFields(fields);
 
             return dest;
@@ -68,25 +77,29 @@ public class PSSearchSummaryConverter extends PSItemSummaryConverter
          else
          {
             PSSearchSummary orig = (PSSearchSummary) value;
-            
-            com.percussion.webservices.content.PSSearchResults dest = 
+
+            com.percussion.webservices.content.PSSearchResults dest =
                new com.percussion.webservices.content.PSSearchResults();
             toClient(orig, dest);
-            
+
             Map<String, String> sourceFields = orig.getFields();
-            PSSearchResultsFields[] fields = 
+            PSSearchResultsFields[] fields =
                new PSSearchResultsFields[sourceFields.size()];
             int index = 0;
             for (String name : orig.getFields().keySet())
             {
                PSSearchResultsFields field = new PSSearchResultsFields();
                field.setName(name);
-               field.set_value(sourceFields.get(name));
-               
+               field.setValue(sourceFields.get(name));
+
                fields[index++] = field;
             }
-            dest.setFields(fields);
-            
+            try {
+               getBeanUtils().copyProperty(dest, "fields", fields);
+            } catch (Exception e) {
+               throw new ConversionException(e.getLocalizedMessage());
+            }
+
             return dest;
          }
       }

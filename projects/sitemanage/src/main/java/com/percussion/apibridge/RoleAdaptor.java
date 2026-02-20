@@ -26,10 +26,10 @@ import com.percussion.role.service.impl.PSRoleService;
 import com.percussion.share.data.PSStringWrapper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.ws.rs.WebApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 

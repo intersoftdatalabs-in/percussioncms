@@ -64,10 +64,10 @@ public final class PSWidgetUtils {
     @IPSJexlMethod(description = "helper to convert map of multi valued map from the supplied assembly item to a map of single values", params = {
         @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters")
     }, returns = "Map of name and single value counter parts of the assembly parameters")
-    public static Map<String, String> getParams(IPSAssemblyItem item) {
+    public static Map<String, Object> getParams(IPSAssemblyItem item) {
         Objects.requireNonNull(item, "item must not be null");
 
-        var params = new HashMap<String, String>();
+        var params = new HashMap<String, Object>();
         var oldParams = item.getParameters();
 
         oldParams.entrySet().stream()

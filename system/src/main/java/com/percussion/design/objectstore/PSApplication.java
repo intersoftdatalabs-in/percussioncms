@@ -1825,7 +1825,7 @@ public class PSApplication implements IPSDocument {
         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT | PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
 
     // now build the arraylist we'll use in the fromXml calls
-    java.util.List<Object> parentComponents = new java.util.ArrayList<>();
+    java.util.List<IPSComponent> parentComponents = new java.util.ArrayList<>();
 
     // now position the walker on the first child of the application
     tree.getNext(); // we don't actually care what it is
@@ -2176,7 +2176,7 @@ public class PSApplication implements IPSDocument {
       }
 
       // to keep track of possible request page duplicates
-      Set<String> requestKeys = new HashSet<>();
+      Set<RequestKey> requestKeys = new HashSet<>();
       Map<String, Object> dsNames = new HashMap<>(m_dataSets.size());
 
       for (int i = 0; i < m_dataSets.size(); i++) {

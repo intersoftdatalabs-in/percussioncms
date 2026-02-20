@@ -19,25 +19,24 @@ package com.percussion.server;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSServerLockManagerTest extends TestCase
+public class PSServerLockManagerTest 
 {
    /**
     * Construct this unit test
     * 
     * @param name The name of this test.
     */
-   public PSServerLockManagerTest(String name)
-   {
-      super(name);
-   }
+   
    
    /**
     * Tests all lock mgr functionality
     * 
     * @throws Exception if there are any errors.
     */
+   
    public void testAll() throws Exception
    {
       boolean didThrow = false;
@@ -73,7 +72,7 @@ public class PSServerLockManagerTest extends TestCase
       assertTrue(didThrow);
       
       // test acquire
-      assertTrue(!lockMgr.isLocked(PSServerLockManager.RESOURCE_PUBLISHER));
+      assertFalse(lockMgr.isLocked(PSServerLockManager.RESOURCE_PUBLISHER));
       PSServerLockResult result = lockMgr.acquireLock(
          PSServerLockManager.RESOURCE_PUBLISHER, "testLocker");
 
@@ -89,7 +88,7 @@ public class PSServerLockManagerTest extends TestCase
       assertTrue(result.wasLockAcquired());
       assertTrue(lock.getLockId() != -1);
       assertTrue(lock.getLocker().equals("testLocker"));
-      assertTrue(!result.getConflicts().hasNext());
+      assertFalse(result.getConflicts().hasNext());
       assertTrue(lock.isResourceLocked(
          PSServerLockManager.RESOURCE_PUBLISHER));
       assertTrue(lockMgr.isLocked(PSServerLockManager.RESOURCE_PUBLISHER));
@@ -101,7 +100,7 @@ public class PSServerLockManagerTest extends TestCase
       assertNotNull(result2);
       PSServerLock lock2 = result2.getLock();
       assertNotNull(lock2);
-      assertTrue(!result2.wasLockAcquired());
+      assertFalse(result2.wasLockAcquired());
       assertTrue(lock2.getLockId() == -1);
       assertTrue(lock2.getLocker().equals("testLocker2"));
       assertTrue(result2.getConflicts().hasNext());
@@ -112,18 +111,13 @@ public class PSServerLockManagerTest extends TestCase
          PSServerLockManager.RESOURCE_PUBLISHER));
       
       // test release
-      assertTrue(!lockMgr.releaseLock(lock2.getLockId()));
+      assertFalse(lockMgr.releaseLock(lock2.getLockId()));
       assertTrue(lockMgr.releaseLock(lock.getLockId()));
       assertTrue(lockMgr.acquireLock(PSServerLockManager.RESOURCE_PUBLISHER, 
          "testLocker2").wasLockAcquired());
    }
    
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSServerLockManagerTest("testAll"));
-      return suite;
-   }
+   
    
 }

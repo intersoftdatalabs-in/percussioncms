@@ -230,7 +230,8 @@ class PSTransformTransitionUtils
    {
       tgt.setInterval(src.getInterval());
       tgt.setSystemField(src.getSystemField());
-      tgt.setType(src.getType());
+      String sType = src.getType();
+      tgt.setType(sType == null ? PSAgingTransition.PSAgingTypeEnum.ABSOLUTE : PSAgingTransition.PSAgingTypeEnum.valueOf(sType));
    }
    
    /**

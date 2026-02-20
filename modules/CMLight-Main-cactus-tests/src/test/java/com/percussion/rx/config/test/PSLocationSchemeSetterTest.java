@@ -35,7 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSLocationSchemeSetterTest extends PSConfigurationTest {
 
   private static final Logger log = LogManager.getLogger(PSLocationSchemeSetterTest.class);

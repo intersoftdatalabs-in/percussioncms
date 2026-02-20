@@ -75,6 +75,11 @@ public final class PSNotificationEvent implements Serializable {
     private final String source;
 
     /**
+     * Optional server type associated with the event. Mutable for compatibility with legacy callers.
+     */
+    private String serverType = null;
+
+    /**
      * An enumeration of event types that may occur with enhanced documentation.
      */
     public enum EventType {
@@ -156,7 +161,30 @@ public final class PSNotificationEvent implements Serializable {
          * Security-related events such as permission changes. The target object
          * contains security context information.
          */
-        SECURITY_EVENT(false, "Security-related event");
+        SECURITY_EVENT(false, "Security-related event"),
+
+        /**
+         * Workflow folder assignment queueing notification.
+         */
+        WORKFLOW_FOLDER_ASSIGNMENT_QUEUEING(true, "Workflow folder assignment queueing"),
+
+        /**
+         * Workflow folder assignment processing notification.
+         */
+        WORKFLOW_FOLDER_ASSIGNMENT_PROCESSING(true, "Workflow folder assignment processing"),
+
+        /**
+         * A JMS error occurred that should be treated as a notification event.
+         */
+        JMS_ERROR(false,
+                "JMS error event"),
+                
+        SEARCH_INDEX_ITEM_PROCESSED(true, 
+        "Search index item processed"), 
+        SEARCH_INDEX_STATUS_CHANGE(true, 
+        "Search index status change"), 
+        SEARCH_INDEX_ITEM_QUEUED(true, 
+        "Search index item queued");
 
         private final boolean usesQueue;
         private final String description;
@@ -192,7 +220,7 @@ public final class PSNotificationEvent implements Serializable {
      * @param target the target object, may be {@code null}
      * @param source the source identifier, may be {@code null}
      */
-    private PSNotificationEvent(EventType eventType, Object target, String source) {
+    public PSNotificationEvent(EventType eventType, Object target, String source) {
         this.messageId = MESSAGE_ID_GENERATOR.incrementAndGet();
         this.eventType = Objects.requireNonNull(eventType, "eventType cannot be null");
         this.target = target;
@@ -304,6 +332,25 @@ public final class PSNotificationEvent implements Serializable {
     }
 
     /**
+     * Backwards compatible alias for {@link #getEventType()} used by older call sites.
+     *
+     * @return the event type, never {@code null}
+     */
+    public EventType getType() {
+        return getEventType();
+    }
+
+    /**
+     * Public two-argument constructor retained for backward compatibility.
+     *
+     * @param eventType the type of event, not {@code null}
+     * @param target the target object, may be {@code null}
+     */
+    public PSNotificationEvent(EventType eventType, Object target) {
+        this(eventType, target, null);
+    }
+
+    /**
      * Get the target object associated with this event.
      *
      * @return the target object, may be {@code null}
@@ -352,6 +399,25 @@ public final class PSNotificationEvent implements Serializable {
      */
     public Optional<String> getSource() {
         return Optional.ofNullable(source);
+    }
+
+    /**
+     * Get the server type associated with this event, if any.
+     *
+     * @return an Optional containing the server type, empty if not specified
+     */
+    public Optional<String> getServerType() {
+        return Optional.ofNullable(serverType);
+    }
+
+    /**
+     * Sets the server type for this event. This exists for compatibility with older call sites
+     * that expect to be able to set a server type on an event.
+     *
+     * @param serverType the server type to set, may be {@code null}
+     */
+    public void setServerType(String serverType) {
+        this.serverType = serverType;
     }
 
     /**

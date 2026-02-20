@@ -27,15 +27,16 @@ import org.junit.jupiter.api.Test;
 public class PSSearchEngineNegativeTest {
    /**
     * Tries to get the search engine instance w/o properties.
-    * 
+    *
     * @throws PSSearchException
     */
+   @Test
    public void testInitializeEngine() throws PSSearchException {
       String oldTimeout = System.getProperty("com.percussion.search.init.timeout");
       System.setProperty("com.percussion.search.init.timeout", "1");
       try {
          PSSearchEngine.getInstance();
-         fail("Returned engine instance w/o properties.");
+         org.junit.jupiter.api.Assertions.fail("Returned engine instance w/o properties.");
       } catch (IllegalStateException ise) {
          // expected
       } finally {

@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Integration tests for {@link IPSImportLogDao}. */
-@Tag("IntegrationTest")
+
 public class PSImportLogDaoTest {
 
   private static final Logger log = LogManager.getLogger(PSImportLogDaoTest.class);

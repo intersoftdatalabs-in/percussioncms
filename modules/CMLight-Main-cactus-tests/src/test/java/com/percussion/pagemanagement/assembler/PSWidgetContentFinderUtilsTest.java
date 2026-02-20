@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
  * Tests for widget content finder utilities. Sunny Sal says: "Relationships found, Bollywood
  * style!"
  */
-@Tag("IntegrationTest")
+
 public class PSWidgetContentFinderUtilsTest {
 
   @Test

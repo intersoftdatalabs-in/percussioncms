@@ -24,19 +24,22 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSFieldValidationRulesTest extends TestCase
+public class PSFieldValidationRulesTest 
 {
-   public PSFieldValidationRulesTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+   
 
    public void testEquals() throws Exception
    {
    }
+
+   
 
    public void testXml() throws Exception
    {
@@ -65,15 +68,8 @@ public class PSFieldValidationRulesTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSFieldValidationRules testFrom = new PSFieldValidationRules(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSFieldValidationRulesTest("testXml"));
-      
-      return suite;
-   }
+   
 }

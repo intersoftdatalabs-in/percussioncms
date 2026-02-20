@@ -37,8 +37,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.dao.DataAccessResourceFailureException;
@@ -92,7 +92,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       throw new RuntimeException(e);
     }
 
-    SQLQuery query = sess.createSQLQuery(sql);
+    NativeQuery<?> query = sess.createNativeQuery(sql);
     query.setParameter("minDelayDate", minDelayDate);
     query.setParameter("maxDelayDate", maxDelayDate);
 
@@ -100,7 +100,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       query.setMaxResults(count);
     }
 
-    List<Object> idRows = query.list();
+    List<?> idRows = query.list();
 
     // Now we have a good priorized orderd list of ids. Now get the items
     // for the ids
@@ -134,12 +134,13 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
         throw new RuntimeException(e);
       }
 
-      query = sess.createSQLQuery(sql);
-      query.addEntity(PSSearchIndexQueueItem.class);
-      query.addScalar("CURRENTREVISION", StandardBasicTypes.LONG);
-      query.setParameterList("idList", idList);
+      NativeQuery<?> queryQ =
+          sess.createNativeQuery(sql)
+              .addEntity(PSSearchIndexQueueItem.class)
+              .addScalar("CURRENTREVISION", StandardBasicTypes.LONG);
+      queryQ.setParameter("idList", idList);
 
-      List<Object[]> results = query.list();
+      List<Object[]> results = (List<Object[]>) queryQ.list();
       for (Object[] result : results) {
         PSSearchIndexQueueItem item = (PSSearchIndexQueueItem) result[0];
         if (result[1] == null) item.setRevisionId(-2);
@@ -202,7 +203,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       throws DataAccessResourceFailureException, IllegalStateException, HibernateException {
     Session sess = getSession();
 
-    Query sql =
+    Query<?> sql =
         sess.createQuery("delete from PSSearchIndexQueueItem where m_queueId in (:queueIds)");
     sql.setParameterList("queueIds", queueIds);
     sql.executeUpdate();
@@ -223,9 +224,9 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       throws DataAccessResourceFailureException, IllegalStateException, HibernateException {
     Session sess = getSession();
 
-    Query sql =
+    Query<?> sql =
         sess.createQuery("delete from PSSearchIndexQueueItem where m_contentId = :contentId");
-    sql.setInteger("contentId", id);
+    sql.setParameter("contentId", id);
     sql.executeUpdate();
     sess.flush();
   }
@@ -244,9 +245,9 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       throws DataAccessResourceFailureException, IllegalStateException, HibernateException {
     Session sess = getSession();
 
-    Query sql =
+    Query<?> sql =
         sess.createQuery("delete from PSSearchIndexQueueItem where m_contentTypeId = :typeId");
-    sql.setLong("typeId", id);
+    sql.setParameter("typeId", id);
     sql.executeUpdate();
     sess.flush();
   }
@@ -256,7 +257,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   public void deleteAllItems() {
     Session sess = getSession();
 
-    Query sql = sess.createQuery("delete from PSSearchIndexQueueItem");
+    Query<?> sql = sess.createQuery("delete from PSSearchIndexQueueItem");
     sql.executeUpdate();
   }
 
@@ -281,7 +282,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
       throw new RuntimeException(e);
     }
 
-    SQLQuery query = sess.createSQLQuery(sql);
+    org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
     Number queueNumber = (Number) query.uniqueResult();
     if (queueNumber == null) queueCount = 0;
     else queueCount = queueNumber.intValue();

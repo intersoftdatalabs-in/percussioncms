@@ -18,7 +18,7 @@ package com.percussion.rx.config.test;
 
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSSystemPackageTest extends PSConfigurationTest {
   /**
    * Test a configure definition file with empty local configure file

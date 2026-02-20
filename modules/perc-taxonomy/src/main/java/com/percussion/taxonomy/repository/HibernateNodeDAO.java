@@ -36,19 +36,39 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.CacheMode;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
+public class HibernateNodeDAO implements NodeDAO {
+
+  @Autowired private SessionFactory sessionFactory;
+
+  private Object executeQuery(String queryString) {
+    Session session = sessionFactory.getCurrentSession();
+    Query query = session.createQuery(queryString);
+    return query.list();
+  }
+
+  private Object executeQuery(String queryString, Map<String, String> substitutions) {
+    Session session = sessionFactory.getCurrentSession();
+    Query query = session.createQuery(queryString);
+    if (substitutions != null) {
+      for (Map.Entry<String, String> entry : substitutions.entrySet()) {
+        query.setText(entry.getKey(), entry.getValue());
+      }
+    }
+    return query.list();
+  }
+
+  private void executeUpdate(String queryString) {
+    Session session = sessionFactory.getCurrentSession();
+    Query query = session.createQuery(queryString);
+    query.executeUpdate();
+  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,9 +90,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     queryString += "and al.language.id = " + langID + " ";
     queryString += "and v.lang.id = " + langID + "order by n.id";
 
-    return ((Collection<Node>) this.getHibernateTemplate().execute(new HibernateQuery(queryString)))
-        .iterator()
-        .next();
+    return ((Collection<Node>) executeQuery(queryString)).iterator().next();
   }
 
   @SuppressWarnings("unchecked")
@@ -92,13 +110,13 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     queryString += "and al.language.id = " + langID + " ";
     queryString += "and v.lang.id = " + langID + "order by n.id";
 
-    return (Collection<Node>) this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<Node>) executeQuery(queryString);
   }
 
   @SuppressWarnings("unchecked")
   public Collection<Node> getNodesFromSearch(
       int taxID, int langID, String search_string, boolean exclude_disabled) {
-    ArrayList<Object> bind_vars = new ArrayList<Object>();
+    Session session = sessionFactory.getCurrentSession();
 
     String queryString = "select distinct n from Node n ";
     queryString += "left join fetch n.taxonomy ";
@@ -115,16 +133,23 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     if (exclude_disabled) {
       queryString += "and n.Not_leaf = ? ";
       queryString += "and n.node_status.id = " + Node_status.ACTIVE + " ";
-      bind_vars.add(false);
     }
 
     queryString += "and al.language.id = " + langID + " ";
     queryString += "and v.lang.id = " + langID + " ";
     queryString += "and lower(v.Name)  like ? order by n.id";
 
-    bind_vars.add("%" + StringUtils.lowerCase(StringUtils.trimToEmpty(search_string)) + "%");
+    Query query = session.createQuery(queryString);
+    int paramIndex = 0;
 
-    return (Collection<Node>) getHibernateTemplate().find(queryString, bind_vars.toArray());
+    if (exclude_disabled) {
+      query.setParameter(paramIndex++, false);
+    }
+
+    query.setParameter(
+        paramIndex++, "%" + StringUtils.lowerCase(StringUtils.trimToEmpty(search_string)) + "%");
+
+    return query.list();
   }
 
   // Better SQL would eliminate the need for this function
@@ -158,10 +183,10 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         if (StringUtils.countMatches(last_node[2].toString(), "(")
             > StringUtils.countMatches(last_node[2].toString(), ")")) {
 
-          last_node[2] = StringUtils.replace(last_node[2].toString(), " ()", ")");
+          last_node[2] = last_node[2].toString().replace(" ()", ")");
 
         } else {
-          last_node[2] = StringUtils.replace(last_node[2].toString(), " ()", "");
+          last_node[2] = last_node[2].toString().replace(" ()", "");
         }
 
         refined.add(last_node);
@@ -180,10 +205,10 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         if (StringUtils.countMatches(last_node[2].toString(), "(")
             > StringUtils.countMatches(last_node[2].toString(), ")")) {
 
-          last_node[2] = StringUtils.replace(last_node[2].toString(), " ()", ")");
+          last_node[2] = last_node[2].toString().replace(" ()", ")");
 
         } else {
-          last_node[2] = StringUtils.replace(last_node[2].toString(), " ()", "");
+          last_node[2] = last_node[2].toString().replace(" ()", "");
         }
         refined.add(last_node);
 
@@ -196,10 +221,10 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         if (StringUtils.countMatches(last_node[2].toString(), "(")
             > StringUtils.countMatches(last_node[2].toString(), ")")) {
 
-          last_node[2] = StringUtils.replace(last_node[2].toString(), " ()", ")");
+          last_node[2] = last_node[2].toString().replace(" ()", ")");
 
         } else {
-          last_node[2] = StringUtils.replace(last_node[2].toString(), " ()", "");
+          last_node[2] = last_node[2].toString().replace(" ()", "");
         }
 
         refined.add(last_node);
@@ -223,9 +248,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
             + langID
             + " order by v.node.id, v.attribute.Is_node_name";
 
-    return concatNames(
-        ((Collection<Object[]>)
-            this.getHibernateTemplate().execute(new HibernateQuery(queryString))));
+    return concatNames(((Collection<Object[]>) executeQuery(queryString)));
   }
 
   /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
@@ -240,9 +263,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
             + langID
             + " order by v.node.id, v.attribute.Is_node_name";
 
-    return concatNames(
-        ((Collection<Object[]>)
-            this.getHibernateTemplate().execute(new HibernateQuery(queryString))));
+    return concatNames(((Collection<Object[]>) executeQuery(queryString)));
   }
 
   /** Return nodes for ides */
@@ -251,8 +272,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     String queryString =
         "select n from Node n where n.id in(" + StringUtils.join(ids.toArray(), ',') + ")";
 
-    return ((Collection<Node>)
-        this.getHibernateTemplate().execute(new HibernateQuery(queryString)));
+    return ((Collection<Node>) executeQuery(queryString));
   }
 
   /** Return all values associated with a given node */
@@ -263,7 +283,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
             + nodeID
             + " and v.lang.id = "
             + langID;
-    return (Collection<Value>) this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<Value>) executeQuery(queryString);
   }
 
   /** Return all values associated with a given node and attribute combo */
@@ -277,7 +297,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
             + " and v.attribute.id = "
             + attrID;
 
-    return (Collection<Value>) this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<Value>) executeQuery(queryString);
   }
 
   /** Return all nodes 'related to' the given node */
@@ -285,8 +305,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
   public Collection<Related_node> getRelatedNodes(int nodeID) {
     String queryString =
         "select r from Related_node r where r.node.id = " + nodeID + " and r.relationship.id = 1";
-    return (Collection<Related_node>)
-        this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<Related_node>) executeQuery(queryString);
   }
 
   /** Return all related nodes 'that reference' the given node */
@@ -296,8 +315,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         "select r from Related_node r where r.related_node.id = "
             + nodeID
             + " and r.relationship.id = 1";
-    return (Collection<Related_node>)
-        this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<Related_node>) executeQuery(queryString);
   }
 
   /** Return all nodes 'similar to' the given node */
@@ -306,8 +324,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     String queryString =
         "select r from Related_node r where r.node.id = " + nodeID + " and r.relationship.id = 2";
 
-    return (Collection<Related_node>)
-        this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<Related_node>) executeQuery(queryString);
   }
 
   /** Return all child nodes of the given node */
@@ -317,7 +334,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     String queryString =
         "select n from Node n left join fetch n.nodeEditors ne where n.parent.id = " + nodeID;
 
-    return (Collection<Node>) this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<Node>) executeQuery(queryString);
   }
 
   /** Return all NodeEditors for the given node */
@@ -326,8 +343,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
 
     String queryString = "select ne from Node_editor ne where ne.node.id = " + nodeID;
 
-    return (Collection<Node_editor>)
-        this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<Node_editor>) executeQuery(queryString);
   }
 
   /** Return a nodeName for the given node */
@@ -341,8 +357,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
             + langID
             + " order by v.node.id, v.attribute.Is_node_name";
 
-    return (Collection<String>)
-        this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    return (Collection<String>) executeQuery(queryString);
   }
 
   public Map<String, String> deleteNodeAndFriends(int nodeID, int taxonomyID) {
@@ -350,7 +365,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     String queryString = "select n.id from Node n where n.parent.id = " + nodeID;
 
     Map<String, String> errors = null;
-    List<?> result = (List<?>) this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    List<?> result = (List<?>) executeQuery(queryString);
 
     if (result.size() == 0) {
 
@@ -359,13 +374,13 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
               + nodeID
               + " or rn.related_node.id = "
               + nodeID;
-      getHibernateTemplate().execute(new HibernateDeleteQuery(queryString));
+      executeUpdate(queryString);
       queryString = "delete from Value v where v.node.id =" + nodeID;
-      getHibernateTemplate().execute(new HibernateDeleteQuery(queryString));
+      executeUpdate(queryString);
       queryString = "delete from Node_editor e where e.node.id =" + nodeID;
-      getHibernateTemplate().execute(new HibernateDeleteQuery(queryString));
+      executeUpdate(queryString);
       queryString = "delete from Node n where n.id =" + nodeID;
-      getHibernateTemplate().execute(new HibernateDeleteQuery(queryString));
+      executeUpdate(queryString);
 
     } else {
       errors = new HashMap<String, String>();
@@ -394,7 +409,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
             + languageID
             + " order by v.node.id";
 
-    Object raw = this.getHibernateTemplate().execute(new HibernateQuery(queryString));
+    Object raw = executeQuery(queryString);
 
     return (Collection<Object[]>) raw;
   }
@@ -402,72 +417,45 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
   /** Change the parent of a node */
   public void changeParent(int nodeID, int newParentID) {
 
+    Session session = sessionFactory.getCurrentSession();
     String queryString =
         "select n from Node n where n.id = " + nodeID + " or n.id = " + newParentID;
 
-    this.getHibernateTemplate().execute(new ParentUpdateQuery(queryString, nodeID, newParentID));
+    Collection<Node> nodes = session.createQuery(queryString, Node.class).list();
+
+    Node[] tmp = nodes.toArray(new Node[nodes.size()]);
+
+    if (tmp[0].getId() == nodeID) {
+
+      tmp[0].setParent(tmp[1]);
+      session.merge(tmp[0]);
+
+    } else {
+      tmp[1].setParent(tmp[0]);
+      session.merge(tmp[1]);
+    }
   }
 
   public void saveNode(Node node) {
     if (node != null) {
-      this.getHibernateTemplate().saveOrUpdate(node);
+      Session session = sessionFactory.getCurrentSession();
+      session.merge(node);
     }
   }
 
   public void removeNode(Node node) {
-    this.getHibernateTemplate().delete(node);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(node);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
-  /** Special case query used specifically to update the parent of a node */
-  private class ParentUpdateQuery implements HibernateCallback {
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    private String query;
-
-    private int nodeID;
-
-    @SuppressWarnings("unused")
-    private int newParentID;
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    public ParentUpdateQuery(String query, int nodeID, int newParentID) {
-      this.query = query;
-      this.nodeID = nodeID;
-      this.newParentID = newParentID;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    @SuppressWarnings("unchecked")
-    public Object doInHibernate(Session session) throws HibernateException {
-
-      Collection<Node> nodes = (Collection<Node>) session.createQuery(query).list();
-
-      Node[] tmp = nodes.toArray(new Node[nodes.size()]);
-
-      if (tmp[0].getId() == nodeID) {
-
-        tmp[0].setParent(tmp[1]);
-        session.saveOrUpdate(tmp[0]);
-
-      } else {
-        tmp[1].setParent(tmp[0]);
-        session.saveOrUpdate(tmp[1]);
-      }
-      return null;
-    }
-  }
-
   @SuppressWarnings("unchecked")
   public Collection<Node> findNodesByAttribute(Attribute attribute) {
-    Session session = this.currentSession();
+    Session session = sessionFactory.getCurrentSession();
     Collection<Node> nodes = null;
     Query query =
-        session.getNamedQuery("findNodesByAttribute").setParameter("attribute", attribute);
+        session.createNamedQuery("findNodesByAttribute").setParameter("attribute", attribute);
     nodes = query.list();
 
     return nodes;
@@ -479,8 +467,8 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
 
     List<PSLocator> locators = new ArrayList<PSLocator>();
     String testId = Integer.toString(node.getId());
-    Query query =
-        session.createSQLQuery(
+    org.hibernate.query.NativeQuery<?> query =
+        session.createNativeQuery(
             "SELECT CONTENTID,REVISIONID,"
                 + column
                 + " from "
@@ -492,7 +480,8 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
                 + "%'");
     if (maxItems > 0) query.setMaxResults(maxItems);
 
-    ScrollableResults rows = query.setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
+    ScrollableResults<Object[]> rows =
+        query.setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
     int updateCount = 0;
     while (rows.next()) {
       Object[] row = rows.get();
@@ -512,8 +501,8 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
 
           splitList.remove(testId);
           String newString = StringUtils.join(splitList, ',');
-          SQLQuery updateQuery =
-              session.createSQLQuery(
+          org.hibernate.query.NativeQuery<?> updateQuery =
+              session.createNativeQuery(
                   "UPDATE "
                       + table
                       + " SET "

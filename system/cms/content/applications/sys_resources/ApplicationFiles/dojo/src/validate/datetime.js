@@ -37,11 +37,15 @@ dojo.require("dojo.validate.common");
     flags.pmSymbol  The symbol used for PM.  Default is "PM".
   @return  true or false
 */
-dojo.validate.isValidTime = function(value, flags) {
-	dojo.deprecated("dojo.validate.datetime", "use dojo.date.parse instead", "0.5");
-	var re = new RegExp("^" + dojo.regexp.time(flags) + "$", "i");
-	return re.test(value);
-}
+dojo.validate.isValidTime = function (value, flags) {
+  dojo.deprecated(
+    "dojo.validate.datetime",
+    "use dojo.date.parse instead",
+    "0.5"
+  );
+  var re = new RegExp("^" + dojo.regexp.time(flags) + "$", "i");
+  return re.test(value);
+};
 
 /**
   Validates 12-hour time format.
@@ -51,10 +55,14 @@ dojo.validate.isValidTime = function(value, flags) {
   @param value  A string.
   @return  true or false
 */
-dojo.validate.is12HourTime = function(value) {
-	dojo.deprecated("dojo.validate.datetime", "use dojo.date.parse instead", "0.5");
-	return dojo.validate.isValidTime(value, {format: ["h:mm:ss t", "h:mm t"]});
-}
+dojo.validate.is12HourTime = function (value) {
+  dojo.deprecated(
+    "dojo.validate.datetime",
+    "use dojo.date.parse instead",
+    "0.5"
+  );
+  return dojo.validate.isValidTime(value, { format: ["h:mm:ss t", "h:mm t"] });
+};
 
 /**
   Validates 24-hour military time format.
@@ -64,10 +72,14 @@ dojo.validate.is12HourTime = function(value) {
   @param value  A string.
   @return  true or false
 */
-dojo.validate.is24HourTime = function(value) {
-	dojo.deprecated("dojo.validate.datetime", "use dojo.date.parse instead", "0.5");
-	return dojo.validate.isValidTime(value, {format: ["HH:mm:ss", "HH:mm"]} );
-}
+dojo.validate.is24HourTime = function (value) {
+  dojo.deprecated(
+    "dojo.validate.datetime",
+    "use dojo.date.parse instead",
+    "0.5"
+  );
+  return dojo.validate.isValidTime(value, { format: ["HH:mm:ss", "HH:mm"] });
+};
 
 /**
   Returns true if the date conforms to the format given and is a valid date. Otherwise returns false.
@@ -97,76 +109,99 @@ dojo.validate.is24HourTime = function(value) {
   10/19/2005    M/D/YYYY
   19.10.2005    D.M.YYYY
 */
-dojo.validate.isValidDate = function(dateValue, format) {
-	dojo.deprecated("dojo.validate.datetime", "use dojo.date.parse instead", "0.5");
-	// Default is the American format
-	if (typeof format == "object" && typeof format.format == "string"){ format = format.format; }
-	if (typeof format != "string") { format = "MM/DD/YYYY"; }
+dojo.validate.isValidDate = function (dateValue, format) {
+  dojo.deprecated(
+    "dojo.validate.datetime",
+    "use dojo.date.parse instead",
+    "0.5"
+  );
+  // Default is the American format
+  if (typeof format == "object" && typeof format.format == "string") {
+    format = format.format;
+  }
+  if (typeof format != "string") {
+    format = "MM/DD/YYYY";
+  }
 
-	// Create a literal regular expression based on format
-	var reLiteral = format.replace(/([$^.*+?=!:|\/\\\(\)\[\]\{\}])/g, "\\$1");
+  // Create a literal regular expression based on format
+  var reLiteral = format.replace(/([$^.*+?=!:|\/\\\(\)\[\]\{\}])/g, "\\$1");
 
-	// Convert all the tokens to RE elements
-	reLiteral = reLiteral.replace( "YYYY", "([0-9]{4})" );
-	reLiteral = reLiteral.replace( "MM", "(0[1-9]|10|11|12)" );
-	reLiteral = reLiteral.replace( "M", "([1-9]|10|11|12)" );
-	reLiteral = reLiteral.replace( "DDD", "(00[1-9]|0[1-9][0-9]|[12][0-9][0-9]|3[0-5][0-9]|36[0-6])" );
-	reLiteral = reLiteral.replace( "DD", "(0[1-9]|[12][0-9]|30|31)" );
-	reLiteral = reLiteral.replace( "D", "([1-9]|[12][0-9]|30|31)" );
-	reLiteral = reLiteral.replace( "ww", "(0[1-9]|[1-4][0-9]|5[0-3])" );
-	reLiteral = reLiteral.replace( "d", "([1-7])" );
+  // Convert all the tokens to RE elements
+  reLiteral = reLiteral.replace("YYYY", "([0-9]{4})");
+  reLiteral = reLiteral.replace("MM", "(0[1-9]|10|11|12)");
+  reLiteral = reLiteral.replace("M", "([1-9]|10|11|12)");
+  reLiteral = reLiteral.replace(
+    "DDD",
+    "(00[1-9]|0[1-9][0-9]|[12][0-9][0-9]|3[0-5][0-9]|36[0-6])"
+  );
+  reLiteral = reLiteral.replace("DD", "(0[1-9]|[12][0-9]|30|31)");
+  reLiteral = reLiteral.replace("D", "([1-9]|[12][0-9]|30|31)");
+  reLiteral = reLiteral.replace("ww", "(0[1-9]|[1-4][0-9]|5[0-3])");
+  reLiteral = reLiteral.replace("d", "([1-7])");
 
-	// Anchor pattern to begining and end of string
-	reLiteral = "^" + reLiteral + "$";
+  // Anchor pattern to begining and end of string
+  reLiteral = "^" + reLiteral + "$";
 
-	// Dynamic RE that parses the original format given
-	var re = new RegExp(reLiteral);
-	
-	// Test if date is in a valid format
-	if (!re.test(dateValue))  return false;
+  // Dynamic RE that parses the original format given
+  var re = new RegExp(reLiteral);
 
-	// Parse date to get elements and check if date is valid
-	// Assume valid values for date elements not given.
-	var year = 0, month = 1, date = 1, dayofyear = 1, week = 1, day = 1;
+  // Test if date is in a valid format
+  if (!re.test(dateValue)) return false;
 
-	// Capture tokens
-	var tokens = format.match( /(YYYY|MM|M|DDD|DD|D|ww|d)/g );
+  // Parse date to get elements and check if date is valid
+  // Assume valid values for date elements not given.
+  var year = 0,
+    month = 1,
+    date = 1,
+    dayofyear = 1,
+    week = 1,
+    day = 1;
 
-	// Capture date values
-	var values = re.exec(dateValue);
+  // Capture tokens
+  var tokens = format.match(/(YYYY|MM|M|DDD|DD|D|ww|d)/g);
 
-	// Match up tokens with date values
-	for (var i = 0; i < tokens.length; i++) {
-		switch (tokens[i]) {
-		case "YYYY":
-			year = Number(values[i+1]); break;
-		case "M":
-		case "MM":
-			month = Number(values[i+1]); break;
-		case "D":
-		case "DD":
-			date = Number(values[i+1]); break;
-		case "DDD":
-			dayofyear = Number(values[i+1]); break;
-		case "ww":
-			week = Number(values[i+1]); break;
-		case "d":
-			day = Number(values[i+1]); break;
-		}
-	}
+  // Capture date values
+  var values = re.exec(dateValue);
 
-	// Leap years are divisible by 4, but not by 100, unless by 400
-	var leapyear = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+  // Match up tokens with date values
+  for (var i = 0; i < tokens.length; i++) {
+    switch (tokens[i]) {
+      case "YYYY":
+        year = Number(values[i + 1]);
+        break;
+      case "M":
+      case "MM":
+        month = Number(values[i + 1]);
+        break;
+      case "D":
+      case "DD":
+        date = Number(values[i + 1]);
+        break;
+      case "DDD":
+        dayofyear = Number(values[i + 1]);
+        break;
+      case "ww":
+        week = Number(values[i + 1]);
+        break;
+      case "d":
+        day = Number(values[i + 1]);
+        break;
+    }
+  }
 
-	// 31st of a month with 30 days
-	if (date == 31 && (month == 4 || month == 6 || month == 9 || month == 11)) return false; 
+  // Leap years are divisible by 4, but not by 100, unless by 400
+  var leapyear = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
 
-	// February 30th or 31st
-	if (date >= 30 && month == 2) return false; 
+  // 31st of a month with 30 days
+  if (date == 31 && (month == 4 || month == 6 || month == 9 || month == 11))
+    return false;
 
-	// February 29th outside a leap year
-	if (date == 29 && month == 2 && !leapyear) return false; 
-	if (dayofyear == 366 && !leapyear)  return false;
+  // February 30th or 31st
+  if (date >= 30 && month == 2) return false;
 
-	return true;
-}
+  // February 29th outside a leap year
+  if (date == 29 && month == 2 && !leapyear) return false;
+  if (dayofyear == 366 && !leapyear) return false;
+
+  return true;
+};

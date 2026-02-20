@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import jakarta.servlet.http.HttpServletRequest;
-import javax.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPException;
 
 import org.w3c.dom.Document;
 

@@ -56,8 +56,6 @@ import java.util.Map;
 
 import javax.xml.rpc.ServiceException;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,34 +67,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Implements utilities used by all system test cases.
  */
-@Tag("IntegrationTest")
+
 public class PSSystemTestBase extends PSTestBase
 {
    /**
     * Create a new binding for the system SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new binding.
     */
    public SystemSOAPStub getBinding(Integer timeout)
-      throws AssertionFailedError
    {
       return getSystemSOAPStub(timeout);
    }
 
    /**
     * Create a new binding for the system design SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new assembly
+    * @throws AssertionError for any error creating the new assembly
     *    binding.
     */
    protected SystemDesignSOAPStub getDesignBinding(Integer timeout)
-      throws AssertionFailedError
    {
       if (timeout != null && timeout < 1000)
          throw new IllegalArgumentException("timeout must be >= 1000");
@@ -109,7 +104,7 @@ public class PSSystemTestBase extends PSTestBase
 
          SystemDesignSOAPStub binding = (SystemDesignSOAPStub) locator
             .getsystemDesignSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(60000);
@@ -123,12 +118,12 @@ public class PSSystemTestBase extends PSTestBase
          if (e.getLinkedCause() != null)
             e.getLinkedCause().printStackTrace();
 
-         throw new AssertionFailedError("JAX-RPC ServiceException caught: " + e);
+         throw new AssertionError("JAX-RPC ServiceException caught: " + e);
       }
    }
 
    /**
-    * Calls {@link #loadSharedProperties(String[], String, boolean, String, 
+    * Calls {@link #loadSharedProperties(String[], String, boolean, String,
     * String) loadSharedProperties(ids, session, lock, null, null)}
     */
    protected List<PSSharedProperty> loadSharedProperties(String[] names,
@@ -139,17 +134,17 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Calls the <code>loadSharedProperties</code> design web service call.
-    * 
-    * @param names the names of the properties to load, may be <code>null</code> 
+    *
+    * @param names the names of the properties to load, may be <code>null</code>
     *    or empty to load all, asterisk wildcards are accepted.
-    * @param session the current session, may be <code>null</code> or empty to 
+    * @param session the current session, may be <code>null</code> or empty to
     *    test authentication.
-    * @param lock <code>true</code> to lock the design objects on load, 
+    * @param lock <code>true</code> to lock the design objects on load,
     *    <code>false</code> to load them read-only.
-    * @param user the user to use.  If <code>null</code>, the supplied 
-    *    session is used, otherwise a new session is created by logging in with 
+    * @param user the user to use.  If <code>null</code>, the supplied
+    *    session is used, otherwise a new session is created by logging in with
     *    this user and the supplied <code>pwd</code>.
-    * @param pwd the password to use, may be <code>null</code> or empty, 
+    * @param pwd the password to use, may be <code>null</code> or empty,
     *    ignored if <code>user</code> is <code>null</code>.
     * @return the list, never <code>null</code> or empty.
     * @throws Exception if there are any errors.
@@ -175,12 +170,12 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Saves the supplied shared properties.
-    * 
-    * @param properties the list of shared properties to save, may be 
+    *
+    * @param properties the list of shared properties to save, may be
     *    <code>null</code> or empty to test contract enforcement.
-    * @param session the current session, may be <code>null</code> or empty to 
+    * @param session the current session, may be <code>null</code> or empty to
     *    test authentication.
-    * @param release <code>true</code> to release the lock after save, 
+    * @param release <code>true</code> to release the lock after save,
     *    <code>false</code> to keep it.
     * @throws Exception if there are any errors.
     */
@@ -204,10 +199,10 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Calls the <code>deleteSharedProperties</code> webservice.
-    * 
-    * @param properties the properties to delete, may be 
+    *
+    * @param properties the properties to delete, may be
     *    <code>null</code> or empty to test contracts.
-    * @param session the current session, may be <code>null</code> or empty to 
+    * @param session the current session, may be <code>null</code> or empty to
     *    test authentication.
     * @param ignoreDependencies <code>true</code> to ignore dependencies when
     *    deleting, <code>false</code> to fail to delete if dependencies exist.
@@ -250,7 +245,7 @@ public class PSSystemTestBase extends PSTestBase
    public static void tearDown() throws Exception
    {
       PSAssemblyTestBase assemblyTest = new PSAssemblyTestBase();
-      
+
       List<Long> idList = new ArrayList<Long>();
       if (m_eigerSlot != null)
       {
@@ -265,7 +260,7 @@ public class PSSystemTestBase extends PSTestBase
                + m_eigerSlot.getName());
          }
       }
-      
+
       if (m_jungfrauSlot != null)
       {
          idList.add(m_jungfrauSlot.getId());
@@ -295,9 +290,9 @@ public class PSSystemTestBase extends PSTestBase
    }
 
    /**
-    * Adds a new server acl entry for editor1 with full data and design but 
+    * Adds a new server acl entry for editor1 with full data and design but
     * design update access and saves that to the server configuration.
-    * 
+    *
     * @return the new acl entry added, never <code>null</code>.
     * @throws Exception for any error modifying the server configuration.
     */
@@ -312,7 +307,7 @@ public class PSSystemTestBase extends PSTestBase
          PSAclEntry.SACE_DELETE_APPLICATIONS;
       PSAclEntry entry = new PSAclEntry("editor1", PSAclEntry.ACE_TYPE_USER);
       entry.setAccessLevel(access);
-      
+
       PSServerConfiguration config = os.getServerConfiguration(
          true, true);
       PSAcl acl = config.getAcl();
@@ -320,14 +315,14 @@ public class PSSystemTestBase extends PSTestBase
       entries.add(entry);
 
       os.saveServerConfiguration(config, true);
-      
+
       return entry;
    }
-   
+
    /**
     * Remove the supplied acl entry from the current server configuration.
     * Nothing happens if the supplied acl entry does not exist.
-    * 
+    *
     * @param entry the acl entry to remove from the server configuration,
     *    may be <code>null</code> in which case this method does nothing.
     * @throws Exception for any error removing the acl entry from the server
@@ -339,20 +334,20 @@ public class PSSystemTestBase extends PSTestBase
       {
          PSObjectStore os = new PSObjectStore(new PSDesignerConnection(
             getServerProperties()));
-         
+
          PSServerConfiguration config = os.getServerConfiguration(
             true, true);
          PSAcl acl = config.getAcl();
          PSCollection entries = acl.getEntries();
          entries.remove(entry);
-   
+
          os.saveServerConfiguration(config, true);
       }
    }
 
    /**
     * Creates all slots used for testing.
-    * 
+    *
     * @throws Exception for any error.
     */
    protected static void createTestSlots() throws Exception
@@ -365,12 +360,12 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Makes a web service call to create a new item filter.
-    * 
-    * @param name the filter name, may be <code>null</code> or empty to test 
+    *
+    * @param name the filter name, may be <code>null</code> or empty to test
     *    contract enforcement.
     * @param ruleCount the sumber of rules to create.
     * @param paramCount the number or rule parameters to create.
-    * @param session the current session token, may be <code>null</code> or 
+    * @param session the current session token, may be <code>null</code> or
     *    empty to test authentication.
     * @return the new item filter, never <code>null</code>.
     * @throws Exception if there are any errors.
@@ -413,9 +408,9 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Creat an item filter rule for the supplied name and parametes.
-    * 
+    *
     * @param name the rule name, assumed not <code>null</code> or empty.
-    * @param params the rule parameters, assumed not <code>null</code>, 
+    * @param params the rule parameters, assumed not <code>null</code>,
     *    may be empty.
     * @return the new created rule, never <code>null</code>.
     */
@@ -440,7 +435,7 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Makes a web service call to create the test item filters.
-    * 
+    *
     * @return the new item filters, never <code>null</code> or empty.
     * @throws Exception if there are any errors.
     */
@@ -450,8 +445,8 @@ public class PSSystemTestBase extends PSTestBase
 
       PSTestUtils.setSessionHeader(binding, m_session);
 
-      String[] names = new String[] { 
-            "testparent" + java.lang.System.currentTimeMillis(), 
+      String[] names = new String[] {
+            "testparent" + java.lang.System.currentTimeMillis(),
             "testchild" + java.lang.System.currentTimeMillis() };
 
       List<PSItemFilter> testFilters = new ArrayList<PSItemFilter>();
@@ -467,12 +462,12 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Saves the supplied item filters.
-    * 
-    * @param filters a list of item filters to save, may be <code>null</code> 
+    *
+    * @param filters a list of item filters to save, may be <code>null</code>
     *    or empty to test contract enforcement.
-    * @param session the current session, may be <code>null</code> or empty to 
+    * @param session the current session, may be <code>null</code> or empty to
     *    test authentication.
-    * @param release <code>true</code> to release the lock after save, 
+    * @param release <code>true</code> to release the lock after save,
     *    <code>false</code> to keep it.
     * @throws Exception if there are any errors.
     */
@@ -497,10 +492,10 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Calls the <code>deleteItemFlters</code> webservice.
-    * 
-    * @param ids the ids to delete, may be <code>null</code> or empty for 
+    *
+    * @param ids the ids to delete, may be <code>null</code> or empty for
     *    testing contract enforcement.
-    * @param session the current session, may be <code>null</code> or empty to 
+    * @param session the current session, may be <code>null</code> or empty to
     *    test authentication.
     * @param ignoreDependencies <code>true</code> to ignore dependencies when
     *    deleting, <code>false</code> to fail to delete if dependencies exist.
@@ -522,7 +517,7 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Converts the supplied list of item filters to an array of ids.
-    * 
+    *
     * @param filters the list of item filters, may not be <code>null</code>.
     * @return the array of ids, never <code>null</code>.
     */
@@ -539,7 +534,7 @@ public class PSSystemTestBase extends PSTestBase
    }
 
    /**
-    * Calls {@link #loadItemFilters(long[], String, boolean, String, String) 
+    * Calls {@link #loadItemFilters(long[], String, boolean, String, String)
     * loadItemFilters(ids, session, lock, null, null)}
     */
    protected List<PSItemFilter> loadItemFilters(long[] ids, String session,
@@ -550,16 +545,16 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Calls the <code>loadItemFilters</code> design web service call.
-    * 
+    *
     * @param ids the array of ids to load, may be <code>null</code> or empty.
-    * @param session the current session, may be <code>null</code> or empty to 
+    * @param session the current session, may be <code>null</code> or empty to
     *    test authentication.
-    * @param lock <code>true</code> to lock the design objects on load, 
+    * @param lock <code>true</code> to lock the design objects on load,
     *    <code>false</code> to load them read-only.
-    * @param user the user to use. If <code>null</code>, the supplied 
-    *    session is used, otherwise a new session is created by logging in with 
+    * @param user the user to use. If <code>null</code>, the supplied
+    *    session is used, otherwise a new session is created by logging in with
     *    this user and the supplied <code>pwd</code>.
-    * @param pwd the password to use, may be <code>null</code> or empty, 
+    * @param pwd the password to use, may be <code>null</code> or empty,
     *    ignored if <code>user</code> is <code>null</code>.
     * @return the list, never <code>null</code> or empty.
     * @throws Exception if there are any errors.
@@ -585,12 +580,12 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Calls the <code>findItemFilters</code> web service
-    *  
+    *
     * @param name the name to search on, may be <code>null</code> or empty or
     *    contain the "*" wildcard.
-    * @param session the current session, may be <code>null</code> or empty to 
+    * @param session the current session, may be <code>null</code> or empty to
     *    test authentication.
-    * @return the object summaries returned by the web service call, never 
+    * @return the object summaries returned by the web service call, never
     *    <code>null</code>, may be empty.
     * @throws Exception if there are any errors.
     */
@@ -611,12 +606,12 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Removes the specified user defined relationship.
-    *  
-    * @param binding the object used to communicate with server, never 
+    *
+    * @param binding the object used to communicate with server, never
     *    <code>null</code>.
     * @param relationshipName the name of the user defined relationship,
     *    never <code>null</code> or empty.
-    *    
+    *
     * @throws Exception if any error occurs.
     */
    protected void cleanupRelationshipType(SystemDesignSOAPStub binding,
@@ -640,8 +635,8 @@ public class PSSystemTestBase extends PSTestBase
    }
 
    /**
-    * Convenience method, simply calls 
-    * {@link #loadRelationshipType(SystemDesignSOAPStub, long, boolean) 
+    * Convenience method, simply calls
+    * {@link #loadRelationshipType(SystemDesignSOAPStub, long, boolean)
     * loadRelationshipType(binding, id, true)}
     */
    protected PSRelationshipConfig loadRelationshipType(
@@ -652,16 +647,16 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Loads the specified relationship type.
-    * 
-    * @param binding the stub used to communicate with server, never 
+    *
+    * @param binding the stub used to communicate with server, never
     *    <code>null</code>.
     * @param id the id of the relationship type.
     * @param lockObject it is <code>true</code> if wanting to lock the
     *    loaded relationship type; otherwise, the loaded relationship type
     *    will not be locked afterwards.
-    *    
+    *
     * @return the loaded relationship type, never </code>null</code>.
-    * 
+    *
     * @throws Exception if failed to load the relationship type.
     */
    protected PSRelationshipConfig loadRelationshipType(
@@ -679,18 +674,18 @@ public class PSSystemTestBase extends PSTestBase
    /**
     * Looks up the specified relationship type by the specified name and/or
     * category.
-    * 
-    * @param binding the stub used to communicate with server, never 
+    *
+    * @param binding the stub used to communicate with server, never
     *    <code>null</code>.
     * @param name the name of the searched relationship type, may be
     *    <code>null</code> or empty if the result is not filtered by name.
     * @param category the category of the searched relationship types,
     *    may be <code>null</code> or empty if the result is not filtered
     *    by the category.
-    *    
-    * @return the specified relationship types, never <code>null</code>, 
+    *
+    * @return the specified relationship types, never <code>null</code>,
     *    may be empty.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    protected PSObjectSummary[] findRelationshipTypes(
@@ -708,11 +703,11 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Deletes the specified relationship type.
-    * 
-    * @param binding the stub used to communicate with server, never 
+    *
+    * @param binding the stub used to communicate with server, never
     *    <code>null</code>.
     * @param id the id of the to be deleted relationship type.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    protected void deleteRelationshipType(SystemDesignSOAPStub binding, long id)
@@ -726,17 +721,17 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Creates and saves the specified relationship type.
-    * 
-    * @param binding the stub used to communicate with server, never 
+    *
+    * @param binding the stub used to communicate with server, never
     *    <code>null</code>.
     * @param name the name of the relationship type, not <code>null</code> or
     *    empty.
-    * @param category the category of the relationship type, not 
+    * @param category the category of the relationship type, not
     *    <code>null</code>.
-    *    
+    *
     * @return the persisted relationship type, never <code>null</code>.
-    * 
-    * @throws Exception if failed to create and save the specified relationship 
+    *
+    * @throws Exception if failed to create and save the specified relationship
     *    type.
     */
    protected PSRelationshipConfig createSaveRelationshipType(
@@ -763,13 +758,13 @@ public class PSSystemTestBase extends PSTestBase
 
    /**
     * Saves the specified relationship type.
-    * 
-    * @param binding the stub used to communicate with server, never 
+    *
+    * @param binding the stub used to communicate with server, never
     *    <code>null</code>.
     * @param config the to be saved relationship type, not <code>null</code>.
-    * @param releaseLock it is <code>true</code> if releasing the lock 
+    * @param releaseLock it is <code>true</code> if releasing the lock
     *    afterwards; otherwise the lock will not be released.
-    *    
+    *
     * @throws Exception if any error occurs.
     */
    protected void saveRelationshipType(SystemDesignSOAPStub binding,

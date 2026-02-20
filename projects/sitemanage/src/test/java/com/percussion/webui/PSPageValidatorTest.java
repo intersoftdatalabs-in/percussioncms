@@ -26,9 +26,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.httpclient.HttpException;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
@@ -56,7 +56,7 @@ public class PSPageValidatorTest extends PSRestTestCase<PSPageValidatorRestClien
    *
    * @throws Exception
    */
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     restClient = new PSPageValidatorRestClient(baseUrl);
     setupClient(restClient);
@@ -70,7 +70,7 @@ public class PSPageValidatorTest extends PSRestTestCase<PSPageValidatorRestClien
     return restClient;
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {}
 
   @Test
@@ -125,7 +125,7 @@ public class PSPageValidatorTest extends PSRestTestCase<PSPageValidatorRestClien
     InputSource is = new InputSource(new StringReader(src));
     parser.parse(is);
 
-    Assert.assertTrue("File contains 1 or more tabs.", src.indexOf('\t') < 0);
+    assertTrue(src.indexOf('\t') < 0, "File contains 1 or more tabs.");
   }
 
   /**

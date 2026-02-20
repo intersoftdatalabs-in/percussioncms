@@ -21,6 +21,7 @@ import com.percussion.services.catalog.IPSCataloger;
 import com.percussion.utils.guid.IPSGuid;
 
 import javax.jcr.Node;
+import com.percussion.services.contentmgr.IPSNode;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,11 @@ import java.util.stream.Stream;
  * @since Java 11 Modernization
  */
 public interface IPSAssemblyService extends IPSAssembler, IPSTemplateService, IPSCataloger {
+
+    /**
+     * Parameter name for assembly URL used in legacy migration and templating code.
+     */
+    String ASSEMBLY_URL = "assemblyurl";
 
     /**
      * Create an assembly item to be used with the assembly service using modern patterns.
@@ -161,6 +167,48 @@ public interface IPSAssemblyService extends IPSAssembler, IPSTemplateService, IP
     default Stream<String> getContentFinderNames() {
         // Default implementation returns empty stream - implementations should override
         return Stream.empty();
+    }
+
+    /**
+     * Load a slot content finder by name.
+     *
+     * @param finder the finder name to load, not {@code null} or empty
+     * @return a slot content finder instance
+     * @throws PSAssemblyException if the finder cannot be loaded
+     */
+    default IPSSlotContentFinder loadFinder(String finder) throws PSAssemblyException {
+        throw new PSAssemblyException(IPSAssemblyErrors.MISSING_FINDER);
+    }
+
+    /**
+     * Set the current assembly item in the implementation (compatibility hook).
+     */
+    default void setCurrentAssemblyItem(IPSAssemblyItem item) {
+        // Default no-op
+    }
+
+    /**
+     * Build a landing page link for the given assembly result and node. Defaults to throwing an exception if not implemented.
+     */
+    default String getLandingPageLink(IPSAssemblyResult result, IPSNode node, IPSGuid templateId) throws PSAssemblyException {
+        throw new PSAssemblyException(IPSAssemblyErrors.LANDING_PAGE_URL_1);
+    }
+
+    /**
+     * Get the current assembly item if set.
+     */
+    default IPSAssemblyItem getCurrentAssemblyItem() {
+        return null;
+    }
+
+    /**
+     * Legacy compatibility hook - process a list of assembly items using legacy implementations.
+     * Default implementation is a no-op to preserve backward compatibility.
+     *
+     * @param items the list of items to process, never {@code null}
+     */
+    default void handleItemTemplates(List<IPSAssemblyItem> items) {
+        // Default no-op implementation for compatibility
     }
 
     /**

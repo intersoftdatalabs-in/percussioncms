@@ -17,18 +17,18 @@
 
 var COOKIE_CONSENT_NAME = "percCookieConsent";
 
-$(function() {
-    var doesCookieExist = checkForConsentCookie();
+$(function () {
+  var doesCookieExist = checkForConsentCookie();
 
-    $('#accept-btn-preview').off('click').on('click', dismissDialog);
+  $("#accept-btn-preview").off("click").on("click", dismissDialog);
 
-    if (!doesCookieExist) {
-        $('.perc-consent-window').css('opacity', 1);
-        $('#accept-btn').off('click').on('click', createCookie);
-        $('#deny-btn').off('click').on('click', denyCookie);
-    }else {
-        document.getElementById("perc-cookie-consent").style.visibility = "hidden";
-    }
+  if (!doesCookieExist) {
+    $(".perc-consent-window").css("opacity", 1);
+    $("#accept-btn").off("click").on("click", createCookie);
+    $("#deny-btn").off("click").on("click", denyCookie);
+  } else {
+    document.getElementById("perc-cookie-consent").style.visibility = "hidden";
+  }
 });
 
 /**
@@ -37,17 +37,19 @@ $(function() {
  * @returns the cookie entry if present
  */
 function checkForConsentCookie() {
-    var result = document.cookie.match(new RegExp(COOKIE_CONSENT_NAME + '=([^;]+)'));
-    result && (result = result[1]);
-    return result === "true" || checkForConsentDenyCookie() ;
+  var result = document.cookie.match(
+    new RegExp(COOKIE_CONSENT_NAME + "=([^;]+)")
+  );
+  result && (result = result[1]);
+  return result === "true" || checkForConsentDenyCookie();
 }
 
-function checkForConsentDenyCookie(){
-    var deny  = document.cookie.match("deny_cookie");
-    if(deny != null){
-        return true;
-    }
-    return false;
+function checkForConsentDenyCookie() {
+  var deny = document.cookie.match("deny_cookie");
+  if (deny != null) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -56,43 +58,52 @@ function checkForConsentDenyCookie(){
  * dialog on next visit.
  */
 function createCookie() {
-    // sets cookie to expire in 5 years
-    var futureDate = getDate(5, 0, 0);
-    var secure = "";
-    if (window.isSecureContext) {
-        secure = " Secure;";
-    }
-    document.cookie = COOKIE_CONSENT_NAME + "=true; expires=" + futureDate + ";path=/; SameSite=Lax;" + secure;
+  // sets cookie to expire in 5 years
+  var futureDate = getDate(5, 0, 0);
+  var secure = "";
+  if (window.isSecureContext) {
+    secure = " Secure;";
+  }
+  document.cookie =
+    COOKIE_CONSENT_NAME +
+    "=true; expires=" +
+    futureDate +
+    ";path=/; SameSite=Lax;" +
+    secure;
 
-    dismissDialog();
+  dismissDialog();
 
-    postEntry();
+  postEntry();
 }
 
 function denyCookie() {
-    var futureDate = getDate(5, 0, 0);
+  var futureDate = getDate(5, 0, 0);
 
-    var secure = "";
-    if (window.isSecureContext) {
-        secure = " Secure;";
-    }
-    document.cookie = "deny_cookie" + "=true; expires=" + futureDate + ";path=/; SameSite=Lax;" + secure;
+  var secure = "";
+  if (window.isSecureContext) {
+    secure = " Secure;";
+  }
+  document.cookie =
+    "deny_cookie" +
+    "=true; expires=" +
+    futureDate +
+    ";path=/; SameSite=Lax;" +
+    secure;
 
-    dismissDialog();
+  dismissDialog();
 }
 
 /**
  * Dismisses cookie consenet dialog in preview mode.
  */
 function dismissDialog() {
+  $("#perc-cookie-consent").css("opacity", 0);
 
-    $('#perc-cookie-consent').css('opacity', 0);
-
-    // wait 1 second (set in cookie-consent.css) to set opacity to 0
-    // before setting style to none.
-    setTimeout(function() {
-        document.getElementById("perc-cookie-consent").style.visibility = "hidden";
-    }, 1000);
+  // wait 1 second (set in cookie-consent.css) to set opacity to 0
+  // before setting style to none.
+  setTimeout(function () {
+    document.getElementById("perc-cookie-consent").style.visibility = "hidden";
+  }, 1000);
 }
 
 /**
@@ -100,38 +111,46 @@ function dismissDialog() {
  *  to the DTS meta data service.
  */
 function postEntry() {
+  var cookieConsentElem = $("#perc-cookie-consent");
 
-    var cookieConsentElem = $('#perc-cookie-consent');
+  if (cookieConsentElem.attr("data-query") === "") return;
 
-    if (cookieConsentElem.attr("data-query") === "") return;
+  var queryString = eval("(" + cookieConsentElem.attr("data-query") + ")");
+  var siteName = queryString.siteName;
 
-    var queryString = eval("(" + cookieConsentElem.attr("data-query") + ")");
-    var siteName = queryString.siteName;
+  if (!siteName) return;
 
-    if (!siteName) return;
+  var deliveryUrl = queryString.deliveryurl || "";
 
-    var deliveryUrl = queryString.deliveryurl || "";
+  var opts = {
+    siteName: siteName,
+    consentDate: new Date(),
+    optIn: true,
+    // currently setting consented services to 'All' until V2 of the widget.
+    services: ["All"],
+  };
 
-    var opts = {
-        siteName : siteName,
-        consentDate : new Date(),
-        optIn: true,
-        // currently setting consented services to 'All' until V2 of the widget.
-        services : ["All"]
-    };
-
-    $.PercCookieConsentService.postConsentEntry(opts, deliveryUrl, function(status) {
-        console.log(status);
-        if (status == $.PercServiceUtils.STATUS_ERROR) {
-            // sets the cookie to expire in 5 days to try save again.
-            var futureDate = getDate(0, 0, 5);
-            var secure = "";
-            if (window.isSecureContext) {
-                secure = " Secure;";
-            }
-            document.cookie = COOKIE_CONSENT_NAME + "=true; expires=" + futureDate + ";path=/; SameSite=Lax;" + secure;
+  $.PercCookieConsentService.postConsentEntry(
+    opts,
+    deliveryUrl,
+    function (status) {
+      console.log(status);
+      if (status == $.PercServiceUtils.STATUS_ERROR) {
+        // sets the cookie to expire in 5 days to try save again.
+        var futureDate = getDate(0, 0, 5);
+        var secure = "";
+        if (window.isSecureContext) {
+          secure = " Secure;";
         }
-    });
+        document.cookie =
+          COOKIE_CONSENT_NAME +
+          "=true; expires=" +
+          futureDate +
+          ";path=/; SameSite=Lax;" +
+          secure;
+      }
+    }
+  );
 }
 
 /**
@@ -144,9 +163,9 @@ function postEntry() {
  * @returns A new date object
  */
 function getDate(yearVal, monthVal, dayVal) {
-    var date = new Date();
-    var year = date.getFullYear();
-    var month = date.getMonth();
-    var day = date.getDate();
-    return new Date(year + yearVal, month + monthVal, day + dayVal);
+  var date = new Date();
+  var year = date.getFullYear();
+  var month = date.getMonth();
+  var day = date.getDate();
+  return new Date(year + yearVal, month + monthVal, day + dayVal);
 }

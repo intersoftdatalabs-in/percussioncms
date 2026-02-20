@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-dojo.debug( "> tests: __package__.js" );
+dojo.debug("> tests: __package__.js");
 dojo.provide("tests");
-dojo.widget.manager.registerWidgetPackage('tests');
-dojo.debug( "< tests: __package__.js" );
+dojo.widget.manager.registerWidgetPackage("tests");
+dojo.debug("< tests: __package__.js");

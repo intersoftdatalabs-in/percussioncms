@@ -70,8 +70,6 @@ import java.util.Properties;
 
 import javax.xml.rpc.ServiceException;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
@@ -95,14 +93,14 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Makes a web service call to create a new content type.
-    * 
-    * @param name The name of the content type, may be <code>null</code> or 
+    *
+    * @param name The name of the content type, may be <code>null</code> or
     * empty to test contract enforcement.
-    * @param session The current session token, may be <code>null</code> or 
+    * @param session The current session token, may be <code>null</code> or
     * empty to test authentication.
-    * 
+    *
     * @return The new content type, never <code>null</code>.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected PSContentType createContentType(String name, String session)
@@ -121,10 +119,10 @@ public abstract class PSContentTestBase extends PSTestBase
    }
 
    /**
-    * Creates new content types to be used for testing purposes. Also 
-    * creates the matching tables if they do not exists, and populates the 
+    * Creates new content types to be used for testing purposes. Also
+    * creates the matching tables if they do not exists, and populates the
     * {@link #m_testCEMap} for access to the content editor defintion.
-    *  
+    *
     * @param session the session token, not <code>null</code> or empty.
     * @return the list of content types, never <code>null</code> or empty.
     * @throws Exception if there are any errors.
@@ -136,7 +134,7 @@ public abstract class PSContentTestBase extends PSTestBase
          throw new IllegalArgumentException("session cannot be null or empty");
 
       cleanupTestContentTypes(session);
-      
+
       m_testCEMap.clear();
 
       List<PSContentType> results = new ArrayList<PSContentType>(2);
@@ -149,9 +147,9 @@ public abstract class PSContentTestBase extends PSTestBase
    /**
     * A cleanup method is used by {@link #createTestContentTypes(String)}
     * to make sure the success of the content type creation.
-    * 
+    *
     * @param session the session id; assumed not <code>null</code>.
-    * 
+    *
     * @throws Exception if an error occurs.
     */
    private void cleanupTestContentTypes(String session) throws Exception
@@ -159,7 +157,7 @@ public abstract class PSContentTestBase extends PSTestBase
       PSObjectSummary[] cts = findContentTypes("test*", session);
       if (cts.length == 0)
          return;  // do nothing if already clean
-      
+
       long[] ids = new long[cts.length];
       for (int i=0; i < cts.length; i++)
       {
@@ -168,12 +166,12 @@ public abstract class PSContentTestBase extends PSTestBase
       deleteContentTypes(ids, session);
    }
    /**
-    * Creates one new content type for the supplied name and populates the 
+    * Creates one new content type for the supplied name and populates the
     * {@link #m_testCEMap} for access to the content editor definition.
-    * 
+    *
     * @param name the name of the content type to create, not <code>null</code>
-    *    or empty. A content editor definition must exist under 
-    *    <code>UnitTestResources</code> for the supplied name, see 
+    *    or empty. A content editor definition must exist under
+    *    <code>UnitTestResources</code> for the supplied name, see
     *    {@link #loadContentEditor(String)} for the expected name format.
     * @param session the current user session, not <code>null</code> or empty.
     * @return the newly created content type, initialized and readdy for use,
@@ -215,9 +213,9 @@ public abstract class PSContentTestBase extends PSTestBase
    }
 
    /**
-    * Creates the required table for the test content editors (see 
+    * Creates the required table for the test content editors (see
     * {@link #createTestContentTypes(String)}.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    private void createCETable() throws Exception
@@ -242,14 +240,14 @@ public abstract class PSContentTestBase extends PSTestBase
    }
 
    /**
-    * Loads the content editor of the supplied name from its corresponding 
+    * Loads the content editor of the supplied name from its corresponding
     * definition on disk under UnitTestResources.
-    *  
-    * @param name The name of the content editor, assumed not <code>null</code> 
+    *
+    * @param name The name of the content editor, assumed not <code>null</code>
     *    or empty.
-    * 
+    *
     * @return The content editor, never <code>null</code>.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    private PSContentEditor loadContentEditor(String name) throws Exception
@@ -263,18 +261,18 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>findContentTypes</code> web service
-    *  
+    *
     * @param name The name to search on, may be <code>null</code> or empty or
     * contain the "*" wildcard.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * 
-    * @return The object summaries returned by the web service call, never 
+    *
+    * @return The object summaries returned by the web service call, never
     * <code>null</code>, may be empty.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
-   public PSObjectSummary[] findContentTypes(String name, String session) 
+   public PSObjectSummary[] findContentTypes(String name, String session)
       throws Exception
    {
       ContentDesignSOAPStub binding = getDesignBinding(null);
@@ -291,18 +289,18 @@ public abstract class PSContentTestBase extends PSTestBase
    }
 
    /**
-    * Calls {@link #loadContentTypes(long[], String, boolean, String, String) 
+    * Calls {@link #loadContentTypes(long[], String, boolean, String, String)
     * loadContentTypes(ids, session, lock, null, null)}
     */
-   public List<PSContentType> loadContentTypes(long[] ids, String session, 
+   public List<PSContentType> loadContentTypes(long[] ids, String session,
       boolean lock) throws Exception
    {
       return loadContentTypes(ids, session, lock, null, null);
    }
 
    /**
-    * Calls 
-    * {@link #loadContentTypes(long[], String, boolean, boolean, String, String) 
+    * Calls
+    * {@link #loadContentTypes(long[], String, boolean, boolean, String, String)
     * loadContentTypes(ids, session, lock, lock, user, pwd)} - note that if
     * locking, will always override existing locks.
     */
@@ -314,7 +312,7 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>loadContentTypes</code> design web service call.
-    * 
+    *
     * @param ids The array of ids to load, may be <code>null</code> or empty.
     * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
@@ -327,14 +325,14 @@ public abstract class PSContentTestBase extends PSTestBase
     * and the supplied <code>pwd</code>.
     * @param pwd The password to use, may be <code>null</code> or empty,
     * ignored if <code>user</code> is <code>null</code>.
-    * 
+    *
     * @return The list, never <code>null</code> or empty.
-    * 
+    *
     * @throws Exception If there are any errors.
-    */   
+    */
    protected List<PSContentType> loadContentTypes(long[] ids, String session,
-      boolean lock, boolean overrideLock, String user, String pwd) 
-      throws Exception   
+      boolean lock, boolean overrideLock, String user, String pwd)
+      throws Exception
    {
       ContentDesignSOAPStub binding = getDesignBinding(null);
 
@@ -355,17 +353,17 @@ public abstract class PSContentTestBase extends PSTestBase
       req.setOverrideLock(overrideLock);
       value = binding.loadContentTypes(req);
 
-      return Arrays.asList(value);   
+      return Arrays.asList(value);
    }
-   
+
    /**
     * Calls the <code>deleteContentTypes</code> webservice.
-    * 
-    * @param ids The ids to delete, may be <code>null</code> or empty for 
+    *
+    * @param ids The ids to delete, may be <code>null</code> or empty for
     * testing contract enforcement.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected void deleteContentTypes(long[] ids, String session)
@@ -383,14 +381,14 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>loadContentTypes</code> webservice.
-    * 
+    *
     * @param name The name to search on, may be <code>null</code> or empty or
     * contain the "*" wildcard.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * 
+    *
     * @return The list of content type summaries, never <code>null</code>.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected PSContentTypeSummary[] loadContentTypeSummaries(String name,
@@ -411,14 +409,14 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>saveContentTypes</code> web service.
-    * 
-    * @param ctypes The list of content types to save, may be <code>null</code> 
+    *
+    * @param ctypes The list of content types to save, may be <code>null</code>
     * or empty to test contract enforcement.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * @param release <code>true</code> to release the lock after save, 
+    * @param release <code>true</code> to release the lock after save,
     * <code>false</code> to keep it.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    protected void saveContentTypes(List<PSContentType> ctypes, String session,
@@ -439,17 +437,17 @@ public abstract class PSContentTestBase extends PSTestBase
    }
 
    /**
-    * Makes a web service call to create a new locale. 
-    * 
-    * @param lang The language string of the locale, may be <code>null</code> or 
+    * Makes a web service call to create a new locale.
+    *
+    * @param lang The language string of the locale, may be <code>null</code> or
     * empty to test contract enforcement.
-    * @param label The label of the locale, may be <code>null</code> or 
+    * @param label The label of the locale, may be <code>null</code> or
     * empty to test contract enforcement
-    * @param session The current session token, may be <code>null</code> or 
+    * @param session The current session token, may be <code>null</code> or
     * empty to test authentication.
-    * 
+    *
     * @return The new locale, never <code>null</code>.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected PSLocale createLocale(String lang, String label, String session)
@@ -473,7 +471,7 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Removes the locales created by {@link #createTestLocales()}
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected void cleanupTestLocales() throws Exception
@@ -481,18 +479,18 @@ public abstract class PSContentTestBase extends PSTestBase
       PSLocale[] locales = loadLocales("", "Test*", m_session);
       if (locales.length == 0)
          return;
-      
+
       List<PSLocale> localesToFind = Arrays.asList(locales);
       long[] ids = localesListToIdArray(localesToFind);
       loadLocales(ids, m_session, true, true, null, null);
       deleteLocales(ids, m_session, false);
    }
-   
+
    /**
     * Makes a web service call to create the test locales.
-    * 
+    *
     * @return The new locales, never <code>null</code> or empty
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected List<PSLocale> createTestLocales() throws Exception
@@ -522,15 +520,15 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>loadLocales</code> webservice.
-    * 
+    *
     * @param code The code to search on, may be <code>null</code> or empty.
     * @param name The name to search on, may be <code>null</code> or empty or
     * contain the "*" wildcard.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * 
+    *
     * @return The list of content type summaries, never <code>null</code>.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected PSLocale[] loadLocales(String code, String name, String session)
@@ -551,7 +549,7 @@ public abstract class PSContentTestBase extends PSTestBase
    }
 
    /**
-    * Calls {@link #loadLocales(long[], String, boolean, String, String) 
+    * Calls {@link #loadLocales(long[], String, boolean, String, String)
     * loadLocales(ids, session, lock, null, null)}
     */
    protected List<PSLocale> loadLocales(long[] ids, String session, boolean lock)
@@ -562,22 +560,22 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>loadLocales</code> design web service call.
-    * 
+    *
     * @param ids The array of ids to load, may be <code>null</code> or empty.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * @param lock <code>true</code> to lock the design objects on load, 
+    * @param lock <code>true</code> to lock the design objects on load,
     * <code>false</code> to load them read-only.
-    * @param isOverrideLock <code>true</code> to override lock, 
+    * @param isOverrideLock <code>true</code> to override lock,
     * <code>false</code> not to override lock.
-    * @param user The user to use.  If <code>null</code>, the supplied 
-    * session is used, otherwise a new session is created by logging in with 
+    * @param user The user to use.  If <code>null</code>, the supplied
+    * session is used, otherwise a new session is created by logging in with
     * this user and the supplied <code>pwd</code>.
     * @param pwd The password to use, may be <code>null</code> or empty, ignored
     * if <code>user</code> is <code>null</code>.
-    * 
+    *
     * @return The list, never <code>null</code> or empty.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected List<PSLocale> loadLocales(long[] ids, String session,
@@ -606,28 +604,28 @@ public abstract class PSContentTestBase extends PSTestBase
    }
 
    /**
-    * Convenience method, simply call 
+    * Convenience method, simply call
     * {@link #loadLocales(long[], String, boolean, boolean, String, String)
-    * loadLocales(long[], String, boolean, false, String, String)}. 
+    * loadLocales(long[], String, boolean, false, String, String)}.
     */
    protected List<PSLocale> loadLocales(long[] ids, String session,
      boolean lock, String user, String pwd) throws Exception
    {
       return loadLocales(ids, session, lock, false, user, pwd);
    }
-   
+
    /**
     * Calls the <code>findLocales</code> web service
-    *  
+    *
     * @param code The code to search on, may be <code>null</code> or empty.
     * @param name The name to search on, may be <code>null</code> or empty or
     * contain the "*" wildcard.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * 
-    * @return The object summaries returned by the web service call, never 
+    *
+    * @return The object summaries returned by the web service call, never
     * <code>null</code>, may be empty.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    protected PSObjectSummary[] findLocales(String code, String name,
@@ -649,13 +647,13 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Saves the supplied locales
-    * @param locales The list of content types to save, may be <code>null</code> 
+    * @param locales The list of content types to save, may be <code>null</code>
     * or empty to test contract enforcement.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * @param release <code>true</code> to release the lock after save, 
+    * @param release <code>true</code> to release the lock after save,
     * <code>false</code> to keep it.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    protected void saveLocales(List<PSLocale> locales, String session,
@@ -678,14 +676,14 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>deleteLocales</code> webservice.
-    * 
-    * @param ids The ids to delete, may be <code>null</code> or empty for 
+    *
+    * @param ids The ids to delete, may be <code>null</code> or empty for
     * testing contract enforcement.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
     * @param ignoreDependencies <code>true</code> to ignore dependencies when
     * deleting, <code>false</code> to fail to delete if dependencies exist.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected void deleteLocales(long[] ids, String session,
@@ -703,18 +701,18 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Saves the specified templates associations
-    * 
+    *
     * @param contentTypeId The content type id, must be locked for this to
     * succeed.
-    * @param templateIds The list of templates to associate, may be 
+    * @param templateIds The list of templates to associate, may be
     * <code>null</code> or empty.
     * @param session The session to use, may be <code>null</code> or empty.
     * @param release <code>true</code> to release the lock, <code>false</code>
     * to keep it.
-    * 
-    * @throws Exception If there are any errors. 
+    *
+    * @throws Exception If there are any errors.
     */
-   public void saveTemplateAssociations(long contentTypeId, 
+   public void saveTemplateAssociations(long contentTypeId,
       long[] templateIds, String session, boolean release) throws Exception
    {
       ContentDesignSOAPStub binding = getDesignBinding(null);
@@ -731,7 +729,7 @@ public abstract class PSContentTestBase extends PSTestBase
    }
 
    /**
-    * Convenience method that calls 
+    * Convenience method that calls
     * {@link #loadTemplateAssociations(long, String, boolean, String, String)
     * loadTemplateAssociations(contentTypeId, session, lock, null, null)}
     */
@@ -744,18 +742,18 @@ public abstract class PSContentTestBase extends PSTestBase
    /**
     * Load the template associations for a content type.
     * @param contentTypeId The content type to get associates for.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * @param lock <code>true</code> to lock the design objects on load, 
+    * @param lock <code>true</code> to lock the design objects on load,
     * <code>false</code> to load them read-only.
-    * @param user The user to use.  If <code>null</code>, the supplied 
-    * session is used, otherwise a new session is created by logging in with 
+    * @param user The user to use.  If <code>null</code>, the supplied
+    * session is used, otherwise a new session is created by logging in with
     * this user and the supplied <code>pwd</code>.
     * @param pwd The password to use, may be <code>null</code> or empty, ignored
     * if <code>user</code> is <code>null</code>.
-    * 
+    *
     * @return The list of associations, never <code>null</code>, may be empty.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    protected List<PSContentTemplateDesc> loadTemplateAssociations(
@@ -785,15 +783,14 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Create a new binding for the content Design SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new 
+    * @throws AssertionError for any error creating the new
     *    binding.
     */
    public static ContentDesignSOAPStub getDesignBinding(Integer timeout)
-      throws AssertionFailedError
    {
       if (timeout != null && timeout < 1000)
          throw new IllegalArgumentException("timeout must be >= 1000");
@@ -806,7 +803,7 @@ public abstract class PSContentTestBase extends PSTestBase
 
          ContentDesignSOAPStub binding = (ContentDesignSOAPStub) locator
             .getcontentDesignSOAP();
-         assertNotNull("binding is null", binding);
+         assertNotNull(binding, "binding is null");
 
          if (timeout == null)
             binding.setTimeout(600000);
@@ -820,30 +817,29 @@ public abstract class PSContentTestBase extends PSTestBase
          if (e.getLinkedCause() != null)
             e.getLinkedCause().printStackTrace();
 
-         throw new AssertionFailedError("JAX-RPC ServiceException caught: " + e);
+         throw new AssertionError("JAX-RPC ServiceException caught: " + e);
       }
    }
 
    /**
     * Create a new binding for the content SOAP port.
-    * 
-    * @param timeout the timeout in milliseconds, defaults to 1 minute if not 
+    *
+    * @param timeout the timeout in milliseconds, defaults to 1 minute if not
     *    supplied, must be > 1000.
     * @return the new binding, never <code>null</code>.
-    * @throws AssertionFailedError for any error creating the new 
+    * @throws AssertionError for any error creating the new
     *    binding.
     */
    protected ContentSOAPStub getBinding(Integer timeout)
-      throws AssertionFailedError
    {
       return getContentSOAPStub(timeout);
    }
 
    /**
     * Converts the supplied list of content types to an array of ids.
-    * 
+    *
     * @param ctypes The list of content types, may not be <code>null</code>.
-    * 
+    *
     * @return The array of ids, never <code>null</code>.
     */
    protected long[] ctypesListToIdArray(List<PSContentType> ctypes)
@@ -861,9 +857,9 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Converts the supplied list of locales to an array of ids.
-    * 
+    *
     * @param locales The list of locales, may not be <code>null</code>.
-    * 
+    *
     * @return The array of ids, never <code>null</code>.
     */
    protected long[] localesListToIdArray(List<PSLocale> locales)
@@ -881,7 +877,7 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Create all keywords used for testing.
-    * 
+    *
     * @throws Exception for any error.
     */
    protected static void createTestKeywords() throws Exception
@@ -952,7 +948,7 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Lock all keywords for the supplied ids.
-    * 
+    *
     * @param ids the ids of the keywords to lock, not <code>null</code> or
     *    empty.
     * @param session the session for which to lock the objects, not
@@ -982,8 +978,8 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Get the ids of all test keywords.
-    * 
-    * @return the ids of all test keywords, never <code>null</code>, may be 
+    *
+    * @return the ids of all test keywords, never <code>null</code>, may be
     *    empty.
     * @throws Exception for any error.
     */
@@ -1005,8 +1001,8 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Get all test keywords in read-only mode.
-    * 
-    * @return all test keywords as read-only, never <code>null</code>, may be 
+    *
+    * @return all test keywords as read-only, never <code>null</code>, may be
     *    empty.
     * @throws Exception for any error.
     */
@@ -1032,7 +1028,7 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Create a list of test auto translations
-    * 
+    *
     * @return The list, never <code>null</code> or empty.
     */
    protected List<PSAutoTranslation> createTestTranslations()
@@ -1049,23 +1045,23 @@ public abstract class PSContentTestBase extends PSTestBase
    /**
     * Create a test auto translation using the supplied ordinal to create test
     * values.
-    * 
+    *
     * @param ordinal The ordinal value.
-    * 
+    *
     * @return The result, never <code>null</code>.
     */
    private PSAutoTranslation createAutoTranslation(int ordinal)
    {
       PSAutoTranslation src = new PSAutoTranslation();
-      
+
       PSGuid communityId = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 100 + ordinal);
       src.setCommunityId(new PSDesignGuid(communityId).getValue());
-      
+
       PSGuid contentTypeId = new PSGuid(PSTypeEnum.NODEDEF, 200 + ordinal);
       src.setContentTypeId(new PSDesignGuid(contentTypeId).getValue());
-      
+
       src.setLocale("test" + ordinal);
-      
+
       PSGuid wfId = new PSGuid(PSTypeEnum.WORKFLOW, 300 + ordinal);
       src.setWorkflowId(new PSDesignGuid(wfId).getValue());
 
@@ -1074,12 +1070,12 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>loadAutoTranslations</code> webservice.
-    * 
-    * @param session The current session, may be <code>null</code> or empty to 
+    *
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * 
+    *
     * @return The list of auto translations, never <code>null</code>.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected List<PSAutoTranslation> loadAutoTranslations(String session)
@@ -1098,19 +1094,19 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Calls the <code>loadAutoTranslations</code> design web service call.
-    * 
-    * @param session The current session, may be <code>null</code> or empty to 
+    *
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * @param lock <code>true</code> to lock the design objects on load, 
+    * @param lock <code>true</code> to lock the design objects on load,
     * <code>false</code> to load them read-only.
-    * @param user The user to use.  If <code>null</code>, the supplied 
-    * session is used, otherwise a new session is created by logging in with 
+    * @param user The user to use.  If <code>null</code>, the supplied
+    * session is used, otherwise a new session is created by logging in with
     * this user and the supplied <code>pwd</code>.
     * @param pwd The password to use, may be <code>null</code> or empty, ignored
     * if <code>user</code> is <code>null</code>.
-    * 
+    *
     * @return The list, never <code>null</code> or empty.
-    * 
+    *
     * @throws Exception If there are any errors.
     */
    protected List<PSAutoTranslation> loadAutoTranslations(String session,
@@ -1138,13 +1134,13 @@ public abstract class PSContentTestBase extends PSTestBase
 
    /**
     * Saves the supplied translations
-    * @param translations The list of translations to save, may be 
+    * @param translations The list of translations to save, may be
     * <code>null</code> or empty to test contract enforcement.
-    * @param session The current session, may be <code>null</code> or empty to 
+    * @param session The current session, may be <code>null</code> or empty to
     * test authentication.
-    * @param release <code>true</code> to release the lock after save, 
+    * @param release <code>true</code> to release the lock after save,
     * <code>false</code> to keep it.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    protected void saveAutoTranslations(List<PSAutoTranslation> translations,
@@ -1171,7 +1167,7 @@ public abstract class PSContentTestBase extends PSTestBase
    protected static final String RESOURCE_BASE = "/com/percussion/webservices/";
 
    /**
-    * Map of created content editors, never <code>null</code>, cleared and 
+    * Map of created content editors, never <code>null</code>, cleared and
     * populated with each call to {@link #createTestContentTypes(String)}.
     */
    protected Map<String, PSContentEditor> m_testCEMap = new HashMap<String, PSContentEditor>();

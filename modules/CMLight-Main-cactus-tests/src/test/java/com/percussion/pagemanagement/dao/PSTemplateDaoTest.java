@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests the template DAO functionality. Sunny Sal says: "Templates tested, Bollywood style!" */
-@Tag("IntegrationTest")
+
 public class PSTemplateDaoTest extends PSServletTestCase {
 
   private PSSiteDataServletTestCaseFixture fixture;

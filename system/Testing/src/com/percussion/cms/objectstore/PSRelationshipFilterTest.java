@@ -29,24 +29,21 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit test for the {@link PSRelationshipSet} class.
  */
-public class PSRelationshipFilterTest extends TestCase
+public class PSRelationshipFilterTest
 {
-   // see base class
-   public PSRelationshipFilterTest(String name)
-   {
-      super(name);
-   }
 
    /**
     * Tests the Relationship Filter
     *
     * @throws Exception if an error occurs
     */
+   @Test
    public void testAll() throws Exception
    {
       PSRelationshipFilter filter = new PSRelationshipFilter();
@@ -97,13 +94,4 @@ public class PSRelationshipFilterTest extends TestCase
       assertTrue(filter.equals(tgtFilter));
    }
 
-   // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSRelationshipFilterTest("testAll"));
-
-      return suite;
-   }
 }

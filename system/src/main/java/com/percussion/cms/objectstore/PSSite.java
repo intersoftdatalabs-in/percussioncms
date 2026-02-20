@@ -261,6 +261,19 @@ public class PSSite extends PSComponent {
   }
 
   /**
+   * Compatibility getter for version expected by older callers. Returns null if version is not
+   * tracked in this legacy object.
+   */
+  public Integer getVersion() {
+    return null;
+  }
+
+  /** Compatibility setter for version expected by older callers. No-op for legacy object. */
+  public void setVersion(Integer version) {
+    // No-op for legacy component
+  }
+
+  /**
    * Get the global template name.
    *
    * @return the global template name, which is the global template file name without the file

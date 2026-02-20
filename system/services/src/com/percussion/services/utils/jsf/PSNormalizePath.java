@@ -18,10 +18,10 @@ package com.percussion.services.utils.jsf;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
-import javax.faces.convert.ConverterException;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.convert.Converter;
+import jakarta.faces.convert.ConverterException;
 
 /**
  * This converter takes a string that is meant to be a fully qualified Rx path

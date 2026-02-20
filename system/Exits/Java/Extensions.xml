@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v5 rel. 2 U (http://www.xmlspy.com) by Erik Serating (Percussion Software) -->
-<PSXExtensionHandlerConfiguration handlerName="Java">
-   <!-- 
-     NOTE: This file is deprecated and no longer maintained.  See
-     modules/extensions-main/resources/Java/Extensions.xml
-     for the correct place to add new core extensions.
-   -->
-  </PSXExtensionHandlerConfiguration>
+<!-- edited with XMLSPY v5 rel. 2 U (http://www.xmlspy.com) by Erik Serating
+	(Percussion Software) -->
+<PSXExtensionHandlerConfiguration
+	handlerName="Java">
+	<!-- NOTE: This file is deprecated and no longer maintained. See modules/extensions-main/resources/Java/Extensions.xml
+		for the correct place to add new core extensions. -->
+</PSXExtensionHandlerConfiguration>

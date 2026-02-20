@@ -306,9 +306,9 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getType()
     */
-   public PSTypeEnum getType()
+   public String getType()
    {
-      return PSTypeEnum.COMMUNITY_DEF;
+      return PSTypeEnum.COMMUNITY_DEF.name();
    }
 
    /* (non-Javadoc)

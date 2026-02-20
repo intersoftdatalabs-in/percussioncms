@@ -51,19 +51,19 @@ import org.apache.logging.log4j.Logger;
  * in {@link PSTouchParentFolderEffect}.
  * <p>
  * It will only touch the dependents who are in public or
- * quick-edit state. It "touches" the last modified date for the dependents 
- * and their Active Assembly relationship parents, so that they will be picked 
+ * quick-edit state. It "touches" the last modified date for the dependents
+ * and their Active Assembly relationship parents, so that they will be picked
  * up by the next incremental publishing. For folder dependents, it touches
  * all item descendants of the folders, but not the folder themselves.
- * 
+ *
  * @see IPSCmsObjectMgr#filterItemsByPublishableFlag(java.util.List, java.util.List)
- * @see IPSCmsObjectMgr#touchItems(Collection) 
+ * @see IPSCmsObjectMgr#touchItems(Collection)
  */
 public final class PSTouchParentHelper
-{  
+{
    /**
     * See Class Doc: {@link PSTouchParentHelper}.
-    * 
+    *
     * @param request not null.
     * @param rel not null.
     * @throws Exception On any error.
@@ -74,7 +74,7 @@ public final class PSTouchParentHelper
       Integer dependentId = new Integer(rel.getDependent().getId());
       return touchItemAndParents(request, dependentId);
    }
-   
+
    /**
     * See Class Doc: {@link PSTouchParentHelper}.
     * @param request not null.
@@ -95,7 +95,7 @@ public final class PSTouchParentHelper
       touchItemAndParents(contentId, request, processedIds, counter);
       return counter.get();
    }
-   
+
    /**
     * Touches the supplied item or folder.
     *
@@ -181,7 +181,7 @@ public final class PSTouchParentHelper
     *
     * @throws PSException if an error occurs.
     */
-   private void touchAAParentForItems(Collection<Integer> ids, IPSRequestContext req, 
+   private void touchAAParentForItems(Collection<Integer> ids, IPSRequestContext req,
          Set<Integer> processedIds, AtomicInteger counter)
          throws PSException
    {
@@ -196,7 +196,7 @@ public final class PSTouchParentHelper
       }
       try
       {
-         items = PSCmsObjectMgrLocator.getObjectManager().filterItemsByPublishableFlag(items, asList("y","i"));
+         items = PSCmsObjectMgrLocator.getObjectManager().filterItemsByPublishableFlag(items, asList("y","i")).toList();
       }
       catch (PSORMException e)
       {
@@ -219,9 +219,9 @@ public final class PSTouchParentHelper
       }
       processedIds.addAll(ids);
    }
-   
+
    /**
-    * Wrapper to hold an item id for 
+    * Wrapper to hold an item id for
     * id workflow status filtering.
     * @author adamgent
     *
@@ -234,29 +234,29 @@ public final class PSTouchParentHelper
          contentId = id;
          itemId = new PSLegacyGuid(id, -1);
       }
-      
+
       public IPSGuid getItemId()
       {
          return itemId;
       }
-      
+
       public Integer getContentId() {
          return contentId;
       }
-      
+
    }
 
    /**
     * Determine whether the item of the supplied content id is a folder or an
     * item.
-    * 
+    *
     * @param contentId
     *           the content id of a folder or item, assumed not <code>null</code>.
     * @param request
     *           the request context, assumed not <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if the supplied content id is a folder id.
-    * 
+    *
     * @throws PSCmsException
     *            if an error occurs.
     */
@@ -277,7 +277,7 @@ public final class PSTouchParentHelper
 
    /**
     * The name of the private object saved in the current request context.
-    * The private object is a collection (<code>Set</code>) of the dependent 
+    * The private object is a collection (<code>Set</code>) of the dependent
     ids
     * (as <code>Integer</code> objects). It may be <code>null</code> if the
     * private object has not been set.

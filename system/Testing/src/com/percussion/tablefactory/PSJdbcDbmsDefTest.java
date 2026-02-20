@@ -22,6 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
+
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,12 +36,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PSJdbcDbmsDefTest
 {
 
-   @Rule
-   public Path temporaryFolder;
+   @TempDir
+   public File temporaryFolder;
 
    private String rxdeploydir;
 
-   @BeforeEach 
+   @BeforeEach
    public void setup(){
       rxdeploydir = System.getProperty("rxdeploydir");
       System.setProperty("rxdeploydir",temporaryFolder.getAbsolutePath());

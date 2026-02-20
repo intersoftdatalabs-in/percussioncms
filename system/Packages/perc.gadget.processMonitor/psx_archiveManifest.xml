@@ -2,34 +2,39 @@
 
 
 <PSXArchiveManifest>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_images_gadgetIconProcessMonitor-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\images\gadgetIconProcessMonitor.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_images_gadgetIconProcessMonitor-png\gadgetIconProcessMonitor.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-css">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\PercProcessorMonitorGadget.css</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-css\PercProcessorMonitorGadget.css</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-xml">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\PercProcessorMonitorGadget.xml</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-xml\PercProcessorMonitorGadget.xml</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-js">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\PercProcessorMonitorGadget.js</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-js\PercProcessorMonitorGadget.js</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_images_gadgetIconProcessMonitorOver-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\images\gadgetIconProcessMonitorOver.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_images_gadgetIconProcessMonitorOver-png\gadgetIconProcessMonitorOver.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_images_gadgetIconProcessMonitor-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\images\gadgetIconProcessMonitor.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_images_gadgetIconProcessMonitor-png\gadgetIconProcessMonitor.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-css">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\PercProcessorMonitorGadget.css</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-css\PercProcessorMonitorGadget.css</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-xml">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\PercProcessorMonitorGadget.xml</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-xml\PercProcessorMonitorGadget.xml</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-js">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\PercProcessorMonitorGadget.js</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_PercProcessorMonitorGadget-js\PercProcessorMonitorGadget.js</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_images_gadgetIconProcessMonitorOver-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\PercProcessorMonitorGadget\images\gadgetIconProcessMonitorOver.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercProcessorMonitorGadget_images_gadgetIconProcessMonitorOver-png\gadgetIconProcessMonitorOver.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
 </PSXArchiveManifest>

@@ -3,15 +3,15 @@
 
 <LdapConfig>
 
-    <LdapServer>
-        <host>ADServer</host>
-        <port>686</port>
-        <user>CN=Administrator</user>
-        <password>password</password>
-        <catalog>shallow</catalog>
-        <objectAttributeName>samaccountname</objectAttributeName>
-        <organizationalUnit>OU=Users,DC=org,DC=perc,DC=edu</organizationalUnit>
-        <secure>true</secure>
-    </LdapServer>
-   
+	<LdapServer>
+		<host>ADServer</host>
+		<port>686</port>
+		<user>CN=Administrator</user>
+		<password>password</password>
+		<catalog>shallow</catalog>
+		<objectAttributeName>samaccountname</objectAttributeName>
+		<organizationalUnit>OU=Users,DC=org,DC=perc,DC=edu</organizationalUnit>
+		<secure>true</secure>
+	</LdapServer>
+
 </LdapConfig>

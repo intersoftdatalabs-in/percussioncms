@@ -1,47 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Cookie Consent"
-                 contenttype_name="percCookieConsent"
-                 description="This widget is used to display a paginated list of people belonging to a selected organization and enable users to search through the list."
-                 author="Percussion Software Inc."
-                 thumbnail="/rx_resources/widgets/percCookieConsent/images/percCookieConsentIcon.png"
-                 preferred_editor_width="800"
-                 preferred_editor_height="600"
-                 is_responsive="true"/>
-    <UserPref name="overlayPosition"
-              display_name="Position of the dialog on the screen"
-              required="true"
-              datatype="enum" default_value="bottom">
-        <EnumValue value="top" display_value="Top" />
-        <EnumValue value="bottom" display_value="Bottom" />
-    </UserPref>
-    <UserPref name="privacyPolicyLinkText"
-              display_name="Text to use for privacy policy link text"
-              datatype="string"
-              default_value="Privacy Policy">
-    </UserPref>
-    <UserPref name="cookiePolicyLinkText"
-              display_name="Text to use for cookie policy link text"
-              datatype="string"
-              default_value="Cookie Policy">
-    </UserPref>
-    <UserPref name="ariaLabel"
-              display_name="Text to use for 'aria-label' attribute. E.g 'cookie consent'"
-              datatype="string"
-              default_value="">
-    </UserPref>
-    <UserPref name="ariaRole"
-              display_name="Text to use for 'role' attribute. E.g 'dialog'"
-              datatype="string"
-              default_value="">
-    </UserPref>
-    <UserPref name="hideInPreview"
-              display_name="Hide cookie consent dialog in preview mode"
-              datatype="bool"
-              default_value="false">
-    </UserPref>
-    <Code type="jexl">
-        <!-- This section is used to set up data that will be used in the content section -->
+	<WidgetPrefs title="Cookie Consent"
+		contenttype_name="percCookieConsent"
+		description="This widget is used to display a paginated list of people belonging to a selected organization and enable users to search through the list."
+		author="Percussion Software Inc."
+		thumbnail="/rx_resources/widgets/percCookieConsent/images/percCookieConsentIcon.png"
+		preferred_editor_width="800" preferred_editor_height="600"
+		is_responsive="true" />
+	<UserPref name="overlayPosition"
+		display_name="Position of the dialog on the screen" required="true"
+		datatype="enum" default_value="bottom">
+		<EnumValue value="top" display_value="Top" />
+		<EnumValue value="bottom" display_value="Bottom" />
+	</UserPref>
+	<UserPref name="privacyPolicyLinkText"
+		display_name="Text to use for privacy policy link text"
+		datatype="string" default_value="Privacy Policy">
+	</UserPref>
+	<UserPref name="cookiePolicyLinkText"
+		display_name="Text to use for cookie policy link text"
+		datatype="string" default_value="Cookie Policy">
+	</UserPref>
+	<UserPref name="ariaLabel"
+		display_name="Text to use for 'aria-label' attribute. E.g 'cookie consent'"
+		datatype="string" default_value="">
+	</UserPref>
+	<UserPref name="ariaRole"
+		display_name="Text to use for 'role' attribute. E.g 'dialog'"
+		datatype="string" default_value="">
+	</UserPref>
+	<UserPref name="hideInPreview"
+		display_name="Hide cookie consent dialog in preview mode"
+		datatype="bool" default_value="false">
+	</UserPref>
+	<Code type="jexl">
+		<!-- This section is used to set up data that will be used in the content
+			section -->
         <![CDATA[
         $pageId = $perc.page.id;
         $widgetId = $perc.widget.item.id;
@@ -109,9 +103,9 @@
             $dynamicListData = $dynamicListData + "}";
         }
     ]]>
-    </Code>
-    <Content type="velocity">
-        <!-- This section defines the rendered content -->
+	</Code>
+	<Content type="velocity">
+		<!-- This section defines the rendered content -->
         <![CDATA[
 
 #if ($assetItem)##
@@ -149,5 +143,5 @@
 #end
 
     ]]>
-    </Content>
+	</Content>
 </Widget>

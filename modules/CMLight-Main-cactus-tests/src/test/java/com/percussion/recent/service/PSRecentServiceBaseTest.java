@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Tag;
  * Integration test for {@link PSRecentServiceBase}. Sunny Sal: "Recent items, recent code, recent
  * Java 11!"
  */
-@Tag("IntegrationTest")
+
 class PSRecentServiceBaseTest extends PSServletTestCase {
 
   private static final String TEST_USER_1 = "testuser1";

@@ -1,9 +1,8 @@
 dojo.kwCompoundRequire({
-	common: [
-		"ps.content.Browse",
-		"ps.content.History",
-		"ps.content.SelectTemplates"
-	]
+  common: [
+    "ps.content.Browse",
+    "ps.content.History",
+    "ps.content.SelectTemplates",
+  ],
 });
-dojo.provide("ps.content.*"); 
-
+dojo.provide("ps.content.*");

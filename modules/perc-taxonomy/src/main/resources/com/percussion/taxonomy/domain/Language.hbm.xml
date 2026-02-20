@@ -3,12 +3,17 @@
 
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-  <class name="com.percussion.taxonomy.domain.Language" table="TAX_LANGUAGE">
-    <id name="Id" column="ID" type="integer">
-      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
-    </id>
-    <property name="Name" column="NAME" type="string" not-null="true"/>
-    <property name="Abbreviation" column="ABBREVIATION" type="string" not-null="true"/>
-    <property name="Script" column="SCRIPT" type="string" not-null="true"/>
-  </class>
+	<class name="com.percussion.taxonomy.domain.Language"
+		table="TAX_LANGUAGE">
+		<id name="Id" column="ID" type="integer">
+			<generator
+				class="com.percussion.data.utils.PSNextNumberHibernateGenerator" />
+		</id>
+		<property name="Name" column="NAME" type="string"
+			not-null="true" />
+		<property name="Abbreviation" column="ABBREVIATION"
+			type="string" not-null="true" />
+		<property name="Script" column="SCRIPT" type="string"
+			not-null="true" />
+	</class>
 </hibernate-mapping>

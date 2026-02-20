@@ -112,7 +112,8 @@ public class PSSiteRenameListener implements IPSSiteRenameService, IPSNotificati
         }
 
         IPSSite site = (IPSSite) notification.getTarget();
-        deleteOldDTSEntries(site,notification.getServerType());
+        // notification.getServerType() returns Optional<String> now; unwrap safely
+        deleteOldDTSEntries(site, notification.getServerType().orElse(null));
     }
 
     /**

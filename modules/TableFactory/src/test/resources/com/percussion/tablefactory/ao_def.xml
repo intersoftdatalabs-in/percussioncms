@@ -7,8 +7,7 @@
 				<jdbctype>INTEGER</jdbctype>
 				<allowsnull>no</allowsnull>
 			</column>
-			<column action="c" limitSizeForIndex="n"
-				name="REVISIONID">
+			<column action="c" limitSizeForIndex="n" name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
 				<allowsnull>no</allowsnull>
 			</column>
@@ -16,13 +15,11 @@
 				<jdbctype>INTEGER</jdbctype>
 				<allowsnull>yes</allowsnull>
 			</column>
-			<column action="c" limitSizeForIndex="n"
-				name="DM_VERSION">
+			<column action="c" limitSizeForIndex="n" name="DM_VERSION">
 				<jdbctype>INTEGER</jdbctype>
 				<allowsnull>yes</allowsnull>
 			</column>
-			<column action="c" limitSizeForIndex="n"
-				name="DATE_WRITTEN">
+			<column action="c" limitSizeForIndex="n" name="DATE_WRITTEN">
 				<jdbctype>TIMESTAMP</jdbctype>
 				<allowsnull>yes</allowsnull>
 			</column>
@@ -36,19 +33,16 @@
 				<jdbctype>INTEGER</jdbctype>
 				<allowsnull>yes</allowsnull>
 			</column>
-			<column action="c" limitSizeForIndex="n"
-				name="FULL_ARTICLE">
+			<column action="c" limitSizeForIndex="n" name="FULL_ARTICLE">
 				<jdbctype>VARCHAR</jdbctype>
 				<size>50</size>
 				<allowsnull>yes</allowsnull>
 			</column>
-			<column action="c" limitSizeForIndex="n"
-				name="EDITORIAL_TYPE">
+			<column action="c" limitSizeForIndex="n" name="EDITORIAL_TYPE">
 				<jdbctype>INTEGER</jdbctype>
 				<allowsnull>yes</allowsnull>
 			</column>
-			<column action="c" limitSizeForIndex="n"
-				name="BODYSOURCE">
+			<column action="c" limitSizeForIndex="n" name="BODYSOURCE">
 				<jdbctype>LONGVARBINARY</jdbctype>
 				<size>5000</size>
 				<allowsnull>yes</allowsnull>
@@ -65,8 +59,7 @@
 				<size>50</size>
 				<allowsnull>yes</allowsnull>
 			</column>
-			<column action="c" limitSizeForIndex="n"
-				name="BODYCONTENT">
+			<column action="c" limitSizeForIndex="n" name="BODYCONTENT">
 				<jdbctype>VARCHAR</jdbctype>
 				<size>4000</size>
 				<allowsnull>yes</allowsnull>

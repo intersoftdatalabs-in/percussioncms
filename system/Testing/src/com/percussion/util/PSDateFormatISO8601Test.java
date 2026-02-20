@@ -24,14 +24,12 @@ import java.util.GregorianCalendar;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSDateFormatISO8601Test extends TestCase
+public class PSDateFormatISO8601Test 
 {
-   public PSDateFormatISO8601Test(String name)
-   {
-      super(name);
-   }
+   
    
    /**
     * Midnight is a weird case -- there could be two different representations
@@ -41,6 +39,7 @@ public class PSDateFormatISO8601Test extends TestCase
     * exactly when the big apple falls in Times Square, use the next year).
     *
     */
+   
    public void testMidnight()
    {
       // (int year, int month, int date, int hour, int minute, int second)
@@ -58,6 +57,7 @@ public class PSDateFormatISO8601Test extends TestCase
     *   string up into substrings and then reparsing them and comparing them
     *   to the current time's numeric values.
     */
+   
    public void testNow() throws Exception
    {
       GregorianCalendar now = new GregorianCalendar();
@@ -86,11 +86,5 @@ public class PSDateFormatISO8601Test extends TestCase
    }
    
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSDateFormatISO8601Test("testMidnight"));
-      suite.addTest(new PSDateFormatISO8601Test("testNow"));
-      return suite;
-   }
+   
 }

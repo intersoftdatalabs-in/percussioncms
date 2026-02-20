@@ -28,7 +28,7 @@ import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSPackageVisibilityTest extends ServletTestCase {
   public void testGetCommunities() {
     IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();

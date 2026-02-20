@@ -23,37 +23,37 @@ import java.util.Map;
 /**
  * This is used for testing GetInlinelinkParentsAction
  */
-@Tag("IntegrationTest")
+
 public class PSGetInlinelinkParentsActionTest extends PSAAClientActionTestBase
 {
    /**
     * Tests the GetInlinelinkParents action
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    public void testGetInlinelinkParents() throws Exception
    {
       login("admin1", "demo");
-      
+
       // positive test the actions
 
       // make sure the item is in check out state
       int DEPENDENT_ID = 460;
       String MGR_IDS = "[339,344,690,692]";
-      
+
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
       IPSAAClientAction action = factory.getAction("GetInlinelinkParents");
       Map<String, Object> params = new HashMap<String, Object>();
-      
+
       params.put(PSGetInlinelinkParentsAction.DEPENDENT_ID, String.valueOf(DEPENDENT_ID));
       params.put(PSGetInlinelinkParentsAction.MANAGED_IDS, String.valueOf(MGR_IDS));
-         
+
       PSActionResponse resp = action.execute(params);
       TestCase.assertTrue(resp.getResponseData().length() > 0);
       JSONArray jarray = new JSONArray(resp.getResponseData());
       TestCase.assertTrue(jarray.length() == 2);
-      
-      // negative test - the above parent/owner ids do not exist in the 
+
+      // negative test - the above parent/owner ids do not exist in the
       // managed ids, MGR_IDS_2
       String MGR_IDS_2 = "[200,300]";
       params.put(PSGetInlinelinkParentsAction.DEPENDENT_ID, String.valueOf(DEPENDENT_ID));

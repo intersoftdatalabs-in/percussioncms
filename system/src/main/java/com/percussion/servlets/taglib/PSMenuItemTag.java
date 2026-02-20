@@ -16,10 +16,11 @@
  */
 package com.percussion.servlets.taglib;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import jakarta.el.MethodExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.myfaces.shared_impl.taglib.UIComponentTagUtils;
 
 /**
  * The tag that implements the actual menu item for the CSS menu implementation.
@@ -48,13 +49,12 @@ public class PSMenuItemTag extends PSJSFBaseTag {
   /** Switches rendering on or off for the component. */
   private String m_rendered;
 
-  @Override
   public String getComponentType() {
     return "com.percussion.jsf.MenuItem";
   }
 
   /* (non-Javadoc)
-   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(javax.faces.component.UIComponent)
+   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(jakarta.faces.component.UIComponent)
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -62,7 +62,15 @@ public class PSMenuItemTag extends PSJSFBaseTag {
     super.setProperties(comp);
     if (StringUtils.isNotBlank(m_action)) {
       FacesContext ctx = FacesContext.getCurrentInstance();
-      UIComponentTagUtils.setActionProperty(ctx, comp, m_action);
+      Application app = ctx.getApplication();
+      if (isValueReference(m_action)) {
+        MethodExpression me =
+            app.getExpressionFactory()
+                .createMethodExpression(ctx.getELContext(), m_action, Object.class, new Class[0]);
+        comp.getAttributes().put("action", me);
+      } else {
+        comp.getAttributes().put("action", m_action);
+      }
     }
     setValueBinding(comp, "url", m_url);
     setValueBinding(comp, "value", m_value);
@@ -174,7 +182,6 @@ public class PSMenuItemTag extends PSJSFBaseTag {
   /**
    * @param rendered the rendered to set
    */
-  @Override
   public void setRendered(String rendered) {
     m_rendered = rendered;
   }

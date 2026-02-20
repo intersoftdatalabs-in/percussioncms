@@ -216,6 +216,30 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
+   * Explicit helper to delete dependents for active assembly. Added to avoid ambiguity with other
+   * overloads and prevent callers from using reflection.
+   */
+  public void deleteDependents(PSLocator owner, PSDependentSet dependents) throws PSCmsException {
+    if (owner == null) throw new IllegalArgumentException("owner cannot be null");
+
+    if (dependents == null) throw new IllegalArgumentException("dependents cannot be null");
+
+    Map slotDependentMap = buildSlotDependentMap(dependents);
+    Iterator slots = slotDependentMap.keySet().iterator();
+    String slotid = null;
+    List deps = null;
+    while (slots.hasNext()) {
+      slotid = (String) slots.next();
+      deps = (List) slotDependentMap.get(slotid);
+      if (deps == null) continue;
+      int relationshipIds[] = new int[dependents.size()];
+      for (int i = 0; i < deps.size(); i++)
+        relationshipIds[i] = ((PSDependent) deps.get(i)).getRelationshipId();
+      delete(getConfigForSlot(m_request, slotid).getName(), owner, relationshipIds);
+    }
+  }
+
+  /**
    * Helper method that builds the map of slotid and the associated dependent from the dependent
    * set.
    *

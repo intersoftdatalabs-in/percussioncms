@@ -8,4 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-({"displayName":"ब�?रितन का पौन�?ड स�?टर�?लिग","symbol":"£"})
+({
+  displayName: "à¤¬à¥?à¤°à¤¿à¤¤à¤¨ à¤à¤¾ à¤ªà¥à¤¨à¥?à¤¡ à¤¸à¥?à¤à¤°à¥?à¤²à¤¿à¤",
+  symbol: "Â£",
+});

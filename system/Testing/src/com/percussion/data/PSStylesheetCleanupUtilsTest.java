@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  *  Test class used to test methods in <code>PSStylesheetCleanupUtils</code>
  */
-@Tag("IntegrationTest")
+
 public class PSStylesheetCleanupUtilsTest
 {
    public PSStylesheetCleanupUtilsTest() {
@@ -47,10 +47,10 @@ public class PSStylesheetCleanupUtilsTest
       try(ByteArrayInputStream bis = new ByteArrayInputStream(FILTER_XML.getBytes(StandardCharsets.UTF_8)))
       {
          Document doc = PSXmlDocumentBuilder.createXmlDocument(bis, false);
-         PSStylesheetCleanupFilter filter = 
+         PSStylesheetCleanupFilter filter =
             PSStylesheetCleanupFilter.getInstance();
          filter.fromXml(doc.getDocumentElement());
-         String actualResults = 
+         String actualResults =
             PSStylesheetCleanupUtils.namespaceCleanup(SOURCE, filter);
          assertEquals(RESULT, actualResults);
       }
@@ -67,8 +67,8 @@ public class PSStylesheetCleanupUtilsTest
             + "<head><title>Test Data</title></head><body><p>"
             + "<div><h1>"
             + "</h1><br id=\"dummy\">Hello!</div></body></html>";
-   
-   private static final String FILTER_XML = 
+
+   private static final String FILTER_XML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" +
       "<stylesheetCleanupFilter>" +
          "<allowedNamespace name=\"\" declAllowed=\"true \" declValue=\"*xhtml*\">" +

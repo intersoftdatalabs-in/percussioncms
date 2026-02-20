@@ -2,13 +2,9 @@
   "name": "requirejs",
   "version": "2.3.6",
   "homepage": "http://requirejs.org",
-  "authors": [
-    "jrburke.com"
-  ],
+  "authors": ["jrburke.com"],
   "description": "A file and module loader for JavaScript",
   "main": "require.js",
-  "keywords": [
-    "AMD"
-  ],
+  "keywords": ["AMD"],
   "license": "new BSD, and MIT"
 }

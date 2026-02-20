@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.percussion.services.linkmanagement.data.PSManagedLink;
-import com.percussion.share.dao.IPSGenericDao.SaveException;
+import com.percussion.share.service.exception.PSDataServiceException;
 
 /**
  * Data Access Object interface for managed link operations with modern Java 11 patterns.
@@ -52,7 +52,7 @@ public interface IPSManagedLinkDao {
      * @throws SaveException if there is an unexpected error
      * @throws IllegalArgumentException if link is null
      */
-    void saveLink(PSManagedLink link) throws SaveException;
+    void saveLink(PSManagedLink link) throws PSDataServiceException;
 
     /**
      * Saves multiple links efficiently.
@@ -61,7 +61,7 @@ public interface IPSManagedLinkDao {
      * @throws SaveException if there is an unexpected error
      * @throws IllegalArgumentException if links is null or contains null elements
      */
-    default void saveLinks(Collection<PSManagedLink> links) throws SaveException {
+    default void saveLinks(Collection<PSManagedLink> links) throws PSDataServiceException {
         Objects.requireNonNull(links, "Links collection cannot be null");
         for (var link : links) {
             Objects.requireNonNull(link, "Link cannot be null");

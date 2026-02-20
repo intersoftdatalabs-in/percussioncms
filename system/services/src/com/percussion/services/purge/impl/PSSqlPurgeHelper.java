@@ -67,11 +67,10 @@ import com.percussion.utils.request.PSRequestInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.query.Query;
-import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.type.DateType;
-import org.hibernate.type.LongType;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -437,16 +436,16 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
          SessionImplementor sessionImplementor = (SessionImplementor) session;
          Connection conn = sessionImplementor.getJdbcConnectionAccess().obtainConnection();
 
-         SQLQuery delCsHistoryQuery = session.createSQLQuery("DELETE from "
+         NativeQuery<?> delCsHistoryQuery = session.createNativeQuery("DELETE from "
                  + qualify("CONTENTSTATUSHISTORY") + " where CONTENTID = ? and REVISIONID <= ?");
 
-         SQLQuery delelObjRelations = session.createSQLQuery("DELETE from "
+         NativeQuery<?> delelObjRelations = session.createNativeQuery("DELETE from "
                  + qualify("PSX_OBJECTRELATIONSHIP")
                  + " where OWNER_ID = ? and OWNER_REVISION > 0 and OWNER_REVISION <= ? or "
                  + " DEPENDENT_ID = ? and DEPENDENT_REVISION > 0 and DEPENDENT_REVISION <= ?");
 
-         SQLQuery selTypes =  session.createSQLQuery("select CONTENTTYPEID from " + qualify("CONTENTTYPES"))
-                 .addScalar("CONTENTTYPEID", LongType.INSTANCE);
+         NativeQuery<?> selTypes =  session.createNativeQuery("select CONTENTTYPEID from " + qualify("CONTENTTYPES"))
+                 .addScalar("CONTENTTYPEID", StandardBasicTypes.LONG);
 
 
 
@@ -465,7 +464,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
             contentTypeMap.put(contentTypeId, tableList);
          }
 
-         selTypes = session.createSQLQuery(
+         selTypes = session.createNativeQuery(
                      "select csh.CONTENTID AS CONTENTID, cs.CONTENTTYPEID AS CONTENTTYPEID, csh.REVISIONID AS REVISIONID, max(csh.LASTMODIFIEDDATE) as LASTMODIFIEDDATE  "
                            + "from "
                            + qualify("CONTENTSTATUSHISTORY")
@@ -480,10 +479,10 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
                            + "PUBLIC_REVISION is null and csh.REVISIONID < cs.CURRENTREVISION "
                            + "group by  cs.CONTENTTYPEID,csh.REVISIONID,csh.CONTENTID "
                            + "order by CONTENTID, REVISIONID desc, LASTMODIFIEDDATE ")
-                 .addScalar("CONTENTID",LongType.INSTANCE)
-                 .addScalar("CONTENTTYPEID",LongType.INSTANCE)
-                 .addScalar("REVISIONID",LongType.INSTANCE)
-                 .addScalar("LASTMODIFIEDDATE", DateType.INSTANCE);
+                 .addScalar("CONTENTID", StandardBasicTypes.LONG)
+                 .addScalar("CONTENTTYPEID", StandardBasicTypes.LONG)
+                 .addScalar("REVISIONID", StandardBasicTypes.LONG)
+                 .addScalar("LASTMODIFIEDDATE", StandardBasicTypes.DATE);
 
 
          rs = selTypes.list().iterator();
@@ -559,7 +558,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     */
    @Transactional
    public int deleteItemRevisions(RevisionData data, Map<Long, List<Table>> contentTypeMap,
-                                  SQLQuery pstDelCSHistory, SQLQuery pstDelObjRelations, Iterator<?> rs, Connection conn)
+                                  NativeQuery<?> pstDelCSHistory, NativeQuery<?> pstDelObjRelations, Iterator<?> rs, Connection conn)
          throws SQLException
    {
       long now = System.currentTimeMillis();
@@ -1002,7 +1001,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
          String localContentsql = "SELECT r.DEPENDENT_ID FROM "+ qualify("PSX_OBJECTRELATIONSHIP") + " r where r.CONFIG_ID=(select config_id from "+ qualify("PSX_RELATIONSHIPCONFIGNAME") + " where config_name like 'LocalContent')  group by r.DEPENDENT_ID having count(distinct(r.OWNER_ID))=1 and MAX(r.OWNER_ID) in (:ids)";
 
          localContent = getSession()
-               .createSQLQuery(localContentsql)
+               .createNativeQuery(localContentsql)
                .setParameterList("ids", ids).list();
       }
       catch (SQLException e)
@@ -1055,9 +1054,8 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
          for (String table : tables) {
             String sqlString = "DELETE FROM " + table + " where CONTENTID IN (:ids)";
 
-            Query query = getSession()
-                    .createSQLQuery(sqlString)
-                    .addSynchronizedQuerySpace(table)
+            NativeQuery<?> query = getSession()
+                    .createNativeQuery(sqlString)
                     .setParameterList("ids", filteredIds);
 
             query.executeUpdate();

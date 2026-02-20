@@ -9,122 +9,135 @@
 ]>
 
 
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns="http://www.w3.org/1999/xhtml" xmlns:psxi18n="com.percussion.i18n"
-                extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
-  <xsl:import href="file:sys_resources/stylesheets/assemblers/sys_InlineLinks.xsl"/>
-  <xsl:import href="file:rx_resources/stylesheets/assemblers/rx_InlineLinks.xsl"/>
-  <xsl:import href="file:sys_resources/stylesheets/assemblers/sys_Slots.xsl"/>
-  <xsl:import href="file:rx_resources/stylesheets/assemblers/rx_Slots.xsl"/>
-  <xsl:import href="file:sys_resources/stylesheets/assemblers/sys_ContextTemplates.xsl"/>
-  <xsl:import href="file:sys_resources/stylesheets/assemblers/sys_Globals.xsl"/>
-  <xsl:import href="file:rx_resources/stylesheets/assemblers/rx_Globals.xsl"/>
-<!-- begin XSL -->
-<xsl:output method="xml" omit-xml-declaration="yes" />
-<!-- end XSL -->
-  <xsl:variable name="related" select="/*/sys_AssemblerInfo/RelatedContent"/>
-  <xsl:variable name="syscommand" select="//@sys_command"/>
-  <xsl:variable name="this" select="/"/>
-  <xsl:template match="/">
-    <html>
-      <head>
-        <meta content="Percussion XSpLit" name="generator"/>
-        <title>Thumb Title Image Display</title>
-      </head>
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:psxi18n="com.percussion.i18n"
+	extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
+	<xsl:import
+		href="file:sys_resources/stylesheets/assemblers/sys_InlineLinks.xsl" />
+	<xsl:import
+		href="file:rx_resources/stylesheets/assemblers/rx_InlineLinks.xsl" />
+	<xsl:import
+		href="file:sys_resources/stylesheets/assemblers/sys_Slots.xsl" />
+	<xsl:import
+		href="file:rx_resources/stylesheets/assemblers/rx_Slots.xsl" />
+	<xsl:import
+		href="file:sys_resources/stylesheets/assemblers/sys_ContextTemplates.xsl" />
+	<xsl:import
+		href="file:sys_resources/stylesheets/assemblers/sys_Globals.xsl" />
+	<xsl:import
+		href="file:rx_resources/stylesheets/assemblers/rx_Globals.xsl" />
+	<!-- begin XSL -->
+	<xsl:output method="xml" omit-xml-declaration="yes" />
+	<!-- end XSL -->
+	<xsl:variable name="related"
+		select="/*/sys_AssemblerInfo/RelatedContent" />
+	<xsl:variable name="syscommand" select="//@sys_command" />
+	<xsl:variable name="this" select="/" />
+	<xsl:template match="/">
+		<html>
+			<head>
+				<meta content="Percussion XSpLit" name="generator" />
+				<title>Thumb Title Image Display</title>
+			</head>
 
-      <body>
-        <table>
-          <xsl:apply-templates mode="mode0" select="*"/>
-        </table>
+			<body>
+				<table>
+					<xsl:apply-templates mode="mode0" select="*" />
+				</table>
 
-      </body>
+			</body>
 
-    </html>
+		</html>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*">
-    <xsl:choose>
-      <xsl:when test="text()">
-        <xsl:choose>
-          <xsl:when test="@no-escaping">
-            <xsl:value-of disable-output-escaping="yes" select="."/>
-          </xsl:when>
+	<xsl:template match="*">
+		<xsl:choose>
+			<xsl:when test="text()">
+				<xsl:choose>
+					<xsl:when test="@no-escaping">
+						<xsl:value-of disable-output-escaping="yes"
+							select="." />
+					</xsl:when>
 
-          <xsl:otherwise>
-            <xsl:value-of select="."/>
-          </xsl:otherwise>
+					<xsl:otherwise>
+						<xsl:value-of select="." />
+					</xsl:otherwise>
 
-        </xsl:choose>
+				</xsl:choose>
 
-      </xsl:when>
+			</xsl:when>
 
-      <xsl:otherwise>&nbsp;</xsl:otherwise>
+			<xsl:otherwise>&nbsp;
+			</xsl:otherwise>
 
-    </xsl:choose>
+		</xsl:choose>
 
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="attribute::*">
-    <xsl:value-of select="."/>
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
+	<xsl:template match="attribute::*">
+		<xsl:value-of select="." />
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*" mode="mode0">
-    <xsl:for-each select=".">
-      <tr>
-        <td>
-          <a target="_blank" rel = "noopener noreferrer">
-            <xsl:attribute name="href">
-              <xsl:value-of select="imagelink"/>
+	<xsl:template match="*" mode="mode0">
+		<xsl:for-each select=".">
+			<tr>
+				<td>
+					<a target="_blank" rel="noopener noreferrer">
+						<xsl:attribute name="href">
+              <xsl:value-of select="imagelink" />
             </xsl:attribute>
 
-            <img>
-              <xsl:attribute name="src">
-                <xsl:value-of select="thumbnaillink"/>
+						<img>
+							<xsl:attribute name="src">
+                <xsl:value-of select="thumbnaillink" />
               </xsl:attribute>
 
-              <xsl:attribute name="alt">
-                <xsl:value-of select="displaytitle"/>
+							<xsl:attribute name="alt">
+                <xsl:value-of select="displaytitle" />
               </xsl:attribute>
 
-            </img>
+						</img>
 
-            <br id="XSpLit"/>
-            <xsl:choose>
-              <xsl:when test="$syscommand=&apos;editrc&apos;">
-                <span psxedit="displaytitle">
-                  <xsl:apply-templates select="displaytitle"/>
-                </span>
+						<br id="XSpLit" />
+						<xsl:choose>
+							<xsl:when test="$syscommand=&apos;editrc&apos;">
+								<span psxedit="displaytitle">
+									<xsl:apply-templates select="displaytitle" />
+								</span>
 
-              </xsl:when>
+							</xsl:when>
 
-              <xsl:otherwise>
-                <xsl:apply-templates select="displaytitle"/>
-              </xsl:otherwise>
+							<xsl:otherwise>
+								<xsl:apply-templates select="displaytitle" />
+							</xsl:otherwise>
 
-            </xsl:choose>
+						</xsl:choose>
 
-          </a>
+					</a>
 
-        </td>
+				</td>
 
-      </tr>
+			</tr>
 
-    </xsl:for-each>
+		</xsl:for-each>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*[div/@class=&apos;rxbodyfield&apos;]">
-    <xsl:apply-templates mode="rxbodyfield" select="*"/>
-  </xsl:template>
+	<xsl:template
+		match="*[div/@class=&apos;rxbodyfield&apos;]">
+		<xsl:apply-templates mode="rxbodyfield" select="*" />
+	</xsl:template>
 
-  <xsl:template match="sys_AssemblerInfo"/>
+	<xsl:template match="sys_AssemblerInfo" />
 </xsl:stylesheet>

@@ -301,6 +301,19 @@ public final class PSNotificationHelper {
     }
 
     /**
+     * Notify a memory/object cache invalidation for the supplied GUID.
+     * This uses the OBJECT_INVALIDATION event type.
+     *
+     * @param guid the GUID to invalidate, never {@code null}
+     */
+    public static void notifyMemoryEvent(IPSGuid guid) {
+        Objects.requireNonNull(guid, "guid cannot be null");
+        var notificationService = PSNotificationServiceLocator.getNotificationService();
+        var event = PSNotificationEvent.createObjectInvalidationEvent(guid);
+        notificationService.notifyEvent(event);
+    }
+
+    /**
      * Asynchronously notify content change.
      *
      * @param contentGuid the GUID of the changed content, never {@code null}
@@ -318,7 +331,7 @@ public final class PSNotificationHelper {
      * @return {@code true} if the service is available, {@code false} otherwise
      */
     public static boolean isNotificationServiceAvailable() {
-        return PSNotificationServiceLocator.isNotificationServiceAvailable();
+        return PSNotificationServiceLocator.isServiceAvailable();
     }
 
     /**

@@ -24,23 +24,21 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Directory object store class testing, including constructors,
  * <code>PSComponent</code> functionality, accessors and XML functionality.
  */
-public class PSDirectorySetTest extends TestCase
+public class PSDirectorySetTest 
 {
    /**
     * Constructor to call base class constructor.
     *
     * @see TestCase#TestCase(String) for more information.
     */
-   public PSDirectorySetTest(String name)
-   {
-      super(name);
-   }
+   
 
    // See base class
    public void setUp()
@@ -52,6 +50,7 @@ public class PSDirectorySetTest extends TestCase
     *
     * @throws Exception if any exceptions occur or assertions fail.
     */
+   
    public void testComponent() throws Exception
    {
       PSDirectorySet dirSet1 = new PSDirectorySet("dirSet1", "uid");
@@ -65,16 +64,16 @@ public class PSDirectorySetTest extends TestCase
       dirSet3.addDirectoryRef(ms_ref2);
 
       // testing equals
-      assertTrue(dirSet1.equals(dirSet1));
-      assertTrue(!dirSet1.equals(dirSet2));
+      assertEquals(dirSet1, dirSet1);
+      assertFalse(dirSet1.equals(dirSet2));
 
       // testing clone/copyFrom
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
       PSDirectorySet clone = (PSDirectorySet) dirSet1.clone();
-      assertTrue(clone.equals(dirSet1));
+      assertEquals(clone, dirSet1);
       dirSet2.copyFrom(dirSet1);
-      assertTrue(dirSet2.equals(dirSet3));
+      assertEquals(dirSet2, dirSet3);
 
       // testing name accessors
       boolean didThrow = false;
@@ -131,7 +130,7 @@ public class PSDirectorySetTest extends TestCase
       {
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
       didThrow = false;
       try
       {
@@ -171,6 +170,7 @@ public class PSDirectorySetTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -184,7 +184,7 @@ public class PSDirectorySetTest extends TestCase
       PSDirectorySet dirSet2 = new PSDirectorySet(dirSet1.toXml(doc));
       System.out.println("directorySet 2:\n" +
          PSXmlDocumentBuilder.toString(dirSet2.toXml(doc)));
-      assertTrue(dirSet1.equals(dirSet2));
+      assertEquals(dirSet1, dirSet2);
    }
 
    /**
@@ -192,15 +192,7 @@ public class PSDirectorySetTest extends TestCase
     *
     * @return The suite of test methods for this class.  Not <code>null</code>.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSDirectorySetTest("testComponent"));
-      suite.addTest(new PSDirectorySetTest("testXml"));
-
-      return suite;
-   }
+   
 
    /**
     * Directory reference 1.

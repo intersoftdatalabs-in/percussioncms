@@ -26,27 +26,19 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Basic attribute testing, including simple to/from Xml
- * checking w/ simple attribute classes.  Also includes 
+ * checking w/ simple attribute classes.  Also includes
  * testing of accessor methods
  */
-public class PSAttributeTest extends TestCase
+public class PSAttributeTest
 {
    /**
     * @see TestCase#TestCase(String)
     */
-   public PSAttributeTest(String name)
-   {
-      super(name);
-   }
-
-   // See super class for more info
-   public void setUp()
-   {
-   }
 
    /**
     * Test if the two supplied attributes are equal.
@@ -111,6 +103,7 @@ public class PSAttributeTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   @Test
    public void testEmptyEquals() throws Exception
    {
       PSAttribute att = new PSAttribute();
@@ -123,12 +116,13 @@ public class PSAttributeTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   @Test
    public void testNameTypeConstructor() throws Exception
    {
       PSAttribute att =
          new PSAttribute("foo");
 
-      assertEquals(att.getName(), "foo");
+      assertEquals("foo", att.getName());
 
       PSAttribute otherAtt =
          new PSAttribute("foo");
@@ -163,12 +157,13 @@ public class PSAttributeTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   @Test
    public void testXml() throws Exception
    {
       PSAttribute att = new PSAttribute("foobar");
       PSAttribute otherAtt = new PSAttribute();
 
-      assertTrue(!testAttributeEquals(att,otherAtt));
+      assertFalse(testAttributeEquals(att, otherAtt));
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element el = att.toXml(doc);
@@ -188,14 +183,14 @@ public class PSAttributeTest extends TestCase
       otherAtt.fromXml(el, null, null);
       assertAttributeEquals(att, otherAtt);
 
-      ArrayList val = new ArrayList();
+      ArrayList<String> val = new ArrayList<>();
       val.add("one");
       val.add("two");
       val.add("three");
 
       // add a value and verify to/from loop
       att.setValues(val);
-      assertTrue(!testAttributeEquals(att,otherAtt));
+      assertFalse(testAttributeEquals(att, otherAtt));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = att.toXml(doc);
@@ -205,11 +200,11 @@ public class PSAttributeTest extends TestCase
       assertAttributeEquals(att, otherAtt);
 
       // add a different value (one item list) and verify to/from loop
-      ArrayList l = new ArrayList();
+      ArrayList<String> l = new ArrayList<>();
       l.add("one");
       att.setValues(l);
 
-      assertTrue(!testAttributeEquals(att,otherAtt));
+      assertFalse(testAttributeEquals(att, otherAtt));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = att.toXml(doc);
@@ -232,7 +227,7 @@ public class PSAttributeTest extends TestCase
 
       // Now try a null value and verify to/from loop
       att.setValues(null);
-      assertTrue(!testAttributeEquals(att,otherAtt));
+      assertFalse(testAttributeEquals(att, otherAtt));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = att.toXml(doc);
@@ -242,18 +237,7 @@ public class PSAttributeTest extends TestCase
       assertAttributeEquals(att, otherAtt);
    }
 
-   /**
-    * Collect all tests into a TestSuite and return it.
-    *
-    * @return the suite of all tests for this class. Not <code>null</code>.
-    */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSAttributeTest("testEmptyEquals"));
-      suite.addTest(new PSAttributeTest("testNameTypeConstructor"));
-      suite.addTest(new PSAttributeTest("testXml"));
-      return suite;
-   }
+   // JUnit 5 uses test discovery; no explicit suite() method is required.
 }
+
 

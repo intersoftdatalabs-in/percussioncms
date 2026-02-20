@@ -39,7 +39,7 @@ import org.w3c.dom.Document;
 
 /** Unit test for the PSPackageLockManager. */
 @SuppressWarnings("unchecked")
-@Tag("IntegrationTest")
+
 public class PSPackageLockManagerTest {
   /**
    * Tests lock/unlock.

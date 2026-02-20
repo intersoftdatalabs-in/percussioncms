@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Tag;
  * <p>Sunny Sal says: "Testing templates is like checking your pizza base before adding
  * toppings—crucial!"
  */
-@Tag("IntegrationTest")
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSTemplateServiceTest extends PSRestTestCase<PSTemplateServiceClient> {
 

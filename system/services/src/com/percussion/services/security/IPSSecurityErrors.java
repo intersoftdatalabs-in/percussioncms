@@ -208,21 +208,21 @@ public interface IPSSecurityErrors {
     /**
      * Error code metadata for enhanced error handling.
      */
-    Map<Integer, String> ERROR_DESCRIPTIONS = Map.of(
-        MISSING_COMMUNITY, "Missing community",
-        ACL_NOT_FOUND, "ACL not found",
-        OBJECT_ACL_NOT_FOUND, "Object ACL not found",
-        ACL_SAVE_ERROR, "ACL save error",
-        ACL_DELETE_ERROR, "ACL delete error",
-        ACCESS_DENIED, "Access denied",
-        AUTHENTICATION_FAILED, "Authentication failed",
-        AUTHORIZATION_FAILED, "Authorization failed",
-        ACL_OPERATION_FAILED, "ACL operation failed",
-        CONFIGURATION_ERROR, "Security configuration error",
-        ROLE_MANAGEMENT_ERROR, "Role management error",
-        PRINCIPAL_VALIDATION_ERROR, "Principal validation error",
-        SESSION_SECURITY_ERROR, "Session security error",
-        SECURITY_POLICY_VIOLATION, "Security policy violation"
+    Map<Integer, String> ERROR_DESCRIPTIONS = Map.ofEntries(
+        Map.entry(MISSING_COMMUNITY, "Missing community"),
+        Map.entry(ACL_NOT_FOUND, "ACL not found"),
+        Map.entry(OBJECT_ACL_NOT_FOUND, "Object ACL not found"),
+        Map.entry(ACL_SAVE_ERROR, "ACL save error"),
+        Map.entry(ACL_DELETE_ERROR, "ACL delete error"),
+        Map.entry(ACCESS_DENIED, "Access denied"),
+        Map.entry(AUTHENTICATION_FAILED, "Authentication failed"),
+        Map.entry(AUTHORIZATION_FAILED, "Authorization failed"),
+        Map.entry(ACL_OPERATION_FAILED, "ACL operation failed"),
+        Map.entry(CONFIGURATION_ERROR, "Security configuration error"),
+        Map.entry(ROLE_MANAGEMENT_ERROR, "Role management error"),
+        Map.entry(PRINCIPAL_VALIDATION_ERROR, "Principal validation error"),
+        Map.entry(SESSION_SECURITY_ERROR, "Session security error"),
+        Map.entry(SECURITY_POLICY_VIOLATION, "Security policy violation")
     );
 
     /**

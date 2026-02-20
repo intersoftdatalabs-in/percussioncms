@@ -1,18 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-	<WidgetPrefs title="Polls" category="social,blog" contenttype_name="percPollAsset" description="Widget to build and render polls." author="Percussion Software Inc" thumbnail="/rx_resources/widgets/percPoll/images/widgetIconPoll.png" preferred_editor_width="780" preferred_editor_height="600" is_responsive="true"/>
-	<UserPref name="pollRestrictionType" display_name="Restrict poll submission by" required="true" default_value="Unrestricted" datatype="enum">
-		<EnumValue value="Unrestricted" display_value="Unrestricted"/>
-		<EnumValue value="Session" display_value="Session"/>
-		<EnumValue value="Cookie" display_value="Cookie"/>
+	<WidgetPrefs title="Polls" category="social,blog"
+		contenttype_name="percPollAsset"
+		description="Widget to build and render polls."
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/percPoll/images/widgetIconPoll.png"
+		preferred_editor_width="780" preferred_editor_height="600"
+		is_responsive="true" />
+	<UserPref name="pollRestrictionType"
+		display_name="Restrict poll submission by" required="true"
+		default_value="Unrestricted" datatype="enum">
+		<EnumValue value="Unrestricted" display_value="Unrestricted" />
+		<EnumValue value="Session" display_value="Session" />
+		<EnumValue value="Cookie" display_value="Cookie" />
 	</UserPref>
-	<UserPref name="submitLabel" display_name="Submit button label" required="true" default_value="Vote" datatype="string"/>
-	<UserPref name="viewResultsLink" display_name="Show view results link" required="true" default_value="true" datatype="bool"/>
-	<UserPref name="viewResultsLinkText" display_name="Text for view results" required="true" default_value="View results" datatype="string"/>
-	<UserPref name="validationText" display_name="Validation text" required="true" default_value="Please choose an answer first!" datatype="string"/>
-	<UserPref name="totalVotesText" display_name="Text for total votes" required="true" default_value="Total votes" datatype="string"/>
-	<UserPref name="backToPollText" display_name="Text to return" required="true" default_value="Back to poll" datatype="string"/>
-	<CssPref name="rootclass" display_name="CSS Root Class" datatype="string"/>
+	<UserPref name="submitLabel"
+		display_name="Submit button label" required="true"
+		default_value="Vote" datatype="string" />
+	<UserPref name="viewResultsLink"
+		display_name="Show view results link" required="true"
+		default_value="true" datatype="bool" />
+	<UserPref name="viewResultsLinkText"
+		display_name="Text for view results" required="true"
+		default_value="View results" datatype="string" />
+	<UserPref name="validationText" display_name="Validation text"
+		required="true" default_value="Please choose an answer first!"
+		datatype="string" />
+	<UserPref name="totalVotesText"
+		display_name="Text for total votes" required="true"
+		default_value="Total votes" datatype="string" />
+	<UserPref name="backToPollText" display_name="Text to return"
+		required="true" default_value="Back to poll" datatype="string" />
+	<CssPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
 	<Code type="jexl"><![CDATA[
 			## Widget Properties
 			$rootclass = $perc.widget.item.cssProperties.get('rootclass');

@@ -126,7 +126,8 @@ public class PSPersistentPropertyManager {
       List<PSPersistentPropertyMeta> list, PSUserSession user) {
     IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
 
-    List<PSPersistentPropertyMeta> ret = mgr.saveAllPersistentMeta(list);
+    List<PSPersistentPropertyMeta> ret =
+        mgr.saveAllPersistentMeta(list).collect(java.util.stream.Collectors.toList());
     resetMetaCache(user);
     return ret;
   }
@@ -144,7 +145,8 @@ public class PSPersistentPropertyManager {
       PSPersistentPropertyMeta pm, PSUserSession user) {
     IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
 
-    PSPersistentPropertyMeta ret = mgr.savePersistentPropertyMeta(pm);
+    PSPersistentPropertyMeta ret =
+        ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).savePersistentPropertyMeta(pm);
 
     resetMetaCache(user);
     return ret;
@@ -280,8 +282,16 @@ public class PSPersistentPropertyManager {
     else m_propertyCache.put(userName, categoryMap);
 
     List persists;
-    if (loadMetadata) persists = mgr.findPersistentMetaByName(userName);
-    else persists = mgr.findPersistentPropertiesByName(userName);
+    if (loadMetadata) {
+      persists =
+          mgr.findAllPersistentMeta()
+              .filter(pm -> pm.getUserName().equals(userName))
+              .collect(java.util.stream.Collectors.toList());
+    } else {
+      persists =
+          ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr)
+              .findPersistentPropertiesByName(userName);
+    }
 
     Iterator ps = persists.iterator();
     while (ps.hasNext()) {
@@ -491,7 +501,7 @@ public class PSPersistentPropertyManager {
       String propName = prop.getName();
       if (getPersistedProperty(prop.getCategory(), session, propName).isEmpty()) {
         try {
-          mgr.savePersistentProperty(prop);
+          ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).savePersistentProperty(prop);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
           // CMS-1018  System displays stack trace in the UI if two people login with the same user
           // name at the same time
@@ -512,12 +522,12 @@ public class PSPersistentPropertyManager {
                 + propName
                 + "].  The property will be updated instead.");
 
-        mgr.updatePersistentProperty(prop);
+        ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).updatePersistentProperty(prop);
       }
     } else if (action.equals(UPDATE)) {
-      mgr.updatePersistentProperty(prop);
+      ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).updatePersistentProperty(prop);
     } else if (action.equals(DELETE)) {
-      mgr.deletePersistentProperty(prop);
+      ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).deletePersistentProperty(prop);
     }
   }
 

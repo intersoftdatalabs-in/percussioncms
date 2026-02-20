@@ -20,6 +20,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -28,17 +29,14 @@ import org.w3c.dom.Document;
  * Role provider object store class testing, including constructors,
  * <code>PSComponent</code> functionality, accessors and XML functionality.
  */
-public class PSRoleProviderTest extends TestCase
+public class PSRoleProviderTest 
 {
    /**
     * Constructor to call base class constructor.
     *
     * @see TestCase#TestCase(String) for more information.
     */
-   public PSRoleProviderTest(String name)
-   {
-      super(name);
-   }
+   
 
    // See base class
    public void setUp()
@@ -50,6 +48,7 @@ public class PSRoleProviderTest extends TestCase
     *
     * @throws Exception if any exceptions occur or assertions fail.
     */
+   
    public void testComponent() throws Exception
    {
       PSRoleProvider prov1 = new PSRoleProvider("prov1",
@@ -63,14 +62,14 @@ public class PSRoleProviderTest extends TestCase
 
       // testing compare/equals
       assertTrue(prov1.compare(prov1, prov1));
-      assertTrue(!prov1.compare(prov1, prov2));
-      assertTrue(!prov2.compare(prov2, prov2_1));
+      assertFalse(prov1.compare(prov1, prov2));
+      assertFalse(prov2.compare(prov2, prov2_1));
 
       // testing clone/copyFrom
       PSRoleProvider clone = (PSRoleProvider) prov1.clone();
-      assertTrue(clone.equals(prov1));
+      assertEquals(clone, prov1);
       prov2.copyFrom(prov1);
-      assertTrue(prov1.equals(prov2));
+      assertEquals(prov1, prov2);
 
       // testing name accessors
       boolean didThrow = false;
@@ -97,7 +96,7 @@ public class PSRoleProviderTest extends TestCase
 
       // testing type accessors
       assertTrue(prov1.isDirectoryRoleProvider());
-      assertTrue(!prov1.isBackendRoleProvider());
+      assertFalse(prov1.isBackendRoleProvider());
 
       // testing directory reference accessors
       didThrow = false;
@@ -151,6 +150,7 @@ public class PSRoleProviderTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -163,7 +163,7 @@ public class PSRoleProviderTest extends TestCase
       PSRoleProvider prov2 = new PSRoleProvider(prov1.toXml(doc), null, null);
       System.out.println("role provider 2:\n" +
          PSXmlDocumentBuilder.toString(prov2.toXml(doc)));
-      assertTrue(prov1.equals(prov2));
+      assertEquals(prov1, prov2);
 
       // test with optional elements undefined
       PSRoleProvider prov3 = new PSRoleProvider("prov3",
@@ -173,7 +173,7 @@ public class PSRoleProviderTest extends TestCase
       PSRoleProvider prov4 = new PSRoleProvider(prov3.toXml(doc), null, null);
       System.out.println("role provider 4:\n" +
          PSXmlDocumentBuilder.toString(prov4.toXml(doc)));
-      assertTrue(prov3.equals(prov4));
+      assertEquals(prov3, prov4);
    }
 
    /**
@@ -181,14 +181,6 @@ public class PSRoleProviderTest extends TestCase
     *
     * @return The suite of test methods for this class.  Not <code>null</code>.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSRoleProviderTest("testComponent"));
-      suite.addTest(new PSRoleProviderTest("testXml"));
-
-      return suite;
-   }
+   
 }
 

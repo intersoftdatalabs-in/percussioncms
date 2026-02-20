@@ -12,27 +12,30 @@ package com.percussion.validate;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Check validations
- * 
+ *
  * @author dougrand
  */
-public class PSFieldValidationTest extends TestCase
+public class PSFieldValidationTest
 {
    Object[] packageArgs(Object... objects)
    {
       return objects;
    }
-   
+
+   @Test
    public void testRequired() throws Exception
    {
       PSValidateRequired vr = new PSValidateRequired();
-      
+
       assertFalse((Boolean) vr.processUdf(packageArgs((String) null), null));
       assertTrue((Boolean) vr.processUdf(packageArgs(1), null));
    }
 
+   @Test
    public void testJexl() throws Exception
    {
       PSValidateJexlExpression je = new PSValidateJexlExpression();
@@ -41,6 +44,7 @@ public class PSFieldValidationTest extends TestCase
       assertFalse((Boolean) je.processUdf(packageArgs(0, "$value != 0"), null));
    }
 
+   @Test
    public void testNumber() throws Exception
    {
       PSValidateNumber numberV = new PSValidateNumber();
@@ -68,13 +72,14 @@ public class PSFieldValidationTest extends TestCase
       assertFalse((Boolean) numberV.processUdf(packageArgs(0, 1, true, null,
             false), null));
       assertFalse((Boolean) numberV.processUdf(packageArgs(1, 1, false, null,
-            false), null));      
+            false), null));
       assertFalse((Boolean) numberV.processUdf(packageArgs(1, 0, false, 1,
             false), null));
       assertFalse((Boolean) numberV.processUdf(packageArgs(null, null, true,
             null, true), null));
    }
 
+   @Test
    public void testString() throws Exception
    {
       PSValidateStringLength stringV = new PSValidateStringLength();
@@ -100,6 +105,7 @@ public class PSFieldValidationTest extends TestCase
       assertFalse((Boolean) stringV.processUdf(packageArgs("abcd", 5, 8), null));
    }
 
+   @Test
    public void testDate() throws Exception
    {
       PSValidateDate dateV = new PSValidateDate();
@@ -127,7 +133,7 @@ public class PSFieldValidationTest extends TestCase
       assertFalse((Boolean) dateV.processUdf(
             packageArgs(min, min, false, max, false), null));
       assertFalse((Boolean) dateV.processUdf(
-            packageArgs(max, min, false, max, false), null));      
+            packageArgs(max, min, false, max, false), null));
 
       // Conversion
       String sval = "2005/01/02";

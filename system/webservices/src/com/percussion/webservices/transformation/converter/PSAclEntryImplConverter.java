@@ -51,35 +51,110 @@ public class PSAclEntryImplConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       Object result = super.convert(type, value);
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.system.PSAclEntryImpl src = 
+         com.percussion.webservices.system.PSAclEntryImpl src =
             (com.percussion.webservices.system.PSAclEntryImpl) value;
          PSAclEntryImpl dest = (PSAclEntryImpl) result;
-         
+
          dest.setType(PrincipalTypes.valueOf(src.getType()));
-         for (com.percussion.webservices.system.PSAccessLevelImpl level : 
-            src.getPermissions())
-         {
-            PSAccessLevelImpl tgtlevel = new PSAccessLevelImpl();
-            tgtlevel.setPermission(
-               PSPermissions.valueOf(level.getPermission()));
-            tgtlevel.setAclEntryId(level.getAclEntryId());
-            dest.addPermission(tgtlevel);
+         Object permsObj = src.getPermissions();
+         if (permsObj != null) {
+            // handle array of PSAccessLevelImpl
+            if (permsObj instanceof com.percussion.webservices.system.PSAccessLevelImpl[]) {
+               for (com.percussion.webservices.system.PSAccessLevelImpl level : (com.percussion.webservices.system.PSAccessLevelImpl[]) permsObj) {
+                  PSAccessLevelImpl tgtlevel = new PSAccessLevelImpl();
+                  tgtlevel.setPermission(PSPermissions.valueOf(level.getPermission()));
+                  tgtlevel.setAclEntryId(level.getAclEntryId());
+                  dest.addPermission(tgtlevel);
+               }
+            }
+            // handle List<?>
+            else if (permsObj instanceof java.util.List) {
+               for (Object levelObj : (java.util.List<?>) permsObj) {
+                  try {
+                     Object permVal = getBeanUtils().getPropertyUtils().getSimpleProperty(levelObj, "permission");
+                     Object aclEntryIdVal = getBeanUtils().getPropertyUtils().getSimpleProperty(levelObj, "aclEntryId");
+                     int permInt = (permVal instanceof Number) ? ((Number) permVal).intValue() : Integer.parseInt(String.valueOf(permVal));
+                     long aclEntryId = aclEntryIdVal == null ? 0L : ((Number) aclEntryIdVal).longValue();
+                     PSAccessLevelImpl tgtlevel = new PSAccessLevelImpl();
+                     tgtlevel.setPermission(PSPermissions.valueOf(permInt));
+                     tgtlevel.setAclEntryId(aclEntryId);
+                     dest.addPermission(tgtlevel);
+                  } catch (Exception ex) {
+                     // unexpected shape; skip
+                  }
+               }
+            }
+            // handle nested wrapper e.g., Permissions with permission()/psAccessLevelImpl() returning List/array
+            else {
+               try {
+                  Object list = null;
+                  try {
+                     list = getBeanUtils().getPropertyUtils().getSimpleProperty(permsObj, "permission");
+                  } catch (Exception e1) {
+                     try {
+                        list = getBeanUtils().getPropertyUtils().getSimpleProperty(permsObj, "psAccessLevelImpl");
+                     } catch (Exception e2) {
+                        try {
+                           list = getBeanUtils().getPropertyUtils().getSimpleProperty(permsObj, "PSAccessLevelImpl");
+                        } catch (Exception e3) {
+                           // unknown wrapper shape; leave list null
+                        }
+                     }
+                  }
+
+                  if (list instanceof java.util.List) {
+                     for (Object levelObj : (java.util.List<?>) list) {
+                        try {
+                           Object permVal = getBeanUtils().getPropertyUtils().getSimpleProperty(levelObj, "permission");
+                           Object aclEntryIdVal = getBeanUtils().getPropertyUtils().getSimpleProperty(levelObj, "aclEntryId");
+                           int permInt = (permVal instanceof Number) ? ((Number) permVal).intValue() : Integer.parseInt(String.valueOf(permVal));
+                           long aclEntryId = aclEntryIdVal == null ? 0L : ((Number) aclEntryIdVal).longValue();
+                           PSAccessLevelImpl tgtlevel = new PSAccessLevelImpl();
+                           tgtlevel.setPermission(PSPermissions.valueOf(permInt));
+                           tgtlevel.setAclEntryId(aclEntryId);
+                           dest.addPermission(tgtlevel);
+                        } catch (Exception ex) {
+                           // skip
+                        }
+                     }
+                  } else if (list != null && list.getClass().isArray()) {
+                     int len = java.lang.reflect.Array.getLength(list);
+                     for (int i = 0; i < len; i++) {
+                        Object levelObj = java.lang.reflect.Array.get(list, i);
+                        try {
+                           Object permVal = getBeanUtils().getPropertyUtils().getSimpleProperty(levelObj, "permission");
+                           Object aclEntryIdVal = getBeanUtils().getPropertyUtils().getSimpleProperty(levelObj, "aclEntryId");
+                           int permInt = (permVal instanceof Number) ? ((Number) permVal).intValue() : Integer.parseInt(String.valueOf(permVal));
+                           long aclEntryId = aclEntryIdVal == null ? 0L : ((Number) aclEntryIdVal).longValue();
+                           PSAccessLevelImpl tgtlevel = new PSAccessLevelImpl();
+                           tgtlevel.setPermission(PSPermissions.valueOf(permInt));
+                           tgtlevel.setAclEntryId(aclEntryId);
+                           dest.addPermission(tgtlevel);
+                        } catch (Exception ex) {
+                           // skip
+                        }
+                     }
+                  }
+               } catch (Exception e) {
+                  throw new RuntimeException(e);
+               }
+            }
          }
       }
       else
       {
          PSAclEntryImpl src = (PSAclEntryImpl) value;
-         com.percussion.webservices.system.PSAclEntryImpl dest = 
+         com.percussion.webservices.system.PSAclEntryImpl dest =
             (com.percussion.webservices.system.PSAclEntryImpl) result;
-         
-         dest.setType(src.getType().getOrdinal());
+
+         dest.setType((int) src.getType().getOrdinal());
          Collection<PSAccessLevelImpl> permset = src.getPermissions();
-         List<com.percussion.webservices.system.PSAccessLevelImpl> 
+         List<com.percussion.webservices.system.PSAccessLevelImpl>
             permissions = new ArrayList<
                com.percussion.webservices.system.PSAccessLevelImpl>(
                   permset.size());
@@ -92,11 +167,13 @@ public class PSAclEntryImplConverter extends PSConverter
             tgtlevel.setPermission(level.getPermission().getOrdinal());
             permissions.add(tgtlevel);
          }
-         dest.setPermissions(permissions.toArray(
-            new com.percussion.webservices.system.
-               PSAccessLevelImpl[permissions.size()]));
+         // Wrap permissions in the generated Permissions wrapper (uses live list accessor)
+         com.percussion.webservices.system.PSAclEntryImpl.Permissions permsWrapper =
+               new com.percussion.webservices.system.PSAclEntryImpl.Permissions();
+         permsWrapper.getPSAccessLevelImpl().addAll(permissions);
+         dest.setPermissions(permsWrapper);
       }
-      
+
       return result;
    }
 }

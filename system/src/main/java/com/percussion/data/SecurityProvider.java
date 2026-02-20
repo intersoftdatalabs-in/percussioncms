@@ -1,3 +1,6 @@
+package com.percussion.data;
+
+/** Minimal security provider interface used by the system. */
 public interface SecurityProvider {
   /**
    * Authenticates a user based on provided credentials.

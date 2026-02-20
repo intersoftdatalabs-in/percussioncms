@@ -17,14 +17,14 @@
 
 package com.percussion.utils.web.service;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.utils.service.impl.PSUtilityRestService;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class PSUtilityServiceRestTest extends PSRestTestCase<PSUtilityRestClient> {
@@ -35,7 +35,7 @@ public class PSUtilityServiceRestTest extends PSRestTestCase<PSUtilityRestClient
     return utilityTestClient = new PSUtilityRestClient(baseUrl);
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {}
 
   @Test

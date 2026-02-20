@@ -2,76 +2,88 @@
 
 
 <PSXArchiveManifest>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsAddBlogButtonOver-gif">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsAddBlogButtonOver.gif</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsAddBlogButtonOver-gif\PercBlogsAddBlogButtonOver.gif</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadgetInactive-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsGadgetInactive.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadgetInactive-png\PercBlogsGadgetInactive.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-xml">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercBlogsGadget.xml</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-xml\PercBlogsGadget.xml</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercAddBlogPostButtonOver-gif">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercAddBlogPostButtonOver.gif</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercAddBlogPostButtonOver-gif\PercAddBlogPostButtonOver.gif</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercAddBlogPostButton-gif">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercAddBlogPostButton.gif</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercAddBlogPostButton-gif\PercAddBlogPostButton.gif</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercNewBlogDialog-css">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercNewBlogDialog.css</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercNewBlogDialog-css\PercNewBlogDialog.css</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-js">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercBlogsGadget.js</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-js\PercBlogsGadget.js</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercNewBlogDialog-js">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercNewBlogDialog.js</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercNewBlogDialog-js\PercNewBlogDialog.js</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadgetOver-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsGadgetOver.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadgetOver-png\PercBlogsGadgetOver.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadget-png">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsGadget.png</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadget-png\PercBlogsGadget.png</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsAddBlogButton-gif">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsAddBlogButton.gif</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsAddBlogButton-gif\PercBlogsAddBlogButton.gif</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
-   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-css">
-      <PSXDependencyFile fileType="SUPPORT_FILE">
-         <RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercBlogsGadget.css</RxFile>
-         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-css\PercBlogsGadget.css</ArchiveFile>
-      </PSXDependencyFile>
-   </PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsAddBlogButtonOver-gif">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsAddBlogButtonOver.gif</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsAddBlogButtonOver-gif\PercBlogsAddBlogButtonOver.gif</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadgetInactive-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsGadgetInactive.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadgetInactive-png\PercBlogsGadgetInactive.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-xml">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercBlogsGadget.xml</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-xml\PercBlogsGadget.xml</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercAddBlogPostButtonOver-gif">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercAddBlogPostButtonOver.gif</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercAddBlogPostButtonOver-gif\PercAddBlogPostButtonOver.gif</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercAddBlogPostButton-gif">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercAddBlogPostButton.gif</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercAddBlogPostButton-gif\PercAddBlogPostButton.gif</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercNewBlogDialog-css">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercNewBlogDialog.css</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercNewBlogDialog-css\PercNewBlogDialog.css</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-js">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercBlogsGadget.js</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-js\PercBlogsGadget.js</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercNewBlogDialog-js">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercNewBlogDialog.js</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercNewBlogDialog-js\PercNewBlogDialog.js</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadgetOver-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsGadgetOver.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadgetOver-png\PercBlogsGadgetOver.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadget-png">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsGadget.png</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsGadget-png\PercBlogsGadget.png</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsAddBlogButton-gif">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\images\PercBlogsAddBlogButton.gif</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_images_PercBlogsAddBlogButton-gif\PercBlogsAddBlogButton.gif</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
+	<PSXDepFilesIdTypes
+		DependencyKey="sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-css">
+		<PSXDependencyFile fileType="SUPPORT_FILE">
+			<RxFile>C:\ins\dev\cm\gadgets\repository\PercBlogsGadget\PercBlogsGadget.css</RxFile>
+			<ArchiveFile>sys__UserDependency--cm_gadgets_repository_PercBlogsGadget_PercBlogsGadget-css\PercBlogsGadget.css</ArchiveFile>
+		</PSXDependencyFile>
+	</PSXDepFilesIdTypes>
 </PSXArchiveManifest>

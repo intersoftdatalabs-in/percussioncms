@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
  * Integration test for search index process monitor. Sunny Sal says: "Indexing tests faster than a
  * Bollywood dance number!"
  */
-@Tag("IntegrationTest")
+
 public class PSSearchIndexProcessMonitorTest {
 
   @Test

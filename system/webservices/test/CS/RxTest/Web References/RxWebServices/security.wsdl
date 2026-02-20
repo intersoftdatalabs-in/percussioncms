@@ -26,13 +26,13 @@
   ~     along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:flt="urn:www.percussion.com/6.0.0/faults" xmlns:sec="urn:www.percussion.com/6.0.0/security" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="security" targetNamespace="urn:www.percussion.com/6.0.0/security" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:flt="urn:www.percussion.com/8.2.0/faults" xmlns:sec="urn:www.percussion.com/8.2.0/security" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="security" targetNamespace="urn:www.percussion.com/8.2.0/security" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xsd:schema>
-      <xsd:import schemaLocation="../faults.xsd" namespace="urn:www.percussion.com/6.0.0/faults" />
+      <xsd:import schemaLocation="../faults.xsd" namespace="urn:www.percussion.com/8.2.0/faults" />
     </xsd:schema>
     <xsd:schema>
-      <xsd:import schemaLocation="security.xsd" namespace="urn:www.percussion.com/6.0.0/security" />
+      <xsd:import schemaLocation="security.xsd" namespace="urn:www.percussion.com/8.2.0/security" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="AuthenticationHeader">

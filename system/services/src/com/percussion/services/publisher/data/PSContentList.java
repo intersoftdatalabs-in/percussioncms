@@ -215,6 +215,26 @@ public class PSContentList implements IPSContentList {
         }
     }
 
+    /* Internal implementation required by IPSContentList */
+    public void setExpanderParamsImpl(Map<String, String> newargs) {
+        setExpanderParams(newargs);
+    }
+
+    /* Internal implementation required by IPSContentList */
+    public void setGeneratorParamsImpl(Map<String, String> newargs) {
+        setGeneratorParams(newargs);
+    }
+
+    /**
+     * Internal implementation used by the interface for removing an expander param.
+     */
+    public void removeExpanderParamImpl(String name) {
+        if (StringUtils.isBlank(name) || expanderArguments == null) {
+            return;
+        }
+        expanderArguments.removeIf(param -> name.equals(param.getName()));
+    }
+
     /*
      * (non-Javadoc)
      * @see com.percussion.services.publisher.IPSContentList#addGeneratorParam(java.lang.String,
@@ -283,11 +303,28 @@ public class PSContentList implements IPSContentList {
         }
     }
 
+    /* Internal implementation required by IPSContentList */
+    public void addGeneratorParamImpl(String name, String value) {
+        addGeneratorParam(name, value);
+    }
+
+    /* Internal implementation required by IPSContentList */
+    public void removeGeneratorParamImpl(String name) {
+        removeGeneratorParam(name);
+    }
+
     /* (non-Javadoc)
      * @see com.percussion.services.publisher.IPSContentList#addExpanderParam(java.lang.String,
      *      java.lang.String)
      */
     public void addExpanderParam(String n, String value) {
+        addExpanderParamImpl(n, value);
+    }
+
+    /**
+     * Internal implementation for adding expander param required by the interface.
+     */
+    public void addExpanderParamImpl(String n, String value) {
         if (StringUtils.isBlank(n)) {
             throw new IllegalArgumentException("name may not be null or empty");
         }
@@ -502,7 +539,7 @@ public class PSContentList implements IPSContentList {
         newclist.setGeneratorParams(getGeneratorParams());
         newclist.setFilterId(getFilterId());
         newclist.setUrl(getUrl());
-        newclist.setType(getType());
+        newclist.setContentListTypeImpl(getContentListType());
         newclist.setContentListId((int) PSGuidHelper.generateNextLong(
                 PSTypeEnum.CONTENT_LIST));
         newclist.setName("copied" + newclist.getContentListId());
@@ -659,25 +696,42 @@ public class PSContentList implements IPSContentList {
         m_filter = filter;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.services.publisher.IPSContentList#getType()
-     */
-    public Type getType() {
-        int tordinal = (type == null) ? 0 : type.shortValue();
-
-        return Type.valueOf(tordinal);
+    @Override
+    public void setNameImpl(String name) {
+        this.name = name;
     }
 
     /*
      * (non-Javadoc)
-     * @see com.percussion.services.publisher.IPSContentList#setType(com.percussion.services.publisher.IPSContentList.Type)
+     * @see com.percussion.services.publisher.IPSContentList#getType()
      */
-    public void setType(Type newtype) {
+    @Override
+    public String getType() {
+        return PSTypeEnum.CONTENT_LIST.name();
+    }
+
+    public Type getContentListType() {
+        int tordinal = (type == null) ? 0 : type.shortValue();
+        return Type.valueOf(tordinal);
+    }
+
+    @Override
+    public void setUrlImpl(String url) {
+        this.url = url;
+    }
+
+    @Override
+    public void setContentListTypeImpl(Type newtype) {
         if (newtype == null) {
             throw new IllegalArgumentException("newtype may not be null");
         }
-
         type = newtype.ordinal();
+    }
+
+    /*
+     * Backwards-compatible setter that remains for binary compatibility
+     */
+    public void setType(Type newtype) {
+        setContentListTypeImpl(newtype);
     }
 }

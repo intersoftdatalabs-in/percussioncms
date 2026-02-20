@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for the PSDependencyMap and PSDependencyDef classes */
-@Tag("IntegrationTest")
+
 public class PSDependencyManagerTest {
   /** Construct this unit test */
   public PSDependencyManagerTest() {}

@@ -18,13 +18,13 @@ package com.percussion.webservices.transformation.converter;
 
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.ui.data.PSHierarchyNode;
-import com.percussion.webservices.ui.data.PSHierarchyNodePropertiesProperty;
+
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.services.ui.data.PSHierarchyNode</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.services.ui.data.PSHierarchyNode</code> and
  * <code>com.percussion.webservices.ui.data.PSHierarchyNode</code>.
  */
 public class PSHierarchyNodeConverter extends PSConverter
@@ -48,46 +48,52 @@ public class PSHierarchyNodeConverter extends PSConverter
    public Object convert(Class type, Object value)
    {
       Object result = super.convert(type, value);
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.ui.data.PSHierarchyNode orig = 
+         com.percussion.webservices.ui.data.PSHierarchyNode orig =
             (com.percussion.webservices.ui.data.PSHierarchyNode) value;
-         
+
          PSHierarchyNode dest = (PSHierarchyNode) result;
 
          dest.setGUID(new PSDesignGuid(orig.getId()));
          if (orig.getParentId() != 0)
             dest.setParentId(new PSDesignGuid(orig.getParentId()));
-         
+
          // convert properties
-         for (PSHierarchyNodePropertiesProperty property : orig.getProperties())
-            dest.addProperty(property.getName(), property.getValue());
+         if (orig.getProperties() != null && orig.getProperties().getProperty() != null) {
+            for (com.percussion.webservices.ui.data.PSHierarchyNode.Properties.Property property : orig.getProperties().getProperty()) {
+               dest.addProperty(property.getName(), property.getValue());
+            }
+         }
       }
       else
       {
          PSHierarchyNode orig = (PSHierarchyNode) value;
-         
-         com.percussion.webservices.ui.data.PSHierarchyNode dest = 
+
+         com.percussion.webservices.ui.data.PSHierarchyNode dest =
             (com.percussion.webservices.ui.data.PSHierarchyNode) result;
-         
+
          dest.setId(new PSDesignGuid(orig.getGUID()).getValue());
          if (orig.getParentId() != null)
             dest.setParentId(new PSDesignGuid(orig.getParentId()).getValue());
 
          // convert properties
-         PSHierarchyNodePropertiesProperty[] properties = 
-            new PSHierarchyNodePropertiesProperty[orig.getProperties().size()];
-         dest.setProperties(properties);
-         int index = 0;
+         com.percussion.webservices.ui.data.PSHierarchyNode.Properties properties =
+            new com.percussion.webservices.ui.data.PSHierarchyNode.Properties();
          for (String propertyName : orig.getProperties().keySet())
          {
             String propertyValue = orig.getProperty(propertyName);
-            properties[index++] =  new PSHierarchyNodePropertiesProperty(
-               orig.getGUID().longValue(), propertyName, propertyValue);
+            com.percussion.webservices.ui.data.PSHierarchyNode.Properties.Property p =
+               new com.percussion.webservices.ui.data.PSHierarchyNode.Properties.Property();
+            p.setParentId(orig.getGUID().longValue());
+            p.setName(propertyName);
+            p.setValue(propertyValue);
+            properties.getProperty().add(p);
          }
+         dest.setProperties(properties);
       }
-      
+
       return result;
    }
 }

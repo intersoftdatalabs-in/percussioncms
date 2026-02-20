@@ -8,7 +8,6 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-
 dojo.provide("dojo.widget.TreeExpandToNodeOnSelect");
 
 dojo.require("dojo.widget.HtmlWidget");
@@ -18,30 +17,30 @@ dojo.require("dojo.widget.HtmlWidget");
  * useful for program expansion
  */
 dojo.widget.defineWidget(
-	"dojo.widget.TreeExpandToNodeOnSelect",
-	dojo.widget.HtmlWidget,
-{
-	selector: "",
-	controller: "",
-	
-	/**
-	* if true, then selected node will be expanded too
-	*/
-	withSelected: false,
-	
-	initialize: function() {
-		this.selector = dojo.widget.byId(this.selector);
-		this.controller = dojo.widget.byId(this.controller);
-		
-		dojo.event.topic.subscribe(this.selector.eventNames.select, this, "onSelect");	
-	},
+  "dojo.widget.TreeExpandToNodeOnSelect",
+  dojo.widget.HtmlWidget,
+  {
+    selector: "",
+    controller: "",
 
-	
-	onSelectEvent: function(message) {
-		this.controller.expandToNode(message.node, this.withSelected)		
-	}
-	
-	
-	
+    /**
+     * if true, then selected node will be expanded too
+     */
+    withSelected: false,
 
-});
+    initialize: function () {
+      this.selector = dojo.widget.byId(this.selector);
+      this.controller = dojo.widget.byId(this.controller);
+
+      dojo.event.topic.subscribe(
+        this.selector.eventNames.select,
+        this,
+        "onSelect"
+      );
+    },
+
+    onSelectEvent: function (message) {
+      this.controller.expandToNode(message.node, this.withSelected);
+    },
+  }
+);

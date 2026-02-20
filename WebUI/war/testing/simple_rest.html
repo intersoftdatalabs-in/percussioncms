@@ -1,56 +1,58 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simple REST Test</title>
+    <script src="../jslib/jquery-1.3.2.js"></script>
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/json2.js"></script>
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js"></script>
+    <!-- PSJSUtils.js must come after jQuery core js file -->
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-percutils/jquery.percutils.js"></script>
+    <script src="../plugins/perc_path_constants.js"></script>
+    <script src="../jslib/jquery-ui-1.7.2.custom.js"></script>
+    <script src="../plugins/perc_utils.js"></script>
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js"></script>
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js"></script>
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/tools.scrollable-1.1.2.js"></script>
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/tools.scrollable.mousewheel-1.0.1.js"></script>
+    <script src="../jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js"></script>
+    <script src="../plugins/perc_extend_jQueryValidate.js"></script>
+    <script src="../jslib/ui/ui.core.js"></script>
+    <script src="../jslib/ui/ui.draggable.js"></script>
+    <script src="../jslib/ui/ui.droppable.js"></script>
+    <script src="../jslib/ui/ui.dialog.js"></script>
+    <script>
+      $("document").ready(function () {
+        populateWidgetLibrary();
+      });
 
+      function populateWidgetLibrary() {
+        $("#perc-widget-library").empty();
+        $.getJSON($.perc_paths.WIDGETS_ALL, function (js) {
+          $.each(js["WidgetSummary"], function () {
+            $("#perc-widget-library").append(mk_widget(this));
+          });
+        });
+      }
 
-<html>
- <head>
-  <script src="../jslib/jquery-1.3.2.js"></script>
-  <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/json2.js"></script>
-  <script src="../jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js"></script>
-  <!-- PSJSUtils.js must come after jQuery core js file -->
-  <script src="../jslib/profiles/3x/jquery/plugins/jquery-percutils/jquery.percutils.js"></script>
-  <script src="../plugins/perc_path_constants.js"></script>
-  <script src="../jslib/jquery-ui-1.7.2.custom.js"></script>
-  <script src="../plugins/perc_utils.js"></script>
-  <script src="..jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js"></script>
-  <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js"></script>
-  <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/tools.scrollable-1.1.2.js"></script>
-  <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/tools.scrollable.mousewheel-1.0.1.js"></script>
-  <script src="../jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js"></script>
-  <script src="../plugins/perc_extend_jQueryValidate.js"></script>
-  <script src="../jslib/ui/ui.core.js"></script>
-  <script src="../jslib/ui/ui.draggable.js"></script>
-  <script src="../jslib/ui/ui.droppable.js"></script>
-  <script src="../jslib/ui/ui.dialog.js"></script>
-  <script>
-       ;
-       $('document').ready( function(){
-               populateWidgetLibrary();
-       });
-
-       function populateWidgetLibrary(){
-          $('#perc-widget-library').empty();
-	  $.getJSON($.perc_paths.WIDGETS_ALL, function(js) {
-                       $.each( js['WidgetSummary'], function( ) {
-                                  $('#perc-widget-library').append( mk_widget( this ) );
-                               }); });
-       }
-
-       function mk_widget(w) {
-          var wdg;
-          wdg = $("<div/>") 
-	    .css({'position': 'relative', 'width': '200px'})
-	    .addClass("perc-widget-tool")
-	    .append($("<span/>").append(w['label']).addClass("perc-widget-label") )
-	    .append( $("<img src=\"" + w['icon'] + "\" alt=\"\"></img>") )
-	    .attr('id',"widget-" + w['id'] + "-" + $('.perc-widget').size())
-            .draggable({
-                  appendTo: 'body',
-                  helper: 'clone',
-                  revert: true
-                  });
-          wdg.data( 'widget', w );
-          return wdg;
-    }
-  </script>
+      function mk_widget(w) {
+        var wdg;
+        wdg = $("<div/>")
+          .css({ position: "relative", width: "200px" })
+          .addClass("perc-widget-tool")
+          .append($("<span/>").append(w["label"]).addClass("perc-widget-label"))
+          .append($('<img src="' + w["icon"] + '" alt=""></img>'))
+          .attr("id", "widget-" + w["id"] + "-" + $(".perc-widget").size())
+          .draggable({
+            appendTo: "body",
+            helper: "clone",
+            revert: true,
+          });
+        wdg.data("widget", w);
+        return wdg;
+      }
+    </script>
+  </head>
   <body>
     <div id="perc-widget-library"></div>
   </body>

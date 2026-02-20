@@ -92,7 +92,24 @@ public class PSWsHelperFactory
    {
       if (s_helperClass == null)
       {
-         s_helperClass = Class.forName("com.percussion.integration.PSWsHelper");
+         // Allow override via system property 'ps.ws.helper' = 'cxf'|'axis'
+         String helperProp = System.getProperty("ps.ws.helper");
+         if ("cxf".equalsIgnoreCase(helperProp))
+         {
+            try
+            {
+               s_helperClass = Class.forName("com.percussion.integration.PSWsHelperCxf");
+            }
+            catch (ClassNotFoundException e)
+            {
+               // fall through to default
+            }
+         }
+
+         if (s_helperClass == null)
+         {
+            s_helperClass = Class.forName("com.percussion.integration.PSWsHelper");
+         }
       }
       return s_helperClass;
    }

@@ -27,25 +27,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.beanutils.Converter;
 /**
  * Test the {@link PSTransitionConverter}
  */
-public class PSTransitionConverterTest extends TestCase
+public class PSTransitionConverterTest
 {
    /**
     * Test the converter
-    * 
+    *
     * @throws Exception if the test fails.
     */
+
    public void testConverter() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
+
       // convert server to client object
       Converter converter = factory.getConverter(PSTransition.class);
-      
+
       PSTransition src = new PSTransition();
       src.setAllowAllRoles(true);
       src.setApprovals(3);
@@ -60,21 +62,21 @@ public class PSTransitionConverterTest extends TestCase
       notificationList.add(new PSNotification());
       notificationList.add(new PSNotification());
       src.setNotifications(notificationList);
-      
-      com.percussion.webservices.system.PSTransition tgt = 
-         (com.percussion.webservices.system.PSTransition) 
+
+      com.percussion.webservices.system.PSTransition tgt =
+         (com.percussion.webservices.system.PSTransition)
          converter.convert(
             com.percussion.webservices.system.PSTransition.class, src);
-      
+
       assertEquals(src.getDescription(), tgt.getDescription());
       assertEquals(src.getLabel(), tgt.getLabel());
       assertEquals(src.getTransitionAction(), tgt.getTransitionAction());
       assertEquals(src.getTrigger(), tgt.getTrigger());
       assertEquals(src.getApprovals(), tgt.getApprovals());
       assertEquals(src.getGUID().longValue(), tgt.getId().longValue());
-      assertEquals(src.getNotifications().size(), 
-         tgt.getNotifications().length);
-      assertEquals(PSStringUtils.toCamelCase(src.getRequiresComment().name()), 
+      assertEquals(src.getNotifications().size(),
+         (tgt.getNotifications() == null ? 0 : tgt.getNotifications().getPSNotification().size()));
+      assertEquals(PSStringUtils.toCamelCase(src.getRequiresComment().name()),
          tgt.getComment().toString());
       assertEquals(src.isAllowAllRoles(), tgt.isAllowAllRoles());
       assertEquals(src.isDefaultTransition(), tgt.isDefaultTransition());

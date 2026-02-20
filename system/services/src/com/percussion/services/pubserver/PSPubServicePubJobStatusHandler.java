@@ -70,14 +70,14 @@ public class PSPubServicePubJobStatusHandler implements IPSPublishingJobStatusCa
 
              if (!pubServer.hasFullPublished())
              {
-                 pubServer.setHasFullPublisehd(true);
+                 pubServer.setHasFullPublished(true);
                  hasServerChanged = true;
              }
 
              if (pubServer.getSiteRenamed()) {
                  pubServer.setSiteRenamed(false);
                  hasServerChanged = true;
-                 notifySiteRename(site, pubServer.getServerType());
+                 notifySiteRename(site, pubServer.getServerType().orElse(null));
              }
 
              if (hasServerChanged) {

@@ -1,105 +1,102 @@
-
-
 #perc-blogs-gadget a {
-    text-decoration : none;
+  text-decoration: none;
 }
 
 #perc-blogs-gadget-drill .tagsClass {
-    font-family: Verdana;
-    font-size: 11px;
-    color: grey;
+  font-family: Verdana;
+  font-size: 11px;
+  color: grey;
 }
 
 #perc-blogs-gadget-drill a {
-    text-decoration : none;
+  text-decoration: none;
 }
 
 #perc-blogs-gadget .dataTables_wrapper {
-    padding-top : 40px;
+  padding-top: 40px;
 }
 
 #perc-blogs-gadget-drill .dataTables_wrapper {
-    padding-top : 40px;
+  padding-top: 40px;
 }
 /*TODO: Need to check why is using align:center */
 #perc-blogs-gadget-drill .perc-datatable-row {
-    text-align: left;
+  text-align: left;
 }
 
 #perc-blogs-gadget-drill .perc-type-html {
-    text-align: left;
+  text-align: left;
 }
 /* UP TO HERE */
 #perc-blogs-gadget .dataTables_wrapper td.perc-first div.perc-last {
-    color : #09C;
+  color: #09c;
 }
 
 #perc-blogs-gadget-drill .dataTables_wrapper td.perc-first div.perc-last {
-    color : #09C;
+  color: #09c;
 }
 
 #perc-return-button {
-    position : absolute;
-    left : 0px;
-    top : 0px;
-    cursor : pointer;
-    font-family: Verdana;
-    font-size: 11px;
-    color: #0099CC;
-    font-weight: normal;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  cursor: pointer;
+  font-family: Verdana;
+  font-size: 11px;
+  color: #0099cc;
+  font-weight: normal;
 }
 
 #perc-add-blog-button {
-    background : url(images/PercBlogsAddBlogButton.gif);
-    width : 37px;
-    height : 29px;
-    position : absolute;
-    right : 0px;
-    top : 0px;
-    cursor : pointer;
+  background: url(images/PercBlogsAddBlogButton.gif);
+  width: 37px;
+  height: 29px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  cursor: pointer;
 }
 
 #perc-add-post-button {
-    background : url(images/PercAddBlogPostButton.gif);
-    width : 37px;
-    height : 29px;
-    position : absolute;
-    right : 0px;
-    top : 0px;
-    cursor : pointer;
+  background: url(images/PercAddBlogPostButton.gif);
+  width: 37px;
+  height: 29px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  cursor: pointer;
 }
 
 #perc-add-blog-button:hover {
-    background : url(images/PercBlogsAddBlogButtonOver.gif);
+  background: url(images/PercBlogsAddBlogButtonOver.gif);
 }
 
 #perc-add-post-button:hover {
-    background : url(images/PercAddBlogPostButtonOver.gif);
+  background: url(images/PercAddBlogPostButtonOver.gif);
 }
 
-
 #perc-blogs-gadget-drill .perc-comments-newCount {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 #perc-blogs-gadget-drill .perc-comments-commentsIcon {
-    width: 12px;
-    height: 13px;
-    display: inline-block;
-    background-image: url("/cm/images/images/commentsIcon.gif");
-    background-repeat:no-repeat;
-    background-position:0px 2px;
+  width: 12px;
+  height: 13px;
+  display: inline-block;
+  background-image: url("/cm/images/images/commentsIcon.gif");
+  background-repeat: no-repeat;
+  background-position: 0px 2px;
 }
 
 #perc-blogs-count {
-    position: absolute;
-    top: 25px;
-    font-family: Verdana;
-    font-size: 11px;
-    display: block;
-    color: #00A8CB;
-    font-weight: 600;
+  position: absolute;
+  top: 25px;
+  font-family: Verdana;
+  font-size: 11px;
+  display: block;
+  color: #00a8cb;
+  font-weight: 600;
 }
 body * {
-    font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }

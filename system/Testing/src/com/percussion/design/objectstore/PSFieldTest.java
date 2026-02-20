@@ -25,20 +25,18 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSFieldTest extends TestCase
+public class PSFieldTest
 {
-   public PSFieldTest(String name)
-   {
-      super(name);
-   }
-
+   @Test
    public void testEquals() throws Exception
    {
    }
 
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -105,22 +103,22 @@ public class PSFieldTest extends TestCase
       Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
       Element elem2 = testFrom.toXml(doc);
       PSXmlDocumentBuilder.copyTree(doc2, root2, elem2, true);
-      assertTrue(testTo.equals(testFrom));
-      
+      assertEquals(testTo, testFrom);
+
       testEqualMetaData(testTo, testFrom);
-      
+
    }
 
    /**
     * Tests {@link PSField#equalMetaData(Object)}
-    * 
+    *
     * @param testTo a field object, assumed not <code>null</code>.
     * @param testFrom a copy of the above field, assumed not <code>null</code>.
     */
    private void testEqualMetaData(PSField testTo, PSField testFrom)
    {
       assertTrue(testTo.equalMetaData(testFrom));
-      
+
       // modify data that is not part of meta data
       assertTrue(testTo.getDefault() != null);
       testFrom.setDefault(null);
@@ -136,16 +134,16 @@ public class PSFieldTest extends TestCase
       assertTrue(testTo.getValidationRules() != null);
       testFrom.setValidationRules(null);
 
-      // meta data should still be equal 
+      // meta data should still be equal
       assertTrue(testTo.equalMetaData(testFrom));
 
       // modify meta data of the field
-      
+
       // test cleanupNamespace() property
       testTo.setCleanupNamespaces(true);
       testFrom.setCleanupNamespaces(false);
       assertFalse(testTo.equalMetaData(testFrom));
-      
+
       testFrom.setCleanupNamespaces(true);
       assertTrue(testTo.equalMetaData(testFrom));
 
@@ -156,7 +154,7 @@ public class PSFieldTest extends TestCase
 
       testFrom.setDataType(PSField.DT_TEXT);
       assertTrue(testTo.equalMetaData(testFrom));
-      
+
       // test type
       testTo.setType(PSField.TYPE_LOCAL);
       testFrom.setType(PSField.TYPE_SHARED);
@@ -172,7 +170,7 @@ public class PSFieldTest extends TestCase
 
       testFrom.setFieldValueType(PSField.FIELD_VALUE_TYPE_CONTENT);
       assertTrue(testTo.equalMetaData(testFrom));
-      
+
       // test data format
       testTo.setDataFormat("YYYY");
       testFrom.setDataFormat("YYYY/MM");
@@ -180,7 +178,7 @@ public class PSFieldTest extends TestCase
 
       testFrom.setDataFormat("YYYY");
       assertTrue(testTo.equalMetaData(testFrom));
-      
+
       // test mime type
       testTo.setMimeType("text/xml");
       testFrom.setMimeType("text");
@@ -188,7 +186,7 @@ public class PSFieldTest extends TestCase
 
       testFrom.setMimeType("text/xml");
       assertTrue(testTo.equalMetaData(testFrom));
-      
+
       // test submit name
       testTo.setSubmitName("field1");
       testFrom.setSubmitName("field1_2");
@@ -196,26 +194,19 @@ public class PSFieldTest extends TestCase
 
       testFrom.setSubmitName("field1");
       assertTrue(testTo.equalMetaData(testFrom));
-      
+
       // test column locator
       PSBackEndColumn col = (PSBackEndColumn)testTo.getLocator();
       PSBackEndColumn col2 = (PSBackEndColumn)col.clone();
       testFrom.setLocator(col2);
       assertTrue(testTo.equalMetaData(testFrom));
-      
+
       col2.setColumn(col.getColumn() + "_1");
       assertFalse(testTo.equalMetaData(testFrom));
-      
+
       col2.setColumn(col.getColumn());
       assertTrue(testTo.equalMetaData(testFrom));
    }
-   
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
 
-      suite.addTest(new PSFieldTest("testXml"));
-
-      return suite;
-   }
 }
+

@@ -24,11 +24,11 @@ import com.percussion.metadata.data.PSMetadata;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.test.PSDataServiceRestClient;
+import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.MediaType;
 import net.sf.json.JSONObject;
 
 /** REST client for metadata service. Sunny Sal says: "Metadata management, Java 11 style!" */

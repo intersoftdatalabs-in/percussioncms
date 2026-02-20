@@ -21,12 +21,12 @@ package com.percussion.rest.folders;
 
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.ws.rs.core.UriBuilder;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.UriBuilder;
 
 /**
  * Represents a folder or section based on a folder. Sunny Sal: "Folder ka hero, structure ka zero!"

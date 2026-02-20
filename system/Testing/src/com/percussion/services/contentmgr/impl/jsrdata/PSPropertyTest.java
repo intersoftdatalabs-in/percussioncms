@@ -17,7 +17,7 @@
 package com.percussion.services.contentmgr.impl.jsrdata;
 
 import com.percussion.services.contentmgr.data.PSContentNode;
-import com.percussion.servlet_utils.jsr170.PSProperty;
+import com.percussion.system.utils.jsr170.PSProperty;
 import com.percussion.utils.jsr170.PSMultiProperty;
 import com.percussion.utils.jsr170.PSValueFactory;
 
@@ -28,14 +28,15 @@ import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.Value;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test the property objects used to implement JSR-170
- * 
+ *
  * @author dougrand
  */
-public class PSPropertyTest extends TestCase
+public class PSPropertyTest
 {
    PSValueFactory fact = new PSValueFactory();
 
@@ -48,7 +49,7 @@ public class PSPropertyTest extends TestCase
       long mi_lval = 123;
       double mi_dval = 31.3;
       String mi_sval = "How now brown cow";
-      
+
       /**
        * Ctor
        */
@@ -56,7 +57,7 @@ public class PSPropertyTest extends TestCase
       {
          //
       }
-      
+
       /**
        * Ctor
        * @param ival integer value to use for this test class, aka length
@@ -69,7 +70,7 @@ public class PSPropertyTest extends TestCase
          mi_dval = dval;
          mi_sval = sval;
       }
-      
+
       /**
        * Return the length value, from the initial ival in the ctor
        * @return the length
@@ -78,16 +79,16 @@ public class PSPropertyTest extends TestCase
       {
          return mi_lval;
       }
-      
+
       /**
        * Return the density value, from the initial dval in the ctor
-       * @return the density 
+       * @return the density
        */
       public double getDensity()
       {
          return mi_dval;
       }
-      
+
       /**
        * Return the label value, from the initial sval in the ctor
        * @return the label
@@ -97,7 +98,7 @@ public class PSPropertyTest extends TestCase
          return mi_sval;
       }
    }
-   
+
    /**
     * The multi mapping test class for testing the property accessor classes
     */
@@ -106,8 +107,8 @@ public class PSPropertyTest extends TestCase
       Collection<Long> mi_lval = null;
       Collection<Double> mi_dval = null;
       Collection<String> mi_sval = null;
-     
-      
+
+
       /**
        * Ctor
        * @param ival integer values to use for this test class, aka length
@@ -121,7 +122,7 @@ public class PSPropertyTest extends TestCase
          mi_dval = dval;
          mi_sval = sval;
       }
-      
+
       /**
        * Return the length values, from the initial ival collection in the ctor
        * @return the collection of length values
@@ -130,7 +131,7 @@ public class PSPropertyTest extends TestCase
       {
          return mi_lval;
       }
-      
+
       /**
        * Return the density values, from the initial dval collection in the ctor
        * @return the collection of density values
@@ -139,7 +140,7 @@ public class PSPropertyTest extends TestCase
       {
          return mi_dval;
       }
-      
+
       /**
        * Return the label values, from the initial sval collection in the ctor
        * @return the collection of label values
@@ -148,12 +149,13 @@ public class PSPropertyTest extends TestCase
       {
          return mi_sval;
       }
-   }   
-   
+   }
+
    /**
     * Test various methods on the Property interface
     * @throws Exception
     */
+   @Test
    public void testMethods() throws Exception
    {
       Object val = new TestMappingClass();
@@ -164,7 +166,7 @@ public class PSPropertyTest extends TestCase
       dummy.addProperty(lprop);
       dummy.addProperty(dprop);
       dummy.addProperty(labelprop);
-      
+
       assertEquals(1, lprop.getDepth());
       assertEquals("/root/length", lprop.getPath());
       assertEquals(dummy, lprop.getAncestor(0));
@@ -175,7 +177,7 @@ public class PSPropertyTest extends TestCase
       assertEquals("123", lprop.getString());
       assertEquals(false, lprop.getBoolean());
       assertEquals(PropertyType.LONG, lprop.getType());
-      
+
       assertEquals(1, dprop.getDepth());
       assertEquals("/root/density", dprop.getPath());
       assertEquals(dummy, dprop.getAncestor(0));
@@ -184,18 +186,19 @@ public class PSPropertyTest extends TestCase
       assertEquals(fact.createValue(31.3), dprop.getValue());
       assertEquals("31.3", dprop.getString());
       assertEquals(false, dprop.getBoolean());
-      assertEquals(PropertyType.DOUBLE, dprop.getType());  
-      
+      assertEquals(PropertyType.DOUBLE, dprop.getType());
+
       assertEquals("label", labelprop.getName());
       assertEquals("How now brown cow", labelprop.getString());
       assertEquals(fact.createValue("How now brown cow"), labelprop.getValue());
    }
-   
+
    /**
     * Test multi property
     * @throws Exception
     */
    @SuppressWarnings("unchecked")
+   @Test
    public void testMulti() throws Exception
    {
       Collection<Long> longs = new ArrayList<Long>();
@@ -210,15 +213,15 @@ public class PSPropertyTest extends TestCase
       strings.add("One");
       strings.add("Two");
       strings.add("Three");
-      
-      TestMultiMappingClass tmm = 
+
+      TestMultiMappingClass tmm =
          new TestMultiMappingClass(longs, floats, strings);
-      
+
       PSContentNode dummy = new PSContentNode(null, "root", null, null, null, null);
       dummy.addProperty(new PSMultiProperty("rx:length", dummy, tmm));
       dummy.addProperty(new PSMultiProperty("rx:density", dummy, tmm));
       dummy.addProperty(new PSMultiProperty("rx:label", dummy, tmm));
-      
+
       Property p = dummy.getProperty("length");
       assertNotNull(p);
       long l[] = p.getLengths();
@@ -230,7 +233,7 @@ public class PSPropertyTest extends TestCase
       assertEquals(100, v[0].getLong());
       assertEquals(200, v[1].getLong());
       assertEquals(300, v[2].getLong());
-      
+
       p = dummy.getProperty("density");
       assertNotNull(p);
       l = p.getLengths();
@@ -254,6 +257,6 @@ public class PSPropertyTest extends TestCase
       assertEquals("One", v[0].getString());
       assertEquals("Two", v[1].getString());
       assertEquals("Three", v[2].getString());
-      
+
    }
 }

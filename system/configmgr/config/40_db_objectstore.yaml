@@ -1,9 +1,9 @@
 - Name: 3copyobjectstore
-  Class : com.percussion.service.conf.tasks.impl.PSConfigTaskFileCopy
+  Class: com.percussion.service.conf.tasks.impl.PSConfigTaskFileCopy
   RunFrequency: ON_CONTAINER_REFRESH
   RunAtState: BEFORE_CM1_STARTUP
-  RunInEnv :
-     - DOCKER
+  RunInEnv:
+    - DOCKER
   Parameters:
     Action: copy
     Type: directory

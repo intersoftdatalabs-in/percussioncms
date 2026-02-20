@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Tag;
 
 import java.security.SecureRandom;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *   Unit tests for the PSLogHandler class
@@ -43,19 +43,13 @@ public class PSLogHandlerTest
    public void TestOptionsInitiallyOff()
    {
       PSLogHandler handler = new PSLogHandler();
-      assertTrue("Error logging off", !handler.isErrorLoggingEnabled());
-      assertTrue("Server start/stop logging off",
-         !handler.isServerStartStopLoggingEnabled());
-      assertTrue("Application start/stop logging off",
-         !handler.isAppStartStopLoggingEnabled());
-      assertTrue("Application statistics logging off",
-         !handler.isAppStatisticsLoggingEnabled());
-      assertTrue("Basic user activity logging off",
-         !handler.isBasicUserActivityLoggingEnabled());
-      assertTrue("Detailed user activity logging off",
-         !handler.isDetailedUserActivityLoggingEnabled());
-      assertTrue("Multiple handler logging off",
-         !handler.isMultipleHandlerLoggingEnabled());
+      assertFalse(handler.isErrorLoggingEnabled(), "Error logging off");
+      assertFalse(handler.isServerStartStopLoggingEnabled(), "Server start/stop logging off");
+      assertFalse(handler.isAppStartStopLoggingEnabled(), "Application start/stop logging off");
+      assertFalse(handler.isAppStatisticsLoggingEnabled(), "Application statistics logging off");
+      assertFalse(handler.isBasicUserActivityLoggingEnabled(), "Basic user activity logging off");
+      assertFalse(handler.isDetailedUserActivityLoggingEnabled(), "Detailed user activity logging off");
+      assertFalse(handler.isMultipleHandlerLoggingEnabled(), "Multiple handler logging off");
    }
 
    /**
@@ -72,7 +66,7 @@ public class PSLogHandlerTest
       final int DETAILED_USER = 16;
       final int BASIC_USER = 32;
       final int MULTIPLE_HANDLER = 64;
-      
+
       PSLogger logger = new PSLogger();
       SecureRandom rand = new SecureRandom();
       int options = 0;
@@ -93,33 +87,33 @@ public class PSLogHandlerTest
          PSLogHandler handler = new PSLogHandler(logger);
 
          if (0 != (options & ERROR_LOGGING))
-            assertTrue("Error logging on", handler.isErrorLoggingEnabled());
+            assertTrue(handler.isErrorLoggingEnabled(), "Error logging on");
          else
-            assertTrue("Error logging off", !handler.isErrorLoggingEnabled());
+            assertFalse(handler.isErrorLoggingEnabled(), "Error logging off");
          if (0 != (options & SERVER_STARTSTOP))
-            assertTrue("Server start/stop logging on", handler.isServerStartStopLoggingEnabled());
+            assertTrue(handler.isServerStartStopLoggingEnabled(), "Server start/stop logging on");
          else
-            assertTrue("Server start/stop logging off", !handler.isServerStartStopLoggingEnabled());
+            assertFalse(handler.isServerStartStopLoggingEnabled(), "Server start/stop logging off");
          if (0 != (options & APP_STARTSTOP))
-            assertTrue("Application start/stop logging on", handler.isAppStartStopLoggingEnabled());
+            assertTrue(handler.isAppStartStopLoggingEnabled(), "Application start/stop logging on");
          else
-            assertTrue("Application start/stop logging off", !handler.isAppStartStopLoggingEnabled());
+            assertFalse(handler.isAppStartStopLoggingEnabled(), "Application start/stop logging off");
          if (0 != (options & APP_STATS))
-            assertTrue("Application statistics logging on", handler.isAppStatisticsLoggingEnabled());
+            assertTrue(handler.isAppStatisticsLoggingEnabled(), "Application statistics logging on");
          else
-            assertTrue("Application statistics logging off", !handler.isAppStatisticsLoggingEnabled());
+            assertFalse(handler.isAppStatisticsLoggingEnabled(), "Application statistics logging off");
          if (0 != (options & BASIC_USER))
-            assertTrue("Basic user activity logging on", handler.isBasicUserActivityLoggingEnabled());
+            assertTrue(handler.isBasicUserActivityLoggingEnabled(), "Basic user activity logging on");
          else
-            assertTrue("Basic user activity logging off", !handler.isBasicUserActivityLoggingEnabled());
+            assertFalse(handler.isBasicUserActivityLoggingEnabled(), "Basic user activity logging off");
          if (0 != (options & DETAILED_USER))
-            assertTrue("Detailed user activity logging on", handler.isDetailedUserActivityLoggingEnabled());
+            assertTrue(handler.isDetailedUserActivityLoggingEnabled(), "Detailed user activity logging on");
          else
-            assertTrue("Detailed user activity logging off", !handler.isDetailedUserActivityLoggingEnabled());
+            assertFalse(handler.isDetailedUserActivityLoggingEnabled(), "Detailed user activity logging off");
          if (0 != (options & MULTIPLE_HANDLER))
-            assertTrue("Multiple handler logging on", handler.isMultipleHandlerLoggingEnabled());
+            assertTrue(handler.isMultipleHandlerLoggingEnabled(), "Multiple handler logging on");
          else
-            assertTrue("Multiple handler logging off", !handler.isMultipleHandlerLoggingEnabled());
+            assertFalse(handler.isMultipleHandlerLoggingEnabled(), "Multiple handler logging off");
       } // end for
    }
 }

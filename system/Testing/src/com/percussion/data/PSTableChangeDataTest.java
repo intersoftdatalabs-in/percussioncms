@@ -23,30 +23,12 @@ import java.util.List;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSTableChangeDataTest extends TestCase
+public class PSTableChangeDataTest
 {
-   /**
-    * Constructs an instance of this class to run the test implemented by the
-    * named method.
-    *
-    * @param methodName name of the method that implements a test
-    */
-   public PSTableChangeDataTest(String name)
-   {
-      super( name );
-   }
 
-   /**
-    * Collects all the tests implemented by this class into a single suite.
-    */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSTableChangeDataTest( "testListenerComm" ) );
-      return suite;
-   }
 
    /**
     * Tests the communication of table change data object with the listeners set
@@ -72,6 +54,7 @@ public class PSTableChangeDataTest extends TestCase
     * </ol>
     * @throws Exception
     */
+   @Test
    public void testListenerComm() throws Exception
    {
       List interestedChanges1 = new ArrayList();
@@ -117,12 +100,12 @@ public class PSTableChangeDataTest extends TestCase
       listeners.add(listener2);
 
       PSTableChangeData data = new PSTableChangeData(listeners.iterator());
-      
+
       final String tableNameCONTENTSTATUS = "CONTENTSTATUS";
       final String tableNameCONTENTADHOCUSERS = "CONTENTADHOCUSERS";
       final String tableNameCONTENTAPPROVALS = "CONTENTAPPROVALS";
       final String tableNameRXARTICLE = "RXARTICLE";
-      
+
       /* Tests the expectsColumn and addColumnValue methods to fire
          IllegalStateException before actioType is set.
        */
@@ -153,11 +136,11 @@ public class PSTableChangeDataTest extends TestCase
          corresponding event is fired to the listener.
        */
       data.setActionType(PSTableChangeEvent.ACTION_INSERT);
-      
+
       data.addTable(tableNameCONTENTSTATUS);
       data.addTable(tableNameCONTENTADHOCUSERS);
       data.addTable(tableNameRXARTICLE);
-      
+
       //listener1 interested
       assertTrue(data.expectsColumn(tableNameCONTENTSTATUS, "CONTENTSTATEID"));
       data.addColumnValue(tableNameCONTENTSTATUS, "CONTENTSTATEID", "2");
@@ -184,10 +167,10 @@ public class PSTableChangeDataTest extends TestCase
       listener1.clearChangedTables();
       listener2.clearChangedTables();
       data.clearData();
-      
+
       data.setActionType(PSTableChangeEvent.ACTION_UPDATE);
       data.addTable(tableNameCONTENTAPPROVALS);
-      
+
       assertTrue(data.expectsColumn(tableNameCONTENTAPPROVALS, "STATEID"));
       assertTrue(data.expectsColumn(tableNameCONTENTAPPROVALS, "CONTENTID"));
       data.addColumnValue(tableNameCONTENTAPPROVALS, "STATEID", "3");
@@ -202,10 +185,10 @@ public class PSTableChangeDataTest extends TestCase
       listener1.clearChangedTables();
       listener2.clearChangedTables();
       data.clearData();
-      
+
       data.setActionType(PSTableChangeEvent.ACTION_UPDATE);
       data.addTable(tableNameCONTENTADHOCUSERS);
-      
+
       data.setActionType(PSTableChangeEvent.ACTION_DELETE);
       assertTrue(!data.expectsColumn(tableNameCONTENTADHOCUSERS, "STATEID"));
       data.addColumnValue(tableNameCONTENTADHOCUSERS, "STATEID", "3");

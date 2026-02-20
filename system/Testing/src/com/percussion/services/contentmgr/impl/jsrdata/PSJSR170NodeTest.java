@@ -18,7 +18,7 @@ package com.percussion.services.contentmgr.impl.jsrdata;
 
 
 import com.percussion.services.contentmgr.data.PSContentNode;
-import com.percussion.servlet_utils.jsr170.PSProperty;
+import com.percussion.system.utils.jsr170.PSProperty;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -26,31 +26,22 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSJSR170NodeTest extends TestCase
+public class PSJSR170NodeTest
 {
    Node m_root;
-   
-   public PSJSR170NodeTest(String name) {
-      super(name);
-   }
 
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSJSR170NodeTest.class);
-   }
 
-   /* (non-Javadoc)
-    * @see junit.framework.TestCase#setUp()
-    */
-   @Override
-   protected void setUp() throws Exception
+
+   @BeforeEach
+   public void setUp() throws Exception
    {
-      super.setUp();
       PSContentNode aaa, bbb, current;
-      
+
       m_root = new PSContentNode(null, "root", null, null, null, null);
       aaa = (PSContentNode) m_root.addNode("aaa");
       aaa.addProperty(new PSProperty("rx:dog", aaa, "Fido"));
@@ -63,7 +54,7 @@ public class PSJSR170NodeTest extends TestCase
       bbb.addNode("ccc");
       fixupChildStatus(m_root);
    }
-   
+
    private void fixupChildStatus(Node n) throws RepositoryException
    {
       PSContentNode cur = (PSContentNode) n;
@@ -73,9 +64,12 @@ public class PSJSR170NodeTest extends TestCase
       {
          fixupChildStatus(niter.nextNode());
       }
-      
+
    }
 
+
+
+   @Test
    public void testNodeAndPropertyAccess() throws Exception
    {
       String prop = m_root.getProperty("aaa/dog").getString();
@@ -89,7 +83,10 @@ public class PSJSR170NodeTest extends TestCase
       assertEquals("Tweetie", m_root.getProperty("aaa/canary").getString());
       assertTrue(m_root.getProperty("aaa/house").getBoolean());
    }
-   
+
+
+
+   @Test
    public void testPropIterator() throws Exception
    {
       Node aaa = m_root.getNode("aaa");
@@ -101,7 +98,10 @@ public class PSJSR170NodeTest extends TestCase
       iter = aaa.getProperties("rx:ca*");
       assertEquals(2, iter.getSize());
    }
-   
+
+
+
+   @Test
    public void testNodeIterator() throws Exception
    {
       Node bbb = m_root.getNode("bbb");

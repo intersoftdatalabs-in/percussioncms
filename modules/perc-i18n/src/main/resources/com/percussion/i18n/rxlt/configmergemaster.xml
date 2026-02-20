@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<!--
-This configuration file is used to merge the server TMX resource bundle with
-that generated from the CMS by the tool. This merging is required to preserve the
-existing translations before giving the generated TMX resource bundle for
-translation service.
-<!DOCTYPE tmxmergeconfig SYSTEM "tmxmergeconfig.dtd">
--->
+<!-- This configuration file is used to merge the server TMX resource bundle
+	with that generated from the CMS by the tool. This merging is required to
+	preserve the existing translations before giving the generated TMX resource
+	bundle for translation service. <!DOCTYPE tmxmergeconfig SYSTEM "tmxmergeconfig.dtd"> -->
 <tmxmergeconfig>
 	<tu>
 		<config>
@@ -94,4 +91,3 @@ translation service.
 		</tuv>
 	</tu>
 </tmxmergeconfig>
-

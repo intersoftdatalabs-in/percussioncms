@@ -29,7 +29,7 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSAclServiceLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.utils.guid.IPSGuid;
 import java.text.MessageFormat;
@@ -110,7 +110,7 @@ public class PSExitDeleteObjectAcl extends PSDefaultExtension
     catch (NumberFormatException e) {
       errorMsg = "The object id ''{0}'' could not be parsed. ";
       MessageFormat.format(errorMsg, objectId);
-    } catch (PSSecurityException e) {
+    } catch (PSServiceSecurityException e) {
       // couldn't delete acl
       errorMsg = "Failed to delete acl for object {0}: {1}";
       MessageFormat.format(errorMsg, objectId, e.getLocalizedMessage());

@@ -126,6 +126,16 @@ public class PSDeliveryType implements IPSDeliveryType
       this.beanName = beanName;
    }
 
+   @Override
+   public void setBeanNameImpl(String beanName) {
+      setBeanName(beanName);
+   }
+
+   @Override
+   public void setNameImpl(String name) {
+      setName(name);
+   }
+
    /**
     * Get the description that describes this location.
     * 

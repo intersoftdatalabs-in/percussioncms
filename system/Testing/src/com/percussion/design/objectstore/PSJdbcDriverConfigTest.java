@@ -23,17 +23,20 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.w3c.dom.Document;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link PSJdbcDriverConfig} class.
  */
-public class PSJdbcDriverConfigTest extends TestCase
+public class PSJdbcDriverConfigTest
 {
    /**
     * Test the parameterized ctor
-    * 
+    *
     * @throws Exception if the test fails
     */
+
+   @Test
    public void testCtor() throws Exception
    {
       String[] args = (String[]) ArrayUtils.clone(ARGS);
@@ -43,7 +46,7 @@ public class PSJdbcDriverConfigTest extends TestCase
       assertEquals(args[1], cfg.getClassName());
       assertEquals(args[2], cfg.getContainerTypeMapping());
 
-      
+
       for (int i = 0; i < args.length; i++)
       {
          String val = args[i];
@@ -52,14 +55,16 @@ public class PSJdbcDriverConfigTest extends TestCase
          args[i] = "";
          PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, true);
          args[i] = val;
-      }      
+      }
    }
-   
+
    /**
     * Tests XML serialization methods.
-    * 
+    *
     * @throws Exception if the test fails.
     */
+
+   @Test
    public void testXml() throws Exception
    {
       String[] args = (String[]) ArrayUtils.clone(ARGS);
@@ -68,12 +73,14 @@ public class PSJdbcDriverConfigTest extends TestCase
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       assertEquals(cfg, new PSJdbcDriverConfig(cfg.toXml(doc)));
    }
-   
+
    /**
     * Tests equals and hashcode method
-    * 
+    *
     * @throws Exception if the test fails
     */
+
+   @Test
    public void testEquals() throws Exception
    {
       String[] args = (String[]) ArrayUtils.clone(ARGS);
@@ -83,28 +90,30 @@ public class PSJdbcDriverConfigTest extends TestCase
          PSJdbcDriverConfig.class, PARAMS, args, false);
       assertEquals(cfg, cfg2);
       assertEquals(cfg.hashCode(), cfg2.hashCode());
-      
+
       for (int i = 0; i < args.length; i++)
       {
          String val = args[i];
          args[i] = "foo";
-         assertTrue(!cfg.equals(PSTestUtils.testCtor(PSJdbcDriverConfig.class, 
+         assertFalse(cfg.equals(PSTestUtils.testCtor(PSJdbcDriverConfig.class,
             PARAMS, args, false)));
          args[i] = val;
-      }      
+      }
    }
-   
+
    /**
     * Test set and get methods.
-    * 
+    *
     * @throws Exception if the test fails
     */
+
+   @Test
    public void testSetters() throws Exception
    {
       String[] args = (String[]) ArrayUtils.clone(ARGS);
       PSJdbcDriverConfig cfg = (PSJdbcDriverConfig) PSTestUtils.testCtor(
          PSJdbcDriverConfig.class, PARAMS, args, false);
-      
+
       for (int i = 0; i < PROPS.length; i++)
       {
          PSTestUtils.testSetter(cfg, PROPS[i], ARGS[i] + "Test", false);
@@ -112,13 +121,13 @@ public class PSJdbcDriverConfigTest extends TestCase
          PSTestUtils.testSetter(cfg, PROPS[i], "", true);
       }
    }
-   
+
    private static final Class[] PARAMS = {String.class, String.class, String.class};
    private static String DRIVER = "driver";
    private static String CLASS_NAME = "className";
    private static String CT_MAPPING = "ctMapping";
    private static final String[] ARGS = {DRIVER, CLASS_NAME, CT_MAPPING};
-   private static final String[] PROPS = {"DriverName", "ClassName", 
+   private static final String[] PROPS = {"DriverName", "ClassName",
       "ContainerTypeMapping"};
 }
 
