@@ -298,8 +298,9 @@ public class TestUpdateDTSConfiguration {
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
             "/com/percussion/ant/install/mockinstall/Staging/Deployment/Server/conf/perc/perc-catalina.properties");
 
-    temporaryFolder.newFolder(
-        "53Stageto8upgrade", "Staging", "Deployment", "Server", "conf", "perc");
+    // create the directory tree manually; Path doesn't have newFolder
+    Files.createDirectories(
+        temporaryFolder.resolve("53Stageto8upgrade/Staging/Deployment/Server/conf/perc"));
 
     // Files.copy(srcProdDTSXML,root.resolve("Deployment/Server/conf/server.xml"));
     Files.copy(srcStageDTSXML, root.resolve("Staging/Deployment/Server/conf/server.xml"));

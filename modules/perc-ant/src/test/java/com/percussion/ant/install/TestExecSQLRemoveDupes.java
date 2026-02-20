@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.percussion.install.PSLogger;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,6 +33,12 @@ import org.junit.jupiter.api.io.TempDir;
  * Test the ant task
  */
 public class TestExecSQLRemoveDupes {
+
+    // derby configuration used throughout the tests
+    private static String repoRoot;
+    private static String oldRepoRoot;
+    private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+    private static final String connectionURL = "jdbc:derby:;create=true";
 
     @TempDir public static Path temporaryFolder;
 
@@ -153,7 +160,7 @@ public class TestExecSQLRemoveDupes {
       PSExecSQLRemoveDupes newTask = new PSExecSQLRemoveDupes();
       newTask.setQualifyingTableName("CT_PAGE_PAGE_CATEGORIES_SET");
       newTask.setColumns("CONTENTID,REVISIONID,PAGE_CATEGORIES_TREE");
-      newTask.setRootDir(temporaryFolder.getAbsolutePath() + File.separator);
+      newTask.setRootDir(temporaryFolder.toAbsolutePath().toString() + File.separator);
       newTask.execute();
     }
     System.setProperty("derby.system.home", repoRoot);

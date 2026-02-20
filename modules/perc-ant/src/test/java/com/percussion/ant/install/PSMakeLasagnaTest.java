@@ -49,7 +49,7 @@ public class PSMakeLasagnaTest {
   @BeforeEach
   public void setUp() {
     rxdeploydir = System.getProperty("rxdeploydir");
-    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+    System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
   }
 
   @AfterEach
