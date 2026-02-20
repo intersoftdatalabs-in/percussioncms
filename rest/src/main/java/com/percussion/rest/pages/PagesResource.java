@@ -24,7 +24,7 @@ import com.percussion.rest.errors.BackendException;
 import com.percussion.rest.errors.LocationMismatchException;
 import com.percussion.rest.util.APIUtilities;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -174,9 +174,9 @@ public class PagesResource {
       pageName = StringUtils.defaultString(m.group(5));
     }
 
-    String objectName = page.getName();
-    String objectPath = page.getFolderPath();
-    String objectSite = page.getSiteName();
+    String objectName = page.getName().orElse(null);
+    String objectPath = page.getFolderPath().orElse(null);
+    String objectSite = page.getSiteName().orElse(null);
 
     if (pageName == null || (objectName != null && !objectName.equals(pageName))) {
       throw new LocationMismatchException();

@@ -17,36 +17,61 @@
 
 package com.percussion.rest.assets;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-import com.percussion.rest.MainTest;
-import com.percussion.security.error.PSExceptionUtils;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.MediaType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Tag;
+import com.percussion.rest.errors.BackendException;
+import com.percussion.rest.users.IUserAdaptor;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
+public class AssetsTest {
 
-public class AssetsTest extends MainTest {
+    @Mock
+    IAssetAdaptor assetAdaptor;
 
-  private static final Logger log = LogManager.getLogger(AssetsTest.class);
+    @Mock
+    IUserAdaptor userAdaptor;
 
-  @Test
-  public void testRenameAsset() {
-    var assetEntity = Entity.entity("{}", MediaType.APPLICATION_JSON_TYPE);
+    @Mock
+    UriInfo uriInfo;
 
-    try {
-      var response =
-          target("assets/rename/Assets/path1/pathsub/pathsub2/page1.png/newname.png")
-              .request()
-              .post(assetEntity, Asset.class);
-      assertTrue(response.getName().equals("newname.png"), "New Name Should Match");
-    } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw e;
+    @InjectMocks
+    AssetsResource resource;
+
+    @BeforeEach
+    void init() {
+        when(uriInfo.getBaseUri()).thenReturn(UriBuilder.fromUri("http://localhost/api").build());
+        resource.setUriInfo(uriInfo);
+        resource.setAssetAdaptor(assetAdaptor);
+        resource.setUserAdaptor(userAdaptor);
     }
-  }
+
+    @Test
+    void renameAsset_delegatesToAdaptor() throws Exception {
+        Asset a = new Asset();
+        a.setName("old.png");
+        when(assetAdaptor.renameSharedAsset(any(), anyString(), anyString(), anyString(), anyString()))
+            .thenReturn(a);
+
+        Asset result = resource.renameAsset("Assets/path1/old.png", "new.png");
+        assertSame(a, result);
+        verify(assetAdaptor).renameSharedAsset(uriInfo.getBaseUri(), "Assets", "path1", "old.png", "new.png");
+    }
+
+    @Test
+    void renameAsset_backendExceptionWrapped() throws Exception {
+        when(assetAdaptor.renameSharedAsset(any(), anyString(), anyString(), anyString(), anyString()))
+            .thenThrow(new BackendException("fail", new Exception("cause")));
+        assertThrows(WebApplicationException.class, () -> resource.renameAsset("Assets/x.png", "y.png"));
+    }
 }

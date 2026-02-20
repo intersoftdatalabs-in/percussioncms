@@ -47,7 +47,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.mail.EmailException;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,13 +54,11 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 
 @PSSiteManageBean(value = "restAssetResource")
 @Path("/assets")
 @XmlRootElement
 @Tag(name = "Assets", description = "Operations related to Asset content types.")
-@Lazy
 public class AssetsResource {
 
   @Autowired private IAssetAdaptor assetAdaptor;
@@ -70,12 +67,24 @@ public class AssetsResource {
 
   @Context private UriInfo uriInfo;
 
+  /* package */ void setAssetAdaptor(IAssetAdaptor a) {
+    this.assetAdaptor = a;
+  }
+
+  /* package */ void setUserAdaptor(IUserAdaptor u) {
+    this.userAdaptor = u;
+  }
+
+  /* package */ void setUriInfo(UriInfo ui) {
+    this.uriInfo = ui;
+  }
+
   private final Pattern pathPattern = Pattern.compile("^/?([^/]+)(/(.*?))??(/([^/]+))?$");
 
   private static final String ALL_FILES_REPORT = "All Files";
   private static final String ALL_IMAGES_REPORT = "All Images";
   private static final String NON_ADA_COMPLAINT_FILES_REPORT = "Non ADA Complaint Files";
-  private static final String NON_ADA_COMPLIANT_IMAGES_REPORT = "Non ADA Complaint Images";
+  private static final String NON_ADA_COMPLAINT_IMAGES_REPORT = "Non ADA Complaint Images";
 
   private static final Logger log = LogManager.getLogger(AssetsResource.class);
 
@@ -487,10 +496,8 @@ public class AssetsResource {
       var requestThreadMap = new HashMap<>(PSRequestInfoBase.getRequestInfoMap());
       var currentUser = (String) PSRequestInfoBase.getRequestInfo(PSRequestInfo.KEY_USER);
       var user = userAdaptor.getUser(null, currentUser);
-      var toAddress = user.getEmailAddress();
-
-      CompletableFuture.runAsync(
-          () -> {
+      var toAddress = user.getEmailAddress().orElse(null);
+      CompletableFuture.runAsync(() -> {
             try {
               if (!PSRequestInfoBase.isInited()) {
                 PSRequestInfoBase.initRequestInfo(requestThreadMap);
@@ -519,7 +526,7 @@ public class AssetsResource {
         return assetAdaptor.allImagesReport(baseUri);
       case NON_ADA_COMPLAINT_FILES_REPORT:
         return assetAdaptor.nonADACompliantFilesReport(baseUri);
-      case NON_ADA_COMPLIANT_IMAGES_REPORT:
+      case NON_ADA_COMPLAINT_IMAGES_REPORT:
         return assetAdaptor.nonADACompliantImagesReport(baseUri);
       default:
         return Collections.emptyList();
@@ -543,7 +550,7 @@ public class AssetsResource {
         mailMessage = "No Data found for report";
       }
       PSWorkFlowUtils.sendMailWithAttachment(tempFile, subject, mailMessage, toAddress);
-    } catch (IOException | EmailException e) {
+    } catch (Exception e) {
       log.error("Error Sending Report Mail: {}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }

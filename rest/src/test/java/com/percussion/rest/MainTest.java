@@ -19,7 +19,7 @@ package com.percussion.rest;
 
 import static junit.framework.TestCase.assertTrue;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.percussion.rest.errors.RestExceptionMapper;
 import com.percussion.utils.testing.PSTestNetUtils;
 import jakarta.ws.rs.Path;
@@ -63,7 +63,7 @@ public class MainTest extends AbstractJUnit4SpringContextTests {
     WebTarget target =
         builder
             .build()
-            .register(com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider.class)
+            .register(com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider.class)
             .target(endpoint)
             .path(address);
 
