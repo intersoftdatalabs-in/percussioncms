@@ -18,14 +18,14 @@ package com.percussion.share.test;
 
 import java.io.InputStream;
 import java.util.Properties;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class PSRestTestCase<REST_CLIENT extends PSObjectRestClient> {
   public static String baseUrl;
   protected REST_CLIENT restClient;
 
-  @BeforeClass
+  @BeforeAll
   public static void loadProperties() throws Exception {
     if (baseUrl == null) {
       Properties cactusProps = new Properties();
@@ -38,7 +38,7 @@ public abstract class PSRestTestCase<REST_CLIENT extends PSObjectRestClient> {
 
   protected abstract REST_CLIENT getRestClient(String baseUrl);
 
-  @Before
+  @BeforeEach
   public void setupClient() throws Exception {
     restClient = getRestClient(baseUrl);
     setupClient(restClient);
