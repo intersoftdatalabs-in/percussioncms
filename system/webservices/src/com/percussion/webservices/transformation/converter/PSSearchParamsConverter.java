@@ -39,8 +39,8 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.search.objectstore.PSWSSearchParams</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.search.objectstore.PSWSSearchParams</code> and
  * <code>com.percussion.webservices.content.PSSearchSearchParams</code>.
  */
 public class PSSearchParamsConverter extends PSConverter
@@ -62,12 +62,12 @@ public class PSSearchParamsConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.content.PSSearchParams source = 
+         com.percussion.webservices.content.PSSearchParams source =
             (com.percussion.webservices.content.PSSearchParams) value;
-         
+
          PSWSSearchParams target = new PSWSSearchParams();
 
          String contentTypeName = source.getContentType();
@@ -78,51 +78,51 @@ public class PSSearchParamsConverter extends PSConverter
          else
          {
             PSItemDefinition def = PSItemConverterUtils.getItemDefinition(
-               contentTypeName); 
+               contentTypeName);
             target.setContentTypeId(def.getContentEditor().getContentType());
          }
-         
-         PSSearchParamsTitle sourceTitle = source.getTitle();
+
+         com.percussion.webservices.content.PSSearchParams.Title sourceTitle = source.getTitle();
          if (sourceTitle != null)
          {
-            OperatorTypes sourceOperator = sourceTitle.getOperator() == null ? OperatorTypes.equal
+            OperatorTypes sourceOperator = sourceTitle.getOperator() == null ? OperatorTypes.EQUAL
                   : sourceTitle.getOperator();
             Converter converter = getConverter(OperatorTypes.class);
-            PSWSSearchField.PSOperatorEnum operator = 
+            PSWSSearchField.PSOperatorEnum operator =
                (PSWSSearchField.PSOperatorEnum) converter.convert(
                   PSWSSearchField.PSOperatorEnum.class, sourceOperator);
-            ConnectorTypes sourceConnector = sourceTitle.getConnector() == null ? ConnectorTypes.and
+            ConnectorTypes sourceConnector = sourceTitle.getConnector() == null ? ConnectorTypes.AND
                   : sourceTitle.getConnector();
             converter = getConverter(ConnectorTypes.class);
-            PSWSSearchField.PSConnectorEnum connector = 
+            PSWSSearchField.PSConnectorEnum connector =
                (PSWSSearchField.PSConnectorEnum) converter.convert(
                   PSWSSearchField.PSConnectorEnum.class, sourceConnector);
-            target.setTitle(sourceTitle.getValue(), operator.getOrdinal(), 
+            target.setTitle(sourceTitle.getValue(), operator.getOrdinal(),
                connector.getOrdinal());
          }
-         
+
          target.setFTSQuery(source.getFullTextQuery());
-         
+
          Map<String, String> properties = new HashMap<String, String>();
-         if (source.getProperties() != null)
+         if (source.getProperties() != null && source.getProperties().getPSSearchProperty() != null)
          {
-            for (PSSearchProperty property : source.getProperties())
-               properties.put(property.getName(), property.get_value());
+            for (PSSearchProperty property : source.getProperties().getPSSearchProperty())
+               properties.put(property.getName(), property.getValue());
          }
          target.setProperties(properties);
-         
+
          Collection<String> searchResults = new ArrayList<String>();
-         if (source.getSearchResults() != null)
+         if (source.getSearchResults() != null && source.getSearchResults().getPSSearchResultField() != null)
          {
-            for (PSSearchResultField searchResult : source.getSearchResults())
+            for (PSSearchResultField searchResult : source.getSearchResults().getPSSearchResultField())
                searchResults.add(searchResult.getName());
          }
          target.setResultFields(searchResults);
-         
+
          List<PSWSSearchField> searchFields = new ArrayList<PSWSSearchField>();
-         if (source.getParameter() != null)
+         if (source.getParameter() != null && source.getParameter().getPSSearchField() != null)
          {
-            for (PSSearchField field : source.getParameter())
+            for (PSSearchField field : source.getParameter().getPSSearchField())
             {
                Converter converter = getConverter(field.getClass());
                searchFields.add((PSWSSearchField) converter.convert(
@@ -130,34 +130,34 @@ public class PSSearchParamsConverter extends PSConverter
             }
          }
          target.setSearchFields(searchFields);
-         
+
          target.setSearchForFolders(source.isSearchForFolders());
-         PSSearchParamsFolderFilter folderFilter = source.getFolderFilter();
+         com.percussion.webservices.content.PSSearchParams.FolderFilter folderFilter = source.getFolderFilter();
          if (folderFilter != null)
-            target.setFolderPathFilter(folderFilter.get_value(), 
+            target.setFolderPathFilter(folderFilter.getValue(),
                folderFilter.isIncludeSubFolders());
-         
+
          return target;
       }
       else
       {
          PSWSSearchParams source = (PSWSSearchParams) value;
 
-         com.percussion.webservices.content.PSSearchParams target = 
+         com.percussion.webservices.content.PSSearchParams target =
             new com.percussion.webservices.content.PSSearchParams();
 
          long contentTypeId = source.getContentTypeId();
          if (contentTypeId != -1)
          {
             PSItemDefinition def = PSItemConverterUtils.getItemDefinition(
-               contentTypeId); 
+               contentTypeId);
             target.setContentType(def.getName());
          }
-         
+
          PSWSSearchField sourceTitle = source.getTitle();
          if (sourceTitle != null)
          {
-            PSSearchParamsTitle title = new PSSearchParamsTitle();
+            com.percussion.webservices.content.PSSearchParams.Title title = new com.percussion.webservices.content.PSSearchParams.Title();
             title.setValue(sourceTitle.getValue());
             Converter converter = getConverter(
                PSWSSearchField.PSOperatorEnum.class);
@@ -170,56 +170,55 @@ public class PSSearchParamsConverter extends PSConverter
             title.setConnector(connector);
             target.setTitle(title);
          }
-         
+
          target.setFullTextQuery(source.getFTSQuery());
-         
+
          Map<String, String> sourceProperties = source.getProperties();
-         PSSearchProperty[] properties = 
-            new PSSearchProperty[sourceProperties.size()];
-         int index = 0;
-         for (Entry<String, String> sourceProperty : sourceProperties.entrySet())
+         com.percussion.webservices.content.PSSearchParams.Properties propertiesWrapper = new com.percussion.webservices.content.PSSearchParams.Properties();
+         if (sourceProperties != null)
          {
-            PSSearchProperty property = new PSSearchProperty();
-            property.setName(sourceProperty.getKey());
-            property.set_value(sourceProperty.getValue());
-            
-            properties[index++] = property;
+            for (Entry<String, String> sourceProperty : sourceProperties.entrySet())
+            {
+               PSSearchProperty property = new PSSearchProperty();
+               property.setName(sourceProperty.getKey());
+               property.setValue(sourceProperty.getValue());
+               propertiesWrapper.getPSSearchProperty().add(property);
+            }
          }
-         target.setProperties(properties);
-         
+         target.setProperties(propertiesWrapper);
+
          Collection<String> sourceSearchResults = source.getResultFields();
-         PSSearchResultField[] searchResults = 
-        	 new PSSearchResultField[sourceSearchResults.size()];
-         index = 0;
-         for (String sourceSearchResult : sourceSearchResults)
+         com.percussion.webservices.content.PSSearchParams.SearchResults searchResultsWrapper = new com.percussion.webservices.content.PSSearchParams.SearchResults();
+         if (sourceSearchResults != null)
          {
-            PSSearchResultField searchResult = new PSSearchResultField();
-            searchResult.setName(sourceSearchResult);
-            
-            searchResults[index++] = searchResult;
+            for (String sourceSearchResult : sourceSearchResults)
+            {
+               PSSearchResultField searchResult = new PSSearchResultField();
+               searchResult.setName(sourceSearchResult);
+               searchResultsWrapper.getPSSearchResultField().add(searchResult);
+            }
          }
-         
-         target.setSearchResults(searchResults);
-         
+         target.setSearchResults(searchResultsWrapper);
+
          List<PSWSSearchField> sourceSearchFields = source.getSearchFields();
-         PSSearchField[] searchFields = 
-        	 new PSSearchField[sourceSearchFields.size()];
-         index = 0;
-         for (PSWSSearchField sourceSearchField : sourceSearchFields)
+         com.percussion.webservices.content.PSSearchParams.Parameter paramsWrapper = new com.percussion.webservices.content.PSSearchParams.Parameter();
+         if (sourceSearchFields != null)
          {
-             Converter converter = getConverter(sourceSearchField.getClass());
-             searchFields[index++] = ((PSSearchField) converter.convert(
-                PSSearchField.class, sourceSearchField));
+            for (PSWSSearchField sourceSearchField : sourceSearchFields)
+            {
+                Converter converter = getConverter(sourceSearchField.getClass());
+                paramsWrapper.getPSSearchField().add(((PSSearchField) converter.convert(
+                   PSSearchField.class, sourceSearchField)));
+            }
          }
-         target.setParameter(searchFields);
-         
+         target.setParameter(paramsWrapper);
          target.setSearchForFolders(source.isSearchForFolders());
-         
-         PSSearchParamsFolderFilter folderFilter = 
-        	 new PSSearchParamsFolderFilter();
-         folderFilter.set_value(source.getFolderPathFilter());
-         folderFilter.setIncludeSubFolders(source.isIncludeSubFolders());
-         target.setFolderFilter(folderFilter);
+
+com.percussion.webservices.content.PSSearchParams.FolderFilter folderWrapper =
+            new com.percussion.webservices.content.PSSearchParams.FolderFilter();
+         folderWrapper.setValue(source.getFolderPathFilter());
+         folderWrapper.setIncludeSubFolders(source.isIncludeSubFolders());
+         target.setFolderFilter(folderWrapper);
 
          return target;
       }

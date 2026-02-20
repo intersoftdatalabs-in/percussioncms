@@ -20,34 +20,27 @@ import com.percussion.util.PSCollection;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Tests the {@link PSUISet} class
  */
-public class PSUISetTest extends TestCase
+public class PSUISetTest
 {
-   public PSUISetTest(String s)
-   {
-      super( s );
-   }
 
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSUISetTest( "testDeepCopy" ) );
-      suite.addTest( new PSUISetTest( "testMergeAndDiff" ) );
-      return suite;
-   }
+
 
 
    /**
     * Tests that a cloned instance is equal to cloning instance.  Assumes that
     * <code>equal()</code> is implemented correctly.
-    * 
+    *
     * @throws Exception if the test fails.
-    */ 
+    */
+
+   @Test
    public void testDeepCopy() throws Exception
    {
       // build a object
@@ -65,15 +58,17 @@ public class PSUISetTest extends TestCase
       PSUISet uiSetCopy = (PSUISet) uiSet.clone();
 
       // are they equal?
-      assertTrue(uiSet.equals(uiSetCopy));
+      assertEquals(uiSet, uiSetCopy);
    }
-   
+
    /**
     * Test that merging a partial uiset with another and then diffing them
     * produces the same result.
-    * 
+    *
     * @throws Exception if the test fails.
     */
+
+   @Test
    public void testMergeAndDiff() throws Exception
    {
       PSUISet uiSet = new PSUISet();
@@ -87,16 +82,16 @@ public class PSUISetTest extends TestCase
       uiSet.setLabel(new PSDisplayText("Author Age:"));
       uiSet.setName("set_1");
       uiSet.setReadOnlyRules(new PSCollection(PSRule.class));
-      
+
       PSUISet partial = new PSUISet();
       partial.setControl(new PSControlRef("newControl"));
-      
+
       PSUISet merged = partial.merge(uiSet);
       assertEquals(merged.getControl(), partial.getControl());
       PSUISet testMerged = (PSUISet)merged.clone();
       testMerged.setControl(uiSet.getControl());
       assertEquals(uiSet, testMerged);
-      
+
       PSUISet diff = merged.demerge(uiSet);
       assertEquals(partial, diff);
    }
@@ -104,7 +99,7 @@ public class PSUISetTest extends TestCase
 
    /**
     * @return a new instance of a choice set
-    */ 
+    */
    private static PSChoices newPSChoices()
    {
       PSEntry entry1 = new PSEntry( "1111", new PSDisplayText( "one" ) );
@@ -120,7 +115,7 @@ public class PSUISetTest extends TestCase
 
    /**
     * @return a new instance of a collection of <code>PSRule</code> objects
-    */ 
+    */
    private static PSCollection newPSRules()
    {
       PSRule rule = new PSRule( new PSExtensionCallSet() );
@@ -134,7 +129,7 @@ public class PSUISetTest extends TestCase
 
    /**
     * @return a new instance of a control reference with parameters
-    */ 
+    */
    private static PSControlRef newPSControlRef()
    {
       PSParam param2 = new PSParam( "ALIGN", new PSTextLiteral( "center" ) );

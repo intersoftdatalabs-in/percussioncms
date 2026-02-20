@@ -239,7 +239,6 @@ public class PSDatasourceManager implements IPSDatasourceManager {
         return dsConfig;
     }
 
-    @Override
     public Session getHibernateSession() {
         var sessionFactory = (SessionFactory) PSBaseServiceLocator.getBean("sys_sessionFactory");
         return sessionFactory.openSession();
@@ -351,7 +350,6 @@ public class PSDatasourceManager implements IPSDatasourceManager {
         }
     }
 
-    @Override
     public Properties getDefaultHibernateProperties() {
         return new Properties(defaultHibernateProperties); // Return defensive copy
     }

@@ -248,7 +248,7 @@ public interface IPSPubItemStatus {
     * @return true if the status indicates pending
     */
    default boolean isPending() {
-      return getStatus() == Status.PENDING;
+      return getStatus().isUndefined();
    }
 
    /**

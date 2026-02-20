@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
 /** PSNotificationsContextTest is a test class for the class PSNotificationsContext */
-@Tag("IntegrationTest")
+
 public class PSNotificationsContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSNotificationsContextTest.class);

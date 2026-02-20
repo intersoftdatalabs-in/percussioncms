@@ -7,145 +7,150 @@
         <!ENTITY % HTMLspecial PUBLIC "-//W3C//ENTITIES_Special_for_XHTML//EN" "https://www.percussion.com/DTD/HTMLspecialx.ent">
         %HTMLspecial;
 ]>
- <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-    <xsl:template match="/">
-       <html>
-          <head>
-             <meta http-equiv="Content-Type" content="text/html;      charset=UTF-8"/>
-             <title>PersonList.htm</title>
-          </head>
+<xsl:stylesheet
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/">
+		<html>
+			<head>
+				<meta http-equiv="Content-Type"
+					content="text/html;      charset=UTF-8" />
+				<title>PersonList.htm</title>
+			</head>
 
-          <body bgcolor="#666699" text="#FFFFCC">
-             <table>
-                <tr>
-                   <td>
-                      <img src="Corplogo.gif" width="211" height="113"/>
-                   </td>
+			<body bgcolor="#666699" text="#FFFFCC">
+				<table>
+					<tr>
+						<td>
+							<img src="Corplogo.gif" width="211" height="113" />
+						</td>
 
-                   <td align="center">
-                      <b>
-                         <font size="5">Employee Contact Directory</font>
-                      </b>
+						<td align="center">
+							<b>
+								<font size="5">Employee Contact Directory</font>
+							</b>
 
-                      <p>
-                         <b>
-                            <font size="4">Search Results</font>
-                         </b>
+							<p>
+								<b>
+									<font size="4">Search Results</font>
+								</b>
 
-                      </p>
+							</p>
 
-                   </td>
+						</td>
 
-                </tr>
+					</tr>
 
-             </table>
+				</table>
 
-             <table width="100%" border="1" align="left" bgcolor="#9999CC" bordercolorlight="#000000" bordercolordark="#FFFFFF">
-                <tr bgcolor="#000000" align="center">
-                   <td width="15%">
-                      <b>
-                         <font color="#FFFFFF" size="2">Employee No</font>
-                      </b>
+				<table width="100%" border="1" align="left" bgcolor="#9999CC"
+					bordercolorlight="#000000" bordercolordark="#FFFFFF">
+					<tr bgcolor="#000000" align="center">
+						<td width="15%">
+							<b>
+								<font color="#FFFFFF" size="2">Employee No</font>
+							</b>
 
-                   </td>
+						</td>
 
-                   <td>
-                      <b>
-                         <font color="#FFFFFF" size="2">First Name</font>
-                      </b>
+						<td>
+							<b>
+								<font color="#FFFFFF" size="2">First Name</font>
+							</b>
 
-                   </td>
+						</td>
 
-                   <td>
-                      <b>
-                         <font color="#FFFFFF" size="2">Last Name</font>
-                      </b>
+						<td>
+							<b>
+								<font color="#FFFFFF" size="2">Last Name</font>
+							</b>
 
-                   </td>
+						</td>
 
-                   <td>
-                      <b>
-                         <font face="Arial, Helvetica, sans-serif" color="#FFFFFF" size="2">Telephone</font>
-                      </b>
+						<td>
+							<b>
+								<font face="Arial, Helvetica, sans-serif" color="#FFFFFF"
+									size="2">Telephone</font>
+							</b>
 
-                   </td>
+						</td>
 
-                </tr>
+					</tr>
 
-                <xsl:apply-templates select="PersonList/Person" mode="mode0"/>
-             </table>
+					<xsl:apply-templates select="PersonList/Person"
+						mode="mode0" />
+				</table>
 
-          </body>
+			</body>
 
-       </html>
+		</html>
 
-    </xsl:template>
+	</xsl:template>
 
-    <xsl:template match="*">
-       <xsl:choose>
-          <xsl:when test="text()">
-             <xsl:value-of select="."/>
-          </xsl:when>
+	<xsl:template match="*">
+		<xsl:choose>
+			<xsl:when test="text()">
+				<xsl:value-of select="." />
+			</xsl:when>
 
-          <xsl:otherwise>&nbsp;
-</xsl:otherwise>
+			<xsl:otherwise>&nbsp;
+			</xsl:otherwise>
 
-       </xsl:choose>
+		</xsl:choose>
 
-       <xsl:if test="not(position()=last())">
-          <br id="XSpLit"/>
-       </xsl:if>
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
 
-    </xsl:template>
+	</xsl:template>
 
-    <xsl:template match="PersonList/Person" mode="mode0">
-       <xsl:for-each select=".">
-          <tr bgcolor="#C1C1F4">
-             <td>
-                <a>
-                   <xsl:attribute name="href">
-                      <xsl:value-of select="Link"/>
+	<xsl:template match="PersonList/Person" mode="mode0">
+		<xsl:for-each select=".">
+			<tr bgcolor="#C1C1F4">
+				<td>
+					<a>
+						<xsl:attribute name="href">
+                      <xsl:value-of select="Link" />
                    </xsl:attribute>
 
-                   <xsl:apply-templates select="EmployeeID"/>
-                </a>
+						<xsl:apply-templates select="EmployeeID" />
+					</a>
 
-             </td>
+				</td>
 
-             <td>
-                <b>
-                   <font color="#000000" size="2">
-                      <xsl:apply-templates select="Name/First"/>
-                   </font>
+				<td>
+					<b>
+						<font color="#000000" size="2">
+							<xsl:apply-templates select="Name/First" />
+						</font>
 
-                </b>
+					</b>
 
-             </td>
+				</td>
 
-             <td>
-                <b>
-                   <font color="#000000" size="2">
-                      <xsl:apply-templates select="Name/Last"/>
-                   </font>
+				<td>
+					<b>
+						<font color="#000000" size="2">
+							<xsl:apply-templates select="Name/Last" />
+						</font>
 
-                </b>
+					</b>
 
-             </td>
+				</td>
 
-             <td>
-                <b>
-                   <font color="#000000" size="2">
-                      <xsl:apply-templates select="Telephone"/>
-                   </font>
+				<td>
+					<b>
+						<font color="#000000" size="2">
+							<xsl:apply-templates select="Telephone" />
+						</font>
 
-                </b>
+					</b>
 
-             </td>
+				</td>
 
-          </tr>
+			</tr>
 
-       </xsl:for-each>
+		</xsl:for-each>
 
-    </xsl:template>
+	</xsl:template>
 
- </xsl:stylesheet>
+</xsl:stylesheet>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<!-- CAUTION: any plugins added to this list will cancel the installation if any of these plugins fail -->
+<!-- CAUTION: any plugins added to this list will cancel the installation
+	if any of these plugins fail -->
 <rxupgrade>
 </rxupgrade>

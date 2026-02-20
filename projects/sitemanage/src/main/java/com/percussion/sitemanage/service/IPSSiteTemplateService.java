@@ -28,9 +28,9 @@ import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Context;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.core.Context;
 
 /** Manages the site-to-template associations. */
 public interface IPSSiteTemplateService {

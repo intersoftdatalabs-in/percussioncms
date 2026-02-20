@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="1" dependencyType="Shared" displayName="Inbox" isIncluded="no" objectType="ViewDef" objectTypeName="Content View Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="1" dependencyType="Shared" displayName="Inbox"
+			isIncluded="no" objectType="ViewDef"
+			objectTypeName="Content View Definition" supportsIdMapping="yes"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

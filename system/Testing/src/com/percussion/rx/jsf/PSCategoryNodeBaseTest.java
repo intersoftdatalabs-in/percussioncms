@@ -18,12 +18,14 @@ package com.percussion.rx.jsf;
 
 import com.percussion.services.error.PSNotFoundException;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSCategoryNodeBaseTest extends TestCase
+public class PSCategoryNodeBaseTest 
 {
+   
    public void testGetFilteredNodes() throws PSNotFoundException {
       final String title1 = "title 1 val";
 

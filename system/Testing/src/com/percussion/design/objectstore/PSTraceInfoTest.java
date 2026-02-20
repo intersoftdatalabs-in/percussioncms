@@ -42,7 +42,7 @@ public class PSTraceInfoTest
 
    }
 
-   @org.junit.Test
+   @Test
    public void testXml() throws Exception
    {
       // assert that two empty traceinfo objects are equal

@@ -25,9 +25,21 @@ import com.percussion.server.PSResponse;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 
+import junit.framework.Test;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
 import junit.textui.TestRunner;
+
+// JUnit Platform (Jupiter) support
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.logging.log4j.LogManager;
@@ -55,15 +67,15 @@ import java.util.List;
 /**
  * This loadable handler instantiantes a JUnit class and execute the test suite
  * in the context of the Rx server.
- * 
+ *
  * The class can use it's own class loader to instance requested classes so
  * no stopping/starting of the server is needed when a change to the 'testing'
- * class is made. The class loader is given a root path, and root directory 
- * of classes to load fresh each time. This is controlled w/ the 
+ * class is made. The class loader is given a root path, and root directory
+ * of classes to load fresh each time. This is controlled w/ the
  * useLocalClassLoader html parameter. By default, this is disable. Set it to
  * true to enable this feature.
- * 
- * The following should be added to the requestHandlers.xml config file. 
+ *
+ * The following should be added to the requestHandlers.xml config file.
  * <pre>
  * &lt;RequestHandlerDef
  *     className="packagexxx.PSDefaultRequestHandler"
@@ -75,8 +87,8 @@ import java.util.List;
  *        &lt;/RequestRoot&gt;
  *     &lt;/RequestRoots&gt;
  * &lt;/RequestHandlerDef&gt;
- * 
- * example http request 
+ *
+ * example http request
  * http://10.10.10.144:9992/Rhythmyx/sys_junitTestHandler?
  * useLocalClassLoader=true&
  * class=com.percussion.cms.dg.DBTest&
@@ -88,7 +100,7 @@ import java.util.List;
 public class PSJunitRequestHandler implements IPSLoadableRequestHandler
 {
    /**
-    * see {@link IPSLoadableRequestHandler} interface 
+    * see {@link IPSLoadableRequestHandler} interface
     * for description.
     */
    public void init(Collection requestRoots, InputStream cfgFileIn)
@@ -97,7 +109,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
       if (requestRoots == null || requestRoots.size() == 0)
          throw new IllegalArgumentException(
             "must provide at least one request root" );
-      
+
       //suppress eclipse warning
       if (null == cfgFileIn);
 
@@ -109,20 +121,20 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                "request roots collection may only contain String objects");
       }
       ms_requestRoots = requestRoots;
-      
-      PSConsole.printMsg(HANDLER, 
+
+      PSConsole.printMsg(HANDLER,
          "JUnit testing handler initialized.");
    }
 
    /**
     * See {@link IPSLoadableRequestHandler} interface
-    * for description. 
-    * 
-    * This method will instantiate a class specified in the request and 
+    * for description.
+    *
+    * This method will instantiate a class specified in the request and
     * execute the specified TestCase by invoking the <code>suite</code>
-    * method. 
+    * method.
     * <p>The following parameters are expected.
-    * 
+    *
     * <table border="0">
     * <tr><td>The class to run:</td><td><code>HTML_PARAM_EXE</code></td></tr>
     * <tr><td>Class Loader will load any classes in or below:</td><td>
@@ -135,90 +147,188 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
    {
       if (request == null)
          throw new IllegalArgumentException("request may not be null");
-      
+
       System.out.println("Entered JUnit handler ...");
-      
-      PSResponse response = request.getResponse();      
+
+      PSResponse response = request.getResponse();
       m_responseDoc = null;
       m_responseDoc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(m_responseDoc, 
-         "Response");                
-      
+      Element root = PSXmlDocumentBuilder.createRoot(m_responseDoc,
+         "Response");
+
       // Appender to craft xml node's to display in the
       // result doc.
       Logger l = LogManager.getLogger();
-      
+
       try
-      {                           
+      {
          String strClassName = request.getParameter(HTML_PARAM_EXE, "");
          String strDirName = request.getParameter(HTML_PARAM_DIR, "");
          String strRootDev = request.getParameter(HTML_PARAM_ROOT, "");
          boolean useLocalClassLoader = request.getParameter(
                HTML_PARAM_LOCAL_LOADER, "").equalsIgnoreCase("true");
-                                                
+
          if (strClassName.trim().length() == 0)
-            throw new IllegalArgumentException(HTML_PARAM_EXE + 
+            throw new IllegalArgumentException(HTML_PARAM_EXE +
                " html param must be supplied");
 
          if (useLocalClassLoader && strRootDev.trim().length() == 0)
-            throw new IllegalArgumentException(HTML_PARAM_ROOT + 
+            throw new IllegalArgumentException(HTML_PARAM_ROOT +
                " html param must be supplied");
 
          // If a path for the class loader is not specified
          // use the classes directory
          if (strDirName.trim().length() == 0)
-            strDirName = strRootDev;        
-         
+            strDirName = strRootDev;
+
          ClassLoader classLoader = null;
          if (useLocalClassLoader)
             classLoader = createClassLoader(strDirName, strRootDev);
          else
-            classLoader = ClassLoader.getSystemClassLoader();         
-        
+            classLoader = ClassLoader.getSystemClassLoader();
+
          try
-         {            
+         {
             if (strClassName.trim().length() > 0)
             {
                // JUnit class to instantiate and run
                Class junitTest
-                  = Class.forName(strClassName, true, 
-                        classLoader);    
+                  = Class.forName(strClassName, true,
+                        classLoader);
 
-               Method suite = junitTest.getMethod("suite", (Class[]) null);
-               System.out.println("Beginning JUnit test...");
-               Test t = (Test) suite.invoke(null, (Object[]) null);
-               
-               ByteArrayOutputStream bos = new ByteArrayOutputStream();
-               PrintStream output = new PrintStream(bos); 
-               TestRunner runner = new TestRunner(output);
-               TestResult result = runner.doRun(t, false);
-               System.out.println("JUnit test finished.");
-               output.flush();
-               String outputText = new String(bos.toByteArray());
-               Element testResultEl = createTestResultResponse(m_responseDoc, 
-                     result, strClassName, outputText);
+               final TestResult[] result = new TestResult[1];
+               String outputText = "";
+               try {
+                  Method suite = junitTest.getMethod("suite", (Class[]) null);
+                  System.out.println("Beginning JUnit (vintage) test...");
+                  Test t = (Test) suite.invoke(null, (Object[]) null);
+
+                  ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                  PrintStream output = new PrintStream(bos);
+                  TestRunner runner = new TestRunner(output);
+                  result[0] = runner.doRun(t, false);
+                  System.out.println("JUnit (vintage) test finished.");
+                  output.flush();
+                  outputText = new String(bos.toByteArray());
+                  System.out.println(outputText);
+               }
+               catch (NoSuchMethodException nsme)
+               {
+                  /* No static suite() method — try running the class via the
+                   * JUnit Platform (JUnit 5). We translate Platform results
+                   * into a junit.framework.TestResult so existing client
+                   * harnesses can remain unchanged.
+                   */
+                  System.out.println("No suite() method; attempting JUnit Platform run for: " + strClassName);
+
+                  // create a junit3-style TestResult to collect translated results
+                  result[0] = new TestResult();
+
+                  // Console output collector (not required but kept for parity)
+                  StringBuilder consoleSb = new StringBuilder();
+
+                  // Build a discovery request for the target class
+                  LauncherDiscoveryRequest discoveryRequest =
+                        LauncherDiscoveryRequestBuilder.request()
+                              .selectors(DiscoverySelectors.selectClass(junitTest))
+                              .build();
+
+                  Launcher launcher = LauncherFactory.create();
+
+                  // Register a listener that maps Platform events to junit.framework.TestResult
+                  launcher.registerTestExecutionListeners(new TestExecutionListener() {
+
+                     @Override
+                     public void executionStarted(org.junit.platform.launcher.TestIdentifier testIdentifier) {
+                        if (testIdentifier.isTest()) {
+                           String display = testIdentifier.getDisplayName();
+                           junit.framework.TestCase fakeTest = new junit.framework.TestCase(display) {
+                              @Override
+                              protected void runTest() throws Throwable { /* no-op */ }
+                              @Override
+                              public String toString() { return display; }
+                           };
+                           result[0].startTest(fakeTest);
+                        }
+                     }
+
+                     @Override
+                     public void executionFinished(org.junit.platform.launcher.TestIdentifier testIdentifier,
+                                                   org.junit.platform.engine.TestExecutionResult testExecutionResult) {
+                        if (!testIdentifier.isTest())
+                           return;
+
+                        String display = testIdentifier.getDisplayName();
+                        junit.framework.TestCase fakeTest = new junit.framework.TestCase(display) {
+                           @Override
+                           protected void runTest() throws Throwable { /* no-op */ }
+                           @Override
+                           public String toString() { return display; }
+                        };
+
+                        TestExecutionResult.Status status = testExecutionResult.getStatus();
+                        if (status == TestExecutionResult.Status.FAILED) {
+                           Throwable ex = testExecutionResult.getThrowable().orElse(new AssertionError("Test failed"));
+                           // Treat as a JUnit failure
+                           result[0].addFailure(fakeTest, new junit.framework.AssertionFailedError(ex.getMessage()));
+                        }
+                        else if (status == TestExecutionResult.Status.ABORTED) {
+                           Throwable ex = testExecutionResult.getThrowable().orElse(new RuntimeException("Test aborted"));
+                           // Treat as an error
+                           result[0].addError(fakeTest, ex);
+                        }
+
+                        result[0].endTest(fakeTest);
+                     }
+
+                     @Override
+                     public void executionSkipped(org.junit.platform.launcher.TestIdentifier testIdentifier, String reason) {
+                        // represent skipped tests as ended without failure
+                        if (testIdentifier.isTest()) {
+                           String display = testIdentifier.getDisplayName();
+                           junit.framework.TestCase fakeTest = new junit.framework.TestCase(display) {
+                              @Override
+                              protected void runTest() throws Throwable { /* no-op */ }
+                              @Override
+                              public String toString() { return display; }
+                           };
+                           result[0].startTest(fakeTest);
+                           result[0].endTest(fakeTest);
+                        }
+                     }
+                  });
+
+                  // Execute the request
+                  launcher.execute(discoveryRequest);
+
+                  outputText = consoleSb.toString();
+               }
+
+               // create XML and append
+                  if (result[0] == null)
+                     result[0] = new TestResult();
+               Element testResultEl = createTestResultResponse(m_responseDoc, result[0], strClassName, outputText);
                root.appendChild(testResultEl);
-               System.out.println(outputText);
                PSXmlDocumentBuilder.toString(m_responseDoc);
             }
-            else 
+            else
             {
-               PSXmlDocumentBuilder.addElement(m_responseDoc, root, 
-                  CLASSNOTFOUNDOREMPTY, 
+               PSXmlDocumentBuilder.addElement(m_responseDoc, root,
+                  CLASSNOTFOUNDOREMPTY,
                   "class name not found or empty: '" + strClassName + "'");
-            }               
+            }
          }
          catch (Exception e)
          {
-            PSXmlDocumentBuilder.addElement(m_responseDoc, root, 
-               CLASSNOTFOUNDOREMPTY, 
+            PSXmlDocumentBuilder.addElement(m_responseDoc, root,
+               CLASSNOTFOUNDOREMPTY,
                e.getMessage());
          }
          finally
          {
-            /* In order to re-load a class that uses a dll, the original 
+            /* In order to re-load a class that uses a dll, the original
              * class loader must be removed from memory because the class
-             * maintains a list of already loaded dlls and throws an 
+             * maintains a list of already loaded dlls and throws an
              * exception if you try to load one again in another instance of
              * the class.
              */
@@ -226,10 +336,10 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
             {
                classLoader = null;
                System.gc();
-               System.gc();                        
+               System.gc();
             }
          }
-         
+
          response.setContent(m_responseDoc);
       }
       catch (Exception e)
@@ -237,30 +347,30 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
          PSConsole.printMsg(HANDLER, PSExceptionUtils.getMessageForLog(e));
       }
    }
-   
+
    /**
-    * Creates a class loader that is responsible for loading 
+    * Creates a class loader that is responsible for loading
     * all requested classes.
-    * 
+    *
     * @param strDir directory string. Never <code>null</code>
-    *    or empty. 
-    * 
+    *    or empty.
+    *
     * @param strRootName directory of classes that may be requested
     *    of the class loader to create. Never <code>null</code>
     *    or empty.
-    *  
+    *
     * @return class loader that loads a class fresh each time
     * it is requested if it appears in or below <code>strDir</code>.
-    * Never <code>null</code>. 
+    * Never <code>null</code>.
     */
-   private RefreshClassLoader createClassLoader(String strDir, 
+   private RefreshClassLoader createClassLoader(String strDir,
       String strRootName)
    {
       // Threshold
       if (strDir == null || strRootName == null)
          throw new IllegalArgumentException(
             "strDir and strRootName must not be null");
-                               
+
       // Threshold
       if (strDir.trim().length() == 0 || strRootName.trim().length() == 0)
          throw new IllegalArgumentException(
@@ -272,7 +382,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
 
       if (strDir.indexOf(strRootName) >= 0)
          f = new File(strDir);
-      else 
+      else
          f = new File(strRootName, strDir);
 
       File parent = null;
@@ -281,27 +391,27 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
       {
          parent = f;
       }
-      else 
+      else
       {
          parent = f.getParentFile();
       }
-   
+
       // Recursively add all dir's and sub dirs
       File [] children = parent.listFiles();
-      
+
       for (int i=0; i<children.length; i++)
       {
          // recurse
          addAllFiles(children[i], l);
       }
-      
+
       return new RefreshClassLoader(strRootName, l);
    }
 
    /**
-    * Recursively loads all files and children into 
+    * Recursively loads all files and children into
     * a list provided.
-    * 
+    *
     * @param f file object to add. Never <code>null</code>.
     * @param l the list to add the <code>f</code> to. Never <code>
     *    null</code>.
@@ -312,9 +422,9 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
          throw new IllegalArgumentException(
             "Both f and l must not be null");
 
-      if (f.getName().endsWith("class"))       
+      if (f.getName().endsWith("class"))
          l.add(f);
-      
+
       File [] list = f.listFiles();
 
       // Break out
@@ -333,19 +443,19 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
    }
 
    /**
-    * Based on a {@link junit.framework.TestResult} it creates a 
+    * Based on a {@link junit.framework.TestResult} it creates a
     * xml node.
-    * 
+    *
     * @param doc xml document. Never <code>null</code>.
-    * 
+    *
     * @param tr Junit test result. Never <code>null</code>.
-    * 
-    * @param strMethod the method that was run. Never <code>null</code> 
-    *    or empty. 
-    * 
+    *
+    * @param strMethod the method that was run. Never <code>null</code>
+    *    or empty.
+    *
     * @todo define any xml node names that may be needed in definition ...
     */
-   private Element createTestResultResponse(Document doc, TestResult tr, 
+   private Element createTestResultResponse(Document doc, TestResult tr,
       String strMethod, String consoleOutput)
    {
       // Thresholds
@@ -359,8 +469,8 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
 
       Element testResultEl = doc.
          createElement(TESTRESULT);
-      
-      testResultEl.setAttribute("name", strMethod);      
+
+      testResultEl.setAttribute("name", strMethod);
       testResultEl.setAttribute("testCount", ""+tr.runCount());
       testResultEl.setAttribute("errors", ""+tr.errorCount());
       testResultEl.setAttribute("failures", ""+tr.failureCount());
@@ -370,23 +480,23 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
          testResultEl.setAttribute("success", "true");
       }
       else
-      {               
+      {
          testResultEl.setAttribute("success", "false");
 
          Enumeration errors = tr.errors();
 
          while (errors.hasMoreElements())
-         {   
-            Element errorEl = PSXmlDocumentBuilder.addEmptyElement(doc, 
-                  testResultEl, TESTERROR);         
+         {
+            Element errorEl = PSXmlDocumentBuilder.addEmptyElement(doc,
+                  testResultEl, TESTERROR);
             Object o = errors.nextElement();
-                        
+
             if (o instanceof TestFailure)
             {
                TestFailure tf = (TestFailure) o;
                String testName = tf.failedTest().toString();
                errorEl.setAttribute("testName", testName);
-               
+
                Throwable t = (Throwable) tf.thrownException();
                PSXmlDocumentBuilder.addElement(doc, errorEl, "Message",
                      t.getMessage());
@@ -395,23 +505,23 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                t.printStackTrace(new PrintWriter(stackTrace));
                PSXmlDocumentBuilder.addElement(doc, errorEl, "Trace",
                      stackTrace.toString());
-            }            
+            }
          }
 
          Enumeration failures = tr.failures();
-            
+
          while (failures.hasMoreElements())
          {
-            Element failureEl = PSXmlDocumentBuilder.addEmptyElement(doc, 
-            testResultEl, TESTFAILURE);            
+            Element failureEl = PSXmlDocumentBuilder.addEmptyElement(doc,
+            testResultEl, TESTFAILURE);
             Object o = failures.nextElement();
-            
+
             if (o instanceof TestFailure)
             {
                TestFailure tf = (TestFailure) o;
                String testName = tf.failedTest().toString();
                failureEl.setAttribute("testName", testName);
-               
+
                Throwable t = (Throwable) tf.thrownException();
                PSXmlDocumentBuilder.addElement(doc, failureEl, "Message",
                      t.getMessage());
@@ -420,7 +530,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
                t.printStackTrace(new PrintWriter(stackTrace));
                PSXmlDocumentBuilder.addElement(doc, failureEl, "Trace",
                      stackTrace.toString());
-            }            
+            }
          }
       }
       /* The purpose of this line is to extract the time from the beginning
@@ -428,14 +538,14 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
        * what is printed is equivalent to what we are returning as objects.
        */
       int len = consoleOutput.length() > 25 ? 25 : consoleOutput.length();
-      PSXmlDocumentBuilder.addElement(doc, testResultEl, "ConsoleOutput", 
+      PSXmlDocumentBuilder.addElement(doc, testResultEl, "ConsoleOutput",
             consoleOutput.substring(0,len));
-   
+
       return testResultEl;
    }
 
    /**
-    * see {@link com.percussion.server.PSLoadableRequestHandler} interface 
+    * see {@link com.percussion.server.PSLoadableRequestHandler} interface
     * for description.
     */
    public void shutdown()
@@ -443,7 +553,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
    }
 
    /**
-    * see {@link com.percussion.server.PSLoadableRequestHandler} interface 
+    * see {@link com.percussion.server.PSLoadableRequestHandler} interface
     * for description.
     */
    public String getName()
@@ -452,7 +562,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
    }
 
    /**
-    * see {@link com.percussion.server.PSLoadableRequestHandler} interface 
+    * see {@link com.percussion.server.PSLoadableRequestHandler} interface
     * for description.
     */
    public Iterator getRequestRoots()
@@ -461,12 +571,12 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
    }
 
    /**
-    * Inner class loader class appender to listen for 
-    * log events and embed them in an xml response doc.  
+    * Inner class loader class appender to listen for
+    * log events and embed them in an xml response doc.
     */
    private class XmlDocAppender extends AppenderSkeleton
    {
-      //see base class            
+      //see base class
       public void append(LoggingEvent event)
       {
           throw new IllegalArgumentException("Need to update for log4j2");
@@ -475,55 +585,55 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
          if (m_responseDoc == null)
             return;
 
-         Object o = event.getMessage();      
+         Object o = event.getMessage();
 
          // Threshold
          if (o == null)
             return;
-         
+
          Element parent = (Element) m_responseDoc.getFirstChild();
 
          if (parent == null)
          {
-            parent = PSXmlDocumentBuilder.createRoot(m_responseDoc, 
+            parent = PSXmlDocumentBuilder.createRoot(m_responseDoc,
                "Response");
          }
-         
+
          String strMsg = "";
          Element aLogEl = null;
-         
+
          if (o instanceof Exception)
          {
             Exception e = (Exception) o;
             ByteArrayOutputStream bStream = new ByteArrayOutputStream();
             PrintStream pw = new PrintStream(bStream);
-            e.printStackTrace(pw);            
-            strMsg = bStream.toString();                        
-            aLogEl = PSXmlDocumentBuilder.addElement(m_responseDoc, parent, 
-               "LogMessageException", strMsg);                
+            e.printStackTrace(pw);
+            strMsg = bStream.toString();
+            aLogEl = PSXmlDocumentBuilder.addElement(m_responseDoc, parent,
+               "LogMessageException", strMsg);
             aLogEl.setAttribute("message",PSExceptionUtils.getMessageForLog(e));
          }
          else
          {
             strMsg = o.toString();
-            aLogEl = PSXmlDocumentBuilder.addElement(m_responseDoc, parent, 
-               "LogMessage", strMsg);                  
+            aLogEl = PSXmlDocumentBuilder.addElement(m_responseDoc, parent,
+               "LogMessage", strMsg);
          }
-                                    
+
          aLogEl.setAttribute("level", event.getLevel().toString());
          aLogEl.setAttribute("name", event.getLoggerName());
-         aLogEl.setAttribute("thread", event.getThreadName());   
-         
+         aLogEl.setAttribute("thread", event.getThreadName());
+
          */
       }
-      
-      //see base class            
+
+      //see base class
       public void close()
       {
          // no-op
       }
 
-      //see base class            
+      //see base class
       public boolean requiresLayout()
       {
          return false;
@@ -531,19 +641,19 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
    }
 
    /**
-    * Inner class loader class to instantiate a specific 
+    * Inner class loader class to instantiate a specific
     * class.
     */
    private class RefreshClassLoader extends ClassLoader
    {
       /**
-       * Ctor that takes the root directory of classes and 
-       * a list of file objects such that any file requested in this 
+       * Ctor that takes the root directory of classes and
+       * a list of file objects such that any file requested in this
        * list will be 're'-loaded.
-       * 
+       *
        * @param root. Directory of classes. Never <code>null</code> or
        *    empty.
-       * 
+       *
        * @param dirs list of files to 'reload'. Never <code>null</code>.
        */
       public RefreshClassLoader(String root, List<File> dirs)
@@ -552,58 +662,58 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
             throw new IllegalArgumentException(
                "root and dirs must not be null");
 
-         m_root = root;                 
+         m_root = root;
          m_files = dirs;
       }
-            
-      //see base class            
+
+      //see base class
       @SuppressWarnings("unchecked")
-      protected Class loadClass (String name, boolean resolve) 
-         throws ClassNotFoundException 
+      protected Class loadClass (String name, boolean resolve)
+         throws ClassNotFoundException
       {
 
          // Since all support classes of loaded class use same class loader
          // must check subclass cache of classes for things like Object
          Class c = null;
-         
+
          // Convert class name argument to filename
          // Convert package names into subdirectories
          String filename = name.
             replace('.', File.separatorChar) + ".class";
-           
-         // Create a file object relative to directory provided 
+
+         // Create a file object relative to directory provided
          // and see if we should load it fresh
          File f = new File (m_root, filename);
-         
+
          // Check if f should be reloaded
          if (!m_files.contains(f))
-         {                      
+         {
             c = findLoadedClass (name);
-            if (c == null) 
+            if (c == null)
             {
-               try 
+               try
                {
                   c = findSystemClass (name);
-               } 
-               catch (Exception e) 
+               }
+               catch (Exception e)
                {
                }
             }
          }
 
-         if (c == null) 
-         {          
-            try 
-            {                              
+         if (c == null)
+         {
+            try
+            {
                byte data[] = loadClassData(filename);
-               System.out.println("Loading class " + name);      
+               System.out.println("Loading class " + name);
 
                c = defineClass(name, data, 0, data.length);
-               
+
                if (c == null)
                   throw new ClassNotFoundException(name);
-            } 
-            catch (IOException e) 
+            }
+            catch (IOException e)
             {
                throw new ClassNotFoundException (
                   "Error reading file: " + filename);
@@ -613,17 +723,17 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
             resolveClass (c);
          return c;
       }
-      
+
       /**
        * Based on the filename reads in the bytes of this file.
-       * 
+       *
        * @param filename to load. Never <code>null</code>
-       * 
-       * @throws IOException if filename doesn't specify a valid file or the 
+       *
+       * @throws IOException if filename doesn't specify a valid file or the
        * data can't be read from the file.
        */
-      private byte[] loadClassData (String filename) 
-         throws IOException 
+      private byte[] loadClassData (String filename)
+         throws IOException
       {
          if (filename == null)
             throw new IllegalArgumentException(
@@ -631,7 +741,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
 
          // Create a file object relative to directory provided
          File f = new File (m_root, filename);
-         
+
          // Get size of class file
          int size = (int)f.length();
 
@@ -651,17 +761,17 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
          // return data
          return buff;
       }
-   
+
       /**
        * Root directory of classes. Passed in ctor, never <code>null</code>.
        */
       private String m_root = null;
-      
+
       /**
-       * List of files that should be reloaded. Initialized in definition, 
+       * List of files that should be reloaded. Initialized in definition,
        * never <code>null</code>.
        */
-      private List<File> m_files = new ArrayList<File>(); 
+      private List<File> m_files = new ArrayList<File>();
 
       /* (non-Javadoc)
        * @see java.lang.ClassLoader#findClass(java.lang.String)
@@ -669,7 +779,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
       @SuppressWarnings("unchecked")
       protected Class findClass(String name) throws ClassNotFoundException
       {
-         Class c = super.findClass(name); 
+         Class c = super.findClass(name);
          return c;
       }
    }
@@ -690,7 +800,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
     * Name of the subsystem used to dump messages to server console.
     */
    public static final String HANDLER = "JUnitTestHandler";
-   
+
    public static final String HTML_PARAM_DIR = "dir";
    public static final String HTML_PARAM_EXE = "class";
    public static final String HTML_PARAM_ROOT = "root";
@@ -700,7 +810,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
     * (i.e. the server doesn't need to be restarted each time).
     */
    public static final String HTML_PARAM_LOCAL_LOADER = "useLocalClassLoader";
-   
+
    // Private defines
    private static final String TESTRESULT = "TestResult";
    private static final String TESTERROR = "TestError";

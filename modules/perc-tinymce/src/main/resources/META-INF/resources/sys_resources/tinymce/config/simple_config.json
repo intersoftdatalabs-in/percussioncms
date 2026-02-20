@@ -1,9 +1,11 @@
-[{
-	"config_css": "../sys_resources/css/tinymce/content.css",
-	"menubar": "null",
-	"browser_spellcheck": true,
-	"plugins" : "-example",
-	"toolbar": ["bold italic underline undo redo styleselect "],
-	"paste_word_valid_elements": "b,strong,i,em,h1,h2",
-	"valid_elements": "*[*]"
-}]
+[
+  {
+    "config_css": "../sys_resources/css/tinymce/content.css",
+    "menubar": "null",
+    "browser_spellcheck": true,
+    "plugins": "-example",
+    "toolbar": ["bold italic underline undo redo styleselect "],
+    "paste_word_valid_elements": "b,strong,i,em,h1,h2",
+    "valid_elements": "*[*]"
+  }
+]

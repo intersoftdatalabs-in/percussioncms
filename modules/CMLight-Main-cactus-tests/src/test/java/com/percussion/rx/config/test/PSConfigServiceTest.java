@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSConfigServiceTest extends PSConfigurationTest {
   PSConfigService m_srv;
 

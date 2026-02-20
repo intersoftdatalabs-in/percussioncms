@@ -2,8 +2,11 @@
 
 
 <Resources>
-<file id="common_js"  path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript" >
-	     <dependency refid="percSystem.common_slim_js"/>
-</file>
-<file type="css" path="/rx_resources/widgets/percDepartment/css/percDepartment.css" context="PREVIEW" id="percDepartment_style"/>
+	<file id="common_js"
+		path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript">
+		<dependency refid="percSystem.common_slim_js" />
+	</file>
+	<file type="css"
+		path="/rx_resources/widgets/percDepartment/css/percDepartment.css"
+		context="PREVIEW" id="percDepartment_style" />
 </Resources>

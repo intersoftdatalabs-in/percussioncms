@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
@@ -38,22 +40,20 @@ import com.percussion.soln.relationshipbuilder.exit.PSExtensionHelper;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-public class PSExtensionHelperTest extends TestCase
+public class PSExtensionHelperTest
 {
 
    private Set<Integer> m_output;
-   
 
-   /* (non-Javadoc)
-    * @see junit.framework.TestCase#setUp()
-    */
-   @Override
+
+   @BeforeEach
    protected void setUp() throws Exception
    {
       m_output = new HashSet<Integer>();
       XMLUnit.setIgnoreWhitespace(true);
    }
 
+   @Test
    public void testConvertRejectsNullOutput()
    {
       boolean threw = false;
@@ -68,6 +68,7 @@ public class PSExtensionHelperTest extends TestCase
       assertTrue(threw);
    }
 
+   @Test
    public void testConvertHandlesNullInput()
    {
       Collection<Object> invalids = PSExtensionHelper.convert(null, m_output);
@@ -75,6 +76,7 @@ public class PSExtensionHelperTest extends TestCase
       assertEquals(0, invalids.size());
    }
 
+   @Test
    public void testConvertHandlesAllNullsInInput()
    {
       Object[] input = new Object[] {null, null};
@@ -83,6 +85,7 @@ public class PSExtensionHelperTest extends TestCase
       assertEquals(2, invalids.size());
    }
 
+   @Test
    public void testConvertHandlesNullsInInput()
    {
       Object[] input = new Object[] {"700", null, 301};
@@ -91,7 +94,8 @@ public class PSExtensionHelperTest extends TestCase
       assertEquals(1, invalids.size());
       assertEquals(2, m_output.size());
    }
-   
+
+   @Test
    public void testConvertHandlesEmptysInInput()
    {
       Object[] input = new Object[] {"700", "", 301};
@@ -100,7 +104,8 @@ public class PSExtensionHelperTest extends TestCase
       assertEquals(1, invalids.size());
       assertEquals(2, m_output.size());
    }
-   
+
+   @Test
    public void testConvertSingleEmptyString() {
 	      Object[] input = new Object[] {""};
 	      Collection<Object> invalids = PSExtensionHelper.convert(input, m_output);
@@ -108,13 +113,14 @@ public class PSExtensionHelperTest extends TestCase
 	      assertEquals(1, invalids.size());
 	      assertEquals(0, m_output.size());
           if (invalids.size() == 1 && invalids.contains("")) {
-       	   
+
           }
           else {
         	  fail();
           }
    }
-   
+
+   @Test
    public void testUpdateDisplayChoicesSelectAll() throws Exception {
        Map<String, String> params = new HashMap<String, String>();
        params.put(PSExtensionHelper.IDS_FIELD_NAME, "tree");
@@ -127,7 +133,7 @@ public class PSExtensionHelperTest extends TestCase
             public void synchronize(int sourceId, Set<Integer> targetIds)  {
 
             }
-            
+
 
         };
        PSExtensionHelper helper = new PSExtensionHelper(builder, params, null);
@@ -136,43 +142,44 @@ public class PSExtensionHelperTest extends TestCase
        helper.updateDisplayChoices(actual, true);
        assertXMLEqual(expected, actual);
    }
-   
+
    private Document getXml(String file) throws IOException, SAXException {
        String resourceName = file;
         return PSXmlDocumentBuilder.createXmlDocument(
                 getClass().getResourceAsStream(resourceName), false);
     }
 
+   @Test
    public void testUpdateDisplayChoices() throws Exception {
        Map<String, String> params = new HashMap<String, String>();
        params.put(PSExtensionHelper.IDS_FIELD_NAME, "tree");
        params.put(IPSHtmlParameters.SYS_CONTENTID, "100");
-       
+
        IPSRelationshipBuilder stub = new IPSRelationshipBuilder() {
 
            public Collection<Integer> retrieve(int sourceId) {
                if (sourceId != 100) throw new IllegalStateException("Content id is wrong");
                return Arrays.asList(307,318);
            }
-       
+
            public void synchronize(int sourceId, Set<Integer> targetIds) {
                throw new IllegalStateException("Should not be called");
-               
+
            }
-           
-          
+
+
       };
-      
+
        PSExtensionHelper helper = new PSExtensionHelper(stub, params, null);
-       
+
        Document actual = getXml("BeforeCe.xml");
        Document expected = getXml("ExpectedCe.xml");
        helper.updateDisplayChoices(actual, false);
 
-       
+
        assertXMLEqual(expected, actual);
-       //307, 318       
-       
+       //307, 318
+
    }
 
 }

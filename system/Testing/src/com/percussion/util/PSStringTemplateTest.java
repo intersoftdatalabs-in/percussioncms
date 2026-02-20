@@ -21,7 +21,7 @@ import com.percussion.util.PSStringTemplate.PSStringTemplateException;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.AssertionFailedError;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 
@@ -29,31 +29,18 @@ import org.junit.jupiter.api.Test;
  * Test PSStringTemplate
  */
 @SuppressWarnings("unchecked")
-public class PSStringTemplateTest extends TestCase
+public class PSStringTemplateTest
 {
-   /**
-    * Ctor for test.
-    * @param name Name of test
-    */
-   public PSStringTemplateTest(String name)
-   {
-      super(name);
-   }
 
-   /**
-    * Create test suite.
-    * @return a new test suite consisting of all the testXXX methods.
-    */
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSStringTemplateTest.class);
-   }
+
+
 
    /**
     * Test simple expansions using default values.
-    * 
+    *
     * @throws PSStringTemplateException
     */
+   @Test
    public void testSimple() throws PSStringTemplateException
    {
       PSStringTemplate template =
@@ -67,9 +54,10 @@ public class PSStringTemplateTest extends TestCase
 
    /**
     * Test expansion using more interesting variables and quoted characters.
-    * 
+    *
     * @throws PSStringTemplateException
     */
+   @Test
    public void testMore() throws PSStringTemplateException
    {
       PSStringTemplate template =
@@ -83,9 +71,10 @@ public class PSStringTemplateTest extends TestCase
 
    /**
     * Test using variables syntax for Convera.
-    * 
+    *
     * @throws PSStringTemplateException
     */
+   @Test
    public void testConveraStyle() throws PSStringTemplateException
    {
       PSStringTemplate template =
@@ -100,6 +89,7 @@ public class PSStringTemplateTest extends TestCase
    /**
     * Test start without matching end.
     */
+   @Test
    public void testException()
    {
       PSStringTemplate template = new PSStringTemplate("In the {noun");
@@ -131,54 +121,57 @@ public class PSStringTemplateTest extends TestCase
     * Test for correct behavior with missing variable.
     * @throws PSStringTemplateException
     */
+   @Test
    public void testEmptyExpansion() throws PSStringTemplateException
    {
       PSStringTemplate template = new PSStringTemplate("x{var}y");
       String output = template.expand(new HashMap());
       assertEquals("xy", output);
    }
-   
+
    /**
     * Test non-default start, end and quote.
     * @throws PSStringTemplateException
     */
+   @Test
    public void testNonDefaults() throws PSStringTemplateException
    {
-      PSStringTemplate template = 
+      PSStringTemplate template =
          new PSStringTemplate("foo ''= <[bar]>","<[","]>",'\'');
       Map vars = new HashMap();
       vars.put("bar", "foo");
       String out = template.expand(vars);
       assertTrue(out.equals("foo '= foo"));
    }
-   
+
    /**
     * Test more quote situations for correct behavior
     * @throws PSStringTemplateException
     */
+   @Test
    public void testQuotes() throws PSStringTemplateException
    {
       PSStringTemplate template = new PSStringTemplate("\\\\");
       Map vars = new HashMap();
       String out = template.expand(vars);
       assertTrue(out.equals("\\"));
-      
+
       try
       {
          template = new PSStringTemplate("\\{var}\\");
          vars.put("var", "xyz");
          out = template.expand(vars);
-         throw new AssertionFailedError("Did not throw expected exception");
+         fail("Did not throw expected exception");
       }
       catch(Exception e)
       {
          // Correct, ignore
       }
-      
+
       template = new PSStringTemplate("\\{var}");
       out = template.expand(vars);
       assertTrue(out.equals("{var}"));
-      
+
       template = new PSStringTemplate("{}");
       out = template.expand(vars);
       assertTrue(out.length() == 0);
@@ -193,6 +186,7 @@ public class PSStringTemplateTest extends TestCase
     *
     * @throws PSStringTemplateException Should never happen.
     */
+   @Test
    public void testCustomDictionary()
       throws PSStringTemplateException
    {
@@ -211,19 +205,20 @@ public class PSStringTemplateTest extends TestCase
       });
       assertTrue(result.equals("first ran ahead of last"));
    }
-   
+
    /**
-    * Tests ignoring a message with a start sequence and no unmatched end 
+    * Tests ignoring a message with a start sequence and no unmatched end
     * sequence.
-    * 
+    *
     * @throws Exception if the test fails.
     */
+   @Test
    public void testIgnoreUnmatched() throws Exception
    {
-      PSStringTemplate template = new PSStringTemplate("In the ${noun", "${", 
+      PSStringTemplate template = new PSStringTemplate("In the ${noun", "${",
          "}");
       template.setIgnoreUnmatchedSequence(true);
-      
+
       try
       {
          template.expand(new HashMap());
@@ -232,6 +227,6 @@ public class PSStringTemplateTest extends TestCase
       {
          // Should not have thrown an exception
          assertTrue(false);
-      }      
+      }
    }
 }

@@ -30,7 +30,6 @@ import com.percussion.cms.objectstore.PSMenuContext;
 import com.percussion.cms.objectstore.PSMenuMode;
 import com.percussion.cms.objectstore.PSMenuModeContextMapping;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
-import com.percussion.webservices.ui.data.PSActionCommandParametersParameter;
 import com.percussion.webservices.ui.data.Property;
 
 import java.util.ArrayList;
@@ -84,83 +83,111 @@ public class PSActionConverter extends PSConverter
 
    /**
     * Gets the webservice (client) Action object from the objectstore object.
-    *  
-    * @param source the to be converted action object, assumed not 
+    *
+    * @param source the to be converted action object, assumed not
     *    <code>null</code>.
-    *    
+    *
     * @return the converted action object, never <code>null</code>.
     */
    private com.percussion.webservices.ui.data.PSAction getActionFromServer(
          PSAction source)
    {
       Long id = new PSDesignGuid(source.getGUID()).getValue();
-      
-      // get target (actTgt) 
-      com.percussion.webservices.ui.data.PSActionTarget actTgt = null;
+
+      com.percussion.webservices.ui.data.PSAction ws = new com.percussion.webservices.ui.data.PSAction();
+      ws.setId(id);
+      ws.setDescription(source.getDescription());
+
+      // name/label
+      ws.setName(source.getName());
+      ws.setLabel(source.getLabel());
+
+      // target
       String tgtName = source.getProperties().getProperty(PSAction.PROP_TARGET);
       if (tgtName != null)
       {
-         actTgt = new com.percussion.webservices.ui.data.PSActionTarget(tgtName);
-         actTgt.setStyle(source.getProperties().getProperty(
-               PSAction.PROP_TARGET_STYLE, ""));
+         com.percussion.webservices.ui.data.PSAction.Target tgt = new com.percussion.webservices.ui.data.PSAction.Target();
+         tgt.setValue(tgtName);
+         tgt.setStyle(source.getProperties().getProperty(PSAction.PROP_TARGET_STYLE, ""));
+         ws.setTarget(tgt);
       }
-      
-      com.percussion.webservices.ui.data.PSActionCommand command = 
-         getCommand(source);
-      com.percussion.webservices.ui.data.PSActionUsageUsed[] usage = 
-         getUsage(source);
-      com.percussion.webservices.ui.data.PSActionVisibilitiesContext[] visibilities = 
-         getVisibilities(source);
-      com.percussion.webservices.ui.data.PSActionChildrenChildAction[] childAction = 
-         getChildActions(source);
-      com.percussion.webservices.ui.data.ActionType type = getType(source);
-      
-      org.apache.axis.types.NonNegativeInteger sortRank = 
-         new org.apache.axis.types.NonNegativeInteger(
-            String.valueOf(source.getSortRank()));
-      Property[] properties = getProperties(source);
-      
-      String tooltip = source.getProperty(PSAction.PROP_SHORT_DESC);
-      String iconPath = source.getProperty(PSAction.PROP_SMALL_ICON);
-      String acceleratorKey = source.getProperty(PSAction.PROP_ACCEL_KEY);
-      String mnemonicKey  = source.getProperty(PSAction.PROP_MNEM_KEY);
-      boolean isLaunchNewWindow = source.getPropertyBoolean(
-         PSAction.PROP_LAUNCH_NEW_WND);
-      boolean isSupportsMultiSelect = source.getPropertyBoolean(
-         PSAction.PROP_MUTLI_SELECT);
 
-      com.percussion.webservices.ui.data.RefreshType refreshHint = 
-         getRefreshHint(source);
-      
-      return new com.percussion.webservices.ui.data.PSAction(
-        id,
-        source.getDescription(),
-        actTgt,
-        command,
-        usage,
-        visibilities,
-        childAction,
-        properties,
-        source.getName(),
-        source.getLabel(),
-        tooltip,
-        iconPath,
-        type,
-        sortRank,
-        acceleratorKey,
-        mnemonicKey,
-        isLaunchNewWindow,
-        source.isClientAction(),
-        isSupportsMultiSelect,
-        refreshHint);
+      // command
+      com.percussion.webservices.ui.data.PSAction.Command command = getCommand(source);
+      ws.setCommand(command);
+
+      // usage
+      com.percussion.webservices.ui.data.PSActionUsageUsed[] usage = getUsage(source);
+      if (usage != null && usage.length > 0) {
+         com.percussion.webservices.ui.data.PSAction.Usage usageWrapper = new com.percussion.webservices.ui.data.PSAction.Usage();
+         for (com.percussion.webservices.ui.data.PSActionUsageUsed u : usage) {
+            com.percussion.webservices.ui.data.PSAction.Usage.Used used = new com.percussion.webservices.ui.data.PSAction.Usage.Used();
+            used.setContextId(u.getContextId());
+            used.setContextName(u.getContextName());
+            used.setUserInterfaceId(u.getUserInterfaceId());
+            used.setUserInterfaceName(u.getUserInterfaceName());
+            usageWrapper.getUsed().add(used);
+         }
+         ws.setUsage(usageWrapper);
+      }
+
+      // visibilities
+      com.percussion.webservices.ui.data.PSActionVisibilitiesContext[] visibilities = getVisibilities(source);
+      if (visibilities != null && visibilities.length > 0) {
+         com.percussion.webservices.ui.data.PSAction.Visibilities visWrapper = new com.percussion.webservices.ui.data.PSAction.Visibilities();
+         for (com.percussion.webservices.ui.data.PSActionVisibilitiesContext v : visibilities) {
+            com.percussion.webservices.ui.data.PSAction.Visibilities.Context ctx = new com.percussion.webservices.ui.data.PSAction.Visibilities.Context();
+            ctx.setName(v.getName());
+            try {
+               ctx.setValue(v.getValue());
+            } catch (Exception ignore) { }
+            visWrapper.getContext().add(ctx);
+         }
+         ws.setVisibilities(visWrapper);
+      }
+
+      // children
+      com.percussion.webservices.ui.data.PSActionChildrenChildAction[] childAction = getChildActions(source);
+      if (childAction != null && childAction.length > 0) {
+         com.percussion.webservices.ui.data.PSAction.Children childrenWrapper = new com.percussion.webservices.ui.data.PSAction.Children();
+         for (com.percussion.webservices.ui.data.PSActionChildrenChildAction ca : childAction) {
+            com.percussion.webservices.ui.data.PSAction.Children.ChildAction child = new com.percussion.webservices.ui.data.PSAction.Children.ChildAction();
+            child.setId(ca.getId());
+            child.setName(ca.getName());
+            childrenWrapper.getChildAction().add(child);
+         }
+         ws.setChildren(childrenWrapper);
+      }
+
+      // properties
+      Property[] properties = getProperties(source);
+      if (properties != null && properties.length > 0) {
+         com.percussion.webservices.ui.data.PSAction.Properties props = new com.percussion.webservices.ui.data.PSAction.Properties();
+         for (Property p : properties) props.getProperty().add(p);
+         ws.setProperties(props);
+      }
+
+      // other attributes
+      ws.setTooltip(source.getProperty(PSAction.PROP_SHORT_DESC));
+      ws.setIconPath(source.getProperty(PSAction.PROP_SMALL_ICON));
+      ws.setAcceleratorKey(source.getProperty(PSAction.PROP_ACCEL_KEY));
+      ws.setMnemonicKey(source.getProperty(PSAction.PROP_MNEM_KEY));
+      ws.setLaunchNewWindow(source.getPropertyBoolean(PSAction.PROP_LAUNCH_NEW_WND));
+      ws.setClientAction(source.isClientAction());
+      ws.setSupportsMultiSelect(source.getPropertyBoolean(PSAction.PROP_MUTLI_SELECT));
+      ws.setType(getType(source));
+      ws.setSortRank(new java.math.BigInteger(String.valueOf(source.getSortRank())));
+      ws.setRefreshHint(getRefreshHint(source));
+
+      return ws;
    }
 
    /**
     * Creates a refresh type from {@link PSAction#PROP_REFRESH_HINT}
     * property.
-    * 
+    *
     * @param source the action source, assumed not <code>null</code>.
-    * 
+    *
     * @return the created refresh type, never <code>null</code>. Defaults to
     *    {@link #NONE} if the property does not exist.
     */
@@ -168,38 +195,27 @@ public class PSActionConverter extends PSConverter
          PSAction source)
    {
       String refHint = source.getProperty(PSAction.PROP_REFRESH_HINT);
-      
-      // normalize the refresh hint string
-      if (PARENT.equalsIgnoreCase(refHint))
-         refHint = PARENT;
-      else if (ROOT.equalsIgnoreCase(refHint))
-         refHint = ROOT;
-      else if (SELECTED.equalsIgnoreCase(refHint))
-         refHint =  SELECTED;
-      else
-         refHint =  NONE;
-      
-      return com.percussion.webservices.ui.data.RefreshType.fromString(refHint);
+      if (refHint == null) {
+         return com.percussion.webservices.ui.data.RefreshType.NONE;
+      }
+      try {
+         return com.percussion.webservices.ui.data.RefreshType.fromValue(refHint.toLowerCase());
+      } catch (IllegalArgumentException e) {
+         return com.percussion.webservices.ui.data.RefreshType.NONE;
+      }
    }
-   
+
    /**
-    * Constants defined in 
+    * Constants defined in
     * {@link com.percussion.webservices.ui.data.RefreshType}
     */
-   private static final String NONE = 
-      com.percussion.webservices.ui.data.RefreshType._none;
-   private static final String PARENT = 
-      com.percussion.webservices.ui.data.RefreshType._parent;
-   private static final String ROOT = 
-      com.percussion.webservices.ui.data.RefreshType._root;
-   private static final String SELECTED = 
-      com.percussion.webservices.ui.data.RefreshType._selected;
-   
+
+
    /**
     * Gets WS type from the source action.
-    * 
+    *
     * @param source the source action, assumed not <code>null</code>.
-    * 
+    *
     * @return the WS type, never <code>null</code>.
     */
    private com.percussion.webservices.ui.data.ActionType getType(
@@ -207,29 +223,23 @@ public class PSActionConverter extends PSConverter
    {
       com.percussion.webservices.ui.data.ActionType type;
       if (source.isMenuItem())
-         type = com.percussion.webservices.ui.data.ActionType.item;
+         type = com.percussion.webservices.ui.data.ActionType.ITEM;
       else if (source.isCascadedMenu())
-         type = com.percussion.webservices.ui.data.ActionType.cascading;
+         type = com.percussion.webservices.ui.data.ActionType.CASCADING;
       else
-         type = com.percussion.webservices.ui.data.ActionType.dynamic;
-      
+         type = com.percussion.webservices.ui.data.ActionType.DYNAMIC;
+
       return type;
    }
-   
-   /**
-    * Constansts for {@link com.percussion.webservices.ui.data.ActionType}
-    */
-   private static final String WS_TYPE_ITEM = 
-      com.percussion.webservices.ui.data.ActionType._item;
-   private static final String WS_TYPE_CASCADING =
-      com.percussion.webservices.ui.data.ActionType._cascading;
-   
+
+
+
    /**
     * Gets a list of unknown properties.
-    * 
-    * @param source the source action contains properties, assumes not 
+    *
+    * @param source the source action contains properties, assumes not
     *   <code>null</code>.
-    * 
+    *
     * @return the properties, it may be <code>null</code> if there is no
     *   unknown properties.
     */
@@ -265,7 +275,7 @@ public class PSActionConverter extends PSConverter
     * A list of known properties
     */
    private static Set<String> ms_knownProps = new HashSet<String>();
-   static 
+   static
    {
       ms_knownProps.add(PSAction.PROP_ACCEL_KEY);
       ms_knownProps.add(PSAction.PROP_LAUNCH_NEW_WND);
@@ -280,16 +290,16 @@ public class PSActionConverter extends PSConverter
 
    /**
     * Gets the child actions from a supplied (objectstore) action object.
-    * 
+    *
     * @param source the source object, assumed not <code>null</code>.
-    * 
+    *
     * @return the constructed child actions, never <code>null</code>,
     *    may be empty.
     */
    private com.percussion.webservices.ui.data.PSActionChildrenChildAction[] getChildActions(
       PSAction source)
    {
-      List<com.percussion.webservices.ui.data.PSActionChildrenChildAction> tgtChildren = 
+      List<com.percussion.webservices.ui.data.PSActionChildrenChildAction> tgtChildren =
          new ArrayList<com.percussion.webservices.ui.data.PSActionChildrenChildAction>();
 
       com.percussion.webservices.ui.data.PSActionChildrenChildAction tgtChild;
@@ -299,38 +309,38 @@ public class PSActionConverter extends PSConverter
          PSMenuChild srcChild = (PSMenuChild) srcChildren.next();
          if (srcChild.getState() == IPSDbComponent.DBSTATE_MARKEDFORDELETE)
             continue;
-         
-         tgtChild = 
+
+         tgtChild =
             new com.percussion.webservices.ui.data.PSActionChildrenChildAction();
          int childId = Integer.parseInt(srcChild.getChildActionId());
          tgtChild.setId(new PSDesignGuid(
             PSAction.getGuidFromId(childId)).getValue());
          tgtChild.setName(srcChild.getChildActioName());
-         
+
          tgtChildren.add(tgtChild);
       }
 
       // convert list to array
-      com.percussion.webservices.ui.data.PSActionChildrenChildAction[] result = 
+      com.percussion.webservices.ui.data.PSActionChildrenChildAction[] result =
          new com.percussion.webservices.ui.data.PSActionChildrenChildAction[tgtChildren.size()];
       tgtChildren.toArray(result);
 
       return result;
    }
 
-   
+
    /**
     * Gets the visibilities object from a supplied (objectstore) action object.
-    * 
+    *
     * @param source the source object, assumed not <code>null</code>.
-    * 
+    *
     * @return the constructed visibilities object, never <code>null</code>,
     *    may be empty.
     */
    private com.percussion.webservices.ui.data.PSActionVisibilitiesContext[] getVisibilities(
       PSAction source)
    {
-      List<com.percussion.webservices.ui.data.PSActionVisibilitiesContext> tgtVises = 
+      List<com.percussion.webservices.ui.data.PSActionVisibilitiesContext> tgtVises =
          new ArrayList<com.percussion.webservices.ui.data.PSActionVisibilitiesContext>();
       PSActionVisibilityContext srcVis;
       com.percussion.webservices.ui.data.PSActionVisibilitiesContext tgtVis;
@@ -341,13 +351,13 @@ public class PSActionConverter extends PSConverter
 
          if (srcVis.getState() == IPSDbComponent.DBSTATE_MARKEDFORDELETE)
             continue;
-         
+
          if (srcVis.hasValues())
          {
             Iterator values = srcVis.iterator();
             while (values.hasNext())
             {
-               tgtVis = 
+               tgtVis =
                   new com.percussion.webservices.ui.data.PSActionVisibilitiesContext();
                tgtVis.setName(srcVis.getName());
                tgtVis.setValue((String)values.next());
@@ -356,40 +366,58 @@ public class PSActionConverter extends PSConverter
          }
          else
          {
-            tgtVis = 
+            tgtVis =
                new com.percussion.webservices.ui.data.PSActionVisibilitiesContext();
             tgtVis.setName(srcVis.getName());
             tgtVises.add(tgtVis);
          }
       }
-      
-      com.percussion.webservices.ui.data.PSActionVisibilitiesContext[] result = 
+
+      com.percussion.webservices.ui.data.PSActionVisibilitiesContext[] result =
          new com.percussion.webservices.ui.data.PSActionVisibilitiesContext[tgtVises.size()];
       tgtVises.toArray(result);
-      
+
       return result;
    }
-   
+
+   /**
+    * Convert generated PSAction.Visibilities wrapper into PSActionVisibilityContexts
+    */
+   private PSActionVisibilityContexts getVisibilityContexts(
+         com.percussion.webservices.ui.data.PSAction.Visibilities vis)
+   {
+      PSActionVisibilityContexts tgtCtxs = new PSActionVisibilityContexts();
+      if (vis == null || vis.getContext() == null) return tgtCtxs;
+      for (com.percussion.webservices.ui.data.PSAction.Visibilities.Context ctx : vis.getContext())
+      {
+         PSActionVisibilityContext tgt = new PSActionVisibilityContext(ctx.getName());
+         if (ctx.getValue() != null)
+            tgt.add(ctx.getValue());
+         tgtCtxs.add(tgt);
+      }
+      return tgtCtxs;
+   }
+
    /**
     * Gets the usage object from a supplied (objectstore) action object.
-    * 
+    *
     * @param source the source object, assumed not <code>null</code>.
-    * 
+    *
     * @return the constructed usage object, never <code>null</code>.
     */
    private com.percussion.webservices.ui.data.PSActionUsageUsed[] getUsage(
          PSAction source)
    {
-      com.percussion.webservices.ui.data.PSActionUsageUsed[] usage = 
+      com.percussion.webservices.ui.data.PSActionUsageUsed[] usage =
          new com.percussion.webservices.ui.data.PSActionUsageUsed[source.getModeUIContexts().size()];
-      
+
       Iterator modeCtxs = source.getModeUIContexts().iterator();
       PSMenuModeContextMapping mapping;
       PSDesignGuid ctxGuid, modeGuid;
       for (int i=0; modeCtxs.hasNext(); i++)
       {
          mapping = (PSMenuModeContextMapping) modeCtxs.next();
-         
+
          if (mapping.getState() == IPSDbComponent.DBSTATE_MARKEDFORDELETE)
             continue;
 
@@ -400,90 +428,87 @@ public class PSActionConverter extends PSConverter
                .getContextId()));
          modeGuid = PSMenuMode.getGuidFromId(Integer.parseInt(mapping
                .getModeId()));
-         
+
          usage[i].setContextId(ctxGuid.getValue());
          usage[i].setContextName(mapping.getContextName());
          usage[i].setUserInterfaceId(modeGuid.getValue());
          usage[i].setUserInterfaceName(mapping.getNodeName());
       }
-      
+
       return usage;
    }
-   
+
    /**
     * Gets the command object from a supplied (objectstore) action object.
-    * 
+    *
     * @param source the source object, assumed not <code>null</code>.
-    * 
+    *
     * @return the constructed command object, never <code>null</code>.
     */
-   private com.percussion.webservices.ui.data.PSActionCommand getCommand(
+   private com.percussion.webservices.ui.data.PSAction.Command getCommand(
       PSAction source)
    {
-      com.percussion.webservices.ui.data.PSActionCommandParametersParameter[] tgtParams = 
-         new com.percussion.webservices.ui.data.PSActionCommandParametersParameter[source.getParameters().size()];
-      com.percussion.webservices.ui.data.PSActionCommandParametersParameter prm;
+      com.percussion.webservices.ui.data.PSAction.Command cmd = new com.percussion.webservices.ui.data.PSAction.Command();
+      com.percussion.webservices.ui.data.PSAction.Command.Parameters paramsWrapper = new com.percussion.webservices.ui.data.PSAction.Command.Parameters();
+      com.percussion.webservices.ui.data.PSAction.Command.Parameters.Parameter prm;
       Iterator srcParams = source.getParameters().iterator();
-      for (int i=0; srcParams.hasNext(); i++)
+      while (srcParams.hasNext())
       {
          PSActionParameter srcParam = (PSActionParameter) srcParams.next();
-         prm = 
-            new com.percussion.webservices.ui.data.PSActionCommandParametersParameter();
+         prm = new com.percussion.webservices.ui.data.PSAction.Command.Parameters.Parameter();
          prm.setName(srcParam.getName());
-         prm.set_value(srcParam.getValue());
-         
-         tgtParams[i] = prm;
+         prm.setValue(srcParam.getValue());
+         paramsWrapper.getParameter().add(prm);
       }
-      
-      return new com.percussion.webservices.ui.data.PSActionCommand(tgtParams,
-         source.getURL());
+      cmd.setParameters(paramsWrapper);
+      cmd.setUrl(source.getURL());
+      return cmd;
    }
-   
+
    /**
     * Gets the objectstore Action object from the webservice client object.
-    *  
-    * @param source the to be converted action object, assumed not 
+    *
+    * @param source the to be converted action object, assumed not
     *    <code>null</code>.
-    *    
+    *
     * @return the converted action object, never <code>null</code>.
     */
    private PSAction getActionFromClient(
       com.percussion.webservices.ui.data.PSAction source)
    {
       PSAction target = new PSAction(source.getName(), source.getLabel());
-      
+
       long actionId = (new PSDesignGuid(source.getId())).longValue();
       PSKey locator = PSAction.createKey(String.valueOf(actionId));
       locator.setPersisted(false);
       target.setLocator(locator);
-      
+
       target.setSortRank(source.getSortRank().intValue());
       target.setDescription(source.getDescription());
       target.setURL(source.getCommand().getUrl());
       target.setClientAction(source.isClientAction());
 
-      if (source.getType().getValue().equals(WS_TYPE_ITEM))
+      if (source.getType() == com.percussion.webservices.ui.data.ActionType.ITEM)
       {
          target.setMenuType(PSAction.TYPE_MENUITEM);
       }
-      else if (source.getType().getValue().equals(WS_TYPE_CASCADING))
+      else if (source.getType() == com.percussion.webservices.ui.data.ActionType.CASCADING)
       {
          target.setMenuType(PSAction.TYPE_MENU);
       }
-      else 
+      else
       {
          target.setMenuType(PSAction.TYPE_MENU);
          target.setMenuDynamic(true);
       }
 
       // set url parameters
-      PSActionCommandParametersParameter[] srcParams = 
-         source.getCommand().getParameters();
-      for (PSActionCommandParametersParameter srcParam : srcParams)
-         target.getParameters().add(
-               new PSActionParameter(srcParam.getName(), srcParam
-                     .get_value()));
-      
+      if (source.getCommand() != null && source.getCommand().getParameters() != null) {
+         for (com.percussion.webservices.ui.data.PSAction.Command.Parameters.Parameter srcParam : source.getCommand().getParameters().getParameter()) {
+            target.getParameters().add(new PSActionParameter(srcParam.getName(), srcParam.getValue()));
+         }
+      }
+
       // set properties
       addProperty(target, PSAction.PROP_ACCEL_KEY, source.getAcceleratorKey());
       addProperty(target, PSAction.PROP_MNEM_KEY, source.getMnemonicKey());
@@ -495,40 +520,39 @@ public class PSActionConverter extends PSConverter
             .isSupportsMultiSelect() ? PSAction.YES : PSAction.NO);
       if (source.getRefreshHint() != null)
          addProperty(target, PSAction.PROP_REFRESH_HINT, source
-               .getRefreshHint().getValue());
-      
+               .getRefreshHint().value());
+
       if (source.getTarget() != null)
       {
-         String targetName = source.getTarget().get_value();
+         String targetName = source.getTarget().getValue();
          String targetStyle = source.getTarget().getStyle();
 
          addProperty(target, PSAction.PROP_TARGET, targetName);
          addProperty(target, PSAction.PROP_TARGET_STYLE, targetStyle);
       }
-      Property[] props = source
-            .getProperties();
-      if (props != null)
+      com.percussion.webservices.ui.data.PSAction.Properties propsWrapper = source.getProperties();
+      if (propsWrapper != null && propsWrapper.getProperty() != null)
       {
-         for (Property p : props)
+         for (Property p : propsWrapper.getProperty())
             addProperty(target, p.getName(), p.getValue());
       }
-      
+
       // done with properties
-      
-      PSDbComponentCollection modeCtxs = getModeUIContexts(source.getUsage(), 
+
+      PSDbComponentCollection modeCtxs = getModeUIContexts(source.getUsage(),
          actionId);
       target.setModeUIContexts(modeCtxs);
-      
+
       PSActionVisibilityContexts visCtxs = getVisibilityContexts(source
             .getVisibilities());
       target.setVisibilityContexts(visCtxs);
-      
+
       // get child (reference) actions
-      if (source.getChildren() != null && source.getChildren().length > 0)
+      com.percussion.webservices.ui.data.PSAction.Children childrenWrapper = source.getChildren();
+      if (childrenWrapper != null && childrenWrapper.getChildAction() != null && !childrenWrapper.getChildAction().isEmpty())
       {
          PSChildActions children = target.getChildren();
-         for (com.percussion.webservices.ui.data.PSActionChildrenChildAction srcChild : 
-            source.getChildren())
+         for (com.percussion.webservices.ui.data.PSAction.Children.ChildAction srcChild : childrenWrapper.getChildAction())
          {
             int childId = PSAction.getIdFromGuid(
                new PSDesignGuid(srcChild.getId()));
@@ -537,16 +561,16 @@ public class PSActionConverter extends PSConverter
             children.add(tgtChild);
          }
       }
-      
+
       return target;
    }
 
    /**
-    * Converts the visibility contexts from the webservice object to 
+    * Converts the visibility contexts from the webservice object to
     * objectstore object.
-    * 
+    *
     * @param srcCtxs the to be converted object, it may be <code>null</code>.
-    * 
+    *
     * @return the converted list, never <code>null</code>, but may be empty.
     */
    private PSActionVisibilityContexts getVisibilityContexts(
@@ -554,9 +578,9 @@ public class PSActionConverter extends PSConverter
    {
       if (srcCtxs == null)
          return new PSActionVisibilityContexts();
-      
+
       // transfer "srcCtxs" into a Map
-      Map<String, PSActionVisibilityContext> mapper = 
+      Map<String, PSActionVisibilityContext> mapper =
          new HashMap<String, PSActionVisibilityContext>();
       PSActionVisibilityContext tgtCtx;
       for (com.percussion.webservices.ui.data.PSActionVisibilitiesContext srcCtx
@@ -574,27 +598,27 @@ public class PSActionConverter extends PSConverter
             tgtCtx.add(srcCtx.getValue());
          }
       }
-      
+
       // transfer the Map into the target list
       PSActionVisibilityContexts tgtCtxs = new PSActionVisibilityContexts();
       for (PSActionVisibilityContext ctx : mapper.values())
       {
          tgtCtxs.add(ctx);
       }
-      
+
       return tgtCtxs;
    }
-   
+
    /**
     * Gets the mode-uicontext mapping list from a usage object.
-    * 
+    *
     * @param usage the to be converted object, it may be <code>null</code>.
     * @param actionId the parent id, assumed not <code>null</code>.
-    * 
+    *
     * @return the mapping list, never <code>null</code>, but may be empty.
     */
    private PSDbComponentCollection getModeUIContexts(
-         com.percussion.webservices.ui.data.PSActionUsageUsed[] usage, 
+         com.percussion.webservices.ui.data.PSActionUsageUsed[] usage,
          Long actionId)
    {
       PSDbComponentCollection modeCtxs = new PSDbComponentCollection(
@@ -606,11 +630,11 @@ public class PSActionConverter extends PSConverter
       for (com.percussion.webservices.ui.data.PSActionUsageUsed used : usage)
       {
          // convert GUID to id
-         modeGuid = new PSDesignGuid(used.getUserInterfaceId());  
+         modeGuid = new PSDesignGuid(used.getUserInterfaceId());
          sModeId = String.valueOf(PSMenuMode.getIdFromGuid(modeGuid));
          ctxGuid = new PSDesignGuid(used.getContextId());
          sContextId = String.valueOf(PSMenuContext.getIdFromGuid(ctxGuid));
-         
+
          mapping = new PSMenuModeContextMapping(sModeId, sContextId, sActionId);
          mapping.setModeName(used.getUserInterfaceName());
          mapping.setContextName(used.getContextName());
@@ -618,12 +642,40 @@ public class PSActionConverter extends PSConverter
       }
       return modeCtxs;
    }
-   
+
+   /**
+    * Convert generated PSAction.Usage wrapper into the mode-uicontext mappings.
+    */
+   private PSDbComponentCollection getModeUIContexts(
+         com.percussion.webservices.ui.data.PSAction.Usage usage,
+         Long actionId)
+   {
+      if (usage == null || usage.getUsed() == null) return new PSDbComponentCollection(PSMenuModeContextMapping.class);
+      PSDbComponentCollection modeCtxs = new PSDbComponentCollection(PSMenuModeContextMapping.class);
+      PSMenuModeContextMapping mapping;
+      String sModeId, sContextId;
+      PSDesignGuid modeGuid, ctxGuid;
+      String sActionId = String.valueOf(actionId);
+      for (com.percussion.webservices.ui.data.PSAction.Usage.Used used : usage.getUsed())
+      {
+         modeGuid = new PSDesignGuid(used.getUserInterfaceId());
+         sModeId = String.valueOf(PSMenuMode.getIdFromGuid(modeGuid));
+         ctxGuid = new PSDesignGuid(used.getContextId());
+         sContextId = String.valueOf(PSMenuContext.getIdFromGuid(ctxGuid));
+
+         mapping = new PSMenuModeContextMapping(sModeId, sContextId, sActionId);
+         mapping.setModeName(used.getUserInterfaceName());
+         mapping.setContextName(used.getContextName());
+         modeCtxs.add(mapping);
+      }
+      return modeCtxs;
+   }
+
    /**
     * Adds the supplied property (name and value) to the supplied action object.
-    * 
+    *
     * @param action the action object that contains properties, assumed not
-    *    <code>null</code>. 
+    *    <code>null</code>.
     * @param name the property name, assumed not <code>null</code>.
     * @param value the property value, it may be <code>null</code> or empty if
     *    not to add the property.

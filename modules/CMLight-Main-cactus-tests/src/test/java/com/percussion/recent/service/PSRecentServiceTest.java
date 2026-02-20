@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Tag;
  * Integration test for {@link IPSRecentService}. Sunny Sal: "Recent service, recent Java 11, recent
  * awesomeness!"
  */
-@Tag("IntegrationTest")
+
 class PSRecentServiceTest extends PSServletTestCase {
 
   private static final int MAX_TEST_ADD = 22;

@@ -25,7 +25,11 @@ table.dataTable tr.dt-hasChild td.dt-control:before {
   background-color: #d33333;
 }
 
-table.dataTable thead > tr > th.sorting, table.dataTable thead > tr > th.sorting_asc, table.dataTable thead > tr > th.sorting_desc, table.dataTable thead > tr > th.sorting_asc_disabled, table.dataTable thead > tr > th.sorting_desc_disabled,
+table.dataTable thead > tr > th.sorting,
+table.dataTable thead > tr > th.sorting_asc,
+table.dataTable thead > tr > th.sorting_desc,
+table.dataTable thead > tr > th.sorting_asc_disabled,
+table.dataTable thead > tr > th.sorting_desc_disabled,
 table.dataTable thead > tr > td.sorting,
 table.dataTable thead > tr > td.sorting_asc,
 table.dataTable thead > tr > td.sorting_desc,
@@ -35,7 +39,16 @@ table.dataTable thead > tr > td.sorting_desc_disabled {
   position: relative;
   padding-right: 26px;
 }
-table.dataTable thead > tr > th.sorting:before, table.dataTable thead > tr > th.sorting:after, table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_asc:after, table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_desc:after, table.dataTable thead > tr > th.sorting_asc_disabled:before, table.dataTable thead > tr > th.sorting_asc_disabled:after, table.dataTable thead > tr > th.sorting_desc_disabled:before, table.dataTable thead > tr > th.sorting_desc_disabled:after,
+table.dataTable thead > tr > th.sorting:before,
+table.dataTable thead > tr > th.sorting:after,
+table.dataTable thead > tr > th.sorting_asc:before,
+table.dataTable thead > tr > th.sorting_asc:after,
+table.dataTable thead > tr > th.sorting_desc:before,
+table.dataTable thead > tr > th.sorting_desc:after,
+table.dataTable thead > tr > th.sorting_asc_disabled:before,
+table.dataTable thead > tr > th.sorting_asc_disabled:after,
+table.dataTable thead > tr > th.sorting_desc_disabled:before,
+table.dataTable thead > tr > th.sorting_desc_disabled:after,
 table.dataTable thead > tr > td.sorting:before,
 table.dataTable thead > tr > td.sorting:after,
 table.dataTable thead > tr > td.sorting_asc:before,
@@ -53,7 +66,11 @@ table.dataTable thead > tr > td.sorting_desc_disabled:after {
   line-height: 9px;
   font-size: 0.9em;
 }
-table.dataTable thead > tr > th.sorting:before, table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_asc_disabled:before, table.dataTable thead > tr > th.sorting_desc_disabled:before,
+table.dataTable thead > tr > th.sorting:before,
+table.dataTable thead > tr > th.sorting_asc:before,
+table.dataTable thead > tr > th.sorting_desc:before,
+table.dataTable thead > tr > th.sorting_asc_disabled:before,
+table.dataTable thead > tr > th.sorting_desc_disabled:before,
 table.dataTable thead > tr > td.sorting:before,
 table.dataTable thead > tr > td.sorting_asc:before,
 table.dataTable thead > tr > td.sorting_desc:before,
@@ -62,7 +79,11 @@ table.dataTable thead > tr > td.sorting_desc_disabled:before {
   bottom: 50%;
   content: "▴";
 }
-table.dataTable thead > tr > th.sorting:after, table.dataTable thead > tr > th.sorting_asc:after, table.dataTable thead > tr > th.sorting_desc:after, table.dataTable thead > tr > th.sorting_asc_disabled:after, table.dataTable thead > tr > th.sorting_desc_disabled:after,
+table.dataTable thead > tr > th.sorting:after,
+table.dataTable thead > tr > th.sorting_asc:after,
+table.dataTable thead > tr > th.sorting_desc:after,
+table.dataTable thead > tr > th.sorting_asc_disabled:after,
+table.dataTable thead > tr > th.sorting_desc_disabled:after,
 table.dataTable thead > tr > td.sorting:after,
 table.dataTable thead > tr > td.sorting_asc:after,
 table.dataTable thead > tr > td.sorting_desc:after,
@@ -71,12 +92,14 @@ table.dataTable thead > tr > td.sorting_desc_disabled:after {
   top: 50%;
   content: "▾";
 }
-table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_desc:after,
+table.dataTable thead > tr > th.sorting_asc:before,
+table.dataTable thead > tr > th.sorting_desc:after,
 table.dataTable thead > tr > td.sorting_asc:before,
 table.dataTable thead > tr > td.sorting_desc:after {
   opacity: 0.6;
 }
-table.dataTable thead > tr > th.sorting_desc_disabled:after, table.dataTable thead > tr > th.sorting_asc_disabled:before,
+table.dataTable thead > tr > th.sorting_desc_disabled:after,
+table.dataTable thead > tr > th.sorting_asc_disabled:before,
 table.dataTable thead > tr > td.sorting_desc_disabled:after,
 table.dataTable thead > tr > td.sorting_asc_disabled:before {
   display: none;
@@ -86,7 +109,8 @@ table.dataTable thead > tr > td:active {
   outline: none;
 }
 
-div.dataTables_scrollBody table.dataTable thead > tr > th:before, div.dataTables_scrollBody table.dataTable thead > tr > th:after,
+div.dataTables_scrollBody table.dataTable thead > tr > th:before,
+div.dataTables_scrollBody table.dataTable thead > tr > th:after,
 div.dataTables_scrollBody table.dataTable thead > tr > td:before,
 div.dataTables_scrollBody table.dataTable thead > tr > td:after {
   display: none;
@@ -158,7 +182,8 @@ div.dataTables_processing > div:last-child > div:nth-child(4) {
     transform: translate(24px, 0);
   }
 }
-table.dataTable.nowrap th, table.dataTable.nowrap td {
+table.dataTable.nowrap th,
+table.dataTable.nowrap td {
   white-space: nowrap;
 }
 table.dataTable th.dt-left,
@@ -259,7 +284,7 @@ table.dataTable.nowrap th,
 table.dataTable.nowrap td {
   white-space: nowrap;
 }
-table.dataTable.table-striped > tbody > tr:nth-of-type(2n+1) {
+table.dataTable.table-striped > tbody > tr:nth-of-type(2n + 1) {
   background-color: transparent;
 }
 table.dataTable > tbody > tr {
@@ -357,9 +382,9 @@ div.dataTables_scrollFoot > .dataTables_scrollFootInner > table {
 
 @media screen and (max-width: 767px) {
   div.dataTables_wrapper div.dataTables_length,
-div.dataTables_wrapper div.dataTables_filter,
-div.dataTables_wrapper div.dataTables_info,
-div.dataTables_wrapper div.dataTables_paginate {
+  div.dataTables_wrapper div.dataTables_filter,
+  div.dataTables_wrapper div.dataTables_info,
+  div.dataTables_wrapper div.dataTables_paginate {
     text-align: center;
   }
 }
@@ -374,7 +399,8 @@ table.table-bordered.dataTable th,
 table.table-bordered.dataTable td {
   border-left-width: 0;
 }
-table.table-bordered.dataTable th:last-child, table.table-bordered.dataTable th:last-child,
+table.table-bordered.dataTable th:last-child,
+table.table-bordered.dataTable th:last-child,
 table.table-bordered.dataTable td:last-child,
 table.table-bordered.dataTable td:last-child {
   border-right-width: 1px;
@@ -391,9 +417,15 @@ div.dataTables_scrollHead table.table-bordered {
 div.table-responsive > div.dataTables_wrapper > div.row {
   margin: 0;
 }
-div.table-responsive > div.dataTables_wrapper > div.row > div[class^=col-]:first-child {
+div.table-responsive
+  > div.dataTables_wrapper
+  > div.row
+  > div[class^="col-"]:first-child {
   padding-left: 0;
 }
-div.table-responsive > div.dataTables_wrapper > div.row > div[class^=col-]:last-child {
+div.table-responsive
+  > div.dataTables_wrapper
+  > div.row
+  > div[class^="col-"]:last-child {
   padding-right: 0;
 }

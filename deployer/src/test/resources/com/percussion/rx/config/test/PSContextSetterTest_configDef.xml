@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-   <!-- simple bean properties -->
-   <bean id="CI_Full" class="com.percussion.rx.config.impl.PSObjectConfigHandler">
-      <property name="name" value="Site_Folder_Assembly"/>
-      <property name="type" value="CONTEXT"/>
-      <property name="propertySetters">
-      	<bean class="com.percussion.rx.config.impl.PSContextSetter">
-      		<property name="properties">
-		         <map>
-		            <entry key="defaultLocationScheme" value="${com.percussion.RSS.defaultLocationScheme}"/>
-		         </map>
-         	</property>
-      	</bean>
-      </property>
-   </bean>
+	<!-- simple bean properties -->
+	<bean id="CI_Full"
+		class="com.percussion.rx.config.impl.PSObjectConfigHandler">
+		<property name="name" value="Site_Folder_Assembly" />
+		<property name="type" value="CONTEXT" />
+		<property name="propertySetters">
+			<bean class="com.percussion.rx.config.impl.PSContextSetter">
+				<property name="properties">
+					<map>
+						<entry key="defaultLocationScheme"
+							value="${com.percussion.RSS.defaultLocationScheme}" />
+					</map>
+				</property>
+			</bean>
+		</property>
+	</bean>
 </beans>

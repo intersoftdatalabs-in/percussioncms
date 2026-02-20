@@ -21,23 +21,27 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 // Test case
-public class PSChoicesTest extends TestCase
+public class PSChoicesTest
 {
-   public PSChoicesTest(String name)
-   {
-      super(name);
-   }
+
+
+
+
 
    public void testEquals() throws Exception
    {
    }
 
+
+
+   @Test
    public void testXmlGlobal() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -50,9 +54,12 @@ public class PSChoicesTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSChoices testFrom = new PSChoices(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
+
+
+   @Test
    public void testXmlLocal() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -82,9 +89,12 @@ public class PSChoicesTest extends TestCase
       Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
       Element elem2 = testFrom.toXml(doc);
       PSXmlDocumentBuilder.copyTree(doc2, root2, elem2, true);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
+
+
+   @Test
    public void testXmlLookup() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -105,9 +115,12 @@ public class PSChoicesTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSChoices testFrom = new PSChoices(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
+
+
+   @Test
    public void testChoiceFilter() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -141,19 +154,8 @@ public class PSChoicesTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSChoices testFrom = new PSChoices(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
 
-      suite.addTest(new PSChoicesTest("testXmlGlobal"));
-      suite.addTest(new PSChoicesTest("testXmlLocal"));
-      suite.addTest(new PSChoicesTest("testXmlLookup"));
-      suite.addTest(new PSChoicesTest("testChoiceFilter"));
-
-
-      return suite;
-   }
 }

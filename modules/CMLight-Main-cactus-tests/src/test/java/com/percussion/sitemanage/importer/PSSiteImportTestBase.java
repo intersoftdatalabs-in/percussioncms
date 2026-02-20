@@ -35,7 +35,7 @@ import org.junit.jupiter.api.TestInstance;
  *
  * @author Percussion CMS Team, Sunny Sal (refactored)
  */
-@Tag("IntegrationTest")
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSSiteImportTestBase extends PSServletTestCase {
 

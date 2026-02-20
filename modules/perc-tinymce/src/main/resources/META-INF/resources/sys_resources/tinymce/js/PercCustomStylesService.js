@@ -20,61 +20,62 @@
  * This is deprecated as styles can now be better defined in rx_resources/tinymce/config/customer_config_override.json
  */
 
-(function($)
-{
-    //Public API
-    $.PercCustomStyleService = 
-    {
-		getCustomStyles : getCustomStyles
-    };
-    
-    /**
-     * Makes a call to the server and calls the supplied callback with status and result. See $.PercServiceUtils.makeJsonRequest
-     * for more details.
-     */
-    function getCustomStyles(callback)
-    {
-		var parentJq = window.parent.jQuery;
-		if(typeof parentJq.perc_paths === 'undefined'){
-			callback(true, tinyMCEDefaultStyles);
-			return;
-		}
-		var url = parentJq.perc_paths.RICHTEXT_CUSTOM_STYLES;
-        parentJq.PercServiceUtils.makeJsonRequest(url,parentJq.PercServiceUtils.TYPE_GET,false,function(status, result){
-			/**
-			*If the status returns an error the function calls back with false and the error message generated
-			*/
-			if(status === parentJq.PercServiceUtils.STATUS_ERROR)
-			{
-				var errorMessage = parentJq.PercServiceUtils.extractDefaultErrorMessage(result.request);
-				callback(false, errorMessage);
-			}
-			/**
-			*If the status returns success, the function calls back with true and a json object created from the custom style file
-			*/
-			else
-			{
-				var styleFormats = tinyMCEDefaultStyles;
-				var customStyles = {
-                            title: "Custom Styles",
-                            items:  []
-                        };
-				parentJq.each(result.data.RichTextCustomStyle, function(){
-					var cf = {};
-					cf.title = this.classLabel;
-					cf.classes = this.className;
-					/**
+(function ($) {
+  //Public API
+  $.PercCustomStyleService = {
+    getCustomStyles: getCustomStyles,
+  };
+
+  /**
+   * Makes a call to the server and calls the supplied callback with status and result. See $.PercServiceUtils.makeJsonRequest
+   * for more details.
+   */
+  function getCustomStyles(callback) {
+    var parentJq = window.parent.jQuery;
+    if (typeof parentJq.perc_paths === "undefined") {
+      callback(true, tinyMCEDefaultStyles);
+      return;
+    }
+    var url = parentJq.perc_paths.RICHTEXT_CUSTOM_STYLES;
+    parentJq.PercServiceUtils.makeJsonRequest(
+      url,
+      parentJq.PercServiceUtils.TYPE_GET,
+      false,
+      function (status, result) {
+        /**
+         *If the status returns an error the function calls back with false and the error message generated
+         */
+        if (status === parentJq.PercServiceUtils.STATUS_ERROR) {
+          var errorMessage =
+            parentJq.PercServiceUtils.extractDefaultErrorMessage(
+              result.request
+            );
+          callback(false, errorMessage);
+        } else {
+          /**
+           *If the status returns success, the function calls back with true and a json object created from the custom style file
+           */
+          var styleFormats = tinyMCEDefaultStyles;
+          var customStyles = {
+            title: "Custom Styles",
+            items: [],
+          };
+          parentJq.each(result.data.RichTextCustomStyle, function () {
+            var cf = {};
+            cf.title = this.classLabel;
+            cf.classes = this.className;
+            /**
 					Currently applies styles to span class. Will have to be altered to accommodate further style modification
 					*/
-					cf.inline = "span";
-					customStyles.items.push(cf);
-				});
-				styleFormats.push(customStyles);
-				callback(true, styleFormats);
-			}
-		});
-	}
-    //  made empty as should pull default styles by using "style_formats_merge": true
-	var tinyMCEDefaultStyles = [];
+            cf.inline = "span";
+            customStyles.items.push(cf);
+          });
+          styleFormats.push(customStyles);
+          callback(true, styleFormats);
+        }
+      }
+    );
+  }
+  //  made empty as should pull default styles by using "style_formats_merge": true
+  var tinyMCEDefaultStyles = [];
 })(jQuery);
-    

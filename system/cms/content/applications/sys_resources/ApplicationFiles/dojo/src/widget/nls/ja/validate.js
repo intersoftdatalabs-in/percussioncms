@@ -8,4 +8,8 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-({"rangeMessage":"* 入力�?��?�数値�?��?�択範囲外�?��?�。","invalidMessage":"* 入力�?��?�データ�?�該当�?�るも�?��?��?�り�?��?�ん。","missingMessage":"* 入力�?�必須�?��?�。"})
+({
+  rangeMessage: "* å¥åã?ã?æ°å¤ã?¯é?¸æç¯å²å¤ã?§ã?ã",
+  invalidMessage: "* å¥åã?ã?ãã¼ã¿ã?«è©²å½ã?ããã?®ã?ã?ãã?¾ã?ãã",
+  missingMessage: "* å¥åã?å¿é ã?§ã?ã",
+});

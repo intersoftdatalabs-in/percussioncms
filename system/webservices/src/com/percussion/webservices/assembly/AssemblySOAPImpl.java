@@ -40,63 +40,79 @@ public class AssemblySOAPImpl extends PSBaseSOAPImpl implements Assembly
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see Assembly#loadAssemblyTemplates(LoadAssemblyTemplatesRequest)
     */
-   public PSAssemblyTemplate[] loadAssemblyTemplates(
+   public LoadAssemblyTemplatesResponse loadAssemblyTemplates(
       LoadAssemblyTemplatesRequest loadAssemblyTemplatesRequest)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
    {
-      PSAssemblyTemplate[] result = null;
+      LoadAssemblyTemplatesResponse result = new LoadAssemblyTemplatesResponse();
       try
       {
          authenticate();
 
          IPSAssemblyWs service = PSAssemblyWsLocator.getAssemblyWebservice();
-         
-         List templates = service.loadAssemblyTemplates(
-            loadAssemblyTemplatesRequest.getName(), 
+
+         java.util.List<?> templates = service.loadAssemblyTemplates(
+            loadAssemblyTemplatesRequest.getName(),
             loadAssemblyTemplatesRequest.getContentType());
 
-         result = (PSAssemblyTemplate[]) convert(PSAssemblyTemplate[].class,
+         PSAssemblyTemplate[] converted = (PSAssemblyTemplate[]) convert(PSAssemblyTemplate[].class,
                templates);
+         result.setLoadAssemblyTemplatesResponse(converted);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "loadAssemblyTemplates");
+         try {
+            handleInvalidContract(e, "loadAssemblyTemplates");
+         } catch (PSContractViolationFault cv) {
+            throw new RuntimeException(cv);
+         }
       }
-      
+      catch (Exception e)
+      {
+         // Authentication and other runtime faults mapped to runtime exceptions to
+         // maintain SOAP API compatibility while keeping method signature simple
+         throw new RuntimeException(e);
+      }
+
       return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see Assembly#loadSlots(LoadSlotsRequest)
     */
-   public PSTemplateSlot[] loadSlots(
+   public LoadSlotsResponse loadSlots(
       LoadSlotsRequest loadSlotsRequest)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
    {
-      PSTemplateSlot[] result = null;
+      LoadSlotsResponse result = new LoadSlotsResponse();
       try
       {
          authenticate();
 
          IPSAssemblyWs service = PSAssemblyWsLocator.getAssemblyWebservice();
-         
-         List slots = service.loadSlots(
+
+         java.util.List<?> slots = service.loadSlots(
             loadSlotsRequest.getName());
 
-         result = (PSTemplateSlot[]) convert(PSTemplateSlot[].class, slots);
+         PSTemplateSlot[] converted = (PSTemplateSlot[]) convert(PSTemplateSlot[].class, slots);
+         result.setLoadSlotsResponse(converted);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, "loadSlots");
+         try {
+            handleInvalidContract(e, "loadSlots");
+         } catch (PSContractViolationFault cv) {
+            throw new RuntimeException(cv);
+         }
       }
-      
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+
       return result;
    }
 }

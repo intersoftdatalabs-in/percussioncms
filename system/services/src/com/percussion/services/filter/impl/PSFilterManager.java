@@ -37,10 +37,8 @@ import com.percussion.utils.xml.PSInvalidXmlException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -50,6 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Filter service manager performs CRUD operations on item filters.
@@ -140,44 +139,65 @@ public class PSFilterManager
     * 
     * @see com.percussion.services.filter.IPSFilterService#findAllFilters()
     */
-   @SuppressWarnings("unchecked")
    public List<IPSItemFilter> findAllFilters()
    {
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSItemFilter.class);
-         return c.list();
-
+       Query<PSItemFilter> q = s.createQuery("from PSItemFilter", PSItemFilter.class);
+       return q.list().stream().map(f -> (IPSItemFilter) f).toList();
    }
-
-   /*
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.services.filter.IPSFilterService#findFilterByAuthType(int)
-    */
-   @SuppressWarnings("unchecked")
-   public IPSItemFilter findFilterByAuthType(int authtype)
+   public IPSItemFilter findFilterByAuthType(String authtype)
          throws PSFilterException
    {
+      if (authtype == null)
+         throw new IllegalArgumentException("authtype may not be null");
+
+      int authTypeInt;
+      try {
+         authTypeInt = Integer.parseInt(authtype);
+      } catch (NumberFormatException e) {
+         throw new PSFilterException(IPSFilterServiceErrors.AUTHTYPE_MISSING, authtype);
+      }
+
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSItemFilter.class);
-         c.add(Restrictions.eq("legacy_authtype", authtype));
-         List<PSItemFilter> results = c.list();
-         if (results.isEmpty())
-         {
-            throw new PSFilterException(
-                  IPSFilterServiceErrors.AUTHTYPE_MISSING, authtype);
-         }
-         return results.get(0);
-
+       Query<PSItemFilter> q = s.createQuery("from PSItemFilter where legacy_authtype = :authtype", PSItemFilter.class)
+               .setParameter("authtype", authTypeInt);
+       List<PSItemFilter> results = q.list();
+       if (results.isEmpty())
+       {
+          throw new PSFilterException(
+                IPSFilterServiceErrors.AUTHTYPE_MISSING, authtype);
+       }
+       return results.get(0);
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.services.filter.IPSFilterService#saveFilter(com.percussion.services.filter.IPSItemFilter)
-    */
+   @Override
+   public List<com.percussion.utils.guid.IPSGuid> applyFilter(IPSItemFilter filter, java.util.List<com.percussion.utils.guid.IPSGuid> contentIds, java.util.Map<String, Object> params)
+   {
+      Objects.requireNonNull(filter, "filter cannot be null");
+      Objects.requireNonNull(contentIds, "contentIds cannot be null");
+
+      java.util.List<com.percussion.services.filter.data.PSFilterItem> items = contentIds.stream()
+          .map(id -> new com.percussion.services.filter.data.PSFilterItem(id, null, null))
+          .toList();
+
+      java.util.Map<String, String> stringParams = null;
+      if (params != null) {
+         stringParams = new java.util.HashMap<>();
+         for (java.util.Map.Entry<String, Object> e : params.entrySet()) {
+            stringParams.put(e.getKey(), e.getValue() == null ? null : e.getValue().toString());
+         }
+      }
+
+      try {
+         java.util.List<com.percussion.services.filter.IPSFilterItem> filterItems = new java.util.ArrayList<>(items);
+         java.util.List<com.percussion.services.filter.IPSFilterItem> filtered = filter.filter(filterItems, stringParams);
+         return filtered.stream().map(com.percussion.services.filter.IPSFilterItem::getItemId).toList();
+      } catch (PSFilterException e) {
+         throw new RuntimeException(e);
+      }
+   }
    @Transactional
    public void saveFilter(IPSItemFilter filter)
    {
@@ -191,7 +211,7 @@ public class PSFilterManager
       {
          if (f.getVersion() == null)
          {
-            session.save(f);
+            session.persist(f);
          }
          else
          {
@@ -231,6 +251,23 @@ public class PSFilterManager
    /*
     * (non-Javadoc)
     * 
+    * @see com.percussion.services.filter.IPSFilterService#saveFilter(java.util.List)
+    */
+   @Transactional
+   public void saveFilter(List<IPSItemFilter> filters)
+   {
+      if (filters == null)
+         throw new IllegalArgumentException("filters may not be null");
+
+      for (IPSItemFilter filter : filters)
+      {
+         saveFilter(filter);
+      }
+   }
+
+   /*
+    * (non-Javadoc)
+    * 
     * @see com.percussion.services.filter.IPSFilterService#deleteFilter(com.percussion.services.filter.IPSItemFilter)
     */
    public void deleteFilter(IPSItemFilter filter)
@@ -240,7 +277,25 @@ public class PSFilterManager
          throw new IllegalArgumentException("filter may not be null");
       }
 
-      getSession().delete(filter);
+      getSession().remove(filter);
+   }
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see com.percussion.services.filter.IPSFilterService#deleteFilter(java.util.List)
+    */
+   public void deleteFilter(List<IPSItemFilter> filters)
+   {
+      if (filters == null)
+      {
+         throw new IllegalArgumentException("filters may not be null");
+      }
+
+      for (IPSItemFilter filter : filters)
+      {
+         deleteFilter(filter);
+      }
    }
 
    /*
@@ -285,7 +340,6 @@ public class PSFilterManager
     * 
     * @see com.percussion.services.catalog.IPSCataloger#getSummaries(com.percussion.services.catalog.PSTypeEnum)
     */
-   @SuppressWarnings("unchecked")
    public List<IPSCatalogSummary> getSummaries(PSTypeEnum type)
    {
       List<IPSCatalogSummary> rval = new ArrayList<>();
@@ -294,12 +348,11 @@ public class PSFilterManager
 
          if (type.getOrdinal() == PSTypeEnum.ITEM_FILTER.getOrdinal())
          {
-            Criteria c = s.createCriteria(PSItemFilter.class);
-            List<IPSItemFilter> results = c.list();
-            for (IPSItemFilter f : results)
+            Query<PSItemFilter> q = s.createQuery("from PSItemFilter", PSItemFilter.class);
+            List<PSItemFilter> results = q.list();
+            for (PSItemFilter f : results)
             {
-               rval.add(new PSObjectSummary(f.getGUID(), f.getName(), f
-                     .getName(), f.getDescription()));
+               rval.add(new PSObjectSummary(f.getGUID(), f.getName(), f.getName(), f.getDescription()));
             }
          }
 
@@ -384,7 +437,6 @@ public class PSFilterManager
     * 
     * @see IPSFilterService#findFiltersByName(String)
     */
-   @SuppressWarnings("unchecked")
    public List<IPSItemFilter> findFiltersByName(String name)
    {
       List<IPSItemFilter> filters = new ArrayList<>();
@@ -399,8 +451,10 @@ public class PSFilterManager
          }
       }
 
-      return s.createCriteria(PSItemFilter.class).addOrder(Order.asc("name"))
-           .setCacheable(true).list();
+      Query<PSItemFilter> q = s.createQuery("from PSItemFilter order by name", PSItemFilter.class);
+      q.setCacheable(true);
+      List<PSItemFilter> result = q.list();
+      return new ArrayList<>(result);
 
    }
 

@@ -110,7 +110,7 @@ public class PSTestUtils
          throw new IllegalArgumentException("session cannot be null or empty");
 
       binding.clearHeaders();
-      binding.setHeader("urn:www.percussion.com/6.0.0/common", "session",
+      binding.setHeader("urn:www.percussion.com/8.2.0/common", "session",
          session);
    }
 

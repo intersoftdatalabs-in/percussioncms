@@ -12,9 +12,11 @@ package com.percussion.extensions.translations;
 import com.percussion.data.PSConversionException;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSTranslationTest extends TestCase
+public class PSTranslationTest
 {
+   @Test
    public void testDateTranslations() throws Exception
    {
       PSFormatDate fd = new PSFormatDate();
@@ -25,6 +27,7 @@ public class PSTranslationTest extends TestCase
 
    }
 
+   @Test
    public void testMapTranslations() throws Exception
    {
       PSMapInputValue mip = new PSMapInputValue();
@@ -36,6 +39,7 @@ public class PSTranslationTest extends TestCase
       doTest("up", "down", map, mip, mop);
    }
 
+   @Test
    public void testJexlTranslation() throws Exception
    {
       PSJexlInputTranslation jit = new PSJexlInputTranslation();
@@ -44,6 +48,7 @@ public class PSTranslationTest extends TestCase
       assertEquals(8.0, result);
    }
 
+   @Test
    public void testTrim() throws Exception
    {
       PSTrimStringValue tsv = new PSTrimStringValue();

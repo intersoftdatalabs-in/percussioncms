@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author YuBingChen
  */
-@Tag("IntegrationTest")
+
 public class PSTemplateSetterTest extends PSConfigurationTest {
 
   private IPSAssemblyTemplate getTemplate(String name) throws Exception {

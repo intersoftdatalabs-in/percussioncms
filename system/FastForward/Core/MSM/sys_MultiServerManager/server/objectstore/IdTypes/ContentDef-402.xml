@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="402" dependencyType="Shared" displayName="EI Insurance Products - Category" isIncluded="no" objectType="ContentDef" objectTypeName="Content Item" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="402" dependencyType="Shared"
+			displayName="EI Insurance Products - Category" isIncluded="no"
+			objectType="ContentDef" objectTypeName="Content Item"
+			supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

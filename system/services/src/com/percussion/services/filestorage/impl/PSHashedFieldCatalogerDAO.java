@@ -20,10 +20,9 @@ package com.percussion.services.filestorage.impl;
 import com.percussion.services.filestorage.IPSHashedFieldCatalogerDAO;
 import com.percussion.services.filestorage.data.PSHashedColumn;
 import com.percussion.services.filestorage.data.PSHashedColumn.HashedColumnsPK;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
@@ -75,9 +74,8 @@ public class PSHashedFieldCatalogerDAO implements IPSHashedFieldCatalogerDAO
    @Override
    public Set<PSHashedColumn> getStoredColumns()
    {
-      Criteria crit = getSession().createCriteria(PSHashedColumn.class);
-      crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-      return new HashSet<>(crit.list());
+      Query<PSHashedColumn> q = getSession().createQuery("select distinct c from PSHashedColumn c", PSHashedColumn.class);
+      return new HashSet<>(q.list());
 
    }
 

@@ -2,9 +2,9 @@
 
 
 <!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Melissa Morin (Percussion Software) -->
-<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/security" xmlns:sec="urn:www.percussion.com/6.0.0/security" xmlns:secs="urn:www.percussion.com/6.0.0/securityServices" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:flt="urn:www.percussion.com/6.0.0/faults" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/common" schemaLocation="../common.xsd"/>
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/securityServices" schemaLocation="securityServices.xsd"/>
+<xsd:schema targetNamespace="urn:www.percussion.com/8.2.0/security" xmlns:sec="urn:www.percussion.com/8.2.0/security" xmlns:secs="urn:www.percussion.com/8.2.0/securityServices" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:flt="urn:www.percussion.com/8.2.0/faults" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/common" schemaLocation="../common.xsd"/>
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/securityServices" schemaLocation="securityServices.xsd"/>
    <xsd:element name="LoginRequest">
       <xsd:annotation>
          <xsd:documentation>User login request. For valid credentials this request returns a session id which is required for all other web service requests. The user must login once before any other operation can be performed and logout when they have finished.</xsd:documentation>

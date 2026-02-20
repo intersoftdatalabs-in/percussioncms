@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.io.IOUtils;
@@ -38,37 +39,38 @@ import org.apache.commons.io.IOUtils;
 /**
  * Unit test for the {@link PSWorkflowConverter}.
  */
-public class PSWorkflowConverterTest extends TestCase
+public class PSWorkflowConverterTest
 {
    /**
-    * Tests the conversion from a server to a client object. 
-    * 
+    * Tests the conversion from a server to a client object.
+    *
     * @throws Exception if the test fails
     */
+
    public void testConversion() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
+
       // convert server to client object
       Converter converter = factory.getConverter(PSWorkflow.class);
-      
+
       // load xml from file system
       List<PSWorkflow> wfs = loadWorkflows();
       for (PSWorkflow wf : wfs)
       {
          Object clientObject = converter.convert(
             com.percussion.webservices.system.PSWorkflow.class, wf);
-         
-         validateConversion(wf, 
+
+         validateConversion(wf,
             (com.percussion.webservices.system.PSWorkflow) clientObject);
       }
    }
 
    /**
     * Loads test workflows from the system
-    * 
+    *
     * @return the workflows, never <code>null</code> or empty.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    private List<PSWorkflow> loadWorkflows() throws Exception
@@ -79,14 +81,14 @@ public class PSWorkflowConverterTest extends TestCase
       for (int i = 1; i < 4; i++)
       {
          File file = new File(base, "testWorkflow" + i + ".xml");
-         
+
          FileInputStream in = new FileInputStream(file);
-         
+
          try
          {
             PSWorkflow wf = new PSWorkflow();
-            String xmlStr = IOUtils.toString(in, 
-               PSCharSetsConstants.rxJavaEnc()); 
+            String xmlStr = IOUtils.toString(in,
+               PSCharSetsConstants.rxJavaEnc());
             wf.fromXML(xmlStr);
             wfs.add(wf);
          }
@@ -95,17 +97,17 @@ public class PSWorkflowConverterTest extends TestCase
             IOUtils.closeQuietly(in);
          }
       }
-      
+
       return wfs;
    }
 
    /**
     * Validates that the workflow conversion was successful.
-    * 
+    *
     * @param src the source wf, assumed not <code>null</code>.
     * @param tgt the target wf, assumed not <code>null</code>.
     */
-   private void validateConversion(PSWorkflow src, 
+   private void validateConversion(PSWorkflow src,
       com.percussion.webservices.system.PSWorkflow tgt)
    {
       assertEquals(src.getAdministratorRole(), tgt.getAdministratorRole());
@@ -113,56 +115,56 @@ public class PSWorkflowConverterTest extends TestCase
       assertEquals(src.getName(), tgt.getName());
       assertEquals(src.getGUID().longValue(), tgt.getId().longValue());
       assertEquals(src.getInitialStateId(), tgt.getInitialStateId());
-      assertEquals(src.getNotificationDefs().size(), 
-         tgt.getNotifications().length);
-      assertEquals(src.getRoles().size(), tgt.getRoles().length);
-      assertEquals(src.getStates().size(), tgt.getStates().length);
-      
+      assertEquals(src.getNotificationDefs().size(),
+         (tgt.getNotifications() == null ? 0 : tgt.getNotifications().getPSNotificationDef().size()));
+      assertEquals(src.getRoles().size(), (tgt.getRoles() == null ? 0 : tgt.getRoles().getPSWorkflowRole().size()));
+      assertEquals(src.getStates().size(), (tgt.getStates() == null ? 0 : tgt.getStates().getPSState().size()));
+
       Map<Long, PSState> stateMap = PSWorkflowConverter.getStateMap(src);
       Map<Long, PSWorkflowRole> roleMap = PSWorkflowConverter.getRoleMap(tgt);
-      
+
       // check transition values
-      com.percussion.webservices.system.PSState[] states = tgt.getStates();
+      com.percussion.webservices.system.PSState[] states = (tgt.getStates() == null ? new com.percussion.webservices.system.PSState[0] : tgt.getStates().getPSState().toArray(new com.percussion.webservices.system.PSState[0]));
       for (int i = 0; i < states.length; i++)
       {
-         PSTransition[] transitions = states[i].getTransitions();
-         assertEquals(src.getStates().get(i).getTransitions().size(), 
+         com.percussion.webservices.system.PSTransition[] transitions = (states[i].getTransitions() == null ? new com.percussion.webservices.system.PSTransition[0] : states[i].getTransitions().getPSTransition().toArray(new com.percussion.webservices.system.PSTransition[0]));
+         assertEquals(src.getStates().get(i).getTransitions().size(),
             transitions.length);
          for (int j = 0; j < transitions.length; j++)
          {
-            PSState state; 
+            PSState state;
             com.percussion.services.workflow.data.PSTransition srcTrans =
                src.getStates().get(i).getTransitions().get(j);
             state = stateMap.get(srcTrans.getStateId());
             assertEquals(state.getName(), transitions[j].getFromState());
             state = stateMap.get(srcTrans.getToState());
             assertEquals(state.getName(), transitions[j].getToState());
-            
-            PSWorkflowRole[] roles = transitions[j].getRoles();
-            assertEquals(srcTrans.getTransitionRoles().size(), 
-               transitions[j].getRoles().length);
+
+            com.percussion.webservices.system.PSWorkflowRole[] roles = (transitions[j].getRoles() == null ? new com.percussion.webservices.system.PSWorkflowRole[0] : transitions[j].getRoles().getPSWorkflowRole().toArray(new com.percussion.webservices.system.PSWorkflowRole[0]));
+            assertEquals(srcTrans.getTransitionRoles().size(),
+               (transitions[j].getRoles() == null ? 0 : transitions[j].getRoles().getPSWorkflowRole().size()));
             for (int k = 0; k < roles.length; k++)
             {
-               com.percussion.services.workflow.data.PSTransitionRole srcRole = 
+               com.percussion.services.workflow.data.PSTransitionRole srcRole =
                   srcTrans.getTransitionRoles().get(k);
                PSWorkflowRole srcWfRole = roleMap.get(srcRole.getRoleId());
                assertEquals(srcWfRole, roles[k]);
             }
          }
-         
-         PSAgingTransition[] agingtransitions = states[i].getAgingTransitions();
-         assertEquals(src.getStates().get(i).getAgingTransitions().size(), 
+
+         PSAgingTransition[] agingtransitions = (states[i].getAgingTransitions() == null ? new PSAgingTransition[0] : states[i].getAgingTransitions().getPSAgingTransition().toArray(new PSAgingTransition[0]));
+         assertEquals(src.getStates().get(i).getAgingTransitions().size(),
             agingtransitions.length);
          for (int j = 0; j < agingtransitions.length; j++)
          {
-            PSState state; 
-            com.percussion.services.workflow.data.PSAgingTransition srcTrans = 
+            PSState state;
+            com.percussion.services.workflow.data.PSAgingTransition srcTrans =
                src.getStates().get(i).getAgingTransitions().get(j);
             state = stateMap.get(srcTrans.getStateId());
             assertEquals(state.getName(), agingtransitions[j].getFromState());
             state = stateMap.get(srcTrans.getToState());
             assertEquals(state.getName(), agingtransitions[j].getToState());
-         }         
+         }
       }
    }
 }

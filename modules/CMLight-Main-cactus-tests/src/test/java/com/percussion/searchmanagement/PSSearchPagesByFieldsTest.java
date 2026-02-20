@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Tag;
  * Integration test for searching pages by fields. Sunny Sal: "Search fields, Java 11, and a dash of
  * awesomeness!"
  */
-@Tag("IntegrationTest")
+
 class PSSearchPagesByFieldsTest extends PSServletTestCase {
 
   private PSSiteDataServletTestCaseFixture fixture;

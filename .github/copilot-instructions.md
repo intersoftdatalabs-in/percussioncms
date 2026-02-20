@@ -33,6 +33,7 @@ Apply SOLID, DRY, KISS, YAGNI, OWASP, DOP, and DDD principles.
 Write small, focused functions (< 20 lines) and pure functions for data manipulation.
 Use immutable, flat, denormalized data structures; validate data explicitly.
 Prefer dependency injection, static factory methods, and builders over constructors.
+Avoid reflection as a shortcut for overload disambiguation or type mismatches; instead add explicit methods, overloads, or adjust method signatures to preserve compile-time type safety and clarity. See `.github/instructions/reflection-policy.md` for the policy and examples.
 Use try-with-resources, minimize mutability, and avoid raw types.
 Synchronize shared mutable data; prefer concurrency utilities over threads.
 Avoid Java serialization; use alternatives or defensive serialization.
@@ -48,7 +49,7 @@ src/main/java/: Main application code
 src/main/resources/: Configuration files (e.g., application.properties)
 src/test/java/: Unit tests
 src/test/resources/: Test resources (e.g., test data, configuration)
-docs/: Markdown documentation and API specs. 
+docs/: Markdown documentation and API specs.
 .github/copilot-instructions.md:    Copilot instructions and guidelines
 .github/instructions/:    Additional Copilot instructions
 .github/prompts/:    Copilot prompts for specific tasks
@@ -111,10 +112,11 @@ These scripts set `JAVA_HOME` from `JAVA_HOME_21`.* **Before committing:** run `
 * Upgrade dependencies to their latest versions that are compatible with JDK 21.0
 * Dependency versions are managed in the parent pom.xml file
 * axis
-** axis:axis dependencies are manaaged in static lib folder and not an external repository
+** Axis 1.x is retired, remove any axis dependencies and refactor code that uses axis to not use it.
+** If web services functionality is needed, use JAX-WS (Jakarta XML Web Services) or another modern web services library compatible with JDK 21.
 * Cactus test framework is retired, remove any cactus dependencies and relocate any cactus tests to the CMLight-Main-cactus-tests module wich is currently excluded from the build.
 * Any23 is retired. Remove any Any23 dependencies. Refactor code that uses Any23 to not use it.
 * Add missing perc-i18n dependency where needed.
-* prefer the javax namespace, do not migrate to the jakarta namespace on this branch.
+* prefer the jakarta namespace over javax when available, migrate to the jakarta namespace on this branch as needed for JDK 21 compatibility.
 * Add all AI generated plans, tasks, issues to the /docs/ai-generated/tasks/ folder for future reference.
 * Organize AI-generated documentation by task using the pattern: `/docs/ai-generated/tasks/PR#-TaskName/` (e.g., `/docs/ai-generated/tasks/#524-v8.1.6-release-notes/`)

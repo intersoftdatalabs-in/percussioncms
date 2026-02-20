@@ -53,7 +53,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author adamgent, Oct 7, 2009 (modernized by Sunny Sal)
  */
-@Tag("IntegrationTest")
+
 @Disabled("What is this thing?")
 public class PSSiteDataServiceTest {
 

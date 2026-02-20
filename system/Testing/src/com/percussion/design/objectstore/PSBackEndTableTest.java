@@ -23,14 +23,15 @@ import org.w3c.dom.Document;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PSBackEndTableTest extends TestCase
+public class PSBackEndTableTest
 {
-   public PSBackEndTableTest(String name)
-   {
-      super(name);
-   }
+
+
+
+
 
    public void testEquals() throws Exception
    {
@@ -40,16 +41,16 @@ public class PSBackEndTableTest extends TestCase
 
       tab = new PSBackEndTable("foobar");
       assertEquals(tab.getAlias(), "foobar");
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
 
       otherTab.setAlias("foobarbaz");
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
       otherTab.setAlias("foobar");
       assertEquals(tab, otherTab);
 
       tab.setDataSource("foods");
       assertEquals("foods", tab.getDataSource());
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
       otherTab.setDataSource("foods");
       assertEquals(tab, otherTab);
       assertEquals("foods", otherTab.getDataSource());
@@ -57,13 +58,16 @@ public class PSBackEndTableTest extends TestCase
 
       tab.setTable("footable");
       assertEquals(tab.getTable(), "footable");
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
       otherTab.setTable("footable");
       assertEquals(tab, otherTab);
       assertEquals("footable", otherTab.getTable());
 
    }
 
+
+
+   @Test
    public void testCopyFrom() throws Exception
    {
       PSBackEndTable tab = new PSBackEndTable();
@@ -72,24 +76,27 @@ public class PSBackEndTableTest extends TestCase
 
       tab = new PSBackEndTable("foobar");
       assertEquals(tab.getAlias(), "foobar");
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
 
       otherTab.copyFrom(tab);
       assertEquals(tab, otherTab);
 
       tab.setDataSource("foods");
       assertEquals("foods", tab.getDataSource());
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
       otherTab.copyFrom(tab);
       assertEquals(tab, otherTab);
 
       tab.setTable("footable");
       assertEquals(tab.getTable(), "footable");
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
       otherTab.copyFrom(tab);
       assertEquals(tab, otherTab);
    }
 
+
+
+   @Test
    public void testXml() throws Exception
    {
       PSBackEndTable tab = new PSBackEndTable();
@@ -98,7 +105,7 @@ public class PSBackEndTableTest extends TestCase
 
       tab = new PSBackEndTable("foobar");
       assertEquals(tab.getAlias(), "foobar");
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
 
       tab.setDataSource("abc");
       tab.setTable("mno");
@@ -111,25 +118,18 @@ public class PSBackEndTableTest extends TestCase
       doc = PSXmlDocumentBuilder.createXmlDocument();
       tab.setDataSource("foods");
       assertEquals("foods", tab.getDataSource());
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
       otherTab.fromXml(tab.toXml(doc), null, null);
       assertEquals(tab, otherTab);
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       tab.setTable("footable");
       assertEquals(tab.getTable(), "footable");
-      assertTrue(!tab.equals(otherTab));
+      assertFalse(tab.equals(otherTab));
       otherTab.fromXml(tab.toXml(doc), null, null);
       assertEquals(tab, otherTab);
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSBackEndTableTest("testEquals"));
-      suite.addTest(new PSBackEndTableTest("testCopyFrom"));
-      suite.addTest(new PSBackEndTableTest("testXml"));
-      return suite;
-   }
+
 }

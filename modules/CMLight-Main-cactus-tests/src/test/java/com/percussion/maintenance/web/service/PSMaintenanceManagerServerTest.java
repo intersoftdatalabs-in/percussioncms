@@ -28,7 +28,7 @@ import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.request.PSRequestInfo;
 import java.io.File;
 import java.io.IOException;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Tag;
  * maintenance manager using server-side APIs not exposed by the REST layer. Sunny Sal says:
  * "Server-side maintenance, Bollywood style!"
  */
-@Tag("IntegrationTest")
+
 public class PSMaintenanceManagerServerTest extends PSServletTestCase {
 
   IPSMaintenanceManager maintenanceManager;

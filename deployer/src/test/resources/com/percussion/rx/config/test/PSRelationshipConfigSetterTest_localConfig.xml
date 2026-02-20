@@ -1,69 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName=" Percussion"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName=" Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
 	<SolutionConfig name="PSRelationshipConfigTest">
 		<propertySet name="deepCloning">
-			<property name="enabled" value="true"/>
+			<property name="enabled" value="true" />
 			<property name="condition">
 				<propertySet>
-					<property name="type" value="Conditional"/>
+					<property name="type" value="Conditional" />
 					<property name="rules">
 						<propertySet>
-							<property name="variable1" value="PSXOriginatingRelationshipProperty/name"/>
-							<property name="variable2" value="Translation-Mandatory"/>
-							<property name="operator" value="="/>
-							<property name="boolean" value="AND"/>
+							<property name="variable1"
+								value="PSXOriginatingRelationshipProperty/name" />
+							<property name="variable2" value="Translation-Mandatory" />
+							<property name="operator" value="=" />
+							<property name="boolean" value="AND" />
 						</propertySet>
 						<propertySet>
-							<property name="variable1" value="PSXSingleHTMLParameter/sys_communityid"/>
-							<property name="variable2" value="1001"/>
-							<property name="operator" value="="/>
-							<property name="boolean" value="AND"/>
+							<property name="variable1"
+								value="PSXSingleHTMLParameter/sys_communityid" />
+							<property name="variable2" value="1001" />
+							<property name="operator" value="=" />
+							<property name="boolean" value="AND" />
 						</propertySet>
 					</property>
-					<property name="boolean" value="AND"/>
+					<property name="boolean" value="AND" />
 				</propertySet>
 			</property>
 		</propertySet>
 		<propertySet name="shallowCloning">
-			<property name="enabled" value="true"/>
+			<property name="enabled" value="true" />
 			<property name="condition">
 				<propertySet>
-					<property name="type" value="Conditional"/>
+					<property name="type" value="Conditional" />
 					<property name="rules">
 						<propertySet>
-							<property name="variable1" value="PSXOriginatingRelationshipProperty/name"/>
-							<property name="variable2" value="Translation-Mandatory"/>
-							<property name="operator" value="="/>
-							<property name="boolean" value="AND"/>
+							<property name="variable1"
+								value="PSXOriginatingRelationshipProperty/name" />
+							<property name="variable2" value="Translation-Mandatory" />
+							<property name="operator" value="=" />
+							<property name="boolean" value="AND" />
 						</propertySet>
 						<propertySet>
-							<property name="variable1" value="PSXSingleHTMLParameter/sys_communityid"/>
-							<property name="variable2" value="1001"/>
-							<property name="operator" value="="/>
-							<property name="boolean" value="AND"/>
+							<property name="variable1"
+								value="PSXSingleHTMLParameter/sys_communityid" />
+							<property name="variable2" value="1001" />
+							<property name="operator" value="=" />
+							<property name="boolean" value="AND" />
 						</propertySet>
 					</property>
-					<property name="boolean" value="AND"/>
+					<property name="boolean" value="AND" />
 				</propertySet>
 				<propertySet>
-					<property name="type" value="Extension"/>
-					<property name="name" value="Java/global/percussion/generic/sys_OverrideLiteral"/>
+					<property name="type" value="Extension" />
+					<property name="name"
+						value="Java/global/percussion/generic/sys_OverrideLiteral" />
 					<property name="extensionParams">
 						<pvalues>
 							<pvalue>PSXSingleHTMLParameter/sys_contentid</pvalue>
 							<pvalue>1001</pvalue>
 						</pvalues>
 					</property>
-					<property name="boolean" value="AND"/>
+					<property name="boolean" value="AND" />
 				</propertySet>
 			</property>
 		</propertySet>
 		<property name="fieldOverrides">
 			<propertySet>
-				<property name="fieldName" value="displaytitle"/>
-				<property name="extension" value="Java/global/percussion/generic/sys_OverrideLiteral"/>
+				<property name="fieldName" value="displaytitle" />
+				<property name="extension"
+					value="Java/global/percussion/generic/sys_OverrideLiteral" />
 				<property name="extensionParams">
 					<pvalues>
 						<pvalue>PSXContentItemStatus/CONTENTSTATUS.TITLE</pvalue>
@@ -80,8 +89,9 @@
 						<pvalue>Pre-Destruction</pvalue>
 					</pvalues>
 				</property>
-				<property name="direction" value="Up"/>
-                		<property name="extension" value="Java/global/percussion/relationship/effect/sys_PublishMandatory"/>
+				<property name="direction" value="Up" />
+				<property name="extension"
+					value="Java/global/percussion/relationship/effect/sys_PublishMandatory" />
 				<property name="extensionParams">
 					<pvalues>
 						<pvalue>PSXSingleHTMLParameter/sys_contentid</pvalue>
@@ -90,33 +100,36 @@
 				</property>
 				<property name="condition">
 					<propertySet>
-						<property name="type" value="Conditional"/>
+						<property name="type" value="Conditional" />
 						<property name="rules">
 							<propertySet>
-								<property name="variable1" value="PSXSingleHTMLParameter/sys_communityid"/>
-								<property name="variable2" value="1001"/>
-								<property name="operator" value="="/>
-								<property name="boolean" value="AND"/>
+								<property name="variable1"
+									value="PSXSingleHTMLParameter/sys_communityid" />
+								<property name="variable2" value="1001" />
+								<property name="operator" value="=" />
+								<property name="boolean" value="AND" />
 							</propertySet>
 							<propertySet>
-								<property name="variable1" value="PSXSingleHTMLParameter/sys_contentid"/>
-								<property name="variable2" value="1001"/>
-								<property name="operator" value="="/>
-								<property name="boolean" value="AND"/>
+								<property name="variable1"
+									value="PSXSingleHTMLParameter/sys_contentid" />
+								<property name="variable2" value="1001" />
+								<property name="operator" value="=" />
+								<property name="boolean" value="AND" />
 							</propertySet>
 						</property>
-						<property name="boolean" value="AND"/>
+						<property name="boolean" value="AND" />
 					</propertySet>
 					<propertySet>
-						<property name="type" value="Extension"/>
-						<property name="name" value="Java/global/percussion/generic/sys_OverrideLiteral"/>
+						<property name="type" value="Extension" />
+						<property name="name"
+							value="Java/global/percussion/generic/sys_OverrideLiteral" />
 						<property name="extensionParams">
 							<pvalues>
 								<pvalue>PSXSingleHTMLParameter/sys_contentid</pvalue>
 								<pvalue>1001</pvalue>
 							</pvalues>
 						</property>
-						<property name="boolean" value="AND"/>
+						<property name="boolean" value="AND" />
 					</propertySet>
 				</property>
 			</propertySet>

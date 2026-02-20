@@ -20,6 +20,7 @@ package com.percussion.system.utils;
 import com.percussion.conn.PSDesignerConnection;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRemoteConsole;
+import com.percussion.util.PSProperties;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.BufferedReader;
 import java.io.File;

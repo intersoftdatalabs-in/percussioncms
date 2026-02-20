@@ -1,218 +1,229 @@
-
-
 #perc-finder-tree {
-	background-image  : url(/cm/images/finderTreeBackground.jpg);
-	background-repeat : repeat;
+  background-image: url(/cm/images/finderTreeBackground.jpg);
+  background-repeat: repeat;
 }
 
 #perc-finder-tree * {
-	font-weight : normal;
-	white-space : nowrap;
+  font-weight: normal;
+  white-space: nowrap;
 }
 
 #perc-finder-tree ul li {
-	line-height     : 19px;
-	list-style-type : none;
+  line-height: 19px;
+  list-style-type: none;
 }
 
 #perc-finder-tree ul {
-	margin-left  : 0px;
-	padding-left : 0px;
+  margin-left: 0px;
+  padding-left: 0px;
 }
 
-.perc-folder-selector-container{
-	font-family:Verdana;
-	font-size:11px;
-	color:#0099CC;
-	font-weight:normal;
-	padding:0px;
-	white-space:nowrap;
-	margin-top:4px;
-	padding-left : 40px;
+.perc-folder-selector-container {
+  font-family: Verdana;
+  font-size: 11px;
+  color: #0099cc;
+  font-weight: normal;
+  padding: 0px;
+  white-space: nowrap;
+  margin-top: 4px;
+  padding-left: 40px;
 }
-#perc-folder-selector{
-	float:left;
-	height:254px;
-	margin-top:4px;
-	margin-right:30px;
-}	
-
-.perc-folder-selected-item{
-	background-color:#CAF589 !important;
+#perc-folder-selector {
+  float: left;
+  height: 254px;
+  margin-top: 4px;
+  margin-right: 30px;
 }
 
-.dynatree-folder{
-	padding:2px;
-	padding-left:8px;
-	display:block;
+.perc-folder-selected-item {
+  background-color: #caf589 !important;
 }
 
-div.dynatree-container{
-	background-color:#E6E6E9;
-}	
-
-.dynatree-exp-el span.dynatree-expander, .dynatree-exp-edl span.dynatree-expander {
-	background-image:url("../images/collapsable.gif");
-	background-position: 3px 2px;
+.dynatree-folder {
+  padding: 2px;
+  padding-left: 8px;
+  display: block;
 }
 
-.dynatree-exp-cl span.dynatree-expander, span.dynatree-expander {
-	background-image:url("../images/expandable.gif");
-	background-position: 3px 2px;
+div.dynatree-container {
+  background-color: #e6e6e9;
 }
 
-div.dynatree-container a:focus, span.uidyantree-focused a:link{
-}	
-
-span.dynatree-active, span.dynatree-active a {
-	background-color:#CAF589 !important;
-	color:#0099CC !important;
+.dynatree-exp-el span.dynatree-expander,
+.dynatree-exp-edl span.dynatree-expander {
+  background-image: url("../images/collapsable.gif");
+  background-position: 3px 2px;
 }
 
+.dynatree-exp-cl span.dynatree-expander,
+span.dynatree-expander {
+  background-image: url("../images/expandable.gif");
+  background-position: 3px 2px;
+}
 
-.dynatree-exp-e span.dynatree-expander, .dynatree-exp-ed span.dynatree-expander{
-	background-image:url("../images/collapsable.gif");
-	background-position: 3px 2px;
+div.dynatree-container a:focus,
+span.uidyantree-focused a:link {
+}
+
+span.dynatree-active,
+span.dynatree-active a {
+  background-color: #caf589 !important;
+  color: #0099cc !important;
+}
+
+.dynatree-exp-e span.dynatree-expander,
+.dynatree-exp-ed span.dynatree-expander {
+  background-image: url("../images/collapsable.gif");
+  background-position: 3px 2px;
 }
 
 .dynatree-exp-cdl span.dynatree-expander {
-	background-image:url("../images/expandable.gif");
-	background-position: 3px 2px;
-}	
+  background-image: url("../images/expandable.gif");
+  background-position: 3px 2px;
+}
 
 .dynatree-exp-cd span.dynatree-expander {
-	background-image:url("../images/expandable.gif");
-	background-position: 3px 2px;
+  background-image: url("../images/expandable.gif");
+  background-position: 3px 2px;
 }
 
-span.dynatree-expanded a, span.dynatree-active a , span.dynatree-folder a, span.dynatree-has-children a,span.dynatree-has-children a {
-	color:#0099CC;
-	text-decoration:none;
+span.dynatree-expanded a,
+span.dynatree-active a,
+span.dynatree-folder a,
+span.dynatree-has-children a,
+span.dynatree-has-children a {
+  color: #0099cc;
+  text-decoration: none;
 }
-span.dynatree-vline  {
-	background-image:none;
+span.dynatree-vline {
+  background-image: none;
 }
 
-#perc-imageautolist-detail td{
-	vertical-align:top;
-}	
+#perc-imageautolist-detail td {
+  vertical-align: top;
+}
 .dynatree-folder img {
-	display:none;
-	}
-
-span.dynatree-empty, span.dynatree-vline, span.dynatree-connector, span.dynatree-icon, span.dynatree-checkbox, span.dynatree-radio {
-	background-position:left center;
-	background-repeat:no-repeat;
-	display:inline-block;
-	height:11px;
-	vertical-align:middle;
-	width:13px;	
-	}
-
-span.dynatree-expander
-{
-	background-repeat:no-repeat;
-	display:inline-block;
-	height:11px;
-	vertical-align:middle;
-	width:13px;	
+  display: none;
 }
-	
-span.dynatree-document a, span.dynatree-folder a{
-	padding-left:0px;
+
+span.dynatree-empty,
+span.dynatree-vline,
+span.dynatree-connector,
+span.dynatree-icon,
+span.dynatree-checkbox,
+span.dynatree-radio {
+  background-position: left center;
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 11px;
+  vertical-align: middle;
+  width: 13px;
+}
+
+span.dynatree-expander {
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 11px;
+  vertical-align: middle;
+  width: 13px;
+}
+
+span.dynatree-document a,
+span.dynatree-folder a {
+  padding-left: 0px;
 }
 #perc-asset-browser-placeholder {
-	background-color:#F5F5F6;
-	padding:17px 15px 17px 15px;
-	float:left;
-	width: 300px;
-	float:left;
-	min-height:250px;
+  background-color: #f5f5f6;
+  padding: 17px 15px 17px 15px;
+  float: left;
+  width: 300px;
+  float: left;
+  min-height: 250px;
 }
 
 #perc-asset-browser-placeholder a {
-	font-family: Verdana;
-	font-size: 11px;
-	font-weight: normal;
-	color: #0099cc ;
-	text-decoration: none;
+  font-family: Verdana;
+  font-size: 11px;
+  font-weight: normal;
+  color: #0099cc;
+  text-decoration: none;
 }
 
-#perc-asset-browser-placeholder select{
-	margin-top:0px;
-	background-color:#F5F5F6;
-	width:281px;
-	border:none;
-}	
+#perc-asset-browser-placeholder select {
+  margin-top: 0px;
+  background-color: #f5f5f6;
+  width: 281px;
+  border: none;
+}
 
 #imageWidgetPanel {
-	background-color:#E6E6E9;
-	padding:0.5em;
-	border:none;
+  background-color: #e6e6e9;
+  padding: 0.5em;
+  border: none;
 }
-#perc-content-form select{
-	margin-top:5px;
-	display:block;
-	margin-bottom:17px;
-}	
+#perc-content-form select {
+  margin-top: 5px;
+  display: block;
+  margin-bottom: 17px;
+}
 
 .perc-asset-edit-info-line {
-	font-family: Verdana;
-	font-size: 11px;
-	font-weight: normal;
-	color: #000000;
-	margin-bottom:12px;
+  font-family: Verdana;
+  font-size: 11px;
+  font-weight: normal;
+  color: #000000;
+  margin-bottom: 12px;
 }
 
-.imageautolist-expander{
-	font-family: Verdana;
-	font-size: 11px;
-	font-weight: normal;
-	color: #0099cc ;
-	text-decoration: none;
+.imageautolist-expander {
+  font-family: Verdana;
+  font-size: 11px;
+  font-weight: normal;
+  color: #0099cc;
+  text-decoration: none;
 }
 
-.autolistlabel label{
-	font-family: Verdana;
-	font-size: 11px;
-	font-weight: bold;
-	color: #000000;
+.autolistlabel label {
+  font-family: Verdana;
+  font-size: 11px;
+  font-weight: bold;
+  color: #000000;
 }
-#perc-imageautolist-detail{
-	margin-top:18px;
-}
-	
-#autolist-title{
-	font-family: Verdana;
-	font-size: 11px;
-	font-weight: normal;
-	color: #0099CC ;
-	text-decoration: none;
-	background-color:#E6E6E9;
-	padding: 15px 30px 15px 21px;
-	background-repeat:no-repeat;
-	margin-left:-21px;
-    cursor:pointer;
+#perc-imageautolist-detail {
+  margin-top: 18px;
 }
 
-.autolist-expand-image{
-	background-image:url('../images/buttonBluePlusOver.gif');
-	background-position:center left;
+#autolist-title {
+  font-family: Verdana;
+  font-size: 11px;
+  font-weight: normal;
+  color: #0099cc;
+  text-decoration: none;
+  background-color: #e6e6e9;
+  padding: 15px 30px 15px 21px;
+  background-repeat: no-repeat;
+  margin-left: -21px;
+  cursor: pointer;
 }
-.autolist-close-image{
-	background-image:url('../images/buttonBlueMinusOver.gif');
-	background-position:center left;
-}	
 
-#criteria_for_list{
-	padding-bottom:30px;
+.autolist-expand-image {
+  background-image: url("../images/buttonBluePlusOver.gif");
+  background-position: center left;
 }
-#perc-autolist-wrapper{
-	margin-left:-35px;
-	padding-left:35px;
-    border-top:7px solid white;
+.autolist-close-image {
+  background-image: url("../images/buttonBlueMinusOver.gif");
+  background-position: center left;
+}
+
+#criteria_for_list {
+  padding-bottom: 30px;
+}
+#perc-autolist-wrapper {
+  margin-left: -35px;
+  padding-left: 35px;
+  border-top: 7px solid white;
 }
 
 #perc-autolist-wrapper + br {
-    display:none;
+  display: none;
 }

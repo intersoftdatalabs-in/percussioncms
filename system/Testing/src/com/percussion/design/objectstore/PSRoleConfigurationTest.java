@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -30,15 +31,12 @@ import org.w3c.dom.Document;
  * Basic role confiuration testing, including simple to/from Xml
  * checking w/ basic roleconfigurations.
  */
-public class PSRoleConfigurationTest extends TestCase
+public class PSRoleConfigurationTest 
 {
    /**
     * @see TestCase#TestCase(String)
     */
-   public PSRoleConfigurationTest(String name)
-   {
-      super(name);
-   }
+   
 
    // See super class for description
    public void setUp()
@@ -143,6 +141,7 @@ public class PSRoleConfigurationTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testEmptyEquals() throws Exception
    {
       PSRoleConfiguration rc1 = new PSRoleConfiguration();
@@ -155,6 +154,7 @@ public class PSRoleConfigurationTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testXml() throws Exception
    {
       PSRoleConfiguration rc1 = new PSRoleConfiguration();
@@ -178,7 +178,7 @@ public class PSRoleConfigurationTest extends TestCase
       rc1.getRoles().add(role1);
 
       // assert that they are not equal
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       Document doc = rc1.toXml();
@@ -198,7 +198,7 @@ public class PSRoleConfigurationTest extends TestCase
       rc1.getRoles().add(role2);
 
       // assert that they are not equal
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       doc = rc1.toXml();
@@ -210,7 +210,7 @@ public class PSRoleConfigurationTest extends TestCase
          PSSubject.SUBJECT_TYPE_USER, null);
       role1.getSubjects().add(sub);
 
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       doc = rc1.toXml();
@@ -223,7 +223,7 @@ public class PSRoleConfigurationTest extends TestCase
       role1.getSubjects().add(sub2);
 
       // assert that they are not equal
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       doc = rc1.toXml();
@@ -238,7 +238,7 @@ public class PSRoleConfigurationTest extends TestCase
       gs.getAttributes().setAttribute("sub1globalatt4", values);
 
       // assert that they are not equal
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       doc = rc1.toXml();
@@ -247,7 +247,7 @@ public class PSRoleConfigurationTest extends TestCase
 
       // remove a global attribute and test again...
       gs.getAttributes().removeElementAt(2);
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       doc = rc1.toXml();
@@ -259,7 +259,7 @@ public class PSRoleConfigurationTest extends TestCase
          gs.getAttributes().removeElementAt(i);
 
       // assert that they are not equal
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       doc = rc1.toXml();
@@ -271,7 +271,7 @@ public class PSRoleConfigurationTest extends TestCase
          role1.getSubjects().removeElementAt(i);
 
       // assert that they are not equal
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       doc = rc1.toXml();
@@ -282,7 +282,7 @@ public class PSRoleConfigurationTest extends TestCase
       rc1.getRoles().remove(role1);
 
       // assert that they are not equal
-      assertTrue(!testRoleConfigurationEquals(rc1, rc2));
+      assertFalse(testRoleConfigurationEquals(rc1, rc2));
 
       // to and from xml & assert
       doc = rc1.toXml();
@@ -296,12 +296,6 @@ public class PSRoleConfigurationTest extends TestCase
     * @return The suite containing all tests for this class.
     * Not <code>null</code>.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSRoleTest("testEmptyEquals"));
-      suite.addTest(new PSRoleTest("testXml"));
-      return suite;
-   }
+   
 }
 

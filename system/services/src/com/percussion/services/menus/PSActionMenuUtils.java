@@ -109,7 +109,7 @@ public class PSActionMenuUtils {
             }
 
             state = cms.loadWorkflowState(contentItem.getWorkflowAppId(),
-                    contentItem.getContentStateId());
+                    contentItem.getContentStateId()).orElse(null);
         }
         catch (Exception e)
         {

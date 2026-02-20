@@ -18,6 +18,7 @@
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.security.data.PSUserAccessLevel;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.security.IPSTypedPrincipal;
 
@@ -132,9 +133,9 @@ public interface IPSAclService {
      * @param aclGuids list of ACL GUIDs to load ACLs for. May be {@code null}
      *                 to return all ACLs. If not {@code null}, must not be empty
      * @return an immutable list of ACL objects, never {@code null}, may be empty
-     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     * @throws PSServiceSecurityException if any of the specified ACLs cannot be loaded
      */
-    List<IPSAcl> loadAcls(List<IPSGuid> aclGuids) throws PSSecurityException;
+    List<IPSAcl> loadAcls(List<IPSGuid> aclGuids) throws PSServiceSecurityException;
 
     /**
      * Load ACLs safely, returning an Optional for error handling.
@@ -145,7 +146,7 @@ public interface IPSAclService {
     default Optional<List<IPSAcl>> loadAclsSafely(List<IPSGuid> aclGuids) {
         try {
             return Optional.of(loadAcls(aclGuids));
-        } catch (PSSecurityException e) {
+        } catch (PSServiceSecurityException e) {
             return Optional.empty();
         }
     }
@@ -157,7 +158,7 @@ public interface IPSAclService {
      * @return Stream of ACLs, never {@code null}
      * @throws PSSecurityException if any of the specified ACLs cannot be loaded
      */
-    default Stream<IPSAcl> streamAcls(List<IPSGuid> aclGuids) throws PSSecurityException {
+    default Stream<IPSAcl> streamAcls(List<IPSGuid> aclGuids) throws PSServiceSecurityException {
         return loadAcls(aclGuids).stream();
     }
 
@@ -168,10 +169,10 @@ public interface IPSAclService {
      *
      * @param aclGuids list of ACL GUIDs to load ACLs for, not {@code null}
      * @return an immutable list of modifiable ACL objects, never {@code null}, may be empty
-     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     * @throws PSServiceSecurityException if any of the specified ACLs cannot be loaded
      * @throws IllegalArgumentException if aclGuids is null
      */
-    List<IPSAcl> loadAclsModifiable(List<IPSGuid> aclGuids) throws PSSecurityException;
+    List<IPSAcl> loadAclsModifiable(List<IPSGuid> aclGuids) throws PSServiceSecurityException;
 
     /**
      * Load ACLs for objects with the specified GUIDs. These objects are cached
@@ -179,10 +180,10 @@ public interface IPSAclService {
      *
      * @param objectGuids list of object GUIDs to load ACLs for, not {@code null}
      * @return an immutable list of ACL objects, never {@code null}, may be empty
-     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     * @throws PSServiceSecurityException if any of the specified ACLs cannot be loaded
      * @throws IllegalArgumentException if objectGuids is null
      */
-    List<IPSAcl> loadAclsForObjects(List<IPSGuid> objectGuids) throws PSSecurityException;
+    List<IPSAcl> loadAclsForObjects(List<IPSGuid> objectGuids) throws PSServiceSecurityException;
 
     /**
      * Load ACLs for objects safely, returning an Optional for error handling.
@@ -193,7 +194,7 @@ public interface IPSAclService {
     default Optional<List<IPSAcl>> loadAclsForObjectsSafely(List<IPSGuid> objectGuids) {
         try {
             return Optional.of(loadAclsForObjects(objectGuids));
-        } catch (PSSecurityException e) {
+        } catch (PSServiceSecurityException e) {
             return Optional.empty();
         }
     }
@@ -206,16 +207,38 @@ public interface IPSAclService {
      * @throws PSSecurityException if any of the specified ACLs cannot be loaded
      * @throws IllegalArgumentException if objectGuids is null
      */
-    List<IPSAcl> loadAclsForObjectsModifiable(List<IPSGuid> objectGuids) throws PSSecurityException;
+    List<IPSAcl> loadAclsForObjectsModifiable(List<IPSGuid> objectGuids) throws PSServiceSecurityException;
+
+    /**
+     * Convenience method that loads the ACL for a single object GUID.
+     *
+     * @param objectGuid the GUID of the object, not {@code null}
+     * @return the ACL for the object, or {@code null} if not found
+     */
+    default IPSAcl loadAclForObject(IPSGuid objectGuid) throws PSServiceSecurityException {
+        Objects.requireNonNull(objectGuid, "objectGuid cannot be null");
+        List<IPSAcl> list = loadAclsForObjects(List.of(objectGuid));
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    /**
+     * Backwards-compatible convenience method to load a single modifiable ACL
+     * for the supplied object GUID.
+     */
+    default IPSAcl loadAclForObjectModifiable(IPSGuid objectGuid) throws PSServiceSecurityException {
+        Objects.requireNonNull(objectGuid, "objectGuid cannot be null");
+        List<IPSAcl> list = loadAclsForObjectsModifiable(List.of(objectGuid));
+        return list.isEmpty() ? null : list.get(0);
+    }
 
     /**
      * Save the supplied ACLs to persistent storage with enhanced validation.
      *
      * @param acls The ACLs to save, not {@code null} or empty
-     * @throws PSSecurityException if the save operation fails
+     * @throws PSServiceSecurityException if the save operation fails
      * @throws IllegalArgumentException if acls is null or empty
      */
-    default void saveAcls(List<IPSAcl> acls) throws PSSecurityException {
+    default void saveAcls(List<IPSAcl> acls) throws PSServiceSecurityException {
         Objects.requireNonNull(acls, "acls cannot be null");
         if (acls.isEmpty()) {
             throw new IllegalArgumentException("acls cannot be empty");
@@ -226,7 +249,7 @@ public interface IPSAclService {
     /**
      * Internal implementation for ACL saving.
      */
-    void saveAclsImpl(List<IPSAcl> acls) throws PSSecurityException;
+    void saveAclsImpl(List<IPSAcl> acls) throws PSServiceSecurityException;
 
     /**
      * Delete ACLs for the specified object GUIDs with enhanced validation.
@@ -235,15 +258,31 @@ public interface IPSAclService {
      * @throws PSSecurityException if the delete operation fails
      * @throws IllegalArgumentException if objectGuids is null
      */
-    default void deleteAcls(List<IPSGuid> objectGuids) throws PSSecurityException {
+    default void deleteAcls(List<IPSGuid> objectGuids) throws PSServiceSecurityException {
         Objects.requireNonNull(objectGuids, "objectGuids cannot be null");
         deleteAclsImpl(objectGuids);
     }
 
     /**
+     * Backwards compatible convenience method to delete a single ACL GUID.
+     */
+    default void deleteAcl(IPSGuid aclGuid) throws PSServiceSecurityException {
+        Objects.requireNonNull(aclGuid, "aclGuid cannot be null");
+        deleteAcls(List.of(aclGuid));
+    }
+
+    /**
+     * Clear any internal ACL caches. Default is a no-op; implementations
+     * that cache ACLs should override to clear their caches.
+     */
+    default void clearCache() {
+        // no-op by default
+    }
+
+    /**
      * Internal implementation for ACL deletion.
      */
-    void deleteAclsImpl(List<IPSGuid> objectGuids) throws PSSecurityException;
+    void deleteAclsImpl(List<IPSGuid> objectGuids) throws PSServiceSecurityException;
 
     /**
      * Check if the current user has the specified access level to an object.
@@ -258,7 +297,8 @@ public interface IPSAclService {
         Objects.requireNonNull(requiredLevel, "requiredLevel cannot be null");
 
         var userLevel = getUserAccessLevel(objectGuid);
-        return userLevel.getAccessLevel() >= requiredLevel.getAccessLevel();
+        // Compare permission sets: user must contain all required permissions
+        return userLevel.getPermissions().containsAll(requiredLevel.getPermissions());
     }
 
     /**
@@ -284,16 +324,24 @@ public interface IPSAclService {
      * @param aclGuids list of ACL GUIDs to search, not {@code null}
      * @param predicate predicate to match ACLs, not {@code null}
      * @return Stream of matching ACLs, never {@code null}
-     * @throws PSSecurityException if ACL loading fails
+     * @throws PSServiceSecurityException if ACL loading fails
      * @throws IllegalArgumentException if aclGuids or predicate is null
      */
     default Stream<IPSAcl> findAcls(List<IPSGuid> aclGuids, Predicate<IPSAcl> predicate)
-            throws PSSecurityException {
+            throws PSServiceSecurityException {
         Objects.requireNonNull(aclGuids, "aclGuids cannot be null");
         Objects.requireNonNull(predicate, "predicate cannot be null");
 
         return streamAcls(aclGuids).filter(predicate);
     }
+    /**
+     * Find objects visible to named communities for a given type.
+     *
+     * @param communityNames List of community names, not {@code null}
+     * @param type optional type filter, may be {@code null}
+     * @return collection of object GUIDs visible to the communities
+     */
+    Collection<IPSGuid> findObjectsVisibleToCommunities(List<String> communityNames, PSTypeEnum type);
 
     /**
      * Count ACLs that match the specified criteria.
@@ -301,11 +349,11 @@ public interface IPSAclService {
      * @param aclGuids list of ACL GUIDs to count, not {@code null}
      * @param predicate predicate to match ACLs, not {@code null}
      * @return count of matching ACLs
-     * @throws PSSecurityException if ACL loading fails
+     * @throws PSServiceSecurityException if ACL loading fails
      * @throws IllegalArgumentException if aclGuids or predicate is null
      */
     default long countAcls(List<IPSGuid> aclGuids, Predicate<IPSAcl> predicate)
-            throws PSSecurityException {
+            throws PSServiceSecurityException {
         return findAcls(aclGuids, predicate).count();
     }
 

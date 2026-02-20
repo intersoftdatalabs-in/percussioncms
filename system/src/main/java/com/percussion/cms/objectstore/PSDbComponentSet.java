@@ -634,7 +634,7 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
     Iterator<T> iter = iterator();
 
     while (iter.hasNext()) {
-      IPSDbComponent dbComp = (IPSDbComponent) iter.next();
+      T dbComp = iter.next();
       int nState = dbComp.getState();
 
       if (nState != DBSTATE_NEW) m_deleteList.add(dbComp);
@@ -719,9 +719,8 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
 
     Iterator<T> it = m_set.iterator();
     while (it.hasNext()) {
-      Object obj = it.next();
-      if (comp.equals(obj)) {
-        IPSDbComponent setComp = (IPSDbComponent) obj;
+      T setComp = it.next();
+      if (comp.equals(setComp)) {
         if (setComp.isPersisted()) {
           setComp.markForDeletion();
           m_deleteList.add(setComp);

@@ -23,7 +23,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
  * Converts objects between the classes
- * {@link com.percussion.search.objectstore.PSWSSearchField.PSOperatorEnum} and 
+ * {@link com.percussion.search.objectstore.PSWSSearchField.PSOperatorEnum} and
  * {@link com.percussion.webservices.common.OperatorTypes}.
  */
 public class PSOperatorTypesConverter extends PSConverter
@@ -35,7 +35,7 @@ public class PSOperatorTypesConverter extends PSConverter
    {
       super(beanUtils);
    }
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -44,12 +44,12 @@ public class PSOperatorTypesConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
          return PSWSSearchField.PSOperatorEnum.valueOf(
             value.toString().toUpperCase());
       else
-         return OperatorTypes.fromString(
-            value.toString().toLowerCase());
+         // generated enum exposes 'fromValue' to map string values like "equal" -> enum
+         return OperatorTypes.fromValue(value.toString());
    }
 }

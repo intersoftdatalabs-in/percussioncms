@@ -79,7 +79,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import junit.framework.AssertionFailedError;
+/* vintage junit.framework.AssertionError removed */
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -88,7 +88,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test system design web service functionality.
  */
-@Tag("IntegrationTest")
+
 public class SystemDesignTestCase extends PSSystemTestBase
 {
    @Test
@@ -115,8 +115,8 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Tests loading shared properties.
-    * 
-    * @param names the names of the properties to load, may be 
+    *
+    * @param names the names of the properties to load, may be
     *    <code>null</code> or empty, asterisk wildcards are supported.
     * @return the loaded properties, never <code>null</code> or empty.
     * @throws Exception if the test fails.
@@ -179,25 +179,25 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e3);
       }
    }
 
    /**
     * Tests saving shared properties.
-    * 
-    * @param properties the properties to save, assumed not <code>null</code> 
+    *
+    * @param properties the properties to save, assumed not <code>null</code>
     *    or empty and to have been locked.
     * @param release <code>true</code> leave the locks released when the test is
     *    completed, <code>false</code> to leave the locks in place.
@@ -284,29 +284,29 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e1.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3.dumpToString());
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4.dumpToString());
       }
    }
 
    /**
     * Tests deleting shared properties.
-    * 
+    *
     * @param properties the properties to delete, assumed not <code>null</code>.
     * @throws Exception if the test fails.
     */
@@ -350,22 +350,22 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
    }
@@ -489,22 +489,22 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
@@ -586,17 +586,17 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
@@ -660,12 +660,12 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
@@ -729,7 +729,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
             // expected exception
             assertTrue(true);
          }
-         
+
          // are the test slots locked?
          PSObjectSummary[] summaries = binding.isLocked(ids);
          assertTrue(summaries != null && summaries.length == 3);
@@ -749,7 +749,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
          assertTrue(summaries[0] != null);
          assertTrue(summaries[1] == null);
          assertTrue(summaries[2] != null);
-         
+
          // lock all slots
          request = new CreateLocksRequest();
          request.setId(ids);
@@ -762,7 +762,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
          assertTrue(summaries[0] != null);
          assertTrue(summaries[1] != null);
          assertTrue(summaries[2] != null);
-         
+
          // try to create locks for a different session
          String session_2 = PSTestUtils.login();
          PSTestUtils.setSessionHeader(binding, session_2);
@@ -776,7 +776,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
             // expected exception
             assertTrue(true);
          }
-         
+
          // override locks
          request.setOverrideLock(true);
          binding.createLocks(request);
@@ -786,17 +786,17 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
@@ -884,17 +884,17 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
@@ -902,7 +902,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
    /**
     * Tests the dependency finder service, requires FastForward implemenatation
     * and sample content be installed.
-    * 
+    *
     * @throws Exception If the test fails.
     */
    @Test
@@ -999,24 +999,24 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
 
    /**
     * Tests relationship type related services.
-    * 
+    *
     * @throws Exception if any error occurs.
     */
    @Test
@@ -1050,7 +1050,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
          for (int i=0; i<summs.length; i++)
             invalidIds[i] = summs[i].getId();
          invalidIds[summs.length-1] = invalidIds[summs.length-1] + 1000;
-         
+
          LoadRelationshipTypesRequest lreq = new LoadRelationshipTypesRequest(
             invalidIds, false, false);
          binding.loadRelationshipTypes(lreq);
@@ -1058,7 +1058,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (PSErrorResultsFault e)
       {
-         verifyErrorResultsFault(e, summs.length-1, 
+         verifyErrorResultsFault(e, summs.length-1,
             PSRelationshipConfig.class.getName());
       }
 
@@ -1079,7 +1079,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Test loading and saving configurations
-    * 
+    *
     * @throws Exception if the test fails.
     */
    @Test
@@ -1249,32 +1249,32 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSUnknownConfigurationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "UnknownConfigurationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSLockFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "LockFault Exception caught: " + e4);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e5)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e5);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
       finally
@@ -1309,15 +1309,15 @@ public class SystemDesignTestCase extends PSSystemTestBase
    }
 
    /**
-    * Create a new content adapter from the supplied adapter using the 
+    * Create a new content adapter from the supplied adapter using the
     * properties as the content.
-    * 
-    * @param content The adapter to use as a template, assumed not 
+    *
+    * @param content The adapter to use as a template, assumed not
     * <code>null</code>.
     * @param props The properties to use as content.
-    * 
+    *
     * @return The new content adapter, never <code>null</code>.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    private PSMimeContentAdapter createContent(PSMimeContentAdapter content,
@@ -1346,11 +1346,11 @@ public class SystemDesignTestCase extends PSSystemTestBase
    /**
     * Validates the supplied content adapter and extracts the content as a set
     * of properties.
-    * 
+    *
     * @param config The content to validate, assumed not <code>null</code>.
-    * 
+    *
     * @return the props, never <code>null</code>.
-    * 
+    *
     * @throws UnsupportedEncodingException if there is an error decoding the
     * content
     * @throws IOException if there is an error extracting the content.
@@ -1432,17 +1432,17 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
@@ -1541,34 +1541,34 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
 
    /**
     * Tests all ACL web services
-    * 
+    *
     * @throws Exception if the test fails or there are any errors.
     */
    @Test
@@ -1603,9 +1603,9 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Tests creating acls.
-    * 
+    *
     * @return The created acls, never <code>null</code>.
-    * 
+    *
     * @throws Exception if the test fails
     */
    private PSAclImpl[] doCreateAclsTest() throws Exception
@@ -1665,40 +1665,40 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "Remote Exception caught: " + e);
       }
    }
 
    /**
     * Create acls
-    * 
-    * @param ids The object ids for which acls are created, assumed not 
+    *
+    * @param ids The object ids for which acls are created, assumed not
     * <code>null</code> or empty.
     * @param session The session to use, may be <code>null</code> or empty.
-    * 
+    *
     * @return The acls, never <code>null</code>.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    private PSAclImpl[] createAcls(long[] ids, String session) throws Exception
@@ -1714,11 +1714,11 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Tests saving acls
-    * 
+    *
     * @param acls The acls to save, assumed not <code>null</code> or empty.
-    * 
+    *
     * @return The re-loaded saved acls, locked, not <code>null</code>.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    private PSAclImpl[] doSaveAclsTest(PSAclImpl[] acls) throws Exception
@@ -1777,21 +1777,21 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
    }
 
    /**
     * Save the specified acls
-    * 
+    *
     * @param acls The acls to save, assumed not <code>null</code>.
     * @param session The session to use, may be <code>null</code> or empty.
     * @param release <code>true</code> to release locks, <code>false</code>
     * otherwise.
-    * 
+    *
     * @return The reloaded acls, locked if release is <code>false</code>.
-    * 
+    *
     * @throws Exception if the save fails.
     */
    private PSAclImpl[] saveAcls(PSAclImpl[] acls, String session,
@@ -1817,13 +1817,13 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Compare two arrays of acls
-    * 
+    *
     * @param acls The acls to compare, assumed not <code>null</code>.
     * @param result The expected acls, assumed not <code>null</code>.
     * @param compareIds <code>true</code> to compare guids, <code>false</code>
     * to skip that property.
-    *   
-    * @throws Exception if the comparison fails. 
+    *
+    * @throws Exception if the comparison fails.
     */
    private void compareAclArrays(PSAclImpl[] acls, PSAclImpl[] result,
       boolean compareIds) throws Exception
@@ -1905,9 +1905,9 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Get object id array from acl array.
-    * 
+    *
     * @param acls The acl array, assumed not <code>null</code>.
-    * 
+    *
     * @return array of object ids.
     */
    private long[] getObjectIds(PSAclImpl[] acls)
@@ -1922,13 +1922,13 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Test loading and modifying acls
-    * 
-    * @param acls The source acls to test loading, assumed not 
+    *
+    * @param acls The source acls to test loading, assumed not
     * <code>null</code>.
-    * 
-    * @return The acls as last loaded by this test, never <code>null</code>, 
+    *
+    * @return The acls as last loaded by this test, never <code>null</code>,
     * will be locked.
-    * 
+    *
     * @throws Exception if there are any errors.
     */
    private PSAclImpl[] doLoadAclsTest(PSAclImpl[] acls) throws Exception
@@ -2098,17 +2098,17 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (com.percussion.webservices.faults.PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e3);
       }
 
@@ -2126,19 +2126,19 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Load the specified acls.
-    * 
-    * @param ids The ids of the object for which acls are to be loaded, assumed 
+    *
+    * @param ids The ids of the object for which acls are to be loaded, assumed
     * not <code>null</code>.
-    * @param session The session to use, may be <code>null</code> or empty, 
+    * @param session The session to use, may be <code>null</code> or empty,
     * ignored if <code>user</code> is not <code>null</code>.
     * @param lock <code>true</code> to load them locked, <code>false</code> if
     * not.
-    * @param user Optional user id to use, may be <code>null</code> or emtpy. 
+    * @param user Optional user id to use, may be <code>null</code> or emtpy.
     * @param pwd Optional password to use, may be <code>null</code> or empty,
     * ignored if <code>user</code> is <code>null</code>.
-    *  
+    *
     * @return The loaded acls, never <code>null</code>.
-    * 
+    *
     * @throws Exception if the load fails.
     */
    private PSAclImpl[] loadAcls(long[] ids, String session, boolean lock,
@@ -2166,9 +2166,9 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Test deleting the acls
-    * 
+    *
     * @param acls The acls to delete, assumed locked.
-    * 
+    *
     * @throws Exception if the test fails.
     */
    private void doDeleteAclsTest(PSAclImpl[] acls) throws Exception
@@ -2244,37 +2244,37 @@ public class SystemDesignTestCase extends PSSystemTestBase
                   .getError().getPSError().getCode());
             }
          }
-         
+
          // try to delete again, should be noop w/out error
          deleteAcls(ids, m_session, true);
       }
       catch (com.percussion.webservices.faults.PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (com.percussion.webservices.faults.PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (com.percussion.webservices.faults.PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (com.percussion.webservices.faults.PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
    }
 
    /**
     * Get the acl ids from the supplied list.
-    * 
+    *
     * @param acls The list, assumed not <code>null</code>.
-    * 
+    *
     * @return the ids.
     */
    private long[] getAclIds(PSAclImpl[] acls)
@@ -2289,7 +2289,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Tests all item filter design CRUD services.
-    * 
+    *
     * @throws Exception for any error.
     */
    @Test
@@ -2334,8 +2334,8 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
    /**
     * Tests creating item filters.
-    * 
-    * @return the list of created test filters, never <code>null</code> or 
+    *
+    * @return the list of created test filters, never <code>null</code> or
     *    empty.
     * @throws Exception if the test fails.
     */
@@ -2403,27 +2403,27 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e.dumpToString());
       }
       catch (PSContractViolationFault e)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e.dumpToString());
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new AssertionFailedError("NotAuthorizedFault Exception caught: "
+         throw new AssertionError("NotAuthorizedFault Exception caught: "
             + e.dumpToString());
       }
    }
 
    /**
     * Tests saving item filters.
-    * 
-    * @param filters the item filters to save, assumed not <code>null</code> 
+    *
+    * @param filters the item filters to save, assumed not <code>null</code>
     *    or empty and to have been locked.
-    * @param release <code>true</code> leave the locks released when the test 
+    * @param release <code>true</code> leave the locks released when the test
     *    is completed, <code>false</code> to leave the locks in place.
     * @throws Exception if the test fails.
     */
@@ -2492,30 +2492,30 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (PSErrorsFault e)
       {
-         throw new AssertionFailedError("ErrorsFault Exception caught: "
+         throw new AssertionError("ErrorsFault Exception caught: "
             + e.dumpToString());
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e.dumpToString());
       }
       catch (PSContractViolationFault e)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e.dumpToString());
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new AssertionFailedError("NotAuthorizedFault Exception caught: "
+         throw new AssertionError("NotAuthorizedFault Exception caught: "
             + e.dumpToString());
       }
    }
 
    /**
     * Test the <code>findItemFilters</code> webservice.
-    * 
-    * @param filters the list of item filters to find, assumed not 
+    *
+    * @param filters the list of item filters to find, assumed not
     *    <code>null</code>.
     * @throws Exception if there are any errors.
     */
@@ -2546,7 +2546,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
       try
       {
-         // test nulls, empty  
+         // test nulls, empty
          validateItemFilterSummaries(findItemFilters(null, m_session), filters);
          validateItemFilterSummaries(findItemFilters("", m_session), filters);
 
@@ -2565,15 +2565,15 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
 
    /**
     * Tests loading item filters.
-    * 
-    * @param ids the ids of the item filters to load, assumed not 
+    *
+    * @param ids the ids of the item filters to load, assumed not
     *    <code>null</code> or empty and to have been saved.
     * @return the loaded item filters, never <code>null</code> or empty.
     * @throws Exception if the test fails.
@@ -2626,7 +2626,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
          {
             // expected
          }
-         
+
          // try to load filters with invalid ids
          try
          {
@@ -2676,26 +2676,26 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (PSErrorResultsFault e)
       {
-         throw new AssertionFailedError("ErrorResultsFault Exception caught: "
+         throw new AssertionError("ErrorResultsFault Exception caught: "
             + e);
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new AssertionFailedError("NotAuthorizedFault Exception caught: "
+         throw new AssertionError("NotAuthorizedFault Exception caught: "
             + e);
       }
    }
 
    /**
     * Tests deleting item filters.
-    * 
-    * @param ids the ids of the item filters to delete, assumed not 
-    *    <code>null</code> or empty and to reference valid item filters, 
+    *
+    * @param ids the ids of the item filters to delete, assumed not
+    *    <code>null</code> or empty and to reference valid item filters,
     *    which may or may not be locked.
     * @throws Exception if the test fails.
     */
@@ -2794,30 +2794,30 @@ public class SystemDesignTestCase extends PSSystemTestBase
       }
       catch (PSInvalidSessionFault e)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
       catch (PSErrorsFault e)
       {
-         throw new AssertionFailedError("ErrorsFault Exception caught: " + e);
+         throw new AssertionError("ErrorsFault Exception caught: " + e);
       }
       catch (PSContractViolationFault e)
       {
-         throw new AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e);
       }
       catch (PSNotAuthorizedFault e)
       {
-         throw new AssertionFailedError("NotAuthorizedFault Exception caught: "
+         throw new AssertionError("NotAuthorizedFault Exception caught: "
             + e);
       }
    }
 
    /**
-    * Validates that the supplied array of item filter summaries contains the 
+    * Validates that the supplied array of item filter summaries contains the
     * expected item filters to be found.
-    * 
-    * @param summaries the item filter summaries to validate, assumed not 
+    *
+    * @param summaries the item filter summaries to validate, assumed not
     *    <code>null</code>.
     * @param filters the expected item filters, assumed not <code>null</code>.
     */
@@ -2839,7 +2839,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
    /**
     * Verifies that a user without design server ACL is not allowed to execute
     * create, load, delete and save services.
-    * 
+    *
     * @throws Exception for any error.
     */
    @Test
@@ -2854,85 +2854,85 @@ public class SystemDesignTestCase extends PSSystemTestBase
 
          String session = PSTestUtils.login("editor1", "demo");
          PSTestUtils.setSessionHeader(binding, session);
-         
+
          // verify editor1 has no design create access
          try
          {
-            CreateRelationshipTypesRequest request = 
+            CreateRelationshipTypesRequest request =
                new CreateRelationshipTypesRequest(
-                  new String[] { "SomeRelationshipType" }, 
-                  new RelationshipCategory[] 
+                  new String[] { "SomeRelationshipType" },
+                  new RelationshipCategory[]
                      { RelationshipCategory.ActiveAssembly });
             binding.createRelationshipTypes(request);
-           
+
             assertTrue("Should have thrown exception", false);
          }
          catch (PSNotAuthorizedFault e)
          {
             assertTrue("Expected", true);
          }
-         
+
          // verify editor1 has find access
-         FindRelationshipTypesRequest findRequest = 
-            new FindRelationshipTypesRequest("ActiveAssembly", 
+         FindRelationshipTypesRequest findRequest =
+            new FindRelationshipTypesRequest("ActiveAssembly",
                RelationshipCategory.ActiveAssembly);
          PSObjectSummary[] relationshipTypes = binding.findRelationshipTypes(
             findRequest);
          assertTrue(relationshipTypes != null && relationshipTypes.length == 1);
-         
+
          // verify editor1 has load access (can load but not lock)
-         LoadRelationshipTypesRequest loadRequest = 
+         LoadRelationshipTypesRequest loadRequest =
             new LoadRelationshipTypesRequest(
                new long[] { relationshipTypes[0].getId() }, false, false);
          PSRelationshipConfig[] configs = binding.loadRelationshipTypes(
             loadRequest);
          assertTrue(configs != null && configs.length == 1);
-         
+
          // verify editor1 has no design load access
          try
          {
-            LoadRelationshipTypesRequest request = 
+            LoadRelationshipTypesRequest request =
                new LoadRelationshipTypesRequest(
                   new long[] { relationshipTypes[0].getId() }, true, true);
             binding.loadRelationshipTypes(request);
-           
+
             assertTrue("Should have thrown exception", false);
          }
          catch (PSNotAuthorizedFault e)
          {
             assertTrue("Expected", true);
          }
-         
+
          // verify editor1 has no design save access
          try
          {
-            SaveRelationshipTypesRequest request = 
+            SaveRelationshipTypesRequest request =
                new SaveRelationshipTypesRequest(configs, true);
             binding.saveRelationshipTypes(request);
-           
+
             assertTrue("Should have thrown exception", false);
          }
          catch (PSNotAuthorizedFault e)
          {
             assertTrue("Expected", true);
          }
-         
+
          // verify editor1 has no design delete access
          try
          {
-            DeleteRelationshipTypesRequest request = 
+            DeleteRelationshipTypesRequest request =
                new DeleteRelationshipTypesRequest(
                   new long[] { relationshipTypes[0].getId() }, true);
             binding.deleteRelationshipTypes(request);
-           
+
             assertTrue("Should have thrown exception", false);
          }
          catch (PSNotAuthorizedFault e)
          {
             assertTrue("Expected", true);
          }
-         
-         // verify editor1 can create guid's 
+
+         // verify editor1 can create guid's
          CreateGuidsRequest createRequest = new CreateGuidsRequest(
             PSTypeEnum.RELATIONSHIP.ordinal(), 1);
          long[] guids = binding.createGuids(createRequest);

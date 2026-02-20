@@ -50,16 +50,17 @@ public class PSAaRelationshipList extends PSCollectionComponent {
    * @param parentComponents the parent objects of this object, may be {@code null}.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
-  public PSAaRelationshipList(Element sourceNode, IPSDocument parentDoc, List<?> parentComponents)
+  public PSAaRelationshipList(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
-    super(PSRelationship.class);
+    super(PSAaRelationship.class);
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
   /**
    * @see IPSComponent
    */
-  public void fromXml(Element sourceNode, IPSDocument parentDoc, List<?> parentComponents)
+  @Override
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
@@ -80,7 +81,7 @@ public class PSAaRelationshipList extends PSCollectionComponent {
       node = tree.getNextElement(PSRelationship.XML_NODE_NAME, firstFlags);
       while (node != null) {
         PSRelationship relationship =
-            new PSRelationship(tree.getCurrent(), parentDoc, parentComponents);
+            new PSRelationship(node, parentDoc, (List<IPSComponent>) parentComponents);
         add(relationship);
         node = tree.getNextElement(PSRelationship.XML_NODE_NAME, nextFlags);
       }

@@ -20,21 +20,20 @@ import java.util.Arrays;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit tests for the PSDtdTree class.
  */
-public class PSDtdTreeTest extends TestCase
+public class PSDtdTreeTest
 {
-   public PSDtdTreeTest(String name)
-   {
-      super(name);
-   }
+
 
    /**
     * Test the PSDtdTree.canonicalToArry method
     */
+   @Test
    public void testCanonicalToArray()
    {
       // make sure it throws an IllegalArgumentException on a null String
@@ -47,11 +46,11 @@ public class PSDtdTreeTest extends TestCase
       {
          didThrow = true;
       }
-      assertTrue("throws on null String?", didThrow);
+      assertTrue(didThrow, "throws on null String?");
 
       CanonicalTest[] canon = new CanonicalTest[20];
       int numTests = 0;
-      
+
       canon[numTests++] = new CanonicalTest("/", new String[0]);
 
       canon[numTests++] = new CanonicalTest("", new String[0]);
@@ -112,11 +111,6 @@ public class PSDtdTreeTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSDtdTreeTest("testCanonicalToArray"));
-      return suite;
-   }
+
 
 }

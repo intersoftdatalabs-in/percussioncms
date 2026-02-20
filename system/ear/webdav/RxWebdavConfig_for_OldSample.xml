@@ -1,39 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<PSXWebdavConfigDef root="//Sites/DemoSite" communityname="default" communityid="10" locale="en-us">
+<PSXWebdavConfigDef root="//Sites/DemoSite"
+	communityname="default" communityid="10" locale="en-us">
 
 
-	<PSXWebdavContentType id="305" name="File" contentfield="fileupload" ownerfield="abstractcontent" default="true">
-		<PropertyMap>			
-			<PSXPropertyFieldNameMapping name="getcontenttype">
+	<PSXWebdavContentType id="305" name="File"
+		contentfield="fileupload" ownerfield="abstractcontent" default="true">
+		<PropertyMap>
+			<PSXPropertyFieldNameMapping
+				name="getcontenttype">
 				<FieldName>fileupload_type</FieldName>
 			</PSXPropertyFieldNameMapping>
-			
-			<PSXPropertyFieldNameMapping name="getcontentlength">
+
+			<PSXPropertyFieldNameMapping
+				name="getcontentlength">
 				<FieldName>fileupload_size</FieldName>
 			</PSXPropertyFieldNameMapping>
 		</PropertyMap>
 	</PSXWebdavContentType>
-	
 
-	<PSXWebdavContentType id="306" name="Image" contentfield="imgbody" ownerfield="abstractcontent" default="false">
+
+	<PSXWebdavContentType id="306" name="Image"
+		contentfield="imgbody" ownerfield="abstractcontent" default="false">
 		<MimeTypes>
-		   <MimeType>image/gif</MimeType>
-		   <MimeType>image/bmp</MimeType>
-		   <MimeType>image/jpeg</MimeType>
-		   <MimeType>image/png</MimeType>
+			<MimeType>image/gif</MimeType>
+			<MimeType>image/bmp</MimeType>
+			<MimeType>image/jpeg</MimeType>
+			<MimeType>image/png</MimeType>
 		</MimeTypes>
-		<PropertyMap>			
-			<PSXPropertyFieldNameMapping name="getcontenttype">
+		<PropertyMap>
+			<PSXPropertyFieldNameMapping
+				name="getcontenttype">
 				<FieldName>imgbody_type</FieldName>
 			</PSXPropertyFieldNameMapping>
-			
-			<PSXPropertyFieldNameMapping name="getcontentlength">
+
+			<PSXPropertyFieldNameMapping
+				name="getcontentlength">
 				<FieldName>imgbody_size</FieldName>
 			</PSXPropertyFieldNameMapping>
 		</PropertyMap>
-		
+
 	</PSXWebdavContentType>
 
 

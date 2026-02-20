@@ -1,50 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-   <WidgetPrefs title="Raw Html Widget"
-        contenttype_name="percSimpleAutoList"
-        description="Simple List widget for page links"
-        author="Percussion Software Inc"
-        thumbnail="/rx_resources/widgets/simpleList/images/SimplePageAutoListIcon.png"/>
-    <Resource href="/rx_resources/widgets/simpleList/css/style.css" 
-        type="css" 
-        placement="head" />
-    <UserPref name="maxlength" 
-      display_name="Max List Length"
-      default_value="0"
-      datatype="number" /> 
-    <UserPref name="rootclass"
-      display_name="CSS Root Class" 
-      datatype="string" /> 
-    <UserPref name="layout"
-      display_name="Layout"
-      required="true"
-      datatype="string">
-      <EnumValue value="ui-perc-list-horizontal" display_value="Horizontal" />
-      <EnumValue value="ui-perc-list-vertical" display_value="Vertical" />
-    </UserPref>
-    <UserPref name="target"
-      display_name="Link Target"
-      datatype="string" />
-    
-    <CssPref name="my_css"
-      display_name="My Css"
-      datatype="string" />
-         
-    <Code type="jexl">
+	<WidgetPrefs title="Raw Html Widget"
+		contenttype_name="percSimpleAutoList"
+		description="Simple List widget for page links"
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/simpleList/images/SimplePageAutoListIcon.png" />
+	<Resource
+		href="/rx_resources/widgets/simpleList/css/style.css" type="css"
+		placement="head" />
+	<UserPref name="maxlength" display_name="Max List Length"
+		default_value="0" datatype="number" />
+	<UserPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
+	<UserPref name="layout" display_name="Layout" required="true"
+		datatype="string">
+		<EnumValue value="ui-perc-list-horizontal"
+			display_value="Horizontal" />
+		<EnumValue value="ui-perc-list-vertical"
+			display_value="Vertical" />
+	</UserPref>
+	<UserPref name="target" display_name="Link Target"
+		datatype="string" />
+
+	<CssPref name="my_css" display_name="My Css" datatype="string" />
+
+	<Code type="jexl">
     <![CDATA[
    $linkContext = $perc.linkConfig;
-   $assetItem = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget.item.id, null, null).get(0); 
-   $params=$rx.string.stringToMap(null);   
+   $assetItem = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget.item.id, null, null).get(0);
+   $params=$rx.string.stringToMap(null);
    $params.query=$assetItem.node.getProperty('query').String;
-   $params.max_results=$assetItem.node.getProperty('max_results').Long; 
-   $finderName="Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder"; 
+   $params.max_results=$assetItem.node.getProperty('max_results').Long;
+   $finderName="Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder";
    $relresults=  $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget.item.id,
-     $finderName, $params); 
+     $finderName, $params);
    $title=$assetItem.getProperty('displaytitle').String;
    $rowtag = $tools.alternator.auto('.ui-perc-list-odd', '.ui-perc-list-even');
     ]]>
-    </Code>
-    <Content type="velocity">
+	</Code>
+	<Content type="velocity">
     <![CDATA[
    <div class="$rootclass $layout .ui-widget .ui-widget-content .ui-perc-list-widget">
     #if($title.length() > 0)##
@@ -69,7 +63,7 @@
 		#end
 		#set($pageLink=$rx.tools.link($linkContext,$result))##
 		#set($linkTitle=$rx.location.getFirstDefined($result.node,"resource_link_title,sys_title", "-no-title-"))##
-		
+
 		<li class="$rowtag $firstrow $lastrow .ui-perc-list-element"><a href="$!{pagelink}"
 		#if($target.length() > 0)##
 		   target="${target}"
@@ -84,5 +78,5 @@
 	#end##
 </div>
     ]]>
-    </Content>    
+	</Content>
 </Widget>

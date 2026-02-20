@@ -17,7 +17,6 @@
 package com.percussion.webservices.transformation.converter;
 
 import com.percussion.cms.objectstore.PSItemFieldMeta;
-import com.percussion.webservices.content.PSFieldSourceType;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 
@@ -47,35 +46,34 @@ public class PSFieldSourceTypeConverter extends PSConverter
       
       if (isClientToServer(value))
       {
-         PSFieldSourceType orig = (PSFieldSourceType) value;
-         
+         // client likely sends a string or an enum-like object
+         String s = value.toString();
          Integer dest = 0;
-         //FB:EC_UNRELATED_TYPES NC 1-17-16
-         if (orig.getValue().equals(PSFieldSourceType.local.getValue()))
+         if (s.equalsIgnoreCase("local"))
             dest = PSItemFieldMeta.SOURCE_TYPE_LOCAL;
-         else if (orig.getValue().equals(PSFieldSourceType.shared.getValue()))
+         else if (s.equalsIgnoreCase("shared"))
             dest = PSItemFieldMeta.SOURCE_TYPE_SHARE;
-         else if (orig.getValue().equals(PSFieldSourceType.system.getValue()))
+         else if (s.equalsIgnoreCase("system"))
             dest = PSItemFieldMeta.SOURCE_TYPE_SYSTEM;
          else
             dest = PSItemFieldMeta.SOURCE_TYPE_UNKNOWN;
-         
+
          return dest;
       }
       else
       {
          Integer orig = (Integer) value;
-         
+
          switch (orig)
          {
             case PSItemFieldMeta.SOURCE_TYPE_LOCAL:
-               return PSFieldSourceType.local;
+               return "local";
             case PSItemFieldMeta.SOURCE_TYPE_SHARE:
-               return PSFieldSourceType.shared;
+               return "shared";
             case PSItemFieldMeta.SOURCE_TYPE_SYSTEM:
-               return PSFieldSourceType.system;
+               return "system";
             default:
-               return PSFieldSourceType.unknown;
+               return "unknown";
          }
       }
    }

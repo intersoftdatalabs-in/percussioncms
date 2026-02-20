@@ -25,18 +25,16 @@ List view:
 // Import common styles
 @import "../skin-common.less";
 
-
 /*******************************************************************************
  * Styles specific to this skin.
  *
  * This section is automatically generated from the `ui-fancytree.less` template.
  ******************************************************************************/
 
-
 // Override the variable after the import.
 // NOTE: Variables are always resolved as the last definition, even if it is
 // after where it is used.
-@fancy-use-sprites: true;  // false: suppress all background images (i.e. icons)
+@fancy-use-sprites: true; // false: suppress all background images (i.e. icons)
 
 @fancy-icon-width: 16px;
 @fancy-icon-height: 16px;
@@ -53,23 +51,22 @@ List view:
 // instead of linking to that file:
 // @fancy-inline-sprites: true;
 
-
 /*******************************************************************************
  * Node titles
  */
 span.fancytree-title {
-  border: @fancy-node-border-width solid transparent;  // avoid jumping, when a border is added on hover
+  border: @fancy-node-border-width solid transparent; // avoid jumping, when a border is added on hover
 }
 span.fancytree-title:hover {
-   background-color: #F2F7FD; // light blue
-   border-color: #B8D6FB; // darker light blue
+  background-color: #f2f7fd; // light blue
+  border-color: #b8d6fb; // darker light blue
 }
 .fancytree-folder span.fancytree-title {
-   // font-weight: bold;
+  // font-weight: bold;
 }
 span.fancytree-focused span.fancytree-title {
-   background-color: #EFEBDE; // gray
-   outline: 1px dotted gray;
+  background-color: #efebde; // gray
+  outline: 1px dotted gray;
 }
 span.fancytree-has-children span.fancytree-title {
   // font-style: oblique;
@@ -77,11 +74,11 @@ span.fancytree-has-children span.fancytree-title {
 span.fancytree-expanded span.fancytree-title {
 }
 span.fancytree-selected span.fancytree-title {
-   font-style: italic;
+  font-style: italic;
 }
 span.fancytree-active span.fancytree-title {
-   border: 1px solid #99DEFD;
-   background-color: #D8F0FA;
+  border: 1px solid #99defd;
+  background-color: #d8f0fa;
 }
 
 /*******************************************************************************
@@ -89,16 +86,16 @@ span.fancytree-active span.fancytree-title {
  */
 
 table.fancytree-ext-table {
-   border-collapse: collapse;
-   tbody tr.fancytree-focused {
-      background-color: #99DEFD;
-   }
-   tbody tr.fancytree-active {
-      background-color: royalblue;
-   }
-   tbody tr.fancytree-selected {
-      background-color: #99FDDE;
-   }
+  border-collapse: collapse;
+  tbody tr.fancytree-focused {
+    background-color: #99defd;
+  }
+  tbody tr.fancytree-active {
+    background-color: royalblue;
+  }
+  tbody tr.fancytree-selected {
+    background-color: #99fdde;
+  }
 }
 
 /*******************************************************************************
@@ -106,10 +103,10 @@ table.fancytree-ext-table {
  */
 
 table.fancytree-ext-columnview {
-   span.fancytree-node.fancytree-expanded {
-      background-color: #ccc;
-   }
-   span.fancytree-node.fancytree-active {
-      background-color: royalblue;
-   }
+  span.fancytree-node.fancytree-expanded {
+    background-color: #ccc;
+  }
+  span.fancytree-node.fancytree-active {
+    background-color: royalblue;
+  }
 }

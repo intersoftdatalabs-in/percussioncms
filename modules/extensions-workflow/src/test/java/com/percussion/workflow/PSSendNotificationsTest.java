@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * PSSendNotificationsTest is a test class for the method PSExitNotifyAssignees.sendNotifications.
  */
-@Tag("IntegrationTest")
+
 public class PSSendNotificationsTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSSendNotificationsTest.class);

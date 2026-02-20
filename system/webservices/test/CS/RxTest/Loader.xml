@@ -2,17 +2,17 @@
 
 
 <Loader>
-   <ConnectionInfo>
-      <Protocol>http</Protocol>
-      <Host>localhost</Host>
-      <Port>9992</Port>
-   </ConnectionInfo>
-   <LoginRequest>
-      <Username>admin1</Username>
-      <Password>demo</Password>
-      <Community>Enterprise_Investments</Community>
-   </LoginRequest>
-   <ContentType>Generic</ContentType>
-   <DataFile>..\..\LoaderData.xml</DataFile>
-   <TargetFolder>//Sites/EnterpriseInvestments/Files/Loader</TargetFolder>
+	<ConnectionInfo>
+		<Protocol>http</Protocol>
+		<Host>localhost</Host>
+		<Port>9992</Port>
+	</ConnectionInfo>
+	<LoginRequest>
+		<Username>admin1</Username>
+		<Password>demo</Password>
+		<Community>Enterprise_Investments</Community>
+	</LoginRequest>
+	<ContentType>Generic</ContentType>
+	<DataFile>..\..\LoaderData.xml</DataFile>
+	<TargetFolder>//Sites/EnterpriseInvestments/Files/Loader</TargetFolder>
 </Loader>

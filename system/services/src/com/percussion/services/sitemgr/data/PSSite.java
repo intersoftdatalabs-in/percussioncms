@@ -60,12 +60,18 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Collections;
+
+import com.percussion.utils.xml.IPSXmlErrors;
+import com.percussion.utils.xml.PSInvalidXmlException;
+import com.percussion.utils.xml.PSXmlUtils;
 
 import static com.percussion.util.PSBase64Decoder.decode;
 import static com.percussion.util.PSBase64Encoder.encode;
@@ -139,6 +145,10 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private String password;
 
     @Basic
+    @Column(name = "PRIVATEKEY")
+    private String privateKey;
+
+    @Basic
     @Column(name = "STATE")
     private Integer state;
 
@@ -168,7 +178,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
 
     @Basic
     @Column(name = "DEFAULTPUBSERVER")
-    private String defaultPubServer;
+    private Long defaultPubServer;
 
     @Basic
     @Column(name = "DEFAULTFILEEXTENTION")
@@ -195,6 +205,60 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private String is_canonical_replace;
 
     @Basic
+    @Column(name = "SITE_ADDITIONAL_HEAD")
+    private String siteAdditionalHeadContent;
+
+    @Basic
+    @Column(name = "SITE_BEFORE_BODY_CLOSE")
+    private String siteBeforeBodyCloseContent;
+
+    @Basic
+    @Column(name = "SITE_AFTER_BODY_OPEN")
+    private String siteAfterBodyOpenContent;
+
+    @Basic
+    @Column(name = "LOGINPAGE")
+    private String loginPage;
+
+    @Basic
+    @Column(name = "REGISTRATIONPAGE")
+    private String registrationPage;
+
+    @Basic
+    @Column(name = "REGISTRATION_CONFIRMATION_PAGE")
+    private String registrationConfirmationPage;
+
+    @Basic
+    @Column(name = "RESET_PAGE")
+    private String resetPage;
+
+    @Basic
+    @Column(name = "RESET_REQUEST_PASSWORD_PAGE")
+    private String resetRequestPasswordPage;
+
+    @Version
+    @Column(name = "VERSION")
+    private Integer version;
+
+    /**
+     * Get the entity version used for optimistic locking.
+     * @return the version or null if not set
+     */
+    public Integer getVersion()
+    {
+        return version;
+    }
+
+    /**
+     * Set the version for this site (used by persistence frameworks).
+     * @param version the version number
+     */
+    public void setVersion(Integer version)
+    {
+        this.version = version;
+    }
+
+    @Basic
     @Column(name = "GENERATESITEMAP")
     private String generateSiteMap;
 
@@ -206,9 +270,17 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     @Column(name = "MOBILEPREVIEWENABLED")
     private Boolean mobilePreviewEnabled;
 
-    @Version
-    @Column(name = "VERSION")
-    private Integer version;
+    @Basic
+    @Column(name = "OVERRIDE_SYSTEM_JQUERY")
+    private Boolean overrideSystemJQuery;
+
+    @Basic
+    @Column(name = "OVERRIDE_SYSTEM_FOUNDATION")
+    private Boolean overrideSystemFoundation;
+
+    @Basic
+    @Column(name = "OVERRIDE_SYSTEM_JQUERYUI")
+    private Boolean overrideSystemJQueryUI;
 
     @ManyToMany(targetEntity = PSAssemblyTemplate.class, fetch = FetchType.LAZY)
     @JoinTable(name = "PSX_VARIANT_SITE",
@@ -218,6 +290,14 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<IPSAssemblyTemplate> templates = new HashSet<>();
 
+    @Basic
+    @Column(name = "UNPUBLISHFLAGS")
+    private String unpublishFlags;
+
+    @Basic
+    @Column(name = "IS_PAGE_BASED")
+    private Boolean pageBased;
+
     @OneToMany(targetEntity = PSSiteProperty.class,
             cascade = {CascadeType.ALL},
             fetch = FetchType.EAGER,
@@ -226,6 +306,14 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     @Fetch(FetchMode.SUBSELECT)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<PSSiteProperty> properties = new HashSet<>();
+
+    /**
+     * Get site properties as a set, never null.
+     * @return set of properties, may be empty
+     */
+    public Set<PSSiteProperty> getProperties() {
+        return properties == null ? Collections.emptySet() : properties;
+    }
 
     /**
      * Default constructor.
@@ -308,7 +396,6 @@ public class PSSite implements IPSSite, IPSCatalogItem {
         return siteId;
     }
 
-    @Override
     public void setSiteId(Long siteId) {
         this.siteId = siteId;
     }
@@ -319,8 +406,26 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    public String getLabel() {
+        // Default label is the site name; return empty string if name is missing
+        return Optional.ofNullable(name)
+                .filter(n -> !n.trim().isEmpty())
+                .orElse("");
+    }
+
+    @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public void setPreviousName(String previousName) {
+        this.previousName = previousName;
+    }
+
+    @Override
+    public String getPreviousName() {
+        return previousName;
     }
 
     @Override
@@ -344,6 +449,16 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    @Override
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    @Override
     public String getFolderRoot() {
         return folderRoot;
     }
@@ -354,15 +469,63 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Override
-    public Collection<IPSAssemblyTemplate> getAssociatedTemplates() {
-        return new HashSet<>(templates);
+    public String getGlobalTemplate() {
+        return globalTemplate;
     }
 
     @Override
-    public void setAssociatedTemplates(Collection<IPSAssemblyTemplate> templates) {
+    public void setGlobalTemplate(String globalTemplate) {
+        this.globalTemplate = globalTemplate;
+    }
+
+    @Override
+    public Integer getPort() {
+        return port;
+    }
+
+    @Override
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    @Override
+    public String getRoot() {
+        return root;
+    }
+
+    @Override
+    public void setRoot(String root) {
+        this.root = root;
+    }
+
+    @Override
+    public Set<IPSAssemblyTemplate> getAssociatedTemplates() {
+        return new HashSet<>(templates);
+    }
+
+    public void setAssociatedTemplates(Set<IPSAssemblyTemplate> templates) {
         this.templates = Optional.ofNullable(templates)
-                .map(HashSet::new)
-                .orElse(new HashSet<>());
+            .orElse(Collections.emptySet());
+    }
+
+    @Override
+    public Long getDefaultPubServer() {
+        return defaultPubServer;
+    }
+
+    @Override
+    public void setDefaultPubServer(Long defaultPubServer) {
+        this.defaultPubServer = defaultPubServer;
+    }
+
+    @Override
+    public String getDefaultFileExtension() {
+        return defaultFileExtention;
+    }
+
+    @Override
+    public void setDefaultFileExtension(String defaultFileExtension) {
+        this.defaultFileExtention = defaultFileExtension;
     }
 
     /**
@@ -384,25 +547,34 @@ public class PSSite implements IPSSite, IPSCatalogItem {
      * Enhanced property management using Java 11 patterns
      */
     @Override
-    public void setProperty(String name, IPSGuid contextId, String value) {
+    public PSSiteProperty setProperty(String name, IPSGuid contextId, String value) {
         Objects.requireNonNull(name, "name cannot be null");
         Objects.requireNonNull(contextId, "contextId cannot be null");
 
-        // Remove existing property with same name and context
-        properties.removeIf(prop ->
-                Objects.equals(prop.getName(), name) &&
-                        Objects.equals(prop.getContextId(), contextId)
-        );
+        // Look for an existing property
+        PSSiteProperty prop = properties.stream()
+                .filter(p -> Objects.equals(p.getName(), name)
+                        && Objects.equals(p.getContextId(), contextId))
+                .findFirst()
+                .orElse(null);
 
-        // Add new property if value is not blank
-        if (StringUtils.isNotBlank(value)) {
-            var property = new PSSiteProperty();
-            property.setName(name);
-            property.setContextId(contextId);
-            property.setValue(value);
-            property.setSiteId(siteId);
-            properties.add(property);
+        if (StringUtils.isBlank(value)) {
+            if (prop != null) {
+                properties.remove(prop);
+            }
+            return null;
         }
+
+        if (prop == null) {
+            prop = new PSSiteProperty();
+            prop.setPropertyId(PSGuidHelper.generateNextLong(PSTypeEnum.SITE_PROPERTY));
+            prop.setContextId(contextId);
+            prop.setName(name);
+            prop.setSite(this);
+            properties.add(prop);
+        }
+        prop.setValue(value);
+        return prop;
     }
 
     @Override
@@ -416,6 +588,25 @@ public class PSSite implements IPSSite, IPSCatalogItem {
                 .map(PSSiteProperty::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public Set<String> getPropertyNames(IPSGuid contextId) {
+        Objects.requireNonNull(contextId, "contextId cannot be null");
+        var names = new HashSet<String>();
+        for (PSSiteProperty prop : properties) {
+            if (Objects.equals(prop.getContextId(), contextId)) {
+                names.add(prop.getName());
+            }
+        }
+        return names;
+    }
+
+    @Override
+    @Deprecated
+    public Set<String> getPropertyNames(IPSPublishingContext context) {
+        Objects.requireNonNull(context, "context cannot be null");
+        return getPropertyNames(context.getGUID());
     }
 
     public String getProperty(String propname, IPSPublishingContext context) {
@@ -499,28 +690,10 @@ public class PSSite implements IPSSite, IPSCatalogItem {
         }
     }
 
-    public PSSiteProperty setProperty(String propname, IPSGuid contextId,
-                                      String value) {
-        PSSiteProperty prop = null;
-        for (PSSiteProperty p : properties) {
-            if (p.getName().equals(propname) && p.getContextId().equals(contextId)) {
-                prop = p;
-                break;
-            }
-        }
-        if (prop == null) {
-            prop = new PSSiteProperty();
-            prop.setPropertyId(
-                    PSGuidHelper.generateNextLong(PSTypeEnum.SITE_PROPERTY));
-            prop.setContextId(contextId);
-            prop.setName(propname);
-            prop.setSite(this);
-            properties.add(prop);
-        }
-        prop.setValue(value);
-
-        return prop;
-    }
+    /* Removed duplicate method - consolidated into the IPSSite-matching
+     * implementation above which returns a PSSiteProperty and handles
+     * find-or-create semantics consistently.
+     */
 
     /* (non-Javadoc)
      * @see com.percussion.services.sitemgr.IPSSite#removeProperty(java.lang.String, com.percussion.services.sitemgr.IPSPublishingContext)
@@ -538,6 +711,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
         }
     }
 
+    @Override
     public PSSiteProperty setProperty(String propname,
                                       IPSPublishingContext context, String value) {
         return setProperty(propname, context.getGUID(), value);
@@ -545,6 +719,126 @@ public class PSSite implements IPSSite, IPSCatalogItem {
 
     public void removeProperty(String propname, IPSPublishingContext context) {
         removeProperty(propname, context.getGUID());
+    }
+
+    @Override
+    public String getSiteAdditionalHeadContent() {
+        return siteAdditionalHeadContent;
+    }
+
+    @Override
+    public void setSiteAdditionalHeadContent(String siteAdditionalHeadContent) {
+        this.siteAdditionalHeadContent = siteAdditionalHeadContent;
+    }
+
+    @Override
+    public String getSiteBeforeBodyCloseContent() {
+        return siteBeforeBodyCloseContent;
+    }
+
+    @Override
+    public void setSiteBeforeBodyCloseContent(String siteBeforeBodyCloseContent) {
+        this.siteBeforeBodyCloseContent = siteBeforeBodyCloseContent;
+    }
+
+    @Override
+    public String getSiteAfterBodyOpenContent() {
+        return siteAfterBodyOpenContent;
+    }
+
+    @Override
+    public void setSiteAfterBodyOpenContent(String siteAfterBodyOpenContent) {
+        this.siteAfterBodyOpenContent = siteAfterBodyOpenContent;
+    }
+
+    @Override
+    public String getLoginPage() {
+        return loginPage;
+    }
+
+    @Override
+    public void setLoginPage(String loginPage) {
+        this.loginPage = loginPage;
+    }
+
+    @Override
+    public String getRegistrationPage() {
+        return registrationPage;
+    }
+
+    @Override
+    public void setRegistrationPage(String registrationPage) {
+        this.registrationPage = registrationPage;
+    }
+
+    @Override
+    public String getRegistrationConfirmationPage() {
+        return registrationConfirmationPage;
+    }
+
+    @Override
+    public void setRegistrationConfirmationPage(String registrationConfirmationPage) {
+        this.registrationConfirmationPage = registrationConfirmationPage;
+    }
+
+    @Override
+    public String getResetPage() {
+        return resetPage;
+    }
+
+    @Override
+    public void setResetPage(String resetPage) {
+        this.resetPage = resetPage;
+    }
+
+    @Override
+    public String getResetRequestPasswordPage() {
+        return resetRequestPasswordPage;
+    }
+
+    @Override
+    public void setResetRequestPasswordPage(String resetRequestPasswordPage) {
+        this.resetRequestPasswordPage = resetRequestPasswordPage;
+    }
+
+    @Override
+    public String getUserId() {
+        return userId;
+    }
+
+    @Override
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String getPrivateKey() {
+        return this.privateKey;
+    }
+
+    @Override
+    public void setNavTheme(String navTheme) {
+        this.navTheme = navTheme;
+    }
+
+    @Override
+    public String getNavTheme() {
+        return this.navTheme;
+    }
+
+    @Override
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
     }
 
     public String getUnpublishFlags() {
@@ -556,6 +850,158 @@ public class PSSite implements IPSSite, IPSCatalogItem {
             throw new IllegalArgumentException("flags may not be null or empty.");
 
         unpublishFlags = flags;
+    }
+
+    @Override
+    public boolean isMobilePreviewEnabled() {
+        return Boolean.TRUE.equals(mobilePreviewEnabled);
+    }
+
+    @Override
+    public void setMobilePreviewEnabled(boolean mobilePreviewEnabled) {
+        this.mobilePreviewEnabled = mobilePreviewEnabled;
+    }
+
+    @Override
+    public boolean isOverrideSystemJQuery() {
+        return Boolean.TRUE.equals(overrideSystemJQuery);
+    }
+
+    @Override
+    public void setOverrideSystemJQuery(boolean overrideSystemJQuery) {
+        this.overrideSystemJQuery = overrideSystemJQuery;
+    }
+
+    @Override
+    public boolean isOverrideSystemFoundation() {
+        return Boolean.TRUE.equals(overrideSystemFoundation);
+    }
+
+    @Override
+    public void setOverrideSystemFoundation(boolean overrideSystemFoundation) {
+        this.overrideSystemFoundation = overrideSystemFoundation;
+    }
+
+    @Override
+    public boolean isOverrideSystemJQueryUI() {
+        return Boolean.TRUE.equals(overrideSystemJQueryUI);
+    }
+
+    @Override
+    public void setOverrideSystemJQueryUI(boolean overrideSystemJQueryUI) {
+        this.overrideSystemJQueryUI = overrideSystemJQueryUI;
+    }
+
+    @Override
+    public boolean isPageBased() {
+        return Boolean.TRUE.equals(pageBased);
+    }
+
+    @Override
+    public void setPageBased(boolean pageBasedSite) {
+        this.pageBased = pageBasedSite;
+    }
+
+    @Override
+    public boolean isSecure() {
+        return "true".equalsIgnoreCase(is_secure);
+    }
+
+    @Override
+    public void setSecure(boolean isSecure) {
+        this.is_secure = Boolean.toString(isSecure);
+    }
+
+    @Override
+    public boolean isCanonical() {
+        return "true".equalsIgnoreCase(is_canonical);
+    }
+
+    @Override
+    public void setCanonical(boolean isCanonical) {
+        this.is_canonical = Boolean.toString(isCanonical);
+    }
+
+    @Override
+    public boolean isCanonicalReplace() {
+        return "true".equalsIgnoreCase(is_canonical_replace);
+    }
+
+    @Override
+    public void setAllowedNamespaces(String allowedNamespaces) {
+        this.allowedNamespaces = allowedNamespaces;
+    }
+
+    @Override
+    public String getAllowedNamespaces() {
+        return allowedNamespaces;
+    }
+
+    @Override
+    public void setCanonicalReplace(boolean isCanonicalReplace) {
+        this.is_canonical_replace = Boolean.toString(isCanonicalReplace);
+    }
+
+    @Override
+    public String getCanonicalDist() {
+        return canonicalDist;
+    }
+
+    @Override
+    public void setCanonicalDist(String canonicalDist) {
+        this.canonicalDist = canonicalDist;
+    }
+
+    @Override
+    public String getDefaultDocument() {
+        return defaultDocument;
+    }
+
+    @Override
+    public void setDefaultDocument(String defaultDocument) {
+        this.defaultDocument = defaultDocument;
+    }
+
+    @Override
+    public void setGenerateSitemap(boolean generateSitemap) {
+        this.generateSiteMap = Boolean.toString(generateSitemap);
+    }
+
+    @Override
+    public boolean isGenerateSitemap() {
+        return "true".equalsIgnoreCase(this.generateSiteMap) || Boolean.parseBoolean(this.generateSiteMap);
+    }
+
+    @Override
+    @Deprecated
+    public Integer getState() {
+        return this.state;
+    }
+
+    @Override
+    @Deprecated
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
+    @Override
+    public void setGenerateSiteMapOptions(String generateSiteMapOptions) {
+        this.generateSiteMapOptions = generateSiteMapOptions;
+    }
+
+    @Override
+    public String getGenerateSiteMapOptions() {
+        return this.generateSiteMapOptions;
+    }
+
+    @Override
+    public void setSiteProtocol(String siteProtocol) {
+        this.siteProtocol = siteProtocol;
+    }
+
+    @Override
+    public String getSiteProtocol() {
+        return this.siteProtocol;
     }
 
     @Override
@@ -579,5 +1025,81 @@ public class PSSite implements IPSSite, IPSCatalogItem {
                 .append("name", name)
                 .append("description", description)
                 .toString();
+    }
+
+    // XML serialization constants
+    public static final String XML_NODE_NAME = "PSXSite";
+
+    // private XML constants
+    private static final String NAME_ATTR = "name";
+    private static final String DESCRIPTION_ATTR = "description";
+    private static final String BASEURL_ATTR = "baseUrl";
+    private static final String ROOT_ATTR = "root";
+    private static final String IPADDRESS_ATTR = "ipAddress";
+    private static final String PORT_ATTR = "port";
+    private static final String FOLDERROOT_ATTR = "folderRoot";
+    private static final String NAVTHEME_ATTR = "navTheme";
+    private static final String GLOBALTEMPLATE_ATTR = "globalTemplate";
+    private static final String IS_PAGE_BASED_ATTR = "isPageBased";
+
+    @Override
+    public void fromXML(String xmlsource) throws IOException, SAXException, PSInvalidXmlException {
+        if (xmlsource == null || xmlsource.trim().isEmpty()) {
+            throw new IllegalArgumentException("xmlsource may not be null or empty");
+        }
+
+        Reader r = new StringReader(xmlsource);
+        Document doc = PSXmlDocumentBuilder.createXmlDocument(r, false);
+        NodeList nodes = doc.getElementsByTagName(XML_NODE_NAME);
+        if (nodes.getLength() == 0) {
+            throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, XML_NODE_NAME);
+        }
+
+        Element elem = (Element) nodes.item(0);
+
+        String nameAttr = PSXmlUtils.checkAttribute(elem, NAME_ATTR, true);
+        setName(nameAttr);
+
+        String descr = PSXmlUtils.checkAttribute(elem, DESCRIPTION_ATTR, false);
+        setDescription(descr.length() > 0 ? descr : null);
+
+        setBaseUrl(PSXmlUtils.checkAttribute(elem, BASEURL_ATTR, false));
+        setRoot(PSXmlUtils.checkAttribute(elem, ROOT_ATTR, false));
+        setIpAddress(PSXmlUtils.checkAttribute(elem, IPADDRESS_ATTR, false));
+        String portAttr = PSXmlUtils.checkAttribute(elem, PORT_ATTR, false);
+        if (portAttr.length() > 0) {
+            try {
+                setPort(Integer.valueOf(portAttr));
+            } catch (NumberFormatException ignore) {
+                setPort(null);
+            }
+        }
+
+        setFolderRoot(PSXmlUtils.checkAttribute(elem, FOLDERROOT_ATTR, false));
+        setNavTheme(PSXmlUtils.checkAttribute(elem, NAVTHEME_ATTR, false));
+        setGlobalTemplate(PSXmlUtils.checkAttribute(elem, GLOBALTEMPLATE_ATTR, false));
+
+        setPageBased(Boolean.parseBoolean(PSXmlUtils.checkAttribute(elem, IS_PAGE_BASED_ATTR, false)));
+    }
+
+    @Override
+    public String toXML() throws IOException, SAXException {
+        Document doc = PSXmlDocumentBuilder.createXmlDocument();
+        Element root = doc.createElement(XML_NODE_NAME);
+
+        root.setAttribute(NAME_ATTR, getName());
+        if (getDescription() != null) root.setAttribute(DESCRIPTION_ATTR, getDescription());
+        if (getBaseUrl() != null) root.setAttribute(BASEURL_ATTR, getBaseUrl());
+        if (getRoot() != null) root.setAttribute(ROOT_ATTR, getRoot());
+        if (getIpAddress() != null) root.setAttribute(IPADDRESS_ATTR, getIpAddress());
+        if (getPort() != null) root.setAttribute(PORT_ATTR, String.valueOf(getPort()));
+        if (getFolderRoot() != null) root.setAttribute(FOLDERROOT_ATTR, getFolderRoot());
+        if (getNavTheme() != null) root.setAttribute(NAVTHEME_ATTR, getNavTheme());
+        if (getGlobalTemplate() != null) root.setAttribute(GLOBALTEMPLATE_ATTR, getGlobalTemplate());
+
+        root.setAttribute(IS_PAGE_BASED_ATTR, Boolean.toString(isPageBased()));
+
+        doc.appendChild(root);
+        return PSXmlDocumentBuilder.toString(doc);
     }
 }

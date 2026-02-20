@@ -22,7 +22,7 @@
  */
 package test.percussion.pso.preview;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
@@ -48,7 +48,7 @@ import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -71,7 +71,7 @@ public class SiteFolderFinderImplTest {
   /**
    * @throws Exception
    */
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     context =
         new Mockery() {

@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -31,11 +31,11 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Test tracker.
- * 
+ *
  * @author dougrand
  */
 @TestMethodOrder(MethodName.class)
-public class PSTrackAssemblyErrorsTest extends TestCase
+public class PSTrackAssemblyErrorsTest
 {
 
    private static final Logger log = LogManager.getLogger(PSTrackAssemblyErrorsTest.class);
@@ -44,26 +44,26 @@ public class PSTrackAssemblyErrorsTest extends TestCase
     * Dummy result value
     */
    private static final String RESULT = "<span>OK, good to go</span>";
-   
+
    /**
     * Test 1 result data.
     */
-   private static final String TEST1 = 
+   private static final String TEST1 =
       "<html><head><title>Error in assembly</title></head><body>" +
-      "<table border=\'0\'><tr><th>Description</th><th>Exception</th></tr>\n" + 
-      "<tr><td>Problem</td><td></td></tr>\n" + 
+      "<table border=\'0\'><tr><th>Description</th><th>Exception</th></tr>\n" +
+      "<tr><td>Problem</td><td></td></tr>\n" +
       "</table></body></html>";
-   
+
    /**
     * Test 2 result data.
     */
-   private static final String TEST2 = 
+   private static final String TEST2 =
       "<html><head><title>Error in assembly</title></head><body>" +
-      "<table border=\'0\'><tr><th>Description</th><th>Exception</th></tr>\n" + 
-      "<tr><td>Problem 1</td><td></td></tr>\n" + 
+      "<table border=\'0\'><tr><th>Description</th><th>Exception</th></tr>\n" +
+      "<tr><td>Problem 1</td><td></td></tr>\n" +
       "<tr><td>Problem 2</td><td>java.lang.Exception: An exception</td></tr>\n" +
-      "</table></body></html>";   
-   
+      "</table></body></html>";
+
    /**
     * Encoding
     */
@@ -80,7 +80,7 @@ public class PSTrackAssemblyErrorsTest extends TestCase
       PSTrackAssemblyError.handleItem(test);
       checkResult(RESULT, "text/xhtml;charset=utf8", test);
    }
-   
+
    /**
     * Test single problem case.
     */
@@ -92,7 +92,7 @@ public class PSTrackAssemblyErrorsTest extends TestCase
       PSTrackAssemblyError.handleItem(test);
       checkResult(TEST1, "text/html;charset=utf8", test);
    }
-   
+
    /**
     * Test two problem case.
     */
@@ -100,18 +100,18 @@ public class PSTrackAssemblyErrorsTest extends TestCase
    public void test30TwoAssemblyCase() throws IOException {
       PSTrackAssemblyError.init();
       PSTrackAssemblyError.addProblem("Problem 1");
-      PSTrackAssemblyError.addProblem("Problem 2", 
+      PSTrackAssemblyError.addProblem("Problem 2",
             new Exception("An exception"));
       PSAssemblyWorkItem test = createItem();
       PSTrackAssemblyError.handleItem(test);
       checkResult(TEST2, "text/html;charset=utf8", test);
-   }   
+   }
 
    /**
     * Check that the result data matches.
     * @param expected
     * @param expectedMimeType
-    * @param item 
+    * @param item
     */
    private void checkResult(String expected, String expectedMimeType, PSAssemblyWorkItem item)
    {

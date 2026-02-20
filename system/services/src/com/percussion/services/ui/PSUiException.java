@@ -237,4 +237,9 @@ public class PSUiException extends PSBaseException {
 
       return sb.toString();
    }
+
+   @Override
+   protected String getResourceBundleBaseName() {
+      return "com.percussion.services.ui.PSUiErrorStringBundle";
+   }
 }

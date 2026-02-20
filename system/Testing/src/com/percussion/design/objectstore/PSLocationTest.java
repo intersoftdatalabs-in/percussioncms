@@ -19,14 +19,16 @@ package com.percussion.design.objectstore;
 import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import static com.percussion.design.objectstore.PSLocation.*;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 
-public class PSLocationTest extends TestCase
+public class PSLocationTest 
 {
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   
    public void testEqualsHashCode()
    {
       final PSLocation location1 = new PSLocation();

@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<!--
-This is the default merge configuration file is used by Percussion Language Tool
-to merge two TMX documents.
-<!DOCTYPE tmxmergeconfig SYSTEM "tmxmergeconfig.dtd">
--->
+<!-- This is the default merge configuration file is used by Percussion Language
+	Tool to merge two TMX documents. <!DOCTYPE tmxmergeconfig SYSTEM "tmxmergeconfig.dtd"> -->
 <tmxmergeconfig>
 	<tu>
 		<config>
@@ -43,11 +40,11 @@ to merge two TMX documents.
 			</config>
 		</prop>
 		<tuv>
-		<!-- The following settings are ignored by virtue of settings for tu element -->
+			<!-- The following settings are ignored by virtue of settings for tu element -->
 			<config>
 				<param name="deleteifexists">no</param>
-				<!-- While tuv is replaced from the translated one. So configuration setting
-				for the child elements for tuv have no meaning -->
+				<!-- While tuv is replaced from the translated one. So configuration
+					setting for the child elements for tuv have no meaning -->
 				<param name="replaceifexists">yes</param>
 				<param name="modifyifexists">no</param>
 				<param name="ignoreifexists">no</param>

@@ -17,7 +17,7 @@
 
 package com.percussion.rest.contenttypes;
 
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,13 +26,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import javax.validation.Valid;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean(value = "restContentTypesResource")

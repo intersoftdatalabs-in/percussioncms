@@ -71,6 +71,28 @@ To ensure Maven uses JDK 21, use the provided environment setup scripts instead 
 
 If `JAVA_HOME_21` is not set or invalid, the script will display an error message with setup instructions.
 
+Editor / IDE tip: To avoid your IDE (for example, VS Code) writing build outputs into Maven's `target/` directory and causing conflicts with command-line builds, add the following to your local `.vscode/settings.json` (the repository ignores `.vscode/`):
+
+```json
+{
+  "java.autobuild.enabled": false,
+  "files.watcherExclude": {
+    "**/target/**": true,
+    "**/.git/**": true
+  },
+  "files.exclude": {
+    "**/target": true,
+    "**/.vscode/out": true
+  },
+  "search.exclude": {
+    "**/target": true
+  },
+  "java.project.outputPath": ".vscode/out"
+}
+```
+
+These settings disable automatic Java builds, exclude `target/` from file watchers and search, and optionally direct VS Code output to `.vscode/out` to avoid collisions with Maven's `target/`.
+
 ## Interested in Contributing?
 
 Check out our [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md) for more information.

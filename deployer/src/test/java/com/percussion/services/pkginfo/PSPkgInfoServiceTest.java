@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test case for the {@link IPSPkgInfoService} class. */
-@Tag("IntegrationTest")
+
 public class PSPkgInfoServiceTest {
 
   // Constants for testing (tc)

@@ -19,12 +19,14 @@ package com.percussion.rx.admin.jsf.nodes;
 import com.percussion.services.schedule.data.PSNotificationTemplate;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSTaskNotificationNodeTest extends TestCase
+public class PSTaskNotificationNodeTest 
 {
+   
    public void testDummy()
    {
       //Added a dummy test remove it after fixing the actual test

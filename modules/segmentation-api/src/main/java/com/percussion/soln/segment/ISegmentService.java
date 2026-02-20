@@ -19,7 +19,7 @@ package com.percussion.soln.segment;
 
 import java.util.List;
 
-import javax.jws.WebService;
+import jakarta.jws.WebService;
 
 
 /**

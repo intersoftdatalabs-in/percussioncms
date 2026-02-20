@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Tag;
  * Base class for config service tests which apply configurations. Disables package element version
  * updates on setup and re-enables updates on teardown.
  */
-@Tag("IntegrationTest")
+
 public abstract class PSConfigurationTest extends ServletTestCase {
   @Override
   protected void setUp() throws Exception {

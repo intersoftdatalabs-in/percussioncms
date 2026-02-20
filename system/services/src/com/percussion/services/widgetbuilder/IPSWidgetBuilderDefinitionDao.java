@@ -17,7 +17,7 @@
 
 package com.percussion.services.widgetbuilder;
 
-import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 
 import java.util.Collection;
 import java.util.List;
@@ -39,26 +39,28 @@ public interface IPSWidgetBuilderDefinitionDao {
      *
      * @param definition the widget builder definition to save, never null
      * @return the saved widget builder definition, never null
-     * @throws IPSGenericDao.SaveException if there's an error saving the definition
+     * @throws PSDataServiceException if there's an error saving the definition
      * @throws IllegalArgumentException if definition is null
      */
-    PSWidgetBuilderDefinition save(PSWidgetBuilderDefinition definition) throws IPSGenericDao.SaveException;
-    
+    PSWidgetBuilderDefinition save(PSWidgetBuilderDefinition definition) throws PSDataServiceException;
+
     /**
      * Saves multiple widget builder definitions efficiently.
      *
      * @param definitions the collection of definitions to save, never null
      * @return list of saved definitions in the same order, never null
-     * @throws IPSGenericDao.SaveException if there's an error saving any definition
+     * @throws PSDataServiceException if there's an error saving any definition
      * @throws IllegalArgumentException if definitions is null or contains null elements
      */
     default List<PSWidgetBuilderDefinition> saveAll(Collection<PSWidgetBuilderDefinition> definitions)
-            throws IPSGenericDao.SaveException {
+            throws PSDataServiceException {
         Objects.requireNonNull(definitions, "Definitions collection cannot be null");
-        return definitions.stream()
-            .peek(def -> Objects.requireNonNull(def, "Definition cannot be null"))
-            .map(this::save)
-            .collect(java.util.stream.Collectors.toList());
+        List<PSWidgetBuilderDefinition> results = new java.util.ArrayList<>();
+        for (PSWidgetBuilderDefinition def : definitions) {
+            Objects.requireNonNull(def, "Definition cannot be null");
+            results.add(save(def));
+        }
+        return java.util.Collections.unmodifiableList(results);
     }
 
     /**
@@ -105,7 +107,7 @@ public interface IPSWidgetBuilderDefinitionDao {
      * @throws IllegalArgumentException if definitionId is negative
      */
     void delete(long definitionId);
-    
+
     /**
      * Deletes multiple widget builder definitions efficiently.
      *

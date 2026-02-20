@@ -64,7 +64,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(MockitoExtension.class)
 @Disabled
-@Tag("IntegrationTest")
+
 public class PSPageServiceValidationTest {
 
   private Mockery context = new JUnit4Mockery();

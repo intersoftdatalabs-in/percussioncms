@@ -20,6 +20,7 @@ package com.percussion.design.objectstore;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -32,15 +33,12 @@ import java.util.Iterator;
  * checking w/ simple global subject classes.  Also includes
  * testing of accessor methods
  */
-public class PSGlobalSubjectTest extends TestCase
+public class PSGlobalSubjectTest 
 {
    /**
     * @see TestCase#TestCase(String)
     */
-   public PSGlobalSubjectTest(String name)
-   {
-      super(name);
-   }
+   
 
    // see super class
    public void setUp()
@@ -103,6 +101,7 @@ public class PSGlobalSubjectTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testEmptyEquals() throws Exception
    {
       PSGlobalSubject sub = new PSGlobalSubject();
@@ -117,6 +116,7 @@ public class PSGlobalSubjectTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testNameTypeConstructor() throws Exception
    {
       PSGlobalSubject sub =
@@ -191,6 +191,7 @@ public class PSGlobalSubjectTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testIllegalAccessorCalls() throws Exception
    {
       PSGlobalSubject sub = new PSGlobalSubject();
@@ -239,6 +240,7 @@ public class PSGlobalSubjectTest extends TestCase
     *
     * @throws Exception If any exceptions occur or assertions fail.
     */
+   
    public void testXml() throws Exception
    {
       PSGlobalSubject sub = new PSGlobalSubject();
@@ -247,7 +249,7 @@ public class PSGlobalSubjectTest extends TestCase
 
       // block 1
       sub.setName("foobar");
-      assertTrue(!testGlobalSubjectEquals(sub,otherSub));
+      assertFalse(testGlobalSubjectEquals(sub,otherSub));
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element el = sub.toXml(doc);
@@ -258,7 +260,7 @@ public class PSGlobalSubjectTest extends TestCase
 
       // set a name and verify to/from loop
       sub.setName("taebo");
-      assertTrue(!testGlobalSubjectEquals(sub,otherSub));
+      assertFalse(testGlobalSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -269,7 +271,7 @@ public class PSGlobalSubjectTest extends TestCase
 
       // Add an empty att and verify to/from loop
       sub.getAttributes().add( new PSAttribute("att1") );
-      assertTrue(!testGlobalSubjectEquals(sub,otherSub));
+      assertFalse(testGlobalSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -280,7 +282,7 @@ public class PSGlobalSubjectTest extends TestCase
 
       // Add a second att and verify to/from loop
       sub.getAttributes().add( new PSAttribute("att2") );
-      assertTrue(!testGlobalSubjectEquals(sub,otherSub));
+      assertFalse(testGlobalSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -298,7 +300,7 @@ public class PSGlobalSubjectTest extends TestCase
       att.setValues(l);
       sub.getAttributes().add(att);
 
-      assertTrue(!testGlobalSubjectEquals(sub,otherSub));
+      assertFalse(testGlobalSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -309,7 +311,7 @@ public class PSGlobalSubjectTest extends TestCase
 
       // Remove att and verify to/from loop
       sub.getAttributes().removeElementAt(0);
-      assertTrue(!testGlobalSubjectEquals(sub,otherSub));
+      assertFalse(testGlobalSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -320,7 +322,7 @@ public class PSGlobalSubjectTest extends TestCase
 
       // Remove last att and verify to/from loop
       sub.getAttributes().removeElementAt(0);
-      assertTrue(!testGlobalSubjectEquals(sub,otherSub));
+      assertFalse(testGlobalSubjectEquals(sub,otherSub));
 
       doc = PSXmlDocumentBuilder.createXmlDocument();
       el = sub.toXml(doc);
@@ -335,14 +337,6 @@ public class PSGlobalSubjectTest extends TestCase
     *
     * @return The suite of tests for this class, not <code>null</code>.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSGlobalSubjectTest("testEmptyEquals"));
-      suite.addTest(new PSGlobalSubjectTest("testNameTypeConstructor"));
-      suite.addTest(new PSGlobalSubjectTest("testIllegalAccessorCalls"));
-      suite.addTest(new PSGlobalSubjectTest("testXml"));
-      return suite;
-   }
+   
 }
 

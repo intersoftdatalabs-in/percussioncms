@@ -32,25 +32,25 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,6 +72,10 @@ public class FoldersResource {
   private final IFolderAdaptor folderAdaptor;
 
   @Context private UriInfo uriInfo;
+
+  /* package */ void setUriInfo(UriInfo ui) {
+    this.uriInfo = ui;
+  }
 
   @Autowired
   public FoldersResource(IFolderAdaptor adaptor) {
@@ -205,9 +209,9 @@ public class FoldersResource {
         folderName = StringUtils.defaultString(m.group(5));
       }
 
-      String objectName = folder.getName();
-      String objectPath = folder.getPath();
-      String objectSite = folder.getSiteName();
+      String objectName = folder.getName().orElse(null);
+      String objectPath = folder.getPath().orElse(null);
+      String objectSite = folder.getSiteName().orElse(null);
 
       if (objectName != null && !objectName.equals(folderName)) {
         throw new LocationMismatchException();
@@ -217,7 +221,7 @@ public class FoldersResource {
         throw new LocationMismatchException();
       }
       folder.setName(folderName);
-      folder.setPath(folder.getPath());
+      folder.setPath(folder.getPath().orElse(null));
       folder.setSiteName(siteName);
 
       folder = folderAdaptor.updateFolder(uriInfo.getBaseUri(), folder);
@@ -364,7 +368,7 @@ public class FoldersResource {
   public Status moveFolderItem(MoveFolderItem moveRequest) {
     try {
       folderAdaptor.moveFolderItem(
-          uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
+            uriInfo.getBaseUri(), moveRequest.getItemPath().orElse(null), moveRequest.getTargetFolderPath().orElse(null));
       return new Status("Moved OK");
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -398,7 +402,7 @@ public class FoldersResource {
   public Status moveFolder(MoveFolderItem moveRequest) {
     try {
       folderAdaptor.moveFolderItem(
-          uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
+            uriInfo.getBaseUri(), moveRequest.getItemPath().orElse(null), moveRequest.getTargetFolderPath().orElse(null));
       return new Status("Moved OK");
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -433,7 +437,7 @@ public class FoldersResource {
   public Status copyFolderItem(CopyFolderItemRequest request) {
     try {
       folderAdaptor.copyFolderItem(
-          uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
+            uriInfo.getBaseUri(), request.getItemPath().orElse(null), request.getTargetFolderPath().orElse(null));
       return new Status(200, "Copied OK");
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -467,7 +471,7 @@ public class FoldersResource {
   public Status copyFolder(CopyFolderItemRequest request) {
     try {
       folderAdaptor.copyFolder(
-          uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
+            uriInfo.getBaseUri(), request.getItemPath().orElse(null), request.getTargetFolderPath().orElse(null));
       return new Status(200, "Copied OK");
     } catch (NotFoundException nfe) {
       return new Status(404, "Not Found");

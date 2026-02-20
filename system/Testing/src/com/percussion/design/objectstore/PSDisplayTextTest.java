@@ -25,16 +25,13 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSDisplayTextTest extends TestCase
+public class PSDisplayTextTest
 {
-   public PSDisplayTextTest(String name)
-   {
-      super(name);
-   }
-
+   @Test
    public void testEquals() throws Exception
    {
       PSDisplayText AAA = new PSDisplayText("AAA");
@@ -42,10 +39,10 @@ public class PSDisplayTextTest extends TestCase
       PSDisplayText aaa = new PSDisplayText("aaa");
       PSDisplayText BBB = new PSDisplayText("BBB");
 
-      assertTrue(AAA.equals(AAA_2));
-      assertTrue(!AAA.equals(aaa));
-      assertTrue(!AAA.equals(BBB));
-      
+      assertEquals(AAA, AAA_2);
+      assertFalse(AAA.equals(aaa));
+      assertFalse(AAA.equals(BBB));
+
       PSReflectionHelper.testEquals(AAA, AAA_2, new IPSReflectionFilter() {
          public boolean acceptMethod(String methodname)
          {
@@ -54,6 +51,7 @@ public class PSDisplayTextTest extends TestCase
       });
    }
 
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -66,16 +64,7 @@ public class PSDisplayTextTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSDisplayText testFrom = new PSDisplayText(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
-   }
-
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      
-      suite.addTest(new PSDisplayTextTest("testEquals"));
-      suite.addTest(new PSDisplayTextTest("testXml"));
-      
-      return suite;
+      assertEquals(testTo, testFrom);
    }
 }
+

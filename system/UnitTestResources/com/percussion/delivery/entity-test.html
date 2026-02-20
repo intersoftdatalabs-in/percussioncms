@@ -1,28 +1,37 @@
 <!DOCTYPE html>
 <html prefix="dcterms: http://purl.org/dc/terms/">
-<head>
+  <head>
     <title>Comprehensive Test</title>
-    <meta property="dcterms:title" content="Comprehensive Test Title &amp; More" />
-    <meta property="dcterms:description" content="Testing entities: &copy; &euro; &nbsp;" />
+    <meta
+      property="dcterms:title"
+      content="Comprehensive Test Title &amp; More"
+    />
+    <meta
+      property="dcterms:description"
+      content="Testing entities: &copy; &euro; &nbsp;"
+    />
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Test Site",
-      "url": "https://example.com/"
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Test Site",
+        "url": "https://example.com/"
+      }
     </script>
     <script>
-        var x = 10 && 20;
-        console.log("This script has unescaped entities & should be stripped");
+      var x = 10 && 20;
+      console.log("This script has unescaped entities & should be stripped");
     </script>
     <style>
-        body { font-family: "Arial" & "Helvetica"; }
+      body {
+        font-family: "Arial" & "Helvetica";
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div property="dcterms:abstract">
-        This is the abstract with entities: &lt; &gt; &amp; &quot; &apos; &cent; &pound; &yen; &euro; &copy; &reg;
+      This is the abstract with entities: &lt; &gt; &amp; &quot; &apos; &cent;
+      &pound; &yen; &euro; &copy; &reg;
     </div>
-</body>
+  </body>
 </html>

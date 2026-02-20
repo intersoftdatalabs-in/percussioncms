@@ -1,185 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Image Slider"
-                 contenttype_name="percImageSlider"
-                 description=" "
-                 author="Percussion Software Inc"
-                 category="content,rich media"
-                 thumbnail="/rx_resources/widgets/percImageSlider/images/percImageSliderIcon.png"
-                 preferred_editor_width="1200"
-                 preferred_editor_height="600"
-                 is_responsive="true"/>
-    <UserPref name="perc_slide_autoplay"
-              display_name="Autoplay"
-              default_value="true"
-              datatype="bool">
-    </UserPref>
-    <UserPref name="perc_show_dots"
-              display_name="Show dots"
-              default_value="true"
-              datatype="bool">
-    </UserPref>
-    <UserPref name="perc_show_arrows"
-              display_name="Show arrows"
-              default_value="true"
-              datatype="bool">
-    </UserPref>
-    <UserPref name="perc_enable_custom_arrows"
-              display_name="Enable custom arrows"
-              default_value="false"
-              datatype="bool">
-    </UserPref>
-    <UserPref name="perc_prev_arrow_class"
-              display_name="External class for previous arrow (ex: fa fa-chevron-left)"
-              default_value=""
-              datatype="string">
-    </UserPref>
-    <UserPref name="perc_next_arrow_class"
-              display_name="External class for next arrow (ex: fa fa-chevron-right)"
-              default_value=""
-              datatype="string">
-    </UserPref>
-    <UserPref name="perc_slide_fade"
-              display_name="Fade effect (1 slide at a time must be selected)"
-              default_value="false"
-              datatype="bool">
-    </UserPref>
-    <UserPref name="perc_slide_theme"
-              display_name="Theme"
-              default_value="dark"
-              datatype="enum">
-        <EnumValue value="dark" display_value="Dark" />
-        <EnumValue value="light" display_value="Light" />
-    </UserPref>
-    <UserPref name="perc_slide_layout"
-              display_name="Slider Layout (will override &quot;slides to show&quot; values)"
-              default_value="standard"
-              datatype="enum">
-        <EnumValue value="standard" display_value="Standard" />
-        <EnumValue value="navigation" display_value="Navigation" />
-    </UserPref>
-    <UserPref name="perc_thumbnail_height"
-              display_name="Thumbnail height (Navigation layout only)"
-              default_value="8vw"
-              datatype="string">
-    </UserPref>
-    <UserPref name="perc_slide_caption_tag_type"
-              display_name="Format for slide text field 1"
-              default_value="p"
-              datatype="enum">
-        <EnumValue value="p" display_value="Paragraph" />
-        <EnumValue value="h2" display_value="Heading 2" />
-        <EnumValue value="h3" display_value="Heading 3" />
-        <EnumValue value="h4" display_value="Heading 4" />
-        <EnumValue value="h5" display_value="Heading 5" />
-        <EnumValue value="h6" display_value="Heading 6" />
-    </UserPref>
-    <UserPref name="perc_slide_caption_2_tag_type"
-              display_name="Format for slide text field 2"
-              default_value="p"
-              datatype="enum">
-        <EnumValue value="p" display_value="Paragraph" />
-        <EnumValue value="h2" display_value="Heading 2" />
-        <EnumValue value="h3" display_value="Heading 3" />
-        <EnumValue value="h4" display_value="Heading 4" />
-        <EnumValue value="h5" display_value="Heading 5" />
-        <EnumValue value="h6" display_value="Heading 6" />
-    </UserPref>
-    <UserPref name="perc_slide_caption_location"
-              display_name="Slide text location"
-              default_value="above"
-              datatype="enum">
-        <EnumValue value="above" display_value="Above" />
-        <EnumValue value="over" display_value="Over" />
-        <EnumValue value="below" display_value="Below" />
-    </UserPref>
-    <UserPref name="perc_slide_caption_alignment"
-              display_name="Slide text horizontal alignment"
-              default_value="left"
-              datatype="enum">
-        <EnumValue value="left" display_value="Left" />
-        <EnumValue value="center" display_value="Center" />
-        <EnumValue value="right" display_value="Right" />
-    </UserPref>
-    <UserPref name="perc_slide_caption_vertical_alignment"
-              display_name="Slide text vertical alignment (overlay)"
-              default_value="top"
-              datatype="enum">
-        <EnumValue value="top" display_value="Top" />
-        <EnumValue value="middle" display_value="Middle" />
-        <EnumValue value="bottom" display_value="Bottom" />
-    </UserPref>
-    <UserPref name="perc_slide_image_height"
-              display_name="Slide Height"
-              default_value="250px"
-              datatype="string">
-    </UserPref>
-    <UserPref name="perc_slide_show_number_desktop"
-              display_name="Number of slides to show at a time on desktop"
-              default_value="1"
-              datatype="number">
-    </UserPref>
-    <UserPref name="perc_slide_show_number_tablet"
-              display_name="Number of slides to show at a time on tablet"
-              default_value="1"
-              datatype="number">
-    </UserPref>
-    <UserPref name="perc_slide_show_number_mobile"
-              display_name="Number of slides to show at a time on mobile"
-              default_value="1"
-              datatype="number">
-    </UserPref>
-    <UserPref name="perc_slide_scroll_number"
-              display_name="Number of slides to scroll at a time"
-              default_value="1"
-              datatype="number">
-    </UserPref>
-    <UserPref name="perc_autoplay_speed"
-              display_name="Autoplay speed (milliseconds)"
-              default_value="2000"
-              datatype="number">
-    </UserPref>
-    <UserPref name="perc_scroll_speed"
-              display_name="Scroll speed (milliseconds)"
-              default_value="500"
-              datatype="number">
-    </UserPref>
-    <UserPref name="perc_slider_tablet_breakpoint"
-              display_name="&lt;span style=&quot;font-size:125%;&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Responsive Breakpoints&lt;/b&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;Tablet"
-              default_value="1024"
-              datatype="number">
-    </UserPref>
-    <UserPref name="perc_slider_mobile_breakpoint"
-              display_name="Mobile"
-              default_value="480"
-              datatype="number">
-    </UserPref>
-    <UserPref name="perc_slide_targetblank"
-              display_name="Link Target"
-              default_value="_blank"
-              datatype="enum">
-        <EnumValue value="_blank" display_value="Blank" />
-        <EnumValue value="_self" display_value="Self" />
-        <EnumValue value="_parent" display_value="Parent" />
-        <EnumValue value="_top" display_value="Top" />
-    </UserPref>
-    <UserPref name="perc_slide_image_link"
-              display_name="Images are links"
-              default_value="true"
-              datatype="bool">
-    </UserPref>
-    <CssPref name="rootclass"
-             display_name="CSS root class"
-             datatype="string" />
-    <CssPref name="captionclass"
-             display_name="CSS image text class"
-             datatype="string" />
+	<WidgetPrefs title="Image Slider"
+		contenttype_name="percImageSlider" description=" "
+		author="Percussion Software Inc" category="content,rich media"
+		thumbnail="/rx_resources/widgets/percImageSlider/images/percImageSliderIcon.png"
+		preferred_editor_width="1200" preferred_editor_height="600"
+		is_responsive="true" />
+	<UserPref name="perc_slide_autoplay" display_name="Autoplay"
+		default_value="true" datatype="bool">
+	</UserPref>
+	<UserPref name="perc_show_dots" display_name="Show dots"
+		default_value="true" datatype="bool">
+	</UserPref>
+	<UserPref name="perc_show_arrows" display_name="Show arrows"
+		default_value="true" datatype="bool">
+	</UserPref>
+	<UserPref name="perc_enable_custom_arrows"
+		display_name="Enable custom arrows" default_value="false"
+		datatype="bool">
+	</UserPref>
+	<UserPref name="perc_prev_arrow_class"
+		display_name="External class for previous arrow (ex: fa fa-chevron-left)"
+		default_value="" datatype="string">
+	</UserPref>
+	<UserPref name="perc_next_arrow_class"
+		display_name="External class for next arrow (ex: fa fa-chevron-right)"
+		default_value="" datatype="string">
+	</UserPref>
+	<UserPref name="perc_slide_fade"
+		display_name="Fade effect (1 slide at a time must be selected)"
+		default_value="false" datatype="bool">
+	</UserPref>
+	<UserPref name="perc_slide_theme" display_name="Theme"
+		default_value="dark" datatype="enum">
+		<EnumValue value="dark" display_value="Dark" />
+		<EnumValue value="light" display_value="Light" />
+	</UserPref>
+	<UserPref name="perc_slide_layout"
+		display_name="Slider Layout (will override &quot;slides to show&quot; values)"
+		default_value="standard" datatype="enum">
+		<EnumValue value="standard" display_value="Standard" />
+		<EnumValue value="navigation" display_value="Navigation" />
+	</UserPref>
+	<UserPref name="perc_thumbnail_height"
+		display_name="Thumbnail height (Navigation layout only)"
+		default_value="8vw" datatype="string">
+	</UserPref>
+	<UserPref name="perc_slide_caption_tag_type"
+		display_name="Format for slide text field 1" default_value="p"
+		datatype="enum">
+		<EnumValue value="p" display_value="Paragraph" />
+		<EnumValue value="h2" display_value="Heading 2" />
+		<EnumValue value="h3" display_value="Heading 3" />
+		<EnumValue value="h4" display_value="Heading 4" />
+		<EnumValue value="h5" display_value="Heading 5" />
+		<EnumValue value="h6" display_value="Heading 6" />
+	</UserPref>
+	<UserPref name="perc_slide_caption_2_tag_type"
+		display_name="Format for slide text field 2" default_value="p"
+		datatype="enum">
+		<EnumValue value="p" display_value="Paragraph" />
+		<EnumValue value="h2" display_value="Heading 2" />
+		<EnumValue value="h3" display_value="Heading 3" />
+		<EnumValue value="h4" display_value="Heading 4" />
+		<EnumValue value="h5" display_value="Heading 5" />
+		<EnumValue value="h6" display_value="Heading 6" />
+	</UserPref>
+	<UserPref name="perc_slide_caption_location"
+		display_name="Slide text location" default_value="above"
+		datatype="enum">
+		<EnumValue value="above" display_value="Above" />
+		<EnumValue value="over" display_value="Over" />
+		<EnumValue value="below" display_value="Below" />
+	</UserPref>
+	<UserPref name="perc_slide_caption_alignment"
+		display_name="Slide text horizontal alignment" default_value="left"
+		datatype="enum">
+		<EnumValue value="left" display_value="Left" />
+		<EnumValue value="center" display_value="Center" />
+		<EnumValue value="right" display_value="Right" />
+	</UserPref>
+	<UserPref name="perc_slide_caption_vertical_alignment"
+		display_name="Slide text vertical alignment (overlay)"
+		default_value="top" datatype="enum">
+		<EnumValue value="top" display_value="Top" />
+		<EnumValue value="middle" display_value="Middle" />
+		<EnumValue value="bottom" display_value="Bottom" />
+	</UserPref>
+	<UserPref name="perc_slide_image_height"
+		display_name="Slide Height" default_value="250px" datatype="string">
+	</UserPref>
+	<UserPref name="perc_slide_show_number_desktop"
+		display_name="Number of slides to show at a time on desktop"
+		default_value="1" datatype="number">
+	</UserPref>
+	<UserPref name="perc_slide_show_number_tablet"
+		display_name="Number of slides to show at a time on tablet"
+		default_value="1" datatype="number">
+	</UserPref>
+	<UserPref name="perc_slide_show_number_mobile"
+		display_name="Number of slides to show at a time on mobile"
+		default_value="1" datatype="number">
+	</UserPref>
+	<UserPref name="perc_slide_scroll_number"
+		display_name="Number of slides to scroll at a time" default_value="1"
+		datatype="number">
+	</UserPref>
+	<UserPref name="perc_autoplay_speed"
+		display_name="Autoplay speed (milliseconds)" default_value="2000"
+		datatype="number">
+	</UserPref>
+	<UserPref name="perc_scroll_speed"
+		display_name="Scroll speed (milliseconds)" default_value="500"
+		datatype="number">
+	</UserPref>
+	<UserPref name="perc_slider_tablet_breakpoint"
+		display_name="&lt;span style=&quot;font-size:125%;&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Responsive Breakpoints&lt;/b&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;Tablet"
+		default_value="1024" datatype="number">
+	</UserPref>
+	<UserPref name="perc_slider_mobile_breakpoint"
+		display_name="Mobile" default_value="480" datatype="number">
+	</UserPref>
+	<UserPref name="perc_slide_targetblank"
+		display_name="Link Target" default_value="_blank" datatype="enum">
+		<EnumValue value="_blank" display_value="Blank" />
+		<EnumValue value="_self" display_value="Self" />
+		<EnumValue value="_parent" display_value="Parent" />
+		<EnumValue value="_top" display_value="Top" />
+	</UserPref>
+	<UserPref name="perc_slide_image_link"
+		display_name="Images are links" default_value="true" datatype="bool">
+	</UserPref>
+	<CssPref name="rootclass" display_name="CSS root class"
+		datatype="string" />
+	<CssPref name="captionclass"
+		display_name="CSS image text class" datatype="string" />
 
-    <!-- User prefs define input needed when in layout config for a widget -->
-    <!-- Available data types are bool, number, enum, string -->
+	<!-- User prefs define input needed when in layout config for a widget -->
+	<!-- Available data types are bool, number, enum, string -->
 
-    <Code type="jexl">
-        <!-- This section is used to set up data that will be used in the content section -->
+	<Code type="jexl">
+		<!-- This section is used to set up data that will be used in the content
+			section -->
         <![CDATA[
 
     $rootclass = $perc.widget.item.cssProperties.get('rootclass');
@@ -273,9 +235,9 @@
         }
 
     ]]>
-    </Code>
-    <Content type="velocity">
-        <!-- This section defines the rendered content -->
+	</Code>
+	<Content type="velocity">
+		<!-- This section defines the rendered content -->
         <![CDATA[
        <div class="$!rootclass">
         #if( ! $perc.widgetContents.isEmpty() )
@@ -659,5 +621,5 @@
         #end
        </div>
     ]]>
-    </Content>
+	</Content>
 </Widget>

@@ -98,7 +98,7 @@ import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
@@ -138,7 +138,7 @@ import com.percussion.webservices.ui.PSUiWsLocator;
 import com.percussion.workflow.PSWorkFlowUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.percussion.webservices.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -195,7 +195,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          name = StringUtils.replaceChars(name, '*', '%');
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
 
-      return mgr.findLocales(code, name);
+      return mgr.findLocales(code, name).collect(java.util.stream.Collectors.toList());
    }
 
    /**
@@ -221,7 +221,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    {
       IPSContentService svc = PSContentServiceLocator.getContentService();
 
-      List<PSAutoTranslation> ats = svc.loadAutoTranslations();
+      List<PSAutoTranslation> ats = svc.loadAutoTranslations(PSAutoTranslation.getAutoTranslationsGUID());
 
       // fill in names
       IPSWorkflowService service = PSWorkflowServiceLocator
@@ -4638,7 +4638,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
             community = roleMgr.loadCommunity(id);
             folder.setCommunityName(community.getName());
          }
-         catch (PSSecurityException e)
+         catch (PSServiceSecurityException e)
          {
             throw new PSErrorException(IPSWebserviceErrors.LOAD_FAILED,
                PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.LOAD_FAILED, PSCommunity.class

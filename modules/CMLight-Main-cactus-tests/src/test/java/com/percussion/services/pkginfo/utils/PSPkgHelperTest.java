@@ -39,7 +39,7 @@ import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
 /** Test id-name helper */
-@Tag("IntegrationTest")
+
 public class PSPkgHelperTest extends ServletTestCase {
   /**
    * Test various methods to perform id-name translation.

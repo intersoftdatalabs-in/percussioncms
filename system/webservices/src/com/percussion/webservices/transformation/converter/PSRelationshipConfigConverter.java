@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * Convert between 
+ * Convert between
  * {@link com.percussion.design.objectstore.PSRelationshipConfig} and
  * {@link com.percussion.webservices.system.PSRelationshipConfig}
  * <p>
@@ -61,30 +61,36 @@ public class PSRelationshipConfigConverter extends PSTransitionBaseConverter
       if (isClientToServer(value))
       {
          // client to server conversion only support
-         // com.percussion.webservices.system.PSRelationshipConfig, but 
+         // com.percussion.webservices.system.PSRelationshipConfig, but
          // not its derived parent class, RelationshipConfigSummary
          if (!(value instanceof com.percussion.webservices.system.PSRelationshipConfig))
             throw new ConversionException(
                   "Conversion not supported from client to server for "
                         + value.getClass().getName());
-         
+
          com.percussion.webservices.system.PSRelationshipConfig source
           = (com.percussion.webservices.system.PSRelationshipConfig) value;
-         String xmlString = source.getRelationshipConfig();
-         if (xmlString == null || xmlString.trim().length() == 0)
-            throw new IllegalArgumentException("RelationshipConfig property must not be null or empty.");
-         PSRelationshipConfig target = getRelationshipConfig(xmlString);
-         
+Object xmlObj = source.getRelationshipConfig();
+           String xmlString = xmlObj == null ? null : (xmlObj instanceof String ? (String) xmlObj : xmlObj.toString());
+           if (xmlString == null || xmlString.trim().length() == 0)
+              throw new IllegalArgumentException("RelationshipConfig property must not be null or empty.");
+           PSRelationshipConfig target = getRelationshipConfig(xmlString);
+
          target.setName(source.getName());
          target.setLabel(source.getLabel());
          target.setDescription(source.getDescription());
-         target.setCategory(source.getCategory());
-         if (source.getType().getValue().equals(
-               RelationshipConfigSummaryType._system))
+         Object catObj = source.getCategory();
+         String cat = null;
+         if (catObj != null)
+            cat = catObj instanceof String ? (String) catObj : catObj.toString();
+         target.setCategory(cat);
+         Object rawType = source.getType();
+         String typeValue = rawType == null ? "" : String.valueOf(rawType);
+         if ("system".equalsIgnoreCase(typeValue))
             target.setType(PSRelationshipConfig.RS_TYPE_SYSTEM);
          else
             target.setType(PSRelationshipConfig.RS_TYPE_USER);
-         
+
          return target;
       }
       else  // convert from objectstore to one of the client objects
@@ -114,7 +120,7 @@ public class PSRelationshipConfigConverter extends PSTransitionBaseConverter
     * @param source the source, assumed not <code>null</code>.
     * @param target the target, assumed not <code>null</code>.
     */
-   private void setConfigSummaryProperties(PSRelationshipConfig source, 
+   private void setConfigSummaryProperties(PSRelationshipConfig source,
          RelationshipConfigSummary target)
    {
       long id = (new PSDesignGuid(source.getGUID())).getValue();
@@ -123,21 +129,26 @@ public class PSRelationshipConfigConverter extends PSTransitionBaseConverter
         type = RelationshipConfigSummaryType.system;
       else
         type = RelationshipConfigSummaryType.user;
-      
+
       target.setId(id);
-      target.setCategory(source.getCategory());
+      Object catObj = source.getCategory();
+      String cat = null;
+      if (catObj != null)
+         cat = catObj instanceof String ? (String) catObj : catObj.toString();
+      target.setCategory(cat);
       target.setDescription(source.getDescription());
       target.setLabel(source.getLabel());
       target.setName(source.getName());
-      target.setType(type);
+      // generated DTO expects string for type
+      target.setType(type.toString());
    }
-   
+
    /**
     * Creates {@link PSRelationshipConfig} object from its XML representation.
-    * 
+    *
     * @param xmlString the XML representation of the to be created object,
     *    assumed not be <code>null</code> or empty.
-    * 
+    *
     * @return the created object, never <code>null</code>.
     */
    private PSRelationshipConfig getRelationshipConfig(String xmlString)
@@ -146,7 +157,7 @@ public class PSRelationshipConfigConverter extends PSTransitionBaseConverter
       {
          StringReader reader = new StringReader(xmlString);
          Document doc = PSXmlDocumentBuilder.createXmlDocument(reader, false);
-         return new PSRelationshipConfig(doc.getDocumentElement());         
+         return new PSRelationshipConfig(doc.getDocumentElement());
       }
       catch (IOException | SAXException | PSUnknownNodeTypeException e)
       {

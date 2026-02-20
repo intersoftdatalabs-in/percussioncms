@@ -18,7 +18,7 @@
 package com.percussion.services.widgetbuilder;
 
 import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSBaseBean;
 
 import org.apache.logging.log4j.LogManager;
@@ -83,7 +83,7 @@ public class PSWidgetBuilderDefinitionDao implements IPSWidgetBuilderDefinitionD
 
     @Override
     @Transactional
-    public PSWidgetBuilderDefinition save(PSWidgetBuilderDefinition definition) throws IPSGenericDao.SaveException {
+    public PSWidgetBuilderDefinition save(PSWidgetBuilderDefinition definition) throws PSDataServiceException {
         Objects.requireNonNull(definition, "Widget builder definition cannot be null");
 
         // Generate new ID if this is a new entity
@@ -104,7 +104,7 @@ public class PSWidgetBuilderDefinitionDao implements IPSWidgetBuilderDefinitionD
             var errorMsg = String.format("Database error while saving widget builder definition with ID %d: %s",
                                        definition.getWidgetBuilderDefinitionId(), e.getMessage());
             log.error(errorMsg, e);
-            throw new IPSGenericDao.SaveException(errorMsg, e);
+            throw new PSDataServiceException(errorMsg, e);
         }
     }
 

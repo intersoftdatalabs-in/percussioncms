@@ -2,65 +2,69 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================
-        Site        "Corporate_Investments"      
-        =========================================
--->
-		<!--  Various properties for the "SiteVaraibleSetter" -->
-		
-		<property name="ciName" value="Corporate_Investments"/>
+		<!--- ======================================== Site "Corporate_Investments"
+			========================================= -->
+		<!-- Various properties for the "SiteVaraibleSetter" -->
+
+		<property name="ciName" value="Corporate_Investments" />
 
 		<property name="ciNameList">
 			<pvalues>
 				<pvalue>Corporate_Investments</pvalue>
 			</pvalues>
-		</property>		
+		</property>
 
 		<property name="ci_ei_Names">
 			<pvalues>
 				<pvalue>Corporate_Investments</pvalue>
 				<pvalue>Enterprise_Investments</pvalue>
 			</pvalues>
-		</property>		
-      
-      <property name="siteVariables_CI"> 
-         <description>Site variables apply to CI Site.</description>
-         <propertySet>
-		      <property name="name"  value="rxs_urlroot"/>
-		      <property name="context"  value="Site_Folder_Assembly"/>
-		      <property name="value"  value="/CI_Home"/>
-         </propertySet>
-         <propertySet>
-		      <property name="name"  value="rxs_navbase"/>
-		      <property name="context"  value="Preview"/>
-		      <property name="value"  value="../web_resources/corporate_investments"/>
-         </propertySet>
-         <propertySet>
-		      <property name="name"  value="rxs_navbase"/>
-		      <property name="context"  value="Site_Folder_Assembly"/>
-		      <property name="value"  value="/CI_Home/resources"/>
-         </propertySet>
-      </property>
+		</property>
 
-		<!--  Properties for the CI Site -->
-	
-      <property name="CmsPath" value="//Sites/CorporateInvestments" />
-      <property name="PublishedPath" value="../CI_Home.war" />
-      <property name="PublishedUrl" value="http://127.0.0.1:9992/CI_Home" />
-      <property name="globalTemplateName" value="rffGtCorporateInvestmentsCommon" />
-      <!-- optionally used a propertySet to group the ftp related params -->
-      <propertySet name="ftp">
-         <property name="IpAddress" value="127.0.0.1" />
-         <property name="Port" value="21" />
-         <property name="UserId" value="" />
-         <property name="Password" value="" />
-      </propertySet>
-      <property name="UnpublishFlags" value="u" />
-      <property name="AllowedNamespaces" value="" />
-      <property name="NavTheme" value="" />
+		<property name="siteVariables_CI">
+			<description>Site variables apply to CI Site.</description>
+			<propertySet>
+				<property name="name" value="rxs_urlroot" />
+				<property name="context" value="Site_Folder_Assembly" />
+				<property name="value" value="/CI_Home" />
+			</propertySet>
+			<propertySet>
+				<property name="name" value="rxs_navbase" />
+				<property name="context" value="Preview" />
+				<property name="value"
+					value="../web_resources/corporate_investments" />
+			</propertySet>
+			<propertySet>
+				<property name="name" value="rxs_navbase" />
+				<property name="context" value="Site_Folder_Assembly" />
+				<property name="value" value="/CI_Home/resources" />
+			</propertySet>
+		</property>
 
-   </SolutionConfig>
+		<!-- Properties for the CI Site -->
+
+		<property name="CmsPath" value="//Sites/CorporateInvestments" />
+		<property name="PublishedPath" value="../CI_Home.war" />
+		<property name="PublishedUrl"
+			value="http://127.0.0.1:9992/CI_Home" />
+		<property name="globalTemplateName"
+			value="rffGtCorporateInvestmentsCommon" />
+		<!-- optionally used a propertySet to group the ftp related params -->
+		<propertySet name="ftp">
+			<property name="IpAddress" value="127.0.0.1" />
+			<property name="Port" value="21" />
+			<property name="UserId" value="" />
+			<property name="Password" value="" />
+		</propertySet>
+		<property name="UnpublishFlags" value="u" />
+		<property name="AllowedNamespaces" value="" />
+		<property name="NavTheme" value="" />
+
+	</SolutionConfig>
 </SolutionConfigurations>

@@ -69,7 +69,7 @@ public class PSTaskNotificationNode extends PSEditableNode {
 
     @Override
     public String cancel() {
-        m_notification = getSchedulingService().findNotificationTemplateById(m_notification.getId());
+        m_notification = getSchedulingService().findNotificationTemplateById(m_notification.getId()).orElse(null);
 
         return gotoParentNode();
     }

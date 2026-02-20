@@ -19,11 +19,9 @@ package com.percussion.taxonomy.repository;
 import com.percussion.taxonomy.domain.Taxonomy;
 import java.util.Collection;
 import java.util.List;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -35,10 +33,11 @@ public class HibernateTaxonomyDAO extends HibernateDaoSupport implements Taxonom
 
   public List<Taxonomy> getTaxonomy(String name) {
     Session sess = this.currentSession();
-    Criteria c = sess.createCriteria(Taxonomy.class);
-    c.add(Restrictions.ilike("Name", name));
-    c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-    return c.list();
+    Query<Taxonomy> q =
+        sess.createQuery(
+                "select distinct t from Taxonomy t where lower(t.name) like :name", Taxonomy.class)
+            .setParameter("name", name.toLowerCase());
+    return q.list();
   }
 
   public List<Integer> getTaxonomyIdForName(String name) {

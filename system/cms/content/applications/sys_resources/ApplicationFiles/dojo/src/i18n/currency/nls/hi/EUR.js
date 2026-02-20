@@ -8,4 +8,4 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-({"displayName":"य�?रो","symbol":"€"})
+({ displayName: "à¤¯à¥?à¤°à¥", symbol: "â¬" });

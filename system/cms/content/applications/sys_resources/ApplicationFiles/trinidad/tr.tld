@@ -11834,7 +11834,7 @@ The specific model class is
 
         You may also use other model instances, e.g.,  
         &lt;code&gt;java.util.List&lt;/code&gt;  ,
-        array, and  &lt;code&gt;javax.faces.model.DataModel&lt;/code&gt;.
+        array, and  &lt;code&gt;jakarta.faces.model.DataModel&lt;/code&gt;.
         This component will automatically convert the instance
         into a &lt;code&gt;CollectionModel&lt;/code&gt;.&lt;/html&gt;</description>
     </attribute>
@@ -12963,7 +12963,7 @@ The specific model class is
 
         You may also use other model instances, e.g.,  
         &lt;code&gt;java.util.List&lt;/code&gt;  ,
-        array, and  &lt;code&gt;javax.faces.model.DataModel&lt;/code&gt;.
+        array, and  &lt;code&gt;jakarta.faces.model.DataModel&lt;/code&gt;.
         This component will automatically convert the instance
         into a &lt;code&gt;CollectionModel&lt;/code&gt;.</description>
     </attribute>
@@ -13862,7 +13862,7 @@ The specific model class is
 
         You may also use other model instances, e.g.,  
         &lt;code&gt;java.util.List&lt;/code&gt;  ,
-        array, and  &lt;code&gt;javax.faces.model.DataModel&lt;/code&gt;.
+        array, and  &lt;code&gt;jakarta.faces.model.DataModel&lt;/code&gt;.
         This component will automatically convert the instance
         into a &lt;code&gt;CollectionModel&lt;/code&gt;.</description>
     </attribute>

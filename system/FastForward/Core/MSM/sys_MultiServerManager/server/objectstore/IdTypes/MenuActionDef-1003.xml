@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="1003" dependencyType="Local" displayName="navreset" isIncluded="yes" objectType="MenuActionDef" objectTypeName="Action Menu Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="1003" dependencyType="Local" displayName="navreset"
+			isIncluded="yes" objectType="MenuActionDef"
+			objectTypeName="Action Menu Definition" supportsIdMapping="yes"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

@@ -20,11 +20,12 @@ import java.io.File;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for class <code>PSExtensionHandlerConfiguration</code>.
  */
-public class PSExtensionHandlerConfigurationTest extends TestCase
+public class PSExtensionHandlerConfigurationTest 
 {
    /**
     * Loads the extenstion file and stores it to the users temp directory.
@@ -33,6 +34,7 @@ public class PSExtensionHandlerConfigurationTest extends TestCase
     * @throws Exception for any error.
     */
    @SuppressWarnings("unchecked")
+   
    public void testConfiguration() throws Exception
    {
       // load the extensions configuration

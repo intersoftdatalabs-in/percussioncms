@@ -19,22 +19,20 @@ package com.percussion.design.objectstore;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 // Test case
-public class PSConditionalExitTest extends TestCase
+public class PSConditionalExitTest
 {
-   public PSConditionalExitTest(String name)
-   {
-      super(name);
-   }
-
+   @Test
    public void testEquals() throws Exception
    {
    }
 
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -52,15 +50,7 @@ public class PSConditionalExitTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSConditionalExit testFrom = new PSConditionalExit(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
-   }
-
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSConditionalExitTest("testXml"));
-      
-      return suite;
+      assertEquals(testTo, testFrom);
    }
 }
+

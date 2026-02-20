@@ -17,13 +17,15 @@
 package com.percussion.design.objectstore;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 
-public class PSJavaPluginTest extends TestCase
+public class PSJavaPluginTest 
 {
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   
    public void testEqualsHashCode()
    {
       final PSJavaPlugin plugin1 = createPlugin();

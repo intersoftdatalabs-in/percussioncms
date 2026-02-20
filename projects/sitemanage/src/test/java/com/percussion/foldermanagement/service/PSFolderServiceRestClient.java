@@ -21,8 +21,8 @@ import com.percussion.foldermanagement.data.PSFolderItem;
 import com.percussion.foldermanagement.data.PSGetAssignedFoldersJobStatus;
 import com.percussion.foldermanagement.data.PSWorkflowAssignment;
 import com.percussion.share.test.PSDataServiceRestClient;
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 
 /**

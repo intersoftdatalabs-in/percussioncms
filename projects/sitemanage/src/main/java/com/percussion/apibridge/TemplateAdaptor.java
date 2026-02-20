@@ -34,11 +34,11 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.ws.rs.WebApplicationException;
 
 /** Adaptor for managing templates in Percussion CMS. */
 @PSSiteManageBean

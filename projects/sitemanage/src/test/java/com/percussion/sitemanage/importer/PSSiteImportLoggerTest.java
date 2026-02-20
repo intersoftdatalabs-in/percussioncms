@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Jay Seletz, Sunny Sal (refactored)
  */
-@Tag("IntegrationTest")
+
 class PSSiteImportLoggerTest {
 
   @Test

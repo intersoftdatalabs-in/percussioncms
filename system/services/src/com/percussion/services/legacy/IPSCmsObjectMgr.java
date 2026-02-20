@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -95,6 +96,27 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
      * @throws IllegalArgumentException if ids is null
      */
     void setPostDate(Collection<Integer> ids);
+
+    /**
+     * Sets the publish date for the specified content items.
+     * Updates {@link PSComponentSummary#getContentPublishDate()} property.
+     *
+     * @param ids the content IDs, never null, may be empty
+     * @param date the publish date to set, may be null to clear
+     * @throws IllegalArgumentException if ids is null
+     */
+    void setPublishDate(Collection<Integer> ids, java.util.Date date);
+
+    /**
+     * Update a named summary date field for the provided batch of content ids.
+     * This method is intended for internal use in batched update operations.
+     *
+     * @param fieldName the database field name to update, not {@code null}
+     * @param dateToSet the date to set, may be {@code null} to clear
+     * @param ids the list of content ids to update, never {@code null} or empty
+     * @param updateExisting true to update existing values, false to only set when empty
+     */
+    void updateSummaryDateFieldBatch(String fieldName, java.util.Date dateToSet, java.util.List<Integer> ids, boolean updateExisting);
 
     /**
      * Finds the first publish date for the given content item.
@@ -200,6 +222,22 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
      * @throws PSORMException if there is a problem in the persistence layer
      */
     Stream<Integer> findContentIdsByWorkflowStatus(int workflowId, int stateId) throws PSORMException;
+
+    /**
+     * Find a single item entry for the given content id.
+     *
+     * @param contentId the content id to look up
+     * @return the item entry or {@code null} if not found
+     */
+    IPSItemEntry findItemEntry(int contentId);
+
+    /**
+     * Find content types for the specified content ids.
+     *
+     * @param contentIds the content ids, never null
+     * @return set of content type ids, may be empty
+     */
+    Set<Long> findContentTypesForIds(Collection<? extends Object> contentIds);
 
     /**
      * Saves component summaries with enhanced validation.

@@ -39,7 +39,7 @@ import java.util.Properties;
  * This is a unit test for {@link PSWebServiceAgent}. It can also be used to
  * perform some SOAP operations as a sample program.
  */
-@Tag("IntegrationTest")
+
 public class PSWebServiceAgentTest
 {
 
@@ -49,7 +49,7 @@ public class PSWebServiceAgentTest
     * Constructor, called by main with the loaded properties file.
     *
     * @param props the parameter properties, never <code>null</code>.
-    * 
+    *
     * @throws PSUnknownNodeTypeException if fail to login.
     */
    public PSWebServiceAgentTest(Properties props)
@@ -72,7 +72,7 @@ public class PSWebServiceAgentTest
 
    /**
     * Login to get the session id and rx location.
-    * 
+    *
     * @throws PSUnknownNodeTypeException
     *            if error occurs.
     */
@@ -101,7 +101,7 @@ public class PSWebServiceAgentTest
 
    /**
     * Perform the specified transition for the supplied item.
-    * 
+    *
     * @param locator
     *           the locator of the item, assume not <code>null</code>.
     * @param transitionId
@@ -109,7 +109,7 @@ public class PSWebServiceAgentTest
     * @param transitionName
     *           the name of the transition, assume not <code>null</code> or
     *           empty.
-    * 
+    *
     * @throws PSUnknownNodeTypeException
     *            if error occurs.
     */
@@ -140,11 +140,11 @@ public class PSWebServiceAgentTest
          throw new RuntimeException(errormsg);
       }
    }
-   
+
    /**
     * Performs a number of transitions that is specified in the properties of
     * <code>m_prop</code>.
-    * 
+    *
     * @throws PSUnknownNodeTypeException
     */
    private void performTransitions() throws PSUnknownNodeTypeException
@@ -154,10 +154,10 @@ public class PSWebServiceAgentTest
 
       String contentId = m_props.getProperty("contentId");
       String revision = m_props.getProperty("revision");
-      
+
       String toTransitionId = m_props.getProperty("transitionId_out");
       String toTransitionName = m_props.getProperty("transitionName_out");
-      
+
       String fromTransitionId = m_props.getProperty("transitionId_back");
       String fromTransitionName = m_props.getProperty("transitionName_back");
 
@@ -178,10 +178,10 @@ public class PSWebServiceAgentTest
       watch.stop();
       writeToLog("TOTAL execution time: " + watch.toString());
    }
-   
+
    /**
     * Create and send a SOAP message to the dispatcher.
-    * 
+    *
     * @param operation
     *           the SOAP method to call
     * @param nameSpace
@@ -222,7 +222,7 @@ public class PSWebServiceAgentTest
 
    /**
     * Load the properties from <code>DEFAULT_PROPERTIES_FILE</code> file.
-    * 
+    *
     * @return the loaded properties, never <code>null</code>.
     */
    private static Properties loadProperties()
@@ -259,10 +259,10 @@ public class PSWebServiceAgentTest
             catch (Exception e) { /* ignore */ }
          }
       }
-      
+
       return props;
    }
-   
+
    /**
     * Main for this converter application.
     *
@@ -284,8 +284,8 @@ public class PSWebServiceAgentTest
    }
 
    /**
-    * The parameter properties, which is loaded from 
-    * <code>DEFAULT_PROPERTIES_FILE</code>. Init by ctor, never 
+    * The parameter properties, which is loaded from
+    * <code>DEFAULT_PROPERTIES_FILE</code>. Init by ctor, never
     * <code>null</code> after that.
     */
    private Properties m_props = new Properties();
@@ -297,13 +297,13 @@ public class PSWebServiceAgentTest
    private PSWebServiceAgent m_wsAgent = null;
 
    /**
-    * The Rhythmyx location, init by the first login, never <code>null</code> 
+    * The Rhythmyx location, init by the first login, never <code>null</code>
     * after that.
     */
    private String m_RxLocation = null;
 
    /**
-    * The session id, init by the first login, never <code>null</code> after 
+    * The session id, init by the first login, never <code>null</code> after
     * that.
     */
    private String m_RxSession = null;

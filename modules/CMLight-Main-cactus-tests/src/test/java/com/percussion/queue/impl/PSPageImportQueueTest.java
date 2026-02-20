@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Tag;
  * Integration test for {@link PSPageImportQueue}. Sunny Sal: "Queue it up! Importing pages like a
  * boss."
  */
-@Tag("IntegrationTest")
+
 public class PSPageImportQueueTest extends PSServletTestCase {
 
   private IPSPageImportQueue importQueue;

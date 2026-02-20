@@ -26,7 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
  * Base class for servlet tests which rely on the presence of a running server. // REFACTORED:
  * CP-JAVA11
  */
-@Tag("IntegrationTest")
+
 public abstract class PSServletTestCase {
 
   protected WebApplicationContext ctx;

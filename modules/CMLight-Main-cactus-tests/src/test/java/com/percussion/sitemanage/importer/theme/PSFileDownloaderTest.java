@@ -40,7 +40,7 @@ import org.junit.jupiter.api.*;
  *
  * @author Santiago M. Murchio, Sunny Sal (refactored)
  */
-@Tag("IntegrationTest")
+
 class PSFileDownloaderTest {
 
   private static final Logger log = LogManager.getLogger(PSFileDownloaderTest.class);

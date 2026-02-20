@@ -28,11 +28,11 @@ import com.percussion.rest.acls.UserAccessLevel;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.system.utils.PSSiteManageBean;
+import jakarta.ws.rs.NotFoundException;
 import java.util.List;
-import javax.ws.rs.NotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,12 +92,12 @@ public class AclAdaptor implements IAclAdaptor {
   }
 
   @Override
-  public AclList loadAcls(GuidList aclGuids) throws PSSecurityException {
+  public AclList loadAcls(GuidList aclGuids) throws PSServiceSecurityException {
     return ApiUtils.convertAcls(aclService.loadAcls(ApiUtils.convertGuids(aclGuids)));
   }
 
   @Override
-  public Acl loadAcl(Guid aclGuid) throws PSSecurityException {
+  public Acl loadAcl(Guid aclGuid) throws PSServiceSecurityException {
     return ApiUtils.convertAcl((PSAclImpl) aclService.loadAcl(ApiUtils.convertGuid(aclGuid)));
   }
 
@@ -119,12 +119,12 @@ public class AclAdaptor implements IAclAdaptor {
   }
 
   @Override
-  public void saveAcls(AclList aclList) throws PSSecurityException {
+  public void saveAcls(AclList aclList) throws PSServiceSecurityException {
     aclService.saveAcls(ApiUtils.convertAcls(aclList));
   }
 
   @Override
-  public void deleteAcl(Guid aclGuid) throws PSSecurityException {
+  public void deleteAcl(Guid aclGuid) throws PSServiceSecurityException {
     aclService.deleteAcl(ApiUtils.convertGuid(aclGuid));
   }
 

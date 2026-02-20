@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<xsd:schema xmlns:sys="urn:www.percussion.com/6.0.0/system" xmlns:uis="urn:www.percussion.com/6.0.0/uiServices" xmlns:con="urn:www.percussion.com/6.0.0/content" xmlns:asms="urn:www.percussion.com/6.0.0/assemblyServices" xmlns:flt="urn:www.percussion.com/6.0.0/faults" xmlns:secs="urn:www.percussion.com/6.0.0/securityServices" xmlns:com="urn:www.percussion.com/6.0.0/common" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:www.percussion.com/6.0.0/faults" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:import schemaLocation="common.xsd" namespace="urn:www.percussion.com/6.0.0/common" />
-  <xsd:import schemaLocation="assembly/assemblyServices.xsd" namespace="urn:www.percussion.com/6.0.0/assemblyServices" />
-  <xsd:import schemaLocation="content/contentServices.xsd" namespace="urn:www.percussion.com/6.0.0/content" />
-  <xsd:import schemaLocation="security/securityServices.xsd" namespace="urn:www.percussion.com/6.0.0/securityServices" />
-  <xsd:import schemaLocation="system/systemServices.xsd" namespace="urn:www.percussion.com/6.0.0/system" />
-  <xsd:import schemaLocation="ui/uiServices.xsd" namespace="urn:www.percussion.com/6.0.0/uiServices" />
+<xsd:schema xmlns:sys="urn:www.percussion.com/8.2.0/system" xmlns:uis="urn:www.percussion.com/8.2.0/uiServices" xmlns:con="urn:www.percussion.com/8.2.0/content" xmlns:asms="urn:www.percussion.com/8.2.0/assemblyServices" xmlns:flt="urn:www.percussion.com/8.2.0/faults" xmlns:secs="urn:www.percussion.com/8.2.0/securityServices" xmlns:com="urn:www.percussion.com/8.2.0/common" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:www.percussion.com/8.2.0/faults" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import schemaLocation="common.xsd" namespace="urn:www.percussion.com/8.2.0/common" />
+  <xsd:import schemaLocation="assembly/assemblyServices.xsd" namespace="urn:www.percussion.com/8.2.0/assemblyServices" />
+  <xsd:import schemaLocation="content/contentServices.xsd" namespace="urn:www.percussion.com/8.2.0/content" />
+  <xsd:import schemaLocation="security/securityServices.xsd" namespace="urn:www.percussion.com/8.2.0/securityServices" />
+  <xsd:import schemaLocation="system/systemServices.xsd" namespace="urn:www.percussion.com/8.2.0/system" />
+  <xsd:import schemaLocation="ui/uiServices.xsd" namespace="urn:www.percussion.com/8.2.0/uiServices" />
   <xsd:complexType name="Error">
     <xsd:attribute name="code" type="xsd:int" use="required">
       <xsd:annotation>

@@ -22,6 +22,8 @@ import com.percussion.utils.io.PathUtils;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.io.File;
 import java.nio.channels.FileLock;
@@ -34,7 +36,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Andriy Palamarchuk
  */
-@Tag("IntegrationTest")
+
+@TestInstance(Lifecycle.PER_CLASS)
 public class PSServerTest
 {
    /**
@@ -54,7 +57,7 @@ public class PSServerTest
    public static final String SERVER_TEST_PROPERTIES_DIRECTORY = "/com/percussion/server";
 
    /**
-    * Tests how default directory is defined. 
+    * Tests how default directory is defined.
     */
    public void testInitRxDir()
    {

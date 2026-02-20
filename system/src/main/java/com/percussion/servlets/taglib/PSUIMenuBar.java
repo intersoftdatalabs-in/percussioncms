@@ -16,10 +16,10 @@
  */
 package com.percussion.servlets.taglib;
 
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 import java.io.IOException;
-import javax.faces.component.UIOutput;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
 
 /**
  * Handle the menubar output
@@ -28,7 +28,7 @@ import javax.faces.context.ResponseWriter;
  */
 public class PSUIMenuBar extends UIOutput {
   /* (non-Javadoc)
-   * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
+   * @see jakarta.faces.component.UIComponentBase#encodeBegin(jakarta.faces.context.FacesContext)
    */
   @Override
   public void encodeBegin(FacesContext context) throws IOException {
@@ -40,7 +40,7 @@ public class PSUIMenuBar extends UIOutput {
   }
 
   /* (non-Javadoc)
-   * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
+   * @see jakarta.faces.component.UIComponentBase#encodeEnd(jakarta.faces.context.FacesContext)
    */
   @Override
   public void encodeEnd(FacesContext context) throws IOException {

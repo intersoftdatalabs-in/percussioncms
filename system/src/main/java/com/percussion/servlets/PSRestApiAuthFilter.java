@@ -19,6 +19,10 @@ package com.percussion.servlets;
 
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.utils.jspel.PSRoleUtilities;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -26,10 +30,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,14 +42,15 @@ public class PSRestApiAuthFilter implements ContainerRequestFilter {
   /**
    * Filter method called before a request has been dispatched to a resource.
    *
-   * <p>Filters in the filter chain are ordered according to their {@code javax.annotation.Priority}
-   * class-level annotation value. If a request filter produces a response by calling {@link
-   * ContainerRequestContext#abortWith} method, the execution of the (either pre-match or
-   * post-match) request filter chain is stopped and the response is passed to the corresponding
-   * response filter chain (either pre-match or post-match). For example, a pre-match caching filter
-   * may produce a response in this way, which would effectively skip any post-match request filters
-   * as well as post-match response filters. Note however that a responses produced in this manner
-   * would still be processed by the pre-match response filter chain.
+   * <p>Filters in the filter chain are ordered according to their {@code
+   * jakarta.annotation.Priority} class-level annotation value. If a request filter produces a
+   * response by calling {@link ContainerRequestContext#abortWith} method, the execution of the
+   * (either pre-match or post-match) request filter chain is stopped and the response is passed to
+   * the corresponding response filter chain (either pre-match or post-match). For example, a
+   * pre-match caching filter may produce a response in this way, which would effectively skip any
+   * post-match request filters as well as post-match response filters. Note however that a
+   * responses produced in this manner would still be processed by the pre-match response filter
+   * chain.
    *
    * @param requestContext request context.
    * @throws IOException if an I/O exception occurs.

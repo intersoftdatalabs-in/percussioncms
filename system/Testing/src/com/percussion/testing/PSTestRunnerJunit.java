@@ -25,6 +25,7 @@ import java.util.Enumeration;
 
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
+import junit.framework.Test;
 
 /**
  * This class is intented to be used as a standalone program that will run a

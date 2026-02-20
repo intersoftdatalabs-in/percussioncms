@@ -143,17 +143,17 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -244,22 +244,22 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (PSNotAuthorizedFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e3);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -368,12 +368,12 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -515,27 +515,27 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
       }
       catch (PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -754,27 +754,27 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
       }
       catch (PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (PSInvalidSessionFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e2);
       }
       catch (PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -894,27 +894,27 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSErrorsFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorsFault Exception caught: " + e2);
       }
       catch (PSContractViolationFault e3)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e3);
       }
       catch (PSNotAuthorizedFault e4)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "NotAuthorizedFault Exception caught: " + e4);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -1005,12 +1005,12 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
    }
@@ -1202,22 +1202,22 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
       }
       catch (PSErrorResultsFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ErrorResultsFault Exception caught: " + e1);
       }
       catch (PSInvalidSessionFault e1)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e1);
       }
       catch (PSContractViolationFault e2)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "ContractViolationFault Exception caught: " + e2);
       }
       catch (RemoteException e)
       {
-         throw new junit.framework.AssertionFailedError(
+         throw new AssertionError(
             "InvalidSessionFault Exception caught: " + e);
       }
       finally

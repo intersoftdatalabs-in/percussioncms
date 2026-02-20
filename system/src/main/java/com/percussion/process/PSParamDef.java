@@ -101,7 +101,8 @@ public final class PSParamDef {
 
     var el = doc.createElement(XML_NODE_NAME);
     el.setAttribute(ATTR_NAME, m_name);
-    el.appendChild(m_value.toXml(doc));
+    // PSResolvableValue writes attributes on the provided element
+    m_value.toXml(el);
 
     if (m_ifDefinedName != null) el.setAttribute(ATTR_IFDEF, m_ifDefinedName);
 
@@ -174,6 +175,32 @@ public final class PSParamDef {
 
   /** The separator to use when formatting command arguments, may be {@code null}, never empty. */
   private final String m_separator;
+
+  /** Flag indicating the beginning of a grouped parameter sequence. */
+  private boolean m_beginGroup = false;
+
+  /** Flag indicating the end of a grouped parameter sequence. */
+  private boolean m_endGroup = false;
+
+  /** Returns true if this param marks the beginning of a parameter group. */
+  public boolean isBeginGroup() {
+    return m_beginGroup;
+  }
+
+  /** Returns true if this param marks the end of a parameter group. */
+  public boolean isEndGroup() {
+    return m_endGroup;
+  }
+
+  /** Marks this parameter as the beginning of a parameter group. */
+  public void setBeginGroup() {
+    m_beginGroup = true;
+  }
+
+  /** Marks this parameter as the end of a parameter group. */
+  public void setEndGroup() {
+    m_endGroup = true;
+  }
 
   /** The XML node name for this element. */
   public static final String XML_NODE_NAME = "PSXParam";

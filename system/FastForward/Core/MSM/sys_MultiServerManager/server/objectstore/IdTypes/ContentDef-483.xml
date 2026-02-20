@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="483" dependencyType="Shared" displayName="Investment Advice Section Image (Man Walking)" isIncluded="no" objectType="ContentDef" objectTypeName="Content Item" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="483" dependencyType="Shared"
+			displayName="Investment Advice Section Image (Man Walking)"
+			isIncluded="no" objectType="ContentDef" objectTypeName="Content Item"
+			supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

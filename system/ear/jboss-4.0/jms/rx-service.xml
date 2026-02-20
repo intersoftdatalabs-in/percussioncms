@@ -1,42 +1,42 @@
 
 
 <server>
-  <mbean code="org.jboss.mq.server.jmx.Queue"
-	 name="jboss.mq.destination:service=Queue,name=notificationQueue">
-    <depends optional-attribute-name="DestinationManager">
-    	jboss.mq:service=DestinationManager
-    </depends>
-    <attribute name="InMemory">true</attribute>
-  </mbean>	
-  
-  <mbean code="org.jboss.mq.server.jmx.Topic"
-	 name="jboss.mq.destination:service=Topic,name=notificationTopic">
-    <depends optional-attribute-name="DestinationManager">
-    	jboss.mq:service=DestinationManager
-    </depends>
-    <attribute name="InMemory">true</attribute>
-  </mbean>  
-  
-  <mbean code="org.jboss.mq.server.jmx.Queue"
-	 name="jboss.mq.destination:service=Queue,name=emailQueue">
-    <depends optional-attribute-name="DestinationManager">
-    	jboss.mq:service=DestinationManager
-    </depends>    
-  </mbean>	
-  
-  <mbean code="org.jboss.mq.server.jmx.Queue"
-	 name="jboss.mq.destination:service=Queue,name=publishQueue">
-    <depends optional-attribute-name="DestinationManager">
-    	jboss.mq:service=DestinationManager
-    </depends>
-    <attribute name="InMemory">true</attribute>
-  </mbean>
-  
-  <mbean code="org.jboss.mq.server.jmx.Queue"
-	 name="jboss.mq.destination:service=Queue,name=publishResultQueue">
-    <depends optional-attribute-name="DestinationManager">
-    	jboss.mq:service=DestinationManager
-    </depends>  
-    <attribute name="InMemory">true</attribute>
-  </mbean>
+	<mbean code="org.jboss.mq.server.jmx.Queue"
+		name="jboss.mq.destination:service=Queue,name=notificationQueue">
+		<depends optional-attribute-name="DestinationManager">
+			jboss.mq:service=DestinationManager
+		</depends>
+		<attribute name="InMemory">true</attribute>
+	</mbean>
+
+	<mbean code="org.jboss.mq.server.jmx.Topic"
+		name="jboss.mq.destination:service=Topic,name=notificationTopic">
+		<depends optional-attribute-name="DestinationManager">
+			jboss.mq:service=DestinationManager
+		</depends>
+		<attribute name="InMemory">true</attribute>
+	</mbean>
+
+	<mbean code="org.jboss.mq.server.jmx.Queue"
+		name="jboss.mq.destination:service=Queue,name=emailQueue">
+		<depends optional-attribute-name="DestinationManager">
+			jboss.mq:service=DestinationManager
+		</depends>
+	</mbean>
+
+	<mbean code="org.jboss.mq.server.jmx.Queue"
+		name="jboss.mq.destination:service=Queue,name=publishQueue">
+		<depends optional-attribute-name="DestinationManager">
+			jboss.mq:service=DestinationManager
+		</depends>
+		<attribute name="InMemory">true</attribute>
+	</mbean>
+
+	<mbean code="org.jboss.mq.server.jmx.Queue"
+		name="jboss.mq.destination:service=Queue,name=publishResultQueue">
+		<depends optional-attribute-name="DestinationManager">
+			jboss.mq:service=DestinationManager
+		</depends>
+		<attribute name="InMemory">true</attribute>
+	</mbean>
 </server>

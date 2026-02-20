@@ -49,7 +49,7 @@ public class UserTestAdaptor implements IUserAdaptor {
     }
     User toUpdate = null;
     for (var u : testUserData) {
-      if (u.getUserName().equalsIgnoreCase(user.getUserName())) {
+      if (u.getUserName().orElse("").equalsIgnoreCase(user.getUserName().orElse(""))) {
         toUpdate = u;
         break;
       }
@@ -58,9 +58,9 @@ public class UserTestAdaptor implements IUserAdaptor {
       // New user logic could go here
     } else {
       toUpdate.setBookmarkedPages(user.getBookmarkedPages());
-      toUpdate.setEmailAddress(user.getEmailAddress());
-      toUpdate.setFirstName(user.getFirstName());
-      toUpdate.setLastName(user.getLastName());
+      user.getEmailAddress().ifPresent(toUpdate::setEmailAddress);
+      user.getFirstName().ifPresent(toUpdate::setFirstName);
+      user.getLastName().ifPresent(toUpdate::setLastName);
     }
     return null;
   }
@@ -72,7 +72,7 @@ public class UserTestAdaptor implements IUserAdaptor {
     }
     User toDelete = null;
     for (var u : testUserData) {
-      if (u.getUserName().equalsIgnoreCase(userName)) {
+      if (u.getUserName().orElse("").equalsIgnoreCase(userName)) {
         toDelete = u;
         break;
       }

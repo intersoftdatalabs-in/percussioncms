@@ -24,6 +24,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -33,13 +34,14 @@ import org.w3c.dom.Element;
 /**
  * Unit tests for the PSConditional class
  */
-public class PSConditionalTest extends TestCase
+public class PSConditionalTest
 {
-   public PSConditionalTest(String name)
-   {
-      super(name);
-   }
 
+
+
+
+
+   @Test
    public void testToFromXml() throws Exception
    {
       // create a PSConditional with a binary op and a value
@@ -67,6 +69,9 @@ public class PSConditionalTest extends TestCase
 
    }
 
+
+
+   @Test
    public void testValueValidation() throws Exception
    {
       PSValidatorAdapter validator = new PSValidatorAdapter(null);
@@ -99,10 +104,13 @@ public class PSConditionalTest extends TestCase
          {
             didThrow = true;
          }
-         assertTrue("Caught binary op with no value?", didThrow);
+         assertTrue(didThrow, "Caught binary op with no value?");
       }
    }
 
+
+
+   @Test
    public void testUdfCall() throws Exception
    {
       /*
@@ -111,7 +119,7 @@ public class PSConditionalTest extends TestCase
       String udfName = "MyUdfMethod";
       String body = "return 123456789";
       PSUdfExit udfExit = new PSUdfExit(className, udfName, body);
-      
+
       // create PSExtensionParamDef object
       PSExtensionParamDef paramDef = new PSExtensionParamDef("paramName", "String");
       String clsName = "com.percussion.design.objectstore.PSExtensionParamDef";
@@ -121,7 +129,7 @@ public class PSConditionalTest extends TestCase
       udfExit.setApplicationContext("MyUdfTest");
       udfExit.setDescription("Always return 123456789");
       udfExit.setVersion("");
-      
+
       // create PSExitParamValue object(s) and PSExitParamValue[]
       PSBackEndTable beTable = new PSBackEndTable("myTableAlias");
       // Note: we cannot call beTable.setXXX methods at here
@@ -129,27 +137,27 @@ public class PSConditionalTest extends TestCase
       PSExitParamValue paramValueOne = new PSExitParamValue(beColumn);
       PSExitParamValue[] paramArray  = new PSExitParamValue[1];
       paramArray[0] = paramValueOne;
-      
+
       // create PSUdfCall object
       PSUdfCall udfCall = new PSUdfCall(udfExit, paramArray);
-      
+
       // create PSConditional object
       PSConditional condOne = new PSConditional(beColumn, "=", udfCall, "AND");
       PSConditional condTwo = new PSConditional(udfCall, "=", beColumn, "AND");
-      
+
       // see whether udfCall is stored/retrieved successfully by using "get" methods
       PSUdfCall variable = (PSUdfCall)condTwo.getVariable();
       PSUdfCall value    = (PSUdfCall)condOne.getValue();
       assertEquals(udfCall, variable);
       assertEquals(udfCall, value);
-      
+
       // see whether udfCall is stored/retrieved successfully by using to/fromXml methods
       PSApplication application = new PSApplication("psudoApp");
       String udfClassName = "com.percussion.design.objectstore.PSUdfExit";
       PSCollection udfCollect = new PSCollection(udfClassName);
       udfCollect.add(udfExit);
       application.setApplicationUdfs(udfCollect);
-      
+
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
       Element condEl = condOne.toXml(doc);
       PSConditional fromCondOne = new PSConditional();
@@ -158,7 +166,7 @@ public class PSConditionalTest extends TestCase
          String isSame = "same";
       }
       assertEquals(condOne, fromCondOne);
-      
+
       condEl = condTwo.toXml(doc);
       PSConditional fromCondTwo = new PSConditional();
       fromCondTwo.fromXml(condEl, application, null);
@@ -169,18 +177,21 @@ public class PSConditionalTest extends TestCase
    */
    }
 
+
+
+   @Test
    public void testEquals() throws Exception
    {
-      // Create a number of situations with two PSCondition objects to see if 
+      // Create a number of situations with two PSCondition objects to see if
       // hashCode is working correctly
-      
+
       // Back end table
       PSBackEndTable table = new PSBackEndTable("foo");
       PSBackEndTable table2 = new PSBackEndTable("bar");
       doEqualsTest(new PSBackEndColumn(table, "x"), new PSBackEndColumn(table, "x"));
       doNotEqualsTest(new PSBackEndColumn(table2, "x"), new PSBackEndColumn(table, "x"));
       doNotEqualsTest(new PSBackEndColumn(table, "x"), new PSBackEndColumn(table, "y"));
-      
+
       // Back end column
       PSConditional a = new PSConditional();
       a.setVariable(new PSBackEndColumn(table, "x"));
@@ -189,11 +200,11 @@ public class PSConditionalTest extends TestCase
       PSConditional b = new PSConditional();
       b.setVariable(new PSBackEndColumn(table, "x"));
       b.setOperator("=");
-      b.setValue(new PSBackEndColumn(table, "y"));      
+      b.setValue(new PSBackEndColumn(table, "y"));
       doEqualsTest(a, b);
       b.setValue(new PSBackEndColumn(table, "z"));
       doNotEqualsTest(a, b);
-      
+
       // url request
       PSCollection params1 = new PSCollection(PSParam.class);
       params1.add(new PSParam("a", new PSTextLiteral("b")));
@@ -201,7 +212,7 @@ public class PSConditionalTest extends TestCase
       params2.add(new PSParam("b", new PSTextLiteral("b")));
       PSCollection params3 = new PSCollection(PSParam.class);
       params2.add(new PSParam("a", new PSTextLiteral("c")));
-            
+
       PSUrlRequest req = new PSUrlRequest("name", "href", params1);
       PSUrlRequest req2 = new PSUrlRequest("name", "href", params1);
       PSUrlRequest req3 = new PSUrlRequest("name1", "href", params1);
@@ -213,13 +224,13 @@ public class PSConditionalTest extends TestCase
       doNotEqualsTest(req, req4);
       doNotEqualsTest(req, req5);
       doNotEqualsTest(req, req6);
-      
+
       a.setValue(req);
       b.setValue(req2);
       doEqualsTest(a, b);
       b.setValue(req3);
       doNotEqualsTest(a, b);
-      
+
       // PSExtensionCall
       PSExtensionCall call = new PSExtensionCall();
       call.setExtensionRef(new PSExtensionRef("cat", "handler", "ctx", "name"));
@@ -231,65 +242,65 @@ public class PSConditionalTest extends TestCase
       call5.setExtensionRef(new PSExtensionRef("cat", "handler", "ctx3", "name"));
       PSExtensionCall call6 = new PSExtensionCall();
       call6.setExtensionRef(new PSExtensionRef("cat", "handler", "ctx", "name4"));
-                        
+
       doEqualsTest(call, call2);
       doNotEqualsTest(call, call4);
       doNotEqualsTest(call, call5);
-      doNotEqualsTest(call, call6);   
-      
+      doNotEqualsTest(call, call6);
+
       PSConditional c1 = create(call, "=", call2);
       PSConditional c2 = create(call, "=", call2);
       PSConditional c3 = create(call, "=", call4);
       doEqualsTest(c1, c2);
-      doNotEqualsTest(c1, c3);  
-      
+      doNotEqualsTest(c1, c3);
+
       // PSDisplayFieldRef
       PSDisplayFieldRef ref = new PSDisplayFieldRef("ref");
       PSDisplayFieldRef ref1 = new PSDisplayFieldRef("ref");
       PSDisplayFieldRef ref2 = new PSDisplayFieldRef("ref2");
-      
+
       doEqualsTest(ref, ref1);
       doNotEqualsTest(ref, ref2);
-      
+
       c1 = create(ref, "=", ref1);
       c2 = create(ref, "=", ref1);
       c3 = create(ref, "=", ref2);
-      
+
       doEqualsTest(c1, c2);
       doNotEqualsTest(c1, c3);
-      
+
       // PSDisplayTestLiteral
       PSDisplayTextLiteral dtl1 = new PSDisplayTextLiteral("disp1", "val1");
       PSDisplayTextLiteral dtl2 = new PSDisplayTextLiteral("disp1", "val1");
       PSDisplayTextLiteral dtl3 = new PSDisplayTextLiteral("disp2", "val1");
       PSDisplayTextLiteral dtl4 = new PSDisplayTextLiteral("disp1", "val2");
-      
+
       doEqualsTest(dtl1, dtl2);
       doNotEqualsTest(dtl1, dtl3);
       doNotEqualsTest(dtl1, dtl4);
-      
+
       c1 = create(ref, "=", dtl1);
       c2 = create(ref, "=", dtl2);
       c3 = create(ref, "=", dtl3);
 
       doEqualsTest(c1, c2);
-      doNotEqualsTest(c1, c3);      
-      
+      doNotEqualsTest(c1, c3);
+
       // PSNamedReplacementValue (PSCookie is a subclass that is not abstract)
       PSNamedReplacementValue val1 = new PSCookie("name");
       PSNamedReplacementValue val2 = new PSCookie("name");
       PSNamedReplacementValue val3 = new PSCookie("name2");
-      
+
       doEqualsTest(val1, val2);
       doNotEqualsTest(val1, val3);
-      
+
       c1 = create(ref, "=", val1);
       c2 = create(ref, "=", val2);
       c3 = create(ref, "=", val3);
 
       doEqualsTest(c1, c2);
-      doNotEqualsTest(c1, c3);         
-      
+      doNotEqualsTest(c1, c3);
+
       // PSTextLiteral
       PSTextLiteral lit1 = new PSTextLiteral("literal");
       PSTextLiteral lit2 = new PSTextLiteral("literal");
@@ -305,41 +316,28 @@ public class PSConditionalTest extends TestCase
       doEqualsTest(c1, c2);
       doNotEqualsTest(c1, c3);
    }
-   
+
    public PSConditional create(IPSReplacementValue var, String op, IPSReplacementValue val)
    throws PSIllegalArgumentException
    {
       PSConditional rval = new PSConditional(var, op, val);
-      
+
       return rval;
    }
-   
+
    public void doEqualsTest(Object a, Object b)
    {
-      assertTrue("The hash values for class " + a.getClass() + " were not equal when they should have been",
-         a.hashCode() == b.hashCode());
-         
-      assertTrue("The values for class " + a.getClass() + " were not equal when they should have been",
-         a.equals(b));         
+      assertTrue(a.hashCode() == b.hashCode(), "The hash values for class " + a.getClass() + " were not equal when they should have been");
+
+      assertTrue(a.equals(b), "The values for class " + a.getClass() + " were not equal when they should have been");
    }
 
    public void doNotEqualsTest(Object a, Object b)
    {
-      assertTrue("The hash values for class " + a.getClass() + " were equal when they shouldn't have been",
-          a.hashCode() != b.hashCode());
-          
-      assertTrue("The values for class " + a.getClass() + " were equal when they shouldn't have been",
-                a.equals(b) == false);                
+      assertTrue(a.hashCode() != b.hashCode(), "The hash values for class " + a.getClass() + " were equal when they shouldn't have been");
+
+      assertTrue(a.equals(b) == false, "The values for class " + a.getClass() + " were equal when they shouldn't have been");
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSConditionalTest("testValueValidation"));
-      suite.addTest(new PSConditionalTest("testToFromXml"));
-      suite.addTest(new PSConditionalTest("testUdfCall"));
-      suite.addTest(new PSConditionalTest("testEquals"));
-      
-      return suite;
-   }
+
 }

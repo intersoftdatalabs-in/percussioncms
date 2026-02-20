@@ -2,28 +2,28 @@
 
 
 <DeliveryServerConfig>
-    <DeliveryServer>
-        <connection-url>http://delivery.percussion.com</connection-url>
-        <user>ps_manager</user>
-        <password encrypted="true">-7cd50422f40e9ee79d8bd0e3478f4621e6e9018044a2518f</password>
-        <admin-connection-url>https://delivery.percussion.com</admin-connection-url>
-        <allow-self-signed-certificate>false</allow-self-signed-certificate>
-        <availableServices>      
-            <service>feeds</service>
-            <service>perc-comments-services</service>
-            <service>perc-form-processor</service>
-            <service>perc-metadata-services</service>
-            <service>perc-thirdparty-services</service>
-        </availableServices>
-    </DeliveryServer>
+	<DeliveryServer>
+		<connection-url>http://delivery.percussion.com</connection-url>
+		<user>ps_manager</user>
+		<password encrypted="true">-7cd50422f40e9ee79d8bd0e3478f4621e6e9018044a2518f</password>
+		<admin-connection-url>https://delivery.percussion.com</admin-connection-url>
+		<allow-self-signed-certificate>false</allow-self-signed-certificate>
+		<availableServices>
+			<service>feeds</service>
+			<service>perc-comments-services</service>
+			<service>perc-form-processor</service>
+			<service>perc-metadata-services</service>
+			<service>perc-thirdparty-services</service>
+		</availableServices>
+	</DeliveryServer>
 	<DeliveryServer>
 		<connection-url>https://delivery-qa.percussion.com</connection-url>
 		<user>ps_manager</user>
 		<password encrypted="true">-7cd50422f40e9ee79d8bd0e3478f4621e6e9018044a2518f</password>
-        <admin-connection-url>https://delivery-qa.percussion.com</admin-connection-url>
+		<admin-connection-url>https://delivery-qa.percussion.com</admin-connection-url>
 		<allow-self-signed-certificate>false</allow-self-signed-certificate>
 		<availableServices>
-		   <service>perc-thirdparty-services</service>
+			<service>perc-thirdparty-services</service>
 		</availableServices>
 	</DeliveryServer>
 </DeliveryServerConfig>

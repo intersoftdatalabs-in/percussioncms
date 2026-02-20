@@ -28,7 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+// Use Spring ORM LocalSessionFactoryBean (compatibility shim in Spring 7)
+import org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.naming.NamingException;

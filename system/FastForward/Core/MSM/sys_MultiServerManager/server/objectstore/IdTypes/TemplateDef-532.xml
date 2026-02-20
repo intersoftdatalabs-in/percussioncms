@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="yes" autoExpand="yes" dependencyId="532" dependencyType="Local" displayName="rffSnBulletedTitleList" isIncluded="yes" objectType="TemplateDef" objectTypeName="Template Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="yes" autoExpand="yes"
+			dependencyId="532" dependencyType="Local"
+			displayName="rffSnBulletedTitleList" isIncluded="yes"
+			objectType="TemplateDef" objectTypeName="Template Definition"
+			supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

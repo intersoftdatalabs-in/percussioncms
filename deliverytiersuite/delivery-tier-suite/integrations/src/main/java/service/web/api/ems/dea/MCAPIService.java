@@ -24,10 +24,10 @@
 
 package service.web.api.ems.dea;
 
-public interface MCAPIService extends jakarta.xml.rpc.Service {
+public interface MCAPIService extends javax.xml.rpc.Service {
     public java.lang.String getMCAPIServiceSoapAddress();
 
-    public MCAPIServiceSoap getMCAPIServiceSoap() throws jakarta.xml.rpc.ServiceException;
+    public MCAPIServiceSoap getMCAPIServiceSoap() throws javax.xml.rpc.ServiceException;
 
-    public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws jakarta.xml.rpc.ServiceException;
+    public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws javax.xml.rpc.ServiceException;
 }

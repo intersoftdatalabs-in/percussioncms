@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * @author JaySeletz
  */
-@Tag("IntegrationTest")
+
 public class PSPageCatalogServiceTest extends PSServletTestCase {
   private PSSiteDataServletTestCaseFixture fixture;
   private IPSPageCatalogService pageCatalogService;

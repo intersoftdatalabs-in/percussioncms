@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSItemServiceTest extends PSServletTestCase {
   private PSSiteDataServletTestCaseFixture fixture;
 

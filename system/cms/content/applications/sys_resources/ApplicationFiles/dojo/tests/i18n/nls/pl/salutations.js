@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- pl: "Polski",
- hello: "Dzièn dobry"
-}
+({
+  pl: "Polski",
+  hello: "Dzièn dobry",
+});

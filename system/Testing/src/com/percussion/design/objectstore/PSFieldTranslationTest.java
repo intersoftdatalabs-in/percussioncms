@@ -17,6 +17,7 @@
 package com.percussion.design.objectstore;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,8 +26,9 @@ import com.percussion.extension.PSExtensionRef;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 // Test case
-public class PSFieldTranslationTest extends TestCase
+public class PSFieldTranslationTest 
 {
+   
    public void testXmlRoundTrip() throws Exception
    {
       // create test object
@@ -45,11 +47,13 @@ public class PSFieldTranslationTest extends TestCase
       PSFieldTranslation testFrom = new PSFieldTranslation(root, null, null);
       
       // make sure new object and test object match
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
       PSDisplayText displayTextOutput = testFrom.getErrorMessage();
       assertNotNull(displayTextOutput);
       assertEquals("one", displayTextOutput.getText());
    }
+
+   
 
    public void testXml() throws Exception
    {

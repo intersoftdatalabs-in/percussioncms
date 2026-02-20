@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-   <!-- simple bean properties -->
-   <bean id="CI_Full" class="com.percussion.rx.config.impl.PSObjectConfigHandler">
-      <property name="name" value="rffCiFullBinary"/>
-      <property name="type" value="CONTENT_LIST"/>
-      <property name="propertySetters">
-      	<bean class="com.percussion.rx.config.impl.PSContentListSetter">
-      		<property name="properties">
-		         <map>
-		            <entry key="deliveryType" value="${com.percussion.RSS.deliveryType}"/>
-		            <entry key="filter" value="${com.percussion.RSS.filter}"/>
-		            <entry key="generator" value="${com.percussion.RSS.generator}"/>
-		            <entry key="generatorParams" value="${com.percussion.RSS.generatorParams}"/>
-		            <entry key="expander" value="${com.percussion.RSS.expander}"/>
-		            <entry key="expanderParams" value="${com.percussion.RSS.expanderParams}"/>
-		         </map>
-         	</property>
-      	</bean>
-      </property>
-   </bean>
+	<!-- simple bean properties -->
+	<bean id="CI_Full"
+		class="com.percussion.rx.config.impl.PSObjectConfigHandler">
+		<property name="name" value="rffCiFullBinary" />
+		<property name="type" value="CONTENT_LIST" />
+		<property name="propertySetters">
+			<bean class="com.percussion.rx.config.impl.PSContentListSetter">
+				<property name="properties">
+					<map>
+						<entry key="deliveryType"
+							value="${com.percussion.RSS.deliveryType}" />
+						<entry key="filter" value="${com.percussion.RSS.filter}" />
+						<entry key="generator"
+							value="${com.percussion.RSS.generator}" />
+						<entry key="generatorParams"
+							value="${com.percussion.RSS.generatorParams}" />
+						<entry key="expander" value="${com.percussion.RSS.expander}" />
+						<entry key="expanderParams"
+							value="${com.percussion.RSS.expanderParams}" />
+					</map>
+				</property>
+			</bean>
+		</property>
+	</bean>
 </beans>

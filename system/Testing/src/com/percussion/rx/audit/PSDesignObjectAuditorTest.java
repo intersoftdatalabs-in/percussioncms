@@ -30,17 +30,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for the {@link PSDesignObjectAuditor} class.
  */
-public class PSDesignObjectAuditorTest extends TestCase
+public class PSDesignObjectAuditorTest 
 {
    /**
     * Test the logic of the {@link PSDesignObjectAuditor} for a method name and
     * argument.  Does not test actual AOP joinpoint processing or persisting of
     * audit data.
     */
+   
    public void testExtractAuditData()
    {
       PSDesignObjectAuditor auditor = new PSDesignObjectAuditor();

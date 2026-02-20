@@ -23,8 +23,8 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Converts objects between the classes 
- * <code>IPSAssemblyTemplate.OutputFormat</code> and 
+ * Converts objects between the classes
+ * <code>IPSAssemblyTemplate.OutputFormat</code> and
  * <code>OutputFormatType</code>.
  */
 public class PSOutputFormatConverter extends PSConverter
@@ -36,7 +36,7 @@ public class PSOutputFormatConverter extends PSConverter
    {
       super(beanUtils);
    }
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -45,12 +45,12 @@ public class PSOutputFormatConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
          return IPSAssemblyTemplate.OutputFormat.valueOf(
             StringUtils.capitalize(value.toString()));
       else
-         return OutputFormatType.fromString(
+         return OutputFormatType.valueOf(
             value.toString().toLowerCase());
    }
 }

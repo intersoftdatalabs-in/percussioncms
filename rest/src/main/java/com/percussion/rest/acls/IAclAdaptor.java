@@ -21,7 +21,7 @@ package com.percussion.rest.acls;
 import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import java.util.List;
 
 /** Adaptor interface for ACL operations. */
@@ -37,10 +37,10 @@ public interface IAclAdaptor {
   Acl createAcl(Guid objGuid, TypedPrincipal owner);
 
   /** Loads ACLs for the given GUIDs. */
-  AclList loadAcls(GuidList aclGuids) throws PSSecurityException;
+  AclList loadAcls(GuidList aclGuids) throws PSServiceSecurityException;
 
   /** Loads a single ACL by GUID. */
-  Acl loadAcl(Guid aclGuid) throws PSSecurityException;
+  Acl loadAcl(Guid aclGuid) throws PSServiceSecurityException;
 
   /** Loads ACLs for the given object GUIDs. */
   AclList loadAclsForObjects(GuidList objectGuids);
@@ -49,10 +49,10 @@ public interface IAclAdaptor {
   Acl loadAclForObject(Guid objectGuid);
 
   /** Saves the provided ACL list. */
-  void saveAcls(AclList aclList) throws PSSecurityException;
+  void saveAcls(AclList aclList) throws PSServiceSecurityException;
 
   /** Deletes the ACL for the given GUID. */
-  void deleteAcl(Guid aclGuid) throws PSSecurityException;
+  void deleteAcl(Guid aclGuid) throws PSServiceSecurityException;
 
   /** Filters ACLs by community names. */
   GuidList filterByCommunities(GuidList aclList, List<String> communityNames);

@@ -176,6 +176,12 @@ public class PSHashedFieldCataloger implements IPSHashedFieldCataloger
       dao.saveAll(columns);
    }
 
+   @Override
+   public java.util.concurrent.CompletableFuture<Void> storeColumnsAsync(Set<PSHashedColumn> columns)
+   {
+      return java.util.concurrent.CompletableFuture.runAsync(() -> storeColumns(columns));
+   }
+
    public Set<PSHashedColumn> getStoredColumns()
    {
       return dao.getStoredColumns();
@@ -216,6 +222,12 @@ public class PSHashedFieldCataloger implements IPSHashedFieldCataloger
    }
 
    @Override
+   public java.util.concurrent.CompletableFuture<java.util.Set<PSHashedColumn>> validateColumnsAsync()
+   {
+      return java.util.concurrent.CompletableFuture.supplyAsync(this::validateColumns);
+   }
+
+   @Override
    @Transactional
    public void addColumn(String table, String column)
    {
@@ -226,10 +238,37 @@ public class PSHashedFieldCataloger implements IPSHashedFieldCataloger
 
    @Override
    @Transactional
+   public java.util.Optional<PSHashedColumn> addColumnSafely(String table, String column)
+   {
+      try {
+         PSHashedColumn newCol = new PSHashedColumn("[external]", table, column);
+         dao.save(newCol);
+         return java.util.Optional.of(newCol);
+      } catch (Exception e) {
+         log.debug("Failed to add hashed column {}.{}: {}", table, column, e.getMessage());
+         return java.util.Optional.empty();
+      }
+   }
+
+   @Override
+   @Transactional
    public void removeColumn(String table, String column)
    {
       PSHashedColumn col = new PSHashedColumn("", table, column);
       dao.remove(col);
+   }
+
+   @Override
+   @Transactional
+   public boolean removeColumnSafely(String table, String column)
+   {
+      PSHashedColumn col = new PSHashedColumn("", table, column);
+      Set<PSHashedColumn> stored = getStoredColumns();
+      if (stored.contains(col)) {
+         dao.remove(col);
+         return true;
+      }
+      return false;
    }
 
 }

@@ -2,58 +2,59 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================
-        Content Type        "rffBrief"      
-        =========================================
--->
-	<propertySet name="ct">
-      <property name="label" value="Brief"/>
-      <property name="iconValue" value="rffBrief.gif"/>
-      <property name="defaultWorkflow" value="Simple Workflow"/>
-      <property name="templates">
-      		<pvalues>
-      		    <pvalue>rffSnCallout</pvalue>
-      		</pvalues>
-      </property>
-      <property name="workflows">
-      		<pvalues>
-      		    <pvalue>Simple Workflow</pvalue>
-      		    <pvalue>Standard Workflow</pvalue>
-      		</pvalues>
-      </property>
+		<!--- ======================================== Content Type "rffBrief"
+			========================================= -->
+		<propertySet name="ct">
+			<property name="label" value="Brief" />
+			<property name="iconValue" value="rffBrief.gif" />
+			<property name="defaultWorkflow" value="Simple Workflow" />
+			<property name="templates">
+				<pvalues>
+					<pvalue>rffSnCallout</pvalue>
+				</pvalues>
+			</property>
+			<property name="workflows">
+				<pvalues>
+					<pvalue>Simple Workflow</pvalue>
+					<pvalue>Standard Workflow</pvalue>
+				</pvalues>
+			</property>
 
-      <property name="fields"> 
-         <propertySet name="placeholder">
-		      <property name="default"  value=""/>
-		      <property name="required"  value="false"/>
-		      <property name="sequence" value="7"/>
-		      <property name="showInPreview" value="true"/>
-		      <property name="userSearchable" value="false"/>
-         </propertySet>
-      </property>
-      
-      <property name="fields_null_value1"/>
+			<property name="fields">
+				<propertySet name="placeholder">
+					<property name="default" value="" />
+					<property name="required" value="false" />
+					<property name="sequence" value="7" />
+					<property name="showInPreview" value="true" />
+					<property name="userSearchable" value="false" />
+				</propertySet>
+			</property>
 
-      <property name="fields_null_value2">
-      </property>
-      
-	</propertySet>
-	
-	<propertySet name="fd">
-      <property name="default"  value=""/>
-      <property name="required"  value="false"/>
-      <property name="sequence" value="7"/>
-      <property name="showInPreview" value="true"/>
-      <property name="userSearchable" value="false"/>
-	</propertySet>
+			<property name="fields_null_value1" />
 
-	<propertySet name="callout">
-      <property name="label"  value="Callout"/>
-      <propertySet name="controlParameters"/>
-	</propertySet>
-	
-   </SolutionConfig>
+			<property name="fields_null_value2">
+			</property>
+
+		</propertySet>
+
+		<propertySet name="fd">
+			<property name="default" value="" />
+			<property name="required" value="false" />
+			<property name="sequence" value="7" />
+			<property name="showInPreview" value="true" />
+			<property name="userSearchable" value="false" />
+		</propertySet>
+
+		<propertySet name="callout">
+			<property name="label" value="Callout" />
+			<propertySet name="controlParameters" />
+		</propertySet>
+
+	</SolutionConfig>
 </SolutionConfigurations>

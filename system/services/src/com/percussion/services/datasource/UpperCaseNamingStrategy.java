@@ -79,7 +79,7 @@ public class UpperCaseNamingStrategy extends PhysicalNamingStrategyStandardImpl 
 
         // Insert underscores in reverse order to maintain correct indices
         for (var index : indices) {
-            buf.insert(index, '_');
+            buf.insert(index, "_");
         }
 
         return buf.toString().toUpperCase();

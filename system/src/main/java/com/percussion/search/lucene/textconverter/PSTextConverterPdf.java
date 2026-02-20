@@ -50,7 +50,9 @@ public class PSTextConverterPdf implements IPSLuceneTextConverter {
     String resultText = "";
     PDDocument pdfDocument = null;
     try {
-      pdfDocument = PDDocument.load(is);
+      // PDFBox 3 uses Loader; read the stream into memory and use Loader.loadPDF(byte[])
+      byte[] data = is.readAllBytes();
+      pdfDocument = org.apache.pdfbox.Loader.loadPDF(data);
       if (pdfDocument.isEncrypted()) {
         // Just try using the default password and move on
 

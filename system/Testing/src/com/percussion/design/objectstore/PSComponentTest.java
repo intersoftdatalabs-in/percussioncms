@@ -21,23 +21,19 @@ import java.lang.reflect.Modifier;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit tests for all PSComponent derived objects
  */
-public class PSComponentTest extends TestCase
+public class PSComponentTest
 {
-   public PSComponentTest(String name)
-   {
-      super(name);
-   }
-
-   
    /**
-    * Tests that all known subclasses of <code>PSComponent</code> have 
+    * Tests that all known subclasses of <code>PSComponent</code> have
     * overridden the equals() method.
-    */ 
+    */
+   @Test
    public void testForEquals() throws Exception
    {
       for (int i = 0; i < ms_classNames.length; i++)
@@ -46,36 +42,30 @@ public class PSComponentTest extends TestCase
       }
    }
 
-   
+
    /**
     * Tests that the specified class has overridden Object's equal() method,
     * using reflection.
     * @param className FQN of Java class to test; assumed not <code>null
     * </code>.
     * @throws Exception if the test fails
-    */ 
+    */
    private void testEqualsIsOverridden(String className) throws Exception
    {
       Class theClass = Class.forName(className);
-      
+
       // don't test abstract classes
       if (Modifier.isAbstract(theClass.getModifiers()))
          return;
 
-      Method equalsMethod = theClass.getMethod("equals", 
+      Method equalsMethod = theClass.getMethod("equals",
          new Class[] { Object.class } );
-   
+
       // make sure we didn't get Object's equals()
-      assertTrue(className + " implemented equals()", 
-         !equalsMethod.getDeclaringClass().equals(Object.class));
+      assertTrue(!equalsMethod.getDeclaringClass().equals(Object.class),
+         className + " implemented equals()");
    }
-      
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSComponentTest( "testForEquals" ) );
-      return suite;
-   }
+
 
    public static final String[] ms_classNames =
    {
@@ -123,11 +113,11 @@ public class PSComponentTest extends TestCase
       "com.percussion.design.objectstore.PSUserContext",
       "com.percussion.design.objectstore.PSXmlField"
    };
-   
+
    /* JVS: Updated list (01/2002) of derived classes of PSComponent.
-      Commented out, because some of these classes fail, and now is not the 
+      Commented out, because some of these classes fail, and now is not the
       time to fix them.
-   
+
    public static final String[] ms_classNames =
    {
       "com.percussion.design.objectstore.PSAcl",

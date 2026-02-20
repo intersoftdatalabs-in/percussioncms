@@ -19,7 +19,7 @@ package com.percussion.share.service.impl;
 import com.percussion.server.PSServer;
 import com.percussion.share.service.IPSSystemProperties;
 import com.percussion.system.utils.PSSiteManageBean;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.ext.Provider;
 import org.apache.commons.lang3.Validate;
 
 /**

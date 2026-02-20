@@ -9,7 +9,8 @@
     </parent>
     <artifactId>perc-shared-app</artifactId>
     <packaging>jar</packaging>
-    <description>Jar depends project, gets all shared dependencies for all projects.</description>
+    <description>Jar depends project, gets all shared dependencies for all
+		projects.</description>
     <dependencies>
         <dependency>
             <groupId>com.percussion</groupId>

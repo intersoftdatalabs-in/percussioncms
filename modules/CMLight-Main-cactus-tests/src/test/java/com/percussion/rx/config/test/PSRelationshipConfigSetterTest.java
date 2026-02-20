@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSRelationshipConfigSetterTest extends PSConfigurationTest {
   public void testConfigFiles() throws Exception {
     PSConfigFilesFactoryTest factory = null;

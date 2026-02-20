@@ -27,19 +27,21 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.beanutils.Converter;
 
 /**
  * Test case for {@link PSNotification}
  */
-public class PSNotificationConverterTest extends TestCase
+public class PSNotificationConverterTest 
 {
    /**
     * Test the converter
     * 
     * @throws Exception if there are any errors
     */
+   
    public void testConverter() throws Exception
    {
       PSTransformerFactory factory = PSTransformerFactory.getInstance();

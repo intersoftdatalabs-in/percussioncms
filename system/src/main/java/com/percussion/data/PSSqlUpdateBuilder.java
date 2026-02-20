@@ -417,10 +417,14 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
 
       IPSReplacementValue replValue = (IPSReplacementValue) map.getDocumentMapping();
       Integer jdbcType = (Integer) datatypes.get(columnName.toLowerCase());
-      if (jdbcType != null) context.addReplacementField(replValue, jdbcType.intValue(), col, lci);
-      else
-        context.addReplacementField(
-            replValue, PSStatementColumn.UNKNOWN_JDBC_TYPE, col); // fix for bug id Rx-99-12-0001
+      try {
+        if (jdbcType != null) context.addReplacementField(replValue, jdbcType.intValue(), col, lci);
+        else
+          context.addReplacementField(
+              replValue, PSStatementColumn.UNKNOWN_JDBC_TYPE, col); // fix for bug id Rx-99-12-0001
+      } catch (PSDataExtractionException e) {
+        throw new PSIllegalArgumentException(e.getErrorCode(), e.getErrorArguments());
+      }
     }
 
     return (colCount > 0); // true if at least 1 col; false if 0
@@ -564,13 +568,17 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
         if (usePlaceHolder) {
           IPSReplacementValue replValue = (IPSReplacementValue) map.getDocumentMapping();
           Integer jdbcType = (Integer) datatypes.get(columnName.toLowerCase());
-          if (jdbcType != null)
-            context.addReplacementField(replValue, jdbcType.intValue(), col, lci);
-          else
-            context.addReplacementField(
-                replValue,
-                PSStatementColumn.UNKNOWN_JDBC_TYPE,
-                col); // fix for bug id Rx-99-12-0001
+          try {
+            if (jdbcType != null)
+              context.addReplacementField(replValue, jdbcType.intValue(), col, lci);
+            else
+              context.addReplacementField(
+                  replValue,
+                  PSStatementColumn.UNKNOWN_JDBC_TYPE,
+                  col); // fix for bug id Rx-99-12-0001
+          } catch (PSDataExtractionException e) {
+            throw new PSIllegalArgumentException(e.getErrorCode(), e.getErrorArguments());
+          }
         } else {
           context.addText(columnName);
         }

@@ -112,6 +112,22 @@ public interface IPSItemEntry {
     int getStateId();
 
     /**
+     * Backwards compatible alias for workflow state ID. Legacy callers expect this
+     * signature.
+     *
+     * @return the content state id
+     */
+    int getContentStateId();
+
+    /**
+     * Whether this entry represents a folder; many legacy APIs call this method.
+     * Implementations should return true when appropriate.
+     *
+     * @return true if a folder
+     */
+    boolean isFolder();
+
+    /**
      * Gets the tip revision number.
      *
      * @return the tip revision

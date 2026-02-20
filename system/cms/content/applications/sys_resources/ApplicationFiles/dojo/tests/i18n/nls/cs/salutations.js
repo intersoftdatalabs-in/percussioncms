@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- cs: "Ä?esky",
- hello: "Ahoj"
-}
+({
+  cs: "Ã„?esky",
+  hello: "Ahoj",
+});

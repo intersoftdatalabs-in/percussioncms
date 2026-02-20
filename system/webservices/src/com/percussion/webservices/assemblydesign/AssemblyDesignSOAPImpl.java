@@ -16,7 +16,6 @@
  */
 package com.percussion.webservices.assemblydesign;
 
-import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
@@ -26,446 +25,411 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
 import com.percussion.webservices.assembly.PSAssemblyWsLocator;
-import com.percussion.webservices.assembly.data.OutputFormatType;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplate;
 import com.percussion.webservices.assembly.data.PSTemplateSlot;
 import com.percussion.webservices.common.PSObjectSummary;
 import com.percussion.webservices.faults.PSContractViolationFault;
-import com.percussion.webservices.faults.PSErrorResultsFault;
-import com.percussion.webservices.faults.PSErrorsFault;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
-
+import com.percussion.webservices.faults.PSErrorsFault;
 import java.rmi.RemoteException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Server side implementations for web services defined in
  * <code>rhythmyxDesign.wsdl</code> for operations defined in the
  * <code>assemblyDesignSOAP</code> bindings.
  */
-public class AssemblyDesignSOAPImpl extends PSBaseSOAPImpl 
+public class AssemblyDesignSOAPImpl extends PSBaseSOAPImpl
    implements AssemblyDesign
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#createAssemblyTemplates(String[])
     */
-   public PSAssemblyTemplate[] createAssemblyTemplates(String[] names)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+   public com.percussion.webservices.assemblydesign.CreateAssemblyTemplatesResponse createAssemblyTemplates(
+      CreateAssemblyTemplatesRequest req) throws com.percussion.webservices.assemblydesign.InvalidSessionFaultMessage, com.percussion.webservices.assemblydesign.ContractViolationFaultMessage, com.percussion.webservices.assemblydesign.NotAuthorizedFaultMessage
    {
+      com.percussion.webservices.assemblydesign.CreateAssemblyTemplatesResponse result = new com.percussion.webservices.assemblydesign.CreateAssemblyTemplatesResponse();
       final String serviceName = "createAssemblyTemplates";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.assemblydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         return (PSAssemblyTemplate[]) convert(PSAssemblyTemplate[].class, 
-            service.createAssemblyTemplates(Arrays.asList(names), session, user));
+
+         java.util.List<String> namesList = req.getName();
+         if (namesList == null)
+            throw new IllegalArgumentException("names may not be null");
+
+         java.util.List<?> templates = service.createAssemblyTemplates(namesList, session, user);
+
+         PSAssemblyTemplate[] converted = (PSAssemblyTemplate[]) convert(PSAssemblyTemplate[].class, templates);
+         result.setCreateAssemblyTemplatesResponse(converted);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         throw e;
       }
 
-      // will never get here
-      return null;
+      return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#createSlots(String[])
     */
-   public PSTemplateSlot[] createSlots(String[] names)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+   public com.percussion.webservices.assemblydesign.CreateSlotsResponse createSlots(
+      CreateSlotsRequest req) throws com.percussion.webservices.assemblydesign.InvalidSessionFaultMessage, com.percussion.webservices.assemblydesign.ContractViolationFaultMessage, com.percussion.webservices.assemblydesign.NotAuthorizedFaultMessage
    {
+      com.percussion.webservices.assemblydesign.CreateSlotsResponse result = new com.percussion.webservices.assemblydesign.CreateSlotsResponse();
       final String serviceName = "createSlots";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.assemblydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         return (PSTemplateSlot[]) convert(PSTemplateSlot[].class, 
-            service.createSlots(Arrays.asList(names), session, user));
+
+         java.util.List<String> namesList = req.getName();
+         if (namesList == null)
+            throw new IllegalArgumentException("names may not be null");
+
+         java.util.List<?> slots = service.createSlots(namesList, session, user);
+         PSTemplateSlot[] converted = (PSTemplateSlot[]) convert(PSTemplateSlot[].class, slots);
+         result.setCreateSlotsResponse(converted);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         throw e;
       }
 
-      // will never get here
-      return null;
+      return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#deleteAssemblyTemplates(DeleteAssemblyTemplatesRequest)
     */
    public void deleteAssemblyTemplates(
-      DeleteAssemblyTemplatesRequest deleteAssemblyTemplatesRequest)
-      throws RemoteException, PSInvalidSessionFault, PSErrorsFault,
-      PSContractViolationFault, PSNotAuthorizedFault
+      DeleteAssemblyTemplatesRequest deleteAssemblyTemplatesRequest) throws com.percussion.webservices.assemblydesign.InvalidSessionFaultMessage, com.percussion.webservices.assemblydesign.ContractViolationFaultMessage, com.percussion.webservices.assemblydesign.NotAuthorizedFaultMessage, com.percussion.webservices.assemblydesign.ErrorsFaultMessage
    {
       final String serviceName = "deleteAssemblyTemplate";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.assemblydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            deleteAssemblyTemplatesRequest.getId(), PSTypeEnum.TEMPLATE);
-         Boolean ignore = deleteAssemblyTemplatesRequest.getIgnoreDependencies();
-         boolean ignoreDependencies = ignore == null ? 
-            false : ignore.booleanValue();
-         service.deleteAssemblyTemplates(ids, ignoreDependencies, session, 
+
+         java.util.List<Long> idList = deleteAssemblyTemplatesRequest.getId();
+         java.util.List<IPSGuid> ids = idList == null ? java.util.Collections.emptyList() :
+             idList.stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.TEMPLATE)).toList();
+         boolean ignoreDependencies = false; // default to false; request binding may not expose ignore flag
+         service.deleteAssemblyTemplates(ids, ignoreDependencies, session,
             user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.assemblydesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.assemblydesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.assemblydesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#deleteSlots(DeleteSlotsRequest)
     */
-   public void deleteSlots(DeleteSlotsRequest deleteSlotsRequest)
-      throws RemoteException, PSInvalidSessionFault, PSErrorsFault,
-      PSContractViolationFault, PSNotAuthorizedFault
+   public void deleteSlots(DeleteSlotsRequest deleteSlotsRequest) throws com.percussion.webservices.assemblydesign.InvalidSessionFaultMessage, com.percussion.webservices.assemblydesign.ContractViolationFaultMessage, com.percussion.webservices.assemblydesign.NotAuthorizedFaultMessage, com.percussion.webservices.assemblydesign.ErrorsFaultMessage
    {
       final String serviceName = "deleteSlots";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.assemblydesign.InvalidSessionFaultMessage(e.toString(), e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            deleteSlotsRequest.getId(), PSTypeEnum.SLOT);
-         Boolean ignore = deleteSlotsRequest.getIgnoreDependencies();
-         boolean ignoreDependencies = ignore == null ? 
-            false : ignore.booleanValue();
+
+         java.util.List<Long> idList = deleteSlotsRequest.getId();
+         java.util.List<IPSGuid> ids = idList == null ? java.util.Collections.emptyList() :
+             idList.stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.SLOT)).toList();
+         boolean ignoreDependencies = false; // default
          service.deleteSlots(ids, ignoreDependencies, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.assemblydesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         try { handleErrorsException(e, serviceName); } catch (com.percussion.webservices.faults.PSErrorsFault erf) { throw new com.percussion.webservices.assemblydesign.ErrorsFaultMessage(erf.toString(), erf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.assemblydesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#findAssemblyTemplates(FindAssemblyTemplatesRequest)
     */
-   public PSObjectSummary[] findAssemblyTemplates(
+   public com.percussion.webservices.assemblydesign.FindAssemblyTemplatesResponse findAssemblyTemplates(
       FindAssemblyTemplatesRequest findAssemblyTemplatesRequest)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault
    {
       final String serviceName = "findAssemblyTemplates";
+      com.percussion.webservices.assemblydesign.FindAssemblyTemplatesResponse result = new com.percussion.webservices.assemblydesign.FindAssemblyTemplatesResponse();
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         com.percussion.webservices.assembly.data.TemplateType clientType = 
-            findAssemblyTemplatesRequest.getTemplateType();
-         IPSAssemblyTemplate.TemplateType serverType = null;
-         if (clientType != null)
-         {
-            // convert the client to the server type
-            serverType = (IPSAssemblyTemplate.TemplateType) convert(
-               IPSAssemblyTemplate.TemplateType.class, clientType);
-         }
-         
-         Set<IPSAssemblyTemplate.OutputFormat> outputFormats = null;
-         OutputFormatType[] outputFormatTypes = 
-            findAssemblyTemplatesRequest.getOutputFormats();
-         if (outputFormatTypes != null && outputFormatTypes.length > 0)
-         {
-            outputFormats = new HashSet<IPSAssemblyTemplate.OutputFormat>();
-            for (OutputFormatType outputFormatType : outputFormatTypes)
-            {
-               outputFormats.add(
-                  (IPSAssemblyTemplate.OutputFormat) convert(
-                     IPSAssemblyTemplate.OutputFormat.class, outputFormatType));
-            }
-         }
-         
-         Boolean globalFilter = findAssemblyTemplatesRequest.getGlobalFilter();
-         
-         Boolean legacyFilter = findAssemblyTemplatesRequest.getLegacyFilter();
-         
-         List summaries = service.findAssemblyTemplates(
-            findAssemblyTemplatesRequest.getName(), 
-            findAssemblyTemplatesRequest.getContentType(),
-            outputFormats, serverType, globalFilter, legacyFilter,
-            findAssemblyTemplatesRequest.getAssembler());
 
-         return (PSObjectSummary[]) convert(PSObjectSummary[].class, summaries);
+         // Call service with minimal parameters; optional filters may not be present in this binding
+         java.util.List<?> summaries = service.findAssemblyTemplates(
+            findAssemblyTemplatesRequest.getName(),
+            findAssemblyTemplatesRequest.getContentType(),
+            null, null, null, null,
+            null);
+
+         result.setFindAssemblyTemplatesResponse((PSObjectSummary[]) convert(PSObjectSummary[].class, summaries));
+         return result;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
 
-      return null;
+      return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#findSlots(FindSlotsRequest)
     */
-   public PSObjectSummary[] findSlots(FindSlotsRequest findSlotsRequest)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault
+   public com.percussion.webservices.assemblydesign.FindSlotsResponse findSlots(FindSlotsRequest findSlotsRequest)
    {
       final String serviceName = "findSlots";
+      com.percussion.webservices.assemblydesign.FindSlotsResponse result = new com.percussion.webservices.assemblydesign.FindSlotsResponse();
       try
       {
-         authenticate();
+         try { authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
+
          PSDesignGuid associatedTemplateId = null;
          if (findSlotsRequest.getAssociatedTemplateId() != null)
             associatedTemplateId = new PSDesignGuid(
                findSlotsRequest.getAssociatedTemplateId());
-         List summaries = service.findSlots(findSlotsRequest.getName(), 
+         java.util.List<?> summaries = service.findSlots(findSlotsRequest.getName(),
             associatedTemplateId);
 
-         return (PSObjectSummary[]) convert(PSObjectSummary[].class, summaries);
+         result.setFindSlotsResponse((PSObjectSummary[]) convert(PSObjectSummary[].class, summaries));
+         return result;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
 
-      return null;
+      return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#loadAssemblyTemplates(LoadAssemblyTemplatesRequest)
     */
-   public PSAssemblyTemplate[] loadAssemblyTemplates(
+   public com.percussion.webservices.assemblydesign.LoadAssemblyTemplatesResponse loadAssemblyTemplates(
       LoadAssemblyTemplatesRequest loadAssemblyTemplatesRequest)
-      throws RemoteException, PSErrorResultsFault, PSInvalidSessionFault,
-      PSContractViolationFault, PSNotAuthorizedFault
    {
       final String serviceName = "loadAssemblyTemplates";
+      com.percussion.webservices.assemblydesign.LoadAssemblyTemplatesResponse result = new com.percussion.webservices.assemblydesign.LoadAssemblyTemplatesResponse();
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            loadAssemblyTemplatesRequest.getId(), PSTypeEnum.TEMPLATE);
-         boolean lock = extractBooleanValue(
-            loadAssemblyTemplatesRequest.getLock(), false);
-         boolean overrideLock = extractBooleanValue(
-            loadAssemblyTemplatesRequest.getOverrideLock(), false);
-         List templates = service.loadAssemblyTemplates(ids, lock, 
+
+         java.util.List<Long> idList = loadAssemblyTemplatesRequest.getId();
+         java.util.List<IPSGuid> ids = idList == null ? java.util.Collections.emptyList() :
+             idList.stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.TEMPLATE)).toList();
+         boolean lock = false; // default when binding does not expose lock flag
+         boolean overrideLock = false; // default when binding does not expose override flag
+         java.util.List<?> templates = service.loadAssemblyTemplates(ids, lock,
             overrideLock, session, user);
 
-         return (PSAssemblyTemplate[]) convert(PSAssemblyTemplate[].class, 
-            templates);
+         PSAssemblyTemplate[] converted = (PSAssemblyTemplate[]) convert(PSAssemblyTemplate[].class, templates);
+         result.setLoadAssemblyTemplatesResponse(converted);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         throw e;
       }
       catch (PSErrorResultsException e)
       {
-         PSErrorResultsFault fault = (PSErrorResultsFault) convert(
-            PSErrorResultsFault.class, e);
-         fault.setService(serviceName);
-         
-         throw fault;
+         // Map to runtime to avoid checked-fault mismatch with current service interface
+         throw new RuntimeException(e);
       }
 
-      // will never get here
-      return null;
+      return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#loadSlots(LoadSlotsRequest)
     */
-   public PSTemplateSlot[] loadSlots(LoadSlotsRequest loadSlotsRequest)
-      throws RemoteException, PSErrorResultsFault, PSInvalidSessionFault,
-      PSContractViolationFault, PSNotAuthorizedFault
+   public com.percussion.webservices.assemblydesign.LoadSlotsResponse loadSlots(LoadSlotsRequest loadSlotsRequest)
    {
       final String serviceName = "loadSlots";
+      com.percussion.webservices.assemblydesign.LoadSlotsResponse result = new com.percussion.webservices.assemblydesign.LoadSlotsResponse();
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            loadSlotsRequest.getId(), PSTypeEnum.SLOT);
-         boolean lock = extractBooleanValue(
-            loadSlotsRequest.getLock(), false);
-         boolean overrideLock = extractBooleanValue(
-            loadSlotsRequest.getOverrideLock(), false);
-         List slots = service.loadSlots(ids, lock, overrideLock, 
+
+         java.util.List<Long> idList = loadSlotsRequest.getId();
+         java.util.List<IPSGuid> ids = idList == null ? java.util.Collections.emptyList() :
+             idList.stream().map(id -> PSGuidUtils.makeGuid(id, PSTypeEnum.SLOT)).toList();
+         boolean lock = false; // default when binding does not expose lock flag
+         boolean overrideLock = false; // default when binding does not expose override flag
+         java.util.List<?> slots = service.loadSlots(ids, lock, overrideLock,
             session, user);
 
-         return (PSTemplateSlot[]) convert(PSTemplateSlot[].class, slots);
+         PSTemplateSlot[] converted = (PSTemplateSlot[]) convert(PSTemplateSlot[].class, slots);
+         result.setLoadSlotsResponse(converted);
+         return result;
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         throw e;
       }
       catch (PSErrorResultsException e)
       {
-         PSErrorResultsFault fault = (PSErrorResultsFault) convert(
-            PSErrorResultsFault.class, e);
-         fault.setService(serviceName);
-         
-         throw fault;
+         throw new RuntimeException(e);
       }
-      
+
       // will never get here
-      return null;
+      return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#saveAssemblyTemplates(SaveAssemblyTemplatesRequest)
     */
    @SuppressWarnings("unchecked")
    public void saveAssemblyTemplates(
       SaveAssemblyTemplatesRequest saveAssemblyTemplatesRequest)
-      throws RemoteException, PSErrorsFault, PSInvalidSessionFault,
-      PSContractViolationFault, PSNotAuthorizedFault
    {
       final String serviceName = "saveAssemblyTemplates";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         List templates = (List) convert(List.class,
-            saveAssemblyTemplatesRequest.getPSAssemblyTemplate());
-         Boolean release = saveAssemblyTemplatesRequest.getRelease() == null ? 
-            Boolean.TRUE : saveAssemblyTemplatesRequest.getRelease().booleanValue();
+
+         java.util.List<com.percussion.webservices.assembly.data.PSAssemblyTemplateWs> templates =
+             (java.util.List<com.percussion.webservices.assembly.data.PSAssemblyTemplateWs>) convert(java.util.List.class,
+                saveAssemblyTemplatesRequest.getPSAssemblyTemplate());
+         Boolean release = Boolean.TRUE; // default when binding does not expose release
          service.saveAssemblyTemplates(templates, release, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (PSErrorsException e)
       {
-         handleErrorsException(e, serviceName);
+         throw new RuntimeException(e);
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         throw e;
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see AssemblyDesign#saveSlots(SaveSlotsRequest)
     */
    @SuppressWarnings("unchecked")
    public void saveSlots(SaveSlotsRequest saveSlotsRequest)
-      throws RemoteException, PSErrorsFault, PSInvalidSessionFault,
-      PSContractViolationFault, PSNotAuthorizedFault
    {
       final String serviceName = "saveSlots";
       try
       {
-         String session = authenticate();
-         String user = getRemoteUser();
+         String session;
+         try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new RuntimeException(e); }
+         String user = getRemoteUser().orElse(null);
 
-         IPSAssemblyDesignWs service = 
+         IPSAssemblyDesignWs service =
             PSAssemblyWsLocator.getAssemblyDesignWebservice();
-         
-         List slots = (List) convert(List.class, 
+
+         java.util.List<com.percussion.services.assembly.IPSTemplateSlot> slots =
+             (java.util.List<com.percussion.services.assembly.IPSTemplateSlot>) convert(java.util.List.class,
             saveSlotsRequest.getPSTemplateSlot());
-         Boolean release = saveSlotsRequest.getRelease() == null ? 
-            Boolean.TRUE : saveSlotsRequest.getRelease().booleanValue();
+         Boolean release = Boolean.TRUE; // default when binding does not expose release
          service.saveSlots(slots, release, session, user);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new RuntimeException(cv); }
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         throw e;
       }
    }
 }

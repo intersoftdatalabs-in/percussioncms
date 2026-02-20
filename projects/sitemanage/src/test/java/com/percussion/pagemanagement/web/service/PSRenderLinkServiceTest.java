@@ -32,8 +32,8 @@ import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestUtils;
 import java.io.InputStream;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +50,7 @@ public class PSRenderLinkServiceTest {
   private static PSAsset asset;
   private static String file;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -73,7 +73,7 @@ public class PSRenderLinkServiceTest {
     asset = testSiteData.saveAsset(asset);
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
     testSiteData.tearDown();
   }

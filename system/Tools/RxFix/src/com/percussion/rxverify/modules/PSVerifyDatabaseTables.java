@@ -234,7 +234,7 @@ public class PSVerifyDatabaseTables extends PSVerifyDatabaseBase implements IPSV
 
          // Check for missing columns using streams
          if (expectedColumns != null) {
-            expectedColumns.forEach(columnInfo -> {
+            java.util.Arrays.stream(expectedColumns).forEach(columnInfo -> {
                var columnName = columnInfo.getName().toLowerCase();
                if (!actualColumns.contains(columnName)) {
                   missingColumns.add(columnName);

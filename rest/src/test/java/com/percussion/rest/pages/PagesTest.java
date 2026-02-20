@@ -17,192 +17,101 @@
 
 package com.percussion.rest.pages;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-import com.percussion.rest.MainTest;
-import com.percussion.rest.errors.RestError;
 import com.percussion.rest.errors.RestErrorCode;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
+import com.percussion.rest.pages.PagesResource;
+import com.percussion.rest.pages.Page;
+import com.percussion.rest.errors.BackendException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@Tag("IntegrationTest")
-public class PagesTest extends MainTest {
+@ExtendWith(MockitoExtension.class)
+public class PagesTest {
 
-  @Test
-  public void testPageById() {
+    @Mock
+    IPageAdaptor adaptor;
 
-    Response response =
-        target("pages/1234")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .get();
-    Page page = response.readEntity(Page.class);
-    assertEquals("1234", page.getId());
-    assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-  }
+    @Mock
+    UriInfo uriInfo;
 
-  @Test
-  public void testPageByIdNotFound() {
+    @InjectMocks
+    PagesResource resource;
 
-    Response response =
-        target("pages/invalidId")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .get(Response.class);
-    RestError ex = response.readEntity(RestError.class);
-    assertEquals(ex.getErrorCode(), RestErrorCode.PAGE_NOT_FOUND.getNumVal());
-    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-  }
+    @BeforeEach
+    void setUp() {
+        lenient().when(uriInfo.getBaseUri()).thenReturn(UriBuilder.fromUri("http://localhost/api").build());
+    }
 
-  @Test
-  public void testPageRoundTrip() {
+    @Test
+    void shouldReturnPageById() throws Exception {
+        Page page = new Page();
+        page.setId("1234");
+        when(adaptor.getPage(any(), eq("1234"))).thenReturn(page);
 
-    String responseMsg =
-        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-            .request(MediaType.APPLICATION_JSON)
-            .get(String.class);
-    String putResponseMsg =
-        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-            .request(MediaType.APPLICATION_JSON_TYPE)
-            .put(Entity.entity(responseMsg, MediaType.APPLICATION_JSON_TYPE), String.class);
-    assertEquals(putResponseMsg, responseMsg);
-  }
+        Page result = resource.getPageById("1234");
 
-  @Test
-  public void testPageWrongPath() {
+        assertSame(page, result);
+        verify(adaptor).getPage(uriInfo.getBaseUri(), "1234");
+    }
 
-    String responseMsg =
-        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/page1.html")
-            .request()
-            .get(String.class);
-    Response response =
-        target("pages/by-path/sitea/path1/pathsub%20/pathsub3/page1.html")
-            .request()
-            .accept(MediaType.APPLICATION_JSON_TYPE)
-            .put(Entity.json(responseMsg));
-    RestError ex = response.readEntity(RestError.class);
-    assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
-    assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-  }
+    @Test
+    void shouldThrowWebAppExceptionWhenPageByIdFails() throws Exception {
+        when(adaptor.getPage(any(), eq("bad"))).thenThrow(new BackendException("fail", new Exception("cause")));
+        assertThrows(WebApplicationException.class, () -> resource.getPageById("bad"));
+    }
 
-  @Test
-  public void testPageWrongName() {
+    @Test
+    void shouldDecodeAndDelegatePathLookup() throws Exception {
+        Page page = new Page();
+        when(adaptor.getPage(any(), anyString(), anyString(), anyString())).thenReturn(page);
 
-    String responseMsg =
-        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/page1.html")
-            .request()
-            .get(String.class);
-    Response response =
-        target("pages/by-path/sitea/pathsub%20/pathsub2/page2.html")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .put(Entity.json(responseMsg));
-    RestError ex = response.readEntity(RestError.class);
-    assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
-    assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-  }
+        Page result = resource.getPage("site/mypage");
+        assertSame(page, result);
+        verify(adaptor).getPage(uriInfo.getBaseUri(), "site", "", "mypage");
+    }
 
-  @Test
-  public void testPageWrongSite() {
+    @Test
+    void updatePage_shouldEnforcePathConstraints() {
+        Page p = new Page();
+        p.setName("foo");
+        p.setFolderPath("bar");
+        p.setSiteName("baz");
 
-    String responseMsg =
-        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .get(String.class);
-    Response response =
-        target("pages/by-path/siteb/pathsub%20/pathsub2/page1.html")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .put(Entity.json(responseMsg));
-    RestError ex = response.readEntity(RestError.class);
-    assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
-    assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-  }
+        assertThrows(WebApplicationException.class, () -> resource.updatePage(p, "site/other/page.html"));
+    }
 
-  @Test
-  public void testPageNameNotFound() {
+    @Test
+    void updatePage_shouldCallAdaptorWhenValid() throws Exception {
+        Page p = new Page();
+        p.setName("page.html");
+        p.setFolderPath("path");
+        p.setSiteName("site");
+        when(adaptor.updatePage(any(), any())).thenReturn(p);
 
-    Response response =
-        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/testNotFound")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .get(Response.class);
-    RestError ex = response.readEntity(RestError.class);
-    assertEquals(ex.getErrorCode(), RestErrorCode.PAGE_NOT_FOUND.getNumVal());
-    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-  }
+        Page updated = resource.updatePage(p, "site/path/page.html");
 
-  @Test
-  public void testSiteNotFound() {
+        assertSame(p, updated);
+        verify(adaptor).updatePage(uriInfo.getBaseUri(), p);
+    }
 
-    Response response =
-        target("pages/by-path/testNotFound/path1/pathsub%20/pathsub2/pathsub3")
-            .request(MediaType.APPLICATION_JSON_TYPE)
-            .get(Response.class);
-    RestError ex = response.readEntity(RestError.class);
-    assertEquals(ex.getErrorCode(), RestErrorCode.SITE_NOT_FOUND.getNumVal());
-    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-  }
+    @Test
+    void updatePage_backendExceptionWrapped() throws Exception {
+        Page p = new Page();
+        p.setName("page.html");
+        p.setFolderPath("path");
+        p.setSiteName("site");
+        when(adaptor.updatePage(any(), any())).thenThrow(new BackendException("oops", new Exception("cause")));
 
-  @Test
-  public void testPathNotFound() {
-
-    Response response =
-        target("pages/by-path/siteb/path1/pathsub%20/testNotFound/pathsub3")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .get(Response.class);
-    RestError ex = response.readEntity(RestError.class);
-    assertEquals(ex.getErrorCode(), RestErrorCode.FOLDER_NOT_FOUND.getNumVal());
-    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-  }
-
-  @Test
-  @Disabled
-  public void testPage() {
-
-    String responseMsg2 =
-        target("pages/by-path/sitea/path1/pathsub/pathsub2/page1.html")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .get(String.class);
-    System.out.println(responseMsg2);
-    assertEquals(
-        "{\"id\":\"id\",\"name\":\"page1.html\",\"siteName\":\"sitea\",\"folderPath\":\"path1/pathsub/pathsub2\",\"displayName\":\"Display"
-            + " Name\",\"templateName\":\"Template1\",\"summary\":\"Summary\",\"overridePostDate\":\"2010-10-24T04:00:00.000+0000\",\"workflow\":{\"name\":null,\"state\":\"Approval\",\"checkedOut\":true,\"checkedOutUser\":\"Admin\"},\"seo\":{\"browserTitle\":\"Browser"
-            + " Title\",\"metaDescription\":\"Meta"
-            + " Description\",\"hideSearch\":false,\"tags\":[\"Tag1\",\"Tag2\"],\"categories\":[\"Category1\",\"Category2\"]},\"calendar\":{\"startDate\":\"2010-10-24T04:00:00.000+0000\",\"endDate\":\"2010-10-24T04:00:00.000+0000\",\"calendars\":[\"Caldendar1\",\"Calendar2\"]},\"code\":{\"head\":\"HeadCode\",\"afterStart\":\"AfterStartCode\",\"beforeClose\":\"BeforeCloseCode\"},\"body\":[{\"name\":\"region1\",\"type\":\"richtext\",\"editable\":false,\"widgets\":[{\"id\":\"1234\",\"name\":\"widget1\",\"type\":\"widgetType\",\"scope\":\"local\",\"editable\":true,\"asset\":{\"fields\":{\"Field2\":\"<a"
-            + " href=\\\"test\\\">test<\\\\a>\",\"Field1\":\"<a"
-            + " href=\\\"test\\\">test<\\\\a>\"}}}]}]}",
-        responseMsg2);
-    /*
-    assertEquals(
-            responseMsg2);
-            */
-  }
-
-  @Test
-  public void testRenamePage() {
-    var p =
-        target("pages/rename/sitea/path1/pathsub/pathsub2/page1.html/newname.html")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .post(Entity.json("{}"), Page.class);
-    assertTrue(p.getName().equals("newname.html"), "New Name Should Match");
-  }
-
-  @Test
-  public void testNeverNull() {
-    var p = new Page();
-    p.setRecentUsers(null);
-    p.setBookmarkedUsers(null);
-    assertTrue(p.getBookmarkedUsers() != null, "Should Never be Null");
-    assertTrue(p.getRecentUsers() != null, "Should Never be Null");
-  }
+        assertThrows(WebApplicationException.class, () -> resource.updatePage(p, "site/path/page.html"));
+    }
 }

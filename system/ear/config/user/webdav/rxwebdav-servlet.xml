@@ -3,64 +3,64 @@
 
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-   <!-- Corporate Investments -->
-   <bean id="CIFiles"
-      class="com.percussion.utils.spring.PSWebDavServletController">
-      <property name="initParameters">
-         <props>
-            <prop key="debug">true</prop>
-            <prop key="RxWebDAVConfig">RxWebDAVConfigCIFiles.xml</prop>
-         </props>
-      </property>
-   </bean>
-      <bean id="CIImages"
-      class="com.percussion.utils.spring.PSWebDavServletController">
-      <property name="initParameters">
-         <props>
-            <prop key="debug">true</prop>
-            <prop key="RxWebDAVConfig">RxWebDAVConfigCIImages.xml</prop>
-         </props>
-      </property>
-   </bean>
-   <!-- Enterprise Investments -->
-   <bean id="EIFiles"
-      class="com.percussion.utils.spring.PSWebDavServletController">
-      <property name="initParameters">
-         <props>
-            <prop key="debug">true</prop>
-            <prop key="RxWebDAVConfig">RxWebDAVConfigEIFiles.xml</prop>
-         </props>
-      </property>
-   </bean>
-   <bean id="EIImages"
-      class="com.percussion.utils.spring.PSWebDavServletController">
-      <property name="initParameters">
-         <props>
-            <prop key="debug">true</prop>
-            <prop key="RxWebDAVConfig">RxWebDAVConfigEIImages.xml</prop>
-         </props>
-      </property>
-   </bean>
-   <bean id="Default"
-      class="com.percussion.utils.spring.PSWebDavServletController">
-      <property name="initParameters">
-         <props>
-            <prop key="debug">true</prop>
-            <prop key="RxWebDAVConfig">RxWebDAVConfigDefaults.xml</prop>
-         </props>
-      </property>
-   </bean>   
-   <!-- add mappings here -->
-   <bean id="urlMapping"
-      class="com.percussion.utils.spring.PSUrlHandlerMapping">
-      <property name="mappings">
-         <props>
-            <prop key="Sites/CorporateInvestments/Files/**">CIFiles</prop>
-            <prop key="Sites/CorporateInvestments/Images/**">CIImages</prop>
-            <prop key="Sites/EnterpriseInvestments/Files/**">EIFiles</prop>
-            <prop key="Sites/EnterpriseInvestments/Images/**">EIImages</prop>
-            <prop key="[default]">Default</prop>
-         </props>
-      </property>
-   </bean>
+	<!-- Corporate Investments -->
+	<bean id="CIFiles"
+		class="com.percussion.utils.spring.PSWebDavServletController">
+		<property name="initParameters">
+			<props>
+				<prop key="debug">true</prop>
+				<prop key="RxWebDAVConfig">RxWebDAVConfigCIFiles.xml</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="CIImages"
+		class="com.percussion.utils.spring.PSWebDavServletController">
+		<property name="initParameters">
+			<props>
+				<prop key="debug">true</prop>
+				<prop key="RxWebDAVConfig">RxWebDAVConfigCIImages.xml</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- Enterprise Investments -->
+	<bean id="EIFiles"
+		class="com.percussion.utils.spring.PSWebDavServletController">
+		<property name="initParameters">
+			<props>
+				<prop key="debug">true</prop>
+				<prop key="RxWebDAVConfig">RxWebDAVConfigEIFiles.xml</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="EIImages"
+		class="com.percussion.utils.spring.PSWebDavServletController">
+		<property name="initParameters">
+			<props>
+				<prop key="debug">true</prop>
+				<prop key="RxWebDAVConfig">RxWebDAVConfigEIImages.xml</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="Default"
+		class="com.percussion.utils.spring.PSWebDavServletController">
+		<property name="initParameters">
+			<props>
+				<prop key="debug">true</prop>
+				<prop key="RxWebDAVConfig">RxWebDAVConfigDefaults.xml</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- add mappings here -->
+	<bean id="urlMapping"
+		class="com.percussion.utils.spring.PSUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="Sites/CorporateInvestments/Files/**">CIFiles</prop>
+				<prop key="Sites/CorporateInvestments/Images/**">CIImages</prop>
+				<prop key="Sites/EnterpriseInvestments/Files/**">EIFiles</prop>
+				<prop key="Sites/EnterpriseInvestments/Images/**">EIImages</prop>
+				<prop key="[default]">Default</prop>
+			</props>
+		</property>
+	</bean>
 </beans>

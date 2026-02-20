@@ -29,25 +29,25 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Tag("IntegrationTest")
+
 public class SolrConfigLoaderTest
 {
    @Test
    public void testLoadConfig() throws Exception
-   {    
+   {
       PSSolrConfig config = new PSSolrConfig();
       SolrServer server = new SolrServer();
       server.setSolrHost("url");
       server.setServerType("STAGING");
       server.addSiteEntry("sitename");
       server.addMetaMapEntry("key","value");
-   
+
       config.setSolrServer(Collections.singletonList(server));
-      
+
       String configString = SolrConfigLoader.toXml(config);
       System.out.println(configString);
       InputStream stream;
-     
+
       String testString = "<SolrConfig><SolrServer><serverType>STAGING</serverType><solrHost>url</solrHost><cleanAllOnFullPublish>false</cleanAllOnFullPublish><metadataMap><entry value=\"value\" key=\"key\"/></metadataMap><enabledSites><site>sitename</site></enabledSites></SolrServer></SolrConfig>";
       stream = new ByteArrayInputStream(testString.getBytes(StandardCharsets.UTF_8));
       PSSolrConfig config2 = PSSerializerUtils.unmarshalWithValidation(stream, PSSolrConfig.class);

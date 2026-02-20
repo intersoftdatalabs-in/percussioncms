@@ -43,6 +43,7 @@ import com.percussion.webservices.ui.data.PSDisplayFormat;
 import com.percussion.webservices.ui.data.PSHierarchyNode;
 import com.percussion.webservices.ui.data.PSSearchDef;
 import com.percussion.webservices.ui.data.PSViewDef;
+import com.percussion.webservices.faults.PSLockFault;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -54,187 +55,232 @@ import java.util.List;
  * <code>rhythmyxDesign.wsdl</code> for operations defined in the
  * <code>uiDesignSOAP</code> bindings.
  */
-public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
+public class UiDesignSOAPImpl extends PSBaseSOAPImpl
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#createActions(CreateActionsRequest)
     */
-   public com.percussion.webservices.ui.data.PSAction[] createActions(
-      CreateActionsRequest req) throws RemoteException,
-      PSInvalidSessionFault, PSContractViolationFault, PSNotAuthorizedFault
+   public com.percussion.webservices.uidesign.CreateActionsResponse createActions(
+      CreateActionsRequest req) throws com.percussion.webservices.uidesign.InvalidSessionFaultMessage,
+      com.percussion.webservices.uidesign.NotAuthorizedFaultMessage, com.percussion.webservices.uidesign.ContractViolationFaultMessage
    {
       final String serviceName = "createActions";
-      
-      String session = authenticate();
-      String user = getRemoteUser();
 
-      // get list of names ane types from the request
-      List<String> names = Arrays.asList( req.getName());
-      List<ActionType> types = new ArrayList<ActionType>();
-      for (com.percussion.webservices.uidesign.CreateActionsRequestType type :
-         req.getType())
+      String session;
+      try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.uidesign.InvalidSessionFaultMessage(e.toString(), e); }
+      String user = getRemoteUser().orElse(null);
+
+      // get list of names and action types from the request (handle array or List)
+      Object namesObj = req.getName();
+      List<String> names;
+      if (namesObj instanceof String[])
+         names = Arrays.asList((String[]) namesObj);
+      else
+         names = (List<String>) namesObj;
+
+      List<ActionType> types = new ArrayList<>();
+      Object typesObj = req.getType();
+      if (typesObj instanceof Object[])
       {
-         if (type.getValue().equals(
-            com.percussion.webservices.uidesign.CreateActionsRequestType._item))
+         for (Object t : (Object[]) typesObj)
          {
-            types.add(ActionType.item);
-         }
-         else if (type.getValue().equals(
-            com.percussion.webservices.uidesign.CreateActionsRequestType._cascading))
-         {
-            types.add(ActionType.cascading);
-         }
-         else
-         {
-            types.add(ActionType.dynamic);
+            String val = t == null ? "" : (t instanceof String ? (String) t : t.toString());
+            if ("item".equalsIgnoreCase(val) || "_item".equalsIgnoreCase(val))
+               types.add(ActionType.ITEM);
+            else if ("cascading".equalsIgnoreCase(val) || "_cascading".equalsIgnoreCase(val))
+               types.add(ActionType.CASCADING);
+            else
+               types.add(ActionType.DYNAMIC);
          }
       }
-      
+      else if (typesObj instanceof List)
+      {
+         for (Object t : (List<?>) typesObj)
+         {
+            String val = t == null ? "" : (t instanceof String ? (String) t : t.toString());
+            if ("item".equalsIgnoreCase(val) || "_item".equalsIgnoreCase(val))
+               types.add(ActionType.ITEM);
+            else if ("cascading".equalsIgnoreCase(val) || "_cascading".equalsIgnoreCase(val))
+               types.add(ActionType.CASCADING);
+            else
+               types.add(ActionType.DYNAMIC);
+         }
+      }
+
       // create the actions
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
-      com.percussion.webservices.ui.data.PSAction[] result = null;
+      com.percussion.webservices.uidesign.CreateActionsResponse response = new com.percussion.webservices.uidesign.CreateActionsResponse();
       try
       {
          List<PSAction> actions = uiws.createActions(names, types, session, user);
          // convert the actions
-         result = (com.percussion.webservices.ui.data.PSAction[]) convert(
+         com.percussion.webservices.ui.data.PSAction[] result = (com.percussion.webservices.ui.data.PSAction[]) convert(
             com.percussion.webservices.ui.data.PSAction[].class, actions);
+         for (com.percussion.webservices.ui.data.PSAction a : result) response.getPSAction().add(a);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.uidesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
-         handleLockError(e);
+         try { handleLockError(e); } catch (PSLockFault lf) { throw new RuntimeException(lf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.uidesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
 
-      return result;
+      return response;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#createDisplayFormats(String[])
     */
    public PSDisplayFormat[] createDisplayFormats(String[] names)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+      throws com.percussion.webservices.uidesign.InvalidSessionFaultMessage, com.percussion.webservices.uidesign.ContractViolationFaultMessage, com.percussion.webservices.uidesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "createDisplayFormats";
-      
-      String session = authenticate();
-      String user = getRemoteUser();
+
+      String session;
+      try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.uidesign.InvalidSessionFaultMessage(e.toString(), e); }
+      String user = getRemoteUser().orElse(null);
 
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
       PSDisplayFormat[] result = null;
       try
       {
-         List<com.percussion.cms.objectstore.PSDisplayFormat> dspFormats = 
+         List<com.percussion.cms.objectstore.PSDisplayFormat> dspFormats =
             uiws.createDisplayFormats(Arrays.asList(names), session, user);
          result = (PSDisplayFormat[]) convert(PSDisplayFormat[].class, dspFormats);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.uidesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
-         handleLockError(e);
+         try { handleLockError(e); } catch (PSLockFault lf) { throw new RuntimeException(lf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.uidesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#createSearches(CreateSearchesRequest)
     */
-   public PSSearchDef[] createSearches(
-      CreateSearchesRequest req) throws RemoteException,
-      PSInvalidSessionFault, PSContractViolationFault, PSNotAuthorizedFault
+   public com.percussion.webservices.uidesign.CreateSearchesResponse createSearches(
+      CreateSearchesRequest req) throws com.percussion.webservices.uidesign.InvalidSessionFaultMessage,
+      com.percussion.webservices.uidesign.ContractViolationFaultMessage, com.percussion.webservices.uidesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "createSearches";
-      
-      String session = authenticate();
-      String user = getRemoteUser();
 
-      // get list of names ane types from the request
-      List<String> names = Arrays.asList( req.getName());
-      List<String> types = new ArrayList<String>();
-      for (CreateSearchesRequestType type :req.getType())
+      String session;
+      try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.uidesign.InvalidSessionFaultMessage(e.toString(), e); }
+      String user = getRemoteUser().orElse(null);
+
+      // get list of names and types from the request (handle array or List return types)
+      Object namesObj = req.getName();
+      List<String> names;
+      if (namesObj instanceof String[])
+         names = Arrays.asList((String[]) namesObj);
+      else
+         names = (List<String>) namesObj;
+
+      List<String> types = new ArrayList<>();
+      Object typesObj = req.getType();
+      if (typesObj instanceof Object[])
       {
-         if (type.getValue().equals(CreateSearchesRequestType._custom))
-            types.add(PSSearch.TYPE_CUSTOMSEARCH);
-         else if (type.getValue().equals(CreateSearchesRequestType._standard))
-            types.add(PSSearch.TYPE_STANDARDSEARCH);
-         else
-            types.add(PSSearch.TYPE_USERSEARCH);
+         for (Object t : (Object[]) typesObj)
+         {
+            String val = t == null ? "" : (t instanceof String ? (String) t : t.toString());
+            if ("custom".equalsIgnoreCase(val) || "_custom".equalsIgnoreCase(val))
+               types.add(PSSearch.TYPE_CUSTOMSEARCH);
+            else if ("standard".equalsIgnoreCase(val) || "_standard".equalsIgnoreCase(val))
+               types.add(PSSearch.TYPE_STANDARDSEARCH);
+            else
+               types.add(PSSearch.TYPE_USERSEARCH);
+         }
       }
-      
+      else
+      {
+         for (Object t : (List<?>) typesObj)
+         {
+            String val = t == null ? "" : (t instanceof String ? (String) t : t.toString());
+            if ("custom".equalsIgnoreCase(val) || "_custom".equalsIgnoreCase(val))
+               types.add(PSSearch.TYPE_CUSTOMSEARCH);
+            else if ("standard".equalsIgnoreCase(val) || "_standard".equalsIgnoreCase(val))
+               types.add(PSSearch.TYPE_STANDARDSEARCH);
+            else
+               types.add(PSSearch.TYPE_USERSEARCH);
+         }
+      }
+
       // create the searches
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
-      PSSearchDef[] result = null;
+      com.percussion.webservices.uidesign.CreateSearchesResponse response = new com.percussion.webservices.uidesign.CreateSearchesResponse();
       try
       {
          List<PSSearch> searches = uiws.createSearches(names, types, session, user);
-         result = (PSSearchDef[]) convert(PSSearchDef[].class, searches);
+         PSSearchDef[] result = (PSSearchDef[]) convert(PSSearchDef[].class, searches);
+         for (PSSearchDef d : result) response.getPSSearchDef().add(d);
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.uidesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
-         handleLockError(e);
+         try { handleLockError(e); } catch (PSLockFault lf) { throw new RuntimeException(lf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+         throw new RuntimeException(PSExceptionUtils.getMessageForLog(e));
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.uidesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      return result;
+
+      return response;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#createViews(String[])
     */
    public PSViewDef[] createViews(String[] names)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault
+      throws RemoteException, com.percussion.webservices.uidesign.InvalidSessionFaultMessage, com.percussion.webservices.uidesign.ContractViolationFaultMessage,
+      com.percussion.webservices.uidesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "createViews";
-      
-      String session = authenticate();
-      String user = getRemoteUser();
+
+      String session;
+      try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.uidesign.InvalidSessionFaultMessage(e.toString(), e); }
+      String user = getRemoteUser().orElse(null);
 
       // get list of names ane types from the request
       List<String> nameList = Arrays.asList( names);
-      
+
       // create the searches
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
       PSViewDef[] result = null;
@@ -245,11 +291,11 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       }
       catch (IllegalArgumentException e)
       {
-         handleInvalidContract(e, serviceName);
+         try { handleInvalidContract(e, serviceName); } catch (PSContractViolationFault cv) { throw new com.percussion.webservices.uidesign.ContractViolationFaultMessage(cv.toString(), cv); }
       }
       catch (PSLockErrorException e)
       {
-         handleLockError(e);
+         try { handleLockError(e); } catch (PSLockFault lf) { throw new RuntimeException(lf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
       catch (PSErrorException e)
       {
@@ -257,15 +303,15 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.uidesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
-      
+
       return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#deleteActions(DeleteActionsRequest)
     */
    public void deleteActions(DeleteActionsRequest req)
@@ -274,16 +320,16 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
    {
       final String service = "deleteActions";
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       // convert ids to a list of GUIDs
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       for (long id : req.getId())
          ids.add(new PSDesignGuid(id));
-      
-      boolean ignoreDep = extractBooleanValue(req.getIgnoreDependencies(), 
+
+      boolean ignoreDep = extractBooleanValue(req.isIgnoreDependencies(),
          false);
-      
+
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
       try
       {
@@ -305,7 +351,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#deleteDisplayFormats(DeleteDisplayFormatsRequest)
     */
    public void deleteDisplayFormats(
@@ -315,13 +361,13 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
    {
       final String service = "deleteDisplayFormats";
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       // convert ids to a list of GUIDs
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       for (long id : req.getId())
          ids.add(new PSDesignGuid(id));
-      boolean ignoreDep = extractBooleanValue(req.getIgnoreDependencies(), 
+      boolean ignoreDep = extractBooleanValue(req.isIgnoreDependencies(),
          false);
 
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
@@ -345,7 +391,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#deleteSearches(DeleteSearchesRequest)
     */
    public void deleteSearches(DeleteSearchesRequest req)
@@ -354,14 +400,14 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
    {
       final String service = "deleteSearches";
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       // convert ids to a list of GUIDs
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       for (long id : req.getId())
          ids.add(new PSDesignGuid(id));
-      
-      boolean ignoreDep = extractBooleanValue(req.getIgnoreDependencies(), 
+
+      boolean ignoreDep = extractBooleanValue(req.isIgnoreDependencies(),
          false);
 
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
@@ -385,7 +431,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#deleteViews(DeleteViewsRequest)
     */
    public void deleteViews(DeleteViewsRequest req)
@@ -394,14 +440,14 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
    {
       final String service = "deleteViews";
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       // convert ids to a list of GUIDs
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       for (long id : req.getId())
          ids.add(new PSDesignGuid(id));
-      
-      boolean ignoreDep = extractBooleanValue(req.getIgnoreDependencies(), 
+
+      boolean ignoreDep = extractBooleanValue(req.isIgnoreDependencies(),
          false);
 
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
@@ -425,7 +471,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#findActions(FindActionsRequest)
     */
    public PSObjectSummary[] findActions(FindActionsRequest request)
@@ -436,9 +482,23 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
       try
       {
-         List<ActionType> types = request.getType() == null ? null : Arrays
-               .asList(request.getType());
-         
+         List<ActionType> types = null;
+         Object typesObj = request.getType();
+         if (typesObj != null)
+         {
+            types = new ArrayList<>();
+            if (typesObj instanceof Object[])
+            {
+               for (Object t : (Object[]) typesObj)
+                  types.add((ActionType) convert(ActionType.class, t));
+            }
+            else
+            {
+               for (Object t : (List<?>) typesObj)
+                  types.add((ActionType) convert(ActionType.class, t));
+            }
+         }
+
          List<IPSCatalogSummary> objects = uiws.findActions(request.getName(),
                request.getLabel(), types);
          return (PSObjectSummary[]) convert(PSObjectSummary[].class, objects);
@@ -452,7 +512,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#findDisplayFormats(FindDisplayFormatsRequest)
     */
    public PSObjectSummary[] findDisplayFormats(
@@ -477,7 +537,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#findSearches(FindSearchesRequest)
     */
    public PSObjectSummary[] findSearches(FindSearchesRequest request)
@@ -501,7 +561,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#findViews(FindViewsRequest)
     */
    public PSObjectSummary[] findViews(FindViewsRequest request)
@@ -525,7 +585,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#loadActions(LoadActionsRequest)
     */
    public com.percussion.webservices.ui.data.PSAction[] loadActions(
@@ -535,20 +595,20 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
    {
       final String service = "loadActions";
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       // convert ids to a list of GUIDs
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       for (long id : loadActionsRequest.getId())
          ids.add(new PSDesignGuid(id));
-      
+
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
       com.percussion.webservices.ui.data.PSAction[] result = null;
       try
       {
          List<PSAction> actions = uiws.loadActions(ids, loadActionsRequest
-               .getLock(), loadActionsRequest.getOverrideLock(), session, user);
-         
+               .isLock(), loadActionsRequest.isOverrideLock(), session, user);
+
          result = (com.percussion.webservices.ui.data.PSAction[]) convert(
                com.percussion.webservices.ui.data.PSAction[].class, actions);
       }
@@ -564,13 +624,13 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       {
          handleErrorResultsException(e, service);
       }
-      
+
       return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#loadDisplayFormats(LoadDisplayFormatsRequest)
     */
    public PSDisplayFormat[] loadDisplayFormats(
@@ -580,21 +640,21 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
    {
       final String service = "loadDisplayFormats";
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       // convert ids to a list of GUIDs
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       for (long id : request.getId())
          ids.add(new PSDesignGuid(id));
-      
+
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
       PSDisplayFormat[] result = null;
       try
       {
          List<com.percussion.cms.objectstore.PSDisplayFormat> dspFormats = uiws
-               .loadDisplayFormats(ids, request.getLock(), request
-                     .getOverrideLock(), session, user);
-         
+               .loadDisplayFormats(ids, request.isLock(), request
+                     .isOverrideLock(), session, user);
+
          result = (PSDisplayFormat[]) convert(PSDisplayFormat[].class, dspFormats);
       }
       catch (IllegalArgumentException e)
@@ -609,13 +669,13 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       {
          handleErrorResultsException(e, service);
       }
-      
+
       return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#loadSearches(LoadSearchesRequest)
     */
    public PSSearchDef[] loadSearches(LoadSearchesRequest request)
@@ -624,21 +684,21 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
    {
       final String service = "loadSearches";
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       // convert ids to a list of GUIDs
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       for (long id : request.getId())
          ids.add(new PSDesignGuid(id));
-      
+
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
       PSSearchDef[] result = null;
       try
       {
          List<com.percussion.cms.objectstore.PSSearch> searches = uiws
-               .loadSearches(ids, request.getLock(), request
-                     .getOverrideLock(), session, user);
-         
+               .loadSearches(ids, request.isLock(), request
+                     .isOverrideLock(), session, user);
+
          result = (PSSearchDef[]) convert(PSSearchDef[].class, searches);
       }
       catch (IllegalArgumentException e)
@@ -653,13 +713,13 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       {
          handleErrorResultsException(e, service);
       }
-      
+
       return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#loadViews(LoadViewsRequest)
     */
    public PSViewDef[] loadViews(LoadViewsRequest request)
@@ -668,21 +728,21 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
    {
       final String service = "loadViews";
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       // convert ids to a list of GUIDs
       List<IPSGuid> ids = new ArrayList<IPSGuid>();
       for (long id : request.getId())
          ids.add(new PSDesignGuid(id));
-      
+
       IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
       PSViewDef[] result = null;
       try
       {
          List<com.percussion.cms.objectstore.PSSearch> views = uiws
-               .loadViews(ids, request.getLock(), request
-                     .getOverrideLock(), session, user);
-         
+               .loadViews(ids, request.isLock(), request
+                     .isOverrideLock(), session, user);
+
          result = (PSViewDef[]) convert(PSViewDef[].class, views);
       }
       catch (IllegalArgumentException e)
@@ -697,32 +757,33 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       {
          handleErrorResultsException(e, service);
       }
-      
+
       return result;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#saveActions(SaveActionsRequest)
     */
    @SuppressWarnings("unchecked")
    public void saveActions(SaveActionsRequest saveActionsRequest)
-      throws RemoteException, PSErrorsFault, PSInvalidSessionFault,
-      PSContractViolationFault, PSNotAuthorizedFault
+      throws RemoteException, PSErrorsFault, com.percussion.webservices.uidesign.InvalidSessionFaultMessage,
+      PSContractViolationFault, com.percussion.webservices.uidesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "saveActions";
-      
-      String session = authenticate();
-      String user = getRemoteUser();
+
+      String session;
+      try { session = authenticate(); } catch (PSInvalidSessionFault e) { throw new com.percussion.webservices.uidesign.InvalidSessionFaultMessage(e.toString(), e); }
+      String user = getRemoteUser().orElse(null);
 
       try
       {
-         List<PSAction> actions = (List<PSAction>) convert(List.class, 
+         List<PSAction> actions = (List<PSAction>) convert(List.class,
                saveActionsRequest.getPSAction());
-         
+
          IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
-         uiws.saveActions(actions, saveActionsRequest.getRelease()
+         uiws.saveActions(actions, saveActionsRequest.isRelease()
                .booleanValue(), session, user);
       }
       catch (PSErrorsException e)
@@ -731,13 +792,13 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       }
       catch (RuntimeException e)
       {
-         handleRuntimeException(e, serviceName);
+         try { handleRuntimeException(e, serviceName); } catch (PSNotAuthorizedFault naf) { throw new com.percussion.webservices.uidesign.NotAuthorizedFaultMessage(naf.toString(), naf); } catch (RemoteException re) { throw new RuntimeException(re); }
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#saveDisplayFormats(SaveDisplayFormatsRequest)
     */
    @SuppressWarnings("unchecked")
@@ -746,18 +807,18 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       PSContractViolationFault, PSNotAuthorizedFault
    {
       final String serviceName = "saveDisplayFormats";
-      
+
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       try
       {
-         List<com.percussion.cms.objectstore.PSDisplayFormat> dspFormats = 
+         List<com.percussion.cms.objectstore.PSDisplayFormat> dspFormats =
             (List<com.percussion.cms.objectstore.PSDisplayFormat>) convert(
                List.class, request.getPSDisplayFormat());
-         
+
          IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
-         uiws.saveDisplayFormats(dspFormats, request.getRelease().booleanValue(),
+         uiws.saveDisplayFormats(dspFormats, request.isRelease().booleanValue(),
                session, user);
       }
       catch (PSErrorsException e)
@@ -772,7 +833,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#saveSearches(SaveSearchesRequest)
     */
    @SuppressWarnings("unchecked")
@@ -781,17 +842,17 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       PSContractViolationFault, PSNotAuthorizedFault
    {
       final String serviceName = "saveSearches";
-      
+
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       try
       {
-         List<PSSearch> searches = (List<PSSearch>) convert(List.class, 
+         List<PSSearch> searches = (List<PSSearch>) convert(List.class,
                saveSearchesRequest.getPSSearchDef());
-         
+
          IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
-         uiws.saveSearches(searches, saveSearchesRequest.getRelease()
+         uiws.saveSearches(searches, saveSearchesRequest.isRelease()
                .booleanValue(), session, user);
       }
       catch (PSErrorsException e)
@@ -806,7 +867,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#saveViews(SaveViewsRequest)
     */
    @SuppressWarnings("unchecked")
@@ -815,18 +876,18 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       PSContractViolationFault, PSNotAuthorizedFault
    {
       final String serviceName = "saveViews";
-      
+
       String session = authenticate();
-      String user = getRemoteUser();
+      String user = getRemoteUser().orElse(null);
 
       try
       {
-         List<PSSearch> searches = (List<PSSearch>) convert(List.class, 
+         List<PSSearch> searches = (List<PSSearch>) convert(List.class,
                saveViewsRequest.getPSViewDef());
-         
+
          IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
-         uiws.saveViews(searches, saveViewsRequest.getRelease()
-               .booleanValue(), session, user);
+         boolean release = extractBooleanValue(saveViewsRequest.isRelease(), false);
+         uiws.saveViews(searches, release, session, user);
       }
       catch (PSErrorsException e)
       {
@@ -840,7 +901,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#createHierarchyNodes(CreateHierarchyNodesRequest)
     */
    @SuppressWarnings("unchecked")
@@ -853,26 +914,43 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       try
       {
          String session = authenticate();
-         String user = getRemoteUser();
+         String user = getRemoteUser().orElse(null);
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
-         String[] names = createHierarchyNodesRequest.getName();
-         
+
+         Object namesObj = createHierarchyNodesRequest.getName();
+         List<String> namesList;
+         if (namesObj instanceof String[])
+            namesList = Arrays.asList((String[]) namesObj);
+         else
+            namesList = (List<String>) namesObj;
+
          List<IPSGuid> parents = new ArrayList<IPSGuid>();
          for (long parent : createHierarchyNodesRequest.getParentId())
             parents.add(parent == 0 ? null : new PSDesignGuid(parent));
-         
-         List<com.percussion.services.ui.data.PSHierarchyNode.NodeType> types = 
-            new ArrayList<com.percussion.services.ui.data.PSHierarchyNode.NodeType>();
-         for (CreateHierarchyNodesRequestType type : createHierarchyNodesRequest.getType())
-            types.add(
-               (com.percussion.services.ui.data.PSHierarchyNode.NodeType) convert(
-               com.percussion.services.ui.data.PSHierarchyNode.NodeType.class, 
-               type));
 
-         return (PSHierarchyNode[]) convert(PSHierarchyNode[].class, 
-            service.createHierarchyNodes(Arrays.asList(names), parents, types, 
+         List<com.percussion.services.ui.data.PSHierarchyNode.NodeType> types =
+            new ArrayList<com.percussion.services.ui.data.PSHierarchyNode.NodeType>();
+         Object typesObj = createHierarchyNodesRequest.getType();
+         if (typesObj instanceof Object[])
+         {
+            for (Object t : (Object[]) typesObj)
+            {
+               types.add((com.percussion.services.ui.data.PSHierarchyNode.NodeType) convert(
+                  com.percussion.services.ui.data.PSHierarchyNode.NodeType.class, t));
+            }
+         }
+         else
+         {
+            for (Object t : (List<?>) typesObj)
+            {
+               types.add((com.percussion.services.ui.data.PSHierarchyNode.NodeType) convert(
+                  com.percussion.services.ui.data.PSHierarchyNode.NodeType.class, t));
+            }
+         }
+
+         return (PSHierarchyNode[]) convert(PSHierarchyNode[].class,
+            service.createHierarchyNodes(namesList, parents, types,
                session, user));
       }
       catch (IllegalArgumentException e)
@@ -888,14 +966,14 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
          // this should never happen
          throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
       }
-      
+
       // will never get here
       return null;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#deleteHierarchyNodes(DeleteHierarchyNodesRequest)
     */
    public void deleteHierarchyNodes(
@@ -907,14 +985,31 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       try
       {
          String session = authenticate();
-         String user = getRemoteUser();
+         String user = getRemoteUser().orElse(null);
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            deleteHierarchyNodesRequest.getId(), PSTypeEnum.HIERARCHY_NODE);
+
+         // convert incoming ids (may be long[] or List<Long>) to GUIDs
+         List<IPSGuid> ids = new ArrayList<>();
+         Object idObj = deleteHierarchyNodesRequest.getId();
+         if (idObj instanceof long[])
+         {
+            for (long id : (long[]) idObj)
+               ids.add(new PSDesignGuid(id));
+         }
+         else if (idObj instanceof Long[])
+         {
+            for (Long id : (Long[]) idObj)
+               ids.add(new PSDesignGuid(id.longValue()));
+         }
+         else
+         {
+            for (Long id : (List<Long>) idObj)
+               ids.add(new PSDesignGuid(id));
+         }
+
          boolean ignoreDependencies = extractBooleanValue(
-            deleteHierarchyNodesRequest.getIgnoreDependencies(), false);
+            deleteHierarchyNodesRequest.isIgnoreDependencies(), false);
          service.deleteHierarchyNodes(ids, ignoreDependencies, session, user);
       }
       catch (IllegalArgumentException e)
@@ -933,7 +1028,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#findHierarchyNodes(FindHierarchyNodesRequest)
     */
    public PSObjectSummary[] findHierarchyNodes(
@@ -946,16 +1041,16 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
          authenticate();
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
+
          com.percussion.services.ui.data.PSHierarchyNode.NodeType type = null;
          if (findHierarchyNodesRequest.getType() != null)
          {
-            type = 
+            type =
                (com.percussion.services.ui.data.PSHierarchyNode.NodeType) convert(
-                  com.percussion.services.ui.data.PSHierarchyNode.NodeType.class, 
+                  com.percussion.services.ui.data.PSHierarchyNode.NodeType.class,
                   findHierarchyNodesRequest.getType());
          }
-         
+
          List summaries = service.findHierarchyNodes(
             findHierarchyNodesRequest.getPath(), type);
 
@@ -970,7 +1065,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#getChildren(GetChildrenRequest)
     */
    public long[] getChildren(GetChildrenRequest getChildrenRequest)
@@ -982,13 +1077,18 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
          authenticate();
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
+
          IPSGuid parentId = null;
          if (getChildrenRequest.getId() != 0)
             parentId = new PSDesignGuid(getChildrenRequest.getId());
          List<IPSGuid> children = service.getChildren(parentId);
 
-         return PSGuidUtils.toLongArray(children);
+         Long[] longs = PSGuidUtils.toLongArray(children);
+         long[] result = new long[longs.length];
+         for (int i = 0; i < longs.length; i++)
+            result[i] = longs[i] == null ? 0L : longs[i].longValue();
+
+         return result;
       }
       catch (IllegalArgumentException e)
       {
@@ -999,7 +1099,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#idsToPaths(long[])
     */
    public String[] idsToPaths(long[] idsToPathsRequest) throws RemoteException,
@@ -1011,10 +1111,10 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
          authenticate();
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
+
          if (idsToPathsRequest == null)
             throw new IllegalArgumentException("ids cannot be null");
-         
+
          List<String> paths = service.idsToPaths(
             PSGuidUtils.toGuidList(idsToPathsRequest));
 
@@ -1028,13 +1128,13 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       {
          handleErrorResultsException(e, serviceName);
       }
-      
+
       return null; // never here, used to turn off compiling error
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#loadHierarchyNodes(LoadHierarchyNodesRequest)
     */
    public PSHierarchyNode[] loadHierarchyNodes(
@@ -1046,17 +1146,34 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       try
       {
          String session = authenticate();
-         String user = getRemoteUser();
+         String user = getRemoteUser().orElse(null);
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
-         List<IPSGuid> ids = PSGuidUtils.toGuidList(
-            loadHierarchyNodesRequest.getId(), PSTypeEnum.HIERARCHY_NODE);
+
+         // convert ids (may be long[]/Long[]/List<Long>) to GUIDs
+         List<IPSGuid> ids = new ArrayList<>();
+         Object idObj = loadHierarchyNodesRequest.getId();
+         if (idObj instanceof long[])
+         {
+            for (long id : (long[]) idObj)
+               ids.add(new PSDesignGuid(id));
+         }
+         else if (idObj instanceof Long[])
+         {
+            for (Long id : (Long[]) idObj)
+               ids.add(new PSDesignGuid(id.longValue()));
+         }
+         else
+         {
+            for (Long id : (List<Long>) idObj)
+               ids.add(new PSDesignGuid(id));
+         }
+
          boolean lock = extractBooleanValue(
-            loadHierarchyNodesRequest.getLock(), false);
+            loadHierarchyNodesRequest.isLock(), false);
          boolean overrideLock = extractBooleanValue(
-            loadHierarchyNodesRequest.getOverrideLock(), false);
-         List nodes = service.loadHierachyNodes(ids, lock, overrideLock, 
+            loadHierarchyNodesRequest.isOverrideLock(), false);
+         List nodes = service.loadHierachyNodes(ids, lock, overrideLock,
             session, user);
 
          return (PSHierarchyNode[]) convert(PSHierarchyNode[].class, nodes);
@@ -1073,13 +1190,13 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       {
          handleErrorResultsException(e, serviceName);
       }
-      
+
       return null; // never here, used to turn off compiling error
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#moveChildren(MoveChildrenRequest)
     */
    public void moveChildren(MoveChildrenRequest moveChildrenRequest)
@@ -1089,15 +1206,31 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       try
       {
          authenticate();
-   
+
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
+
          IPSGuid sourceId = new PSDesignGuid(
             moveChildrenRequest.getSourceId());
          IPSGuid targetId = new PSDesignGuid(
             moveChildrenRequest.getTargetId());
-         List<IPSGuid> children = PSGuidUtils.toGuidList(
-            moveChildrenRequest.getId());
+         // convert id argument (may be long[]/Long[]/List<Long>) to GUIDs
+         List<IPSGuid> children = new ArrayList<>();
+         Object idObj = moveChildrenRequest.getId();
+         if (idObj instanceof long[])
+         {
+            for (long id : (long[]) idObj)
+               children.add(new PSDesignGuid(id));
+         }
+         else if (idObj instanceof Long[])
+         {
+            for (Long id : (Long[]) idObj)
+               children.add(new PSDesignGuid(id.longValue()));
+         }
+         else
+         {
+            for (Long id : (List<Long>) idObj)
+               children.add(new PSDesignGuid(id));
+         }
          service.moveChildren(sourceId, targetId, children);
       }
       catch (IllegalArgumentException e)
@@ -1108,7 +1241,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#pathsToIds(String[])
     */
    public long[][] pathsToIds(String[] pathsToIdsRequest) throws RemoteException,
@@ -1120,18 +1253,24 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
          authenticate();
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
+
          if (pathsToIdsRequest == null)
             throw new IllegalArgumentException("paths cannot be null");
-         
+
          List<List<IPSGuid>> idsList = service.pathsToIds(
             Arrays.asList(pathsToIdsRequest));
 
          long[][] idsArray = new long[idsList.size()][0];
          int index = 0;
          for (List<IPSGuid> ids : idsList)
-            idsArray[index++] = PSGuidUtils.toLongArray(ids);
-         
+         {
+            Long[] longs = PSGuidUtils.toLongArray(ids);
+            long[] prim = new long[longs.length];
+            for (int i = 0; i < longs.length; i++)
+               prim[i] = longs[i] == null ? 0L : longs[i].longValue();
+            idsArray[index++] = prim;
+         }
+
          return idsArray;
       }
       catch (IllegalArgumentException e)
@@ -1142,13 +1281,13 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       {
          throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
       }
-      
+
       return null; // never here, used to turn off compiling error
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#removeChildren(RemoveChildrenRequest)
     */
    public void removeChildren(RemoveChildrenRequest removeChildrenRequest)
@@ -1160,12 +1299,28 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
          authenticate();
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
+
          IPSGuid parentId = null;
          if (removeChildrenRequest.getParentId() != 0)
             parentId = new PSDesignGuid(removeChildrenRequest.getParentId());
-         List<IPSGuid> children = PSGuidUtils.toGuidList(
-            removeChildrenRequest.getId());
+         // convert id argument (may be long[]/Long[]/List<Long>) to GUIDs
+         List<IPSGuid> children = new ArrayList<>();
+         Object idObj = removeChildrenRequest.getId();
+         if (idObj instanceof long[])
+         {
+            for (long id : (long[]) idObj)
+               children.add(new PSDesignGuid(id));
+         }
+         else if (idObj instanceof Long[])
+         {
+            for (Long id : (Long[]) idObj)
+               children.add(new PSDesignGuid(id.longValue()));
+         }
+         else
+         {
+            for (Long id : (List<Long>) idObj)
+               children.add(new PSDesignGuid(id));
+         }
          service.removeChildren(parentId, children);
       }
       catch (IllegalArgumentException e)
@@ -1176,7 +1331,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see UiDesign#saveHierarchyNodes(SaveHierarchyNodesRequest)
     */
    @SuppressWarnings("unchecked")
@@ -1189,14 +1344,14 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl implements UiDesign
       try
       {
          String session = authenticate();
-         String user = getRemoteUser();
+         String user = getRemoteUser().orElse(null);
 
          IPSUiDesignWs service = PSUiWsLocator.getUiDesignWebservice();
-         
+
          List nodes = (List) convert(List.class,
             saveHierarchyNodesRequest.getPSHierarchyNode());
          boolean release = extractBooleanValue(
-            saveHierarchyNodesRequest.getRelease(), true);
+            saveHierarchyNodesRequest.isRelease(), true);
          service.saveHierarchyNodes(nodes, release, session, user);
       }
       catch (IllegalArgumentException e)

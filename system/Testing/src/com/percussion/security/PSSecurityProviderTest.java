@@ -33,11 +33,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
- * Security provider tests. Not part of the nightly test execution, only used 
+ * Security provider tests. Not part of the nightly test execution, only used
  * for debugging purposes.
- * 
- * This test needs the NT Guest account activated. It is excluded to run 
- * on nightly builds. 
+ *
+ * This test needs the NT Guest account activated. It is excluded to run
+ * on nightly builds.
  */
 @Tag("UnitTest")
 public class PSSecurityProviderTest
@@ -50,7 +50,7 @@ public class PSSecurityProviderTest
 
    /**
     * Helper to create a new request used for testing.
-    * 
+    *
     * @return the newly created request , never <code>null</code>.
     */
    protected PSRequest createRequest()
@@ -60,7 +60,7 @@ public class PSSecurityProviderTest
 
       cgiVars.put(IPSCgiVariables.CGI_PS_REQUEST_TYPE, "design-");
 
-      PSRequest req = PSRequestTest.makeRequest("/foo", "/foo", 
+      PSRequest req = PSRequestTest.makeRequest("/foo", "/foo",
          new HashMap(), // params
          cgiVars, // cgi vars
          cookies, // cookies
@@ -71,8 +71,8 @@ public class PSSecurityProviderTest
 
    /**
     * Test the web server security provider.
-    * 
-    * @throws Exception If the test fails 
+    *
+    * @throws Exception If the test fails
     */
    @Test
    public void WebProviderTest() throws Exception
@@ -95,9 +95,7 @@ public class PSSecurityProviderTest
       cgiVars.put(IPSCgiVariables.CGI_AUTH_TYPE, "Basic");
       ent = webProvider.authenticate("admin1", cgiVars);
 
-      if (!ent.getName().equals("admin1"))
-         assertTrue("Name not retrieved in user entry - " + ent.getName()
-            + " was returned", false);
+      assertTrue(ent.getName().equals("admin1"), "Name not retrieved in user entry - " + ent.getName() + " was returned");
 
       // Step 2: Send a NTLM authentication with user admin1
       cgiVars = new HashMap<String, String>();
@@ -108,9 +106,7 @@ public class PSSecurityProviderTest
       cgiVars.put(IPSCgiVariables.CGI_AUTH_TYPE, "NTLM");
 
       ent = webProvider.authenticate("admin1", cgiVars);
-      if (!ent.getName().equals("admin1"))
-         assertTrue("Name not retrieved in user entry - " + ent.getName()
-            + " was returned", false);
+      assertTrue(ent.getName().equals("admin1"), "Name not retrieved in user entry - " + ent.getName() + " was returned");
 
       // Step 3: Send a NTLM authentication with user admin1
       cgiVars = new HashMap<String, String>();
@@ -121,8 +117,6 @@ public class PSSecurityProviderTest
          "CN=Bugs Bunny,OU=TestOrgUnit,O=Earth,C=USA");
 
       ent = webProvider.authenticate("admin1", cgiVars);
-      if (!ent.getName().equals("Bugs Bunny"))
-         assertTrue("Name not retrieved in user entry - " + ent.getName()
-            + " was returned", false);
+      assertTrue(ent.getName().equals("Bugs Bunny"), "Name not retrieved in user entry - " + ent.getName() + " was returned");
    }
 }

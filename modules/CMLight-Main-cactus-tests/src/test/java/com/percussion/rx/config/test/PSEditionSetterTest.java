@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Tag;
  * @author YuBingChen
  */
 @SuppressWarnings("unchecked")
-@Tag("IntegrationTest")
+
 public class PSEditionSetterTest extends PSConfigurationTest {
   /**
    * Creates an Edition Wrapper with 1 pre-task and 2 post-tasks

@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- fa: "�?ارسی",
- hello: "درود"
-}
+({
+  fa: "Ù?Ø§Ø±Ø³Û",
+  hello: "Ø¯Ø±ÙØ¯",
+});

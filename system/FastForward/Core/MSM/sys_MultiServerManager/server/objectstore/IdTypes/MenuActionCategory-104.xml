@@ -2,10 +2,15 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="104" dependencyType="Local" displayName="View" isIncluded="yes" objectType="MenuActionCategory" objectTypeName="Action Menu Category" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no">
-         <Dependencies/>
-      </PSXDependency>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="104" dependencyType="Local" displayName="View"
+			isIncluded="yes" objectType="MenuActionCategory"
+			objectTypeName="Action Menu Category" supportsIdMapping="yes"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no">
+			<Dependencies />
+		</PSXDependency>
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

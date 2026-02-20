@@ -101,7 +101,7 @@ public class PSConsistencyProblemFinder extends PSConsistencyBase
 
          IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
          List<PSComponentSummary> summaries = cms
-               .findComponentSummariesByType(ctid);
+               .findComponentSummariesByType(ctid).collect(java.util.stream.Collectors.toList());
          for (int i = 0; i < summaries.size(); i += BLOCK)
          {
             int e = Math.min(i + BLOCK, summaries.size());

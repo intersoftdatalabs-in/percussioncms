@@ -51,7 +51,7 @@ public class PSWsdlProvidedTest extends PSTestBase
          throws IOException
    {
       final String validWsdlString =
-            "=\"urn:www.percussion.com/6.0.0/" + service + "\"";
+            "=\"urn:www.percussion.com/8.2.0/" + service + "\"";
       final String endpoint = getEndpoint(service + "SOAP");
       final URL url = new URL(endpoint + "?wsdl");
       final BufferedReader in =

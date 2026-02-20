@@ -284,7 +284,7 @@ public class Logger extends org.apache.log4j.Logger implements LogSink, IPSLogge
    * @deprecated use log4j.Logger methods instead.
    */
   public void log(String message, Throwable t) {
-    if (m_outFile == null) {
+    if (outFile == null) {
       // no file set, means we are using log4j.
       super.error(t.getLocalizedMessage(), t);
       return;

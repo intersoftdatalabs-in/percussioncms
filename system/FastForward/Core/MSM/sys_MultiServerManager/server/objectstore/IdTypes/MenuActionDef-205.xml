@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="205" dependencyType="Shared" displayName="Move_To_Slot" isIncluded="no" objectType="MenuActionDef" objectTypeName="Action Menu Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="205" dependencyType="Shared" displayName="Move_To_Slot"
+			isIncluded="no" objectType="MenuActionDef"
+			objectTypeName="Action Menu Definition" supportsIdMapping="yes"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

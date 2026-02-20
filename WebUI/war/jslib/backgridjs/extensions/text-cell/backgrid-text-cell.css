@@ -11,7 +11,7 @@
   overflow: hidden;
   text-align: left;
   -o-text-overflow: ellipsis;
-     text-overflow: ellipsis;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -22,8 +22,8 @@
 
 .backgrid .text-cell.editor * {
   -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .backgrid .text-cell.editor textarea {

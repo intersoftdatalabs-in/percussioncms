@@ -72,7 +72,8 @@ public class TLSTester {
   }
 
   public static boolean isWindows() {
-    return getOsName().startsWith("Windows");
+    // perform case-insensitive check, cache handles case already
+    return getOsName().toLowerCase().startsWith("windows");
   }
 
   public static final String KEYSTORE_PASS = "changeit";

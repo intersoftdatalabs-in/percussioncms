@@ -82,14 +82,14 @@ public class PSRelationshipService implements IPSRelationshipService {
     * {@inheritDoc}
     */
    @Override
-   public PSRelationship loadRelationship(int id) throws PSException {
+   public Optional<PSRelationship> loadRelationship(int id) throws PSException {
       loadConfigs(); // load configs if needed
 
       var rdata = getSession().get(PSRelationshipData.class, id);
       if (rdata != null && setConfigAddChildProperties(rdata, null, false, false)) {
-         return getRelationship(rdata);
+         return Optional.of(getRelationship(rdata));
       }
-      return null;
+      return Optional.empty();
    }
 
    /**
@@ -124,6 +124,11 @@ public class PSRelationshipService implements IPSRelationshipService {
       }
 
       return returnIds;
+   }
+
+   @Override
+   public List<Integer> findPersistedRelationshipIds(Collection<Integer> candidateIds) {
+      return findPersistedRid(candidateIds);
    }
 
    /**
@@ -279,7 +284,7 @@ public class PSRelationshipService implements IPSRelationshipService {
       if (prop == null)
          throw new IllegalArgumentException("prop must not be null.");
 
-      PSRelationshipPropertyData myprop = rdata.getProperty(prop.getName());
+      PSRelationshipPropertyData myprop = rdata.getProperty(prop.getName()).orElse(null);
 
       // if cannot find, then try one of the pre-defined user properties
       if (myprop == null)
@@ -499,6 +504,16 @@ public class PSRelationshipService implements IPSRelationshipService {
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void saveRelationships(Collection<PSRelationship> relationships) throws PSException {
+      if (relationships == null || relationships.isEmpty())
+         throw new IllegalArgumentException("relationships may not be null or empty");
+      saveRelationship(relationships);
+   }
+
    /* (non-Javadoc)
     * @see IPSRelationshipService#deleteRelationship(PSRelationship)
     */
@@ -524,6 +539,17 @@ public class PSRelationshipService implements IPSRelationshipService {
          deleteRelationship(rdata);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void deleteRelationships(Collection<PSRelationship> relationships) {
+      if (relationships == null || relationships.isEmpty())
+         throw new IllegalArgumentException("relationships may not be null or empty");
+      for (PSRelationship r : relationships) {
+         deleteRelationship(r);
+      }
+   }
 
    /* (non-Javadoc)
     * @see IPSRelationshipService#deleteRelationshipById(int)
@@ -585,8 +611,7 @@ public class PSRelationshipService implements IPSRelationshipService {
       nameMapToId = new HashMap<>();
 
       IPSCmsObjectMgr objMgr = PSCmsObjectMgrLocator.getObjectManager();
-      Collection<PSRelationshipConfigName> configNames = objMgr
-              .findAllRelationshipConfigNames();
+      var configNames = objMgr.findAllRelationshipConfigNames().collect(java.util.stream.Collectors.toList());
       PSRelationshipConfig config;
       for (PSRelationshipConfigName cname : configNames)
       {
@@ -608,6 +633,11 @@ public class PSRelationshipService implements IPSRelationshipService {
       // synchronize the access of these 2 variables.
       m_configMap = configMap;
       m_nameMapToId = nameMapToId;
+   }
+
+   @Override
+   public void reloadConfigurations() throws PSException {
+      reloadConfigs();
    }
 
    @Override
@@ -717,7 +747,7 @@ public class PSRelationshipService implements IPSRelationshipService {
       if (name == null)
          throw new IllegalArgumentException("name may not be null.");
 
-      PSRelationshipPropertyData retProp = r.getProperty(name);
+      PSRelationshipPropertyData retProp = r.getProperty(name).orElse(null);
       if (retProp != null)
          return retProp;
 
@@ -729,10 +759,10 @@ public class PSRelationshipService implements IPSRelationshipService {
       if (name.equalsIgnoreCase(PSRelationshipConfig.PDU_INLINERELATIONSHIP))
          retProp = new PSRelationshipPropertyData(
                  PSRelationshipConfig.PDU_INLINERELATIONSHIP, r
-                 .getInlineRelationship());
+                 .getInlineRelationship().orElse(null));
 
       if (name.equalsIgnoreCase(PSRelationshipConfig.PDU_WIDGET_NAME))
-         retProp = new PSRelationshipPropertyData(PSRelationshipConfig.PDU_WIDGET_NAME, r.getWidgetName());
+         retProp = new PSRelationshipPropertyData(PSRelationshipConfig.PDU_WIDGET_NAME, r.getWidgetName().orElse(null));
 
       if (name.equalsIgnoreCase(PSRelationshipConfig.PDU_SITEID))
          retProp = getLongProp(PSRelationshipConfig.PDU_SITEID, r.getSiteId());
@@ -930,5 +960,15 @@ public class PSRelationshipService implements IPSRelationshipService {
               .createQuery("from PSRelationshipData " + " where dependent_id =  " + dependentId +" and config_id = " + configId);
       return query.list();
 
+   }
+
+   @Override
+   public List<PSRelationshipData> findByDependentIdAndConfigId(int dependentId, int configId) {
+      return findByDependentIdConfigId(dependentId, configId);
+   }
+
+   @Override
+   public int deleteRelationshipById(int relationshipId) {
+      return deleteRelationshipByRid(relationshipId);
    }
 }

@@ -33,7 +33,7 @@ import org.junit.jupiter.api.TestMethodOrder;
  *
  * @author dougrand
  */
-@Tag("IntegrationTest")
+
 @TestMethodOrder(MethodName.class)
 public class PSRequestInfoTest {
 

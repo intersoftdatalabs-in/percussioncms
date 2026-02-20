@@ -57,7 +57,7 @@ public class PSPublishableStateFilter extends PSBaseFilter
       
       try
       {
-         return cms.filterItemsByPublishableFlag(items, flags);
+         return cms.filterItemsByPublishableFlag(items, flags).toList();
       }
       catch (PSORMException e)
       {

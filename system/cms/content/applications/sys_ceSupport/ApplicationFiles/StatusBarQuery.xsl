@@ -8,130 +8,136 @@
 		%HTMLspecial;
 ]>
 
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns="http://www.w3.org/1999/xhtml" xmlns:psxi18n="com.percussion.i18n"
-                extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
-  <xsl:variable name="this" select="/"/>
-  <xsl:template match="/">
-    <html>
-      <head>
-        <meta name="generator" content="Percussion XSpLit Version 3.0"/>
-        <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-        <title>Query Part of Status Bar</title>
-      </head>
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:psxi18n="com.percussion.i18n"
+	extension-element-prefixes="psxi18n" exclude-result-prefixes="psxi18n">
+	<xsl:variable name="this" select="/" />
+	<xsl:template match="/">
+		<html>
+			<head>
+				<meta name="generator" content="Percussion XSpLit Version 3.0" />
+				<meta http-equiv="content-type"
+					content="text/html; charset=UTF-8" />
+				<title>Query Part of Status Bar</title>
+			</head>
 
-      <body>        <!--   Query Part of Status Bar   -->
+			<body>        <!-- Query Part of Status Bar -->
 
-        <table width="100%">
-          <tr>
-            <td class="headercell" width="20%">
-              <div align="center">Content Title (ID)</div>
-            </td>
+				<table width="100%">
+					<tr>
+						<td class="headercell" width="20%">
+							<div align="center">Content Title (ID)</div>
+						</td>
 
-            <td class="headercell" width="20%">
-              <div align="center">Creator</div>
-            </td>
+						<td class="headercell" width="20%">
+							<div align="center">Creator</div>
+						</td>
 
-            <td class="headercell" width="20%">
-              <div align="center">Created on</div>
-            </td>
+						<td class="headercell" width="20%">
+							<div align="center">Created on</div>
+						</td>
 
-            <td class="headercell" width="20%">
-              <div align="center">Last Modifier</div>
-            </td>
+						<td class="headercell" width="20%">
+							<div align="center">Last Modifier</div>
+						</td>
 
-            <td class="headercell" width="20%">
-              <div align="center">Last Modified on</div>
-            </td>
+						<td class="headercell" width="20%">
+							<div align="center">Last Modified on</div>
+						</td>
 
-          </tr>
+					</tr>
 
-          <xsl:apply-templates select="*" mode="mode0"/>
-        </table>
-        <!--   End Query Part of Status Bar   -->
+					<xsl:apply-templates select="*" mode="mode0" />
+				</table>
+				<!-- End Query Part of Status Bar -->
 
-      </body>
+			</body>
 
-    </html>
+		</html>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*">
-    <xsl:choose>
-      <xsl:when test="text()">
-        <xsl:choose>
-          <xsl:when test="@no-escaping">
-            <xsl:value-of select="." disable-output-escaping="yes"/>
-          </xsl:when>
+	<xsl:template match="*">
+		<xsl:choose>
+			<xsl:when test="text()">
+				<xsl:choose>
+					<xsl:when test="@no-escaping">
+						<xsl:value-of select="."
+							disable-output-escaping="yes" />
+					</xsl:when>
 
-          <xsl:otherwise>
-            <xsl:value-of select="."/>
-          </xsl:otherwise>
+					<xsl:otherwise>
+						<xsl:value-of select="." />
+					</xsl:otherwise>
 
-        </xsl:choose>
+				</xsl:choose>
 
-      </xsl:when>
+			</xsl:when>
 
-      <xsl:otherwise>&nbsp;</xsl:otherwise>
+			<xsl:otherwise>&nbsp;
+			</xsl:otherwise>
 
-    </xsl:choose>
+		</xsl:choose>
 
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="attribute::*">
-    <xsl:value-of select="."/>
-    <xsl:if test="not(position()=last())">
-      <br id="XSpLit"/>
-    </xsl:if>
+	<xsl:template match="attribute::*">
+		<xsl:value-of select="." />
+		<xsl:if test="not(position()=last())">
+			<br id="XSpLit" />
+		</xsl:if>
 
-  </xsl:template>
+	</xsl:template>
 
-  <xsl:template match="*" mode="mode0">
-    <xsl:for-each select=".">
-      <tr class="datacell2">
-        <td>
-          <div align="center">
-            <xsl:apply-templates select="ContentTitle"/>&nbsp;(
-            <xsl:apply-templates select="ContentId"/>)
-          </div>
-        </td>
+	<xsl:template match="*" mode="mode0">
+		<xsl:for-each select=".">
+			<tr class="datacell2">
+				<td>
+					<div align="center">
+						<xsl:apply-templates select="ContentTitle" />&nbsp;(
+						<xsl:apply-templates select="ContentId" />
+						)
+					</div>
+				</td>
 
-        <td>
-          <div align="center">
-            <xsl:apply-templates select="Creator"/>
-          </div>
+				<td>
+					<div align="center">
+						<xsl:apply-templates select="Creator" />
+					</div>
 
-        </td>
+				</td>
 
-        <td>
-          <div align="center">
-            <xsl:apply-templates select="CreatedDate"/>
-          </div>
+				<td>
+					<div align="center">
+						<xsl:apply-templates select="CreatedDate" />
+					</div>
 
-        </td>
+				</td>
 
-        <td>
-          <div align="center">
-            <xsl:apply-templates select="LastModifier"/>
-          </div>
+				<td>
+					<div align="center">
+						<xsl:apply-templates select="LastModifier" />
+					</div>
 
-        </td>
+				</td>
 
-        <td>
-          <div align="center">
-            <xsl:apply-templates select="LastModifyDate"/>
-          </div>
+				<td>
+					<div align="center">
+						<xsl:apply-templates select="LastModifyDate" />
+					</div>
 
-        </td>
+				</td>
 
-      </tr>
+			</tr>
 
-    </xsl:for-each>
+		</xsl:for-each>
 
-  </xsl:template>
+	</xsl:template>
 
 </xsl:stylesheet>

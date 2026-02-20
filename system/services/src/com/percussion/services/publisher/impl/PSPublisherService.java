@@ -110,14 +110,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
+import org.hibernate.query.NativeQuery;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -149,6 +145,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -372,6 +369,13 @@ public class PSPublisherService
       return cl;
    }
 
+   @Override
+   @Transactional
+   public IPSContentList createContentListImpl(String name)
+   {
+      return createContentList(name);
+   }
+
    /*
     * (non-Javadoc)
     * 
@@ -442,6 +446,13 @@ public class PSPublisherService
 
    }
 
+   @Override
+   @Transactional
+   public void saveContentListsImpl(List<IPSContentList> lists)
+   {
+      saveContentLists(lists);
+   }
+
    @Transactional
    public void saveContentList(IPSContentList clist)
    {
@@ -450,6 +461,13 @@ public class PSPublisherService
          throw new IllegalArgumentException("clist may not be null");
       }      
       getSession().saveOrUpdate(clist);
+   }
+
+   @Override
+   @Transactional
+   public void saveContentListImpl(IPSContentList clist)
+   {
+      saveContentList(clist);
    }
 
 
@@ -474,13 +492,20 @@ public class PSPublisherService
 
    }
 
+   @Override
+   @Transactional
+   public void deleteContentListsImpl(List<IPSContentList> lists)
+   {
+      deleteContentLists(lists);
+   }
+
    public IPSContentList loadContentList(String name) throws PSNotFoundException
    {
       // @TODO load from cache
-      IPSContentList clist = findContentListByName(name);
-      if (clist == null)
+      Optional<IPSContentList> opt = findContentListByName(name);
+      if (!opt.isPresent())
          throw new PSNotFoundException(name, PSTypeEnum.CONTENT_LIST);
-      return clist;
+      return opt.get();
    }
    
    /*
@@ -488,7 +513,8 @@ public class PSPublisherService
     * 
     * @see com.percussion.services.publisher.IPSPublisherService#findContentListByName(java.lang.String)
     */
-   public IPSContentList findContentListByName(String name) throws PSNotFoundException {
+   @Override
+   public Optional<IPSContentList> findContentListByName(String name) {
       if (StringUtils.isBlank(name))
       {
          throw new IllegalArgumentException("name may not be null or empty");
@@ -496,15 +522,19 @@ public class PSPublisherService
 
       Session s = getSession();
 
-      Criteria c = s.createCriteria(PSContentList.class);
-      c.add(Restrictions.eq("name", name));
-      List results = c.list();
-      if (results.size() == 0)
-         return null;
+      Query<PSContentList> q = s.createQuery("from PSContentList where name = :name", PSContentList.class);
+      q.setParameter("name", name);
+      List<PSContentList> results = q.list();
+      if (results.isEmpty())
+         return Optional.empty();
 
       IPSContentList clist = (IPSContentList) results.get(0);
-      loadItemFilterIfNeeded(clist);
-      return clist;
+      try {
+         loadItemFilterIfNeeded(clist);
+      } catch (PSNotFoundException e) {
+         log.warn("Skipping item filter: {}", PSExceptionUtils.getMessageForLog(e));
+      }
+      return Optional.of(clist);
 
    }
    
@@ -532,14 +562,20 @@ public class PSPublisherService
       // @TODO load from cache
       Session s = getSession();
 
-      Criteria c = s.createCriteria(PSContentList.class);
+      StringBuilder hql = new StringBuilder("select distinct c from PSContentList c");
       if (!StringUtils.isBlank(filter))
       {
-         c.add(Restrictions.ilike("name", "%" + filter + "%"));
+         hql.append(" where lower(c.name) like :filter");
       }
-      c.addOrder(Order.asc("name"));
-      c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-      List<IPSContentList> results = c.list();
+      hql.append(" order by c.name asc");
+
+      Query<PSContentList> q = s.createQuery(hql.toString(), PSContentList.class);
+      if (!StringUtils.isBlank(filter))
+      {
+         q.setParameter("filter", "%" + filter.toLowerCase() + "%");
+      }
+      List<PSContentList> plists = q.list();
+      List<IPSContentList> results = new ArrayList<>(plists);
       for (IPSContentList clist : results)
       {
          try {
@@ -548,8 +584,15 @@ public class PSPublisherService
             log.warn("Skipping item filter: {}",PSExceptionUtils.getMessageForLog(e));
          }
       }
-      return results;
 
+      return results; 
+
+   }
+
+   @Override
+   public List<IPSContentList> findAllContentListsImpl(String filter)
+   {
+      return findAllContentLists(filter);
    }
 
    public List<String> findAllContentListNames(String filter)
@@ -561,14 +604,18 @@ public class PSPublisherService
       // @TODO load from cache
       Session s = getSession();
 
-      Criteria c = s.createCriteria(PSContentList.class);
+      Query<PSContentList> q;
       if (!StringUtils.isBlank(filter))
       {
-         c.add(Restrictions.ilike("name", "%" + filter + "%"));
+         q = s.createQuery("select distinct cl from PSContentList cl where lower(cl.name) like :filter order by cl.name", PSContentList.class)
+               .setParameter("filter", "%" + filter.toLowerCase() + "%");
       }
-      c.addOrder(Order.asc("name"));
-      c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-      List<IPSContentList> results = c.list();
+      else
+      {
+         q = s.createQuery("select distinct cl from PSContentList cl order by cl.name", PSContentList.class);
+      }
+      List<PSContentList> plists = q.list();
+      List<IPSContentList> results = new ArrayList<>(plists);
       List<String> nameList = new ArrayList<>();
       for (IPSContentList clist : results)
       {
@@ -588,14 +635,14 @@ public class PSPublisherService
       // @TODO load from cache
       Session s = getSession();
 
-      Criteria c = s.createCriteria(PSContentList.class);
-      c.add(Restrictions.eq("contentListId", contListID.longValue()));
-      List results = c.list();
+      Query<PSContentList> q = s.createQuery("from PSContentList where contentListId = :id", PSContentList.class)
+            .setParameter("id", contListID.longValue());
+      List<PSContentList> results = q.list();
       if (results.isEmpty())
       {
          return null;
       }
-      IPSContentList clist = (IPSContentList) results.get(0);
+      IPSContentList clist = results.get(0);
       loadItemFilterIfNeeded(clist);
       return clist;
 
@@ -603,7 +650,9 @@ public class PSPublisherService
 
    public List<IPSDeliveryType> findAllDeliveryTypes()
    {
-      return getSession().createCriteria(PSDeliveryType.class).list();
+      Query<PSDeliveryType> q = getSession().createQuery("from PSDeliveryType", PSDeliveryType.class);
+      List<PSDeliveryType> plists = q.list();
+      return new ArrayList<IPSDeliveryType>(plists);
    }
 
    /*
@@ -831,7 +880,6 @@ public class PSPublisherService
       }
    }
 
-   @Override
    @Transactional
    public void updatePubLogHidden(PSPubServer psPubServer) {
       // First disconnect records belonging to the given jobId. Then find
@@ -1289,8 +1337,9 @@ public class PSPublisherService
 
          if (type.getOrdinal() == PSTypeEnum.CONTENT_LIST.getOrdinal())
          {
-            Criteria c = s.createCriteria(PSContentList.class);
-            List<IPSContentList> results = c.list();
+            Query<PSContentList> q = s.createQuery("from PSContentList", PSContentList.class);
+            List<PSContentList> plists = q.list();
+            List<IPSContentList> results = new ArrayList<>(plists);
             for (IPSContentList contentlist : results)
             {
                rval.add(new PSObjectSummary(contentlist.getGUID(), contentlist
@@ -2033,7 +2082,7 @@ public class PSPublisherService
          tablePrefix = tablePrefix.substring(0, tablePrefix.lastIndexOf('.'));
          String query = MessageFormat.format(QUERY_EDITIONS,
                new Object[] { tablePrefix });
-         Query stmt = sess.createSQLQuery(query);
+         NativeQuery<?> stmt = sess.createNativeQuery(query);
 
          int i = 0;
          stmt.setParameter(i++, siteId.getUUID());
@@ -2174,7 +2223,7 @@ public class PSPublisherService
       {
          try
          {
-            cids.addAll(cms.findContentIdsByType(ctid.longValue()));
+            cids.addAll(cms.findContentIdsByType(ctid.longValue()).collect(java.util.stream.Collectors.toList()));
          }
          catch (PSORMException e)
          {
@@ -2387,6 +2436,13 @@ public class PSPublisherService
 
    }
 
+   @Override
+   @Transactional
+   public void deleteStatusListImpl(List<IPSPubStatus> statusList)
+   {
+      deleteStatusList(statusList);
+   }
+
    @Transactional
    public void saveEditionContentList(IPSEditionContentList list)
    {
@@ -2506,10 +2562,9 @@ public class PSPublisherService
        // NOTE: this method queries the PSPubItem class (not PSSiteItem) after the 
        // publishing schema updates.  This is also OK because the component summary gets updated
        // from the result of the PSPubItem and later all publishing tables get updated correctly.
-       Criteria criteria = s.createCriteria(PSPubItem.class);
-       criteria.add(Restrictions.eq("statusId", jobId));
-       criteria.add(Restrictions.eq("status", (short) Status.SUCCESS.ordinal()));
-       criteria.setProjection(Projections.property("contentId"));
+       Query<Integer> criteria = s.createQuery("select p.contentId from PSPubItem p where p.statusId = :jobId and p.status = :status", Integer.class)
+               .setParameter("jobId", jobId)
+               .setParameter("status", (short) Status.SUCCESS.ordinal());
 
        List<Integer> ids = criteria.list();
 
@@ -2702,38 +2757,41 @@ public class PSPublisherService
       // If we haven't found it this run, then look it up based on all
       // the information we have available. We may get multiple records
       // as the item may be published across more than one site.
-      Criteria crit = s.createCriteria(PSSiteItem.class);
-      crit.add(Restrictions.eq("contentId", contentId));
+      StringBuilder hql = new StringBuilder("from PSSiteItem si where si.contentId = :contentId and si.templateId = :templateId");
+      hql.append(" and si.siteId = :siteId and si.contextId = :contextId");
       if (folderId != null)
-      {
-         crit.add(Restrictions.eq("folderId", folderId));
-      }
+         hql.append(" and si.folderId = :folderId");
       else
-      {
-         crit.add(Restrictions.isNull("folderId"));
-      }
-      crit.add(Restrictions.eq("templateId", templateid));
+         hql.append(" and si.folderId is null");
       if (page != null)
-      {
-         crit.add(Restrictions.eq("page", page));
-      }
+         hql.append(" and si.page = :page");
       else
-      {
-         crit.add(Restrictions.isNull("page"));
-      }
-      
-      crit.add(Restrictions.eq("siteId", status.getSiteId().longValue()));
-      crit.add(Restrictions.eq("contextId", status.getDeliveryContext()));
+         hql.append(" and si.page is null");
       if (status.getPubServerId() != null)
-         crit.add(Restrictions.eq("serverId", status.getPubServerId()));
-      
+         hql.append(" and si.serverId = :serverId");
+
+      Query<PSSiteItem> q = s.createQuery(hql.toString(), PSSiteItem.class)
+            .setParameter("contentId", contentId)
+            .setParameter("templateId", templateid)
+            .setParameter("siteId", status.getSiteId().longValue())
+            .setParameter("contextId", status.getDeliveryContext());
+      if (folderId != null)
+         q.setParameter("folderId", folderId);
+      if (page != null)
+         q.setParameter("page", page);
+      if (status.getPubServerId() != null)
+         q.setParameter("serverId", status.getPubServerId());
+
       PSSiteItem siteItem = null;
-      try {
-         siteItem = (PSSiteItem) crit.uniqueResult();
-      } catch (RuntimeException e)
+      List<PSSiteItem> found = q.list();
+      if (found.size() > 1)
       {
-         log.error("Non unique site item entry",e);
-         throw e;
+         log.error("Non unique site item entry");
+         throw new RuntimeException("Non unique site item entry");
+      }
+      else if (found.size() == 1)
+      {
+         siteItem = found.get(0);
       }
       if (siteItem != null)
       {
@@ -2935,10 +2993,10 @@ public class PSPublisherService
       }
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSEdition.class);
-         c.add(Restrictions.eq("displaytitle", name));
-         List results = c.list();
-         if (results.size() == 0)
+         Query<PSEdition> q = s.createQuery("from PSEdition where displaytitle = :name", PSEdition.class);
+         q.setParameter("name", name);
+         List<PSEdition> results = q.list();
+         if (results.isEmpty())
          {
             return null;
          }
@@ -2955,15 +3013,20 @@ public class PSPublisherService
       }
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSEdition.class);
-         if (!StringUtils.isBlank(filter))
-         {
-            c.add(Restrictions.ilike("displaytitle", "%" + filter + "%"));
+         StringBuilder hql = new StringBuilder("select distinct e from PSEdition e");
+         if (!StringUtils.isBlank(filter)) {
+            hql.append(" where lower(e.displaytitle) like :filter");
          }
-         c.addOrder(Order.asc("displaytitle"));
-         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-         List results = c.list();
-         return results;
+         hql.append(" order by e.displaytitle asc");
+
+         Query<PSEdition> q = s.createQuery(hql.toString(), PSEdition.class);
+         if (!StringUtils.isBlank(filter)) {
+            q.setParameter("filter", "%" + filter.toLowerCase() + "%");
+         }
+         List<PSEdition> tmp = q.list();
+         List<IPSEdition> results = new java.util.ArrayList<>();
+         results.addAll(tmp);
+         return results; 
 
       }
 
@@ -3005,6 +3068,13 @@ public class PSPublisherService
       IPSGuid id = gmgr.createGuid(PSTypeEnum.EDITION_TASK_DEF);
       IPSEditionTaskDef task = new PSEditionTaskDef(id);
       return task;
+   }
+
+   @Override
+   @Transactional
+   public IPSEditionTaskDef createEditionTaskImpl()
+   {
+      return createEditionTask();
    }
 
    @Transactional
@@ -3076,15 +3146,16 @@ public class PSPublisherService
       return log;
    }
 
-   public List<IPSEditionTaskLog> findEditionTaskLogEntriesByJobId(long jobid)
+   public List<IPSEditionTaskLog> findEditionTaskLogEntriesByJobId(Long jobid)
    {
+      if (jobid == null)
+         throw new IllegalArgumentException("jobid may not be null");
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSEditionTaskLog.class);
-         c.add(Restrictions.eq("jobId", jobid));
-         c.addOrder(Order.asc("referenceId"));
-         return c.list();
-
+         Query<PSEditionTaskLog> q = s.createQuery("from PSEditionTaskLog where jobId = :jobId order by referenceId asc", PSEditionTaskLog.class);
+         q.setParameter("jobId", jobid.longValue());
+         List<PSEditionTaskLog> plists = q.list();
+         return new ArrayList<IPSEditionTaskLog>(plists);
 
       }
 
@@ -3094,10 +3165,9 @@ public class PSPublisherService
       
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSPubStatus.class);
-         c.add(Restrictions.le("endDate", beforeDate));
-         c.setProjection(Projections.property("statusId"));
-         return c.list();
+         Query<Long> q = s.createQuery("select p.statusId from PSPubStatus p where p.endDate <= :beforeDate", Long.class);
+         q.setParameter("beforeDate", beforeDate);
+         return q.list(); 
 
       }
 
@@ -3107,11 +3177,10 @@ public class PSPublisherService
       
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSPubStatus.class);
-         c.add(Restrictions.or(Restrictions.le("endDate", beforeDate),
-               Restrictions.eq("hidden", Character.valueOf('Y'))));
-         c.setProjection(Projections.property("statusId"));
-         return c.list();
+         Query<Long> q = s.createQuery("select p.statusId from PSPubStatus p where p.endDate <= :beforeDate or p.hidden = :hidden", Long.class);
+         q.setParameter("beforeDate", beforeDate);
+         q.setParameter("hidden", 'Y');
+         return q.list(); 
 
       }
 
@@ -3231,29 +3300,21 @@ public class PSPublisherService
    {
       Session session = getSession();
 
-         Criteria c = session.createCriteria(PSPubItem.class);
-         
-         // set the where clause
-         c.add(Restrictions.eq("statusId", jobid));
-         
-         // set the selection clause
-         ProjectionList list = Projections.projectionList();
-         list.add(Projections.property("referenceId"));
-         c.setProjection(list);
-
-         // set the order by clause
-         if (sort != null)
+         StringBuilder hql = new StringBuilder("select p.referenceId from PSPubItem p where p.statusId = :jobid");
+         if (sort != null && !sort.isEmpty())
          {
-            for(PSSortCriterion s : sort)
+            hql.append(" order by ");
+            for (int i = 0; i < sort.size(); i++)
             {
-               if (s.isAscending())
-                  c.addOrder(Order.asc(s.getProperty()));
-               else
-                  c.addOrder(Order.desc(s.getProperty()));
+               PSSortCriterion sc = sort.get(i);
+               hql.append("p.").append(sc.getProperty()).append(sc.isAscending() ? " asc" : " desc");
+               if (i < sort.size() - 1)
+                  hql.append(", ");
             }
          }
-         
-         List<Long> values = c.list();
+
+         Query<Long> q = session.createQuery(hql.toString(), Long.class).setParameter("jobid", jobid);
+         List<Long> values = q.list();
          return values;
 
       }
@@ -3262,9 +3323,9 @@ public class PSPublisherService
    {
       Session session = getSession();
 
-         Criteria c = session.createCriteria(PSPubItem.class);
-         c.add(Restrictions.eq("statusId", jobid));
-         List<IPSPubItemStatus> values = c.list();
+         Query<IPSPubItemStatus> q = session.createQuery("from PSPubItem p where p.statusId = :jobid", IPSPubItemStatus.class)
+               .setParameter("jobid", jobid);
+         List<IPSPubItemStatus> values = q.list();
          return values;
 
    }
@@ -3274,9 +3335,9 @@ public class PSPublisherService
       Session session = getSession();
       try
       {
-         Query q =session.createQuery("select p from PSPubItem p where p.statusId = :statusId");
-         q.setParameter("statusId", new Long(jobid));
-         Iterator<IPSPubItemStatus> values = q.iterate();
+         Query<IPSPubItemStatus> q = session.createQuery("select p from PSPubItem p where p.statusId = :statusId", IPSPubItemStatus.class);
+         q.setParameter("statusId", jobid);
+         java.util.Iterator<IPSPubItemStatus> values = q.list().iterator();
          PSXStreamObjectStream<IPSPubItemStatus> rvalue = new PSXStreamObjectStream<>();
          rvalue.writeObjects(values);
          return rvalue;
@@ -3302,7 +3363,6 @@ public class PSPublisherService
       return findPubStatusByEditionList(editionIds);
    }
    
-   @Override
    public List<IPSPubStatus> findPubStatusBySiteWithFilters(IPSGuid siteId, int numDays, int maxCount)
    {
       List<IPSEdition> editions = findAllEditionsBySite(siteId);
@@ -3327,7 +3387,6 @@ public class PSPublisherService
          return statusList;
    }
    
-   @Override
    public List<IPSPubStatus> findPubStatusBySiteAndServerWithFilters(IPSGuid siteId, IPSGuid serverId, int numDays,
          int maxCount)
    {
@@ -3354,7 +3413,6 @@ public class PSPublisherService
       return findPubStatusByEditionList(Collections.emptyList());
    }
    
-   @Override
    public List<IPSPubStatus> findAllPubStatusWithFilters(int days, int maxCount)
    {
       return findPubStatusByEditionListWithFilters(Collections.emptyList(), days, maxCount);
@@ -3452,13 +3510,12 @@ public class PSPublisherService
 
       Short publishOp = new Short((short)IPSSiteItem.Operation.PUBLISH.ordinal());
       Short success = new Short ((short)IPSSiteItem.Status.SUCCESS.ordinal());
-      Criteria c = session.createCriteria(PSPubItem.class).add(
-            Restrictions.eq("contentId", new Integer(lguid.getContentId())))
-            .add(Restrictions.eq("operation", publishOp))
-            .add(Restrictions.eq("status", success))
-            .addOrder(Order.desc("date"));
-      c.setMaxResults(1);
-      List<IPSPubItemStatus> results = c.list();
+      Query<IPSPubItemStatus> q = session.createQuery("from PSPubItem p where p.contentId = :cid and p.operation = :op and p.status = :status order by p.date desc", IPSPubItemStatus.class)
+            .setParameter("cid", lguid.getContentId())
+            .setParameter("op", publishOp)
+            .setParameter("status", success)
+            .setMaxResults(1);
+      List<IPSPubItemStatus> results = q.list();
 
       return results.isEmpty() ? null : results.get(0);
    }
@@ -3491,21 +3548,31 @@ public class PSPublisherService
 
             Short publishOp = new Short((short)IPSSiteItem.Operation.PUBLISH.ordinal());
             Short success = new Short ((short)IPSSiteItem.Status.SUCCESS.ordinal());
-            Criteria c = session.createCriteria(PSPubItem.class)
-                  .add(Restrictions.eq("contentId", new Integer(lguid.getContentId())))
-                  .add(Restrictions.eq("operation", publishOp))
-                  .add(Restrictions.eq("status", success))
-                  .addOrder(Order.desc("date"));
+            StringBuilder hql = new StringBuilder("from PSPubItem p where p.contentId = :cid and p.operation = :op and p.status = :status");
             if (jobIds.size() == 1)
             {
-               c.add(Restrictions.eq("statusId", jobIds.get(0)));
+               hql.append(" and p.statusId = :jobId");
             }
             else
             {
-               c.add(Restrictions.in("statusId", jobIds));
-            }            
-            c.setMaxResults(1);
-            List<IPSPubItemStatus> results = c.list();
+               hql.append(" and p.statusId in (:jobIds)");
+            }
+            hql.append(" order by p.date desc");
+
+            Query<IPSPubItemStatus> q = session.createQuery(hql.toString(), IPSPubItemStatus.class)
+                  .setParameter("cid", lguid.getContentId())
+                  .setParameter("op", publishOp)
+                  .setParameter("status", success);
+            if (jobIds.size() == 1)
+            {
+               q.setParameter("jobId", jobIds.get(0));
+            }
+            else
+            {
+               q.setParameterList("jobIds", jobIds);
+            }
+            q.setMaxResults(1);
+            List<IPSPubItemStatus> results = q.list();
 
             pubItemStatus = results.isEmpty() ? null : results.get(0);
 
@@ -3588,31 +3655,37 @@ public class PSPublisherService
    private List<IPSPubStatus> findPubStatusByEditionListWithFilters(List<Long> editionids, int days, int maxCount)
    {
       Session session = getSession();
-      Criteria c = session.createCriteria(PSPubStatus.class);
 
       Calendar cal = Calendar.getInstance();
       if (days != -1)
           cal.add(Calendar.DAY_OF_YEAR, -days);
       Date fromDate = cal.getTime();
 
+      StringBuilder hql = new StringBuilder("from PSPubStatus p where p.hidden is null and p.startDate is not null");
       if (editionids.size() == 1)
       {
-         c.add(Restrictions.eq("editionId", editionids.get(0)));
+         hql.append(" and p.editionId = :editionId");
       }
       else if (!editionids.isEmpty())
       {
-         c.add(Restrictions.in("editionId", editionids));
+         hql.append(" and p.editionId in (:editionIds)");
       }
       if (days != -1) {
-         c.add(Restrictions.gt("startDate", fromDate));
+         hql.append(" and p.startDate > :fromDate");
       }
-      c.add(Restrictions.isNull("hidden"));
-      c.add(Restrictions.isNotNull("startDate"));
-      c.addOrder(Order.desc("startDate"));
+      hql.append(" order by p.startDate desc");
+
+      Query<IPSPubStatus> q = session.createQuery(hql.toString(), IPSPubStatus.class);
+      if (editionids.size() == 1)
+         q.setParameter("editionId", editionids.get(0));
+      else if (!editionids.isEmpty())
+         q.setParameterList("editionIds", editionids);
+      if (days != -1)
+         q.setParameter("fromDate", fromDate);
       if (maxCount != -1) {
-         c.setMaxResults(maxCount);
+         q.setMaxResults(maxCount);
       }
-      return c.list();
+      return q.list();
    }
    
    /**
@@ -3625,19 +3698,23 @@ public class PSPublisherService
    {
       Session session = getSession();
 
-      Criteria c = session.createCriteria(PSPubStatus.class);
+      StringBuilder hql = new StringBuilder("from PSPubStatus p where p.hidden is null and p.startDate is not null");
       if (editionids.size() == 1)
       {
-         c.add(Restrictions.eq("editionId", editionids.get(0)));
+         hql.append(" and p.editionId = :editionId");
       }
       else if (editionids.size() > 0)
       {
-         c.add(Restrictions.in("editionId", editionids));
+         hql.append(" and p.editionId in (:editionIds)");
       }
-      c.add(Restrictions.isNull("hidden"));
-      c.add(Restrictions.isNotNull("startDate"));
-      c.addOrder(Order.desc("startDate"));
-      return c.list();
+      hql.append(" order by p.startDate desc");
+
+      Query<IPSPubStatus> q = session.createQuery(hql.toString(), IPSPubStatus.class);
+      if (editionids.size() == 1)
+         q.setParameter("editionId", editionids.get(0));
+      else if (editionids.size() > 0)
+         q.setParameterList("editionIds", editionids);
+      return q.list();
 
    }
    
@@ -3653,24 +3730,23 @@ public class PSPublisherService
    private boolean findIsSitePublished(List<Long> editionids)
    {
       Session session = getSession();
-      Criteria c = session.createCriteria(PSPubStatus.class);
+      StringBuilder hql = new StringBuilder("from PSPubStatus p where p.hidden is null and p.startDate is not null");
       if (editionids.size() == 1)
       {
-         c.add(Restrictions.eq("editionId", editionids.get(0)));
+         hql.append(" and p.editionId = :editionId");
       }
       else if (editionids.size() > 0)
       {
-         c.add(Restrictions.in("editionId", editionids));
+         hql.append(" and p.editionId in (:editionIds)");
       }
-      c.add(Restrictions.isNull("hidden"));
-      c.add(Restrictions.isNotNull("startDate"));
-      c.setMaxResults(1);
-      c.setCacheable(true);
-      c.setFetchSize(1);
-      if (c.list().size() > 0)
-         return true;
-      else
-         return false;
+
+      Query<IPSPubStatus> q = session.createQuery(hql.toString(), IPSPubStatus.class);
+      if (editionids.size() == 1)
+         q.setParameter("editionId", editionids.get(0));
+      else if (editionids.size() > 0)
+         q.setParameterList("editionIds", editionids);
+      q.setMaxResults(1).setCacheable(true).setFetchSize(1);
+      return !q.list().isEmpty();
    }
    
    /**
@@ -3683,12 +3759,10 @@ public class PSPublisherService
    {
       Session session = getSession();
 
-         Criteria c = session.createCriteria(PSPubStatus.class);
-         c.add(Restrictions.eq("pubServerId", serverId));
-         c.add(Restrictions.isNull("hidden"));
-         c.add(Restrictions.isNotNull("startDate"));
-         c.addOrder(Order.desc("startDate"));
-         return c.list();
+         String hql = "from PSPubStatus p where p.pubServerId = :serverId and p.hidden is null and p.startDate is not null order by p.startDate desc";
+         Query<IPSPubStatus> q = session.createQuery(hql, IPSPubStatus.class)
+               .setParameter("serverId", serverId);
+         return q.list();
 
       }
 
@@ -3699,15 +3773,11 @@ public class PSPublisherService
       Validate.notNull(editionId);
       Session session = getSession();
 
-         Criteria c = session.createCriteria(PSPubStatus.class);
-         c.add(Restrictions.eq("editionId", editionId.longValue()));
+         Query<IPSPubStatus> q = session.createQuery("from PSPubStatus p where p.editionId = :editionId and p.hidden is null and p.endDate is not null order by p.endDate desc", IPSPubStatus.class)
+               .setParameter("editionId", editionId.longValue())
+               .setMaxResults(1);
 
-         c.add(Restrictions.isNull("hidden"));
-         c.add(Restrictions.isNotNull("endDate"));
-         c.addOrder(Order.desc("endDate"));
-         c.setMaxResults(1);
-         
-         List<IPSPubStatus> results = c.list();
+         List<IPSPubStatus> results = q.list();
          return results.isEmpty() ? null : results.get(0);
 
 
@@ -4036,9 +4106,9 @@ public class PSPublisherService
             int end = i + interval;
             List<Long> refSubList = refs.subList(i, 
                   end > refs.size() ? refs.size() : end);
-            Criteria c = s.createCriteria(PSPubItem.class);
-            c.add(Restrictions.in("referenceId", refSubList));
-            rval.addAll(c.list());
+            Query<PSPubItem> q = s.createQuery("from PSPubItem p where p.referenceId in (:refIds)", PSPubItem.class);
+            q.setParameterList("refIds", refSubList);
+            rval.addAll(q.list());
          }
 
       return rval;
@@ -4055,9 +4125,9 @@ public class PSPublisherService
             int end = i + interval;
             List<Long> refSubList = refs.subList(i, 
                   end > refs.size() ? refs.size() : end);
-            Criteria c = s.createCriteria(PSSiteItem.class);
-            c.add(Restrictions.in("referenceId", refSubList));
-            rval.addAll(c.list());
+            Query<PSSiteItem> q = s.createQuery("from PSSiteItem p where p.referenceId in (:refIds)", PSSiteItem.class);
+            q.setParameterList("refIds", refSubList);
+            rval.addAll(q.list());
          }
 
       return rval;
@@ -4206,7 +4276,6 @@ public class PSPublisherService
       }
    }
 
-   @Override
    public boolean isSitePublished(IPSGuid siteId)
    {
       List<IPSEdition> editions = findAllEditionsBySite(siteId);

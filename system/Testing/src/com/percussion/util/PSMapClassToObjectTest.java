@@ -18,21 +18,20 @@ package com.percussion.util;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  *   Unit tests for the PSMapClassToObject class
  */
-public class PSMapClassToObjectTest extends TestCase
+public class PSMapClassToObjectTest 
 {
-   public PSMapClassToObjectTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     *   Verify that an empty map always returns null
     */
+   
    public void testEmptyMap()
    {
       assertTrue(null == m_emptyMap.getMapping(m_parentClass));
@@ -46,6 +45,7 @@ public class PSMapClassToObjectTest extends TestCase
     *   Make the mappings more and more specific and test at each stage to
     *   make sure that the most specific mappings apply.
     */
+   
    public void testObjectMapping()
    {
       Object o = new Object();
@@ -122,13 +122,7 @@ public class PSMapClassToObjectTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSMapClassToObjectTest("testEmptyMap"));
-      suite.addTest(new PSMapClassToObjectTest("testObjectMapping"));
-      return suite;
-   }
+   
 
    // set up the data for the test
    public void setUp()

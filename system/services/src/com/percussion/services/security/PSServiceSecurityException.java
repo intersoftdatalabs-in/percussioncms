@@ -40,7 +40,7 @@ import java.util.Optional;
  * from {@code PSSecurityErrorStringBundle.properties} and provides enhanced
  * error handling capabilities with modern Java patterns.</p>
  */
-public class PSSecurityException extends PSBaseException {
+public class PSServiceSecurityException extends PSBaseException {
 
     private static final long serialVersionUID = 4892025838027092729L;
 
@@ -59,7 +59,7 @@ public class PSSecurityException extends PSBaseException {
      *
      * @param msgCode the message code for resource bundle lookup
      */
-    public PSSecurityException(int msgCode) {
+    public PSServiceSecurityException(int msgCode) {
         super(msgCode);
         this.securityContext = null;
         this.objectId = null;
@@ -71,7 +71,7 @@ public class PSSecurityException extends PSBaseException {
      * @param msgCode the message code for resource bundle lookup
      * @param arrayArgs the arguments for message formatting, may be empty
      */
-    public PSSecurityException(int msgCode, Object... arrayArgs) {
+    public PSServiceSecurityException(int msgCode, Object... arrayArgs) {
         super(msgCode, arrayArgs);
         this.securityContext = null;
         this.objectId = null;
@@ -84,7 +84,7 @@ public class PSSecurityException extends PSBaseException {
      * @param cause the underlying cause of this exception
      * @param arrayArgs the arguments for message formatting, may be empty
      */
-    public PSSecurityException(int msgCode, Throwable cause, Object... arrayArgs) {
+    public PSServiceSecurityException(int msgCode, Throwable cause, Object... arrayArgs) {
         super(msgCode, cause, arrayArgs);
         this.securityContext = null;
         this.objectId = null;
@@ -99,7 +99,7 @@ public class PSSecurityException extends PSBaseException {
      * @param objectId the object ID context, may be {@code null}
      * @param arrayArgs the arguments for message formatting
      */
-    private PSSecurityException(int msgCode, Throwable cause, String securityContext,
+    private PSServiceSecurityException(int msgCode, Throwable cause, String securityContext,
                                IPSGuid objectId, Object... arrayArgs) {
         super(msgCode, cause, arrayArgs);
         this.securityContext = securityContext;
@@ -111,13 +111,13 @@ public class PSSecurityException extends PSBaseException {
      *
      * @param objectId the ID of the object access was denied to, not {@code null}
      * @param userName the user attempting access, may be {@code null}
-     * @return a new PSSecurityException instance
+     * @return a new PServiceSecurityException instance
      * @throws IllegalArgumentException if objectId is null
      */
-    public static PSSecurityException accessDenied(IPSGuid objectId, String userName) {
+    public static PSServiceSecurityException accessDenied(IPSGuid objectId, String userName) {
         Objects.requireNonNull(objectId, "objectId cannot be null");
         var user = userName != null ? userName : "Unknown user";
-        return new PSSecurityException(IPSSecurityErrors.ACCESS_DENIED, null,
+        return new PSServiceSecurityException(IPSSecurityErrors.ACCESS_DENIED, null,
                                      "Access denied", objectId, objectId, user);
     }
 
@@ -126,12 +126,12 @@ public class PSSecurityException extends PSBaseException {
      *
      * @param userName the user name that failed authentication, may be {@code null}
      * @param reason the reason for authentication failure, may be {@code null}
-     * @return a new PSSecurityException instance
+     * @return a new PServiceSecurityException instance
      */
-    public static PSSecurityException authenticationFailed(String userName, String reason) {
+    public static PSServiceSecurityException authenticationFailed(String userName, String reason) {
         var user = userName != null ? userName : "Unknown user";
         var failureReason = reason != null ? reason : "Authentication failed";
-        return new PSSecurityException(IPSSecurityErrors.AUTHENTICATION_FAILED, null,
+        return new PSServiceSecurityException(IPSSecurityErrors.AUTHENTICATION_FAILED, null,
                                      "Authentication failure", null, user, failureReason);
     }
 
@@ -140,13 +140,13 @@ public class PSSecurityException extends PSBaseException {
      *
      * @param userName the user name, not {@code null}
      * @param operation the operation that was attempted, not {@code null}
-     * @return a new PSSecurityException instance
+     * @return a new PServiceSecurityException instance
      * @throws IllegalArgumentException if userName or operation is null
      */
-    public static PSSecurityException authorizationFailed(String userName, String operation) {
+    public static PSServiceSecurityException authorizationFailed(String userName, String operation) {
         Objects.requireNonNull(userName, "userName cannot be null");
         Objects.requireNonNull(operation, "operation cannot be null");
-        return new PSSecurityException(IPSSecurityErrors.AUTHORIZATION_FAILED, null,
+        return new PSServiceSecurityException(IPSSecurityErrors.AUTHORIZATION_FAILED, null,
                                      "Authorization failure", null, userName, operation);
     }
 
@@ -156,13 +156,13 @@ public class PSSecurityException extends PSBaseException {
      * @param operation the ACL operation that failed, not {@code null}
      * @param cause the underlying cause, not {@code null}
      * @param objectId the object ID context, may be {@code null}
-     * @return a new PSSecurityException instance
+     * @return a new PServiceSecurityException instance
      * @throws IllegalArgumentException if operation or cause is null
      */
-    public static PSSecurityException aclOperationFailed(String operation, Throwable cause, IPSGuid objectId) {
+    public static PSServiceSecurityException aclOperationFailed(String operation, Throwable cause, IPSGuid objectId) {
         Objects.requireNonNull(operation, "operation cannot be null");
         Objects.requireNonNull(cause, "cause cannot be null");
-        return new PSSecurityException(IPSSecurityErrors.ACL_OPERATION_FAILED, cause,
+        return new PSServiceSecurityException(IPSSecurityErrors.ACL_OPERATION_FAILED, cause,
                                      "ACL operation failure", objectId, operation, cause.getMessage());
     }
 
@@ -170,12 +170,12 @@ public class PSSecurityException extends PSBaseException {
      * Factory method for security configuration errors.
      *
      * @param configurationIssue the configuration issue description, not {@code null}
-     * @return a new PSSecurityException instance
+     * @return a new PServiceSecurityException instance
      * @throws IllegalArgumentException if configurationIssue is null
      */
-    public static PSSecurityException configurationError(String configurationIssue) {
+    public static PSServiceSecurityException configurationError(String configurationIssue) {
         Objects.requireNonNull(configurationIssue, "configurationIssue cannot be null");
-        return new PSSecurityException(IPSSecurityErrors.CONFIGURATION_ERROR, null,
+        return new PSServiceSecurityException(IPSSecurityErrors.CONFIGURATION_ERROR, null,
                                      "Security configuration error", null, configurationIssue);
     }
 
@@ -185,13 +185,13 @@ public class PSSecurityException extends PSBaseException {
      * @param roleName the role name that caused the error, not {@code null}
      * @param operation the role operation that failed, not {@code null}
      * @param cause the underlying cause, may be {@code null}
-     * @return a new PSSecurityException instance
+     * @return a new PServiceSecurityException instance
      * @throws IllegalArgumentException if roleName or operation is null
      */
-    public static PSSecurityException roleManagementError(String roleName, String operation, Throwable cause) {
+    public static PSServiceSecurityException roleManagementError(String roleName, String operation, Throwable cause) {
         Objects.requireNonNull(roleName, "roleName cannot be null");
         Objects.requireNonNull(operation, "operation cannot be null");
-        return new PSSecurityException(IPSSecurityErrors.ROLE_MANAGEMENT_ERROR, cause,
+        return new PSServiceSecurityException(IPSSecurityErrors.ROLE_MANAGEMENT_ERROR, cause,
                                      "Role management error", null, roleName, operation);
     }
 
@@ -200,13 +200,13 @@ public class PSSecurityException extends PSBaseException {
      *
      * @param principalName the principal name, not {@code null}
      * @param validationMessage the validation error message, not {@code null}
-     * @return a new PSSecurityException instance
+     * @return a new PServiceSecurityException instance
      * @throws IllegalArgumentException if principalName or validationMessage is null
      */
-    public static PSSecurityException principalValidationError(String principalName, String validationMessage) {
+    public static PSServiceSecurityException principalValidationError(String principalName, String validationMessage) {
         Objects.requireNonNull(principalName, "principalName cannot be null");
         Objects.requireNonNull(validationMessage, "validationMessage cannot be null");
-        return new PSSecurityException(IPSSecurityErrors.PRINCIPAL_VALIDATION_ERROR, null,
+        return new PSServiceSecurityException(IPSSecurityErrors.PRINCIPAL_VALIDATION_ERROR, null,
                                      "Principal validation error", null, principalName, validationMessage);
     }
 

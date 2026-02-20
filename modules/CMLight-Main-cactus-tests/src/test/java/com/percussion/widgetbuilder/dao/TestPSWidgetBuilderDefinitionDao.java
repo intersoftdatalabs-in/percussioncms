@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Integration tests for PSWidgetBuilderDefinitionDao. */
-@Tag("IntegrationTest")
+
 public class TestPSWidgetBuilderDefinitionDao {
 
   private IPSWidgetBuilderDefinitionDao dao;

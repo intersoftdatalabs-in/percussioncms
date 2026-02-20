@@ -206,13 +206,35 @@ public class PSObjectSummary implements IPSCatalogSummary {
       return new PSObjectSummary(id, name, label, description);
    }
 
+   /**
+    * Construct a new summary from an existing catalog summary for convenience.
+    *
+    * @param s the source summary, not {@code null}
+    */
+   public PSObjectSummary(IPSCatalogSummary s) {
+      Objects.requireNonNull(s, "summary cannot be null");
+      IPSGuid g = s.getGUID();
+      if (g != null) {
+         this.id = g.longValue();
+      }
+      this.type = s.getTypeEnum();
+
+      this.name = s.getName();
+      this.label = StringUtils.isBlank(s.getLabel()) ? s.getName() : s.getLabel();
+      this.description = s.getDescription();
+   }
+
    @Override
    public IPSGuid getGUID() {
       return new PSGuid(type, id);
    }
 
    @Override
-   public PSTypeEnum getType() {
+   public String getType() {
+      return type == null ? null : type.name();
+   }
+
+   public PSTypeEnum getTypeEnum() {
       return type;
    }
 
@@ -229,6 +251,26 @@ public class PSObjectSummary implements IPSCatalogSummary {
    @Override
    public String getDescription() {
       return description;
+   }
+
+   /**
+    * Set the object's description.
+    * @param desc the description, may be {@code null} or empty
+    */
+   public void setDescription(String desc) {
+      this.description = desc;
+   }
+
+   /**
+    * Set the object's name. Used by callers that construct summaries and then
+    * need to adjust the name.
+    * @param name the name to set, not {@code null} or empty
+    */
+   public void setName(String name) {
+      if (StringUtils.isBlank(name)) {
+         throw new IllegalArgumentException("name cannot be null or empty");
+      }
+      this.name = name;
    }
 
    /**

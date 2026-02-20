@@ -28,7 +28,7 @@ import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSBackEndRole;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.utils.jspel.PSItemUtilities;
@@ -126,7 +126,7 @@ public class PSActionPanelServlet extends HttpServlet {
           break;
         }
       }
-    } catch (PSSecurityException e) {
+    } catch (PSServiceSecurityException e) {
       // If we can't load the community, then what? Just assume no access
     }
 

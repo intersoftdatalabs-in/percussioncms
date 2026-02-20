@@ -2,10 +2,15 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="511" dependencyType="Local" displayName="rffNav" isIncluded="yes" objectType="SlotDef" objectTypeName="Slot Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no">
-         <Dependencies/>
-      </PSXDependency>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="511" dependencyType="Local" displayName="rffNav"
+			isIncluded="yes" objectType="SlotDef"
+			objectTypeName="Slot Definition" supportsIdMapping="yes"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no">
+			<Dependencies />
+		</PSXDependency>
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

@@ -22,12 +22,14 @@ import com.percussion.services.schedule.data.PSNotifyWhen;
 import com.percussion.services.schedule.data.PSScheduledTask;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSTaskNodeTest extends TestCase
+public class PSTaskNodeTest 
 {
+   
    public void testGetNotifyWhenChoices()
    {
       final PSScheduledTask schedule = new PSScheduledTask();

@@ -32,7 +32,7 @@ public class PSItemStatusConverter extends PSConverter
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see PSConverter#PSConvert(BeanUtilsUtil)
     */
    public PSItemStatusConverter(BeanUtilsBean beanUtils)
@@ -42,7 +42,7 @@ public class PSItemStatusConverter extends PSConverter
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see PSConverter#convert(Class, Object)
     */
    @Override
@@ -52,7 +52,7 @@ public class PSItemStatusConverter extends PSConverter
 
       if (isClientToServer(value))
       {
-         com.percussion.webservices.content.PSItemStatus source = 
+         com.percussion.webservices.content.PSItemStatus source =
             (com.percussion.webservices.content.PSItemStatus) value;
 
          PSLegacyGuid id = new PSLegacyGuid(source.getId());
@@ -70,8 +70,8 @@ public class PSItemStatusConverter extends PSConverter
             toStateId = source.getToState().getId();
             toState = source.getToState().getName();
          }
-         PSItemStatus target = new PSItemStatus(id.getContentId(), 
-               source.isDidCheckout(), source.isDidTransition(), fromStateId, 
+         PSItemStatus target = new PSItemStatus(id.getContentId(),
+               source.isDidCheckout(), source.isDidTransition(), fromStateId,
                fromState, toStateId, toState);
 
          return target;
@@ -81,18 +81,27 @@ public class PSItemStatusConverter extends PSConverter
          PSItemStatus source = (PSItemStatus) value;
          long id = new PSDesignGuid(
             new PSLegacyGuid(source.getId(), -1)).getValue();
-         Reference fromState = null;
+          Reference fromState = null;
          Reference toState = null;
-         if (source.getFromStateId() != null)
-            fromState = new Reference(source.getFromStateId(), 
-                  source.getFromState());
-         if (source.getToStateId() != null)
-            toState = new Reference(source.getToStateId(), source.getToState());
-         
-         com.percussion.webservices.content.PSItemStatus target;
-         target = new com.percussion.webservices.content.PSItemStatus(
-               fromState, toState, id, source.isDidCheckout(), 
-               source.isDidTransition());
+         if (source.getFromStateId() != null) {
+            fromState = new Reference();
+            fromState.setId(source.getFromStateId());
+            fromState.setName(source.getFromState());
+         }
+         if (source.getToStateId() != null) {
+            toState = new Reference();
+            toState.setId(source.getToStateId());
+            toState.setName(source.getToState());
+         }
+
+         com.percussion.webservices.content.PSItemStatus target = new com.percussion.webservices.content.PSItemStatus();
+         target.setId(id);
+         target.setDidCheckout(source.isDidCheckout());
+         target.setDidTransition(source.isDidTransition());
+         if (fromState != null)
+            target.setFromState(fromState);
+         if (toState != null)
+            target.setToState(toState);
 
          return target;
       }

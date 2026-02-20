@@ -3,12 +3,20 @@
 
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-  <class name="com.percussion.taxonomy.domain.Related_node" table="TAX_RELATED_NODE">
-    <id name="Id" column="ID" type="integer">
-      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
-    </id>
-    <many-to-one name="node" class="com.percussion.taxonomy.domain.Node" column="NODE_ID" fetch="select" not-null="true"/>
-    <many-to-one name="related_node" class="com.percussion.taxonomy.domain.Node" column="RELATED_NODE_ID" fetch="select" not-null="true"/>
-    <many-to-one name="relationship" class="com.percussion.taxonomy.domain.Relationship_type" column="RELATIONSHIP_TYPE_ID" fetch="select" not-null="true"/>
-  </class>
+	<class name="com.percussion.taxonomy.domain.Related_node"
+		table="TAX_RELATED_NODE">
+		<id name="Id" column="ID" type="integer">
+			<generator
+				class="com.percussion.data.utils.PSNextNumberHibernateGenerator" />
+		</id>
+		<many-to-one name="node"
+			class="com.percussion.taxonomy.domain.Node" column="NODE_ID"
+			fetch="select" not-null="true" />
+		<many-to-one name="related_node"
+			class="com.percussion.taxonomy.domain.Node" column="RELATED_NODE_ID"
+			fetch="select" not-null="true" />
+		<many-to-one name="relationship"
+			class="com.percussion.taxonomy.domain.Relationship_type"
+			column="RELATIONSHIP_TYPE_ID" fetch="select" not-null="true" />
+	</class>
 </hibernate-mapping>

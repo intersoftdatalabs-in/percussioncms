@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Tag;
  * The PSContentAdhocUsersContextTest class is a test class for the class
  * PSContentAdhocUsersContext.
  */
-@Tag("IntegrationTest")
+
 public class PSContentAdhocUsersContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSContentAdhocUsersContextTest.class);

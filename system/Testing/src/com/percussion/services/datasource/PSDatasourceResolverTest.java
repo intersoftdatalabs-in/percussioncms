@@ -26,17 +26,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for the {@link PSDatasourceResolver}
  */
-public class PSDatasourceResolverTest extends TestCase
+public class PSDatasourceResolverTest 
 {
    /**
     * Tests setting and getting values
     * 
     * @throws Exception if the test fails
     */
+   
    public void testSetters() throws Exception
    {
       PSDatasourceResolver dsr = new PSDatasourceResolver();
@@ -76,6 +78,7 @@ public class PSDatasourceResolverTest extends TestCase
     * 
     * @throws Exception if the test fails
     */
+   
    public void testXml() throws Exception
    {
       PSDatasourceResolver dsr = new PSDatasourceResolver();

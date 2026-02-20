@@ -2,8 +2,8 @@
 
 
 <!-- edited with XMLSPY v5 rel. 2 U (http://www.xmlspy.com) by Paul Howard (Percussion Software) -->
-<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/securityServices" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:secs="urn:www.percussion.com/6.0.0/securityServices" elementFormDefault="qualified" attributeFormDefault="unqualified">
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/common" schemaLocation="../common.xsd"/>
+<xsd:schema targetNamespace="urn:www.percussion.com/8.2.0/securityServices" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:secs="urn:www.percussion.com/8.2.0/securityServices" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/common" schemaLocation="../common.xsd"/>
 
    <xsd:complexType name="PSRole">
 

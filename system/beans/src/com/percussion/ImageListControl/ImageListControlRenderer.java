@@ -60,12 +60,12 @@ class ImageListControlRenderer extends JPanel
 */
   @Override
   public Component getListCellRendererComponent(JList<? extends ImageListItem> list,
-                                                 Object value,
+                                                 ImageListItem value,
                                                 int index,
                                                 boolean isSelected,
                                                 boolean cellHasFocus)
   {
-    m_image.setIcon(((ImageListItem)value).getImage());
+    m_image.setIcon(value.getImage());
     m_image.setEnabled(list.isEnabled());
 
     m_textLabel.setRows(1);
@@ -89,7 +89,7 @@ class ImageListControlRenderer extends JPanel
        m_textLabel.setForeground(list.getForeground());
     }
 
-    String text = ((ImageListItem)value).getText();
+    String text = value.getText();
 
     // setting basic font sizes, text string dimensions and the image dimensions
      m_textLabel.setFont(list.getFont());

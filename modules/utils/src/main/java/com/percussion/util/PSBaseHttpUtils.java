@@ -464,26 +464,26 @@ public class PSBaseHttpUtils {
   }
 
   /** Constant to use to indicate the operating system of the requestor is Macintosh based. */
-  static final String OS_MACINTOSH = "Macintosh";
+  public static final String OS_MACINTOSH = "Macintosh";
 
   /** Constant to use to indicate the operating system of the requestor is Windows based. */
-  static final String OS_WINDOWS = "Windows";
+  public static final String OS_WINDOWS = "Windows";
 
   /** Constant to use to indicate the operating system of the requestor is Unix based. */
-  static final String OS_UNIX = "Unix";
+  public static final String OS_UNIX = "Unix";
 
   /** Constant to use to indicate the operating system of the requestor is unknown. */
-  static final String OS_OTHER = "Other";
+  public static final String OS_OTHER = "Other";
 
   /** Constant for the path separator to use when the requestor's OS is Mac based. */
-  static final String SEP_MACINTOSH = ":";
+  public static final String SEP_MACINTOSH = ":";
 
   /** Constant for the path separator to use when the requestor's OS is Windows based. */
-  static final String SEP_WINDOWS = "\\";
+  public static final String SEP_WINDOWS = "\\";
 
   /** Constant for the path separator to use when the requestor's OS is Unix based. */
-  static final String SEP_UNIX = "/";
+  public static final String SEP_UNIX = "/";
 
   /** Constant for the path separator to use when the requestor's OS is unknown. */
-  static final String SEP_OTHER = "/";
+  public static final String SEP_OTHER = "/";
 }

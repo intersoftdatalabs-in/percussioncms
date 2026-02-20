@@ -16,10 +16,10 @@
  */
 package com.percussion.servlets.taglib;
 
+import jakarta.faces.component.html.HtmlCommandLink;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 import java.io.IOException;
-import javax.faces.component.html.HtmlCommandLink;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 public class PSUIMenuItem extends HtmlCommandLink {
 
   /* (non-Javadoc)
-   * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
+   * @see jakarta.faces.component.UIComponentBase#encodeBegin(jakarta.faces.context.FacesContext)
    */
   @Override
   public void encodeBegin(FacesContext context) throws IOException {
@@ -44,13 +44,13 @@ public class PSUIMenuItem extends HtmlCommandLink {
       if (StringUtils.isNotBlank(title)) {
         writer.writeAttribute("title", title, null);
       }
-    } else if (getAction() != null) {
+    } else if (getActionExpression() != null) {
       super.encodeBegin(context);
     }
   }
 
   /* (non-Javadoc)
-   * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
+   * @see jakarta.faces.component.UIComponentBase#encodeEnd(jakarta.faces.context.FacesContext)
    */
   @Override
   public void encodeEnd(FacesContext context) throws IOException {

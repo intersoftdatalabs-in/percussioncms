@@ -15,42 +15,47 @@
  * limitations under the License.
  */
 
-(function($)
-{
-    $.PercTagListService = {
-        getTagEntries : getTagEntries
-    };
-    function getTagEntries(queryString, orderBy, callback)
-    {
-        //var paramOrderBy = "?sortTagsBy=" + orderBy;
-    	var deliveryUrl = "";
-    	try{
-    		if ("undefined" !== typeof (queryString.deliveryurl)){
-    		    deliveryUrl = queryString.deliveryurl;
-    		    delete queryString.deliveryurl;
-    	    }
-    	}
-        catch (err) {
-		    console.error(err);
-	    }
-
-        if('undefined' === typeof (orderBy)){
-            queryString.sortTagsBy = "undefined";
-        }else{
-            queryString.sortTagsBy = orderBy;
-        }
-
-        var serviceUrl = $.PercServiceUtils.joinURL(deliveryUrl ,"/perc-metadata-services/metadata/tags/get");
-        $.PercServiceUtils.makeXdmJsonRequest(null, serviceUrl,$.PercServiceUtils.TYPE_POST, function(status, results)
-        {
-            if(status === $.PercServiceUtils.STATUS_SUCCESS){
-                callback(true,results.data);
-            }
-            else{
-              var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(results.request);
-              callback(false, defMsg);
-            }
-            
-        }, queryString);
+(function ($) {
+  $.PercTagListService = {
+    getTagEntries: getTagEntries,
+  };
+  function getTagEntries(queryString, orderBy, callback) {
+    //var paramOrderBy = "?sortTagsBy=" + orderBy;
+    var deliveryUrl = "";
+    try {
+      if ("undefined" !== typeof queryString.deliveryurl) {
+        deliveryUrl = queryString.deliveryurl;
+        delete queryString.deliveryurl;
+      }
+    } catch (err) {
+      console.error(err);
     }
+
+    if ("undefined" === typeof orderBy) {
+      queryString.sortTagsBy = "undefined";
+    } else {
+      queryString.sortTagsBy = orderBy;
+    }
+
+    var serviceUrl = $.PercServiceUtils.joinURL(
+      deliveryUrl,
+      "/perc-metadata-services/metadata/tags/get"
+    );
+    $.PercServiceUtils.makeXdmJsonRequest(
+      null,
+      serviceUrl,
+      $.PercServiceUtils.TYPE_POST,
+      function (status, results) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback(true, results.data);
+        } else {
+          var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            results.request
+          );
+          callback(false, defMsg);
+        }
+      },
+      queryString
+    );
+  }
 })(jQuery);

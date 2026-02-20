@@ -78,7 +78,7 @@ public class PSLocaleManager {
 
     try {
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
-      PSLocale locale = mgr.findLocaleByLanguageString(languageString);
+      PSLocale locale = mgr.findLocaleByLanguageString(languageString).orElse(null);
       if (locale == null) {
         throw new PSLocaleException(
             IPSLocaleErrors.LOCALE_MGR_UNEXPECTED_ERROR, "Cannot find locale: " + languageString);
@@ -104,7 +104,7 @@ public class PSLocaleManager {
 
     try {
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
-      return mgr.loadLocale(localeId);
+      return mgr.loadLocale(localeId).orElse(null);
     } catch (PSMissingBeanConfigurationException e) {
       throw new PSLocaleException(
           IPSLocaleErrors.LOCALE_MGR_UNEXPECTED_ERROR, e.getLocalizedMessage());

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test case for the {@link PSIdName} class */
-@Tag("IntegrationTest")
+
 public class PSIdNameTest {
   /** Tests the constructor, and get/set methods. */
   @Test

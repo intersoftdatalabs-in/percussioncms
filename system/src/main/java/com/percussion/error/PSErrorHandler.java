@@ -411,6 +411,9 @@ public class PSErrorHandler {
         for (int i = 0; i < collectSize; i++) {
           rec = (PSRecipient) (collect.get(i));
           m_queNotif = m_queNotifHash.get(rec.getName());
+          if (!rec.isSendEnabled()) { // skip recipients that are disabled
+            continue;
+          }
           if (m_queNotif == null) {
             m_queNotif = new PSQueuedNotification();
             m_queNotif.setFrom(from);
@@ -550,9 +553,6 @@ public class PSErrorHandler {
             "Caught PSMailSendException in class PSErrorHandler/notifyAdmins: ", e3.getMessage());
       }
 
-      if (!rec.isSendEnabled()) // cannot send, seek next one to send
-      continue;
-
       m_queNotif = (PSQueuedNotification) (m_queNotifHash.get(rec.getName()));
       if (m_queNotif == null) {
         m_queNotif = new PSQueuedNotification();
@@ -658,34 +658,34 @@ public class PSErrorHandler {
           break;
       }
 
-      if (errorExist == false) continue;
+      if (errorExist) {
+        if (rec.isErrorThresholdByCount()) {
+          int generalErrorCount = m_queNotif.getGeneralErrorCount();
+          if (generalErrorCount >= rec.getErrorThresholdCount()) {
+            smtp.send(m_queNotif);
+            m_queNotif.setGeneralErrorCount(0); // for test
+            m_queNotif.resetBodyText(); // remove the bodyText
+          } else {
+            m_queNotifHash.put(rec.getName(), m_queNotif);
+          }
+        } else if (rec.isErrorThresholdByInterval()) {
+          long initialTimeMS = m_queNotif.getInitDate().getTime();
+          java.util.Date now = new java.util.Date();
+          long waitTime = now.getTime() - initialTimeMS;
+          long normalTime = (rec.getErrorThresholdInterval()) * 60000;
+          int generalErrorCount = m_queNotif.getGeneralErrorCount();
+          if ((waitTime >= normalTime) && (generalErrorCount > 0)) {
+            smtp.send(m_queNotif);
+            m_queNotif.setInitDate(now); // for test
+            m_queNotif.setGeneralErrorCount(0); // for test
+            m_queNotif.resetBodyText(); // remove the bodyText
+          } else {
+            m_queNotifHash.put(rec.getName(), m_queNotif);
+          }
+        }
 
-      if (rec.isErrorThresholdByCount()) {
-        int generalErrorCount = m_queNotif.getGeneralErrorCount();
-        if (generalErrorCount >= rec.getErrorThresholdCount()) {
-          smtp.send(m_queNotif);
-          m_queNotif.setGeneralErrorCount(0); // for test
-          m_queNotif.resetBodyText(); // remove the bodyText
-        } else {
-          m_queNotifHash.put(rec.getName(), m_queNotif);
-        }
-      } else if (rec.isErrorThresholdByInterval()) {
-        long initialTimeMS = m_queNotif.getInitDate().getTime();
-        java.util.Date now = new java.util.Date();
-        long waitTime = now.getTime() - initialTimeMS;
-        long normalTime = (rec.getErrorThresholdInterval()) * 60000;
-        int generalErrorCount = m_queNotif.getGeneralErrorCount();
-        if ((waitTime >= normalTime) && (generalErrorCount > 0)) {
-          smtp.send(m_queNotif);
-          m_queNotif.setInitDate(now); // for test
-          m_queNotif.setGeneralErrorCount(0); // for test
-          m_queNotif.resetBodyText(); // remove the bodyText
-        } else {
-          m_queNotifHash.put(rec.getName(), m_queNotif);
-        }
+        errorExist = false;
       }
-
-      errorExist = false;
 
     } catch (PSIllegalArgumentException e1) {
       com.percussion.server.PSConsole.printMsg(

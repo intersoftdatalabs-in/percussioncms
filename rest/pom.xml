@@ -76,6 +76,18 @@
             <artifactId>cxf-rt-transports-http-jetty</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- JAX-RS API is provided by the servlet/container at runtime but
+             we need it on the compile classpath for the annotations used in
+             the resources.  Tests also exercise the client APIs, so the
+             dependency is kept in compile scope and therefore available to
+             both main and test sources.  The parent POM defines
+             <jakarta.ws.rs.version> which should be used project‑wide. -->
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${jakarta.ws.rs.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -99,6 +111,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
@@ -120,6 +137,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
             <version>${project.parent.version}</version>
@@ -136,8 +157,9 @@
             <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

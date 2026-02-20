@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-$(document).ready(function(){
-    $(".perc-category-list .perc-category-list-collapsible").each(function(){
-        $(this).dynatree({
-                minExpandLevel: 2 //Default expanded levels = 2
-        });
-    })
+$(document).ready(function () {
+  $(".perc-category-list .perc-category-list-collapsible").each(function () {
+    $(this).dynatree({
+      minExpandLevel: 2, //Default expanded levels = 2
+    });
+  });
 });

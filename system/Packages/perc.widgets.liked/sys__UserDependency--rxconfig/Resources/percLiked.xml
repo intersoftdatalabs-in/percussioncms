@@ -2,7 +2,8 @@
 
 
 <Resources>
-<file id="common_js"  path="/web_resources/cm/common/js/perc_common_ui.js"  type="javascript" >
-	     <dependency refid="percSystem.common_slim_js"/>
-</file>    
+	<file id="common_js"
+		path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript">
+		<dependency refid="percSystem.common_slim_js" />
+	</file>
 </Resources>

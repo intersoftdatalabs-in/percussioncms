@@ -8,4 +8,4 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-({"displayName":"भारतीय  रूपया","symbol":"र�?."})
+({ displayName: "à¤­à¤¾à¤°à¤¤à¥à¤¯  à¤°à¥à¤ªà¤¯à¤¾", symbol: "à¤°à¥?." });

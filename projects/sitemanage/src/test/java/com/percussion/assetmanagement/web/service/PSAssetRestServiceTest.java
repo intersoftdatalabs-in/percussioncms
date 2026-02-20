@@ -61,15 +61,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestClient> {
   private static PSTestSiteData testSiteData;
 
@@ -81,7 +81,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
           + "</div>"
           + "</div>";
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -888,7 +888,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     assertTrue(foundForm2);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     assetCleaner.clean();
     pageCleaner.clean();
@@ -896,7 +896,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     folderCleaner.clean();
   }
 
-  @AfterClass
+  @AfterAll
   public static void cleanup() throws Exception {
     testSiteData.tearDown();
   }

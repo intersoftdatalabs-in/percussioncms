@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PSXExtensionHandlerConfiguration handlerName="Java">
-	<Extension categorystring="jexl" context="global/percussion/user/" deprecated="no" handler="Java" name="solnDispatch" restoreRequestParamsOnError="no">
+<PSXExtensionHandlerConfiguration
+	handlerName="Java">
+	<Extension categorystring="jexl"
+		context="global/percussion/user/" deprecated="no" handler="Java"
+		name="solnDispatch" restoreRequestParamsOnError="no">
 		<initParam name="com.percussion.user.description">Solutions Dispatch Template Picker</initParam>
 		<initParam name="com.percussion.extension.version">1</initParam>
 		<initParam name="com.percussion.extension.reentrant">yes</initParam>
 		<initParam name="className">com.percussion.soln.utilities.rx.jexl.DispatchTemplateUtil</initParam>
-		<interface name="com.percussion.extension.IPSJexlExpression"/>
-		<suppliedResources/>
+		<interface name="com.percussion.extension.IPSJexlExpression" />
+		<suppliedResources />
 	</Extension>
-	<Extension name="solnMakeAbsLink" context="global/percussion/user" handler="Java" categorystring="generic">
-		<initParam name="com.percussion.user.description">Creates an absolute ENCODED URL with up to 12 name/value pairs.</initParam>
+	<Extension name="solnMakeAbsLink"
+		context="global/percussion/user" handler="Java"
+		categorystring="generic">
+		<initParam name="com.percussion.user.description">Creates an absolute ENCODED URL with up to
+			12 name/value pairs.</initParam>
 		<initParam name="com.percussion.extension.version">1</initParam>
 		<initParam name="com.percussion.extension.reentrant">yes</initParam>
 		<initParam name="className">com.percussion.soln.utilities.rx.udf.MakeAbsLinkEncoded</initParam>
-		<interface name="com.percussion.extension.IPSUdfProcessor"/>
+		<interface name="com.percussion.extension.IPSUdfProcessor" />
 		<PSXExtensionParamDef id="0">
 			<name>resource</name>
 			<dataType>java.lang.String</dataType>

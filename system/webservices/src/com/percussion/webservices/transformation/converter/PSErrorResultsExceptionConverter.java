@@ -46,11 +46,9 @@ import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
 import com.percussion.webservices.content.PSChildEntry;
 import com.percussion.webservices.faults.PSError;
-import com.percussion.webservices.faults.PSErrorResultsFault;
-import com.percussion.webservices.faults.PSErrorResultsFaultServiceCall;
-import com.percussion.webservices.faults.PSErrorResultsFaultServiceCallError;
-import com.percussion.webservices.faults.PSErrorResultsFaultServiceCallResult;
+import com.percussion.webservices.faults.PSErrorResultsFaultBean;
 import com.percussion.webservices.faults.PSLockFault;
+import com.percussion.webservices.faults.PSLockFaultBean;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -62,8 +60,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.webservices.PSErrorResultsException</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.webservices.PSErrorResultsException</code> and
  * <code>com.percussion.webservices.faults.PSErrorResultsFault</code>.
  */
 public class PSErrorResultsExceptionConverter extends PSConverter
@@ -84,20 +82,19 @@ public class PSErrorResultsExceptionConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
-      if (value instanceof PSErrorResultsFault)
+
+      if (value instanceof PSErrorResultsFaultBean)
       {
-         PSErrorResultsFault source = (PSErrorResultsFault) value;
+         PSErrorResultsFaultBean source = (PSErrorResultsFaultBean) value;
 
          PSErrorResultsException target = new PSErrorResultsException();
-         PSErrorResultsFaultServiceCall[] calls = source.getServiceCall();
-         for (int i=0; i<calls.length; i++)
+         java.util.List<PSErrorResultsFaultBean.ServiceCall> calls = source.getServiceCall();
+         for (PSErrorResultsFaultBean.ServiceCall call : calls)
          {
-            PSErrorResultsFaultServiceCall call = calls[i];
             if (call.getError() != null)
             {
-               PSErrorResultsFaultServiceCallError error = call.getError();
-               
+               PSErrorResultsFaultBean.ServiceCall.Error error = call.getError();
+
                Object errorValue = error.getPSError();
                Class errorType = PSErrorException.class;
                if (errorValue == null)
@@ -105,23 +102,23 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                   errorValue = error.getPSLockFault();
                   errorType = PSLockErrorException.class;
                }
-               
+
                if (errorValue == null)
                {
-                  String warningMsg = 
+                  String warningMsg =
                      "No error value found for PSErrorResultsFault converter.";
                   m_log.warn(warningMsg);
                   throw new ConversionException(warningMsg);
                }
-                  
+
                Converter converter = getConverter(errorType);
-               target.addError(new PSDesignGuid(error.getId()), 
+               target.addError(new PSDesignGuid(error.getId()),
                   converter.convert(errorType, errorValue));
             }
             else
             {
-               PSErrorResultsFaultServiceCallResult result = call.getResult();
-               
+               PSErrorResultsFaultBean.ServiceCall.Result result = call.getResult();
+
                Object resultValue = result.getPSAaRelationship();
                Class resultType = PSAaRelationship.class;
                if (resultValue == null)
@@ -239,17 +236,17 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                   resultValue = result.getState();
                   resultType = String.class;
                }
-               
+
                if (resultValue == null)
                {
-                  String warningMsg = 
+                  String warningMsg =
                      "No result value found for PSErrorResultsFault converter.";
                   m_log.warn(warningMsg);
                   throw new ConversionException(warningMsg);
                }
-               
+
                Converter converter = getConverter(resultType);
-               target.addResult(new PSDesignGuid(result.getId()), 
+               target.addResult(new PSDesignGuid(result.getId()),
                   converter.convert(resultType, resultValue));
             }
          }
@@ -260,22 +257,19 @@ public class PSErrorResultsExceptionConverter extends PSConverter
       {
          PSErrorResultsException source = (PSErrorResultsException) value;
 
-         PSErrorResultsFault target = new PSErrorResultsFault();
+         PSErrorResultsFaultBean target = new PSErrorResultsFaultBean();
 
          Iterator ids = source.getIds().iterator();
          Map <IPSGuid, Object> errors = source.getErrors();
          Map <IPSGuid, Object> results = source.getResults();
-         
-         PSErrorResultsFaultServiceCall[] calls = 
-            new PSErrorResultsFaultServiceCall[source.getIds().size()];
-         target.setServiceCall(calls);
-         
-         int index = 0;
+
+         java.util.List<PSErrorResultsFaultBean.ServiceCall> calls = target.getServiceCall();
+
          while (ids.hasNext())
          {
             IPSGuid id = (IPSGuid) ids.next();
-            
-            PSErrorResultsFaultServiceCall call = null;
+
+            PSErrorResultsFaultBean.ServiceCall call = new PSErrorResultsFaultBean.ServiceCall();
             Object callValue = errors.get(id);
             if (callValue == null)
             {
@@ -286,14 +280,13 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                   converterClass = PSCoreItem.class;
                Converter converter = getConverter(converterClass);
 
-               PSErrorResultsFaultServiceCallResult result = 
-                  new PSErrorResultsFaultServiceCallResult();
+               PSErrorResultsFaultBean.ServiceCall.Result result = new PSErrorResultsFaultBean.ServiceCall.Result();
                result.setId((new PSDesignGuid(id)).getValue());
-               PSErrorResultsFaultServiceCallError error = null;
-               
+               PSErrorResultsFaultBean.ServiceCall.Error error = null;
+
                if (callValue instanceof PSAaRelationship)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSAaRelationship.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSAaRelationship(
@@ -301,7 +294,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSAclImpl)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.system.PSAclImpl.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSAclImpl(
@@ -309,7 +302,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSAction)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.ui.data.PSAction.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSAction(
@@ -317,7 +310,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSAssemblyTemplateWs)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.assembly.data.PSAssemblyTemplate.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSAssemblyTemplate(
@@ -325,7 +318,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSAuditTrail)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.system.PSAuditTrail.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSAuditTrail(
@@ -333,7 +326,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSAutoTranslation)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSAutoTranslation.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSAutoTranslation(
@@ -341,7 +334,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSField[])
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSChildEntry.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSChildEntry(
@@ -349,7 +342,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSCommunity)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.security.data.PSCommunity.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSCommunity(
@@ -357,7 +350,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSContentType)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSContentType.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSContentType(
@@ -365,7 +358,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSDisplayFormat)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.ui.data.PSDisplayFormat.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSDisplayFormat(
@@ -373,7 +366,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSFolder)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSFolder.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSFolder(
@@ -381,7 +374,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSHierarchyNode)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.ui.data.PSHierarchyNode.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSHierarchyNode(
@@ -389,7 +382,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSCoreItem)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSItem.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSItem(
@@ -397,7 +390,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSItemStatus)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSItemStatus.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSItemStatus(
@@ -405,7 +398,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSKeyword)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSKeyword.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSKeyword(
@@ -413,7 +406,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSLocale)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSLocale.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSLocale(
@@ -421,7 +414,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSRelationshipConfig)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.system.PSRelationshipConfig.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSRelationshipConfig(
@@ -432,7 +425,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                   PSSearch search = (PSSearch) callValue;
                   if (search.isView())
                   {
-                     Class resultType = 
+                     Class resultType =
                         com.percussion.webservices.ui.data.PSViewDef.class;
                      Object resultValue = converter.convert(resultType, callValue);
                      result.setPSViewDef(
@@ -440,7 +433,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                   }
                   else
                   {
-                     Class resultType = 
+                     Class resultType =
                         com.percussion.webservices.ui.data.PSSearchDef.class;
                      Object resultValue = converter.convert(resultType, callValue);
                      result.setPSSearchDef(
@@ -449,7 +442,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSSharedProperty)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.system.PSSharedProperty.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSSharedProperty(
@@ -457,7 +450,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSTemplateSlot)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.assembly.data.PSTemplateSlot.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSTemplateSlot(
@@ -465,7 +458,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSItemFilter)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.system.PSItemFilter.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSItemFilter(
@@ -473,7 +466,7 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                }
                else if (callValue instanceof PSContentTemplateDesc)
                {
-                  Class resultType = 
+                  Class resultType =
                      com.percussion.webservices.content.PSContentTemplateDesc.class;
                   Object resultValue = converter.convert(resultType, callValue);
                   result.setPSContentTemplateDesc(
@@ -489,20 +482,20 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                   error = getUnknownDataTypeError(callValue.getClass());
                }
 
-               call = new PSErrorResultsFaultServiceCall(result, error);
+               call.setResult(result);
             }
             else
             {
                Converter converter = getConverter(callValue.getClass());
 
-               PSErrorResultsFaultServiceCallError error = 
-                  new PSErrorResultsFaultServiceCallError();
+               PSErrorResultsFaultBean.ServiceCall.Error error =
+                  new PSErrorResultsFaultBean.ServiceCall.Error();
                error.setId((new PSDesignGuid(id)).getValue());
                if (callValue instanceof PSLockErrorException)
                {
                   Class resultType = PSLockFault.class;
                   Object resultValue = converter.convert(resultType, callValue);
-                  error.setPSLockFault((PSLockFault) resultValue);
+                  error.setPSLockFault((PSLockFaultBean) resultValue);
                }
                else if (callValue instanceof PSErrorException)
                {
@@ -515,32 +508,35 @@ public class PSErrorResultsExceptionConverter extends PSConverter
                   error = getUnknownDataTypeError(callValue.getClass());
                }
 
-               call = new PSErrorResultsFaultServiceCall(null, error);
+               call.setError(error);
             }
-            calls[index++] = call;
+            calls.add(call);
          }
-         
+
          return target;
       }
    }
-   
+
    /**
     * Creates an error for the specified unknown data type.
-    * 
+    *
     * @param clz the unknown data type; assumed not <code>null</code>.
-    * 
-    * @return the created error; never <code>null</code>. 
+    *
+    * @return the created error; never <code>null</code>.
     */
-   private PSErrorResultsFaultServiceCallError getUnknownDataTypeError(Class clz) 
+   private PSErrorResultsFaultBean.ServiceCall.Error getUnknownDataTypeError(Class clz)
    {
-      PSErrorResultsFaultServiceCallError error = 
-         new PSErrorResultsFaultServiceCallError();
+      PSErrorResultsFaultBean.ServiceCall.Error error =
+         new PSErrorResultsFaultBean.ServiceCall.Error();
       String msg = "Failed to convert an unknown data type: " + clz.toString();
-      PSError e = new PSError(0, msg, null);
+      PSError e = new PSError();
+      e.setCode(0);
+      e.setErrorMessage(msg);
+      e.setStack("");
       error.setPSError(e);
 
       m_log.warn(msg);
-      
+
       return error;
    }
 

@@ -19,27 +19,19 @@ package com.percussion.server.cache;
 import com.percussion.design.objectstore.PSServerCacheSettings;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit test for the {@link PSCacheStatistics} class.
  */
-public class PSCacheStatisticsTest extends TestCase
+public class PSCacheStatisticsTest 
 {
    // see base class
-   public PSCacheStatisticsTest(String name)
-   {
-      super(name);
-   }
+   
 
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSCacheStatisticsTest("testCacheDisabled"));
-      suite.addTest(new PSCacheStatisticsTest("testStatistics"));
-      return suite;
-   }
+   
 
    /**
     * Tests that the cache statistics thread does not start unless the caching
@@ -47,6 +39,7 @@ public class PSCacheStatisticsTest extends TestCase
     * 
     * @throws Exception
     */
+   
    public void testCacheDisabled() throws Exception
    {
       //Test that thread is not started since caching is disabled.
@@ -83,6 +76,7 @@ public class PSCacheStatisticsTest extends TestCase
     * 
     * @throws Exception
     */
+   
    public void testStatistics() throws Exception
    {
       PSServerCacheSettings settings = new PSServerCacheSettings(
