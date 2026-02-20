@@ -48,8 +48,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -79,7 +79,7 @@ public class PSRenderServiceTest {
   private static PSAsset asset;
   private static PSAsset asset_2;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     renderClient = new PSRenderServiceClient();
@@ -135,7 +135,7 @@ public class PSRenderServiceTest {
     return template;
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
     testSiteData.tearDown();
   }

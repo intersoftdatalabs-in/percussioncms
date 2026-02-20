@@ -75,8 +75,8 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -111,7 +111,7 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
         }
       };
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -165,7 +165,7 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
     siteCleaner.clean();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     try {
       testSiteData.tearDown();

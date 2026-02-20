@@ -32,32 +32,32 @@ import com.percussion.theme.data.PSTheme;
 import com.percussion.theme.data.PSThemeSummary;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class PSThemeServiceTest extends PSRestTestCase<PSThemeRestClient> {
   private static PSTestSiteData testSiteData;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpFixture() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     restClient.prepareForEditRegionCSS(PERC_THEME, TEMPLATE);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     restClient.clearCacheRegionCSS(PERC_THEME, TEMPLATE);
   }
 
-  @AfterClass
+  @AfterAll
   public static void cleanup() throws Exception {
     testSiteData.tearDown();
   }

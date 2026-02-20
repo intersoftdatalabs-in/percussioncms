@@ -26,8 +26,8 @@ import com.percussion.pagemanagement.web.service.PSTestSiteData;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
 import java.util.List;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class PSItemRestServiceTest extends PSRestTestCase<PSItemServiceRestClient> {
@@ -35,7 +35,7 @@ public class PSItemRestServiceTest extends PSRestTestCase<PSItemServiceRestClien
   static PSItemServiceRestClient restClient;
   private static PSTestSiteData testSiteData;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -122,7 +122,7 @@ public class PSItemRestServiceTest extends PSRestTestCase<PSItemServiceRestClien
     assertEquals(5, revisions.size());
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
     assetCleaner.clean();
     testSiteData.tearDown();
