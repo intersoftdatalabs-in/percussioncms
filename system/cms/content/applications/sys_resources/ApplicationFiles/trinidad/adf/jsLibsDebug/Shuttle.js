@@ -6,9 +6,9 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@ var _shuttle_no_name = "You must supply the shuttle's name to create a proxy";
 var _shuttle_no_form_name_provided = "A form name must be provided";
 var _shuttle_no_form_available = "This shuttle is not in a form";
 
-
 //========================================================================
 //
 // (Public) TrShuttleProxy Object
@@ -34,15 +33,9 @@ var _shuttle_no_form_available = "This shuttle is not in a form";
 // or the shuttle name and its form name. If the form name is not
 // supplied, it will be determined at runtime.
 
-
 // Constructor
-function TrShuttleProxy(
-  shuttleName,
-  formName
-  )
-{
-  if (shuttleName == (void 0))
-  {
+function TrShuttleProxy(shuttleName, formName) {
+  if (shuttleName == void 0) {
     alert(_shuttle_no_name);
     this.shuttleName = "";
     this.formName = "";
@@ -53,28 +46,22 @@ function TrShuttleProxy(
 
   this.formName = "";
   // get the form name
-  if (formName == (void 0))
-  {
+  if (formName == void 0) {
     // find the first form with this shuttle
     var formsLength = document.forms.length;
     var listName = shuttleName + ":leading";
 
-    for (var i = 0; i < formsLength; i++)
-    {
-      if (document.forms[i][listName] != (void 0))
-      {
+    for (var i = 0; i < formsLength; i++) {
+      if (document.forms[i][listName] != void 0) {
         this.formName = document.forms[i].name;
         break;
       }
     }
-    if(this.formName == "")
-    {
+    if (this.formName == "") {
       alert(shuttle_no_form_available);
       return;
     }
-  }
-  else
-  {
+  } else {
     this.formName = formName;
   }
 }
@@ -87,26 +74,20 @@ function TrShuttleProxy(
 // Calling getItems(boolean leadingList) on a TrShuttleProxy will return an
 // array of the items in the given list of the shuttle
 //
-TrShuttleProxy.prototype.getItems = function(
-  leadingList
-  )
-{
+TrShuttleProxy.prototype.getItems = function (leadingList) {
   //default params not given
-  if(leadingList == (void 0))
-  {
+  if (leadingList == void 0) {
     leadingList = true;
   }
 
   //get the list name
   var listName = TrShuttleProxy._getListName(this.shuttleName, leadingList);
 
-
   var list = document.forms[this.formName].elements[listName];
 
   var items = new Array();
   //length - 1 because of bars
-  for(var i=0; i<list.length-1; i++)
-  {
+  for (var i = 0; i < list.length - 1; i++) {
     items[i] = list.options[i];
   }
 
@@ -117,28 +98,21 @@ TrShuttleProxy.prototype.getItems = function(
 // Calling getSelectedItems(boolean leadingList) on a TrShuttleProxy will
 // return an array of the selected items in the given list of the shuttle
 //
-TrShuttleProxy.prototype.getSelectedItems = function(
-  leadingList
-  )
-{
+TrShuttleProxy.prototype.getSelectedItems = function (leadingList) {
   //default params not given
-  if(leadingList == (void 0))
-  {
+  if (leadingList == void 0) {
     leadingList = true;
   }
 
   var listName = TrShuttleProxy._getListName(this.shuttleName, leadingList);
-
 
   var list = document.forms[this.formName].elements[listName];
 
   var items = new Array();
   var j = 0;
   //length - 1 because of bars
-  for(var i=0; i<list.length-1; i++)
-  {
-    if(list.options[i].selected)
-    {
+  for (var i = 0; i < list.length - 1; i++) {
+    if (list.options[i].selected) {
       items[j] = list.options[i];
       j++;
     }
@@ -151,50 +125,37 @@ TrShuttleProxy.prototype.getSelectedItems = function(
 // Calling getItemCount(boolean leadingList) on a TrShuttleProxy will
 // return the number of items in the given list of the shuttle
 //
-TrShuttleProxy.prototype.getItemCount = function(
-  leadingList
-  )
-{
+TrShuttleProxy.prototype.getItemCount = function (leadingList) {
   //default params not given
-  if(leadingList == (void 0))
-  {
+  if (leadingList == void 0) {
     leadingList = true;
   }
 
   var listName = TrShuttleProxy._getListName(this.shuttleName, leadingList);
-
 
   //minus 1 for bars
   return document.forms[this.formName].elements[listName].length - 1;
 };
 
-
 //
 // Calling getSelectedItemCount(boolean leadingList) on a TrShuttleProxy will
 // return the number of selected items in the given list of the shuttle
 //
-TrShuttleProxy.prototype.getSelectedItemCount = function(
-  leadingList
-)
-{
+TrShuttleProxy.prototype.getSelectedItemCount = function (leadingList) {
   //default params not given
-  if(leadingList == (void 0))
-  {
+  if (leadingList == void 0) {
     leadingList = true;
   }
 
   var listName = TrShuttleProxy._getListName(this.shuttleName, leadingList);
 
-
   var list = document.forms[this.formName].elements[listName];
 
   var j = 0;
   //length - 1 because of bars
-  for(var i=0; i<list.length-1; i++)
-  {
-    if(list.options[i].selected)
-    {
-       j++;
+  for (var i = 0; i < list.length - 1; i++) {
+    if (list.options[i].selected) {
+      j++;
     }
   }
 
@@ -206,52 +167,42 @@ TrShuttleProxy.prototype.getSelectedItemCount = function(
 // on a TrShuttleProxy will insert a new option into the given list at the
 // specified index with the specified text, value, and description.
 //
-TrShuttleProxy.prototype.addItem = function(
+TrShuttleProxy.prototype.addItem = function (
   leadingList,
   index,
   text,
   value,
   description
-  )
-{
+) {
   //default params not given
-  if(value == (void 0))
-  {
+  if (value == void 0) {
     value = "";
   }
-  if(text == (void 0))
-  {
+  if (text == void 0) {
     text = "";
   }
-  if(description == (void 0))
-    {
-      description = "";
+  if (description == void 0) {
+    description = "";
   }
-  if(leadingList == (void 0))
-  {
+  if (leadingList == void 0) {
     leadingList = true;
   }
-
 
   //get the list
   var listName = TrShuttleProxy._getListName(this.shuttleName, leadingList);
 
-
-
   //get an appropriate index
-  if(index == (void 0))
-  { //minus 1 for bars
+  if (index == void 0) {
+    //minus 1 for bars
     index = document.forms[this.formName].elements[listName].length - 1;
   }
 
-  if(index < 0)
-  {
+  if (index < 0) {
     index = 0;
   }
 
   //minus 1 for bars
-  if(index > document.forms[this.formName].elements[listName].length - 1)
-  {
+  if (index > document.forms[this.formName].elements[listName].length - 1) {
     index = document.forms[this.formName].elements[listName].length - 1;
   }
 
@@ -260,18 +211,18 @@ TrShuttleProxy.prototype.addItem = function(
   var theList = document.forms[this.formName].elements[listName];
 
   //make a new option for the bars
-  theList.options[theList.length] =
-       new Option(theList.options[theList.length-1].text,
-                  theList.options[theList.length-1].value,
-                  false,
-                  false);
+  theList.options[theList.length] = new Option(
+    theList.options[theList.length - 1].text,
+    theList.options[theList.length - 1].value,
+    false,
+    false
+  );
 
   //move items down
-  for(var i = theList.length - 1; i > index; i--)
-  {
-    theList.options[i].text = theList.options[i-1].text;
-    theList.options[i].value = theList.options[i-1].value;
-    theList.options[i].selected = theList.options[i-1].selected;
+  for (var i = theList.length - 1; i > index; i--) {
+    theList.options[i].text = theList.options[i - 1].text;
+    theList.options[i].value = theList.options[i - 1].value;
+    theList.options[i].selected = theList.options[i - 1].selected;
   }
 
   //insert the new item
@@ -281,7 +232,7 @@ TrShuttleProxy.prototype.addItem = function(
 
   // add description
   var descArray = TrShuttleProxy._getDescArray(listName);
-  TrShuttleProxy._addDescAtIndex( descArray, description, index);
+  TrShuttleProxy._addDescAtIndex(descArray, description, index);
 
   TrShuttleProxy._makeList(this.formName, listName);
 };
@@ -291,28 +242,20 @@ TrShuttleProxy.prototype.addItem = function(
 // on a TrShuttleProxy will delete the option with the given value
 // from the given list.
 //
-TrShuttleProxy.prototype.deleteItemByValue = function(
-  leadingList,
-  value
-  )
-{
-  if(value == (void 0))
-  {
+TrShuttleProxy.prototype.deleteItemByValue = function (leadingList, value) {
+  if (value == void 0) {
     return;
   }
-
 
   //get the list
   var listName = TrShuttleProxy._getListName(this.shuttleName, leadingList);
   var theList = document.forms[this.formName].elements[listName];
 
-  for(var i=0; i<theList.length-1; i++)
-  {
+  for (var i = 0; i < theList.length - 1; i++) {
     var val = theList.options[i].value;
-    if(val == value)
-    {
-      var descArray = TrShuttleProxy._getDescArray( listName );
-      TrShuttleProxy._deleteDescAtIndex( descArray, i);
+    if (val == value) {
+      var descArray = TrShuttleProxy._getDescArray(listName);
+      TrShuttleProxy._deleteDescAtIndex(descArray, i);
       TrShuttleProxy._clearDescAreas(this.formName, listName);
 
       theList.options[i] = null;
@@ -321,38 +264,30 @@ TrShuttleProxy.prototype.deleteItemByValue = function(
       return;
     }
   }
-
 };
-
 
 //
 // Calling deleteSelectedItems(boolean leadingList)
 // on a TrShuttleProxy will delete all selected items from the given list
 //
-TrShuttleProxy.prototype.deleteSelectedItems = function(
-  leadingList
-  )
-{
-  if(leadingList == (void 0))
-  {
+TrShuttleProxy.prototype.deleteSelectedItems = function (leadingList) {
+  if (leadingList == void 0) {
     leadingList = true;
   }
-
 
   //get the list
   var listName = TrShuttleProxy._getListName(this.shuttleName, leadingList);
   var theList = document.forms[this.formName].elements[listName];
 
-  var selIndexes = TrShuttleProxy._getSelectedIndexes(this.formName,listName);
+  var selIndexes = TrShuttleProxy._getSelectedIndexes(this.formName, listName);
 
-  for(var i = selIndexes.length; i >=0; i--)
-  {
+  for (var i = selIndexes.length; i >= 0; i--) {
     theList.options[selIndexes[i]] = null;
   }
 
   var descArray = TrShuttleProxy._getDescArray(listName);
 
-  TrShuttleProxy._deleteDescAtIndexes( descArray, selIndexes);
+  TrShuttleProxy._deleteDescAtIndexes(descArray, selIndexes);
 
   TrShuttleProxy._clearDescAreas(this.formName, listName);
 
@@ -364,32 +299,29 @@ TrShuttleProxy.prototype.deleteSelectedItems = function(
 // will move the selected items, or all items depending on allItems parameter,
 // from the given list to the other list.
 //
-TrShuttleProxy.prototype.move = function(
-  fromLeadingList,
-  allItems
-  )
-{
+TrShuttleProxy.prototype.move = function (fromLeadingList, allItems) {
   //default parameters not given
-  if(allItems == (void 0))
-  {
+  if (allItems == void 0) {
     allItems = false;
   }
-  if(fromLeadingList == (void 0))
-  {
+  if (fromLeadingList == void 0) {
     fromLeadingList = true;
   }
 
   //get the list names
-  var fromListName = TrShuttleProxy._getListName(this.shuttleName, fromLeadingList);
-  var toListName = TrShuttleProxy._getListName(this.shuttleName, !fromLeadingList);
+  var fromListName = TrShuttleProxy._getListName(
+    this.shuttleName,
+    fromLeadingList
+  );
+  var toListName = TrShuttleProxy._getListName(
+    this.shuttleName,
+    !fromLeadingList
+  );
 
   //move the items
-  if(allItems)
-  {
+  if (allItems) {
     TrShuttleProxy._moveAllItems(fromListName, toListName, this.formName);
-  }
-  else
-  {
+  } else {
     TrShuttleProxy._moveItems(fromListName, toListName, this.formName);
   }
 };
@@ -400,58 +332,40 @@ TrShuttleProxy.prototype.move = function(
 //in the direction specified.  If allTheWay is true it will move the items all
 // the way to the top or bottom.  Otherwise the items move one slot.
 //
-TrShuttleProxy.prototype.reorderList = function(
-  down,
-  allTheWay,
-  leadingList
-)
-{
+TrShuttleProxy.prototype.reorderList = function (down, allTheWay, leadingList) {
   //default params not given
-  if(leadingList == (void 0))
-  {
+  if (leadingList == void 0) {
     leadingList = true;
   }
-  if(allTheWay == (void 0))
-  {
+  if (allTheWay == void 0) {
     allTheWay = false;
   }
-  if(down == (void 0))
-  {
+  if (down == void 0) {
     down = false;
   }
 
   //get the listName
   var listName = TrShuttleProxy._getListName(this.shuttleName, leadingList);
 
-
-
   //reorder the list
-  if(!allTheWay)
-  {
+  if (!allTheWay) {
     TrShuttleProxy._orderList(down, listName, this.formName);
-  }
-  else
-  {
+  } else {
     TrShuttleProxy._orderTopBottomList(down, listName, this.formName);
   }
 };
 
-
 //
 // Calling reset will reset the shuttle to its initial state.
 //
-TrShuttleProxy.prototype.reset = function()
-{
-  TrShuttleProxy._resetItems( this.shuttleName, this.formName);
+TrShuttleProxy.prototype.reset = function () {
+  TrShuttleProxy._resetItems(this.shuttleName, this.formName);
 };
-
-
 
 /*===========================================================================*/
 /*-----------------------------------------------------------------------
  *PRIVATE SHUTTLE METHODS
  *-----------------------------------------------------------------------*/
-
 
 /*
  * _remove
@@ -461,27 +375,18 @@ TrShuttleProxy.prototype.reset = function()
  * by start
  */
 
-TrShuttleProxy._remove = function( array, start, deleteCount )
-{
-
+TrShuttleProxy._remove = function (array, start, deleteCount) {
   var len = array.length;
 
-  if (deleteCount > len)
-    return;
+  if (deleteCount > len) return;
 
-  for ( var i = start; i < len ; i++)
-  {
-
-    if ( i < len - deleteCount )
-      array[i] = array[ i + deleteCount];
-    else
-      array[ i ] = void 0;
+  for (var i = start; i < len; i++) {
+    if (i < len - deleteCount) array[i] = array[i + deleteCount];
+    else array[i] = void 0;
   }
 
   array.length = len - deleteCount;
-
-}
-
+};
 
 /*
  * _displayDesc
@@ -489,40 +394,28 @@ TrShuttleProxy._remove = function( array, start, deleteCount )
  * Displays the description in the description area below the list.
  *
  */
-TrShuttleProxy._displayDesc = function(
-  listName,
-  formName
-  )
-{
-
-
-  if(formName == (void 0))
-  {
+TrShuttleProxy._displayDesc = function (listName, formName) {
+  if (formName == void 0) {
     alert(_shuttle_no_form_name_provided);
     return;
   }
 
-
-  if(formName.length == 0)
-  {
+  if (formName.length == 0) {
     alert(shuttle_no_form_available);
     return;
   }
 
   // the textInput where descriptions are displayed
-  var descArea = document.forms[formName].elements[ listName + ':desc'];
+  var descArea = document.forms[formName].elements[listName + ":desc"];
 
-  if( descArea == void(0))
-  {
+  if (descArea == void 0) {
     return;
   }
 
-
   // the array of descriptions
-  var descArray  =  TrShuttleProxy._getDescArray( listName );
+  var descArray = TrShuttleProxy._getDescArray(listName);
 
-  if( descArray == (void 0) || descArray.length == 0)
-  {
+  if (descArray == void 0 || descArray.length == 0) {
     return;
   }
 
@@ -530,25 +423,25 @@ TrShuttleProxy._displayDesc = function(
   var selItems = TrShuttleProxy._getSelectedIndexes(formName, listName);
 
   //if no items are selected, return
-  if(selItems.length == 0)
-  {
+  if (selItems.length == 0) {
     descArea.value = "";
-    TrShuttleProxy._setSelected( listName, selItems );
+    TrShuttleProxy._setSelected(listName, selItems);
     return;
   }
 
   // get the last description selected
-  var selOptDesc = TrShuttleProxy._getSelectedDesc( listName, descArray, selItems );
+  var selOptDesc = TrShuttleProxy._getSelectedDesc(
+    listName,
+    descArray,
+    selItems
+  );
 
   // set the value of the description area to be the last selected item
   descArea.value = selOptDesc;
 
   // set which items are currently selected
-  TrShuttleProxy._setSelected( listName, selItems );
-
-
-}
-
+  TrShuttleProxy._setSelected(listName, selItems);
+};
 
 /*
  * _getDescArray
@@ -556,16 +449,10 @@ TrShuttleProxy._displayDesc = function(
  * This function gets the description array
  */
 
-TrShuttleProxy._getDescArray = function
-(
-  listName
-)
-{
-
-  var descArray = window[listName.replace(':','_') + '_desc'];
+TrShuttleProxy._getDescArray = function (listName) {
+  var descArray = window[listName.replace(":", "_") + "_desc"];
   return descArray;
-
-}
+};
 
 /*
  * _getSelectedDesc
@@ -580,42 +467,30 @@ TrShuttleProxy._getDescArray = function
  * These are compared to determine the last item selected.
  */
 
-TrShuttleProxy._getSelectedDesc = function
-(
-  listName,
-  descArray,
-  selItems
-)
-{
-
+TrShuttleProxy._getSelectedDesc = function (listName, descArray, selItems) {
   // get the array of the indexes of previously selected items
-  var prevSelArray = TrShuttleProxy._getSelectedArray( listName );
+  var prevSelArray = TrShuttleProxy._getSelectedArray(listName);
 
   // if only one item is currently selected return its description
-  if ( selItems.length == 1 )
-    return descArray[selItems[0]];
-
+  if (selItems.length == 1) return descArray[selItems[0]];
 
   // if the difference between the number of items
   // previously selected and currently selected is
   // not equal to one return no description, otherwise
   // it is unclear which description to display
-  if ( selItems.length - prevSelArray.length != 1 )
-    return "";
-
+  if (selItems.length - prevSelArray.length != 1) return "";
 
   // find the index now selected that was not
   // previously selected and return the description
   // for the item at that index.
-  for ( var i = 0; i < selItems.length; i++ )
-  {
-    if ( i >= prevSelArray.length || prevSelArray[i] != selItems[i] )
+  for (var i = 0; i < selItems.length; i++) {
+    if (i >= prevSelArray.length || prevSelArray[i] != selItems[i])
       return descArray[selItems[i]];
   }
 
   // return an empty string if all else fails
   return "";
-}
+};
 
 /*
  * _getSelectedArray
@@ -625,15 +500,10 @@ TrShuttleProxy._getSelectedDesc = function
  *
  */
 
-
-TrShuttleProxy._getSelectedArray = function
-(
-  listName
-)
-{
-  var selected = window[listName.replace(':','_') + '_sel'];
+TrShuttleProxy._getSelectedArray = function (listName) {
+  var selected = window[listName.replace(":", "_") + "_sel"];
   return selected;
-}
+};
 
 /*
  * _setSelected
@@ -643,29 +513,18 @@ TrShuttleProxy._getSelectedArray = function
  *
  */
 
-TrShuttleProxy._setSelected = function
-(
-  listName,
-  selected
-)
-{
+TrShuttleProxy._setSelected = function (listName, selected) {
+  var selectedArray = TrShuttleProxy._getSelectedArray(listName);
 
-  var selectedArray = TrShuttleProxy._getSelectedArray( listName );
-
-  if ( selectedArray != (void 0) )
-  {
+  if (selectedArray != void 0) {
     var len = selectedArray.length;
-    TrShuttleProxy._remove( selectedArray, 0, len);
+    TrShuttleProxy._remove(selectedArray, 0, len);
 
-    for ( var i = 0; i < selected.length; i++ )
-    {
+    for (var i = 0; i < selected.length; i++) {
       selectedArray[i] = selected[i];
     }
-
   }
-
-}
-
+};
 
 /*
  * _addDescAtIndex
@@ -673,28 +532,18 @@ TrShuttleProxy._setSelected = function
  * This function adds a description at a given index.
  */
 
-TrShuttleProxy._addDescAtIndex = function
-(
-  descArray,
-  addedDesc,
-  index
-)
-{
-
-
-  if ( descArray != (void 0 ) )
-  {
+TrShuttleProxy._addDescAtIndex = function (descArray, addedDesc, index) {
+  if (descArray != void 0) {
     var len = descArray.length;
 
-    for ( var i = len - 1 ; i >= index; i-- )
-    {
+    for (var i = len - 1; i >= index; i--) {
       descArray[i + 1] = descArray[i];
     }
 
     descArray[index] = addedDesc;
     descArray.length = len + 1;
   }
-}
+};
 
 /*
  * _deleteDescAtIndex
@@ -702,15 +551,9 @@ TrShuttleProxy._addDescAtIndex = function
  * This function removes a description at a given index.
  */
 
-TrShuttleProxy._deleteDescAtIndex = function
-(
-  descArray,
-  index
-)
-{
-  if ( descArray != (void 0 ))
-    TrShuttleProxy._remove(descArray, index, 1);
-}
+TrShuttleProxy._deleteDescAtIndex = function (descArray, index) {
+  if (descArray != void 0) TrShuttleProxy._remove(descArray, index, 1);
+};
 
 /*
  * _deleteDescAtIndexes
@@ -718,21 +561,13 @@ TrShuttleProxy._deleteDescAtIndex = function
  * This function removes descriptions at given indexes.
  */
 
-TrShuttleProxy._deleteDescAtIndexes = function
-(
-  descArray,
-  indexes
-)
-{
-  if ( descArray != (void 0 ))
-  {
-    for ( var i = indexes.length - 1; i >= 0; i--)
-    {
+TrShuttleProxy._deleteDescAtIndexes = function (descArray, indexes) {
+  if (descArray != void 0) {
+    for (var i = indexes.length - 1; i >= 0; i--) {
       TrShuttleProxy._remove(descArray, indexes[i], 1);
     }
   }
-}
-
+};
 
 /*
  * _deleteDescAtIndexes
@@ -741,28 +576,19 @@ TrShuttleProxy._deleteDescAtIndexes = function
  * the empty string.
  */
 
-TrShuttleProxy._clearDescAreas = function(
-  formName,
-  list1,
-  list2
-)
-{
+TrShuttleProxy._clearDescAreas = function (formName, list1, list2) {
   // move descriptions and clear description area
-  var descArea1 = document.forms[formName].elements[ list1 + ':desc'];
-  var descArea2 = document.forms[formName].elements[ list2 + ':desc'];
+  var descArea1 = document.forms[formName].elements[list1 + ":desc"];
+  var descArea2 = document.forms[formName].elements[list2 + ":desc"];
 
-  if( descArea1 != void(0))
-  {
+  if (descArea1 != void 0) {
     descArea1.value = "";
   }
 
-  if( descArea2 != void(0))
-  {
+  if (descArea2 != void 0) {
     descArea2.value = "";
   }
-}
-
-
+};
 
 /*
  * _moveItems
@@ -773,20 +599,13 @@ TrShuttleProxy._clearDescAreas = function(
  * at the bottom. The 'from' and 'to' parameters should be the
  * list names(i.e.  "<shuttleName>:leading" or "<shuttleName>:trailing")
  */
-TrShuttleProxy._moveItems = function(
-  from,
-  to,
-  formName
-  )
-{
+TrShuttleProxy._moveItems = function (from, to, formName) {
   //get the formName if needed
-  if(formName == (void 0))
-  {
+  if (formName == void 0) {
     formName = TrShuttleProxy._findFormNameContaining(from);
   }
 
-  if(formName.length == 0)
-  {
+  if (formName.length == 0) {
     alert(shuttle_no_form_available);
     return;
   }
@@ -795,22 +614,18 @@ TrShuttleProxy._moveItems = function(
   var fromList = document.forms[formName].elements[from];
   var toList = document.forms[formName].elements[to];
 
-  if ( fromList == (void 0 ) || toList == (void 0 ))
-    return;
-
+  if (fromList == void 0 || toList == void 0) return;
 
   //get all the indexes of the selected items
   var selItems = TrShuttleProxy._getSelectedIndexes(formName, from);
 
   //if no items are selected, return with alert.
-  if(selItems.length == 0)
-  {
+  if (selItems.length == 0) {
     if (_shuttle_no_items_selected.length > 0)
       alert(_shuttle_no_items_selected);
 
     return;
   }
-
 
   var fromDescArray = TrShuttleProxy._getDescArray(from);
   var toDescArray = TrShuttleProxy._getDescArray(to);
@@ -820,28 +635,26 @@ TrShuttleProxy._moveItems = function(
 
   //get the index in the toList to start inserting at.  Length-1 because of
   //bars.
-  var insertAt = toList.length-1;
+  var insertAt = toList.length - 1;
 
   //save bar text so you know how long it should be
   var barText = toList.options[insertAt].text;
 
   //insert the items at the end of the toList
-  for(var i=0; i<selItems.length; i++)
-  {
+  for (var i = 0; i < selItems.length; i++) {
     var oText = fromList.options[selItems[i]].text;
     var oValue = fromList.options[selItems[i]].value;
 
-    if(i == 0)
-    { //replace the bars
+    if (i == 0) {
+      //replace the bars
       toList.options[insertAt].text = oText;
       toList.options[insertAt].value = oValue;
-    }
-    else
-    {  //have to make new item
+    } else {
+      //have to make new item
       toList.options[insertAt] = new Option(oText, oValue, false, false);
     }
 
-    if ( toDescArray != (void 0) && fromDescArray != (void 0) )
+    if (toDescArray != void 0 && fromDescArray != void 0)
       toDescArray[insertAt] = fromDescArray[selItems[i]];
 
     toList.options[insertAt].selected = true;
@@ -853,23 +666,22 @@ TrShuttleProxy._moveItems = function(
   toList.options[insertAt].selected = false;
 
   //remove items from fromList.  do this backward to maintain indices
-  for( var i=selItems.length-1; i >= 0; i--)
-  {
-    if ( fromDescArray != (void 0) )
-      TrShuttleProxy._remove( fromDescArray, selItems[i], 1 );
+  for (var i = selItems.length - 1; i >= 0; i--) {
+    if (fromDescArray != void 0)
+      TrShuttleProxy._remove(fromDescArray, selItems[i], 1);
     fromList.options[selItems[i]] = null;
   }
 
   //make no selected on fromList
   fromList.selectedIndex = -1;
 
-  TrShuttleProxy._clearDescAreas( formName, from);
-  TrShuttleProxy._displayDesc( to, formName );
+  TrShuttleProxy._clearDescAreas(formName, from);
+  TrShuttleProxy._displayDesc(to, formName);
 
   //make the new lists for submitting.
   TrShuttleProxy._makeList(formName, from);
   TrShuttleProxy._makeList(formName, to);
-}
+};
 
 /*
  * _moveAllItems
@@ -880,15 +692,9 @@ TrShuttleProxy._moveItems = function(
  * at the bottom. The 'from' and 'to' parameters should be the
  * list names(i.e.  "<shuttleName>:leading" or "<shuttleName>:trailing")
  */
-TrShuttleProxy._moveAllItems = function(
-  from,
-  to,
-  formName
-  )
-{
+TrShuttleProxy._moveAllItems = function (from, to, formName) {
   //get the formName is needed
-  if(formName == (void 0))
-  {
+  if (formName == void 0) {
     formName = TrShuttleProxy._findFormNameContaining(from);
   }
 
@@ -898,36 +704,32 @@ TrShuttleProxy._moveAllItems = function(
 
   //save the bar text for later use.
   var barText =
-    toList.options[document.forms[formName].elements[to].length-1].text
+    toList.options[document.forms[formName].elements[to].length - 1].text;
 
   //get the index to start inserting at in the toList.  length-1 because of
   //bars
-  var insertAt = toList.length-1;
+  var insertAt = toList.length - 1;
   var fromDescArray = TrShuttleProxy._getDescArray(from);
   var toDescArray = TrShuttleProxy._getDescArray(to);
 
   //move the items
-  if (fromList.length > 1)
-  {
+  if (fromList.length > 1) {
     //move all but the last (bars).
-    var initialLength = fromList.length
-    for(var i=0; i<initialLength-1; i++)
-    {
+    var initialLength = fromList.length;
+    for (var i = 0; i < initialLength - 1; i++) {
       var oText = fromList.options[0].text;
       var oValue = fromList.options[0].value;
       fromList.options[0] = null;
-      if(i == 0)
-      { //replace the bars
+      if (i == 0) {
+        //replace the bars
         toList.options[insertAt].text = oText;
         toList.options[insertAt].value = oValue;
-      }
-      else
-      { //make new option
-        toList.options[insertAt] = new Option (oText,oValue,false,false);
-
+      } else {
+        //make new option
+        toList.options[insertAt] = new Option(oText, oValue, false, false);
       }
 
-      if ( toDescArray != (void 0) && fromDescArray != (void 0) )
+      if (toDescArray != void 0 && fromDescArray != void 0)
         toDescArray[insertAt] = fromDescArray[i];
 
       insertAt++;
@@ -937,8 +739,7 @@ TrShuttleProxy._moveAllItems = function(
     toList.options[insertAt] = new Option(barText, "", false, false);
     toList.options[insertAt].selected = false;
 
-    if ( fromDescArray != (void 0) )
-    {
+    if (fromDescArray != void 0) {
       var len = fromDescArray.length;
       TrShuttleProxy._remove(fromDescArray, 0, len);
     }
@@ -947,18 +748,15 @@ TrShuttleProxy._moveAllItems = function(
     fromList.selectedIndex = -1;
     toList.selectedIndex = -1;
 
-    TrShuttleProxy._clearDescAreas( formName, from, to );
-
+    TrShuttleProxy._clearDescAreas(formName, from, to);
 
     //make the lists for submission
     TrShuttleProxy._makeList(formName, from);
     TrShuttleProxy._makeList(formName, to);
-  }
-  else if (_shuttle_no_items.length > 0)
-  {
+  } else if (_shuttle_no_items.length > 0) {
     alert(_shuttle_no_items);
   }
-}
+};
 
 /*
  * _orderList
@@ -968,15 +766,9 @@ TrShuttleProxy._moveAllItems = function(
  * this is called. The 'list' parameter should be the
  * list name(i.e.  "<shuttleName>:leading" or "<shuttleName>:trailing")
  */
-TrShuttleProxy._orderList = function(
-  down,
-  list,
-  formName
-  )
-{
+TrShuttleProxy._orderList = function (down, list, formName) {
   //get the formName if needed
-  if(formName == (void 0))
-  {
+  if (formName == void 0) {
     formName = TrShuttleProxy._findFormNameContaining(list);
   }
 
@@ -987,8 +779,7 @@ TrShuttleProxy._orderList = function(
   var selItems = TrShuttleProxy._getSelectedIndexes(formName, list);
 
   //if no items are selected, return with alert.
-  if(selItems.length == 0)
-  {
+  if (selItems.length == 0) {
     if (_shuttle_no_items_selected.length > 0)
       alert(_shuttle_no_items_selected);
 
@@ -999,97 +790,83 @@ TrShuttleProxy._orderList = function(
 
   // Start with the last selected index and move up, working by blocks
   var processed = selItems.length - 1;
-  while (processed >= 0)
-  {
+  while (processed >= 0) {
     var lastInBlock = selItems[processed];
     var firstInBlock = lastInBlock;
 
     var tempIndex = processed;
 
-
     // find the first index in that block
-    while ((tempIndex > 0) && ((selItems[tempIndex] -
-                                selItems[tempIndex - 1]) == 1))
-    {
+    while (
+      tempIndex > 0 &&
+      selItems[tempIndex] - selItems[tempIndex - 1] == 1
+    ) {
       tempIndex--;
       firstInBlock--;
     }
 
-    if (down == 0)
-    {
+    if (down == 0) {
       // move this block up
       // if we are at the top, do nothing
-      if(firstInBlock != 0)
-      {
+      if (firstInBlock != 0) {
         //get the text and value of the one space above the block
-        var oText = colList.options[firstInBlock-1].text;
-        var oValue = colList.options[firstInBlock-1].value;
+        var oText = colList.options[firstInBlock - 1].text;
+        var oValue = colList.options[firstInBlock - 1].value;
 
-        if ( descArray != (void 0) )
-          var dValue = descArray[firstInBlock - 1];
+        if (descArray != void 0) var dValue = descArray[firstInBlock - 1];
 
         //move the block up one at a time
-        for (var i = firstInBlock; i <= lastInBlock; i++)
-        {
-          colList.options[i-1].text = colList.options[i].text;
-          colList.options[i-1].value = colList.options[i].value;
-          colList.options[i-1].selected = true;
+        for (var i = firstInBlock; i <= lastInBlock; i++) {
+          colList.options[i - 1].text = colList.options[i].text;
+          colList.options[i - 1].value = colList.options[i].value;
+          colList.options[i - 1].selected = true;
 
-          if ( descArray != (void 0) )
-            descArray[i-1] = descArray[i];
+          if (descArray != void 0) descArray[i - 1] = descArray[i];
         }
 
-         //put the info of the slot above the selection below it
+        //put the info of the slot above the selection below it
         colList.options[lastInBlock].text = oText;
         colList.options[lastInBlock].value = oValue;
         colList.options[lastInBlock].selected = false;
 
-        if ( descArray != (void 0) )
-          descArray[lastInBlock] = dValue;
+        if (descArray != void 0) descArray[lastInBlock] = dValue;
       }
-    }
-    else
-    {
+    } else {
       // move this block down
       // if we are at the bottom, do nothing
-      if(lastInBlock != colList.length-2)
-      {
+      if (lastInBlock != colList.length - 2) {
         //get the text and value of the one space below the block
-        var oText = colList.options[lastInBlock+1].text;
-        var oValue = colList.options[lastInBlock+1].value;
+        var oText = colList.options[lastInBlock + 1].text;
+        var oValue = colList.options[lastInBlock + 1].value;
 
-        if ( descArray != (void 0) )
-          var dValue = descArray[lastInBlock+1];
+        if (descArray != void 0) var dValue = descArray[lastInBlock + 1];
 
-         //move the block down one at a time
-        for (var i = lastInBlock; i >= firstInBlock; i--)
-        {
-          colList.options[i+1].text = colList.options[i].text;
-          colList.options[i+1].value = colList.options[i].value;
-          colList.options[i+1].selected = true;
+        //move the block down one at a time
+        for (var i = lastInBlock; i >= firstInBlock; i--) {
+          colList.options[i + 1].text = colList.options[i].text;
+          colList.options[i + 1].value = colList.options[i].value;
+          colList.options[i + 1].selected = true;
 
-          if ( descArray != (void 0) )
-            descArray[i+1] = descArray[i];
+          if (descArray != void 0) descArray[i + 1] = descArray[i];
         }
 
-         //put the info of the slot below the selection above it
+        //put the info of the slot below the selection above it
         colList.options[firstInBlock].text = oText;
         colList.options[firstInBlock].value = oValue;
         colList.options[firstInBlock].selected = false;
 
-        if ( descArray != (void 0) )
-          descArray[firstInBlock] = dValue;
+        if (descArray != void 0) descArray[firstInBlock] = dValue;
       }
     }
 
     processed = tempIndex - 1;
   }
 
-  TrShuttleProxy._displayDesc( list, formName );
+  TrShuttleProxy._displayDesc(list, formName);
 
   //make the list for submission
   TrShuttleProxy._makeList(formName, list);
-}
+};
 
 /*
  * _orderTopBottomList
@@ -1099,15 +876,9 @@ TrShuttleProxy._orderList = function(
  * this is called. The 'list' parameter should be the
  * list name(i.e.  "<shuttleName>:leading" or "<shuttleName>:trailing")
  */
-TrShuttleProxy._orderTopBottomList = function(
-  down,
-  list,
-  formName
-  )
-{
+TrShuttleProxy._orderTopBottomList = function (down, list, formName) {
   //get the formname if needed
-  if(formName == (void 0))
-  {
+  if (formName == void 0) {
     formName = TrShuttleProxy._findFormNameContaining(list);
   }
 
@@ -1118,8 +889,7 @@ TrShuttleProxy._orderTopBottomList = function(
   var selItems = TrShuttleProxy._getSelectedIndexes(formName, list);
 
   //if no items are selected, return with alert.
-  if(selItems.length == 0)
-  {
+  if (selItems.length == 0) {
     if (_shuttle_no_items_selected.length > 0)
       alert(_shuttle_no_items_selected);
 
@@ -1133,270 +903,220 @@ TrShuttleProxy._orderTopBottomList = function(
   var moveItemsText = new Array();
   var moveItemsValue = new Array();
   var moveItemsIndex = 0;
-  if(down == 0)
-  {
+  if (down == 0) {
     //get an array of all the items we will have to displace in order
     var selItemsIndex = 0;
     var moveItemsIndex = 0;
-    for(var colListIndex=0;
-        colListIndex < selItems[selItems.length - 1];
-        colListIndex++)
-    {
-      if(colListIndex != selItems[selItemsIndex])
-      {
+    for (
+      var colListIndex = 0;
+      colListIndex < selItems[selItems.length - 1];
+      colListIndex++
+    ) {
+      if (colListIndex != selItems[selItemsIndex]) {
         moveItemsText[moveItemsIndex] = colList.options[colListIndex].text;
         moveItemsValue[moveItemsIndex] = colList.options[colListIndex].value;
 
-        if (  descArray != (void 0) )
+        if (descArray != void 0)
           moveDescArray[moveItemsIndex] = descArray[colListIndex];
 
-        moveItemsIndex++
-      }
-      else
-      {
-
-        if ( descArray != (void 0) )
+        moveItemsIndex++;
+      } else {
+        if (descArray != void 0)
           selDescArray[selItemsIndex] = descArray[colListIndex];
 
         selItemsIndex++;
-
       }
     }
 
-    if ( descArray != (void 0) )
+    if (descArray != void 0)
       selDescArray[selItemsIndex] = descArray[colListIndex];
 
-
     //place items to move toward top of col
-    for(var i = 0; i < selItems.length; i++)
-    {
+    for (var i = 0; i < selItems.length; i++) {
       colList.options[i].text = colList.options[selItems[i]].text;
       colList.options[i].value = colList.options[selItems[i]].value;
       colList.options[i].selected = true;
 
-      if ( descArray != (void 0) )
-        descArray[i] = selDescArray[i];
+      if (descArray != void 0) descArray[i] = selDescArray[i];
     }
 
     //place displaced items below
-    for(var j = 0; j < moveItemsText.length; j++)
-    {
+    for (var j = 0; j < moveItemsText.length; j++) {
       colList.options[i].text = moveItemsText[j];
       colList.options[i].value = moveItemsValue[j];
       colList.options[i].selected = false;
 
-      if ( descArray != (void 0) )
-        descArray[i] = moveDescArray[j];
-      i++
+      if (descArray != void 0) descArray[i] = moveDescArray[j];
+      i++;
     }
-
-
-
-  }
-  else
-  {
+  } else {
     //get an array of all the items we will have to displace in order
     var selItemsIndex = 1;
     var moveItemsIndex = 0;
 
-    if ( descArray != (void 0) )
-      selDescArray[0] = descArray[selItems[0]];
+    if (descArray != void 0) selDescArray[0] = descArray[selItems[0]];
 
-    for(var colItemsIndex=selItems[0]+1;
-        colItemsIndex <= colList.length-2;
-        colItemsIndex++)
-    {
-      if((selItemsIndex == selItems.length) ||
-         (colItemsIndex != selItems[selItemsIndex]))
-      {
+    for (
+      var colItemsIndex = selItems[0] + 1;
+      colItemsIndex <= colList.length - 2;
+      colItemsIndex++
+    ) {
+      if (
+        selItemsIndex == selItems.length ||
+        colItemsIndex != selItems[selItemsIndex]
+      ) {
         moveItemsText[moveItemsIndex] = colList.options[colItemsIndex].text;
         moveItemsValue[moveItemsIndex] = colList.options[colItemsIndex].value;
 
-        if ( descArray != (void 0) )
+        if (descArray != void 0)
           moveDescArray[moveItemsIndex] = descArray[colItemsIndex];
 
         moveItemsIndex++;
-      }
-      else
-      {
-        if ( descArray != (void 0) )
+      } else {
+        if (descArray != void 0)
           selDescArray[selItemsIndex] = descArray[colItemsIndex];
 
         selItemsIndex++;
       }
     }
 
-
     //place items to move toward bottom of col
     var j = colList.length - 2;
-    for(var i = selItems.length-1; i >= 0; i--)
-    {
+    for (var i = selItems.length - 1; i >= 0; i--) {
       colList.options[j].text = colList.options[selItems[i]].text;
       colList.options[j].value = colList.options[selItems[i]].value;
       colList.options[j].selected = true;
 
-      if ( descArray != (void 0) )
-        descArray[j] = selDescArray[i];
+      if (descArray != void 0) descArray[j] = selDescArray[i];
       j--;
     }
 
-
     //place displaced items above
-    for(var i = moveItemsText.length-1; i >= 0; i--)
-    {
+    for (var i = moveItemsText.length - 1; i >= 0; i--) {
       colList.options[j].text = moveItemsText[i];
       colList.options[j].value = moveItemsValue[i];
       colList.options[j].selected = false;
 
-      if ( descArray != (void 0) )
-        descArray[j] = moveDescArray[i];
-      j--
+      if (descArray != void 0) descArray[j] = moveDescArray[i];
+      j--;
     }
   }
 
-  TrShuttleProxy._displayDesc( list, formName );
+  TrShuttleProxy._displayDesc(list, formName);
 
   //make the list for submission
   TrShuttleProxy._makeList(formName, list);
-}
+};
 
 // helper functions
-TrShuttleProxy._getSelectedIndexes = function(
-  formName,
-  listName
-  )
-{
+TrShuttleProxy._getSelectedIndexes = function (formName, listName) {
   var colList = document.forms[formName].elements[listName];
   var selItems = new Array();
-  var selItemsIndex=0;
+  var selItemsIndex = 0;
   //minus 1 for bars
-  for(var colListIndex=0; colListIndex<colList.length-1; colListIndex++)
-  {
-    if(colList.options[colListIndex].selected)
-    {
+  for (
+    var colListIndex = 0;
+    colListIndex < colList.length - 1;
+    colListIndex++
+  ) {
+    if (colList.options[colListIndex].selected) {
       selItems[selItemsIndex] = colListIndex;
       selItemsIndex++;
     }
   }
 
   return selItems;
-}
+};
 
-TrShuttleProxy._findFormNameContaining = function(
-  element
-  )
-{
+TrShuttleProxy._findFormNameContaining = function (element) {
   var formsLength = document.forms.length;
 
-  for (var i = 0; i < formsLength; i++)
-  {
-    if (document.forms[i][element] != (void 0))
-    {
+  for (var i = 0; i < formsLength; i++) {
+    if (document.forms[i][element] != void 0) {
       return document.forms[i].name;
     }
   }
   return "";
-}
+};
 
-TrShuttleProxy._makeList = function(
-  formName,
-  listName
-  )
-{
+TrShuttleProxy._makeList = function (formName, listName) {
   var list = document.forms[formName].elements[listName];
 
-  if ( list == null )
-    return;
-
+  if (list == null) return;
 
   var val = "";
-  for(var i=0; i< list.length - 1; i++)
-  {
-    if(list.options[i].value.length > 0)
-    {
-      val = val +
-            TrShuttleProxy._trimString(list.options[i].value)
-            + ';';
-    }
-    else
-    {
-      val = val +
-            TrShuttleProxy._trimString(list.options[i].text)
-            + ';';
+  for (var i = 0; i < list.length - 1; i++) {
+    if (list.options[i].value.length > 0) {
+      val = val + TrShuttleProxy._trimString(list.options[i].value) + ";";
+    } else {
+      val = val + TrShuttleProxy._trimString(list.options[i].text) + ";";
     }
   }
-  document.forms[formName].elements[listName+':items'].value = val;
-}
+  document.forms[formName].elements[listName + ":items"].value = val;
+};
 
-TrShuttleProxy._trimString = function (
-  str
-  )
-{
+TrShuttleProxy._trimString = function (str) {
   var j = str.length - 1;
-  if(str.charAt(j) != ' ')
-  {
+  if (str.charAt(j) != " ") {
     return str;
   }
-  while ((str.charAt(j) == ' ') && (j > 0))
-  {
+  while (str.charAt(j) == " " && j > 0) {
     j = j - 1;
   }
-  str = str.substring(0, j+1);
+  str = str.substring(0, j + 1);
   return str;
-}
+};
 
-TrShuttleProxy._getListName = function(
-  shuttleName,
-  leadingList
-  )
-{
-  var theListName = (leadingList) ? shuttleName + ":leading" :
-                                  shuttleName + ":trailing";
+TrShuttleProxy._getListName = function (shuttleName, leadingList) {
+  var theListName = leadingList
+    ? shuttleName + ":leading"
+    : shuttleName + ":trailing";
   return theListName;
-}
-
+};
 
 /**
-* Reset items to their original values
-*
-*/
-TrShuttleProxy._resetItems = function(
-  shuttleName,
-  formName)
-{
-
+ * Reset items to their original values
+ *
+ */
+TrShuttleProxy._resetItems = function (shuttleName, formName) {
   //get the formName if needed
-  if(formName == (void 0))
-  {
+  if (formName == void 0) {
     formName = TrShuttleProxy._findFormNameContaining(from);
   }
 
-  if(formName.length == 0)
-  {
+  if (formName.length == 0) {
     alert(shuttle_no_form_available);
     return;
   }
 
   // get list names
-  leadingListName = TrShuttleProxy._getListName( shuttleName, true);
-  trailingListName = TrShuttleProxy._getListName( shuttleName, false);
+  leadingListName = TrShuttleProxy._getListName(shuttleName, true);
+  trailingListName = TrShuttleProxy._getListName(shuttleName, false);
 
   // get current lists
-  var leadingList  = document.forms[formName].elements[leadingListName];
+  var leadingList = document.forms[formName].elements[leadingListName];
   var trailingList = document.forms[formName].elements[trailingListName];
 
   // get original lists
   var origLists = TrShuttleProxy._getOriginalLists(shuttleName, formName);
-  var origLeadingList  = origLists.leading;
+  var origLeadingList = origLists.leading;
   var origTrailingList = origLists.trailing;
 
   // get original description arrays
-  var origLeadingDescArray =  TrShuttleProxy._getDescArray(leadingListName);
+  var origLeadingDescArray = TrShuttleProxy._getDescArray(leadingListName);
   var origTrailingDescArray = TrShuttleProxy._getDescArray(trailingListName);
 
   // reset values of lists
-  TrShuttleProxy._resetToOriginalList( origLeadingList, origLeadingDescArray, leadingList );
-  TrShuttleProxy._resetToOriginalList( origTrailingList, origTrailingDescArray, trailingList );
+  TrShuttleProxy._resetToOriginalList(
+    origLeadingList,
+    origLeadingDescArray,
+    leadingList
+  );
+  TrShuttleProxy._resetToOriginalList(
+    origTrailingList,
+    origTrailingDescArray,
+    trailingList
+  );
 
   //make the new lists for submitting.
   TrShuttleProxy._makeList(formName, leadingListName);
@@ -1404,55 +1124,37 @@ TrShuttleProxy._resetItems = function(
 
   // return that no reload necessary
   return false;
-}
-
-
+};
 
 /*
  * _getOriginalLists
  *
  * This function gets a copy of the original lists list
  */
-TrShuttleProxy._getOriginalLists = function
-(
-  shuttleName,
-  formName
-)
-{
-
-  var originalLists = window['_' + formName + '_' + shuttleName + '_orig'];
+TrShuttleProxy._getOriginalLists = function (shuttleName, formName) {
+  var originalLists = window["_" + formName + "_" + shuttleName + "_orig"];
   return originalLists;
-
-}
+};
 
 /**
  * Given the original list info,
  * reset the list and description info
  *
  */
-TrShuttleProxy._resetToOriginalList = function
-(
-  origList,
-  descArray,
-  list
-)
-{
-
+TrShuttleProxy._resetToOriginalList = function (origList, descArray, list) {
   // If the original list or new list are null, return
-  if ( origList == (void 0) || list == (void 0) )
-    return;
+  if (origList == void 0 || list == void 0) return;
 
   // reset selectedIndex
   list.selectedIndex = origList.selectedIndex;
 
   var i = 0;
 
-  for( ;i < origList.options.length;i++)
-  {
-    var oText            = origList.options[i].text;
-    var oValue           = origList.options[i].value;
+  for (; i < origList.options.length; i++) {
+    var oText = origList.options[i].text;
+    var oValue = origList.options[i].value;
     var oDefaultSelected = origList.options[i].defaultSelected;
-    var oSelected        = origList.options[i].selected;
+    var oSelected = origList.options[i].selected;
 
     // =-= gc Replacing values for options that already exist
     // doesn't work properly on Mozilla 1.3. If you
@@ -1470,8 +1172,7 @@ TrShuttleProxy._resetToOriginalList = function
     */
     {
       // make new option
-      list.options[i] = new Option(oText, oValue,
-                                   oDefaultSelected, oSelected);
+      list.options[i] = new Option(oText, oValue, oDefaultSelected, oSelected);
 
       // Netscape 4 bug, selection using constructor not working,
       // Remove next 2 lines when we desupport Netscape 4.
@@ -1480,101 +1181,87 @@ TrShuttleProxy._resetToOriginalList = function
     }
 
     // reset description
-    if ( descArray != (void 0 ))
-      descArray[i] = origList.descriptions[i];
-
+    if (descArray != void 0) descArray[i] = origList.descriptions[i];
   }
-
-
 
   var max = list.options.length - 1;
 
   // nulling out extra options from high end of array
   // because doing otherwise not working.
-  while ( max >= i )
-  {
-    if ( descArray != (void 0 ))
-      descArray[max] = null;
+  while (max >= i) {
+    if (descArray != void 0) descArray[max] = null;
 
     list.options[max] = null;
     max--;
   }
+};
 
+/**
+ * _copyLists
+ *
+ * Copy the lists and descriptions info to an object
+ *
+ *
+ */
+TrShuttleProxy._copyLists = function (shuttleName, formName) {
+  //get the formName if needed
+  if (formName == void 0) {
+    formName = TrShuttleProxy._findFormNameContaining(from);
+  }
 
- }
+  if (formName.length == 0) {
+    alert(shuttle_no_form_available);
+    return;
+  }
 
+  var origLists = new Object();
+  origLists.leading = TrShuttleProxy._copyList(
+    TrShuttleProxy._getListName(shuttleName, true),
+    formName
+  );
+  origLists.trailing = TrShuttleProxy._copyList(
+    TrShuttleProxy._getListName(shuttleName, false),
+    formName
+  );
 
- /**
-  * _copyLists
-  *
-  * Copy the lists and descriptions info to an object
-  *
-  *
-  */
- TrShuttleProxy._copyLists = function( shuttleName, formName )
- {
+  return origLists;
+};
 
-   //get the formName if needed
-   if(formName == (void 0))
-   {
-     formName = TrShuttleProxy._findFormNameContaining(from);
-   }
+/**
+ * _copyList
+ *
+ * copy the values in a single list
+ */
+TrShuttleProxy._copyList = function (listName, formName) {
+  if (formName == void 0 || listName == void 0) return;
 
-   if(formName.length == 0)
-   {
-     alert(shuttle_no_form_available);
-     return;
-   }
+  var origList = document.forms[formName].elements[listName];
 
-   var origLists = new Object();
-   origLists.leading = TrShuttleProxy._copyList( TrShuttleProxy._getListName( shuttleName, true), formName);
-   origLists.trailing = TrShuttleProxy._copyList( TrShuttleProxy._getListName( shuttleName, false), formName);
+  if (origList == null) return;
 
+  var origDescs = TrShuttleProxy._getDescArray(listName);
 
-   return origLists;
- }
+  var copyList = new Object();
 
+  copyList.selectedIndex = origList.selectedIndex;
+  copyList.options = new Array();
+  copyList.descriptions = new Array();
 
- /**
-  * _copyList
-  *
-  * copy the values in a single list
-  */
- TrShuttleProxy._copyList = function( listName, formName )
- {
-   if ( formName == (void 0 ) || listName == (void 0))
-     return;
+  for (var i = 0; i < origList.options.length; i++) {
+    copyList.options[i] = new Option(
+      origList.options[i].text,
+      origList.options[i].value,
+      origList.options[i].defaultSelected,
+      origList.options[i].selected
+    );
 
-   var origList = document.forms[formName].elements[listName];
+    // Netscape 4 bug, selection using constructor not working,
+    // Remove next 2 lines when we desupport Netscape 4.
+    copyList.options[i].defaultSelected = origList.options[i].defaultSelected;
+    copyList.options[i].selected = origList.options[i].selected;
 
-   if ( origList == null)
-     return;
+    if (origDescs != null) copyList.descriptions[i] = origDescs[i];
+  }
 
-   var origDescs = TrShuttleProxy._getDescArray(listName);
-
-   var copyList = new Object();
-
-
-   copyList.selectedIndex = origList.selectedIndex;
-   copyList.options = new Array();
-   copyList.descriptions = new Array();
-
-   for ( var i = 0; i < origList.options.length; i++ )
-   {
-     copyList.options[i] = new Option( origList.options[i].text,
-                                       origList.options[i].value,
-                                       origList.options[i].defaultSelected,
-                                       origList.options[i].selected);
-
-     // Netscape 4 bug, selection using constructor not working,
-     // Remove next 2 lines when we desupport Netscape 4.
-     copyList.options[i].defaultSelected = origList.options[i].defaultSelected;
-     copyList.options[i].selected = origList.options[i].selected;
-
-     if (origDescs != null )
-       copyList.descriptions[i] = origDescs[i];
-   }
-
-
-   return copyList;
- }
+  return copyList;
+};

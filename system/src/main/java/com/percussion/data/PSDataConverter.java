@@ -108,6 +108,11 @@ public final class PSDataConverter {
     }
   }
 
+  /** Convenience overload that uses default date format resolution. */
+  public static Object convert(Object data, int dstType) {
+    return convert(data, dstType, null);
+  }
+
   /**
    * Convert a text object delimited by commas or a List of objects to PSLiteralSet of either
    * PSTextLiteral or PSNumericLiteral or PSDateLiteral.
@@ -176,6 +181,61 @@ public final class PSDataConverter {
     }
 
     return DATATYPE_UNKNOWN;
+  }
+
+  // Private helper methods for conversion
+
+  /**
+   * Compare two potentially dissimilar objects by converting them to a common type when possible.
+   *
+   * @param a the first object to compare
+   * @param b the second object to compare
+   * @return negative if {@code a < b}, 0 if equal, positive if {@code a > b}
+   * @throws IllegalArgumentException if comparison is not possible
+   */
+  public static int compare(Object a, Object b) {
+    if (a == null) return (b == null) ? 0 : -1;
+    if (b == null) return 1;
+    if (a.equals(b)) return 0;
+
+    // If same or compatible class and Comparable, use Comparable
+    if (a.getClass().isInstance(b) && a instanceof Comparable) {
+      @SuppressWarnings("unchecked")
+      Comparable<Object> ca = (Comparable<Object>) a;
+      return ca.compareTo(b);
+    }
+    if (b.getClass().isInstance(a) && b instanceof Comparable) {
+      @SuppressWarnings("unchecked")
+      Comparable<Object> cb = (Comparable<Object>) b;
+      return -cb.compareTo(a);
+    }
+
+    // Try numeric comparison
+    try {
+      Object an = convert(a, DATATYPE_NUMERIC, null);
+      Object bn = convert(b, DATATYPE_NUMERIC, null);
+      if (an instanceof BigDecimal && bn instanceof BigDecimal) {
+        return ((BigDecimal) an).compareTo((BigDecimal) bn);
+      }
+    } catch (IllegalArgumentException ignored) {
+      // not numeric
+    }
+
+    // Try date comparison
+    try {
+      Object ad = convert(a, DATATYPE_DATE, null);
+      Object bd = convert(b, DATATYPE_DATE, null);
+      if (ad instanceof Date && bd instanceof Date) {
+        return ((Date) ad).compareTo((Date) bd);
+      }
+    } catch (IllegalArgumentException ignored) {
+      // not date
+    }
+
+    // Fallback to string comparison
+    String sa = a.toString();
+    String sb = b.toString();
+    return sa.compareTo(sb);
   }
 
   // Private helper methods for conversion

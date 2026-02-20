@@ -54,16 +54,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.hibernate.query.NativeQuery;
 import org.springframework.context.annotation.Scope;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -241,7 +240,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
       buf.append(PSRelationshipConfig.ID_RECYCLED_CONTENT);
 
       String query = buf.toString();
-      Query sq = getSession().createSQLQuery(query);
+      NativeQuery<Object[]> sq = getSession().createNativeQuery(query, Object[].class);
       List<Object[]> rows = sq.list();
       // store the list of relationships
       int parent;
@@ -299,7 +298,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
 
       String query = buf.toString();
 
-      SQLQuery sq = getSession().createSQLQuery(query);
+      NativeQuery<Object[]> sq = getSession().createNativeQuery(query, Object[].class);
 
       // store the list of relationships
       List<Object[]> rows = sq.list();
@@ -618,7 +617,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
               || cache.getDependentRevision() != relationship.getDependent().getRevision()
               || cache.getSlotId() != slotId)
           || cache.getConfigId() != configId
-          || !StringUtils.equals(inlineRelationshipId, cache.getInlineRelationship())) {
+          || !Objects.equals(inlineRelationshipId, cache.getInlineRelationship().orElse(null))) {
         deleteFromCache(relationship);
         insertToCache = true;
       }
@@ -1379,7 +1378,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
           rel = getAaRelationshipNoLock(rid);
           if (rel != null) {
             String relSlot = rel.getProperty("sys_slotid");
-            if (slot == null || StringUtils.equals(relSlot, slot)) {
+            if (slot == null || Objects.equals(relSlot, slot)) {
               rels.add(rel);
             }
           } else {
@@ -1432,8 +1431,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
           }
           PSLocator owner = rel.getOwner();
           int revision = owner.getRevision();
-          boolean slotMatch =
-              (slot == null || StringUtils.equals(rel.getProperty("sys_slotid"), slot));
+          boolean slotMatch = (slot == null || Objects.equals(rel.getProperty("sys_slotid"), slot));
           IPSItemEntry item = getItemCache().getItem(rel.getOwner().getId());
           if (item == null) {
             log.warn(
@@ -1532,7 +1530,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   private PSRelationshipPropertyData getUserProperty(PSRelationshipData r, String name) {
     if (name == null) throw new IllegalArgumentException("name may not be null.");
 
-    PSRelationshipPropertyData retProp = r.getProperty(name);
+    PSRelationshipPropertyData retProp = r.getProperty(name).orElse(null);
     if (retProp != null) return retProp;
 
     // try the pre-defined user properties
@@ -1541,7 +1539,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
     else if (name.equalsIgnoreCase(PSRelationshipConfig.PDU_INLINERELATIONSHIP))
       retProp =
           new PSRelationshipPropertyData(
-              PSRelationshipConfig.PDU_INLINERELATIONSHIP, r.getInlineRelationship());
+              PSRelationshipConfig.PDU_INLINERELATIONSHIP, r.getInlineRelationship().orElse(null));
     else if (name.equalsIgnoreCase(PSRelationshipConfig.PDU_SITEID))
       retProp = getLongProp(PSRelationshipConfig.PDU_SITEID, r.getSiteId());
     else if (name.equalsIgnoreCase(PSRelationshipConfig.PDU_SLOTID))
@@ -1552,7 +1550,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
       retProp = getLongProp(PSRelationshipConfig.PDU_VARIANTID, r.getVariantId());
     else if (name.equalsIgnoreCase(PSRelationshipConfig.PDU_WIDGET_NAME))
       retProp =
-          new PSRelationshipPropertyData(PSRelationshipConfig.PDU_WIDGET_NAME, r.getWidgetName());
+          new PSRelationshipPropertyData(
+              PSRelationshipConfig.PDU_WIDGET_NAME, r.getWidgetName().orElse(null));
 
     if (retProp != null) retProp.setPersisted(r.isPersisted());
 

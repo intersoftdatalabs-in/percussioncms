@@ -20,6 +20,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -28,19 +29,17 @@ import org.w3c.dom.Element;
 /**
  * Unit test for the {@link PSRelationshipProperty} class.
  */
-public class PSRelationshipPropertyTest extends TestCase
+public class PSRelationshipPropertyTest 
 {
    // see base class
-   public PSRelationshipPropertyTest(String name)
-   {
-      super(name);
-   }
+   
    
    /**
     * The all public constructor contracts.
     * 
     * @throws Exception for any error.
     */
+   
    public void testConstructors() throws Exception
    {
       PSRelationshipProperty prop = null;
@@ -112,6 +111,7 @@ public class PSRelationshipPropertyTest extends TestCase
     * 
     * @throws Exception for all errors.
     */
+   
    public void testPublicAPI() throws Exception
    {
       PSRelationshipProperty prop = new PSRelationshipProperty("name");
@@ -151,13 +151,5 @@ public class PSRelationshipPropertyTest extends TestCase
    }
    
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      
-      suite.addTest(new PSRelationshipPropertyTest("testConstructors"));
-      suite.addTest(new PSRelationshipPropertyTest("testPublicAPI"));
-      
-      return suite;
-   }
+   
 }

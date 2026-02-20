@@ -92,13 +92,13 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
          name = "*";
       name = StringUtils.replaceChars(name, '*', '%');
 
-      List<PSRole> roles = service.findRolesByName(name);
+      List<PSRole> roles = service.findRolesByName(name).collect(java.util.stream.Collectors.toList());
 
       return roles;
    }
 
    /**
-    * @see IPSSecurityWs#login(HttpServletRequest, HttpServletResponse, 
+    * @see IPSSecurityWs#login(HttpServletRequest, HttpServletResponse,
     *    String, String, String, String, String)
     */
    @Transactional
@@ -200,7 +200,7 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
       Map<String, PSRole> nameToRole = new HashMap<String, PSRole>();
       for (PSRole r : roles)
          nameToRole.put(r.getName().toLowerCase(), r);
-      
+
       for (String roleName : roleNames)
       {
          PSRole r = nameToRole.get(roleName.toLowerCase());
@@ -233,10 +233,9 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
          }
       }
 
-      // get the authenticated users locales
+      // get the authenticated users locales (stream-based API)
       IPSCmsObjectMgr cmsObjectMgr = PSCmsObjectMgrLocator.getObjectManager();
-      for (PSLocale l : cmsObjectMgr.findLocaleByStatus(PSLocale.STATUS_ACTIVE))
-         login.addLocale(l);
+      cmsObjectMgr.findLocalesByStatus(PSLocale.STATUS_ACTIVE).forEach(login::addLocale);
 
       return login;
    }
@@ -309,7 +308,7 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
       PSRequest req = PSSecurityFilter.getCurrentRequest();
       if (req != null)
          return new PSRequestContext(req);
-      
+
       return null;
    }
 
@@ -318,7 +317,7 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
       PSRequest req = PSSecurityFilter.getCurrentRequest();
       if (req != null && req.hasUserSession())
          return req.getSecurityToken();
-      
+
       return null;
    }
 
@@ -331,14 +330,14 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
 
       if (StringUtils.isBlank(password))
          throw new IllegalArgumentException("password cannot be null or empty");
-      
+
       // Do not persist any request info on login if requests already set up
       if (PSRequestInfo.isInited())
          PSRequestInfo.resetRequestInfo();
-      
+
          PSRequestInfo.initRequestInfo(new HashMap<String,Object>());
-      
-      
+
+
       try
       {
          return login(new MockHttpServletRequest(), new MockHttpServletResponse(),
@@ -363,7 +362,7 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
    {
       if (token == null)
          throw new IllegalArgumentException("token may not be null");
-      
+
       return PSThreadRequestUtils.initUserThreadRequestByToken(token);
    }
 
@@ -372,7 +371,7 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
    {
       if (ctx == null)
          throw new IllegalArgumentException("ctx may not be null");
-      
+
       PSRequest req = PSRequest.getRequest(ctx);
       PSSecurityFilter.setRequest(req);
    }

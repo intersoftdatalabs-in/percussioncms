@@ -176,7 +176,7 @@ updates:
       - dependency-name: "com.google.inject.extensions:guice-multibindings"
         versions:
           - ">=3"
-       - dependency-name: "com.google.inject.extensions:guice-jmx"
+      - dependency-name: "com.google.inject.extensions:guice-jmx"
         versions:
           - ">=3"
       - dependency-name: "org.apache.shiro:shiro-web"
@@ -189,22 +189,22 @@ updates:
         versions:
           - ">20090531"
       - dependency-name: "com.microsoft.sqlserver:mssql-jdbc"
-        versions: 
+        versions:
           - ">=*jre11*"
           - ">=13.3.1.jre11-preview"
       - dependency-name: "com.fasterxml.jackson.core:*"
         versions:
           - ">=2.18.0"
-       - dependency-name: "com.fasterxml.jackson.dataformat:*"
+      - dependency-name: "com.fasterxml.jackson.dataformat:*"
         versions:
           - ">=2.18.0"
-       - dependency-name: "com.fasterxml.jackson.jaxrs:*"
+      - dependency-name: "com.fasterxml.jackson.jaxrs:*"
         versions:
           - ">=2.18.0"
-       - dependency-name: "com.fasterxml.jackson.module:*"
+      - dependency-name: "com.fasterxml.jackson.module:*"
         versions:
           - ">=2.18.0"
-       - dependency-name: "com.fasterxml.jackson.datatype:*"
+      - dependency-name: "com.fasterxml.jackson.datatype:*"
         versions:
           - ">=2.18.0"
       - dependency-name: "org.owasp:dependency-check-maven"

@@ -51,25 +51,25 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
 
 /**
  * Test saving site to template association.
  *
  * @author adamgent
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class PSSiteTemplateServiceTest extends PSRestTestCase<PSSiteTemplateRestClient> {
 
   private static PSTestSiteData testSiteData;
   private static PSTemplateSummary renameTemplate;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -79,7 +79,7 @@ public class PSSiteTemplateServiceTest extends PSRestTestCase<PSSiteTemplateRest
     testSiteData.getTemplateCleaner().remove("TestTemplateRename");
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
     testSiteData.tearDown();
   }

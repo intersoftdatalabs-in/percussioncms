@@ -1,32 +1,38 @@
-<?xml version="1.0" encoding="UTF-8" ?> 
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Module>
-  <ModulePrefs title="Activity" category="content" description="This gadget provides the activity details of the content." thumbnail="images/gadgetIconActivity.png" height="320">
-       <Require feature="perc_core"/>
-       <Require feature="settitle" />
-       <Require feature="perc_getDashboardColumn" />
-       <Require feature="minimessage" />
-       <Require feature="perc_jquery_ui"/>
-  </ModulePrefs>
-  <UserPref name="site" display_name="Site" required="false" datatype="enum" default_value="@all">
-        <EnumValue value="@all" display_value="All Sites"/>
-        <EnumValue value="@url:/services/sitemanage/site/choices"/>
-  </UserPref> 
-  <UserPref name="duration_type" display_name="Duration" required="true" datatype="enum" default_value="days">
-        <EnumValue value="days" display_value="Days"/>
-        <EnumValue value="weeks" display_value="Weeks"/>
-        <EnumValue value="months" display_value="Months"/> 
-        <EnumValue value="years" display_value="Years"/>
-  </UserPref>
-  <UserPref name="zrows" display_name="Display height" required="false" datatype="enum" default_value="5">
-        <EnumValue value="5" display_value="5 results"/>
-        <EnumValue value="10" display_value="10 results"/>
-        <EnumValue value="15" display_value="15 results"/> 
-        <EnumValue value="20" display_value="20 results"/>
-        <EnumValue value="25" display_value="25 results"/>
-  </UserPref>
-  <UserPref name="duration_value" display_name="How many" required="true" datatype="string" default_value="5"/>
-  <Content type="html">
+	<ModulePrefs title="Activity" category="content"
+		description="This gadget provides the activity details of the content."
+		thumbnail="images/gadgetIconActivity.png" height="320">
+		<Require feature="perc_core" />
+		<Require feature="settitle" />
+		<Require feature="perc_getDashboardColumn" />
+		<Require feature="minimessage" />
+		<Require feature="perc_jquery_ui" />
+	</ModulePrefs>
+	<UserPref name="site" display_name="Site" required="false"
+		datatype="enum" default_value="@all">
+		<EnumValue value="@all" display_value="All Sites" />
+		<EnumValue value="@url:/services/sitemanage/site/choices" />
+	</UserPref>
+	<UserPref name="duration_type" display_name="Duration"
+		required="true" datatype="enum" default_value="days">
+		<EnumValue value="days" display_value="Days" />
+		<EnumValue value="weeks" display_value="Weeks" />
+		<EnumValue value="months" display_value="Months" />
+		<EnumValue value="years" display_value="Years" />
+	</UserPref>
+	<UserPref name="zrows" display_name="Display height"
+		required="false" datatype="enum" default_value="5">
+		<EnumValue value="5" display_value="5 results" />
+		<EnumValue value="10" display_value="10 results" />
+		<EnumValue value="15" display_value="15 results" />
+		<EnumValue value="20" display_value="20 results" />
+		<EnumValue value="25" display_value="25 results" />
+	</UserPref>
+	<UserPref name="duration_value" display_name="How many"
+		required="true" datatype="string" default_value="5" />
+	<Content type="html">
      <![CDATA[
      <!DOCTYPE html>
     <link rel="stylesheet" type="text/css" href="/cm/themes/smoothness/jquery-ui-1.8.9.custom.css" />
@@ -61,12 +67,12 @@
     <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js" ></script>
     <script src="/cm/widgets/PercSimpleMenu/PercSimpleMenu.js" ></script>
 
-    
+
     <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js" ></script>
     <script src="/cm/gadgets/repository/perc_activity_gadget/perc_activity_gadget.js" ></script>
     <script  src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;"></script>
 
-    
+
     <script >
         var loadingMsg = null;
         var miniMsg = null;
@@ -74,20 +80,20 @@
             miniMsg = new gadgets.MiniMessage(__MODULE_ID__);
             loadingMsg = miniMsg.createStaticMessage("Loading...");
         });
-        
+
         function _expandNotify(){
             self.location.reload();
         }
-    </script> 
-    
+    </script>
+
 
     <script>
         $(document).ready(function() {
         document.getElementById('perc-field-howmany-validation').innerText=I18N.message("perc.ui.activity.gadget@How Many");
             $("#perc-field-howmany-validation").hide();
             var messageFlag = false;
-            
-            var prefs            = new gadgets.Prefs(); 
+
+            var prefs            = new gadgets.Prefs();
             var site             = prefs.getString("site");
             var PercServiceUtils = percJQuery.PercServiceUtils;
             var pathService      = percJQuery.PercPathService;
@@ -101,8 +107,8 @@
                     miniMsg.dismissMessage(loadingMsg);
                     $("#perc-field-howmany-validation").show();
                     messageFlag = true;
-                }    
-                
+                }
+
                 if((result == "")||(result == null)){
                     site = "";
                 }
@@ -111,13 +117,13 @@
                 }
                 var site_title = site == "" ? I18N.message("perc.ui.blogs.Gadget@All Sites") : site;
                 var title = I18N.message("perc.ui.activity.gadget@Activity During Last") + " " + durationValue + " " + durationType + " (" + site_title + ")";
-                
-                gadgets.window.setTitle(title); 
-                
+
+                gadgets.window.setTitle(title);
+
                 var rows = parseInt(prefs.getString("zrows"));
                 if(rows === NaN)
                    rows = 5;
-                
+
                 if (messageFlag)
                 {
                    return;
@@ -125,11 +131,11 @@
 
                 $("#perc-activity-gadget").PercActivityGadget(site, durationType, durationValue, rows);
             });
-        });    
+        });
     </script>
     <div id="perc-activity-gadget">
     </div>
     <div id = "perc-field-howmany-validation">How many: You can only put a number greater than zero in this field.</div>
      ]]>
-  </Content> 
+	</Content>
 </Module>

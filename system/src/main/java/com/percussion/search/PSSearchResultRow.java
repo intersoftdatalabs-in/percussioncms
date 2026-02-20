@@ -165,11 +165,9 @@ public class PSSearchResultRow implements IPSSearchResultRow {
   /* (non-Javadoc)
    * @see com.percussion.search.IPSSearchResultRow#getValueMap()
    */
-  public Map<String, String> getColumnValueMap() {
-    Map<String, String> nameValueMap = new HashMap<String, String>(m_fields.size());
-    Iterator iter = m_fields.values().iterator();
-    while (iter.hasNext()) {
-      PSSearchResultColumn field = (PSSearchResultColumn) iter.next();
+  public Map<String, Object> getColumnValueMap() {
+    Map<String, Object> nameValueMap = new HashMap<>(m_fields.size());
+    for (PSSearchResultColumn field : m_fields.values()) {
       nameValueMap.put(field.getName(), field.getValue());
     }
     return nameValueMap;

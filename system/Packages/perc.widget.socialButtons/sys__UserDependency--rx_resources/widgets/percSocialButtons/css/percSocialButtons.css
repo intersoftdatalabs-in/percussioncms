@@ -1,11 +1,10 @@
-
-
-.percSocialButtons-empty-style
-{
-    height: 100px;
-    background: transparent url(/Rhythmyx/rx_resources/widgets/percSocialButtons/images/percSocialButtonsPlaceholder.png) no-repeat scroll center center;
-    filter: alpha(opacity=50);
-    opacity: .50;
+.percSocialButtons-empty-style {
+  height: 100px;
+  background: transparent
+    url(/Rhythmyx/rx_resources/widgets/percSocialButtons/images/percSocialButtonsPlaceholder.png)
+    no-repeat scroll center center;
+  filter: alpha(opacity=50);
+  opacity: 0.5;
 }
 
 div.perc-social-button-ui {
@@ -22,7 +21,7 @@ div.perc-social-button-ui {
 
 .perc-social-button-ui-disabled {
   filter: alpha(opacity=30);
-  opacity: .3;
+  opacity: 0.3;
 }
 
 .perc-social-button-ui .fa-facebook {
@@ -54,11 +53,11 @@ div.perc-social-button-ui {
 }
 
 #perc-content-edit-content {
-    min-height: 550px;
+  min-height: 550px;
 }
 
 div#perc-social-buttons-setup-editor {
-    padding-bottom: 10px;
+  padding-bottom: 10px;
 }
 
 input.perc-social-page-link {
@@ -100,14 +99,14 @@ input.perc-social-page-link {
 }
 
 .perc-input-td {
-	max-width: 20%;
-	align: left;
+  max-width: 20%;
+  align: left;
 }
 .perc-input-header {
-	max-width: 25%;
-	align: left;
-	font-weight: bold;
-	padding-right: 15px;
+  max-width: 25%;
+  align: left;
+  font-weight: bold;
+  padding-right: 15px;
 }
 
 .perc-social-button-td {
@@ -116,55 +115,57 @@ input.perc-social-page-link {
 }
 
 .fa {
-	font-size: 20px;
+  font-size: 20px;
 }
 .perc-toggle-google-setup {
-	color: #191919;
-	cursor: pointer;
-	padding-right: 8px;
+  color: #191919;
+  cursor: pointer;
+  padding-right: 8px;
 }
 .perc-toggle-google-setup:hover {
-	color: #444444;
+  color: #444444;
 }
 .perc-toggle-help {
-	color: #007;
-	cursor: pointer;
-	padding-right: 8px;
+  color: #007;
+  cursor: pointer;
+  padding-right: 8px;
 }
 .perc-toggle-help:hover {
-	color: #00f;
+  color: #00f;
 }
 .perc-table-remove {
-	color: #700;
-	cursor: pointer;
+  color: #700;
+  cursor: pointer;
 }
 .perc-table-remove:hover {
-	color: #f00;
+  color: #f00;
 }
-.perc-table-up, .table-down {
-	color: #007;
-	cursor: pointer;
+.perc-table-up,
+.table-down {
+  color: #007;
+  cursor: pointer;
 }
-.perc-table-up:hover, .table-down:hover {
-	color: #00f;
+.perc-table-up:hover,
+.table-down:hover {
+  color: #00f;
 }
 .perc-table-add {
-	color: #070;
-	cursor: pointer;
-	position: relative;
-	top: 8px;
-	left: 0;
-	padding-bottom: 8px;
+  color: #070;
+  cursor: pointer;
+  position: relative;
+  top: 8px;
+  left: 0;
+  padding-bottom: 8px;
 }
 .perc-table-add:hover {
-	color: #0b0;
+  color: #0b0;
 }
 .hide {
-	display: none;
+  display: none;
 }
 
 .perc-social-button-error {
-  color:#ff0000;
+  color: #ff0000;
 }
 
 .perc-platform-name {
@@ -172,30 +173,35 @@ input.perc-social-page-link {
 }
 
 .perc-base-url {
-  text-align: right;;
+  text-align: right;
 }
 
 table {
-	border-collapse: collapse;
-	border-color: grey;
-	width: 100%;
-	margin-bottom: 20px;
-	max-width: 100%;
-	background-color: transparent;
-	border-spacing: 0;
-	box-sizing: border-box;
+  border-collapse: collapse;
+  border-color: grey;
+  width: 100%;
+  margin-bottom: 20px;
+  max-width: 100%;
+  background-color: transparent;
+  border-spacing: 0;
+  box-sizing: border-box;
 }
 body {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 14px;
-	line-height: 1.42857143;
-	color: #333;
-	background-color: #fff;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+  background-color: #fff;
 }
-.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
-	padding: 8px;
-	line-height: 1.42857143;
-	vertical-align: top;
-	border-top: 1px solid #ddd;
-	width: 100%;
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+  width: 100%;
 }

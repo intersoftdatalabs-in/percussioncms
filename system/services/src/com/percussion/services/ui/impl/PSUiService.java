@@ -27,16 +27,16 @@ import com.percussion.services.ui.data.PSHierarchyNodeProperty;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,11 +123,8 @@ public class PSUiService implements IPSUiService
 
    public List<PSHierarchyNode> getAllHierarchyNodes()
    {
-
-      Session session = getSession();
-      Criteria criteria = session.createCriteria(PSHierarchyNode.class);
-
-      return (List<PSHierarchyNode>) criteria.list();
+      TypedQuery<PSHierarchyNode> q = entityManager.createQuery("from PSHierarchyNode", PSHierarchyNode.class);
+      return q.getResultList();
    }
 
    /**
@@ -157,19 +154,22 @@ public class PSUiService implements IPSUiService
    @SuppressWarnings("unchecked")
    public List<PSHierarchyNode> findHierarchyNodes(String name, PSHierarchyNode.NodeType type)
    {
-      Session session = getSession();
-
       if (StringUtils.isBlank(name))
          name = "%";
 
-      Criteria criteria = session.createCriteria(PSHierarchyNode.class);
-      if (!name.equals("%")) criteria.add(Restrictions.like("name", name));
-      if (type != null)
-         criteria.add(Restrictions.eq("type", type.getOrdinal()));
-      criteria.addOrder(Order.asc("name"));
+      CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+      CriteriaQuery<PSHierarchyNode> cq = cb.createQuery(PSHierarchyNode.class);
+      Root<PSHierarchyNode> root = cq.from(PSHierarchyNode.class);
 
-      // find nodes first
-      List<PSHierarchyNode> nodes = criteria.list();
+      List<Predicate> predicates = new ArrayList<>();
+      if (!name.equals("%")) predicates.add(cb.like(root.get("name"), name));
+      if (type != null) predicates.add(cb.equal(root.get("type"), type.getOrdinal()));
+
+      cq.select(root).where(predicates.toArray(new Predicate[0]));
+      cq.orderBy(cb.asc(root.get("name")));
+
+      TypedQuery<PSHierarchyNode> query = entityManager.createQuery(cq);
+      List<PSHierarchyNode> nodes = query.getResultList();
 
       // then load all node properties
       for (PSHierarchyNode node : nodes)
@@ -193,16 +193,21 @@ public class PSUiService implements IPSUiService
       if (StringUtils.isBlank(name))
          name = "%";
 
-      Criteria criteria = session.createCriteria(PSHierarchyNode.class);
-      if (!name.equals("%")) criteria.add(Restrictions.like("name", name));
-      if (parentId != null)
-         criteria.add(Restrictions.eq("parentId", parentId.longValue()));
-      if (type != null)
-         criteria.add(Restrictions.eq("type", type.getOrdinal()));
-      criteria.addOrder(Order.asc("name"));
+      CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+      CriteriaQuery<PSHierarchyNode> cq = cb.createQuery(PSHierarchyNode.class);
+      Root<PSHierarchyNode> root = cq.from(PSHierarchyNode.class);
 
-      // find nodes first
-      List<PSHierarchyNode> nodes = (List<PSHierarchyNode>) criteria.setCacheable(true).list();
+      List<Predicate> predicates = new ArrayList<>();
+      if (!name.equals("%")) predicates.add(cb.like(root.get("name"), name));
+      if (parentId != null) predicates.add(cb.equal(root.get("parentId"), parentId.longValue()));
+      if (type != null) predicates.add(cb.equal(root.get("type"), type.getOrdinal()));
+
+      cq.select(root).where(predicates.toArray(new Predicate[0]));
+      cq.orderBy(cb.asc(root.get("name")));
+
+      TypedQuery<PSHierarchyNode> query = entityManager.createQuery(cq);
+      query.setHint("org.hibernate.cacheable", Boolean.TRUE);
+      List<PSHierarchyNode> nodes = query.getResultList();
 
       // then filter out root nodes if requested
       List<PSHierarchyNode> resultNodes = null;
@@ -407,9 +412,9 @@ public class PSUiService implements IPSUiService
 
       Session session = getSession();
 
-      Criteria criteria = session.createCriteria(PSHierarchyNodeProperty.class);
-      criteria.add(Restrictions.eq("nodeId", nodeId.longValue())).setCacheable(true);
-      return  criteria.list();
+      Query<PSHierarchyNodeProperty> q = session.createQuery("from PSHierarchyNodeProperty where nodeId = :nid", PSHierarchyNodeProperty.class)
+            .setParameter("nid", nodeId.longValue()).setCacheable(true);
+      return q.list();
 
    }
 

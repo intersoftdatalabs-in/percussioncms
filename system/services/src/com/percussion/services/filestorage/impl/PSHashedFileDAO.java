@@ -27,15 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
-import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
@@ -177,7 +173,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
       Date testDate = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -days);
 
       Query query = getSession().createQuery(
-            "select count(*) " + "from PSBinary " + "where lastAccessedDate < :testDate").setDate("testDate", testDate);
+            "select count(*) " + "from PSBinary " + "where lastAccessedDate < :testDate").setParameter("testDate", testDate);
 
       result = (Long) query.uniqueResult();
 
@@ -195,17 +191,17 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
       int deleteddata =  getSession().createQuery(
             "delete from PSBinaryData data " + "where data.id in (select b.id from PSBinary b where b.lastAccessedDate < :testDate )")
-            .setDate("testDate", testDate)
+            .setParameter("testDate", testDate)
             .executeUpdate();
       getSession().flush();
       int deletedmetadata =  getSession().createQuery(
             "delete from PSBinaryMetaEntry meta " + "where meta.binary in (select b from PSBinary b where b.lastAccessedDate < :testDate )")
-            .setDate("testDate", testDate)
+            .setParameter("testDate", testDate)
             .executeUpdate();
       getSession().flush();
       int deletedEntities =  getSession().createQuery(
             "delete from PSBinary b where (b.lastAccessedDate < :testDate )")
-            .setDate("testDate", testDate)
+            .setParameter("testDate", testDate)
             .executeUpdate();
       
       log.debug("Delete updated {} entities",deletedEntities);
@@ -240,13 +236,13 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
    public void deleteMeta(PSBinary binary)
    {
       Session session = getSession();
-      Criteria crit = session.createCriteria(PSBinaryMetaEntry.class);
-      crit.add(Restrictions.eq("binary", binary));
-      List<PSBinary> entries = (List<PSBinary>) crit.list();
+      Query<PSBinaryMetaEntry> q = session.createQuery("from PSBinaryMetaEntry where binary = :binary", PSBinaryMetaEntry.class)
+            .setParameter("binary", binary);
+      List<PSBinaryMetaEntry> entries = q.list();
       binary.getMetaEntries().clear();
-      for (PSBinary entry : entries)
+      for (PSBinaryMetaEntry entry : entries)
       {
-         session.delete(entries);
+         session.delete(entry);
       }
       session.flush();
    }
@@ -270,8 +266,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
                + column.getColumnName() + " is not null";
       }
       if (columns.size()>0) {
-         SQLQuery query = getSession().createSQLQuery(sql);
-         results = (List<String>)query.list();
+         results = getSession().createNativeQuery(sql).getResultList();
       }
       return results;
    }
@@ -344,12 +339,11 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
    public List<PSBinary> findAllBinary(int pageNum, int pageSize)
    {
 
-      Criteria crit = getSession().createCriteria(PSBinary.class);
-      crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+      Query<PSBinary> q = getSession().createQuery("select distinct b from PSBinary b", PSBinary.class);
       int start = (pageSize * pageNum);
-      crit.setFirstResult(start);
-      crit.setMaxResults(pageSize);
-      return (List<PSBinary>) crit.list();
+      q.setFirstResult(start);
+      q.setMaxResults(pageSize);
+      return q.list();
    }
 
    /* (non-Javadoc)
@@ -357,12 +351,10 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
     */
    @Override
    public List<PSBinary> getReparseBatch(int batchSize) {
-      Criteria crit = getSession().createCriteria(PSBinary.class);
-      crit.add(Restrictions.eq("reparseMeta", true));
-      crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-      crit.setFirstResult(1);
-      crit.setMaxResults(batchSize);
-      return (List<PSBinary>) crit.list();
+      Query<PSBinary> q = getSession().createQuery("select distinct b from PSBinary b where b.reparseMeta = true", PSBinary.class);
+      q.setFirstResult(1);
+      q.setMaxResults(batchSize);
+      return q.list();
    }
 
    
@@ -420,7 +412,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
    public Blob createBlob(InputStream is, long l)
    {
-      return Hibernate.getLobCreator(getSession()).createBlob(is, l);
+      return org.hibernate.engine.jdbc.BlobProxy.generateProxy(is, l);
    }
 
 }

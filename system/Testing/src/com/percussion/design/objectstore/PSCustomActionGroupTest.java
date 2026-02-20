@@ -24,6 +24,7 @@ import java.util.Collection;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -33,17 +34,14 @@ import org.w3c.dom.Element;
  * Unit test(s) for custom action group
  *  
  */
-public class PSCustomActionGroupTest extends TestCase
+public class PSCustomActionGroupTest 
 {
    /**
     * Ctor
     * 
     * @param name The name of the test.
     */
-   public PSCustomActionGroupTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Case tests object->xml->object serialization.The custom action grou is
@@ -54,6 +52,7 @@ public class PSCustomActionGroupTest extends TestCase
     * @throws PSUnknownNodeTypeException if construction of the object from XML
     *            document fails
     */
+   
    public void testXml() throws PSUnknownNodeTypeException
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -90,7 +89,7 @@ public class PSCustomActionGroupTest extends TestCase
       Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
       Element elem2 = testFrom.toXml(doc2);
       root2.appendChild(elem2);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
    /**
@@ -98,9 +97,5 @@ public class PSCustomActionGroupTest extends TestCase
     * 
     * @return
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite(PSCustomActionGroupTest.class);
-      return suite;
-   }
+   
 }

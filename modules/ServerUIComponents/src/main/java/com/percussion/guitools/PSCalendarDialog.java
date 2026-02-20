@@ -16,6 +16,7 @@
  */
 package com.percussion.guitools;
 
+import jakarta.accessibility.AccessibleContext;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import javax.accessibility.AccessibleContext;
 import javax.swing.*;
 
 /**

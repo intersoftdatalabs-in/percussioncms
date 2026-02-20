@@ -34,6 +34,7 @@ import com.percussion.extension.PSJavaExtensionHandler;
 import com.percussion.extension.PSJavaScriptExtensionHandler;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
+import com.percussion.util.IOTools;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;

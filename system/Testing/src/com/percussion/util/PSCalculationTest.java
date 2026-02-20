@@ -24,6 +24,7 @@ import com.percussion.system.utils.PSDate;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -39,16 +40,27 @@ import java.util.Date;
  * @version    2.0
  * @since      1.0
  */
-public class PSCalculationTest extends TestCase
+public class PSCalculationTest
 {
-   public PSCalculationTest(String name)
-   {
-      super(name);
+   private static final CalcAdapter calculate = new CalcAdapter();
+
+   private static class CalcAdapter {
+       Double add(Object a, Object b) { return PSCalculation.add(a, b); }
+       Double subtract(Object a, Object b) { return PSCalculation.subtract(a, b); }
+       Double multiply(Object a, Object b) { return PSCalculation.multiply(a, b); }
+       Double divide(Object a, Object b) { return PSCalculation.divide(a, b); }
+       Number numberVerify(Object o) { return PSCalculation.numberVerify(o); }
+       PSDate dateAdjust(java.util.Calendar c, int y, int m, int d, int h, int mi, int s) {
+           return PSCalculation.dateAdjust(c, y, m, d, h, mi, s);
+       }
    }
+
+
+
+
 
    public void testAdd() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object o1, o2, result;
       double resultValue = 0;
@@ -69,7 +81,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -95,7 +107,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -114,9 +126,10 @@ public class PSCalculationTest extends TestCase
       assertTrue(didThrow);
    }
 
+
+
    public void testSubtract() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object o1, o2, result;
       double resultValue = 0;
@@ -139,7 +152,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -165,7 +178,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -184,9 +197,10 @@ public class PSCalculationTest extends TestCase
       assertTrue(didThrow);
    }
 
+
+
    public void testMultiply() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object o1, o2, result;
       double resultValue = 0;
@@ -207,7 +221,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -233,7 +247,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -252,9 +266,10 @@ public class PSCalculationTest extends TestCase
       assertTrue(didThrow);
    }
 
+
+
    public void testDivide() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object o1, o2, result;
       double resultValue = 0;
@@ -275,7 +290,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -301,7 +316,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -328,9 +343,10 @@ public class PSCalculationTest extends TestCase
       assertTrue(didThrow);
    }
 
+
+
    public void testNumberVerify() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object result;
       boolean didThrow;
@@ -365,7 +381,7 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
 
       didThrow = false;
       try{
@@ -373,12 +389,13 @@ public class PSCalculationTest extends TestCase
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
-      assertTrue(!didThrow);
+      assertFalse(didThrow);
    }
+
+
 
     public void testDateAdjust() throws Exception
    {
-      PSCalculation calculate = new PSCalculation();
 
       Object result = calculate.dateAdjust(null, 1, 1, 1, 1, 1, 1);
       assertTrue(result == null);
@@ -405,21 +422,10 @@ public class PSCalculationTest extends TestCase
             nMin, nSec);
       }
 
-      assertTrue("Could not parse date: " + strDate, dateNew != null);
-      assertTrue("(" + dateNew.toString() + ") equals (" + strDate + ")", (
-         dateNew.toString()).equals("2000-12-01 00:04:01"));
+      assertTrue(dateNew != null, "Could not parse date: " + strDate);
+      assertTrue((dateNew.toString()).equals("2000-12-01 00:04:01"), "(" + dateNew.toString() + ") equals (" + strDate + ")");
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSCalculationTest("testAdd"));
-      suite.addTest(new PSCalculationTest("testSubtract"));
-      suite.addTest(new PSCalculationTest("testMultiply"));
-      suite.addTest(new PSCalculationTest("testDivide"));
-      suite.addTest(new PSCalculationTest("testNumberVerify"));
-      suite.addTest(new PSCalculationTest("testDateAdjust"));
-      return suite;
-   }
+
 }

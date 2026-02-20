@@ -1,5 +1,6 @@
 qdrant_storage
 .vscode/*
+!.vscode/extensions.json
 system/.settings/*
 .idea/*
 .idea/encodings.xml

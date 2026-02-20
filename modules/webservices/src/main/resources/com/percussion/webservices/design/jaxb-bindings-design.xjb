@@ -1,0 +1,59 @@
+<jaxb:bindings version="3.0"
+    xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- BasicObjects customizations for design compilation -->
+    <jaxb:bindings schemaLocation="BasicObjects.xsd" node="/xsd:schema">
+        <jaxb:bindings node="xsd:element[@name='PSXTableLocator']/xsd:complexType/xsd:attribute[@name='alias']">
+            <jaxb:property name="aliasAttr"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSXEntry']/xsd:complexType/xsd:sequence/xsd:element[@name='Value']">
+            <jaxb:class name="ValueEntry"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='value']">
+            <jaxb:class name="ValueLower"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <!-- Avoid generating classes that collide with handwritten exceptions by renaming fault element bindings -->
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSContractViolationFault']">
+        <jaxb:class name="PSContractViolationFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSErrorsFault']">
+        <jaxb:class name="PSErrorsFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSErrorResultsFault']">
+        <jaxb:class name="PSErrorResultsFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSInvalidLocaleFault']">
+        <jaxb:class name="PSInvalidLocaleFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSInvalidSessionFault']">
+        <jaxb:class name="PSInvalidSessionFaultBean" />
+    </jaxb:bindings>
+
+    <!-- Rename generated PSRole to avoid collision with handwritten compatibility shim -->
+    <jaxb:bindings schemaLocation="security/securityServices.xsd" node="/xsd:schema/xsd:complexType[@name='PSRole']">
+        <jaxb:class name="PSRoleGen"/>
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSNotAuthenticatedFault']">
+        <jaxb:class name="PSNotAuthenticatedFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSNotAuthorizedFault']">
+        <jaxb:class name="PSNotAuthorizedFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSLockFault']">
+        <jaxb:class name="PSLockFaultBean" />
+    </jaxb:bindings>
+
+
+
+
+
+
+
+
+
+
+
+</jaxb:bindings>

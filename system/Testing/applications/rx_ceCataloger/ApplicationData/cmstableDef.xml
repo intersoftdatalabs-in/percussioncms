@@ -4,12 +4,12 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="DISPLAYTITLE">
@@ -19,7 +19,7 @@
 			</column>
 			<column name="DESCRIPTION">
 				<jdbctype>CLOB</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 		</row>
@@ -32,17 +32,17 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="SORTRANK">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="AVAILABLE">
@@ -56,22 +56,22 @@
 		<row>
 			<column name="CONTENTID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="REVISIONID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="SYSID">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="SORTRANK">
 				<jdbctype>INTEGER</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>no</allowsnull>
 			</column>
 			<column name="NAME">
@@ -81,7 +81,7 @@
 			</column>
 			<column name="CATALOG">
 				<jdbctype>BLOB</jdbctype>
-				<size/>
+				<size />
 				<allowsnull>yes</allowsnull>
 			</column>
 		</row>

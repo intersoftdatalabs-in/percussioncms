@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="311" dependencyType="Local" displayName="Site Root Incremental" isIncluded="yes" objectType="ContentListDef" objectTypeName="Content List Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="311" dependencyType="Local"
+			displayName="Site Root Incremental" isIncluded="yes"
+			objectType="ContentListDef" objectTypeName="Content List Definition"
+			supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

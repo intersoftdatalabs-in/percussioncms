@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
- <WidgetPrefs title="Redirect"
-              contenttype_name="percRedirect"
-              description="Adds a client side redirect to a Page."
-              author="www.percussion.com"
-              thumbnail="/rx_resources/widgets/percRedirect/images/redirect-widget-icon-tray.png"
-              preferred_editor_width="800"
-              preferred_editor_height="600"
-              is_responsive="true"/>
+	<WidgetPrefs title="Redirect"
+		contenttype_name="percRedirect"
+		description="Adds a client side redirect to a Page."
+		author="www.percussion.com"
+		thumbnail="/rx_resources/widgets/percRedirect/images/redirect-widget-icon-tray.png"
+		preferred_editor_width="800" preferred_editor_height="600"
+		is_responsive="true" />
 
- <!-- User prefs define input needed when in layout config for a widget -->
- <!-- Available data types are bool, number, enum, string -->
+	<!-- User prefs define input needed when in layout config for a widget -->
+	<!-- Available data types are bool, number, enum, string -->
 
- <Code type="jexl">
-  <!-- This section is used to set up data that will be used in the content section -->
+	<Code type="jexl">
+		<!-- This section is used to set up data that will be used in the content
+			section -->
   <![CDATA[
        $pageId = $perc.page.id;
        $widgetId = $perc.widget.item.id;
@@ -39,9 +39,9 @@
 
 
     ]]>
- </Code>
- <Content type="velocity">
-  <!-- This section defines the rendered content -->
+	</Code>
+	<Content type="velocity">
+		<!-- This section defines the rendered content -->
   <![CDATA[
         #if(($perc.widget.item.definitionId !='percRedirect' && ! $perc.widgetContents.isEmpty() && ! $perc.isEditMode()) ||  (! $perc.isEditMode() && ! $perc.isPreviewMode()))##
 	#if( "$!enabled" != "no")##
@@ -57,5 +57,5 @@
 	   </div>
         #end##
     ]]>
- </Content>
+	</Content>
 </Widget>

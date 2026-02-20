@@ -44,6 +44,7 @@ import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.pubserver.IPSPubServer;
+import com.percussion.services.pubserver.data.PSPubServerProperty;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
@@ -55,7 +56,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.FileReader;
 import java.net.URL;
 import java.util.*;
@@ -113,7 +114,8 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
         super.init(jobid, site, pubServer);
 
         //If there is no DTS configured then this delivery service is not enabled.
-        this.enabled = !pubServer.getProperty("publishServer").getValue().equalsIgnoreCase("none");
+        String publishServerProp = pubServer.getProperty("publishServer").map(PSPubServerProperty::getValue).orElse("");
+        this.enabled = !publishServerProp.equalsIgnoreCase("none");
 
         //  Be careful with object fields.  This instance is shared between jobs.  m_jobData and workers are
         //  used to create job specific data.
@@ -266,11 +268,8 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
 
         if (jobData!=null)
         {
-            String serverType = jobData.m_pubServer.getServerType();
-            String adminURL="";
-            if(jobData.m_pubServer.getPublishServer()!=null){
-                adminURL=jobData.m_pubServer.getPublishServer();
-            }
+            String serverType = jobData.m_pubServer.getServerType().orElse("");
+            String adminURL = jobData.m_pubServer.getPublishServer().orElse("");
 
 
             IPSDeliveryInfoService srv = PSDeliveryInfoServiceLocator.getDeliveryInfoService();

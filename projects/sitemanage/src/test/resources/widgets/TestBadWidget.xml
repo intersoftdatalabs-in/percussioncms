@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-   <WidgetPrefs title="TestWidget"
-        contenttype_name="TestHtmlWidget"
-        description="Renders Raw Html"
-        author="Percussion Software Inc"/>
-        <!--  No Content Block is bad --> 
+	<WidgetPrefs title="TestWidget"
+		contenttype_name="TestHtmlWidget" description="Renders Raw Html"
+		author="Percussion Software Inc" />
+	<!-- No Content Block is bad -->
 </Widget>

@@ -18,48 +18,51 @@
 // assumed dependencies:
 //  - require.js
 
-define (
-    // prerequisites:
-    [
-        'text!widgets/hello/hello.html',
-        'widgets/hello/hello.viewmodel',
-        'widgel-base'
-    ],
-    // module:
-    function (defaultView, defaultViewModel) {
-        var widgetName = 'cui.hello';
-        $.widGEL.baseWidget.injectCssFile('widgets.hello', requirejs.toUrl('widgets/hello/hello.css'));
-        // $.widGEL.baseWidget.injectCssFile('jquery', requirejs.toUrl('css/jquery-ui-1.10.4.custom.css')); since this file does not exist
-        $.widGEL.baseWidget.injectCssFile('font.awesome', requirejs.toUrl('fontawesome-css'));
-        
-        $.widget(widgetName, $.widGEL.baseWidget, {
-            options: {
-                view: defaultView,
-                viewModel: defaultViewModel,
-                debug: false
-            },
-            
-            destroy: function () { },
-            
-            // non-private properties of the ViewModel are part of the public widget API.
-            // see Widgets/Shared/BaseWidget.Model for external usage
-            _createDefaultViewModel: function () {
-                var thisWidget = this;
-                var viewModel = new thisWidget.options.viewModel(thisWidget.options);
-                return viewModel;
-            },
-            
-            _create: function () {
-                var thisWidget = this;
-                thisWidget._initModelView();
-                
-                setTimeout(function () {
-                    var viewModel = thisWidget._viewModel;
-                    viewModel.init();
-                }, 10);
-            }
-        });
-        
-        return "SUCCESS: " + widgetName + " Widget Registered.";
-    }
-);
+define(// prerequisites:
+[
+  "text!widgets/hello/hello.html",
+  "widgets/hello/hello.viewmodel",
+  "widgel-base",
+], function (defaultView, defaultViewModel) {
+  // module:
+  var widgetName = "cui.hello";
+  $.widGEL.baseWidget.injectCssFile(
+    "widgets.hello",
+    requirejs.toUrl("widgets/hello/hello.css")
+  );
+  // $.widGEL.baseWidget.injectCssFile('jquery', requirejs.toUrl('css/jquery-ui-1.10.4.custom.css')); since this file does not exist
+  $.widGEL.baseWidget.injectCssFile(
+    "font.awesome",
+    requirejs.toUrl("fontawesome-css")
+  );
+
+  $.widget(widgetName, $.widGEL.baseWidget, {
+    options: {
+      view: defaultView,
+      viewModel: defaultViewModel,
+      debug: false,
+    },
+
+    destroy: function () {},
+
+    // non-private properties of the ViewModel are part of the public widget API.
+    // see Widgets/Shared/BaseWidget.Model for external usage
+    _createDefaultViewModel: function () {
+      var thisWidget = this;
+      var viewModel = new thisWidget.options.viewModel(thisWidget.options);
+      return viewModel;
+    },
+
+    _create: function () {
+      var thisWidget = this;
+      thisWidget._initModelView();
+
+      setTimeout(function () {
+        var viewModel = thisWidget._viewModel;
+        viewModel.init();
+      }, 10);
+    },
+  });
+
+  return "SUCCESS: " + widgetName + " Widget Registered.";
+});

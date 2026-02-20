@@ -18,24 +18,24 @@ package com.percussion.services.utils.jsf.validators;
 
 import com.percussion.utils.string.PSStringUtils;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.validator.ValidatorException;
 
 /**
- * Validates a name. 
- * 
+ * Validates a name.
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSNameValidator extends PSBaseValidator
-{   
+{
    @SuppressWarnings("unused")
    public void validate(FacesContext ctx, UIComponent comp, Object value)
          throws ValidatorException
    {
-      String str = getString(value, true);
+      String str = safeToString(value).trim();
 
       Character ch = PSStringUtils.validate(str, PSStringUtils.SPACE_CHARS);
       if (ch != null)

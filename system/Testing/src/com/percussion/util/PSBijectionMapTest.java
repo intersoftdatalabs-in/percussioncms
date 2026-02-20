@@ -18,13 +18,14 @@ package com.percussion.util;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  *   Unit tests for the PSBijectionMap class
  */
 
-public class PSBijectionMapTest extends TestCase
+public class PSBijectionMapTest 
 {
    private class Pairing
    {
@@ -33,10 +34,11 @@ public class PSBijectionMapTest extends TestCase
       public String b;
    }
 
-   public PSBijectionMapTest(String name)
-   {
-      super(name);
-   }
+   
+
+   
+
+   
 
    public void testPairings()
    {
@@ -53,12 +55,7 @@ public class PSBijectionMapTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSBijectionMapTest("testPairings"));
-      return suite;
-   }
+   
 
    // set up the data for the test
    public void setUp()

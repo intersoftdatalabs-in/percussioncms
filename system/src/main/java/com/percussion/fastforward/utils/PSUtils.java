@@ -265,7 +265,7 @@ public class PSUtils {
     if (request == null) {
       throw new IllegalArgumentException("request must not be null");
     }
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_SITEID, siteId);
     IPSInternalRequest ir = request.getInternalRequest(SITE_LOOKUP_RESOURCE, params, false);
     if (ir == null) {

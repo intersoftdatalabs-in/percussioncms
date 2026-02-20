@@ -28,6 +28,7 @@ import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableFactory;
 import com.percussion.util.PSPreparedStatement;
 import com.percussion.util.PSSqlHelper;
+import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -40,7 +41,6 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Map.Entry;
-import javax.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

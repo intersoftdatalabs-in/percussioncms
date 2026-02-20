@@ -24,8 +24,8 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.accessibility.Accessible;
-import javax.accessibility.AccessibleContext;
+import jakarta.accessibility.Accessible;
+import jakarta.accessibility.AccessibleContext;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -59,8 +59,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import javax.accessibility.Accessible;
-import javax.accessibility.AccessibleContext;
+import jakarta.accessibility.Accessible;
+import jakarta.accessibility.AccessibleContext;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -1087,7 +1087,7 @@ public class PSNavigationTree
     }
 
     /* (non-Javadoc)
-     * @see javax.accessibility.Accessible#getAccessibleContext()
+     * @see jakarta.accessibility.Accessible#getAccessibleContext()
      */
     public AccessibleContext getAccessibleContext() {
       return m_accessibleContext;

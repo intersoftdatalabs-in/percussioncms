@@ -183,7 +183,7 @@ public class PSSitePublishDaoHelper
        String cListName = createName(pubServer.getName(), name);
        IPSPublishingWs publishWs = PSPublishingWsLocator.getPublishingWebservice();
        IPSContentList cList = publishWs.createContentList(cListName);
-       cList.setType(type);
+       cList.setContentListType(type);
        cList.setEditionType(edtnType);
        cList.setDescription(description + " - " + siteName);
        String url = makeContentListUrl(cListName, pubServer.getPublishType());
@@ -249,7 +249,7 @@ public class PSSitePublishDaoHelper
        
        for (PSPubServer server : servers)
        {
-          if(PSPubServer.STAGING.equalsIgnoreCase((server.getServerType())))
+          if(PSPubServer.STAGING.equalsIgnoreCase(server.getServerType().orElse("")))
           {
              stagingPubServer = server;
              break;
@@ -267,7 +267,7 @@ public class PSSitePublishDaoHelper
        Validate.notNull(filterId);
        String suffix = createSiteSuffix(site);
        Map<String, String> incrementalParams = new HashMap<>();
-       if(PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType())){
+       if(PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType().orElse(""))){
           suffix += "STAGING";
           incrementalParams.put(INCREMENTAL_CHANGETYPE_PARAM_NAME, INCREMENTAL_CHANGETYPE_STAGED);
        }
@@ -430,7 +430,7 @@ public class PSSitePublishDaoHelper
    
    private static boolean isAmazonEdition(PSPubServer pubServer)
    {
-      return pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).equalsIgnoreCase("AMAZONS3");
+      return pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("").equalsIgnoreCase("AMAZONS3");
    }
 
    private static boolean isStagingServer(PSPubServer pubServer)

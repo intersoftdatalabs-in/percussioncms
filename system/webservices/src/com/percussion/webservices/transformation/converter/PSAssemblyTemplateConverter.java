@@ -86,28 +86,29 @@ public class PSAssemblyTemplateConverter extends PSConverter
          if (orig.getGlobalTemplate() != 0)
             dest.setGlobalTemplate(new PSDesignGuid(orig.getGlobalTemplate()));
 
-         // Convert bindings
-         if (orig.getBindings() != null)
+         // Convert bindings (generated wrapper)
+         if (orig.getBindings() != null && orig.getBindings().getBinding() != null)
          {
-            for (PSAssemblyTemplateBindingsBinding binding : orig.getBindings())
+            for (com.percussion.webservices.assembly.data.PSAssemblyTemplate.Bindings.Binding binding : orig.getBindings().getBinding())
             {
-               PSTemplateBinding newbinding = new PSTemplateBinding(binding.getVariable(), binding
-                     .getExpression());
+               PSTemplateBinding newbinding = new PSTemplateBinding(binding.getVariable(), binding.getExpression());
                dest.addBinding(newbinding);
             }
          }
 
-         // convert slots
-         Reference[] origSlots = orig.getSlots();
-         List<IPSGuid> slotIds = new ArrayList<>();
-         for (Reference origSlot : origSlots)
-            slotIds.add(new PSDesignGuid(origSlot.getId()));
-         if (!slotIds.isEmpty()) {
-            try {
-               dest.setSlots(new HashSet<>(loadSlots(slotIds)));
-            } catch (PSAssemblyException e) {
-               log.warn(PSExceptionUtils.getMessageForLog(e));
-               log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+         // convert slots (generated wrapper)
+         if (orig.getSlots() != null && orig.getSlots().getSlot() != null)
+         {
+            List<IPSGuid> slotIds = new ArrayList<>();
+            for (Reference origSlot : orig.getSlots().getSlot())
+               slotIds.add(new PSDesignGuid(origSlot.getId()));
+            if (!slotIds.isEmpty()) {
+               try {
+                  dest.setSlots(new HashSet<>(loadSlots(slotIds)));
+               } catch (PSAssemblyException e) {
+                  log.warn(PSExceptionUtils.getMessageForLog(e));
+                  log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+               }
             }
          }
 
@@ -143,34 +144,39 @@ public class PSAssemblyTemplateConverter extends PSConverter
             dest.setGlobalTemplate(new PSDesignGuid(templateGuid).getValue());
          }
 
-         // Convert bindings
-         List<PSTemplateBinding> bindings = (List) orig.getBindings();
-         if (bindings != null)
+         // Convert bindings (to generated wrapper)
+         @SuppressWarnings("unchecked")
+         List<PSTemplateBinding> bindings = (List<PSTemplateBinding>) orig.getBindings();
+         if (bindings != null && !bindings.isEmpty())
          {
-            PSAssemblyTemplateBindingsBinding[] barr =
-               new PSAssemblyTemplateBindingsBinding[bindings.size()];
+            com.percussion.webservices.assembly.data.PSAssemblyTemplate.Bindings bindingsWrapper = new com.percussion.webservices.assembly.data.PSAssemblyTemplate.Bindings();
             int count = 0;
             for (PSTemplateBinding binding : bindings)
             {
-               PSAssemblyTemplateBindingsBinding newb = new PSAssemblyTemplateBindingsBinding(
-                     binding.getBindingId(), binding.getVariable(), binding
-                           .getExpression(),count+1);
-               barr[count++] = newb;
+               com.percussion.webservices.assembly.data.PSAssemblyTemplate.Bindings.Binding newb = new com.percussion.webservices.assembly.data.PSAssemblyTemplate.Bindings.Binding();
+               newb.setId(binding.getBindingId());
+               newb.setVariable(binding.getVariable());
+               newb.setExpression(binding.getExpression());
+               newb.setExecutionOrder(++count);
+               bindingsWrapper.getBinding().add(newb);
             }
-            dest.setBindings(barr);
+            dest.setBindings(bindingsWrapper);
          }
 
-         // convert slots
+         // convert slots (to generated wrapper)
          Set<IPSTemplateSlot> origSlots = orig.getSlots();
-         Reference[] destSlots = new Reference[origSlots.size()];
-         dest.setSlots(destSlots);
-         int index = 0;
-         for (IPSTemplateSlot origSlot : origSlots)
+         if (origSlots != null && !origSlots.isEmpty())
          {
-            Reference destSlot = new Reference(new PSDesignGuid(origSlot
-                  .getGUID()).getValue(), origSlot.getName());
+            com.percussion.webservices.assembly.data.PSAssemblyTemplate.Slots slotsWrapper = new com.percussion.webservices.assembly.data.PSAssemblyTemplate.Slots();
+            for (IPSTemplateSlot origSlot : origSlots)
+            {
+               com.percussion.webservices.common.Reference destSlot = new com.percussion.webservices.common.Reference();
+               destSlot.setId(new PSDesignGuid(origSlot.getGUID()).getValue());
+               destSlot.setName(origSlot.getName());
 
-            destSlots[index++] = destSlot;
+               slotsWrapper.getSlot().add(destSlot);
+            }
+            dest.setSlots(slotsWrapper);
          }
 
          // convert stylesheet
@@ -192,7 +198,7 @@ public class PSAssemblyTemplateConverter extends PSConverter
    /**
     * Loads the slots for the given slot guids from the server using the
     * assembly service.
-    * 
+    *
     * @param slotIds soltids for which the slots are to be loaded, must not be
     *           <code>null</code> or empty.
     * @return collection of loaded slots, never <code>null</code> or empty.

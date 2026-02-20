@@ -22,38 +22,32 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
 
-public class PSAclTest extends TestCase
+public class PSAclTest
 {
-   public PSAclTest(String name)
-   {
-      super(name);
-   }
 
-   public void setUp()
-   {
-
-   }
-
+   @Test
    public void testDefaultConstructor() throws Exception
    {
       PSAcl acl = new PSAcl();
       PSCollection entries = acl.getEntries();
-      assertTrue("Entries not null", entries != null);
-      assertTrue("Entries empty", 0 == entries.size());
+      assertNotNull(entries, "Entries not null");
+      assertEquals(0, entries.size(), "Entries empty");
       assertTrue(!acl.isAccessForMultiMembershipMaximum());
       assertTrue(!acl.isAccessForMultiMembershipMergedMaximum());
       assertTrue(!acl.isAccessForMultiMembershipMinimum());
       assertTrue(!acl.isAccessForMultiMembershipMergedMinimum());
 
       PSAcl otherAcl = new PSAcl();
-      assertEquals("Two empty acl's are equal", acl, otherAcl);
+      assertEquals(acl, otherAcl, "Two empty acl's are equal");
       assertEquals(otherAcl, acl);
    }
 
+   @Test
    public void testGetSetMultiMemberAccess() throws Exception
    {
       PSAcl acl = new PSAcl();
@@ -87,6 +81,7 @@ public class PSAclTest extends TestCase
       assertTrue(acl.isAccessForMultiMembershipMergedMinimum());
    }
 
+   @Test
    public void testXml() throws Exception
    {
       PSAcl acl = new PSAcl();
@@ -100,7 +95,7 @@ public class PSAclTest extends TestCase
 
       // block 1
       acl.setAccessForMultiMembershipMaximum();
-      assertTrue(!acl.equals(otherAcl));
+      assertFalse(acl.equals(otherAcl));
       doc = new DocumentContainer();
       doc.toXml().appendChild(acl.toXml(doc.toXml()));
       otherAcl.fromXml(doc.toXml().getDocumentElement(), doc, null);
@@ -118,7 +113,7 @@ public class PSAclTest extends TestCase
 
       // block 2
       acl.setAccessForMultiMembershipMergedMaximum();
-      assertTrue(!acl.equals(otherAcl));
+      assertFalse(acl.equals(otherAcl));
       doc = new DocumentContainer();
       doc.toXml().appendChild(acl.toXml(doc.toXml()));
       otherAcl.fromXml(doc.toXml().getDocumentElement(), doc, null);
@@ -136,7 +131,7 @@ public class PSAclTest extends TestCase
 
       // block 3
       acl.setAccessForMultiMembershipMinimum();
-      assertTrue(!acl.equals(otherAcl));
+      assertFalse(acl.equals(otherAcl));
       doc = new DocumentContainer();
       doc.toXml().appendChild(acl.toXml(doc.toXml()));
       otherAcl.fromXml(doc.toXml().getDocumentElement(), doc, null);
@@ -154,7 +149,7 @@ public class PSAclTest extends TestCase
 
       // block 4
       acl.setAccessForMultiMembershipMergedMinimum();
-      assertTrue(!acl.equals(otherAcl));
+      assertFalse(acl.equals(otherAcl));
       doc = new DocumentContainer();
       doc.toXml().appendChild(acl.toXml(doc.toXml()));
       otherAcl.fromXml(doc.toXml().getDocumentElement(), doc, null);
@@ -171,6 +166,7 @@ public class PSAclTest extends TestCase
       assertTrue(otherAcl.isAccessForMultiMembershipMergedMinimum());
    }
 
+   @Test
    public void testSetEntriesNull() throws Exception
    {
       boolean didThrow = false;
@@ -186,6 +182,7 @@ public class PSAclTest extends TestCase
       assertTrue(didThrow);
    }
 
+   @Test
    public void testSetEntriesWrongType() throws Exception
    {
       boolean didThrow = false;
@@ -201,6 +198,7 @@ public class PSAclTest extends TestCase
       assertTrue(didThrow);
    }
 
+   @Test
    public void testSetEntriesWithDuplicates() throws Exception
    {
       boolean didThrow = false;
@@ -216,21 +214,9 @@ public class PSAclTest extends TestCase
       {
          didThrow = true;
       }
-      assertTrue("Should throw when we have duplicate ACL entries", didThrow);
+      assertTrue(didThrow, "Should throw when we have duplicate ACL entries");
    }
 
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSAclTest("testDefaultConstructor"));
-      suite.addTest(new PSAclTest("testGetSetMultiMemberAccess"));
-      suite.addTest(new PSAclTest("testXml"));
-      suite.addTest(new PSAclTest("testSetEntriesNull"));
-      suite.addTest(new PSAclTest("testSetEntriesWrongType"));
-      suite.addTest(new PSAclTest("testSetEntriesWithDuplicates"));
-      return suite;
-   }
 
    class DocumentContainer implements IPSDocument
    {

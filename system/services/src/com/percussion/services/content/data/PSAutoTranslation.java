@@ -79,7 +79,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
    @Id
    @Column(name = "CONTENTTYPEID", nullable = false)
    private long contentTypeId;
-   
+
    /**
     * The content type name for this auto translation, initialized while
     * constructed, never {@code null} or empty.
@@ -90,7 +90,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
    @Basic
    @Column(name = "WORKFLOWID", nullable = false)
    private long workflowId;
-   
+
    /**
     * The workflow name for this auto translation, initialized while
     * constructed, never {@code null} or empty.
@@ -116,7 +116,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
    @Id
    @Column(name = "LOCALE", nullable = false)
    private String locale;
-   
+
    @Version
    @Column(name = "VERSION")
    private Integer m_version = null;
@@ -180,23 +180,23 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
    public static IPSGuid getAutoTranslationsGUID() {
       return new PSGuid(PSTypeEnum.AUTO_TRANSLATIONS, 0);
    }
-   
+
    /**
     * Get the key representation of this object.
-    * 
+    *
     * @return the key, never {@code null}
     */
-   @IPSXmlSerialization(suppress = true) 
+   @IPSXmlSerialization(suppress = true)
    public PSAutoTranslationPK getKey() {
       return new PSAutoTranslationPK(contentTypeId, locale);
    }
-   
+
    /**
     * Get the GUID of this object, always the result of {@link #getAutoTranslationsGUID()}.
     *
     * @return the GUID, never {@code null}
     */
-   @IPSXmlSerialization(suppress = true) 
+   @IPSXmlSerialization(suppress = true)
    public IPSGuid getGUID() {
       return getAutoTranslationsGUID();
    }
@@ -301,7 +301,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
 
    /**
     * Get the content type name of this auto translation.
-    * 
+    *
     * @return the content type name, may be {@code null}
     */
    public String getContentTypeName() {
@@ -380,6 +380,24 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
    }
 
    /**
+    * Get the optimistic concurrency version for this auto translation.
+    *
+    * @return the version, may be {@code null}
+    */
+   public Integer getVersion() {
+      return this.m_version;
+   }
+
+   /**
+    * Set the optimistic concurrency version for this auto translation.
+    *
+    * @param version the version to set
+    */
+   public void setVersion(Integer version) {
+      this.m_version = version;
+   }
+
+   /**
     * Get the workflow name with Optional wrapper.
     *
     * @return Optional containing the workflow name if non-null, empty otherwise
@@ -390,7 +408,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
 
    /**
     * Get the workflow name of this auto translation.
-    * 
+    *
     * @return the workflow name, may be {@code null}
     */
    public String getWorkflowName() {
@@ -446,7 +464,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
    /* (non-Javadoc)
     * @see com.percussion.services.catalog.IPSCatalogSummary#getName()
     */
-   @IPSXmlSerialization(suppress = true) 
+   @IPSXmlSerialization(suppress = true)
    public String getName()
    {
       return communityName + "-" + contentTypeName + "-" + workflowName + "-"
@@ -456,7 +474,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
    /* (non-Javadoc)
     * @see com.percussion.services.catalog.IPSCatalogSummary#getLabel()
     */
-   @IPSXmlSerialization(suppress = true) 
+   @IPSXmlSerialization(suppress = true)
    public String getLabel()
    {
       return getName();
@@ -465,7 +483,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
    /* (non-Javadoc)
     * @see com.percussion.services.catalog.IPSCatalogSummary#getDescription()
     */
-   @IPSXmlSerialization(suppress = true) 
+   @IPSXmlSerialization(suppress = true)
    public String getDescription()
    {
       return getName();

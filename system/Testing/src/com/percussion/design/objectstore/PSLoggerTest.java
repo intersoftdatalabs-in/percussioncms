@@ -17,6 +17,7 @@
 
 package com.percussion.design.objectstore;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.security.SecureRandom;
 
@@ -26,27 +27,29 @@ import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
  *   Unit tests for the PSLogger class
  */
 
-public class PSLoggerTest extends TestCase
+public class PSLoggerTest 
 {
    /**
     *   Check that all options are off initially.
     */
+   
    public void testOptionsInitiallyOff()
    {
       PSLogger logger = new PSLogger();
-      assertTrue(!logger.isErrorLoggingEnabled());
-      assertTrue(!logger.isServerStartStopLoggingEnabled());
-      assertTrue(!logger.isAppStartStopLoggingEnabled());
-      assertTrue(!logger.isAppStatisticsLoggingEnabled());
-      assertTrue(!logger.isBasicUserActivityLoggingEnabled());
-      assertTrue(!logger.isDetailedUserActivityLoggingEnabled());
-      assertTrue(!logger.isMultipleHandlerLoggingEnabled());
+      assertFalse(logger.isErrorLoggingEnabled());
+      assertFalse(logger.isServerStartStopLoggingEnabled());
+      assertFalse(logger.isAppStartStopLoggingEnabled());
+      assertFalse(logger.isAppStatisticsLoggingEnabled());
+      assertFalse(logger.isBasicUserActivityLoggingEnabled());
+      assertFalse(logger.isDetailedUserActivityLoggingEnabled());
+      assertFalse(logger.isMultipleHandlerLoggingEnabled());
    }
 
    /**
     *   Randomly turn arguments on and off and check that they are
     *   indeed on or off.
     */
+   
    public void testOptionsEnabling()
    {
       final int ERROR_LOGGING = 1;
@@ -77,37 +80,38 @@ public class PSLoggerTest extends TestCase
          if (0 != (options & ERROR_LOGGING))
             assertTrue(logger.isErrorLoggingEnabled());
          else
-            assertTrue(!logger.isErrorLoggingEnabled());
+            assertFalse(logger.isErrorLoggingEnabled());
          if (0 != (options & SERVER_STARTSTOP))
             assertTrue(logger.isServerStartStopLoggingEnabled());
          else
-            assertTrue(!logger.isServerStartStopLoggingEnabled());
+            assertFalse(logger.isServerStartStopLoggingEnabled());
          if (0 != (options & APP_STARTSTOP))
             assertTrue(logger.isAppStartStopLoggingEnabled());
          else
-            assertTrue(!logger.isAppStartStopLoggingEnabled());
+            assertFalse(logger.isAppStartStopLoggingEnabled());
          if (0 != (options & APP_STATS))
             assertTrue(logger.isAppStatisticsLoggingEnabled());
          else
-            assertTrue(!logger.isAppStatisticsLoggingEnabled());
+            assertFalse(logger.isAppStatisticsLoggingEnabled());
          if (0 != (options & BASIC_USER))
             assertTrue(logger.isBasicUserActivityLoggingEnabled());
          else
-            assertTrue(!logger.isBasicUserActivityLoggingEnabled());
+            assertFalse(logger.isBasicUserActivityLoggingEnabled());
          if (0 != (options & DETAILED_USER))
             assertTrue(logger.isDetailedUserActivityLoggingEnabled());
          else
-            assertTrue(!logger.isDetailedUserActivityLoggingEnabled());
+            assertFalse(logger.isDetailedUserActivityLoggingEnabled());
          if (0 != (options & MULTIPLE_HANDLER))
             assertTrue(logger.isMultipleHandlerLoggingEnabled());
          else
-            assertTrue(!logger.isMultipleHandlerLoggingEnabled());
+            assertFalse(logger.isMultipleHandlerLoggingEnabled());
       } // end for
    }
 
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   
    public void testEqualsHashCode()
    {
       final PSLogger logger1 = new PSLogger();

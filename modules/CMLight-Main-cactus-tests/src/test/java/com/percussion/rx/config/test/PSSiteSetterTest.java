@@ -33,7 +33,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSSiteSetterTest extends PSConfigurationTest {
   public void testConfigFiles() throws Exception {
     try {

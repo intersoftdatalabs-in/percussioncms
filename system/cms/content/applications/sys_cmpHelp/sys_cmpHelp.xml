@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PSXApplication active="no" enabled="yes" hidden="no" id="439" startPriority="0" version="2.0">
+<PSXApplication active="no" enabled="yes" hidden="no"
+	id="439" startPriority="0" version="2.0">
 	<name>sys_cmpHelp</name>
-	<description/>
+	<description />
 	<requestRoot>sys_cmpHelp</requestRoot>
-	<defaultRequestPage/>
+	<defaultRequestPage />
 	<appExtensionContext>application/_JB_1000822233812/</appExtensionContext>
 	<PSXRevisionHistory>
 		<PSXRevisionEntry majorVersion="1" minorVersion="0">
@@ -21,20 +22,26 @@
 		<PSXAclEntry id="0" type="user">
 			<name>Default</name>
 			<securityProviderType>Any</securityProviderType>
-			<securityProviderInstance/>
-			<applicationAccessLevel dataCreate="yes" dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="no" designRead="no" designUpdate="no" modifyAcl="no"/>
+			<securityProviderInstance />
+			<applicationAccessLevel dataCreate="yes"
+				dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="no"
+				designRead="no" designUpdate="no" modifyAcl="no" />
 		</PSXAclEntry>
 		<PSXAclEntry id="0" type="user">
 			<name>Anonymous</name>
 			<securityProviderType>Any</securityProviderType>
-			<securityProviderInstance/>
-			<applicationAccessLevel dataCreate="no" dataDelete="no" dataQuery="no" dataUpdate="no" designDelete="no" designRead="no" designUpdate="no" modifyAcl="no"/>
+			<securityProviderInstance />
+			<applicationAccessLevel dataCreate="no"
+				dataDelete="no" dataQuery="no" dataUpdate="no" designDelete="no"
+				designRead="no" designUpdate="no" modifyAcl="no" />
 		</PSXAclEntry>
 		<PSXAclEntry id="0" type="role">
 			<name>Admin</name>
 			<securityProviderType>Any</securityProviderType>
-			<securityProviderInstance/>
-			<applicationAccessLevel dataCreate="yes" dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="yes" designRead="yes" designUpdate="yes" modifyAcl="yes"/>
+			<securityProviderInstance />
+			<applicationAccessLevel dataCreate="yes"
+				dataDelete="yes" dataQuery="yes" dataUpdate="yes" designDelete="yes"
+				designRead="yes" designUpdate="yes" modifyAcl="yes" />
 		</PSXAclEntry>
 		<multiMembershipBehavior>mergeMaximumAccess</multiMembershipBehavior>
 	</PSXAcl>
@@ -50,16 +57,16 @@
 	<requestTypeValueDelete>DELETE</requestTypeValueDelete>
 	<PSXDataSet id="129">
 		<name>Dataset2696</name>
-		<description/>
+		<description />
 		<transactionType>none</transactionType>
 		<PSXQueryPipe id="1937">
 			<name>QueryPipe</name>
-			<description/>
+			<description />
 			<PSXBackEndDataTank id="1932">
 				<PSXBackEndTable id="1931">
 					<alias>RXDUAL</alias>
 					<table>RXDUAL</table>
-					<datasource/>
+					<datasource />
 				</PSXBackEndTable>
 			</PSXBackEndDataTank>
 			<PSXDataMapper id="1935" returnEmptyXml="no">
@@ -70,7 +77,7 @@
 					<PSXHtmlParameter id="0">
 						<name>sys_componentname</name>
 					</PSXHtmlParameter>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="0" id="0">
 					<PSXXmlField id="0">
@@ -79,7 +86,7 @@
 					<PSXHtmlParameter id="0">
 						<name>sys_pagename</name>
 					</PSXHtmlParameter>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="0" id="0">
 					<PSXXmlField id="0">
@@ -88,7 +95,7 @@
 					<PSXSingleHtmlParameter id="0">
 						<name>mode</name>
 					</PSXSingleHtmlParameter>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 				<PSXDataMapping groupId="0" id="0">
 					<PSXXmlField id="0">
@@ -97,13 +104,14 @@
 					<PSXUserContext id="0">
 						<name>User/SessionObject/sys_lang</name>
 					</PSXUserContext>
-					<Conditionals/>
+					<Conditionals />
 				</PSXDataMapping>
 			</PSXDataMapper>
-			<PSXDataSelector id="1933" method="whereClause" unique="no">
-				<WhereClauses/>
-				<Sorting/>
-				<nativeStatement/>
+			<PSXDataSelector id="1933" method="whereClause"
+				unique="no">
+				<WhereClauses />
+				<Sorting />
+				<nativeStatement />
 				<Caching enabled="no" type="interval">
 					<ageInterval>15</ageInterval>
 				</Caching>
@@ -115,19 +123,20 @@
 					</PSXExtensionCall>
 				</PSXExtensionCallSet>
 			</ResultDataExits>
-			<PSXResourceCacheSettings enabled="no" id="0">
-				<Keys/>
-				<Dependencies/>
+			<PSXResourceCacheSettings enabled="no"
+				id="0">
+				<Keys />
+				<Dependencies />
 			</PSXResourceCacheSettings>
 		</PSXQueryPipe>
 		<PSXPageDataTank id="128">
 			<schemaSource>file:help.dtd</schemaSource>
-			<actionTypeXmlField/>
+			<actionTypeXmlField />
 		</PSXPageDataTank>
 		<PSXRequestor directDataStream="no" id="0">
 			<requestPage>help</requestPage>
-			<SelectionParams/>
-			<ValidationRules/>
+			<SelectionParams />
+			<ValidationRules />
 			<characterEncoding>UTF-8</characterEncoding>
 			<MimeProperties>
 				<htm>
@@ -145,7 +154,7 @@
 		<PSXResultPageSet id="0">
 			<PSXResultPage id="130">
 				<styleSheet>file:help.xsl</styleSheet>
-				<extensionsSupported/>
+				<extensionsSupported />
 			</PSXResultPage>
 		</PSXResultPageSet>
 		<PSXResultPager id="1934">
@@ -154,14 +163,25 @@
 			<maxPageLinks>10</maxPageLinks>
 		</PSXResultPager>
 	</PSXDataSet>
-	<PSXLogger id="0" logAppStartStop="no" logAppStatistics="no" logBasicUserActivity="no" logDetailedUserActivity="no" logErrors="no" logExecutionPlan="no" logFullUserActivity="no" logMultipleHandlers="no" logServerStartStop="no"/>
-	<PSXTraceInfo id="0" traceAppHandlerProc="yes" traceAppSecurity="yes" traceBasicRequestInfo="yes" traceConditionalEval="no" traceDbPool="no" traceEnabled="no" traceExitExec="no" traceExitProc="no" traceFileInfo="no" traceInitHttpVar="no" traceMapper="no" traceOutputColumnWidth="80" traceOutputConv="no" tracePostExitCgi="no" tracePostExitXml="no" tracePostPreProcHttpVar="no" traceResourceHandler="yes" traceResultSet="no" traceSessionInfo="no" traceTimestampOnlyEnabled="no"/>
-	<PSXErrorWebPages id="125" returnHtml="yes"/>
+	<PSXLogger id="0" logAppStartStop="no" logAppStatistics="no"
+		logBasicUserActivity="no" logDetailedUserActivity="no" logErrors="no"
+		logExecutionPlan="no" logFullUserActivity="no"
+		logMultipleHandlers="no" logServerStartStop="no" />
+	<PSXTraceInfo id="0" traceAppHandlerProc="yes"
+		traceAppSecurity="yes" traceBasicRequestInfo="yes"
+		traceConditionalEval="no" traceDbPool="no" traceEnabled="no"
+		traceExitExec="no" traceExitProc="no" traceFileInfo="no"
+		traceInitHttpVar="no" traceMapper="no" traceOutputColumnWidth="80"
+		traceOutputConv="no" tracePostExitCgi="no" tracePostExitXml="no"
+		tracePostPreProcHttpVar="no" traceResourceHandler="yes"
+		traceResultSet="no" traceSessionInfo="no"
+		traceTimestampOnlyEnabled="no" />
+	<PSXErrorWebPages id="125" returnHtml="yes" />
 	<backEndLoginPassthru>no</backEndLoginPassthru>
 	<PSXNotifier id="126">
 		<providerType>SMTP</providerType>
 		<server>//erikserating</server>
-		<from/>
+		<from />
 	</PSXNotifier>
 	<userProperty name="savedFromWorkbench">Yes</userProperty>
 	<userProperty name="resultPageFilePath130">E:\Rhythmyx\sys_UserStatus\Src\Banner.xsl</userProperty>

@@ -214,6 +214,18 @@
             <artifactId>perc-legacy</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <!-- JUnit 5 (module) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>

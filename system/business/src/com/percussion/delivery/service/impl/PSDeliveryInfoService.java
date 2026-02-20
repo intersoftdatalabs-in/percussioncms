@@ -133,11 +133,11 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
                 if (deliveryInfo.getServerType() != null
                         && !deliveryInfo.getServerType().equalsIgnoreCase("license")
                         && deliveryInfo.getServerType().equalsIgnoreCase(publishServerType)) {
-                    serverList.add(deliveryInfo.getAdminUrl());
+                    deliveryInfo.getAdminUrl().ifPresent(serverList::add);
                 }
             }else{
                 //If type is null we really shouldn't filter any.
-                serverList.add(deliveryInfo.getAdminUrl());
+                deliveryInfo.getAdminUrl().ifPresent(serverList::add);
             }
         }
         return serverList;
@@ -176,7 +176,7 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
 
         for (PSDeliveryInfo inf : servers)
         {
-            String adminUrl = inf.getAdminUrl();
+            String adminUrl = inf.getAdminUrl().orElse("");
            //If the servertype is blank then treats it as PRODUCTION type
             if (adminUrl.equalsIgnoreCase(adminUrlParam))
             {
@@ -217,7 +217,7 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
                 if(editionObject != null && editionObject.getPubServerId()!=null) {
                      pubServer = PSPubServerDaoLocator.getPubServerManager()
                             .loadPubServer(editionObject.getPubServerId());
-                    publishServer = pubServer.getPublishServer();
+                    publishServer = pubServer.getPublishServer().orElse(null);
                 }else{
                     legacyEdition = true;
                 }
@@ -235,7 +235,7 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
 
             for (PSDeliveryInfo info : psDeliveryInfoServiceList) {
                 //Copy only for passed in ServerID incase a serverId is passed.
-                if (publishServer != null && !publishServer.equals(info.getAdminUrl())) {
+                if (publishServer != null && !publishServer.equals(info.getAdminUrl().orElse(null))) {
                     continue;
                 }
                 if (info.getAvailableServices().contains(PSDeliveryInfo.SERVICE_FEEDS)) {
@@ -251,10 +251,10 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
                                         .setSuccessfullHttpStatusCodes(successfullHttpStatusCodes)
                                         .setAdminOperation(true),
                                 secureKey);
-                        log.info("Updated security key pushed to DTS server: {}", info.getAdminUrl());
+                        log.info("Updated security key pushed to DTS server: {}", info.getAdminUrl().orElse(""));
                     } catch (Exception ex) {
-                        log.warn("Unable to push updated security key to DTS server:{} ", info.getAdminUrl());
-                        log.debug("Unable to push updated security key to DTS server:{}  ERROR: {} ", info.getAdminUrl(), ex.getMessage(), ex);
+                        log.warn("Unable to push updated security key to DTS server:{} ", info.getAdminUrl().orElse(""));
+                        log.debug("Unable to push updated security key to DTS server:{}  ERROR: {} ", info.getAdminUrl().orElse(""), ex.getMessage(), ex);
                     }
                 }
             }
@@ -338,15 +338,13 @@ public class PSDeliveryInfoService implements IPSDeliveryInfoService
                         PSPubServer.LICENSE:PSPubServer.PRODUCTION;
             }
 
-            if(adminURL!=null){
-                if (inf.getAvailableServices().contains(service) && dtype.equalsIgnoreCase(type) && inf.getAdminUrl().equalsIgnoreCase(adminURL))
-                {
+            if (adminURL != null) {
+                if (inf.getAvailableServices().contains(service) && dtype.equalsIgnoreCase(type) && inf.getAdminUrl().orElse("").equalsIgnoreCase(adminURL)) {
                     delInfo = inf;
                     break;
                 }
-            }else{
-                if (inf.getAvailableServices().contains(service) && dtype.equalsIgnoreCase(type))
-                {
+            } else {
+                if (inf.getAvailableServices().contains(service) && dtype.equalsIgnoreCase(type)) {
                     delInfo = inf;
                     break;
                 }

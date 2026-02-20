@@ -59,10 +59,12 @@ public class PSContentEditorDefinitionConverter extends PSConverter
 
          try
          {
-            StringReader reader = new StringReader(orig.getDefinition());
+            Object defObj = orig.getDefinition();
+            String defStr = defObj == null ? "" : defObj.toString();
+            StringReader reader = new StringReader(defStr);
             Document doc = PSXmlDocumentBuilder.createXmlDocument(reader, false);
             
-            if (orig.getType().equals(PSContentEditorDefinitionType.system))
+            if (com.percussion.webservices.content.PSContentEditorDefinitionType.fromString(orig.getType()) == com.percussion.webservices.content.PSContentEditorDefinitionType.system)
                result = new PSContentEditorSystemDef(doc);
             else
                result = createSharedDefinition(doc);
@@ -80,7 +82,7 @@ public class PSContentEditorDefinitionConverter extends PSConverter
          {
             PSContentEditorSystemDef orig = (PSContentEditorSystemDef) value;
             dest.setName("ContentEditorSystemDefinition");
-            dest.setType(PSContentEditorDefinitionType.system);
+            dest.setType(PSContentEditorDefinitionType.system.toString());
 
             String definition = PSXmlDocumentBuilder.toString(
                orig.toXml()).trim();
@@ -90,7 +92,7 @@ public class PSContentEditorDefinitionConverter extends PSConverter
          {
             PSContentEditorSharedDef orig = (PSContentEditorSharedDef) value;
             dest.setName("ContentEditorSharedDefinition");
-            dest.setType(PSContentEditorDefinitionType.shared);
+            dest.setType(PSContentEditorDefinitionType.shared.toString());
 
             String definition = PSXmlDocumentBuilder.toString(
                orig.toXml()).trim();

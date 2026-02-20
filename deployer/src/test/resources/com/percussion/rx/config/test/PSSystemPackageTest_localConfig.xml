@@ -2,10 +2,11 @@
 
 
 
-<SolutionConfigurations publisherPrefix="perc" publisherName="Percussion Software, Inc."  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="SystemObjects">
+<SolutionConfigurations publisherPrefix="perc"
+	publisherName="Percussion Software, Inc."
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="SystemObjects">
 
-   </SolutionConfig>
+	</SolutionConfig>
 </SolutionConfigurations>
-
-

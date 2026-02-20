@@ -1,39 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Widget>
-   <WidgetPrefs title="Text Auto List"
-        contenttype_name="percSimpleAutoList"
-        category="content,search"
-        description="Simple Auto List widget for text blocks"
-        author="Percussion Software Inc"
-        thumbnail="/rx_resources/widgets/simpleList/images/widgetIconTextAutoList.png"
-		is_responsive="true"/>
-    <Resource href="/rx_resources/widgets/simpleList/css/style.css" 
-        type="css" 
-        placement="head" />
-    <UserPref name="maxlength" 
-      display_name="Max List Length"
-      default_value="0"
-      datatype="number" /> 
-    <UserPref name="rootclass"
-      display_name="CSS Root Class" 
-      datatype="string" /> 
-    <UserPref name="layout"
-      display_name="Layout"
-      required="true"
-      datatype="string">
-      <EnumValue value="ui-perc-list-horizontal" display_value="Horizontal" />
-      <EnumValue value="ui-perc-list-vertical" display_value="Vertical" />
-    </UserPref>
-    <Code type="jexl">
+	<WidgetPrefs title="Text Auto List"
+		contenttype_name="percSimpleAutoList" category="content,search"
+		description="Simple Auto List widget for text blocks"
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/simpleList/images/widgetIconTextAutoList.png"
+		is_responsive="true" />
+	<Resource
+		href="/rx_resources/widgets/simpleList/css/style.css" type="css"
+		placement="head" />
+	<UserPref name="maxlength" display_name="Max List Length"
+		default_value="0" datatype="number" />
+	<UserPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
+	<UserPref name="layout" display_name="Layout" required="true"
+		datatype="string">
+		<EnumValue value="ui-perc-list-horizontal"
+			display_value="Horizontal" />
+		<EnumValue value="ui-perc-list-vertical"
+			display_value="Vertical" />
+	</UserPref>
+	<Code type="jexl">
     <![CDATA[
    $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);
    $perc.setWidgetContents($assetItems);
-   if ( ! $assetItems.isEmpty() ) {    
+   if ( ! $assetItems.isEmpty() ) {
       $assetItem = $assetItems.get(0);
       $params = $rx.string.stringToMap(null);
       $params.put('query', $assetItem.getNode().getProperty('query').String);
-      $params.put('max_results', $assetItem.getNode().getProperty('max_results').Long); 
+      $params.put('max_results', $assetItem.getNode().getProperty('max_results').Long);
       $finderName = "Java/global/percussion/widgetcontentfinder/perc_AutoWidgetContentFinder";
       $relresults =  $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, $finderName, $params);
       $title = $rx.pageutils.html($assetItem,'displaytitle');
@@ -43,8 +39,8 @@
       ;
    }
     ]]>
-    </Code>
-    <Content type="velocity">
+	</Code>
+	<Content type="velocity">
     <![CDATA[
    <div class="$rootclass $layout ui-widget ui-widget-content ui-perc-list-widget">
 #if (!$assetItems.isEmpty())
@@ -81,5 +77,5 @@
 #end
     </div>
     ]]>
-    </Content>    
+	</Content>
 </Widget>

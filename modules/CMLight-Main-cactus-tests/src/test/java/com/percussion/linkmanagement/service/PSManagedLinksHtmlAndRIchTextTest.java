@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Test;
  * not. When we support new style managed link/image in rich text asset then this code needs to be
  * refactored.
  */
-@Tag("IntegrationTest")
+
 public class PSManagedLinksHtmlAndRIchTextTest extends PSServletTestCase {
   private static final String MANAGED_LINK_TEST = "/ManagedLinkTest";
   private static final String TEXT = "text";

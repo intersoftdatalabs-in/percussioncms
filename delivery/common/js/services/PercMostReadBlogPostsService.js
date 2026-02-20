@@ -15,48 +15,67 @@
  * limitations under the License.
  */
 
-(function($)
-{
-    $.PercMostReadBlogPostsService = {
-		getMostReadPostsEntries : getMostReadPostsEntries,
-		trackBlogPost: trackBlogPost
-	};
-	
-    function trackBlogPost(pagePath, deliveryUrl, callback)
-    {
-		var serviceUrl = $.PercServiceUtils.joinURL(deliveryUrl,"/perc-metadata-services/metadata/trackblogpost");
-		$.PercServiceUtils.makeXdmJsonRequest(null, serviceUrl, $.PercServiceUtils.TYPE_POST, function(status, results)
-        {
-			// Ignoring the callback;
-        }, {pagePath:pagePath});
- 	}
+(function ($) {
+  $.PercMostReadBlogPostsService = {
+    getMostReadPostsEntries: getMostReadPostsEntries,
+    trackBlogPost: trackBlogPost,
+  };
 
-	function getMostReadPostsEntries(queryString, callback)
-    {
-		var deliveryUrl = queryString.deliveryurl || "";
-		var timePeriod = queryString.timePeriod || "WEEK";
-		var limit = queryString.numberOfResults || "R-5";
-		var sectionPath = queryString.sectionPath || "";
-		var promotedPagePaths = queryString.promotedPagePaths || "";
-       	var serviceUrl = $.PercServiceUtils.joinURL(deliveryUrl,"/perc-metadata-services/metadata/topblogposts");
-       	var sortOrder = queryString.sortOrderByHits || "desc";
-		$.PercServiceUtils.makeXdmJsonRequest(null, serviceUrl, $.PercServiceUtils.TYPE_POST, function(status, results)
-        {
-            if(status === $.PercServiceUtils.STATUS_SUCCESS){
-                callback(true, results.data);
-            }
-            else{
-              var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(results.request);
-              callback(false, defMsg);
-            }
-            
-		}, {sectionPath: sectionPath, limit: limit, timePeriod: timePeriod, sortOrder: sortOrder, promotedPagePaths: promotedPagePaths});
-        /** Sample data
+  function trackBlogPost(pagePath, deliveryUrl, callback) {
+    var serviceUrl = $.PercServiceUtils.joinURL(
+      deliveryUrl,
+      "/perc-metadata-services/metadata/trackblogpost"
+    );
+    $.PercServiceUtils.makeXdmJsonRequest(
+      null,
+      serviceUrl,
+      $.PercServiceUtils.TYPE_POST,
+      function (status, results) {
+        // Ignoring the callback;
+      },
+      { pagePath: pagePath }
+    );
+  }
+
+  function getMostReadPostsEntries(queryString, callback) {
+    var deliveryUrl = queryString.deliveryurl || "";
+    var timePeriod = queryString.timePeriod || "WEEK";
+    var limit = queryString.numberOfResults || "R-5";
+    var sectionPath = queryString.sectionPath || "";
+    var promotedPagePaths = queryString.promotedPagePaths || "";
+    var serviceUrl = $.PercServiceUtils.joinURL(
+      deliveryUrl,
+      "/perc-metadata-services/metadata/topblogposts"
+    );
+    var sortOrder = queryString.sortOrderByHits || "desc";
+    $.PercServiceUtils.makeXdmJsonRequest(
+      null,
+      serviceUrl,
+      $.PercServiceUtils.TYPE_POST,
+      function (status, results) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback(true, results.data);
+        } else {
+          var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            results.request
+          );
+          callback(false, defMsg);
+        }
+      },
+      {
+        sectionPath: sectionPath,
+        limit: limit,
+        timePeriod: timePeriod,
+        sortOrder: sortOrder,
+        promotedPagePaths: promotedPagePaths,
+      }
+    );
+    /** Sample data
 		var results = getSampleResults(queryData);
 		callback(true, results.data);
         */
-	}
-	/** Sample Data 
+  }
+  /** Sample Data 
 	function getSampleResults(queryData) {
 		var numRes = queryData.numberOfResults || 5;
 		data = [];

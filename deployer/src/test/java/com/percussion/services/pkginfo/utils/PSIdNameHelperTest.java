@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test id-name helper */
-@Tag("IntegrationTest")
+
 public class PSIdNameHelperTest {
   /**
    * Test various methods to perform id-name translation.

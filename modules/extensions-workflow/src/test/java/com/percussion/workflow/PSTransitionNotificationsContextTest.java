@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Tag;
  * The PSTransitionNotificationsContextTestclass is a test class for the class
  * PSTransitionNotificationsContext.
  */
-@Tag("IntegrationTest")
+
 public class PSTransitionNotificationsContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log =

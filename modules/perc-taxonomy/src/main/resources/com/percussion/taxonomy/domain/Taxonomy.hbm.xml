@@ -3,25 +3,34 @@
 
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-  <class name="com.percussion.taxonomy.domain.Taxonomy" table="TAX_TAXONOMY">
-    <id name="Id" column="ID" type="integer">
-      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
-    </id>
-    <property name="Name" column="NAME" type="string" not-null="true"/>
-    <property name="Admin_role_id" column="ADMIN_ROLE_ID" type="integer"/>
-    <property name="Scheme" column="SCHEME" type="string"/>
-	<property name="Has_related_ui" column="HAS_RELATED_UI" type="boolean"/>
-	<set name="attributes" fetch="join" order-by="ID asc" inverse="true">
-        <key column="TAXONOMY_ID" />
-        <one-to-many class="com.percussion.taxonomy.domain.Attribute" />
-    </set>
-    <set name="nodes" fetch="join" order-by="ID asc" inverse="true">
-        <key column="TAXONOMY_ID" />
-        <one-to-many class="com.percussion.taxonomy.domain.Node" />
-    </set>
-    <set name="visibilities" fetch="join" order-by="ID asc" inverse="true">
-        <key column="TAXONOMY_ID" />
-        <one-to-many class="com.percussion.taxonomy.domain.Visibility" />
-    </set>
-  </class>
+	<class name="com.percussion.taxonomy.domain.Taxonomy"
+		table="TAX_TAXONOMY">
+		<id name="Id" column="ID" type="integer">
+			<generator
+				class="com.percussion.data.utils.PSNextNumberHibernateGenerator" />
+		</id>
+		<property name="Name" column="NAME" type="string"
+			not-null="true" />
+		<property name="Admin_role_id" column="ADMIN_ROLE_ID"
+			type="integer" />
+		<property name="Scheme" column="SCHEME" type="string" />
+		<property name="Has_related_ui" column="HAS_RELATED_UI"
+			type="boolean" />
+		<set name="attributes" fetch="join" order-by="ID asc"
+			inverse="true">
+			<key column="TAXONOMY_ID" />
+			<one-to-many
+				class="com.percussion.taxonomy.domain.Attribute" />
+		</set>
+		<set name="nodes" fetch="join" order-by="ID asc" inverse="true">
+			<key column="TAXONOMY_ID" />
+			<one-to-many class="com.percussion.taxonomy.domain.Node" />
+		</set>
+		<set name="visibilities" fetch="join" order-by="ID asc"
+			inverse="true">
+			<key column="TAXONOMY_ID" />
+			<one-to-many
+				class="com.percussion.taxonomy.domain.Visibility" />
+		</set>
+	</class>
 </hibernate-mapping>

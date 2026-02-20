@@ -21,18 +21,20 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.schedule.data.PSNotificationTemplate.ByLabelComparator;
 import com.percussion.utils.guid.IPSGuid;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSNotificationTemplateTest extends TestCase
+public class PSNotificationTemplateTest
 {
+   @Test
    public void testSetId()
    {
       final PSNotificationTemplate template = new PSNotificationTemplate();
       template.setId(createTemplateGuid());
-      
+
       // null id
       try
       {
@@ -40,7 +42,7 @@ public class PSNotificationTemplateTest extends TestCase
          fail();
       }
       catch (NullPointerException expected) {}
-      
+
       // wrong id guid type
       try
       {
@@ -50,6 +52,7 @@ public class PSNotificationTemplateTest extends TestCase
       catch (IllegalArgumentException expected) {}
    }
 
+   @Test
    public void testSetLabelSubject()
    {
       final PSNotificationTemplate template = new PSNotificationTemplate();
@@ -67,7 +70,8 @@ public class PSNotificationTemplateTest extends TestCase
       }
       catch (IllegalArgumentException expected) {}
 }
-   
+
+   @Test
    public void testByLabelComparator()
    {
       final ByLabelComparator c = new ByLabelComparator();
@@ -81,6 +85,7 @@ public class PSNotificationTemplateTest extends TestCase
       assertEquals(1, c.compare(t2, t1));
    }
 
+   @Test
    public void testEqualsHashCode()
    {
       IPSGuid id = createTemplateGuid();
@@ -93,22 +98,22 @@ public class PSNotificationTemplateTest extends TestCase
 
       assertTrue(t1.equals(t2));
       assertTrue(t1.hashCode() == t2.hashCode());
-      
+
       assertFalse(t1.equals(t3));
       assertFalse(t1.hashCode() == t3.hashCode());
    }
-   
+
    /**
     * Creates a template with the given properties.
-    * 
+    *
     * @param id the ID of the template, assumed not <code>null</code>.
     * @param label the label of the template, assumed not blank.
     * @param subject the subject of the template, assumed not blank.
     * @param template the template, may be blank.
-    * 
+    *
     * @return the notification template object, never <code>null</code>.
     */
-   private PSNotificationTemplate createTemplate(IPSGuid id, 
+   private PSNotificationTemplate createTemplate(IPSGuid id,
          String label, String subject, String template)
    {
       PSNotificationTemplate t = new PSNotificationTemplate();
@@ -116,12 +121,12 @@ public class PSNotificationTemplateTest extends TestCase
       t.setName(label);
       t.setSubject(subject);
       t.setTemplate(template);
-      
+
       return t;
    }
-   
+
    /**
-    * Creates a sample schedule notification template GUID. 
+    * Creates a sample schedule notification template GUID.
     */
    private PSGuid createTemplateGuid()
    {

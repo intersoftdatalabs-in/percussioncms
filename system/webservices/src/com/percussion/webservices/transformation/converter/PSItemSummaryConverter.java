@@ -52,27 +52,27 @@ public class PSItemSummaryConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       try
       {
          if (isClientToServer(value))
          {
-            com.percussion.webservices.content.PSItemSummary orig = 
+            com.percussion.webservices.content.PSItemSummary orig =
                (com.percussion.webservices.content.PSItemSummary) value;
-            
+
             PSItemSummary dest = new PSItemSummary();
             toServer(orig, dest);
-            
+
             return dest;
          }
          else
          {
             PSItemSummary orig = (PSItemSummary) value;
-            
-            com.percussion.webservices.content.PSItemSummary dest = 
+
+            com.percussion.webservices.content.PSItemSummary dest =
                new com.percussion.webservices.content.PSItemSummary();
             toClient(orig, dest);
-            
+
             return dest;
          }
       }
@@ -80,29 +80,29 @@ public class PSItemSummaryConverter extends PSConverter
       {
       }
    }
-   
+
    /**
     * Copy the supplied client object to the server object.
-    * 
+    *
     * @param orig the client object, not <code>null</code>.
     * @param dest the server object, not <code>null</code>.
     */
    protected void toServer(
-      com.percussion.webservices.content.PSItemSummary orig, 
+      com.percussion.webservices.content.PSItemSummary orig,
       PSItemSummary dest)
    {
       if (orig == null)
          throw new IllegalArgumentException("orig cannot be null");
-      
+
       if (dest == null)
          throw new IllegalArgumentException("dest cannot be null");
-      
+
       dest.setGUID(new PSLegacyGuid(orig.getId()));
       dest.setName(orig.getName());
 
       ObjectType sourceObjectType = orig.getObjectType();
       Converter converter = getConverter(ObjectType.class);
-      PSItemSummary.ObjectTypeEnum objectType = 
+      PSItemSummary.ObjectTypeEnum objectType =
          (PSItemSummary.ObjectTypeEnum) converter.convert(
             PSItemSummary.ObjectTypeEnum.class, sourceObjectType);
       dest.setObjectType(objectType);
@@ -117,38 +117,38 @@ public class PSItemSummaryConverter extends PSConverter
          dest.setContentTypeName(orig.getContentType().getName());
       }
 
-      Collection<PSItemSummary.OperationEnum> operations = 
+      Collection<PSItemSummary.OperationEnum> operations =
          new ArrayList<PSItemSummary.OperationEnum>();
-      for (PSItemSummaryOperation sourceOperation : orig.getOperation())
+      for (Object sourceOperation : orig.getOperation())
       {
          converter = getConverter(PSItemSummaryOperation.class);
-         PSItemSummary.OperationEnum operation = 
+         PSItemSummary.OperationEnum operation =
             (PSItemSummary.OperationEnum) converter.convert(
                PSItemSummary.OperationEnum.class, sourceOperation);
          operations.add(operation);
       }
       dest.setOperations(operations);
    }
-   
+
    /**
     * Copy the supplied server object to the client object.
-    * 
+    *
     * @param orig the server object, not <code>null</code>.
     * @param dest the client object, not <code>null</code>.
     */
-   protected void toClient(PSItemSummary orig, 
+   protected void toClient(PSItemSummary orig,
       com.percussion.webservices.content.PSItemSummary dest)
    {
       if (orig == null)
          throw new IllegalArgumentException("orig cannot be null");
-      
+
       if (dest == null)
          throw new IllegalArgumentException("dest cannot be null");
-      
+
       dest.setId(orig.getGUID().longValue());
       dest.setName(orig.getName());
 
-      PSItemSummary.ObjectTypeEnum sourceObjectType = 
+      PSItemSummary.ObjectTypeEnum sourceObjectType =
          orig.getObjectType();
       Converter converter = getConverter(
          PSItemSummary.ObjectTypeEnum.class);
@@ -156,26 +156,24 @@ public class PSItemSummaryConverter extends PSConverter
          ObjectType.class, sourceObjectType);
       dest.setObjectType(objectType);
 
-      // expose content type for item only, but not for folder, which is 
-      // Rhythmyx's implementation detail should be hide from the user. 
+      // expose content type for item only, but not for folder, which is
+      // Rhythmyx's implementation detail should be hide from the user.
       if (sourceObjectType == PSItemSummary.ObjectTypeEnum.ITEM)
       {
-         dest.setContentType(new Reference(orig.getContentTypeId(), 
-            orig.getContentTypeName()));
+         Reference ct = new Reference();
+         ct.setId((long)orig.getContentTypeId());
+         ct.setName(orig.getContentTypeName());
+         dest.setContentType(ct);
       }
 
-      PSItemSummaryOperation[] operations = 
-         new PSItemSummaryOperation[orig.getOperations().size()];
-      int index = 0;
       for (PSItemSummary.OperationEnum sourceOperation : orig.getOperations())
       {
          converter = getConverter(PSItemSummary.OperationEnum.class);
-         PSItemSummaryOperation operation = 
+         PSItemSummaryOperation operation =
             (PSItemSummaryOperation) converter.convert(
                PSItemSummaryOperation.class, sourceOperation);
-         operations[index++] = operation;
+         dest.getOperation().add(operation.toString());
       }
-      dest.setOperation(operations);
    }
 }
 

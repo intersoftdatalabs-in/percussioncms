@@ -18,14 +18,12 @@
 /**
  * Category list service, makes a call to the server and gets the category list entries.
  */
-(function($)
-{
-    $.PercCategoryListService = {
-        getCategories : getCategories
-    };
-    function getCategories(queryString, callback)
-    {
-        /*
+(function ($) {
+  $.PercCategoryListService = {
+    getCategories: getCategories,
+  };
+  function getCategories(queryString, callback) {
+    /*
 	    var mock = [
             {category : "QQ"},
         	{"category":"B","children":[
@@ -34,28 +32,35 @@
             			{"category":"E","children":[{category:"E1",children:[{category:"E2", children:[{category:"E3", children:null}]}]}],"count":{"second":1,"first":1}}],"count":{"second":4,"first":3}},
             		{"category":"F","children":null,"count":{"second":4,"first":4}}],"count":{"second":10,"first":1}}];
     	*/
-    	var deliveryUrl = "";
-    	try{
-    		if ("undefined" !== typeof (queryString.deliveryurl)){
-    		    deliveryUrl = queryString.deliveryurl;
-    		    delete queryString.deliveryurl;
-    	    }
-    	}
-        catch (err) {
-		    console.error(err);
-	    }
-        var serviceUrl = $.PercServiceUtils.joinURL(deliveryUrl, "/perc-metadata-services/metadata/categories/get");
-        
-        $.PercServiceUtils.makeXdmJsonRequest(null, serviceUrl, $.PercServiceUtils.TYPE_POST, function(status, results)
-        {
-            if(status === $.PercServiceUtils.STATUS_SUCCESS){
-                callback(true,results.data);
-            }
-            else{
-              var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(results.request);
-              callback(false, defMsg);
-            }
-            
-        }, queryString);
+    var deliveryUrl = "";
+    try {
+      if ("undefined" !== typeof queryString.deliveryurl) {
+        deliveryUrl = queryString.deliveryurl;
+        delete queryString.deliveryurl;
+      }
+    } catch (err) {
+      console.error(err);
     }
+    var serviceUrl = $.PercServiceUtils.joinURL(
+      deliveryUrl,
+      "/perc-metadata-services/metadata/categories/get"
+    );
+
+    $.PercServiceUtils.makeXdmJsonRequest(
+      null,
+      serviceUrl,
+      $.PercServiceUtils.TYPE_POST,
+      function (status, results) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback(true, results.data);
+        } else {
+          var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            results.request
+          );
+          callback(false, defMsg);
+        }
+      },
+      queryString
+    );
+  }
 })(jQuery);

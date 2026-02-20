@@ -1,44 +1,53 @@
 
 
-<project name="MaintenanceManagerServerTest" default="" basedir=".">
+<project name="MaintenanceManagerServerTest" default=""
+	basedir=".">
 
-	<property name="server_port" value="9992" />	
-	
-    <target name="checkForErrors" description="Checks to see if there are errors, fails if there are">
+	<property name="server_port" value="9992" />
 
-            <waitfor maxwait="6" maxwaitunit="second" checkevery="2" checkeveryunit="second"
-                timeoutproperty="check-errors-timeout">
-                <and>
-                     <socket server="localhost" port="${server_port}"/>
-                	 <http url="http://localhost:${server_port}/Rhythmyx/services/maintenance/manager/status/process" />
-                </and>
-           </waitfor>
-    	<fail if="check-errors-timeout" message="check-errors-timeout" /> 
-    </target>
-	
-    <target name="checkForMaint" description="Checks to see if the server is in maintenance, if so fails">
+	<target name="checkForErrors"
+		description="Checks to see if there are errors, fails if there are">
 
-            <waitfor maxwait="6" maxwaitunit="second" checkevery="2" checkeveryunit="second"
-                timeoutproperty="check-maint-timeout">
-                <and>
-                     <socket server="localhost" port="${server_port}"/>
-                     <http url="http://localhost:${server_port}/Rhythmyx/services/maintenance/manager/status/server" />
-                </and>
-           </waitfor>
-    	   <fail if="check-maint-timeout" message="check-maint-timeout" /> 
-    </target>
-	
-    <target name="checkForBoth" description="Checks to see if the server is in maintenance and if there are errors, fails if either is true">
+		<waitfor maxwait="6" maxwaitunit="second" checkevery="2"
+			checkeveryunit="second" timeoutproperty="check-errors-timeout">
+			<and>
+				<socket server="localhost" port="${server_port}" />
+				<http
+					url="http://localhost:${server_port}/Rhythmyx/services/maintenance/manager/status/process" />
+			</and>
+		</waitfor>
+		<fail if="check-errors-timeout" message="check-errors-timeout" />
+	</target>
 
-            <waitfor maxwait="6" maxwaitunit="second" checkevery="2" checkeveryunit="second"
-                timeoutproperty="check-both-timeout">
-                <and>
-                     <socket server="localhost" port="${server_port}"/>
-                     <http url="http://localhost:${server_port}/Rhythmyx/services/maintenance/manager/status/server" />
-                	 <http url="http://localhost:${server_port}/Rhythmyx/services/maintenance/manager/status/process" />
-                </and>
-           </waitfor>
-           <fail if="check-both-timeout" message="Timed out waiting for server to be ready" /> 
-    </target>
+	<target name="checkForMaint"
+		description="Checks to see if the server is in maintenance, if so fails">
+
+		<waitfor maxwait="6" maxwaitunit="second" checkevery="2"
+			checkeveryunit="second" timeoutproperty="check-maint-timeout">
+			<and>
+				<socket server="localhost" port="${server_port}" />
+				<http
+					url="http://localhost:${server_port}/Rhythmyx/services/maintenance/manager/status/server" />
+			</and>
+		</waitfor>
+		<fail if="check-maint-timeout" message="check-maint-timeout" />
+	</target>
+
+	<target name="checkForBoth"
+		description="Checks to see if the server is in maintenance and if there are errors, fails if either is true">
+
+		<waitfor maxwait="6" maxwaitunit="second" checkevery="2"
+			checkeveryunit="second" timeoutproperty="check-both-timeout">
+			<and>
+				<socket server="localhost" port="${server_port}" />
+				<http
+					url="http://localhost:${server_port}/Rhythmyx/services/maintenance/manager/status/server" />
+				<http
+					url="http://localhost:${server_port}/Rhythmyx/services/maintenance/manager/status/process" />
+			</and>
+		</waitfor>
+		<fail if="check-both-timeout"
+			message="Timed out waiting for server to be ready" />
+	</target>
 
 </project>

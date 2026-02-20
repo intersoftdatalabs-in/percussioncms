@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableElement>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="7008019964183445505" dependencyType="Shared" displayName="preview" isIncluded="no" objectType="FilterDef" objectTypeName="Filter Definition" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <Description/>
-   </PSXDeployableElement>
+	<PSXDeployableElement>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="7008019964183445505" dependencyType="Shared"
+			displayName="preview" isIncluded="no" objectType="FilterDef"
+			objectTypeName="Filter Definition" supportsIdMapping="no"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<Description />
+	</PSXDeployableElement>
 </PSXApplicationIDTypes>

@@ -8,13 +8,13 @@
 		<password>demo</password>
 		<admin-connection-url>http://localhost:9992</admin-connection-url>
 		<allow-self-signed-certificate>false</allow-self-signed-certificate>
-        <availableServices>
-            <service>perc-form-processor</service>
-            <service>feeds</service>
-            <service>perc-comments-services</service>
-            <service>perc-metadata-services</service>
-            <service>perc-membership-services</service>
-        </availableServices>
+		<availableServices>
+			<service>perc-form-processor</service>
+			<service>feeds</service>
+			<service>perc-comments-services</service>
+			<service>perc-metadata-services</service>
+			<service>perc-membership-services</service>
+		</availableServices>
 	</DeliveryServer>
 	<DeliveryServer>
 		<connection-url>http://localhost:8080</connection-url>
@@ -22,8 +22,8 @@
 		<password encrypted="false">demo</password>
 		<admin-connection-url>https://localhost:8080</admin-connection-url>
 		<allow-self-signed-certificate>false</allow-self-signed-certificate>
-        <availableServices>
-           <service>perc-thirdparty-services</service>
-        </availableServices>
+		<availableServices>
+			<service>perc-thirdparty-services</service>
+		</availableServices>
 	</DeliveryServer>
 </DeliveryServerConfig>

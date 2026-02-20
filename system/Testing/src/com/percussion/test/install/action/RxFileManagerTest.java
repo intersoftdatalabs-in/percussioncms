@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /***
  * Tests to cover the RxFileManager utilities.
- * 
+ *
  * @author nate
  *
  */
@@ -42,176 +42,176 @@ public class RxFileManagerTest
    @Disabled("Failing on Windows")
    public void testisDTSDirValid()
    {
-    assertTrue("Valid directory not detected.",RxFileManager.isDTSDir(this.getClass().getResource(".").getPath()));
-    assertFalse("Invalid DTS directory returned as valid",RxFileManager.isDTSDir("this ain't a real directory!"));
-    assertFalse("Null is not a valid directory",RxFileManager.isDTSDir(null));
-    assertTrue("Percussion not detected as a valid DTS dir",RxFileManager.isDTSDir(this.getClass().getResource("Percussion").getPath()));
-    assertTrue("Folder with spaces not detected as a valid DTS dir",RxFileManager.isDTSDir(this.getClass().getResource("New Folder").getPath().replace("%20", " ")));
-    
+    assertTrue(RxFileManager.isDTSDir(this.getClass().getResource(".").getPath()), "Valid directory not detected.");
+    assertFalse(RxFileManager.isDTSDir("this ain't a real directory!"), "Invalid DTS directory returned as valid");
+    assertFalse(RxFileManager.isDTSDir(null), "Null is not a valid directory");
+    assertTrue(RxFileManager.isDTSDir(this.getClass().getResource("Percussion").getPath()), "Percussion not detected as a valid DTS dir");
+    assertTrue(RxFileManager.isDTSDir(this.getClass().getResource("New Folder").getPath().replace("%20", " ")), "Folder with spaces not detected as a valid DTS dir");
+
    }
-      
+
    /***
-    * Test the installation properties file. 
+    * Test the installation properties file.
     */
    @Test
    public void testInstallationPropFile(){
-      
+
       RxFileManager o = new RxFileManager();
-      
+
       try{
          o.setSystemInstallationPropertiesFile(null);
       }catch(IllegalArgumentException e){
          //Good
       }
-      
+
       try{
          o.setSystemInstallationPropertiesFile("");
       }catch(IllegalArgumentException e){
          //Good
       }
-      
+
       try{
          o.setSystemInstallationPropertiesFile("     ");
       }catch(IllegalArgumentException e){
          //Good
       }
-      
+
       o.setSystemInstallationPropertiesFile("dtsinstallation.properties");
       assertEquals("dtsinstallation.properties", "dtsinstallation.properties");
-      
+
    }
 
    /***
-    * Test the 
-    * @throws IOException 
+    * Test the
+    * @throws IOException
     */
    @Test
    public void testSystemInstallationPropertiesAbsolute() throws IOException{
-  
+
       Properties p = new Properties();
       URL prop_file = this.getClass().getResource("dtsinstall.properties");
       OSEnum os = OSEnum.Linux;
-      
+
       if(PSOsTool.isWindowsPlatform())
          os = OSEnum.Windows;
-      
+
       p.put(RxFileManager.INSTALL_PROP, prop_file.getPath().substring(prop_file.getPath().lastIndexOf("/")));
-    
+
       //Setup the properties file
       RxFileManager.saveProperties(p,prop_file.getPath());
       RxFileManager.setSystemInstallationPropertiesFile("dtsinstall.properties");
       RxFileManager.setProgramDir(this.getClass().getResource("Program Files").getPath());
-     
+
       os = OSEnum.Windows;
       assertEquals(this.getClass().getResource("Program Files").getPath() + File.separatorChar + "Percussion" + File.separatorChar + "dtsinstall.properties", RxFileManager.getSystemInstallationPropertiesAbsolute(os));
-      
+
       os = OSEnum.Linux;
       assertEquals(this.getClass().getResource("Program Files").getPath() + File.separatorChar + "dtsinstall.properties", RxFileManager.getSystemInstallationPropertiesAbsolute(os));
-      
-      
+
+
       //Test X86
       os = OSEnum.Windows;
       RxFileManager.setProgramDir(this.getClass().getResource("Program Files (x86)").getPath());
       assertEquals(this.getClass().getResource("Program Files (x86)").getPath() + File.separatorChar + "Percussion" + File.separatorChar + "dtsinstall.properties", RxFileManager.getSystemInstallationPropertiesAbsolute(os));
-     
+
       //Test X86
       os = OSEnum.Linux;
       RxFileManager.setProgramDir(this.getClass().getResource("Program Files (x86)").getPath());
       assertEquals(this.getClass().getResource("Program Files (x86)").getPath() + File.separatorChar + "dtsinstall.properties", RxFileManager.getSystemInstallationPropertiesAbsolute(os));
-      
-      
+
+
    }
 
    /***
     * Test retrieval of DTS system properties.
-    * @throws IOException 
+    * @throws IOException
     */
    @Test
    @Disabled("Failing on Windows")
    public void testGetDTSSystemFileProperties() throws IOException{
- 
+
       OSEnum os= OSEnum.Linux;
-      
+
       if(PSOsTool.isWindowsPlatform())
          os = OSEnum.Windows;
-      
+
       //Try reading from a typical location on windows.
       if( PSOsTool.isWindowsPlatform()){
          RxFileManager.setProgramDir(this.getClass().getResource("Program Files").getPath().replace("%20"," "));
          Properties props = RxFileManager.getDTSSystemFileProperties("dtsinstall.properties","cm1install.properties",os);
-        
-         assertEquals("Property file value didn't match!", "/home/percussion/DTS;",props.getProperty(RxFileManager.INSTALL_PROP,""));
-         
-        //Now lets test the CM1 fallback.    
+
+         assertEquals("/home/percussion/DTS;", props.getProperty(RxFileManager.INSTALL_PROP,""), "Property file value didn't match!");
+
+        //Now lets test the CM1 fallback.
          RxFileManager.setProgramDir(this.getClass().getResource("home/percussion").getPath().replace("%20"," "));
          props = RxFileManager.getDTSSystemFileProperties("dtsinstall.properties","cm1install.properties",os);
-         
-         assertEquals("CM1 fail over property file not matched.","C:\\Program Files\\Percussion\\;C:\\Percussion\\CM1",props.getProperty(RxFileManager.INSTALL_PROP,""));
+
+         assertEquals("C:\\Program Files\\Percussion\\;C:\\Percussion\\CM1", props.getProperty(RxFileManager.INSTALL_PROP,""), "CM1 fail over property file not matched.");
       }else{
          //Linux
-         
-         
+
+
       }
    }
-   
 
 
-   @Test(expected = IllegalArgumentException.class)
+
+   @Test
    public void testNullProgramDir(){
-      RxFileManager.setProgramDir(null);
+      assertThrows(IllegalArgumentException.class, () -> RxFileManager.setProgramDir(null));
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void testEmptyProgramDir(){
-      RxFileManager.setProgramDir("");
+      assertThrows(IllegalArgumentException.class, () -> RxFileManager.setProgramDir(""));
    }
 
    @Test
    public void testProgramDirTrailing(){
       RxFileManager.setProgramDir("test" + File.separator);
-      assertEquals("ProgramDir should have trimmed /","test",RxFileManager.getProgramDir());
+         assertEquals("test", RxFileManager.getProgramDir(), "ProgramDir should have trimmed /");
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void testLoadPropertiesNull() throws IOException{
-      RxFileManager.loadProperties(null);
+      assertThrows(IllegalArgumentException.class, () -> RxFileManager.loadProperties(null));
    }
-  
-   @Test(expected = IllegalArgumentException.class)
+
+   @Test
    public void testLoadPropertiesEmpty() throws IOException{
-      RxFileManager.loadProperties("");
-   }  
-   
-   @Test(expected = IllegalArgumentException.class)
+      assertThrows(IllegalArgumentException.class, () -> RxFileManager.loadProperties(""));
+   }
+
+   @Test
    public void testSavePropertiesEmpty() throws IOException{
-      RxFileManager.saveProperties(null,null);
+      assertThrows(IllegalArgumentException.class, () -> RxFileManager.saveProperties(null, null));
    }
-   
-   @Test(expected = IllegalArgumentException.class)
+
+   @Test
    public void testSavePropertiesNullPropFile() throws IOException{
-      RxFileManager.saveProperties(new Properties(),null);
+      assertThrows(IllegalArgumentException.class, () -> RxFileManager.saveProperties(new Properties(), null));
    }
-  
-   @Test(expected = IllegalArgumentException.class)
+
+   @Test
    public void testSavePropertiesNullEmptyFile() throws IOException{
-      RxFileManager.saveProperties(new Properties(),"");
+      assertThrows(IllegalArgumentException.class, () -> RxFileManager.saveProperties(new Properties(), ""));
    }
-  
+
    @Test
    public void testRootDir(){
       @SuppressWarnings("unused")  //the constructor supports it and it is used so need to test it.
       RxFileManager r = new RxFileManager("Root"); //We know this is sketch - still needs tested as so much legacy code is present. @TODO: Rewrite the installer.
-      
-      assertEquals("Root should match","Root",RxFileManager.getRootDir());
-      
+
+assertEquals("Root", RxFileManager.getRootDir(), "Root should match");
+
       RxFileManager.setRootDir("NewRoot");
-      assertEquals("Root should match", "NewRoot",RxFileManager.getRootDir());
+         assertEquals("NewRoot", RxFileManager.getRootDir(), "Root should match");
    }
-   
+
    @Test
    public void getServerConfigLocation(){
       RxFileManager r = new RxFileManager();
-      
+
       assertEquals(r.getInstallerConfigLocation() + File.separator + RxFileManager.REPOSITORY_FILE,r.getRepositoryFile());
 
    }

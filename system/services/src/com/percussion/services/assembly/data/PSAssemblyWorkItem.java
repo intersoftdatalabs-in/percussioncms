@@ -88,9 +88,9 @@ import java.util.regex.Pattern;
  * service to individual assemblers.
  * <p>
  * Please note, only one of the result data storage routines should be called.
- * Either call {@link #setResultData(byte[])} or 
+ * Either call {@link #setResultData(byte[])} or
  * {@link #setResultStream(InputStream)} but not both.
- * 
+ *
  * @author dougrand
  */
 public class PSAssemblyWorkItem implements IPSAssemblyResult
@@ -105,7 +105,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     * stored to a temp file.
     */
    private static final long THRESHOLD = 65535;
-   
+
    /**
     * Serial id needed for serialization
     */
@@ -118,8 +118,8 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    private static final Pattern ms_pseudopath = Pattern.compile("/\\d+#\\d+");
 
    /**
-    * The id of the item being assembled. If not set, the 
-    * {@link #normalize()} method will compute the id from either parameters 
+    * The id of the item being assembled. If not set, the
+    * {@link #normalize()} method will compute the id from either parameters
     * (sys_contentid, sys_revision) or a path to the item.
     * <p>
     * The id should be reset only with great care.
@@ -146,23 +146,23 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    private boolean m_isPublish;
 
    /**
-    * If the result is large, as defined by the threshold value, the data will 
-    * be stored in a file rather than in memory. 
-    */   
+    * If the result is large, as defined by the threshold value, the data will
+    * be stored in a file rather than in memory.
+    */
    private PSPurgableTempFile m_resultFile = null;
-   
+
    /**
-    * If something calls {@link #getResultFile()} then the file is the 
+    * If something calls {@link #getResultFile()} then the file is the
     * responsibility of the caller and this member will be <code>true</code>.
     * This keeps {@link #clearResults()} from deleting the file.
     */
    private boolean m_fileReleased = false;
-   
+
    /**
     * The result data from assembly. This may be image data, html, pdf,
     * anything. If it is character data then the charset is specified as part of
     * the mimetype. If no charset is specified, UTF8 will be assumed for
-    * character data. If the result data is large it will be stored in 
+    * character data. If the result data is large it will be stored in
     * {@link #m_resultFile} instead.
     */
    private byte[] m_resultData = null;
@@ -173,7 +173,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    private Status m_status;
 
    /**
-    * The path of the item being assembled. If not set, the 
+    * The path of the item being assembled. If not set, the
     * {@link #normalize()} method will compute the path from either the
     * sys_folderid parameter or the folderId.  In fact it typically
     * won't be set in normal operation.
@@ -198,11 +198,11 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    public IPSAssemblyTemplate m_template;
 
    /**
-    * The purpose of this property is to track the template that was supplied 
+    * The purpose of this property is to track the template that was supplied
     * when the original request for the page was made. When assembling snippets
     * within a page, this value should be cleared for each snippet. This is
     * why the clone method clears it. However, there is one case where we don't
-    * want it cleared by a clone, so that is managed by the assembler. 
+    * want it cleared by a clone, so that is managed by the assembler.
     * <p>
     * @see #getOriginalTemplateGuid()
     * @see #setOriginalTemplateGuid(IPSGuid)
@@ -222,7 +222,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    private Long m_unpublishRefId;
 
    private IPSGuid m_ownerId;
-   
+
    /**
     * The folder id, may be <code>0</code>
     */
@@ -305,19 +305,19 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     * The location that the content should be published to.
     */
    private String m_deliveryPath;
-   
+
    /**
     * The context for the delivery system, used primarily to record the delivery
     * context in the status record and to do any recalculation of location
     * for paginated content.
     */
    private int m_deliveryContext;
-   
+
    /**
     * The original assembly url, primarily used for debugging in the publogs.
     */
    private String m_assemblyUrl;
-   
+
    /**
     * Set by the assembly system, this records how long it took to assemble
     * the item.
@@ -334,22 +334,22 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     * page, <code>null</code> otherwise.
     */
    private Long m_parentPageReference;
-   
+
    /**
-    * If this item is determined to be paginated, this should be set to 
+    * If this item is determined to be paginated, this should be set to
     * <code>true</code>.
     */
    private boolean m_paginated = false;
 
    /**
     * The temporary directory for the result data, which is typically the
-    * assembled content (before deliver to the target location). 
-    * 
-    * Default to <code>null</code>, which indicates to use the default 
+    * assembled content (before deliver to the target location).
+    *
+    * Default to <code>null</code>, which indicates to use the default
     * temporary directory path.
     */
    private File m_tempDir = null;
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.assembly.IPSAssemblyItem#getId()
     */
@@ -360,7 +360,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getSiteId()
     */
    public IPSGuid getSiteId()
@@ -382,10 +382,10 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    {
       return m_pubserverid;
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyResult#getMimeType()
     */
    public String getMimeType()
@@ -395,7 +395,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyResult#getResultData()
     */
    public byte[] getResultData()
@@ -428,7 +428,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
       else
          return null;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.assembly.IPSAssemblyResult#getResultStream()
@@ -467,10 +467,10 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
          m_fileReleased = true;
       }
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyResult#getStatus()
     */
    public Status getStatus()
@@ -480,7 +480,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getPath()
     */
    public String getPath()
@@ -492,15 +492,15 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    {
       return m_ownerId;
    }
-   
+
    public void setOwnerId(IPSGuid id)
    {
       m_ownerId = id;
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getFolderId()
     */
    public int getFolderId()
@@ -510,7 +510,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Set a new folder id
-    * 
+    *
     * @param folderId the new folder id
     */
    public void setFolderId(int folderId)
@@ -520,7 +520,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Set a new site id
-    * 
+    *
     * @param siteid the new site id
     */
    public void setSiteId(IPSGuid siteid)
@@ -539,7 +539,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getParameters()
     */
    public Map<String, String[]> getParameters()
@@ -549,7 +549,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getVariables()
     */
    public Map<String, String> getVariables()
@@ -559,7 +559,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getTemplate()
     */
    public IPSAssemblyTemplate getTemplate()
@@ -593,7 +593,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getReferenceId()
     */
    public long getReferenceId()
@@ -603,17 +603,17 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getUnpublishRefId()
     */
    public Long getUnpublishRefId()
    {
       return m_unpublishRefId;
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getJobId()
     */
    public long getJobId()
@@ -623,7 +623,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getBindings()
     */
    public Map<String, Object> getBindings()
@@ -636,7 +636,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getBindings()
     */
    public Map<String, Object> getMetaData()
@@ -644,35 +644,35 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
       Object sys = getBindings().get("$sys");
       if (sys==null)
          return null;
-      
+
       if (!(sys instanceof Map))
       {
          ms_log.error("$sys is not a map");
          return null;
       }
       Map sysmap = (Map) sys;
-      
-      
+
+
       Object metadata = sysmap.get("metadata");
-      
+
       if (metadata==null)
          return null;
-      
+
       if (metadata instanceof Map)
       {
          return (Map<String, Object>)metadata;
       } else {
          ms_log.error("$sys.metadata is not a map");
       }
-    
+
       return null;
-      
-      
+
+
    }
 
    /**
     * Set new bindings
-    * 
+    *
     * @param bindings The bindings to set, may be <code>null</code>
     */
    public void setBindings(Map<String, Object> bindings)
@@ -682,7 +682,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Set a new id for the referenced content item
-    * 
+    *
     * @param id The id to set, may be <code>null</code>
     */
    public void setId(IPSGuid id)
@@ -692,7 +692,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Set a new job id
-    * 
+    *
     * @param jobId The jobId to set.
     */
    public void setJobId(long jobId)
@@ -711,7 +711,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Set the new parameters
-    * 
+    *
     * @param parameters The parameters to set, if <code>null</code> then the
     *           parameters are defaulted to an empty map
     */
@@ -726,7 +726,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    /**
     * Put single value into parameter map, replacing any current value for the
     * named parameter
-    * 
+    *
     * @param name the parameter name, never <code>null</code> or empty
     * @param value the value, never <code>null</code> or empty
     */
@@ -751,7 +751,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Remove any value for the given parameter name
-    * 
+    *
     * @param name the parameter name, never <code>null</code> or empty
     */
    public void removeParameter(String name)
@@ -767,7 +767,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Set a new path, may be <code>null</code>
-    * 
+    *
     * @param path The path to set.
     */
    public void setPath(String path)
@@ -777,7 +777,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Set a reference id
-    * 
+    *
     * @param referenceId The referenceId to set.
     */
    public void setReferenceId(long referenceId)
@@ -845,16 +845,16 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Store result data. The result data will be stored in a temporary file
-    * in the file system using a {@link PSPurgableTempFile}. 
+    * in the file system using a {@link PSPurgableTempFile}.
     * <p>
     * Call either this method or {@link #setResultData(byte[])}, but not both.
     * Calling this method will clear any previously stored result data, either
     * in memory or the file system.
-    * 
+    *
     * @param is the result data stream, may be null. The input stream should
     * be closed by the caller.
-    * 
-    * @throws IOException 
+    *
+    * @throws IOException
     */
    public void setResultStream(InputStream is) throws IOException
    {
@@ -872,7 +872,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
       }
    }
-   
+
    /**
     * Call this to enable using the edit revision if the item is checked out to
     * the user, and otherwise to use the current revision. Note that if this is
@@ -880,7 +880,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     * {@link #setNode(Node)} as the code in these routines will check the
     * version and replace the node in use if it is not the current or edit
     * reivision.
-    * 
+    *
     * @param userName the user name, may be <code>null</code> but not empty
     */
    public void setUserName(String userName)
@@ -896,7 +896,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    /**
     * Get the user name set, see {@link #setUserName(String)} to understand why
     * this value would be set.
-    * 
+    *
     * @return the user name, may be <code>null</code> but never empty.
     */
    public String getUserName()
@@ -906,7 +906,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getNode()
     */
    public Node getNode()
@@ -950,7 +950,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     * therefore looks for the current or edit revision of the referenced item.
     * The current revision is used unless the item is checked out to the current
     * user as specified in {@link #setUserName(String)}.
-    * 
+    *
     * @param cid the content id of the item
     * @return the current or edit guid for the given content id, never
     *         <code>null</code>
@@ -985,7 +985,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    /**
     * Set a new node value, will also extract the guid value. The passed node
     * must be a Rhythmyx content node if not <code>null</code>.
-    * 
+    *
     * @param node node value, may be <code>null</code>
     */
    public void setNode(Node node)
@@ -1030,7 +1030,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    /**
     * Get the item filter, which limits the results from slot content finder
     * calls.
-    * 
+    *
     * @return Returns the filter, if <code>null</code> then no filtering will
     *         occur.
     * @throws PSFilterException if there was a filter specified in the
@@ -1055,8 +1055,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
          IPSFilterService filterservice = PSFilterServiceLocator
                .getFilterService();
 
-         try
-         {
+
             IPSItemFilter f = null;
             if (!StringUtils.isBlank(filter))
             {
@@ -1064,23 +1063,18 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
             }
             else
             {
-               int at = Integer.parseInt(authtype);
-               f = filterservice.findFilterByAuthType(at);
+               // New API expects a string authtype
+               f = filterservice.findFilterByAuthType(authtype);
             }
             m_filter = f;
          }
-         catch (NumberFormatException e)
-         {
-            throw new IllegalArgumentException("Authtype must be a number "
-                  + authtype, e);
-         }
-      }
+      
       return m_filter;
    }
 
    /**
     * The item filter, see {@link #getFilter()}
-    * 
+    *
     * @param filter The filter to set.
     */
    public void setFilter(IPSItemFilter filter)
@@ -1090,7 +1084,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#hasParameter(java.lang.String)
     */
    public boolean hasParameter(String name)
@@ -1104,7 +1098,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getParameterValue(java.lang.String,
     *      java.lang.String)
     */
@@ -1120,7 +1114,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getParameterValues(java.lang.String,
     *      java.lang.String[])
     */
@@ -1150,7 +1144,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
             throw new RuntimeException(
                   "Possible assembly loop detected - terminating");
          }
-         copy.setDeliveryPath(null); 
+         copy.setDeliveryPath(null);
          copy.setParentPageReferenceId(getReferenceId());
          copy.setReferenceId(
                PSGuidHelper.generateNextLong(PSTypeEnum.PUB_REFERENCE_ID));
@@ -1166,12 +1160,12 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
       catch (CloneNotSupportedException e)
       {
          throw new RuntimeException("Impossible problem with cloning", e);
-      }     
+      }
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see java.lang.Object#clone()
     */
    @SuppressWarnings("unchecked")
@@ -1202,7 +1196,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see java.lang.Object#equals(java.lang.Object)
     */
    @Override
@@ -1212,7 +1206,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
          return false;
       PSAssemblyWorkItem b = (PSAssemblyWorkItem) obj;
       EqualsBuilder eb = new EqualsBuilder();
-      
+
       eb.append(m_bindings, b.m_bindings).append(m_isDebug, b.m_isDebug)
             .append(m_filter, b.m_filter).append(m_folderId, b.m_folderId)
             .append(m_id, b.m_id).append(m_jobId, b.m_jobId)
@@ -1232,7 +1226,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see java.lang.Object#hashCode()
     */
    @Override
@@ -1289,7 +1283,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyResult#toResultString()
     */
    public String toResultString() throws IllegalStateException,
@@ -1312,7 +1306,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     * <p>
     * If no folder id parameter is specified or that folder's path is not one
     * used by the item, the path field is assigned a pseudo path.
-    * 
+    *
     * @param contentId content id of the item being assembled
     * @param revision revision of the item being assembled
     * @throws PSCmsException propagated if a path lookup fails
@@ -1371,11 +1365,11 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     * Whichever method has been used to identify the item, the other methods
     * will be set to match it. (note, no folder id if the item isn't in a folder
     * though)
-    * 
+    *
     * @throws PSAssemblyException if no identity has been set, an incorrect
     *            identity has been set, or multiple identities have been set
     *            that do not refer to the same item.
-    * 
+    *
     */
    public void normalize() throws PSAssemblyException
    {
@@ -1481,7 +1475,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
                   m_id = gmgr.makeGuid(new PSLocator(contentid, revision));
                }
             }
-            
+
             PSSiteHelper.fixupSiteFolderId(this);
 
             if (m_path == null)
@@ -1611,7 +1605,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     * The work item holds a navigation helper, which contains information that
     * can be used while assembling any part of an item, either the page, global
     * page or snippets. The reference is cloned to subordinate requests.
-    * 
+    *
     * @return the nav helper, never <code>null</code>
     */
    public PSNavHelper getNavHelper()
@@ -1625,7 +1619,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#isDebug()
     */
    public boolean isDebug()
@@ -1635,7 +1629,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Set if this work item is in debug mode
-    * 
+    *
     * @param isDebug <code>true</code> if it is in debug mode
     */
    public void setDebug(boolean isDebug)
@@ -1646,7 +1640,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    /**
     * Is the node set on this work item, does not calculate the node if not
     * present
-    * 
+    *
     * @return <code>true</code> if the node is present
     */
    public boolean hasNode()
@@ -1657,7 +1651,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    /**
     * Set the publish state. A state of <code>false</code> means that this
     * assembly item is for an unpublish.
-    * 
+    *
     * @param pub the new state
     */
    public void setPublish(boolean pub)
@@ -1667,7 +1661,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#isPublish()
     */
    public boolean isPublish()
@@ -1677,7 +1671,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssemblyItem#getCloneParentItem()
     */
    public IPSAssemblyItem getCloneParentItem()
@@ -1687,7 +1681,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
 
    /**
     * Get the assembly context based on the parameters
-    * 
+    *
     * @return the context value, or <code>-1</code> if the parameter cannot be
     *         found.
     */
@@ -1726,7 +1720,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    {
       return m_deliveryPath;
    }
-   
+
 
    /*
     * //see base class method for details
@@ -1735,7 +1729,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    {
       return m_deliveryContext;
    }
-   
+
    /**
     * Get the delivery context ID of the item.
     * @return the GUID of the context ID, never <code>null</code>.
@@ -1744,10 +1738,10 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    {
       return new PSGuid(PSTypeEnum.CONTEXT, m_deliveryContext);
    }
-   
+
    /**
     * Set the delivery context
-    * 
+    *
     * @param context the context being used for the delivery location
     */
    public void setDeliveryContext(int context)
@@ -1756,7 +1750,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    }
 
    /**
-    * @param deliveryType the deliveryType to set, may not be 
+    * @param deliveryType the deliveryType to set, may not be
     * <code>null</code> or empty.
     */
    public void setDeliveryType(String deliveryType)
@@ -1797,7 +1791,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    }
 
    /**
-    * Get the time that it took for this work item to be assembled. Set by 
+    * Get the time that it took for this work item to be assembled. Set by
     * the assembly system. Not valid before assembly.
     * @return the time in milliseconds.
     */
@@ -1816,13 +1810,13 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    }
 
    public boolean isSuccess()
-   {     
+   {
       return m_status != null && m_status.equals(Status.SUCCESS);
    }
 
    /**
     * Determines if the result is stored in a file.
-    * 
+    *
     * @return <code>true</code> if the result is stored in a file;
     * otherwise return <code>false</code>.
     */
@@ -1830,7 +1824,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    {
       return m_resultFile != null;
    }
-   
+
    public PSPurgableTempFile getResultFile() throws IOException
    {
       if (m_resultFile == null)
@@ -1848,7 +1842,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
             IOUtils.closeQuietly(os);
          }
       }
-      
+
       m_fileReleased = true;
       return m_resultFile;
    }
@@ -1857,10 +1851,10 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    {
       return m_page;
    }
-   
+
    /**
     * Set the page number
-    * @param page the page number, may be <code>null</code> 
+    * @param page the page number, may be <code>null</code>
     */
    public void setPage(Integer page)
    {
@@ -1871,7 +1865,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    {
       return m_parentPageReference;
    }
-  
+
    /**
     * Set the parent reference id
     * @param refid the parent reference id, may be <code>null</code>.
@@ -1897,8 +1891,8 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    public boolean isPaginated()
    {
       return m_paginated;
-   }   
-   
+   }
+
    /*
     * //see base interface method for details
     */

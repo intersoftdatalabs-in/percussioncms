@@ -11,8 +11,8 @@
 dojo.provide("dojo.Deferred");
 dojo.require("dojo.lang.func");
 
-dojo.Deferred = function(/*Function?*/ canceller){
-	/*
+dojo.Deferred = function (/*Function?*/ canceller) {
+  /*
 	NOTE: this namespace and documentation are imported wholesale 
 		from MochiKit
 
@@ -101,213 +101,213 @@ dojo.Deferred = function(/*Function?*/ canceller){
 	cancellable Deferreds.
 
 	*/
-	
-	this.chain = [];
-	this.id = this._nextId();
-	this.fired = -1;
-	this.paused = 0;
-	this.results = [null, null];
-	this.canceller = canceller;
-	this.silentlyCancelled = false;
+
+  this.chain = [];
+  this.id = this._nextId();
+  this.fired = -1;
+  this.paused = 0;
+  this.results = [null, null];
+  this.canceller = canceller;
+  this.silentlyCancelled = false;
 };
 
 dojo.lang.extend(dojo.Deferred, {
-	getFunctionFromArgs: function(){
-		var a = arguments;
-		if((a[0])&&(!a[1])){
-			if(dojo.lang.isFunction(a[0])){
-				return a[0];
-			}else if(dojo.lang.isString(a[0])){
-				return dj_global[a[0]];
-			}
-		}else if((a[0])&&(a[1])){
-			return dojo.lang.hitch(a[0], a[1]);
-		}
-		return null;
-	},
+  getFunctionFromArgs: function () {
+    var a = arguments;
+    if (a[0] && !a[1]) {
+      if (dojo.lang.isFunction(a[0])) {
+        return a[0];
+      } else if (dojo.lang.isString(a[0])) {
+        return dj_global[a[0]];
+      }
+    } else if (a[0] && a[1]) {
+      return dojo.lang.hitch(a[0], a[1]);
+    }
+    return null;
+  },
 
-	makeCalled: function() {
-		var deferred = new dojo.Deferred();
-		deferred.callback();
-		return deferred;
-	},
+  makeCalled: function () {
+    var deferred = new dojo.Deferred();
+    deferred.callback();
+    return deferred;
+  },
 
-	repr: function(){
-		var state;
-		if(this.fired == -1){
-			state = 'unfired';
-		}else if(this.fired == 0){
-			state = 'success';
-		} else {
-			state = 'error';
-		}
-		return 'Deferred(' + this.id + ', ' + state + ')';
-	},
+  repr: function () {
+    var state;
+    if (this.fired == -1) {
+      state = "unfired";
+    } else if (this.fired == 0) {
+      state = "success";
+    } else {
+      state = "error";
+    }
+    return "Deferred(" + this.id + ", " + state + ")";
+  },
 
-	toString: dojo.lang.forward("repr"),
+  toString: dojo.lang.forward("repr"),
 
-	_nextId: (function(){
-		var n = 1;
-		return function(){ return n++; };
-	})(),
+  _nextId: (function () {
+    var n = 1;
+    return function () {
+      return n++;
+    };
+  })(),
 
-	cancel: function(){
-		// summary:	Cancels a Deferred that has not yet received a value, or is
-		//		waiting on another Deferred as its value.
-		// description:
-		//		If a canceller is defined, the canceller is called. If the
-		//		canceller did not return an error, or there was no canceller,
-		//		then the errback chain is started with CancelledError.
-		if(this.fired == -1){
-			if (this.canceller){
-				this.canceller(this);
-			}else{
-				this.silentlyCancelled = true;
-			}
-			if(this.fired == -1){
-				this.errback(new Error(this.repr()));
-			}
-		}else if(	(this.fired == 0)&&
-					(this.results[0] instanceof dojo.Deferred)){
-			this.results[0].cancel();
-		}
-	},
-			
+  cancel: function () {
+    // summary:	Cancels a Deferred that has not yet received a value, or is
+    //		waiting on another Deferred as its value.
+    // description:
+    //		If a canceller is defined, the canceller is called. If the
+    //		canceller did not return an error, or there was no canceller,
+    //		then the errback chain is started with CancelledError.
+    if (this.fired == -1) {
+      if (this.canceller) {
+        this.canceller(this);
+      } else {
+        this.silentlyCancelled = true;
+      }
+      if (this.fired == -1) {
+        this.errback(new Error(this.repr()));
+      }
+    } else if (this.fired == 0 && this.results[0] instanceof dojo.Deferred) {
+      this.results[0].cancel();
+    }
+  },
 
-	_pause: function(){
-		// summary: Used internally to signal that it's waiting on another Deferred
-		this.paused++;
-	},
+  _pause: function () {
+    // summary: Used internally to signal that it's waiting on another Deferred
+    this.paused++;
+  },
 
-	_unpause: function(){
-		// summary: Used internally to signal that it's no longer waiting on
-		// another Deferred.
-		this.paused--;
-		if ((this.paused == 0) && (this.fired >= 0)) {
-			this._fire();
-		}
-	},
+  _unpause: function () {
+    // summary: Used internally to signal that it's no longer waiting on
+    // another Deferred.
+    this.paused--;
+    if (this.paused == 0 && this.fired >= 0) {
+      this._fire();
+    }
+  },
 
-	_continue: function(res){
-		// summary: Used internally when a dependent deferred fires.
-		this._resback(res);
-		this._unpause();
-	},
+  _continue: function (res) {
+    // summary: Used internally when a dependent deferred fires.
+    this._resback(res);
+    this._unpause();
+  },
 
-	_resback: function(res){
-		// The primitive that means either callback or errback
-		this.fired = ((res instanceof Error) ? 1 : 0);
-		this.results[this.fired] = res;
-		this._fire();
-	},
+  _resback: function (res) {
+    // The primitive that means either callback or errback
+    this.fired = res instanceof Error ? 1 : 0;
+    this.results[this.fired] = res;
+    this._fire();
+  },
 
-	_check: function(){
-		if(this.fired != -1){
-			if(!this.silentlyCancelled){
-				dojo.raise("already called!");
-			}
-			this.silentlyCancelled = false;
-			return;
-		}
-	},
+  _check: function () {
+    if (this.fired != -1) {
+      if (!this.silentlyCancelled) {
+        dojo.raise("already called!");
+      }
+      this.silentlyCancelled = false;
+      return;
+    }
+  },
 
-	callback: function(res){
-		// summary:	Begin the callback sequence with a non-error value.
-		
-		/*
+  callback: function (res) {
+    // summary:	Begin the callback sequence with a non-error value.
+
+    /*
 		callback or errback should only be called once on a given
 		Deferred.
 		*/
-		this._check();
-		this._resback(res);
-	},
+    this._check();
+    this._resback(res);
+  },
 
-	errback: function(res){
-		// summary: Begin the callback sequence with an error result.
-		this._check();
-		if(!(res instanceof Error)){
-			res = new Error(res);
-		}
-		this._resback(res);
-	},
+  errback: function (res) {
+    // summary: Begin the callback sequence with an error result.
+    this._check();
+    if (!(res instanceof Error)) {
+      res = new Error(res);
+    }
+    this._resback(res);
+  },
 
-	addBoth: function(cb, cbfn){
-		/* summary
+  addBoth: function (cb, cbfn) {
+    /* summary
 		Add the same function as both a callback and an errback as the
 		next element on the callback sequence.	This is useful for code
 		that you want to guarantee to run, e.g. a finalizer.
 		*/
-		var enclosed = this.getFunctionFromArgs(cb, cbfn);
-		if(arguments.length > 2){
-			enclosed = dojo.lang.curryArguments(null, enclosed, arguments, 2);
-		}
-		return this.addCallbacks(enclosed, enclosed);
-	},
+    var enclosed = this.getFunctionFromArgs(cb, cbfn);
+    if (arguments.length > 2) {
+      enclosed = dojo.lang.curryArguments(null, enclosed, arguments, 2);
+    }
+    return this.addCallbacks(enclosed, enclosed);
+  },
 
-	addCallback: function(cb, cbfn){
-		// summary: Add a single callback to the end of the callback sequence.
-		var enclosed = this.getFunctionFromArgs(cb, cbfn);
-		if(arguments.length > 2){
-			enclosed = dojo.lang.curryArguments(null, enclosed, arguments, 2);
-		}
-		return this.addCallbacks(enclosed, null);
-	},
+  addCallback: function (cb, cbfn) {
+    // summary: Add a single callback to the end of the callback sequence.
+    var enclosed = this.getFunctionFromArgs(cb, cbfn);
+    if (arguments.length > 2) {
+      enclosed = dojo.lang.curryArguments(null, enclosed, arguments, 2);
+    }
+    return this.addCallbacks(enclosed, null);
+  },
 
-	addErrback: function(cb, cbfn){
-		// summary: Add a single callback to the end of the callback sequence.
-		var enclosed = this.getFunctionFromArgs(cb, cbfn);
-		if(arguments.length > 2){
-			enclosed = dojo.lang.curryArguments(null, enclosed, arguments, 2);
-		}
-		return this.addCallbacks(null, enclosed);
-		return this.addCallbacks(null, cbfn);
-	},
+  addErrback: function (cb, cbfn) {
+    // summary: Add a single callback to the end of the callback sequence.
+    var enclosed = this.getFunctionFromArgs(cb, cbfn);
+    if (arguments.length > 2) {
+      enclosed = dojo.lang.curryArguments(null, enclosed, arguments, 2);
+    }
+    return this.addCallbacks(null, enclosed);
+    return this.addCallbacks(null, cbfn);
+  },
 
-	addCallbacks: function (cb, eb) {
-		// summary: Add separate callback and errback to the end of the callback
-		// sequence.
-		this.chain.push([cb, eb])
-		if (this.fired >= 0) {
-			this._fire();
-		}
-		return this;
-	},
+  addCallbacks: function (cb, eb) {
+    // summary: Add separate callback and errback to the end of the callback
+    // sequence.
+    this.chain.push([cb, eb]);
+    if (this.fired >= 0) {
+      this._fire();
+    }
+    return this;
+  },
 
-	_fire: function(){
-		// summary: Used internally to exhaust the callback sequence when a result
-		// is available.
-		var chain = this.chain;
-		var fired = this.fired;
-		var res = this.results[fired];
-		var self = this;
-		var cb = null;
-		while (chain.length > 0 && this.paused == 0) {
-			// Array
-			var pair = chain.shift();
-			var f = pair[fired];
-			if (f == null) {
-				continue;
-			}
-			try {
-				res = f(res);
-				fired = ((res instanceof Error) ? 1 : 0);
-				if(res instanceof dojo.Deferred) {
-					cb = function(res){
-						self._continue(res);
-					}
-					this._pause();
-				}
-			}catch(err){
-				fired = 1;
-				res = err;
-			}
-		}
-		this.fired = fired;
-		this.results[fired] = res;
-		if((cb)&&(this.paused)){
-			// this is for "tail recursion" in case the dependent
-			// deferred is already fired
-			res.addBoth(cb);
-		}
-	}
+  _fire: function () {
+    // summary: Used internally to exhaust the callback sequence when a result
+    // is available.
+    var chain = this.chain;
+    var fired = this.fired;
+    var res = this.results[fired];
+    var self = this;
+    var cb = null;
+    while (chain.length > 0 && this.paused == 0) {
+      // Array
+      var pair = chain.shift();
+      var f = pair[fired];
+      if (f == null) {
+        continue;
+      }
+      try {
+        res = f(res);
+        fired = res instanceof Error ? 1 : 0;
+        if (res instanceof dojo.Deferred) {
+          cb = function (res) {
+            self._continue(res);
+          };
+          this._pause();
+        }
+      } catch (err) {
+        fired = 1;
+        res = err;
+      }
+    }
+    this.fired = fired;
+    this.results[fired] = res;
+    if (cb && this.paused) {
+      // this is for "tail recursion" in case the dependent
+      // deferred is already fired
+      res.addBoth(cb);
+    }
+  },
 });

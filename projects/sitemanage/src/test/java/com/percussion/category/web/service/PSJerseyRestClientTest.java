@@ -23,16 +23,17 @@ import com.percussion.category.marshaller.PSCategoryUnMarshaller;
 import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PSJerseyRestClientTest {
 
   // FB: ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD NC 1-16-16
-  private PSCategoryServiceRestClient client;
+  private static PSCategoryServiceRestClient client;
 
-  @BeforeClass
-  public void setUp() throws Exception {
+  @BeforeAll
+  public static void setUp() throws Exception {
 
     client = new PSCategoryServiceRestClient();
   }
@@ -90,7 +91,7 @@ public class PSJerseyRestClientTest {
 
     PSCategory category = PSCategoryUnMarshaller.unMarshalFromString(result);
 
-    assertNotNull("categories cannnot be null", category);
+    assertNotNull(category, "categories cannnot be null");
     /*
     assertEquals(2, category.getTopLevelNodes().size());
 

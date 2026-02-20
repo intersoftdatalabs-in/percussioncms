@@ -35,32 +35,12 @@
                             </target>
                         </configuration>
                     </execution>
-                    <!--
-                <execution>
-                  <id>set jetty.sh</id>
-                  <phase>process-resources</phase>
-                  <goals>
-                    <goal>run</goal>
-                  </goals>
-                  <configuration>
-                    <target>
-                      <chmod dir="${assembly-directory}/bin" perm="755" includes="**/*.sh" />
-                    </target>
-                  </configuration>
-                </execution>
-                <execution>
-                  <id>removeKeystore</id>
-                  <phase>process-resources</phase>
-                  <goals>
-                    <goal>run</goal>
-                  </goals>
-                  <configuration>
-                    <target>
-                      <delete file="${assembly-directory}/etc/keystore" />
-                    </target>
-                  </configuration>
-                </execution>
-              -->
+                    <!-- <execution> <id>set jetty.sh</id> <phase>process-resources</phase>
+						<goals> <goal>run</goal> </goals> <configuration> <target> <chmod dir="${assembly-directory}/bin"
+						perm="755" includes="**/*.sh" /> </target> </configuration> </execution>
+						<execution> <id>removeKeystore</id> <phase>process-resources</phase> <goals>
+						<goal>run</goal> </goals> <configuration> <target> <delete file="${assembly-directory}/etc/keystore"
+						/> </target> </configuration> </execution> -->
                 </executions>
             </plugin>
             <plugin>

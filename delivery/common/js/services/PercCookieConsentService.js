@@ -18,26 +18,36 @@
 /**
  * PercCookieConsentService.js, posts consent entries to the DTS meta data service.
  */
-(function($)
-{
-    $.PercCookieConsentService = {
-        postConsentEntry : postConsentEntry
-    };
-    
-    function postConsentEntry(opts, deliveryUrl, callback)
-    {
-        var serviceUrl = $.PercServiceUtils.joinURL(deliveryUrl, "/perc-metadata-services/metadata/consent/log");
+(function ($) {
+  $.PercCookieConsentService = {
+    postConsentEntry: postConsentEntry,
+  };
 
-        $.PercServiceUtils.makeXdmJsonRequest(null, serviceUrl, $.PercServiceUtils.TYPE_POST, function(status, results)
-        {
-            if (status === $.PercServiceUtils.STATUS_SUCCESS) {
-                console.debug("Success saving cookie consent entry.");
-                callback(status);
-            }
-            else {
-                console.error("Error saving cookie consent entry.");
-                callback(status);
-            }
-        }, {siteName : opts.siteName, services : opts.services, optIn : opts.optIn, consentDate: opts.consentDate});
-    }
+  function postConsentEntry(opts, deliveryUrl, callback) {
+    var serviceUrl = $.PercServiceUtils.joinURL(
+      deliveryUrl,
+      "/perc-metadata-services/metadata/consent/log"
+    );
+
+    $.PercServiceUtils.makeXdmJsonRequest(
+      null,
+      serviceUrl,
+      $.PercServiceUtils.TYPE_POST,
+      function (status, results) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          console.debug("Success saving cookie consent entry.");
+          callback(status);
+        } else {
+          console.error("Error saving cookie consent entry.");
+          callback(status);
+        }
+      },
+      {
+        siteName: opts.siteName,
+        services: opts.services,
+        optIn: opts.optIn,
+        consentDate: opts.consentDate,
+      }
+    );
+  }
 })(jQuery);

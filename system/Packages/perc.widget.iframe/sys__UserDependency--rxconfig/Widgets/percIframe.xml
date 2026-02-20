@@ -1,82 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-	<WidgetPrefs title="Iframe"
-				 contenttype_name=""
-				 category="integration"
-				 description="Embed an external web page within a Percussion page"
-				 author="Percussion Software Inc"
-				 thumbnail= "/rx_resources/widgets/iframe/images/widgetIconIframe.jpg"
-				 is_responsive="true"/>
+	<WidgetPrefs title="Iframe" contenttype_name=""
+		category="integration"
+		description="Embed an external web page within a Percussion page"
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/iframe/images/widgetIconIframe.jpg"
+		is_responsive="true" />
 
-	<UserPref name="title"
-			  display_name="Title"
-			  default_value=""
-			  datatype="string" />
+	<UserPref name="title" display_name="Title" default_value=""
+		datatype="string" />
 
-	<UserPref name="iframeurl"
-			  display_name="URL"
-			  default_value=""
-			  datatype = "string" />
+	<UserPref name="iframeurl" display_name="URL" default_value=""
+		datatype="string" />
 
 	<UserPref name="height"
-			  display_name="Height in pixels or percent"
-			  datatype="string" />
+		display_name="Height in pixels or percent" datatype="string" />
 
 	<UserPref name="width"
-			  display_name="Width in pixels or percent"
-			  datatype="string" />
+		display_name="Width in pixels or percent" datatype="string" />
 
 	<UserPref name="marginheight"
-			  display_name="Top and Bottom margin in pixels"
-			  default_value=""
-			  datatype="string" />
+		display_name="Top and Bottom margin in pixels" default_value=""
+		datatype="string" />
 
 	<UserPref name="marginwidth"
-			  display_name="Left and Right margin in pixels"
-			  default_value=""
-			  datatype="string" />
+		display_name="Left and Right margin in pixels" default_value=""
+		datatype="string" />
 
-	<UserPref name="frameborder"
-			  display_name="Frame border"
-			  default_value="disable"
-			  datatype="enum">
+	<UserPref name="frameborder" display_name="Frame border"
+		default_value="disable" datatype="enum">
 		<EnumValue value="disable" display_value="Disable border" />
 		<EnumValue value="enable" display_value="Enable border" />
 	</UserPref>
 
-	<UserPref name="referalPolicy"
-			  display_name="Referrer-Policy"
-			  datatype="enum">
+	<UserPref name="referalPolicy" display_name="Referrer-Policy"
+		datatype="enum">
 		<EnumValue value="no-referrer" display_value="no-referrer" />
-		<EnumValue value="no-referrer-when-downgrade" display_value="no-referrer-when-downgrade" />
+		<EnumValue value="no-referrer-when-downgrade"
+			display_value="no-referrer-when-downgrade" />
 		<EnumValue value="origin" display_value="origin" />
-		<EnumValue value="origin-when-cross-origin" display_value="origin-when-cross-origin" />
+		<EnumValue value="origin-when-cross-origin"
+			display_value="origin-when-cross-origin" />
 		<EnumValue value="same-origin" display_value="same-origin" />
-		<EnumValue value="strict-origin" display_value="strict-origin" />
-		<EnumValue value="strict-origin-when-cross-origin" display_value="strict-origin-when-cross-origin" />
+		<EnumValue value="strict-origin"
+			display_value="strict-origin" />
+		<EnumValue value="strict-origin-when-cross-origin"
+			display_value="strict-origin-when-cross-origin" />
 		<EnumValue value="unsafe-url" display_value="unsafe-url" />
 	</UserPref>
 
-	<UserPref name="scrollbar"
-			  display_name="Scrolling"
-			  default_value="auto"
-			  datatype="enum">
+	<UserPref name="scrollbar" display_name="Scrolling"
+		default_value="auto" datatype="enum">
 		<EnumValue value="auto" display_value="Auto" />
 		<EnumValue value="no" display_value="No" />
 		<EnumValue value="yes" display_value="Yes" />
 	</UserPref>
 
-	<UserPref name="ariaLabel"
-			  display_name="Aria Label"
-			  datatype="string" />
+	<UserPref name="ariaLabel" display_name="Aria Label"
+		datatype="string" />
 
 	<UserPref name="alternateContent"
-			  display_name="Alternate Content"
-			  datatype="string" />
+		display_name="Alternate Content" datatype="string" />
 
-	<CssPref name="rootclass"
-			 display_name="CSS Root Class"
-			 datatype="string" />
+	<CssPref name="rootclass" display_name="CSS Root Class"
+		datatype="string" />
 
 	<Code type="jexl">
 		<![CDATA[

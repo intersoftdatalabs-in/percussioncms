@@ -25,7 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+// Use Spring ORM LocalSessionFactoryBean (compatibility shim in Spring 7)
+import org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean;
 
 import java.util.Optional;
 

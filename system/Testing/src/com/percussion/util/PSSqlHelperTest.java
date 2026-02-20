@@ -18,6 +18,7 @@
 package com.percussion.util;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -25,22 +26,23 @@ import org.junit.jupiter.api.Test;
  *
  * @author     Paul Howard
  */
-public class PSSqlHelperTest extends TestCase
+public class PSSqlHelperTest
 {
    /**
     * This method tests PSSqlHelper.parseSqlName by supplying the various
     * possibilities of qname and verifying that it is parsed correctly.
     */
+
    public void testParseSqlName() throws Exception
    {
       String tableName = PSSqlHelper.parseTableName( null, null, null, null );
-      assertTrue(null != tableName && tableName.length() == 0 );
+      assertTrue(tableName != null && tableName.length() == 0 );
 
       tableName = PSSqlHelper.parseTableName( null, "", null, null );
       assertTrue(null != tableName && tableName.length() == 0 );
 
       tableName = PSSqlHelper.parseTableName( null, "foo", null, null );
-      assertTrue(null != tableName && tableName.equals("foo"));
+      assertTrue(tableName != null && tableName.equals("foo"));
 
       String [] drivers;
 
@@ -72,7 +74,7 @@ public class PSSqlHelperTest extends TestCase
          testQName( drivers[i], "db.owner.foo", "foo", "owner", "db" );
          testQName( drivers[i], "db..foo", "foo", "", "db" );
       }
-      
+
       // verify that leading 'oracle' doesn't use ORACLE case but default case
       testQName( "oraclefoo", "db.owner.foo", "foo", "owner", "db" );
 
@@ -81,13 +83,14 @@ public class PSSqlHelperTest extends TestCase
       // to the default pattern
       testQName( "DB2", "owner.foo", "foo", "owner", "" );
    }
-   
+
    /**
     * Test url construction.
     */
+
    public void testJdbcUrlGen()
    {
-      assertEquals("jdbc:oracle:thin:serverName", 
+      assertEquals("jdbc:oracle:thin:serverName",
          PSSqlHelper.getJdbcUrl("oracle:thin", "serverName"));
    }
 
@@ -116,21 +119,15 @@ public class PSSqlHelperTest extends TestCase
          String expectedOrigin, String expectedCatalog )
    {
       String tableName = PSSqlHelper.parseTableName( driver, qName, null, null);
-      assertTrue(driver + " couldn't parse table from " + qName + ".",
-            null != tableName && tableName.equals(expectedTable));
+      assertTrue(null != tableName && tableName.equals(expectedTable), driver + " couldn't parse table from " + qName + ".");
 
       StringBuilder originBuf = new StringBuilder();
       StringBuilder catBuf = new StringBuilder();
       tableName = PSSqlHelper.parseTableName( driver, qName, originBuf, catBuf);
-      assertTrue(driver + " couldn't parse table from " + qName + ".",
-            null != tableName && tableName.equals(expectedTable));
+      assertTrue(null != tableName && tableName.equals(expectedTable), driver + " couldn't parse table from " + qName + ".");
       String origin = originBuf.toString();
-      assertTrue(driver + " incorrectly parsed the origin. Expected '" +
-            expectedOrigin + "' got '" + origin + ".",
-            origin.equals(expectedOrigin));
+      assertTrue(origin.equals(expectedOrigin), driver + " incorrectly parsed the origin. Expected '" + expectedOrigin + "' got '" + origin + ".");
       String cat = catBuf.toString();
-      assertTrue(driver + " incorrectly parsed the catalog. Expected '" +
-            expectedCatalog + "' got '" + cat + ".",
-            cat.equals(expectedCatalog));
+      assertTrue(cat.equals(expectedCatalog), driver + " incorrectly parsed the catalog. Expected '" + expectedCatalog + "' got '" + cat + ".");
    }
 }

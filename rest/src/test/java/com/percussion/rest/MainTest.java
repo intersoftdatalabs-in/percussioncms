@@ -19,16 +19,16 @@ package com.percussion.rest;
 
 import static junit.framework.TestCase.assertTrue;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.percussion.rest.errors.RestExceptionMapper;
 import com.percussion.utils.testing.PSTestNetUtils;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import javax.ws.rs.Path;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -63,7 +63,7 @@ public class MainTest extends AbstractJUnit4SpringContextTests {
     WebTarget target =
         builder
             .build()
-            .register(com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider.class)
+            .register(com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider.class)
             .target(endpoint)
             .path(address);
 

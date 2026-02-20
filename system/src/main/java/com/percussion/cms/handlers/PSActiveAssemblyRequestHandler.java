@@ -19,8 +19,10 @@ package com.percussion.cms.handlers;
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSActiveAssemblerHandlerRequest;
+import com.percussion.cms.objectstore.PSDependentSet;
 import com.percussion.cms.objectstore.server.PSActiveAssemblerProcessor;
 import com.percussion.conn.PSServerException;
+import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.error.PSException;
 import com.percussion.error.PSStandaloneException;
@@ -102,7 +104,8 @@ public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
             processor.reorder(
                 requestDoc.getOwner(), requestDoc.getDependents(), requestDoc.getIndex());
           } else if (command.equals(DELETE)) {
-            processor.delete(requestDoc.getOwner(), requestDoc.getDependents());
+            // Use helper method to disambiguate overloaded delete
+            deleteForActiveAssembler(processor, requestDoc.getOwner(), requestDoc.getDependents());
           } else {
             // unknown command
             throw new PSCmsException(IPSCmsErrors.UNKNOWN_AA_COMMAND, command);
@@ -210,6 +213,14 @@ public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
 
   /** Name of this handler. */
   public static final String HANDLER = "AAHandler";
+
+  /** Helper to ensure the correct overloaded delete is selected without using reflection. */
+  private void deleteForActiveAssembler(
+      PSActiveAssemblerProcessor processor, PSLocator owner, PSDependentSet dependents)
+      throws PSCmsException {
+    // Use explicit typed helper on the processor to avoid overload ambiguity and reflection
+    processor.deleteDependents(owner, dependents);
+  }
 
   /** The command parameter expected for inserts. */
   public static final String INSERT = "insert";

@@ -19,7 +19,7 @@ package com.percussion.services.guidmgr;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
-import javax.annotation.concurrent.ThreadSafe;
+
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author dougrand
  * @since Java 11 Modernization
  */
-@ThreadSafe
+
 public class PSGuidManagerLocator extends PSBaseServiceLocator {
 
     private static final AtomicReference<IPSGuidManager> GUID_MANAGER_REF =

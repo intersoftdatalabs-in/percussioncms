@@ -24,11 +24,11 @@ import java.util.Map;
 /**
  * Test the move action methods
  */
-@Tag("IntegrationTest")
+
 public class PSMoveActionTest extends PSAAClientActionTestBase
 {
-   
-   
+
+
    public void testMove() throws Exception
    {
       doCheckErrors();
@@ -36,15 +36,15 @@ public class PSMoveActionTest extends PSAAClientActionTestBase
       doReorder();
       doUp();
       doDown();
-      
+
    }
-   
+
    protected void doCheckErrors()
    {
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
       IPSAAClientAction action = factory.getAction("Move");
-      Map<String, Object> params = new HashMap<String, Object>();      
-      
+      Map<String, Object> params = new HashMap<String, Object>();
+
       // Test objectid not supplied
       try
       {
@@ -55,13 +55,13 @@ public class PSMoveActionTest extends PSAAClientActionTestBase
       {
          String msg = e.getLocalizedMessage();
          assertEquals(msg, "Required objectid does not exist.");
-      }     
-      
-      
+      }
+
+
       // Test mode not supplied
       try
       {
-         params.clear();         
+         params.clear();
          params.put(IPSAAClientAction.OBJECT_ID_PARAM, TEST_OBJECTID);
          action.execute(params);
          fail();
@@ -71,7 +71,7 @@ public class PSMoveActionTest extends PSAAClientActionTestBase
          String msg = e.getLocalizedMessage();
          assertEquals(msg, "Missing required mode parameter.");
       }
-      
+
       // Test invalid mode
       try
       {
@@ -86,13 +86,13 @@ public class PSMoveActionTest extends PSAAClientActionTestBase
          String msg = e.getLocalizedMessage();
          assertEquals(msg, "Invalid mode! Must be 'up', 'down' or 'reorder'.");
       }
-      
+
       // Test missing index param
       try
       {
          params.clear();
          params.put(IPSAAClientAction.OBJECT_ID_PARAM, TEST_OBJECTID);
-         params.put(PARAM_MODE, "reorder");         
+         params.put(PARAM_MODE, "reorder");
          action.execute(params);
          fail();
       }
@@ -101,7 +101,7 @@ public class PSMoveActionTest extends PSAAClientActionTestBase
          String msg = e.getLocalizedMessage();
          assertEquals(msg, "index parameter required when using reorder mode.");
       }
-      
+
       // Test invalid index param
       try
       {
@@ -116,28 +116,28 @@ public class PSMoveActionTest extends PSAAClientActionTestBase
       {
          String msg = e.getLocalizedMessage();
          assertEquals(msg, "Invalid format! index must be an integer.");
-      }      
+      }
    }
-   
-   
-   
+
+
+
    protected void doUp() throws Exception
    {
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
       IPSAAClientAction action = factory.getAction("Move");
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(PARAM_MODE, "up");
-      params.put(IPSAAClientAction.OBJECT_ID_PARAM, TEST_OBJECTID);      
+      params.put(IPSAAClientAction.OBJECT_ID_PARAM, TEST_OBJECTID);
       PSActionResponse aresponse = null;
       aresponse = action.execute(params);
       assertEquals(IPSAAClientAction.SUCCESS, aresponse.getResponseData());
-      PSAaRelationship r = 
+      PSAaRelationship r =
          new PSAaRelationship(
                  ModifyRelatedContentUtils.getRelationship(REL_ID, getRequestContext()));
-      assertEquals(r.getSortRank(), 1);       
-      
+      assertEquals(r.getSortRank(), 1);
+
    }
-   
+
    protected void doDown() throws Exception
    {
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
@@ -148,13 +148,13 @@ public class PSMoveActionTest extends PSAAClientActionTestBase
       PSActionResponse aresponse = null;
       aresponse = action.execute(params);
       assertEquals(IPSAAClientAction.SUCCESS, aresponse.getResponseData());
-      PSAaRelationship r = 
+      PSAaRelationship r =
          new PSAaRelationship(
                  ModifyRelatedContentUtils.getRelationship(REL_ID, getRequestContext()));
-      assertEquals(r.getSortRank(), 2);        
-        
+      assertEquals(r.getSortRank(), 2);
+
    }
-   
+
    protected void doReorder() throws Exception
    {
       PSAAClientActionFactory factory = PSAAClientActionFactory.getInstance();
@@ -166,14 +166,14 @@ public class PSMoveActionTest extends PSAAClientActionTestBase
       PSActionResponse aresponse = null;
       aresponse = action.execute(params);
       assertEquals(IPSAAClientAction.SUCCESS, aresponse.getResponseData());
-      PSAaRelationship r = 
+      PSAaRelationship r =
          new PSAaRelationship(
                  ModifyRelatedContentUtils.getRelationship(REL_ID, getRequestContext()));
-      assertEquals(r.getSortRank(), 2);    
+      assertEquals(r.getSortRank(), 2);
    }
-   
+
    private static final int REL_ID = 1732;
-   private static final String TEST_OBJECTID = 
+   private static final String TEST_OBJECTID =
       makeJSONArrayString("1","1","1","1","1","1","1","1","1","1","1",String.valueOf(REL_ID),"1");
    private static final String PARAM_MODE = "mode";
    private static final String PARAM_INDEX = "index";

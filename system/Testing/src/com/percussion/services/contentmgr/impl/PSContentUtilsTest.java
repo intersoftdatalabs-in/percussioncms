@@ -16,18 +16,20 @@
  */
 package com.percussion.services.contentmgr.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test some content utils methods
- * 
+ *
  * @author dougrand
  */
-public class PSContentUtilsTest extends TestCase
+public class PSContentUtilsTest
 {
    /**
     * Check that pattern matching is correct for the collection ref method
     */
+   @Test
    public void testIdCollectionCheck()
    {
       assertTrue(PSContentUtils.isIdCollectionRef("t1.a.b"));

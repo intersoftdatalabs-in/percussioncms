@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * @author JaySeletz
  */
-@Tag("IntegrationTest")
+
 public class PSLocalDeployerClientTest extends ServletTestCase {
 
   private static final String PKG_DIR = "Packages/Percussion";

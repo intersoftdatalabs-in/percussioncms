@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/assemblyDesign" xmlns:asmd="urn:www.percussion.com/6.0.0/assemblyDesign" xmlns:asms="urn:www.percussion.com/6.0.0/assemblyServices" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:flt="urn:www.percussion.com/6.0.0/faults" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/common" schemaLocation="../common.xsd"/>
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/assemblyServices" schemaLocation="assemblyServices.xsd"/>
+<xsd:schema targetNamespace="urn:www.percussion.com/8.2.0/assemblyDesign" xmlns:asmd="urn:www.percussion.com/8.2.0/assemblyDesign" xmlns:asms="urn:www.percussion.com/8.2.0/assemblyServices" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:flt="urn:www.percussion.com/8.2.0/faults" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/common" schemaLocation="../common.xsd"/>
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/assemblyServices" schemaLocation="assemblyServices.xsd"/>
    <xsd:element name="CreateSlotsRequest">
       <xsd:complexType>
          <xsd:sequence>

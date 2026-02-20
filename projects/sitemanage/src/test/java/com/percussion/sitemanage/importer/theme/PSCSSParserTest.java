@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author Ignacio Erro, Sunny Sal (refactored)
  */
-@Tag("IntegrationTest")
+
 class PSCSSParserTest {
 
   private static final String BASE_URL = "http://generic:8080";

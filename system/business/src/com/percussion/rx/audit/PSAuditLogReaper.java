@@ -63,7 +63,6 @@ public class PSAuditLogReaper extends Thread {
     * hours between attempts.
     */
    @Override
-    @Override
     public void run() {
         ms_log.info("Starting Design Audit Log Reaper");
         try {

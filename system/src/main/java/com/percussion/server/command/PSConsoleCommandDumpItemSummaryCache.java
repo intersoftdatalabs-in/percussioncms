@@ -112,7 +112,13 @@ public class PSConsoleCommandDumpItemSummaryCache extends PSConsoleCommandCache 
 
       IPSItemEntry item = cache.getItem(id);
       if (item != null) {
-        cacheElm = item.toXml(doc);
+        Element itemEl = doc.createElement("PSXItemEntry");
+        itemEl.setAttribute("name", item.getName() == null ? "" : item.getName());
+        itemEl.setAttribute("contentId", String.valueOf(item.getContentId()));
+        itemEl.setAttribute("contentTypeId", String.valueOf(item.getContentTypeId()));
+        if (item.getLastModifiedDate() != null)
+          itemEl.setAttribute("lastModified", String.valueOf(item.getLastModifiedDate().getTime()));
+        cacheElm = itemEl;
       } else {
         throw new PSConsoleCommandException(
             IPSServerErrors.CANNOT_FIND_CACHED_ITEMSUMMARY, new Object[] {new Integer(id)});

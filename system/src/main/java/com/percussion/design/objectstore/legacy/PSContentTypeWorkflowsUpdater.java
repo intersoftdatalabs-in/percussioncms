@@ -177,18 +177,31 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
     long cTypeId = editor.getContentType();
     IPSGuid ctypeGuid = new PSGuid(PSTypeEnum.NODEDEF, cTypeId);
     IPSAclService aclService = PSAclServiceLocator.getAclService();
-    IPSAcl ctypeAcl = aclService.loadAclForObject(ctypeGuid);
+    IPSAcl ctypeAcl;
+    try {
+      ctypeAcl = aclService.loadAclForObject(ctypeGuid);
+    } catch (com.percussion.services.security.PSServiceSecurityException e) {
+      Logger log = LogManager.getLogger(this.getClass());
+      log.warn("Failed to load ACL for content type {}: {}", cTypeId, e.getMessage());
+      return wfGuids;
+    }
     // Get the list of communities from Security Manager
     IPSBackEndRoleMgr roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
-    List<PSCommunity> communities = roleMgr.findCommunitiesByName(null);
     Map<String, IPSGuid> comms = new HashMap<>();
-    for (PSCommunity comm : communities) comms.put(comm.getName(), comm.getGUID());
-    // Get the visible communities from PSSecurityUtils class
-    List<String> lst = new ArrayList<>(comms.keySet());
-    List<String> filteredComms = PSSecurityUtils.getVisibleCommunities(ctypeAcl, lst);
-    IPSAclService service = PSAclServiceLocator.getAclService();
+    try {
+      List<PSCommunity> communities = roleMgr.findCommunitiesByName(null);
+      for (PSCommunity comm : communities) comms.put(comm.getName(), comm.getGUID());
+      // Get the visible communities from PSSecurityUtils class
+      List<String> lst = new ArrayList<>(comms.keySet());
+      List<String> filteredComms = PSSecurityUtils.getVisibleCommunities(ctypeAcl, lst);
+      IPSAclService service = PSAclServiceLocator.getAclService();
 
-    wfGuids.addAll(service.findObjectsVisibleToCommunities(filteredComms, PSTypeEnum.WORKFLOW));
+      wfGuids.addAll(service.findObjectsVisibleToCommunities(filteredComms, PSTypeEnum.WORKFLOW));
+    } catch (Exception e) {
+      // If we cannot read security info, log and return empty workflows
+      Logger log = LogManager.getLogger(this.getClass());
+      log.warn("Failed to get visible communities: " + e.getMessage());
+    }
     return wfGuids;
   }
 

@@ -2,36 +2,53 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rxs_Image_ce" dependencyType="Local" displayName="rxs_Image_ce" isIncluded="yes" objectType="Application" objectTypeName="Application" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
-   <PSXApplicationIDTypesResource resourceName="Image (template)">
-      <PSXApplicationIDTypesElement elementName="CEField">
-         <PSXApplicationIDTypeMapping type="VariantDef" value="324">
-            <PSXAppCEItemIdContext type="DefaultValue">
-               <PSXAppNamedItemIdContext name="default_variantid" type="CEField">
-                  <PSXAppNamedItemIdContext name="shared" type="FieldSet">
-                     <PSXAppNamedItemIdContext name="RXS_CT_Image" type="FieldSet"/>
-                  </PSXAppNamedItemIdContext>
-               </PSXAppNamedItemIdContext>
-            </PSXAppCEItemIdContext>
-         </PSXApplicationIDTypeMapping>
-      </PSXApplicationIDTypesElement>
-      <PSXApplicationIDTypesElement elementName="CEUIDefinition">
-         <PSXApplicationIDTypeMapping type="ContentType" value="307">
-            <PSXAppNamedItemIdContext name="sys_contenttypeid" type="Param">
-               <PSXAppUrlRequestIdContext href="../rxs_Support_ce/rxs_PageVariantLookup.xml">
-                  <PSXAppCEItemIdContext type="Choices">
-                     <PSXAppUISetIdContext>
-                        <PSXAppNamedItemIdContext name="default_variantid" type="DisplayMapping">
-                           <PSXAppDisplayMapperIdContext fieldSetRef="RXS_CT_Image" id="0"/>
-                        </PSXAppNamedItemIdContext>
-                     </PSXAppUISetIdContext>
-                  </PSXAppCEItemIdContext>
-               </PSXAppUrlRequestIdContext>
-            </PSXAppNamedItemIdContext>
-         </PSXApplicationIDTypeMapping>
-      </PSXApplicationIDTypesElement>
-   </PSXApplicationIDTypesResource>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="rxs_Image_ce" dependencyType="Local"
+			displayName="rxs_Image_ce" isIncluded="yes" objectType="Application"
+			objectTypeName="Application" supportsIdMapping="no"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
+	<PSXApplicationIDTypesResource
+		resourceName="Image (template)">
+		<PSXApplicationIDTypesElement
+			elementName="CEField">
+			<PSXApplicationIDTypeMapping
+				type="VariantDef" value="324">
+				<PSXAppCEItemIdContext type="DefaultValue">
+					<PSXAppNamedItemIdContext
+						name="default_variantid" type="CEField">
+						<PSXAppNamedItemIdContext name="shared"
+							type="FieldSet">
+							<PSXAppNamedItemIdContext
+								name="RXS_CT_Image" type="FieldSet" />
+						</PSXAppNamedItemIdContext>
+					</PSXAppNamedItemIdContext>
+				</PSXAppCEItemIdContext>
+			</PSXApplicationIDTypeMapping>
+		</PSXApplicationIDTypesElement>
+		<PSXApplicationIDTypesElement
+			elementName="CEUIDefinition">
+			<PSXApplicationIDTypeMapping
+				type="ContentType" value="307">
+				<PSXAppNamedItemIdContext
+					name="sys_contenttypeid" type="Param">
+					<PSXAppUrlRequestIdContext
+						href="../rxs_Support_ce/rxs_PageVariantLookup.xml">
+						<PSXAppCEItemIdContext type="Choices">
+							<PSXAppUISetIdContext>
+								<PSXAppNamedItemIdContext
+									name="default_variantid" type="DisplayMapping">
+									<PSXAppDisplayMapperIdContext
+										fieldSetRef="RXS_CT_Image" id="0" />
+								</PSXAppNamedItemIdContext>
+							</PSXAppUISetIdContext>
+						</PSXAppCEItemIdContext>
+					</PSXAppUrlRequestIdContext>
+				</PSXAppNamedItemIdContext>
+			</PSXApplicationIDTypeMapping>
+		</PSXApplicationIDTypesElement>
+	</PSXApplicationIDTypesResource>
 </PSXApplicationIDTypes>

@@ -20,6 +20,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -28,7 +29,7 @@ import org.w3c.dom.Element;
 /**
  * Tests the basic functionality of the <code>PSServerCacheSettings</code> class.
  */
-public class PSServerCacheSettingsTest extends TestCase
+public class PSServerCacheSettingsTest
 {
    /**
     * Constructs an instance of this class to run the test implemented by the
@@ -36,21 +37,12 @@ public class PSServerCacheSettingsTest extends TestCase
     *
     * @param methodName name of the method that implements a test
     */
-   public PSServerCacheSettingsTest(String name)
-   {
-      super( name );
-   }
+
 
    /**
     * Collects all the tests implemented by this class into a single suite.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest( new PSServerCacheSettingsTest( "testCtors" ) );
-      suite.addTest( new PSServerCacheSettingsTest( "testXml" ) );
-      return suite;
-   }
+
 
 
    /**
@@ -58,12 +50,14 @@ public class PSServerCacheSettingsTest extends TestCase
     * default values to the members of the object and rejects invalid
     * parameters.
     */
+
+   @Test
    public void testCtors() throws Exception
    {
       PSServerCacheSettings cacheSettings = new PSServerCacheSettings();
 
       //Make sure by default it is disabled.
-      assertTrue( !cacheSettings.isEnabled());
+      assertFalse(cacheSettings.isEnabled());
       assertEquals( cacheSettings.getMaxMemoryUsage(), 100*1024*1024); //100MB
       assertEquals( cacheSettings.getMaxDiskUsage(), 1024*1024*1024); //1GB
       assertEquals( cacheSettings.getMaxPageSize(), 100*1024); //100 KB Size
@@ -75,7 +69,7 @@ public class PSServerCacheSettingsTest extends TestCase
       assertTrue( cacheSettings.isEnabled());
       assertEquals( cacheSettings.getMaxMemoryUsage(), 10*1024*1024); //10MB
       assertEquals( cacheSettings.getMaxDiskUsage(), 100*1024*1024); //100 MB
-      assertEquals( cacheSettings.getMaxPageSize(), 100*1024); //100 KB      
+      assertEquals( cacheSettings.getMaxPageSize(), 100*1024); //100 KB
       assertEquals( cacheSettings.getAgingTime(), 300); //300 minutes
 
       //maximum memory usage can not be < -1
@@ -86,10 +80,10 @@ public class PSServerCacheSettingsTest extends TestCase
 
       //Both memory usage and disk usage can not be zero
       testFailCtor( true, true, 0, 0, 100*1024, 300 );
-      
+
       //maximum page size can not be < -1
       testFailCtor( true, true, 10*1024*1024, 100*1024*1024, -2, 300 );
-      
+
       //maximum page size can not be zero
       testFailCtor( true, true, 10*1024*1024, 100*1024*1024, 0, 300 );
 
@@ -112,14 +106,14 @@ public class PSServerCacheSettingsTest extends TestCase
     * @param pageSize the parameter required for creating the object.
     * @param agingTime the parameter required for creating the object.
     */
-   private void testFailCtor(boolean enabled, boolean folderCacheEnabled, 
+   private void testFailCtor(boolean enabled, boolean folderCacheEnabled,
       long memUsage, long diskUsage, long pageSize, long agingTime)
    {
       boolean didThrow = false;
       try
       {
          PSServerCacheSettings cacheSettings = new PSServerCacheSettings(
-            enabled, folderCacheEnabled, memUsage, diskUsage, pageSize, 
+            enabled, folderCacheEnabled, memUsage, diskUsage, pageSize,
             agingTime);
       }
       catch(IllegalArgumentException e)
@@ -144,6 +138,8 @@ public class PSServerCacheSettingsTest extends TestCase
     * </ol>
     * @throws Exception
     */
+
+   @Test
    public void testXml() throws Exception
    {
       //Test through xml everything got initialized properly.
@@ -165,16 +161,16 @@ public class PSServerCacheSettingsTest extends TestCase
       assertEquals(cacheSettings, otherCacheSet);
 
       //maximum memory usage can not be a string
-      testFailXml( true, true, "test", String.valueOf(100*1024*1024), 
+      testFailXml( true, true, "test", String.valueOf(100*1024*1024),
          String.valueOf(100*1024), "300" );
 
       //maximum disk space usage can not be a string
-      testFailXml( true, true, String.valueOf(10*1024*1024), "test", 
+      testFailXml( true, true, String.valueOf(10*1024*1024), "test",
          String.valueOf(100*1024), "300" );
-         
+
       //maximum page size can not be a string
-      testFailXml( true, true, String.valueOf(10*1024*1024), 
-         String.valueOf(100*1024*1024), "test", "300" );         
+      testFailXml( true, true, String.valueOf(10*1024*1024),
+         String.valueOf(100*1024*1024), "test", "300" );
 
       //Cache aging time can not be a string
       testFailXml( true, true, String.valueOf(10*1024*1024),
@@ -194,7 +190,7 @@ public class PSServerCacheSettingsTest extends TestCase
       copy = (Element)cacheEl.cloneNode(true);
       copy.removeAttribute("maxDiskSpace");
       testFailXml( copy );
-      
+
       //missing "maxPageSize" attribute
       copy = (Element)cacheEl.cloneNode(true);
       copy.removeAttribute("maxPageSize");
@@ -281,7 +277,7 @@ public class PSServerCacheSettingsTest extends TestCase
          root.setAttribute("folderCacheEnabled", "no");
       root.setAttribute("maxMemory", memUsage);
       root.setAttribute("maxDiskSpace", diskUsage);
-      root.setAttribute("maxPageSize", pageSize);      
+      root.setAttribute("maxPageSize", pageSize);
       root.setAttribute("agingTime", agingTime);
 
       return root;

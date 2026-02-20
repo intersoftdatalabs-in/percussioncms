@@ -22,7 +22,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.services.utils.jspel.PSRoleUtilities;
 import com.percussion.utils.request.PSRequestInfo;
 
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;

@@ -87,7 +87,7 @@ public class PSTaskLogNode extends PSLockableNode {
          */
         public String showDetail() {
             m_detailLog = this;
-            var detailLog = getService().findTaskLogById(mi_log.getId());
+            var detailLog = getService().findTaskLogById(mi_log.getId()).orElse(null);
             if (detailLog != null) mi_log = detailLog;
             return "admin-scheduled-task-detail-log";
         }

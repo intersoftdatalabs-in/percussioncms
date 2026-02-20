@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="593" dependencyType="Shared" displayName="Investors Must Manage Advisor Relationship  " isIncluded="no" objectType="ContentDef" objectTypeName="Content Item" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="593" dependencyType="Shared"
+			displayName="Investors Must Manage Advisor Relationship  "
+			isIncluded="no" objectType="ContentDef" objectTypeName="Content Item"
+			supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

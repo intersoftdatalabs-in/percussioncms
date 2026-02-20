@@ -184,14 +184,14 @@ public class PSActionExecutor implements IPSWidgetHandler {
    }
 
    /**
-    * 
+    *
     * @param request
     * @param response
     * @throws Exception
     */
    @SuppressWarnings("unused")
    private void executeAssemblyAction(HttpServletRequest httpRequest,
-      HttpServletResponse response) throws Throwable
+      HttpServletResponse response) throws Exception
    {
       PSRequest req = (PSRequest) PSRequestInfo
          .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
@@ -265,8 +265,14 @@ public class PSActionExecutor implements IPSWidgetHandler {
          PSAssemblerUtils autils = new PSAssemblerUtils();
          Map<String, Object> p = new HashMap<>();
          p.put(IPSHtmlParameters.SYS_COMMAND, "editrc");
-         List<IPSAssemblyItem> ais = autils.getSlotItems(aItem, slotObj, p);
-         List<IPSAssemblyResult> results = autils.assemble(aItem, slotObj, p);
+         List<IPSAssemblyItem> ais;
+         List<IPSAssemblyResult> results;
+         try {
+            ais = autils.getSlotItems(aItem, slotObj, p);
+            results = autils.assemble(aItem, slotObj, p);
+         } catch (Throwable t) {
+            throw new Exception("Failed to assemble slot items", t);
+         }
          PSAaClientServlet.pushResponse(response, assembleSlotItems(slotObj,
             ais, results, true, false), "text/plain", 200);
       }
@@ -381,12 +387,12 @@ public class PSActionExecutor implements IPSWidgetHandler {
    }
 
    /**
-    * Returns content included between body tags. 
+    * Returns content included between body tags.
     * @param result the result to retrieve body content from.
     * Not <code>null</code>.
     * @return the result content. Not <code>null</code>
     * @throws UnsupportedEncodingException if the result string charset is not
-    * supported. 
+    * supported.
     */
    String getSnippetBody(IPSAssemblyResult result)
          throws UnsupportedEncodingException
@@ -660,7 +666,7 @@ public class PSActionExecutor implements IPSWidgetHandler {
 
    /**
     * gets the Active Assembly processor proxy for this relationship walker.
-    * 
+    *
     * @return the Active Assembly Processor Proxy, never <code>null</code>.
     * @throws PSCmsException if the proxy cannot be created.
     */
@@ -678,7 +684,7 @@ public class PSActionExecutor implements IPSWidgetHandler {
 
    /**
     * Gets the Component Processor Proxy for this relationship walker.
-    * 
+    *
     * @return Returns the m_compProxy, never <code>null</code>.
     * @throws PSCmsException if the proxy cannot be created.
     */

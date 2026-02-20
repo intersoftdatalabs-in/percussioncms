@@ -2,9 +2,9 @@
 
 
 <!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Melissa Morin (Percussion Software) -->
-<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/systemDesign" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flt="urn:www.percussion.com/6.0.0/faults" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:sys="urn:www.percussion.com/6.0.0/system" xmlns:sysd="urn:www.percussion.com/6.0.0/systemDesign" elementFormDefault="qualified" attributeFormDefault="unqualified">
-	<xsd:import namespace="urn:www.percussion.com/6.0.0/common" schemaLocation="../common.xsd"/>
-	<xsd:import namespace="urn:www.percussion.com/6.0.0/system" schemaLocation="systemServices.xsd"/>
+<xsd:schema targetNamespace="urn:www.percussion.com/8.2.0/systemDesign" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flt="urn:www.percussion.com/8.2.0/faults" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:sys="urn:www.percussion.com/8.2.0/system" xmlns:sysd="urn:www.percussion.com/8.2.0/systemDesign" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:import namespace="urn:www.percussion.com/8.2.0/common" schemaLocation="../common.xsd"/>
+	<xsd:import namespace="urn:www.percussion.com/8.2.0/system" schemaLocation="systemServices.xsd"/>
 	<xsd:element name="LoadSharedPropertiesRequest">
 		<xsd:complexType>
 			<xsd:sequence>

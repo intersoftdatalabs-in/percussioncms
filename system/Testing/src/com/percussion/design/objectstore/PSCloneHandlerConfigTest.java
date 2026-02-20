@@ -20,6 +20,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,25 +33,23 @@ import java.io.InputStream;
 import java.util.Iterator;
 
 /**
- * Unit test for the {@link PSCloneHandlerConfigSet} and 
+ * Unit test for the {@link PSCloneHandlerConfigSet} and
  * {@link PSCloneHandlerConfigTest} class.
  */
-public class PSCloneHandlerConfigTest extends TestCase
+public class PSCloneHandlerConfigTest
 {
 
    private static final Logger log = LogManager.getLogger(PSCloneHandlerConfigTest.class);
 
    // see base class
-   public PSCloneHandlerConfigTest(String name)
-   {
-      super(name);
-   }
- 
+
+
    /**
     * Test to/from XML methods.
-    * 
+    *
     * @throws Exception if any errors occur.
-    */  
+    */
+   @Test
    public void test() throws Exception
    {
       PSCloneHandlerConfigSet configSet = null;
@@ -65,20 +64,20 @@ public class PSCloneHandlerConfigTest extends TestCase
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         assertTrue("PSCloneHandlerConfigSet ctor failed", false);
+         fail("PSCloneHandlerConfigSet ctor failed");
       }
-      
+
       try
       {
          Iterator configs = configSet.iterator();
          while (configs.hasNext())
          {
             PSCloneHandlerConfig config = (PSCloneHandlerConfig) configs.next();
-            
+
             Document doc = PSXmlDocumentBuilder.createXmlDocument();
             Element elem = config.toXml(doc);
             doc.appendChild(elem);
-            
+
             System.out.println("\n\nConfiguration: " + config.getName());
             System.out.println(PSXmlDocumentBuilder.toString(doc));
          }
@@ -87,17 +86,12 @@ public class PSCloneHandlerConfigTest extends TestCase
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         assertTrue("PSCloneHandlerConfigSet toXml failed", false);
+         fail("PSCloneHandlerConfigSet toXml failed");
       }
    }
-   
+
    // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSCloneHandlerConfigTest("test"));
-      return suite;
-   }
+
 
    /**
     * Defines the path to the files used by this unit test, relative from the

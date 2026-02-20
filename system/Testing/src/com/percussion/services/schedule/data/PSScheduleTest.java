@@ -22,6 +22,7 @@ import com.percussion.services.schedule.data.PSScheduledTask.ByLabelComparator;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
@@ -57,7 +58,7 @@ public class PSScheduleTest extends PSScheduleTestBase
    public void testSetIdWrongType()
    {
       new PSGuid(HOST_ID, PSTypeEnum.SCHEDULED_TASK, UUID);
-      
+
       final PSScheduledTask schedule = new PSScheduledTask();
       try
       {
@@ -66,7 +67,7 @@ public class PSScheduleTest extends PSScheduleTestBase
       }
       catch (IllegalArgumentException expected) {}
    }
-   
+
    public void testEqualsHash()
    {
       // no ids
@@ -83,7 +84,7 @@ public class PSScheduleTest extends PSScheduleTestBase
       s2.setId(s1.getId());
       assertEquals(s1, s2);
       assertEquals(s1.hashCode(), s2.hashCode());
-      
+
       // other fields do not affect hash code
       assertEquals(s1, createFullSchedule());
       assertEquals(s1.hashCode(), createFullSchedule().hashCode());

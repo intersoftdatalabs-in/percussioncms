@@ -97,7 +97,7 @@
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
-                            <!-- <yuiDisableOptimizations>true</yuiDisableOptimizations>-->
+                            <!-- <yuiDisableOptimizations>true</yuiDisableOptimizations> -->
                             <webappSourceDir>${basedir}/src/main/resources/META-INF/resources</webappSourceDir>
                             <webappTargetDir>${project.build.outputDirectory}/META-INF/resources</webappTargetDir>
                             <skipMerge>true</skipMerge>

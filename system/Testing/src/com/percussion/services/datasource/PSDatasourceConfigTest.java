@@ -20,29 +20,28 @@ import com.percussion.utils.jdbc.PSDatasourceConfig;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 
 /**
  * Unit test for the {@link PSDatasourceConfig} class.
  */
-public class PSDatasourceConfigTest extends TestCase
+public class PSDatasourceConfigTest 
 {
    /**
     * Construct a test case
     * 
     * @param name The name of the test.
     */
-   public PSDatasourceConfigTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Test constructors 
     * 
     * @throws Exception If there are any errors or failures.
     */
+   
    public void testCtor() throws Exception
    {
       String name = "test";
@@ -123,6 +122,7 @@ public class PSDatasourceConfigTest extends TestCase
     * 
     * @throws Exception If there are any errors or failures.
     */
+   
    public void testAccessors() throws Exception
    {
       String name = "test";
@@ -216,6 +216,7 @@ public class PSDatasourceConfigTest extends TestCase
     * 
     * @throws Exception If there are any errors or failures.
     */
+   
    public void testEquals() throws Exception
    {
       String name = "test";
@@ -233,49 +234,49 @@ public class PSDatasourceConfigTest extends TestCase
       
       config1 = new PSDatasourceConfig(name, dsName, origin, database);
       config2 = new PSDatasourceConfig(name, dsName, origin, database);
-      assertTrue(config1.equals(config2));
-      assertTrue(config2.equals(config1));
+      assertEquals(config1, config2);
+      assertEquals(config2, config1);
       
       config2.setName(name2);
-      assertTrue(!config1.equals(config2));
-      assertTrue(!config2.equals(config1));
+      assertFalse(config1.equals(config2));
+      assertFalse(config2.equals(config1));
       
       config2.setName(name);
       config2.setDataSource(dsName2);
-      assertTrue(!config1.equals(config2));
-      assertTrue(!config2.equals(config1));
+      assertFalse(config1.equals(config2));
+      assertFalse(config2.equals(config1));
 
       config2.setDataSource(dsName);
       config2.setOrigin(origin2);
-      assertTrue(!config1.equals(config2));
-      assertTrue(!config2.equals(config1));
+      assertFalse(config1.equals(config2));
+      assertFalse(config2.equals(config1));
 
       config2.setOrigin(origin);
-      assertTrue(config1.equals(config2));
-      assertTrue(config2.equals(config1));
+      assertEquals(config1, config2);
+      assertEquals(config2, config1);
       
       config1.setOrigin(null);
       config2.setOrigin("");
-      assertTrue(config1.equals(config2));
-      assertTrue(config2.equals(config1));
+      assertEquals(config1, config2);
+      assertEquals(config2, config1);
       
       config2.setOrigin(origin);
-      assertTrue(!config1.equals(config2));
-      assertTrue(!config2.equals(config1));
+      assertFalse(config1.equals(config2));
+      assertFalse(config2.equals(config1));
       
       config1.setOrigin(origin);
       config2.setDatabase(database2);
-      assertTrue(!config1.equals(config2));
-      assertTrue(!config2.equals(config1));
+      assertFalse(config1.equals(config2));
+      assertFalse(config2.equals(config1));
       
       config1.setDatabase(null);
       config2.setDatabase("");
-      assertTrue(config1.equals(config2));
-      assertTrue(config2.equals(config1));
+      assertEquals(config1, config2);
+      assertEquals(config2, config1);
       
       config2.setDatabase(database);
-      assertTrue(!config1.equals(config2));
-      assertTrue(!config2.equals(config1));      
+      assertFalse(config1.equals(config2));
+      assertFalse(config2.equals(config1));      
    }
    
    /**
@@ -283,6 +284,7 @@ public class PSDatasourceConfigTest extends TestCase
     * 
     * @throws Exception If there are any errors or failures.
     */
+   
    public void testCopy() throws Exception
    {
       String name = "test";
@@ -317,6 +319,7 @@ public class PSDatasourceConfigTest extends TestCase
     * 
     * @throws Exception If there are any errors or failures.
     */
+   
    public void testXml() throws Exception
    {
       String name = "test";

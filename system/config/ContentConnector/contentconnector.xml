@@ -22,7 +22,9 @@
 		<Password encrypted="no">demo</Password>
 	</Connection>
 	<Selectors>
-		<PSXContentSelectorDef name="File Selector for migration" class="com.percussion.loader.selector.PSFileSelector">
+		<PSXContentSelectorDef
+			name="File Selector for migration"
+			class="com.percussion.loader.selector.PSFileSelector">
 			<Properties>
 				<PSXProperty name="Calculate checksum">
 					<Value>no</Value>
@@ -46,7 +48,9 @@
 				</PSXSearchRoot>
 			</PSXSearchRoots>
 		</PSXContentSelectorDef>
-		<PSXContentSelectorDef name="File Selector for syndication" class="com.percussion.loader.selector.PSFileSelector">
+		<PSXContentSelectorDef
+			name="File Selector for syndication"
+			class="com.percussion.loader.selector.PSFileSelector">
 			<Properties>
 				<PSXProperty name="Calculate checksum">
 					<Value>yes</Value>
@@ -70,7 +74,9 @@
 				</PSXSearchRoot>
 			</PSXSearchRoots>
 		</PSXContentSelectorDef>
-		<PSXContentSelectorDef name="List Selector for migration" class="com.percussion.loader.selector.PSListContentSelector">
+		<PSXContentSelectorDef
+			name="List Selector for migration"
+			class="com.percussion.loader.selector.PSListContentSelector">
 			<Properties>
 				<PSXProperty name="ContentList">
 					<Value>c:\ListSelector.xml</Value>
@@ -80,7 +86,9 @@
 				</PSXProperty>
 			</Properties>
 		</PSXContentSelectorDef>
-		<PSXContentSelectorDef name="List Selector for syndication" class="com.percussion.loader.selector.PSListContentSelector">
+		<PSXContentSelectorDef
+			name="List Selector for syndication"
+			class="com.percussion.loader.selector.PSListContentSelector">
 			<Properties>
 				<PSXProperty name="ContentList">
 					<Value>c:\ListSelector.xml</Value>
@@ -92,7 +100,8 @@
 		</PSXContentSelectorDef>
 	</Selectors>
 	<Extractors>
-		<PSXExtractorDef name="$rximage" type="staticItem" class="com.percussion.loader.extractor.PSStaticItemExtractor">
+		<PSXExtractorDef name="$rximage" type="staticItem"
+			class="com.percussion.loader.extractor.PSStaticItemExtractor">
 			<Properties>
 				<PSXProperty name="ContextVariableName">
 					<Value>rximage</Value>
@@ -106,13 +115,13 @@
 			</Properties>
 			<MimeTypes>
 				<PSXMimeTypeDef name="image/gif">
-					<PSXExtensionDef name="gif"/>
+					<PSXExtensionDef name="gif" />
 				</PSXMimeTypeDef>
 				<PSXMimeTypeDef name="image/jpeg">
-					<PSXExtensionDef name="jpeg"/>
+					<PSXExtensionDef name="jpeg" />
 				</PSXMimeTypeDef>
 				<PSXMimeTypeDef name="image/jpg">
-					<PSXExtensionDef name="jpg"/>
+					<PSXExtensionDef name="jpg" />
 				</PSXMimeTypeDef>
 			</MimeTypes>
 			<Filters>
@@ -121,7 +130,8 @@
 				</PSXFilter>
 			</Filters>
 		</PSXExtractorDef>
-		<PSXExtractorDef name="$rxcss" type="staticItem" class="com.percussion.loader.extractor.PSStaticItemExtractor">
+		<PSXExtractorDef name="$rxcss" type="staticItem"
+			class="com.percussion.loader.extractor.PSStaticItemExtractor">
 			<Properties>
 				<PSXProperty name="ContextVariableName">
 					<Value>rxcss</Value>
@@ -135,7 +145,7 @@
 			</Properties>
 			<MimeTypes>
 				<PSXMimeTypeDef name="text/plain">
-					<PSXExtensionDef name="css"/>
+					<PSXExtensionDef name="css" />
 				</PSXMimeTypeDef>
 			</MimeTypes>
 			<Filters>
@@ -146,8 +156,10 @@
 		</PSXExtractorDef>
 	</Extractors>
 	<Loaders>
-		<PSXLoaderDef name="Rhythmyx Loader" class="com.percussion.loader.PSContentLoader"/>
-		<PSXLoaderDef name="Loader Preview" class="com.percussion.loader.PSContentLoaderPreview">
+		<PSXLoaderDef name="Rhythmyx Loader"
+			class="com.percussion.loader.PSContentLoader" />
+		<PSXLoaderDef name="Loader Preview"
+			class="com.percussion.loader.PSContentLoaderPreview">
 			<Properties>
 				<PSXProperty name="PreviewPath">
 					<Value>C:\temp</Value>
@@ -158,23 +170,26 @@
 			</Properties>
 		</PSXLoaderDef>
 	</Loaders>
-	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-		<appender name="fileAppender" class="org.apache.log4j.FileAppender">
-			<param name="File" value="contentconnector.log"/>
-			<param name="Append" value="false"/>
+	<log4j:configuration
+		xmlns:log4j="http://jakarta.apache.org/log4j/">
+		<appender name="fileAppender"
+			class="org.apache.log4j.FileAppender">
+			<param name="File" value="contentconnector.log" />
+			<param name="Append" value="false" />
 			<layout class="org.apache.log4j.PatternLayout">
-				<param name="ConversionPattern" value="%d [%t] %p - %m%n"/>
+				<param name="ConversionPattern" value="%d [%t] %p - %m%n" />
 			</layout>
 		</appender>
-		<appender name="logDispatcher" class="com.percussion.loader.PSLogDispatcher">
+		<appender name="logDispatcher"
+			class="com.percussion.loader.PSLogDispatcher">
 			<layout class="org.apache.log4j.PatternLayout">
-				<param name="ConversionPattern" value="%d [%t] %p - %m%n"/>
+				<param name="ConversionPattern" value="%d [%t] %p - %m%n" />
 			</layout>
 		</appender>
 		<root>
-			<priority value="debug"/>
-			<appender-ref ref="fileAppender"/>
-			<appender-ref ref="logDispatcher"/>
+			<priority value="debug" />
+			<appender-ref ref="fileAppender" />
+			<appender-ref ref="logDispatcher" />
 		</root>
 	</log4j:configuration>
 	<PSXErrorHandlingDef>
@@ -195,7 +210,8 @@
 				<Value>pan</Value>
 			</PSXProperty>
 		</Properties>
-		<PSXEmailDef attachlogs="no" smtpHost="pan" fromAddr="rxserver@percussion.com">
+		<PSXEmailDef attachlogs="no" smtpHost="pan"
+			fromAddr="rxserver@percussion.com">
 			<Recipients>
 				<Recipient>rxmaster@percussion.com</Recipient>
 			</Recipients>

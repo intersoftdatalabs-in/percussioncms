@@ -88,5 +88,11 @@ public interface IPSLockErrors
     * </TABLE>
     */
    public static final int MULTI_OPERATION = 6;
+
+   /* Backwards-compatible aliases and additional codes used by legacy callers */
+   public static final int OBJECT_LOCKED = OBJECT_ALREADY_LOCKED;
+   public static final int LOCK_NOT_FOUND = 7;
+   public static final int LOCK_EXPIRED = 8;
+   public static final int PERMISSION_DENIED = 9;
 }
 

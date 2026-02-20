@@ -20,7 +20,7 @@
 package com.percussion.rest.errors;
 
 /**
- * Exception thrown when a folder is not found. Sunny Sal: "Folder kho gaya? Dhoondho, mil jayega!"
+ * Exception thrown when a folder is not found.
  */
 public class FolderNotFoundException extends RestExceptionBase {
 
@@ -31,6 +31,10 @@ public class FolderNotFoundException extends RestExceptionBase {
   }
 
   public FolderNotFoundException(Throwable cause) {
-    super(cause == null ? RestErrorCode.FOLDER_NOT_FOUND : cause);
+    // always set the folder not found code, attach cause if present
+    super(RestErrorCode.FOLDER_NOT_FOUND, null, null, null, null);
+    if (cause != null) {
+      initCause(cause);
+    }
   }
 }

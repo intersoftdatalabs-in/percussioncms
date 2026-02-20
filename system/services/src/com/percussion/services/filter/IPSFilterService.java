@@ -23,12 +23,14 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import com.percussion.services.filter.data.PSItemFilterRuleDef;
 /**
  * The filter service manages item filters and applies them to lists of content IDs.
  * This service provides a higher-level abstraction that uses other services to
@@ -132,6 +134,15 @@ public interface IPSFilterService extends IPSCataloger {
     List<IPSItemFilter> findFiltersByName(String name);
 
     /**
+     * Convenience method to retrieve all filters.
+     *
+     * @return list of all filters, never <code>null</code>
+     */
+    default List<IPSItemFilter> findAllFilters() {
+        return findFiltersByName(null);
+    }
+
+    /**
      * Get a stream of filters for efficient processing.
      *
      * @param name the name pattern to match filters
@@ -150,6 +161,19 @@ public interface IPSFilterService extends IPSCataloger {
      * @throws IllegalArgumentException if authtype is null
      */
     IPSItemFilter findFilterByAuthType(String authtype) throws PSFilterException;
+
+    /**
+     * Load a filter that should not be modified by the caller (read-only view).
+     * Default implementation delegates to {@link #loadFilter(IPSGuid)} for
+     * backward compatibility.
+     *
+     * @param id the id of the filter to load, not {@code null}
+     * @return the loaded filter, never {@code null}
+     * @throws PSNotFoundException if the filter cannot be found
+     */
+    default IPSItemFilter loadUnmodifiableFilter(IPSGuid id) throws PSNotFoundException {
+        return loadFilter(id);
+    }
 
     /**
      * Loads one filter by the legacy authtype, returning an Optional for safe access.
@@ -248,6 +272,28 @@ public interface IPSFilterService extends IPSCataloger {
      */
     default boolean filterExists(IPSGuid id) {
         return findFilter(id).isPresent();
+    }
+
+    /**
+     * Backwards-compatible helper to create a rule definition for a filter.
+     *
+     * @param rulename the name of the rule, not {@code null} or empty
+     * @param params the parameters map (String->String), may be {@code null}
+     * @return a new rule def instance
+     * @throws PSFilterException if the rule cannot be created
+     */
+    default IPSItemFilterRuleDef createRuleDef(String rulename, Map<String, String> params) throws PSFilterException {
+        Objects.requireNonNull(rulename, "rulename may not be null or empty");
+        PSItemFilterRuleDef def = new PSItemFilterRuleDef();
+        def.setRule(rulename);
+        if (params != null) {
+            params.forEach((k, v) -> {
+                if (k != null && v != null) {
+                    def.setParam(k, v);
+                }
+            });
+        }
+        return def;
     }
 
     /**

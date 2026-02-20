@@ -21,7 +21,7 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.siteimportsummary.IPSSiteImportSummaryDao;
 import com.percussion.services.siteimportsummary.data.PSSiteImportSummary;
-import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSBaseBean;
 
 import org.apache.commons.lang3.Validate;
@@ -59,7 +59,7 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
     }
     
     @Transactional
-   public void save(PSSiteImportSummary summary) throws IPSGenericDao.SaveException {
+   public void save(PSSiteImportSummary summary) throws PSDataServiceException {
       Validate.notNull(summary);
       if (summary.getSummaryId() == -1)
       {
@@ -75,7 +75,7 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
       {
           String msg = "database error " + e.getMessage();
           log.error(msg);
-          throw new IPSGenericDao.SaveException(msg, e);
+          throw new PSDataServiceException(msg, e);
       }
       finally
       {

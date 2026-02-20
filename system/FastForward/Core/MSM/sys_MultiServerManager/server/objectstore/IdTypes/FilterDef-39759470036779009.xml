@@ -2,10 +2,15 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="39759470036779009" dependencyType="Local" displayName="unpublish" isIncluded="yes" objectType="FilterDef" objectTypeName="Filter Definition" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no">
-         <Dependencies/>
-      </PSXDependency>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="39759470036779009" dependencyType="Local"
+			displayName="unpublish" isIncluded="yes" objectType="FilterDef"
+			objectTypeName="Filter Definition" supportsIdMapping="no"
+			supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no">
+			<Dependencies />
+		</PSXDependency>
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

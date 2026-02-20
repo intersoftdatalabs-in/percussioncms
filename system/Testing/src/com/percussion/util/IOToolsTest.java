@@ -26,9 +26,11 @@ import java.util.List;
 import java.util.zip.CRC32;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class IOToolsTest extends TestCase
+public class IOToolsTest 
 {
+   
    public void testDeleteFile()  throws IOException
    {
       // delete an empty dir
@@ -68,6 +70,8 @@ public class IOToolsTest extends TestCase
       assertFalse(file1.exists());
       assertFalse(file2.exists());
    }
+
+   
 
    public void testCopyToDir() throws IOException
    {
@@ -111,6 +115,8 @@ public class IOToolsTest extends TestCase
       }
    }
    
+   
+   
    public void testcopyStreamToFile() throws IOException
    {
       final String F1_CONTENT = "f1 content";
@@ -133,6 +139,9 @@ public class IOToolsTest extends TestCase
          }
       }
    }
+   
+
+   
    
 
    public void testCopyToDirs() throws IOException
@@ -178,6 +187,8 @@ public class IOToolsTest extends TestCase
       }
    }   
    
+   
+   
    public void testGetFileContent() throws IOException
    {
       final String F1_CONTENT = "f1 content";
@@ -187,13 +198,15 @@ public class IOToolsTest extends TestCase
       try
       {
          String file1Str = IOTools.getFileContent(file1);
-         assertTrue(file1Str.equals(F1_CONTENT));
+         assertEquals(file1Str, F1_CONTENT);
       }
       finally
       {
          file1.delete();
       }
    }   
+   
+   
    
    public void testCreateTempFile() throws IOException
    {
@@ -216,6 +229,8 @@ public class IOToolsTest extends TestCase
          IOTools.deleteFile(tempFile);
       }
    }
+   
+   
    
    public void testCreateBackupFile() throws IOException
    {
@@ -263,6 +278,8 @@ public class IOToolsTest extends TestCase
          IOTools.deleteFile(testDir);
       }
    }
+   
+   
    
    public void testGetChecksum() throws IOException
    {
@@ -312,7 +329,7 @@ public class IOToolsTest extends TestCase
    {
       assertTrue(file.exists());
       assertTrue(copy.exists());
-      assertTrue(!(file.isDirectory() ^ copy.isDirectory()));
+      assertFalse((file.isDirectory() ^ copy.isDirectory()));
       if (file.isFile())
       {
          assertEquals(file.length(), copy.length());
@@ -328,7 +345,7 @@ public class IOToolsTest extends TestCase
    {
       assertTrue(dir1.exists());
       assertTrue(dir2.exists());
-      assertTrue(!(dir1.isFile() || dir2.isFile()));
+      assertFalse((dir1.isFile() || dir2.isFile()));
       assertTrue(dir1.listFiles().length == dir2.listFiles().length);
       
       for (int i = 0; i < dir1.listFiles().length; i++)

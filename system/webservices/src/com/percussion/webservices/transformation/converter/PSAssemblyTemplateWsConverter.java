@@ -48,7 +48,7 @@ public class PSAssemblyTemplateWsConverter extends PSConverter
    }
 
    private PSAssemblyTemplateConverter m_templateConverter;
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -56,24 +56,27 @@ public class PSAssemblyTemplateWsConverter extends PSConverter
    public Object convert(Class type, Object value)
    {
       // client to server
-      if (value instanceof 
+      if (value instanceof
             com.percussion.webservices.assembly.data.PSAssemblyTemplate)
       {
-         IPSAssemblyTemplate template = 
+         IPSAssemblyTemplate template =
             (IPSAssemblyTemplate) m_templateConverter.convert(
                   PSAssemblyTemplate.class, value);
-         
+
          com.percussion.webservices.assembly.data.PSAssemblyTemplate orig =
             (com.percussion.webservices.assembly.data.PSAssemblyTemplate) value;
 
-         // convert sites
-         Reference[] origSites = orig.getSites();
-         Map<IPSGuid,String> sites = new HashMap<IPSGuid,String>();
-         for (Reference origSite : origSites)
+         // convert sites (generated wrapper)
+         Map<IPSGuid,String> sites = new HashMap<>();
+         com.percussion.webservices.assembly.data.PSAssemblyTemplate.Sites origSitesWrapper = orig.getSites();
+         if (origSitesWrapper != null && origSitesWrapper.getSite() != null)
          {
-            PSDesignGuid siteid = new PSDesignGuid(PSTypeEnum.SITE,
-                  origSite.getId());
-            sites.put(siteid, origSite.getName());
+            for (com.percussion.webservices.common.Reference origSite : origSitesWrapper.getSite())
+            {
+               PSDesignGuid siteid = new PSDesignGuid(PSTypeEnum.SITE,
+                     origSite.getId());
+               sites.put(siteid, origSite.getName());
+            }
          }
 
          return new PSAssemblyTemplateWs(template, sites);
@@ -84,20 +87,20 @@ public class PSAssemblyTemplateWsConverter extends PSConverter
          Object result = m_templateConverter.convert(type, orig.getTemplate());
 
          com.percussion.webservices.assembly.data.PSAssemblyTemplate dest =
-            (com.percussion.webservices.assembly.data.PSAssemblyTemplate) result; 
+            (com.percussion.webservices.assembly.data.PSAssemblyTemplate) result;
 
          // convert sites
-         List<Reference> sites = new ArrayList<Reference>();
+         com.percussion.webservices.assembly.data.PSAssemblyTemplate.Sites sitesWrapper = new com.percussion.webservices.assembly.data.PSAssemblyTemplate.Sites();
          for (Map.Entry<IPSGuid,String> s : orig.getSites().entrySet())
          {
             PSDesignGuid id = new PSDesignGuid(s.getKey());
-            Reference site = new Reference(id.getValue(), s.getValue());
-            sites.add(site);
+            com.percussion.webservices.common.Reference site = new com.percussion.webservices.common.Reference();
+            site.setId(id.getValue());
+            site.setName(s.getValue());
+            sitesWrapper.getSite().add(site);
          }
-         Reference[]arrSites = new Reference[sites.size()];
-         sites.toArray(arrSites);
-         dest.setSites(arrSites);
-         
+         dest.setSites(sitesWrapper);
+
          return dest;
       }
    }

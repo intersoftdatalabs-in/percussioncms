@@ -22,11 +22,12 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.faults.PSError;
-import com.percussion.webservices.faults.PSErrorsFault;
+import com.percussion.webservices.faults.PSErrorsFaultBean;
 import com.percussion.webservices.faults.PSErrorsFaultServiceCall;
 import com.percussion.webservices.faults.PSErrorsFaultServiceCallError;
 import com.percussion.webservices.faults.PSErrorsFaultServiceCallSuccess;
-import com.percussion.webservices.faults.PSLockFault;
+import com.percussion.webservices.faults.PSLockFaultBean;
+import com.percussion.webservices.faults.PSError;
 
 import java.util.Map;
 
@@ -58,14 +59,13 @@ public class PSErrorsExceptionConverter extends PSConverter
       if (value == null)
          return null;
       
-      if (value instanceof PSErrorsFault)
+      if (value instanceof PSErrorsFaultBean)
       {
-         PSErrorsFault source = (PSErrorsFault) value;
+         PSErrorsFaultBean source = (PSErrorsFaultBean) value;
 
          PSErrorsException target = new PSErrorsException();
          
-         PSErrorsFaultServiceCall[] calls = source.getServiceCall();
-         for (PSErrorsFaultServiceCall call : calls)
+         for (PSErrorsFaultBean.ServiceCall call : source.getServiceCall())
          {
             if (call.getSuccess() != null)
             {
@@ -73,10 +73,15 @@ public class PSErrorsExceptionConverter extends PSConverter
             }
             else
             {
-               PSErrorsFaultServiceCallError error = call.getError();
-               Object errorValue = error.getPSError();
-               Class errorType = PSErrorException.class;
-               if (errorValue == null)
+               PSErrorsFaultBean.ServiceCall.Error error = call.getError();
+               Object errorValue = null;
+               Class<?> errorType = null;
+               if (error.getPSError() != null)
+               {
+                  errorValue = error.getPSError();
+                  errorType = PSErrorException.class;
+               }
+               else if (error.getPSLockFault() != null)
                {
                   errorValue = error.getPSLockFault();
                   errorType = PSLockErrorException.class;
@@ -84,7 +89,7 @@ public class PSErrorsExceptionConverter extends PSConverter
                
                if (errorValue == null)
                   throw new ConversionException(
-                     "No error value found for PSErrorsFault converter.");
+                     "No error value found for PSErrorsFaultBean converter.");
                   
                Converter converter = getConverter(errorType);
                target.addError(new PSDesignGuid(error.getId()), 
@@ -98,44 +103,36 @@ public class PSErrorsExceptionConverter extends PSConverter
       {
          PSErrorsException source = (PSErrorsException) value;
 
-         PSErrorsFault target = new PSErrorsFault();
-         
-         PSErrorsFaultServiceCall[] calls = 
-            new PSErrorsFaultServiceCall[source.getIds().size()];
-         target.setServiceCall(calls);
-         
-         int index = 0;
-         Map<IPSGuid, Object> errors = source.getErrors();
+         PSErrorsFaultBean target = new PSErrorsFaultBean();
+         target.setService("");
+
          for (IPSGuid id : source.getIds())
          {
-            PSErrorsFaultServiceCall call = new PSErrorsFaultServiceCall();
-            Object sourceError = errors.get(id);
+            PSErrorsFaultBean.ServiceCall call = new PSErrorsFaultBean.ServiceCall();
+            Object sourceError = source.getErrors().get(id);
             if (sourceError == null)
             {
-               PSErrorsFaultServiceCallSuccess success = 
-                  new PSErrorsFaultServiceCallSuccess();
+               PSErrorsFaultBean.ServiceCall.Success success = 
+                  new PSErrorsFaultBean.ServiceCall.Success();
                success.setId((new PSDesignGuid(id)).getValue());
-               
                call.setSuccess(success);
             }
             else
             {
                Converter converter = getConverter(sourceError.getClass());
 
-               PSErrorsFaultServiceCallError error = 
-                  new PSErrorsFaultServiceCallError();
+               PSErrorsFaultBean.ServiceCall.Error error = 
+                  new PSErrorsFaultBean.ServiceCall.Error();
                error.setId((new PSDesignGuid(id)).getValue());
                if (sourceError instanceof PSLockErrorException)
                {
-                  Class resultType = PSLockFault.class;
-                  Object resultValue = converter.convert(resultType, 
+                  Object resultValue = converter.convert(PSLockFaultBean.class, 
                      sourceError);
-                  error.setPSLockFault((PSLockFault) resultValue);
+                  error.setPSLockFault((PSLockFaultBean) resultValue);
                }
                else if (sourceError instanceof PSErrorException)
                {
-                  Class resultType = PSError.class;
-                  Object resultValue = converter.convert(resultType, 
+                  Object resultValue = converter.convert(PSError.class, 
                      sourceError);
                   error.setPSError((PSError) resultValue);
                }
@@ -146,7 +143,7 @@ public class PSErrorsExceptionConverter extends PSConverter
                call.setError(error);
             }
             
-            calls[index++] = call;
+            target.getServiceCall().add(call);
          }
          
          return target;

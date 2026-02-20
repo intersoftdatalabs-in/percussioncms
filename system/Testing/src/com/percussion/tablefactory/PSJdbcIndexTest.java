@@ -23,17 +23,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  * Unit test for PSJdbcIndex.
  */
-public class PSJdbcIndexTest extends TestCase
+public class PSJdbcIndexTest 
 {
    /**
     * Test the def.
     */
+   
    public void testDef() throws Exception
    {
       // build a def with a dupe name
@@ -118,6 +120,7 @@ public class PSJdbcIndexTest extends TestCase
    /**
     * Tests the lists comparison.
     */
+   
    public void testCompare() throws PSJdbcTableFactoryException
    {
       final List<String> cols = new ArrayList<String>();

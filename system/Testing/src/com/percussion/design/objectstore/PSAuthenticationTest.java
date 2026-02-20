@@ -20,14 +20,14 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import java.nio.file.Path;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Authentication object store class testing, including constructors,
@@ -36,15 +36,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PSAuthenticationTest
 {
 
-   @Rule
+   @TempDir
    public Path temporaryFolder;
 
    private String rxdeploydir;
 
-   @BeforeEach 
-   public void setup(){
+   @BeforeEach
+   public void setup() {
       rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir",temporaryFolder.getAbsolutePath());
+      System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
    }
 
    @AfterEach
@@ -94,173 +94,51 @@ public class PSAuthenticationTest
 
       // testing compare/equals
       assertTrue(PSComponent.compare(auth1, auth1));
-      assertTrue(!PSComponent.compare(auth1, auth2));
-      assertTrue(!PSComponent.compare(auth2, auth2_1));
-      assertTrue(!PSComponent.compare(auth2, auth2_2));
-      assertTrue(!PSComponent.compare(auth2, auth2_3));
+      assertFalse(PSComponent.compare(auth1, auth2));
+      assertFalse(PSComponent.compare(auth2, auth2_1));
+      assertFalse(PSComponent.compare(auth2, auth2_2));
+      assertFalse(PSComponent.compare(auth2, auth2_3));
       assertTrue(PSComponent.compare(auth2, auth2_4));
-      assertTrue(!PSComponent.compare(auth2, auth2_5));
+      assertFalse(PSComponent.compare(auth2, auth2_5));
 
       // testing clone/copyFrom
       PSAuthentication clone = (PSAuthentication) auth1.clone();
-      assertTrue(clone.equals(auth1));
+      assertEquals(auth1, clone);
       auth2.copyFrom(auth1);
-      assertTrue(auth1.equals(auth2));
-      
+      assertEquals(auth1, auth2);
+
       // test append base dn
       clone.setAppendBaseDn(true);
-      assertTrue(!clone.equals(auth1));
+      assertNotEquals(auth1, clone);
 
       // testing name accessors
-      boolean didThrow = false;
-      try
-      {
-         auth1.setName(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-
-      didThrow = false;
-      try
-      {
-         auth1.setName(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+      assertThrows(IllegalArgumentException.class, () -> auth1.setName(null));
+      assertThrows(IllegalArgumentException.class, () -> auth1.setName(" "));
 
       // testing scheme accessors
-      didThrow = false;
-      try
-      {
-         auth1.setScheme(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-
-      didThrow = false;
-      try
-      {
-         auth1.setScheme(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-
-      didThrow = false;
-      try
-      {
-         auth1.setScheme("not suported");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+      assertThrows(IllegalArgumentException.class, () -> auth1.setScheme(null));
+      assertThrows(IllegalArgumentException.class, () -> auth1.setScheme(" "));
+      assertThrows(IllegalArgumentException.class, () -> auth1.setScheme("not suported"));
 
       // testing user accessors
-      didThrow = false;
-      try
-      {
-         auth1.setUser(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(!didThrow);
-
-      didThrow = false;
-      try
-      {
-         auth1.setUser(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(!didThrow);
+      assertDoesNotThrow(() -> auth1.setUser(null));
+      assertDoesNotThrow(() -> auth1.setUser(" "));
 
       // testing user attribute accessors
-      didThrow = false;
-      try
-      {
-         auth1.setUserAttr(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(!didThrow);
-
-      didThrow = false;
-      try
-      {
-         auth1.setUserAttr(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(!didThrow);
+      assertDoesNotThrow(() -> auth1.setUserAttr(null));
+      assertDoesNotThrow(() -> auth1.setUserAttr(" "));
 
       // testing password accessors
-      didThrow = false;
-      try
-      {
-         auth1.setPassword(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(!didThrow);
-      assertTrue(auth1.getPassword().equals(""));
+      assertDoesNotThrow(() -> auth1.setPassword(null));
+      assertEquals("", auth1.getPassword());
 
-      didThrow = false;
-      try
-      {
-         auth1.setPassword(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(!didThrow);
+      assertDoesNotThrow(() -> auth1.setPassword(" "));
 
       // testing filter extension accessors
-      didThrow = false;
-      try
-      {
-         auth1.setFilterExtension(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(!didThrow);
-      assertTrue(auth1.getFilterExtension().equals(""));
+      assertDoesNotThrow(() -> auth1.setFilterExtension(null));
+      assertEquals("", auth1.getFilterExtension());
 
-      didThrow = false;
-      try
-      {
-         auth1.setFilterExtension(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(!didThrow);
+      assertDoesNotThrow(() -> auth1.setFilterExtension(" "));
    }
 
    /**
@@ -278,14 +156,14 @@ public class PSAuthenticationTest
          PSAuthentication.SCHEME_SIMPLE, "user", "userAttr", "pw", "filter");
       System.out.println("authentication 1:\n" +
          PSXmlDocumentBuilder.toString(auth1.toXml(doc)));
-      
-      Element auth1Elem = auth1.toXml(doc);   
-      
+
+      Element auth1Elem = auth1.toXml(doc);
+
       PSAuthentication auth2 = new PSAuthentication(auth1Elem, null, null,true);
       System.out.println("authentication 2:\n" +
          PSXmlDocumentBuilder.toString(auth2.toXml(doc)));
       assertTrue(auth1.equals(auth2));
-      
+
       // test unencrypted password
       NodeList passwords = auth1Elem.getElementsByTagName("Password");
       Element oldPassword = (Element) passwords.item(0);
@@ -294,7 +172,7 @@ public class PSAuthenticationTest
       newPassword.setAttribute("encrypted", "no");
       newPassword.appendChild(doc.createTextNode("pw"));
       auth1Elem.getFirstChild().replaceChild(newPassword, oldPassword);
-      PSAuthentication auth2unencrypted = new PSAuthentication(auth1Elem, 
+      PSAuthentication auth2unencrypted = new PSAuthentication(auth1Elem,
          null, null,true);
       System.out.println("authentication 2 unencrypted:\n" +
          PSXmlDocumentBuilder.toString(auth2unencrypted.toXml(doc)));

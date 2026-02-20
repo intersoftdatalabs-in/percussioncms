@@ -1,5 +1,3 @@
-
-
 /*
   CSS Styles for Miller Column Widget
 
@@ -24,63 +22,75 @@
   {3} The table which contains the individual directories. <table><tr><td class="mcol_direc" /> ... </tr></table>
 */
 
-
-
-
-
-.perc_finder { overflow: hidden; width: 100%; position:relative; }
-.mcol { width: 100%; height: 100%; }
-.mcol table { border-collapse: collapse; }
+.perc_finder {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+.mcol {
+  width: 100%;
+  height: 100%;
+}
+.mcol table {
+  border-collapse: collapse;
+}
 
 /* The end spacer allows the column to have empty space at the end. */
-.mcol-end-spacer div { width: 100px; }
+.mcol-end-spacer div {
+  width: 100px;
+}
 
 .mcol-direc {
-    overflow: hidden;
+  overflow: hidden;
 }
 /* {1} */
 .mcol-direc-wrapper {
-    width: 190px;
-    vertical-align: top;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: auto;
+  width: 190px;
+  vertical-align: top;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
-
 /* {2} */
-.mcol-listing { 
+.mcol-listing {
   white-space: nowrap;
-  display: block; 
+  display: block;
   padding-left: 20px;
   padding-right: 20px;
   margin-top: 10px;
   margin-bottom: 10px;
   margin-left: 1px;
-  margin-right: 1px; 
+  margin-right: 1px;
 
   -font-family: Verdana;
   -color: #ffffff;
   -color: yellow;
   -font-weight: bold;
   -font-size: 11px;
-
 }
 
-.mcol-opened { 
-  background-color: none; 
+.mcol-opened {
+  background-color: none;
 
   -color: #777777;
   -color: yellow;
 
-  -font-family: Verdana; 
-  -font-size:11px;
+  -font-family: Verdana;
+  -font-size: 11px;
 }
-.mcol-clickable { cursor: pointer; }
+.mcol-clickable {
+  cursor: pointer;
+}
 
 /* Style to highlight elements as they are being dragged */
-.ui-draggable-dragging .mcol-clickable { background-color: none; font-size: 11px; color: #777777; font-family: Verdana; }
+.ui-draggable-dragging .mcol-clickable {
+  background-color: none;
+  font-size: 11px;
+  color: #777777;
+  font-family: Verdana;
+}
 
-.perc-finder-item-over{   
-   background-color: #caf589 !important;
+.perc-finder-item-over {
+  background-color: #caf589 !important;
 }

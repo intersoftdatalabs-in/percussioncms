@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:output method="xml" encoding="UTF-8" />
 	<xsl:template match="/">
-		<xsl:apply-templates select="." mode="copy"/>
+		<xsl:apply-templates select="." mode="copy" />
 	</xsl:template>
 	<xsl:template match="@*|*" mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:apply-templates mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:apply-templates mode="copy" />
 		</xsl:copy>
 	</xsl:template>
-	<!-- Template to upgrade  category='rs_copy' -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_copy']" mode="copy">
+	<!-- Template to upgrade category='rs_copy' -->
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_copy']" mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
 			<xsl:if test="not(PSXCloneOverrideFieldList)">
 				<PSXCloneOverrideFieldList id="0">
-					<PSXCloneOverrideField id="0" name="sys_title">
+					<PSXCloneOverrideField id="0"
+						name="sys_title">
 						<value>
 							<PSXExtensionCall id="0">
 								<name>Java/global/percussion/relationship/sys_CloneTitle</name>
@@ -39,29 +42,30 @@
 								<PSXExtensionParamValue id="0">
 									<value>
 										<PSXTextLiteral id="0">
-											<text/>
+											<text />
 										</PSXTextLiteral>
 									</value>
 								</PSXExtensionParamValue>
 								<PSXExtensionParamValue id="0">
 									<value>
 										<PSXTextLiteral id="0">
-											<text/>
+											<text />
 										</PSXTextLiteral>
 									</value>
 								</PSXExtensionParamValue>
 								<PSXExtensionParamValue id="0">
 									<value>
 										<PSXTextLiteral id="0">
-											<text/>
+											<text />
 										</PSXTextLiteral>
 									</value>
 								</PSXExtensionParamValue>
 							</PSXExtensionCall>
 						</value>
-						<Conditionals/>
+						<Conditionals />
 					</PSXCloneOverrideField>
-					<PSXCloneOverrideField id="0" name="sys_communityid">
+					<PSXCloneOverrideField id="0"
+						name="sys_communityid">
 						<value>
 							<PSXExtensionCall id="0">
 								<name>Java/global/percussion/generic/sys_Literal</name>
@@ -74,9 +78,10 @@
 								</PSXExtensionParamValue>
 							</PSXExtensionCall>
 						</value>
-						<Conditionals/>
+						<Conditionals />
 					</PSXCloneOverrideField>
-					<PSXCloneOverrideField id="0" name="sys_workflowid">
+					<PSXCloneOverrideField id="0"
+						name="sys_workflowid">
 						<value>
 							<PSXExtensionCall id="0">
 								<name>Java/global/percussion/generic/sys_Literal</name>
@@ -89,20 +94,22 @@
 								</PSXExtensionParamValue>
 							</PSXExtensionCall>
 						</value>
-						<Conditionals/>
+						<Conditionals />
 					</PSXCloneOverrideField>
 				</PSXCloneOverrideFieldList>
 			</xsl:if>
-			<xsl:apply-templates select="*" mode="copy"/>
+			<xsl:apply-templates select="*" mode="copy" />
 		</xsl:copy>
 	</xsl:template>
-	<!-- Template to upgrade  category='rs_promotable' -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_promotable']" mode="copy">
+	<!-- Template to upgrade category='rs_promotable' -->
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_promotable']" mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
 			<xsl:if test="not(PSXCloneOverrideFieldList)">
 				<PSXCloneOverrideFieldList id="0">
-					<PSXCloneOverrideField id="0" name="sys_title">
+					<PSXCloneOverrideField id="0"
+						name="sys_title">
 						<value>
 							<PSXExtensionCall id="0">
 								<name>Java/global/percussion/relationship/sys_CloneTitle</name>
@@ -123,29 +130,30 @@
 								<PSXExtensionParamValue id="0">
 									<value>
 										<PSXTextLiteral id="0">
-											<text/>
+											<text />
 										</PSXTextLiteral>
 									</value>
 								</PSXExtensionParamValue>
 								<PSXExtensionParamValue id="0">
 									<value>
 										<PSXTextLiteral id="0">
-											<text/>
+											<text />
 										</PSXTextLiteral>
 									</value>
 								</PSXExtensionParamValue>
 								<PSXExtensionParamValue id="0">
 									<value>
 										<PSXTextLiteral id="0">
-											<text/>
+											<text />
 										</PSXTextLiteral>
 									</value>
 								</PSXExtensionParamValue>
 							</PSXExtensionCall>
 						</value>
-						<Conditionals/>
+						<Conditionals />
 					</PSXCloneOverrideField>
-					<PSXCloneOverrideField id="0" name="sys_communityid">
+					<PSXCloneOverrideField id="0"
+						name="sys_communityid">
 						<value>
 							<PSXExtensionCall id="0">
 								<name>Java/global/percussion/generic/sys_Literal</name>
@@ -158,9 +166,10 @@
 								</PSXExtensionParamValue>
 							</PSXExtensionCall>
 						</value>
-						<Conditionals/>
+						<Conditionals />
 					</PSXCloneOverrideField>
-					<PSXCloneOverrideField id="0" name="sys_workflowid">
+					<PSXCloneOverrideField id="0"
+						name="sys_workflowid">
 						<value>
 							<PSXExtensionCall id="0">
 								<name>Java/global/percussion/generic/sys_Literal</name>
@@ -173,85 +182,105 @@
 								</PSXExtensionParamValue>
 							</PSXExtensionCall>
 						</value>
-						<Conditionals/>
+						<Conditionals />
 					</PSXCloneOverrideField>
 				</PSXCloneOverrideFieldList>
 			</xsl:if>
-			<xsl:apply-templates select="*" mode="copy"/>
+			<xsl:apply-templates select="*" mode="copy" />
 		</xsl:copy>
 	</xsl:template>
 	<!-- Template to add empty PSXCloneOverrideFieldList to category='rs_activeassembly' -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_activeassembly']" mode="copy">
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_activeassembly']"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
 			<xsl:if test="not(PSXCloneOverrideFieldList)">
-				<PSXCloneOverrideFieldList id="0"/>
+				<PSXCloneOverrideFieldList id="0" />
 			</xsl:if>
-			<xsl:apply-templates select="*" mode="copy"/>
+			<xsl:apply-templates select="*" mode="copy" />
 		</xsl:copy>
 	</xsl:template>
 	<!-- Template to add empty PSXCloneOverrideFieldList to category='rs_activeassembly' -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_activeassembly']/UserPropertySet" mode="copy">
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_activeassembly']/UserPropertySet"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:apply-templates select="*" mode="copy"/>
-         <xsl:if test="not(PSXProperty/@name='sys_folderid')">
-            <PSXProperty locked="no" name="sys_folderid">
-               <Value type="String"/>
-               <Description>The folder id used, optional.</Description>
-            </PSXProperty>
-         </xsl:if>
-         <xsl:if test="not(PSXProperty/@name='sys_siteid')">
-            <PSXProperty locked="no" name="sys_siteid">
-               <Value type="String"/>
-               <Description>The site id used, optional.</Description>
-            </PSXProperty>
-         </xsl:if>
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:apply-templates select="*" mode="copy" />
+			<xsl:if test="not(PSXProperty/@name='sys_folderid')">
+				<PSXProperty locked="no" name="sys_folderid">
+					<Value type="String" />
+					<Description>The folder id used, optional.</Description>
+				</PSXProperty>
+			</xsl:if>
+			<xsl:if test="not(PSXProperty/@name='sys_siteid')">
+				<PSXProperty locked="no" name="sys_siteid">
+					<Value type="String" />
+					<Description>The site id used, optional.</Description>
+				</PSXProperty>
+			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
-   <!-- Template to remove the sys_siteid and sys_folderid PSXProperty elements from PSXPropertySet if exists.-->
-   <!-- The previous template adds them to the UserPropertySet.-->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_activeassembly']/PSXPropertySet/PSXProperty[@name='sys_siteid']" mode="copy"/>
-	<xsl:template match="PSXRelationshipConfig[@category='rs_activeassembly']/PSXPropertySet/PSXProperty[@name='sys_folderid']" mode="copy"/>
+	<!-- Template to remove the sys_siteid and sys_folderid PSXProperty elements
+		from PSXPropertySet if exists. -->
+	<!-- The previous template adds them to the UserPropertySet. -->
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_activeassembly']/PSXPropertySet/PSXProperty[@name='sys_siteid']"
+		mode="copy" />
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_activeassembly']/PSXPropertySet/PSXProperty[@name='sys_folderid']"
+		mode="copy" />
 
 	<!-- Template to add empty PSXCloneOverrideFieldList to category='rs_folder' -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_folder']" mode="copy">
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_folder']" mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
 			<xsl:if test="not(PSXCloneOverrideFieldList)">
-				<PSXCloneOverrideFieldList id="0"/>
+				<PSXCloneOverrideFieldList id="0" />
 			</xsl:if>
-			<xsl:apply-templates select="*" mode="copy"/>
+			<xsl:apply-templates select="*" mode="copy" />
 		</xsl:copy>
 	</xsl:template>
-	<!--  add rs_skippromotion property equal to yes for folder relationship -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_folder']/PSXPropertySet" mode="copy">
+	<!-- add rs_skippromotion property equal to yes for folder relationship -->
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_folder']/PSXPropertySet"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:apply-templates select="*" mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:apply-templates select="*" mode="copy" />
 			<PSXProperty locked="yes" name="rs_skippromotion">
 				<Value type="Boolean">yes</Value>
-				<Description>Specifies if this relationship should be skipped when an item is promoted.</Description>
+				<Description>Specifies if this relationship should be skipped when
+					an item is promoted.</Description>
 			</PSXProperty>
 		</xsl:copy>
 	</xsl:template>
-	<xsl:template match="PSXRelationshipConfig[@category='rs_folder']/PSXPropertySet/PSXProperty[@name='rs_skippromotion']" mode="copy"/>
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_folder']/PSXPropertySet/PSXProperty[@name='rs_skippromotion']"
+		mode="copy" />
 	<!-- Template to upgrade @category='rs_translation' and @label='Translation' -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_translation' and @label='Translation']" mode="copy">
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_translation' and @label='Translation']"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
 			<xsl:if test="not(PSXCloneOverrideFieldList)">
-				<xsl:call-template name="rs_translationCloneOverrideFieldList"/>
+				<xsl:call-template
+					name="rs_translationCloneOverrideFieldList" />
 			</xsl:if>
-			<xsl:apply-templates select="*" mode="copy"/>
+			<xsl:apply-templates select="*" mode="copy" />
 			<xsl:if test="not(EffectSet)">
 				<EffectSet>
-					<PSXConditionalEffect activationEndpoint="owner">
+					<PSXConditionalEffect
+						activationEndpoint="owner">
 						<PSXExtensionCall id="0">
 							<name>Java/global/percussion/relationship/effect/sys_isCloneExists</name>
 						</PSXExtensionCall>
 					</PSXConditionalEffect>
-					<PSXConditionalEffect activationEndpoint="owner">
+					<PSXConditionalEffect
+						activationEndpoint="owner">
 						<PSXExtensionCall id="0">
 							<name>Java/global/percussion/relationship/effect/sys_AttachTranslatedFolder</name>
 						</PSXExtensionCall>
@@ -260,26 +289,34 @@
 			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
-	<!--  replace category 'rs_newcopy' by 'rs_copy' -->
+	<!-- replace category 'rs_newcopy' by 'rs_copy' -->
 	<xsl:template match="text[.='rs_newcopy']" mode="copy">
 		<text>rs_copy</text>
 	</xsl:template>
-	<!--  remove sys_TranslationConstraint Extension -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_translation']/ExtensionSet/PSXConditionalExtension[PSXExtensionCall/name='Java/global/percussion/relationship/sys_TranslationConstraint']" mode="copy"/>
+	<!-- remove sys_TranslationConstraint Extension -->
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_translation']/ExtensionSet/PSXConditionalExtension[PSXExtensionCall/name='Java/global/percussion/relationship/sys_TranslationConstraint']"
+		mode="copy" />
 	<!-- Template to add two translation effects to EffectSet of category='rs_translation' -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_translation']/EffectSet" mode="copy">
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_translation']/EffectSet"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:if test="not(PSXConditionalEffect/PSXExtensionCall/name='Java/global/percussion/relationship/effect/sys_isCloneExists')">
-				<PSXConditionalEffect activationEndpoint="owner">
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:if
+				test="not(PSXConditionalEffect/PSXExtensionCall/name='Java/global/percussion/relationship/effect/sys_isCloneExists')">
+				<PSXConditionalEffect
+					activationEndpoint="owner">
 					<PSXExtensionCall id="0">
 						<name>Java/global/percussion/relationship/effect/sys_isCloneExists</name>
 					</PSXExtensionCall>
 				</PSXConditionalEffect>
 			</xsl:if>
-			<xsl:apply-templates select="*" mode="copy"/>
-			<xsl:if test="not(PSXConditionalEffect/PSXExtensionCall/name='Java/global/percussion/relationship/effect/sys_AttachTranslatedFolder')">
-				<PSXConditionalEffect activationEndpoint="owner">
+			<xsl:apply-templates select="*" mode="copy" />
+			<xsl:if
+				test="not(PSXConditionalEffect/PSXExtensionCall/name='Java/global/percussion/relationship/effect/sys_AttachTranslatedFolder')">
+				<PSXConditionalEffect
+					activationEndpoint="owner">
 					<PSXExtensionCall id="0">
 						<name>Java/global/percussion/relationship/effect/sys_AttachTranslatedFolder</name>
 					</PSXExtensionCall>
@@ -288,21 +325,26 @@
 		</xsl:copy>
 	</xsl:template>
 	<!-- Template to add to upgrade 'Translation - Mandatory' -->
-	<xsl:template match="PSXRelationshipConfig[@category='rs_translation' and @label='Translation - Mandatory']" mode="copy">
+	<xsl:template
+		match="PSXRelationshipConfig[@category='rs_translation' and @label='Translation - Mandatory']"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
 			<xsl:if test="not(PSXCloneOverrideFieldList)">
-				<xsl:call-template name="rs_translationCloneOverrideFieldList"/>
+				<xsl:call-template
+					name="rs_translationCloneOverrideFieldList" />
 			</xsl:if>
-			<xsl:apply-templates select="*" mode="copy"/>
+			<xsl:apply-templates select="*" mode="copy" />
 			<xsl:if test="not(EffectSet)">
 				<EffectSet>
-					<PSXConditionalEffect activationEndpoint="owner">
+					<PSXConditionalEffect
+						activationEndpoint="owner">
 						<PSXExtensionCall id="0">
 							<name>Java/global/percussion/relationship/effect/sys_isCloneExists</name>
 						</PSXExtensionCall>
 					</PSXConditionalEffect>
-					<PSXConditionalEffect activationEndpoint="dependent">
+					<PSXConditionalEffect
+						activationEndpoint="dependent">
 						<PSXExtensionCall id="0">
 							<name>Java/global/percussion/relationship/effect/sys_PublishMandatory</name>
 							<PSXExtensionParamValue id="0">
@@ -315,20 +357,21 @@
 							<PSXExtensionParamValue id="0">
 								<value>
 									<PSXTextLiteral id="0">
-										<text/>
+										<text />
 									</PSXTextLiteral>
 								</value>
 							</PSXExtensionParamValue>
 							<PSXExtensionParamValue id="0">
 								<value>
 									<PSXTextLiteral id="0">
-										<text/>
+										<text />
 									</PSXTextLiteral>
 								</value>
 							</PSXExtensionParamValue>
 						</PSXExtensionCall>
 					</PSXConditionalEffect>
-					<PSXConditionalEffect activationEndpoint="dependent">
+					<PSXConditionalEffect
+						activationEndpoint="dependent">
 						<PSXExtensionCall id="0">
 							<name>Java/global/percussion/relationship/effect/sys_UnpublishMandatory</name>
 							<PSXExtensionParamValue id="0">
@@ -341,20 +384,21 @@
 							<PSXExtensionParamValue id="0">
 								<value>
 									<PSXTextLiteral id="0">
-										<text/>
+										<text />
 									</PSXTextLiteral>
 								</value>
 							</PSXExtensionParamValue>
 							<PSXExtensionParamValue id="0">
 								<value>
 									<PSXTextLiteral id="0">
-										<text/>
+										<text />
 									</PSXTextLiteral>
 								</value>
 							</PSXExtensionParamValue>
 						</PSXExtensionCall>
 					</PSXConditionalEffect>
-					<PSXConditionalEffect activationEndpoint="owner">
+					<PSXConditionalEffect
+						activationEndpoint="owner">
 						<PSXExtensionCall id="0">
 							<name>Java/global/percussion/relationship/effect/sys_AttachTranslatedFolder</name>
 						</PSXExtensionCall>
@@ -394,22 +438,23 @@
 						<PSXExtensionParamValue id="0">
 							<value>
 								<PSXTextLiteral id="0">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="0">
 							<value>
 								<PSXTextLiteral id="0">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 					</PSXExtensionCall>
 				</value>
-				<Conditionals/>
+				<Conditionals />
 			</PSXCloneOverrideField>
-			<PSXCloneOverrideField id="0" name="sys_communityid">
+			<PSXCloneOverrideField id="0"
+				name="sys_communityid">
 				<value>
 					<PSXExtensionCall id="0">
 						<name>Java/global/percussion/cms/sys_cloneOverrideField</name>
@@ -457,9 +502,10 @@
 						</PSXExtensionParamValue>
 					</PSXExtensionCall>
 				</value>
-				<Conditionals/>
+				<Conditionals />
 			</PSXCloneOverrideField>
-			<PSXCloneOverrideField id="0" name="sys_workflowid">
+			<PSXCloneOverrideField id="0"
+				name="sys_workflowid">
 				<value>
 					<PSXExtensionCall id="0">
 						<name>Java/global/percussion/cms/sys_cloneOverrideField</name>
@@ -507,7 +553,7 @@
 						</PSXExtensionParamValue>
 					</PSXExtensionCall>
 				</value>
-				<Conditionals/>
+				<Conditionals />
 			</PSXCloneOverrideField>
 			<PSXCloneOverrideField id="0" name="sys_lang">
 				<value>
@@ -522,7 +568,7 @@
 						</PSXExtensionParamValue>
 					</PSXExtensionCall>
 				</value>
-				<Conditionals/>
+				<Conditionals />
 			</PSXCloneOverrideField>
 		</PSXCloneOverrideFieldList>
 	</xsl:template>

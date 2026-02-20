@@ -2,8 +2,8 @@
 
 
 <!-- edited with XMLSPY v5 rel. 2 U (http://www.xmlspy.com) by Paul Howard (Percussion Software) -->
-<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/content" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:con="urn:www.percussion.com/6.0.0/content" elementFormDefault="qualified" attributeFormDefault="unqualified">
-   <xsd:import namespace="urn:www.percussion.com/6.0.0/common" schemaLocation="../common.xsd"/>
+<xsd:schema targetNamespace="urn:www.percussion.com/8.2.0/content" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:com="urn:www.percussion.com/8.2.0/common" xmlns:con="urn:www.percussion.com/8.2.0/content" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xsd:import namespace="urn:www.percussion.com/8.2.0/common" schemaLocation="../common.xsd"/>
    <xsd:complexType name="PSItemSummary">
       <xsd:annotation>
          <xsd:documentation>Item summaries may be returned by lookup services for items and folders. It contains most information required for user interface clients and all information to lookup the full object.</xsd:documentation>

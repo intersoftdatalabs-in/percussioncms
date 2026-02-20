@@ -20,6 +20,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.w3c.dom.Document;
@@ -29,17 +30,14 @@ import org.w3c.dom.Document;
  * <code>PSMacroDefinitionSet</code> and <code>PSMacroDefinition</code> 
  * objectstore classes.
  */
-public class PSMacroDefinitionSetTest extends TestCase
+public class PSMacroDefinitionSetTest 
 {
    /**
     * Construct a new test for the supplied name.
     * 
     * @param name the test name, assumed not <code>null</code> or empty.
     */
-   public PSMacroDefinitionSetTest(String name)
-   {
-      super(name);
-   }
+   
 
    /**
     * Test XML serialization for code>PSMacroSet</code> and 
@@ -47,6 +45,7 @@ public class PSMacroDefinitionSetTest extends TestCase
     * 
     * @throws Exception for any error.
     */
+   
    public void testXml() throws Exception
    {
       PSMacroDefinition macro1 = new PSMacroDefinition("$macro1", 
@@ -69,7 +68,7 @@ public class PSMacroDefinitionSetTest extends TestCase
       System.out.println("macroDefinitionSet 2:\n" +
          PSXmlDocumentBuilder.toString(macros2.toXml(doc)));
          
-      assertTrue(macros1.equals(macros2));
+      assertEquals(macros1, macros2);
    }
 
    /**
@@ -77,12 +76,5 @@ public class PSMacroDefinitionSetTest extends TestCase
     * 
     * @return the test suit, never <code>null</code>.
     */
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSMacroDefinitionSetTest("testXml"));
-
-      return suite;
-   }
+   
 }

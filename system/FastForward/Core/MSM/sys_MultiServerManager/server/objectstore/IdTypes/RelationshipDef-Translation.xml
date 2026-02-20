@@ -2,8 +2,13 @@
 
 
 <PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="Translation" dependencyType="Shared" displayName="Translation" isIncluded="no" objectType="RelationshipDef" objectTypeName="Relationship Definition" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
+	<PSXDeployableObject>
+		<PSXDependency autoDep="no" autoExpand="yes"
+			dependencyId="Translation" dependencyType="Shared"
+			displayName="Translation" isIncluded="no"
+			objectType="RelationshipDef" objectTypeName="Relationship Definition"
+			supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no"
+			supportsUserDependencies="no" />
+		<RequiredClasses />
+	</PSXDeployableObject>
 </PSXApplicationIDTypes>

@@ -17,6 +17,7 @@
 package com.percussion.design.objectstore;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,8 +27,10 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 /**
  * Unit tests for the PSBackEndCredential class.
  */
-public class PSBackEndCredentialTest extends TestCase
+public class PSBackEndCredentialTest
 {
+
+   @Test
    public void testConstructor() throws Exception
    {
       String alias = "foobarbaz";
@@ -46,20 +49,23 @@ public class PSBackEndCredentialTest extends TestCase
       {
          didThrow = true;
       }
-      assertTrue("Caught cons with null alias?", didThrow);
+      assertTrue(didThrow, "Caught cons with null alias?");
 
       didThrow = false;
       try
       {
          new PSBackEndCredential("");
       }
-      catch (IllegalArgumentException ex)
+      catch (IllegalArgumentException e)
       {
          didThrow = true;
       }
-      assertTrue("Caught cons with empty alias?", didThrow);
+      assertTrue(didThrow, "Caught cons with empty alias?");
    }
 
+
+
+   @Test
    public void testGetSet() throws Exception
    {
       String alias = "alias";
@@ -79,6 +85,9 @@ public class PSBackEndCredentialTest extends TestCase
       assertEquals(comment, cred.getComment());
    }
 
+
+
+   @Test
    public void testXml() throws Exception
    {
       String alias = "alias", ds = "datasource", comment = "comment";
@@ -91,7 +100,7 @@ public class PSBackEndCredentialTest extends TestCase
       Element el = cred.toXml(doc);
 
       PSBackEndCredential otherCred = new PSBackEndCredential();
-      assertTrue(!cred.equals(otherCred));
+      assertFalse(cred.equals(otherCred));
 
       otherCred.fromXml(el, null, null);
 

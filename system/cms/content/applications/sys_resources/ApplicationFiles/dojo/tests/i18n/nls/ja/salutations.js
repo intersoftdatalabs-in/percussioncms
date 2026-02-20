@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- ja: "\u65E5\u672C\u8A9E",
- hello: "ã?“ã?«ã?¡ã?¯"
-}
+({
+  ja: "\u65E5\u672C\u8A9E",
+  hello: "Ã£?Â“Ã£?Â«Ã£?Â¡Ã£?Â¯",
+});

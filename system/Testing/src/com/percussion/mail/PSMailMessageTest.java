@@ -80,7 +80,7 @@ public class PSMailMessageTest
          int lastCrLf = crLf;
          while (crLf > 0)
          {
-            assertTrue("" + (crLf - lastCrLf) + " <= 1000?", (crLf - lastCrLf) <= 1000);
+            assertTrue((crLf - lastCrLf) <= 1000, "" + (crLf - lastCrLf) + " <= 1000?");
             lastCrLf = crLf;
             crLf = bodyText.indexOf("\r\n", crLf+2);
          }
@@ -196,7 +196,7 @@ public class PSMailMessageTest
       assertEquals(1000, contentBuf.length());
       System.err.println("INDEX OF \\r\\n is: " + contentBuf.toString().indexOf("\r\n"));
       PSMailMessage msg = new PSMailMessage();
-      
+
       String longLine = contentBuf.toString().substring(0, contentBuf.length() - 2);
       for (int i = 0; i < 10; i++)
       {

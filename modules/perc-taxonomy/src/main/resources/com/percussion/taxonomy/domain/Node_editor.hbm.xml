@@ -3,11 +3,16 @@
 
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-  <class name="com.percussion.taxonomy.domain.Node_editor" table="TAX_NODE_EDITOR">
-    <id name="Id" column="ID" type="integer">
-      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
-    </id>
-    <many-to-one name="node" class="com.percussion.taxonomy.domain.Node" column="NODE_ID" fetch="select" not-null="true"/>
-    <property name="role" column="PERCUSSION_ROLE" type="string" not-null="true"/>
-   </class>
+	<class name="com.percussion.taxonomy.domain.Node_editor"
+		table="TAX_NODE_EDITOR">
+		<id name="Id" column="ID" type="integer">
+			<generator
+				class="com.percussion.data.utils.PSNextNumberHibernateGenerator" />
+		</id>
+		<many-to-one name="node"
+			class="com.percussion.taxonomy.domain.Node" column="NODE_ID"
+			fetch="select" not-null="true" />
+		<property name="role" column="PERCUSSION_ROLE" type="string"
+			not-null="true" />
+	</class>
 </hibernate-mapping>

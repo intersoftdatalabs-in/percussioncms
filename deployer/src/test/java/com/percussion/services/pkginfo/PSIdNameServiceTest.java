@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test case for the {@link PSIdNameService} class. */
-@Tag("IntegrationTest")
+
 public class PSIdNameServiceTest {
   /**
    * Test saving and loading id-name mappings.

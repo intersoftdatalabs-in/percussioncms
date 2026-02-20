@@ -48,9 +48,14 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Properties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -60,20 +65,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test class for the <code>PSWsFolderProcessor</code> class.
  */
-@Tag("IntegrationTest")
+
 public class PSWsFolderProcessorTest extends PSClientTestCase
 {
    private static final Logger ms_log = LogManager.getLogger(PSWsFolderProcessorTest.class);
+
+   @BeforeAll
+   public static void checkRemoteServerAvailable()
+   {
+      try {
+         PSWsFolderProcessorTest tst = new PSWsFolderProcessorTest();
+         Properties props = tst.getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER);
+         String host = props.getProperty("hostName");
+         int port = Integer.parseInt(props.getProperty("port"));
+         try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress(host, port), 300);
+         }
+      } catch (Exception e) {
+         org.junit.jupiter.api.Assumptions.assumeTrue(false, "Remote Rhythmyx server not available - skipping PSWsFolderProcessorTest");
+      }
+   }
 
    /**
     * Construct this unit test
     *
     * @param name The name of this test.
     */
-    public PSWsFolderProcessorTest(String name)
-   {
-      super(name);
-   }
+
 
    /**
     * Get component processor proxy for remote processor.
@@ -113,13 +131,12 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
    }
 
    /**
-    * Testing copy folder children. This will be used by PSRemoteAgentTest. 
+    * Testing copy folder children. This will be used by PSRemoteAgentTest.
     *
     * @param itemLocator An existing item locator, assume not <code>null</code>
     *
     * @throws Exception if an error occurs.
     */
-   @Test
    public static void testCopyFolderChildrenItem(PSLocator itemLocator)
       throws Exception
    {
@@ -166,8 +183,8 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
 
       PSRelationshipProcessorProxy relProxy = getRemoteRelationshipProxy();
       relProxy.add(
-         PSRelationshipConfig.TYPE_FOLDER_CONTENT, 
-         locatorList, 
+         PSRelationshipConfig.TYPE_FOLDER_CONTENT,
+         locatorList,
          locator);
       summaries = relProxy.getChildren(folderType, locator);
       assertTrue(summaries.length == 2);
@@ -210,19 +227,19 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
    /**
     * Get a remote request object, which can be used to communicate to remote
     * Rhythmyx.
-    * 
+    *
     * @return the remote request object, never <code>null</code>.
     * @throws Exception
     */
    private static PSRemoteRequester getRemoteRequester() throws Exception
    {
-      PSWsFolderProcessorTest tst = new PSWsFolderProcessorTest("Test");
-      
-      return new PSRemoteRequester(            
+      PSWsFolderProcessorTest tst = new PSWsFolderProcessorTest();
+
+      return new PSRemoteRequester(
             tst.getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER));
-      
+
    }
-   
+
    /**
     * Testing search
     */
@@ -238,12 +255,12 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       List<Integer> ids = new ArrayList<Integer>();
       ids.add(new Integer(2));
       ids.add(new Integer(3));
-      IPSExecutableSearch search = 
-         PSExecutableSearchFactory.createExecutableSearch(requester, names, 
-            ids);      
+      IPSExecutableSearch search =
+         PSExecutableSearchFactory.createExecutableSearch(requester, names,
+            ids);
       PSWSSearchResponse searchResp = search.executeSearch();
-      
-      
+
+
       // there should be 2 Results
       Iterator rows = searchResp.getRows();
       assertTrue(rows.hasNext());
@@ -258,7 +275,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
    @Test
    public void testRelationship() throws Exception
    {
-      
+
       PSRemoteRequester req = getRemoteRequester();
 
       // testing cataloger
@@ -320,13 +337,13 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       summary = relProxy.getSummaryByPath(folderType,
             "//Sites", PSRelationshipConfig.TYPE_FOLDER_CONTENT);
       assertTrue(summary != null && summary.getName().equalsIgnoreCase("Sites"));
-      
+
       summary = relProxy.getSummaryByPath(
          folderType,
-         "//Sites/EnterpriseInvestments/Files", 
+         "//Sites/EnterpriseInvestments/Files",
          PSRelationshipConfig.TYPE_FOLDER_CONTENT);
       assertTrue(summary.getName().equals("Files"));
-       
+
       // Testing getRelationshipOwnerPaths()
       String[] paths = relProxy.getRelationshipOwnerPaths(folderType, summary
             .getCurrentLocator(), PSRelationshipConfig.TYPE_FOLDER_CONTENT);
@@ -337,16 +354,16 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
             new PSLocator(301, 1), PSRelationshipConfig.TYPE_FOLDER_CONTENT);
       assertTrue(paths.length == 1
             && paths[0].equalsIgnoreCase("//Sites"));
-      
+
       paths = relProxy.getRelationshipOwnerPaths(folderType,
             new PSLocator(2, 1), PSRelationshipConfig.TYPE_FOLDER_CONTENT);
       assertTrue(paths.length == 1
             && paths[0].equalsIgnoreCase("/"));
-      
+
       paths = relProxy.getRelationshipOwnerPaths(folderType,
             new PSLocator(1, 1), PSRelationshipConfig.TYPE_FOLDER_CONTENT);
       assertTrue(paths.length == 0);
-      
+
       // Testing createFolder
       int communityId = -1;
       PSFolder folder = new PSFolder("folder1", communityId,
@@ -383,7 +400,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
             folderType,
             PSServerFolderProcessor.FOLDER_RELATE_TYPE,
             rootLocator);
-         
+
          assertTrue(false); // should not get here since no parent for root
       }
       catch (PSCmsException ex)
@@ -443,8 +460,8 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       // insert owner "locator4" with dependent "locator5"
       locatorList.add(locator5);
       relProxy.add(
-         PSRelationshipConfig.TYPE_FOLDER_CONTENT, 
-         locatorList, 
+         PSRelationshipConfig.TYPE_FOLDER_CONTENT,
+         locatorList,
          locator4);
       summaries = relProxy.getChildren(folderType, locator4);
       assertTrue(summaries.length == 1);
@@ -459,8 +476,8 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       locatorList.add(locator3);
       locatorList.add(locator4);
       relProxy.add(
-         PSRelationshipConfig.TYPE_FOLDER_CONTENT, 
-         locatorList, 
+         PSRelationshipConfig.TYPE_FOLDER_CONTENT,
+         locatorList,
          locator);
       ms_log.info("add folder children successful");
 
@@ -547,8 +564,8 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       locatorList.clear();
       locatorList.add(locator3);
       relProxy.add(
-         PSRelationshipConfig.TYPE_FOLDER_CONTENT, 
-         locatorList, 
+         PSRelationshipConfig.TYPE_FOLDER_CONTENT,
+         locatorList,
          locator5);
 
       summaries = relProxy.getChildren(folderType, locator5);
@@ -572,8 +589,8 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       locatorList.clear();
       locatorList.add(locator5);
       relProxy.add(
-         PSRelationshipConfig.TYPE_FOLDER_CONTENT, 
-         locatorList, 
+         PSRelationshipConfig.TYPE_FOLDER_CONTENT,
+         locatorList,
          locator3);
 
       summaries = relProxy.getChildren(folderType, locator3);
@@ -641,13 +658,13 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
 
    /**
     * Using "New Copy" to create items for benchmark repository.
-    * 
+    *
     * @throws Exception if error occurs.
     */
    public void performNewCopy() throws Exception
    {
       long startTime = System.currentTimeMillis();
-      
+
       PSRemoteAgent agent = new PSRemoteAgent(getRemoteRequester());
       PSLocator locators[] = new PSLocator[3];
       locators[0] = new PSLocator(303, 1);
@@ -661,41 +678,41 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
             agent.newCopyItem(locators[i]);
          }
       }
-      long elapse = (System.currentTimeMillis() - startTime) / 1000; 
+      long elapse = (System.currentTimeMillis() - startTime) / 1000;
       ms_log.info("Elaps time: " + elapse + " secs");
    }
 
    /**
     * Creates site folfers for benchmark reporsitory.
-    *  
+    *
     * @throws Exception if error occurs.
     */
    public void performCreateFolder() throws Exception
    {
       //for (int i=0; i<5; i++)
       //   folderCount[i] = 1;
-         
+
       // admin1 / demo
       //createSiteFolder("//Sites/Intranet", "Intranet", "newFolderAdmin1.txt",
       //   5404, 10452); // there are 5049 items, from 5405 to 10452
-       
-      // admin2 / demo 
+
+      // admin2 / demo
       createSiteFolder("//Sites/Internet", "Internet", "newFolderAdmin2.txt",
          355, 5403); // there are 5049 items, from 355 to 5403
    }
 
    /**
     * Creates folders for the given parameters.
-    * 
-    * @param parentPath The path of the parent folder, assume not 
+    *
+    * @param parentPath The path of the parent folder, assume not
     *    <code>null</code> or empty.
-    * 
-    * @param siteName The name of the site, assume not <code>null</code> or 
+    *
+    * @param siteName The name of the site, assume not <code>null</code> or
     *    empty.
-    * 
-    * @param dataFile The name of the data file that is used to create 
+    *
+    * @param dataFile The name of the data file that is used to create
     *    folders, assume not <code>null</code> or empty.
-    * 
+    *
     * @throws Exception if error occurs.
     */
    private void createSiteFolder(
@@ -715,15 +732,15 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
             PSDbComponent.getComponentType(PSFolder.class),
             parentPath,
             PSRelationshipConfig.TYPE_FOLDER_CONTENT);
-      
+
       PSLocator topLocator = parentSummary.getCurrentLocator();
-      
+
       // create 25 L1 folders
-      //        150 L2 folders 
+      //        150 L2 folders
       for (int i=1; i <= 25; i++)
       {
          PSLocator locator = createFolder(topLocator, 1, info);
-         // create L1 folder, 1-5 => no sub-folder 
+         // create L1 folder, 1-5 => no sub-folder
          // create L1 folder, 6-15 => 5 sub-folder
          if (i >= 6 && i <= 15 )
          {
@@ -738,52 +755,52 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
                createFolder(locator, 2, info);
          }
       }
-      
-      // create 50 L3 folder; One L3 sub-folder per L2 76-125   
+
+      // create 50 L3 folder; One L3 sub-folder per L2 76-125
       for (int i=76; i <= 125; i++)
       {
          createFolder(info.m_l2Locators[i-1], 3, info);
       }
 
-      // create 50 L3 folder; TWO L3 sub-folder per L2 126-150   
+      // create 50 L3 folder; TWO L3 sub-folder per L2 126-150
       for (int i=126; i <= 150; i++)
       {
          createFolder(info.m_l2Locators[i-1], 3, info);
          createFolder(info.m_l2Locators[i-1], 3, info);
       }
-         
-      // create 25 L4 folder; ONE L4 sub-folder per L3 51-75   
+
+      // create 25 L4 folder; ONE L4 sub-folder per L3 51-75
       for (int i=51; i <= 75; i++)
       {
          createFolder(info.m_l3Locators[i-1], 4, info);
       }
-      
-      // create 75 L4 folder; THREE L4 sub-folder per L3 76-100   
+
+      // create 75 L4 folder; THREE L4 sub-folder per L3 76-100
       for (int i=76; i <= 100; i++)
       {
          for (int j=0; j<3; j++)
             createFolder(info.m_l3Locators[i-1], 4, info);
       }
 
-      // create 20 L5 folder; ONE L5 sub-folder per L4 71-90   
+      // create 20 L5 folder; ONE L5 sub-folder per L4 71-90
       for (int i=71; i <= 90; i++)
       {
          createFolder(info.m_l4Locators[i-1], 5, info);
       }
-            
-      // create 30 L5 folder; THREE L5 sub-folder per L4 91-100   
+
+      // create 30 L5 folder; THREE L5 sub-folder per L4 91-100
       for (int i=91; i <= 100; i++)
       {
          for (int j=0; j<3; j++)
             createFolder(info.m_l4Locators[i-1], 5, info);
       }
-      
+
       assignItemToFolder(info);
    }
 
    /**
     * Assign folder / item relationship according to the supplied folder info.
-    * 
+    *
     * @param info The folder info, assume not <code>null</code>.
     * @throws Exception
     */
@@ -792,7 +809,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
    {
       ms_log.info("Processing L1 folders, next available content id: "
          + info.m_nextContentId + " ...");
-      
+
       // L1 folder & item distribution, 25 folder with 146 items
       //    Each 1 Folder contains 50 items
       //    Each 24 Folder contains 4 items
@@ -801,7 +818,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
 
       ms_log.info("Processing L2 folders, next available content id: "
          + info.m_nextContentId + " ...");
-      
+
       // L2 folder & item distribution, 150 folder with 600 items
       //    Each 100 Folder contains 4 items
       //    Each 25 Folder contains 2 items
@@ -812,7 +829,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
 
       ms_log.info("Processing L3 folders, next available content id: "
          + info.m_nextContentId + " ...");
-      
+
       // L3 folder & item distribution, 100 folder with 2200 items
       //    Each 50 Folder contains 22 items
       //    Each 25 Folder contains 11 items
@@ -834,29 +851,29 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
 
       ms_log.info("Processing L5 folders, next available content id: "
          + info.m_nextContentId + " ...");
-      
+
       // L5 folder & item distribution, 50 folder with 600 items
       //    Each 25 Folder contains 8 items
       //    Each 25 Folder contains 16 items
       addItemsToFolder(info.m_l5Locators, 0, 24, 8, info);
       addItemsToFolder(info.m_l5Locators, 25, 49, 16, info);
-      
+
       ms_log.info("Last available content id: " + info.m_nextContentId);
    }
 
    /**
     * For each supplied folders, add a number of items to it.
-    * 
+    *
     * @param parents The folder locators, assume not <code>null</code> or empty.
-    * 
+    *
     * @param begin The first index of the <code>parents</code>, assume greater
     *    than zero, less than <code>end</code>.
-    * 
+    *
     * @param end The last index of the <code>parents</code>, assume greater
     *    than <code>begin</code>.
-    * 
+    *
     * @param itemCount The number of items need to be added to each folder.
-    * 
+    *
     * @param info The folder info, assume not <code>null</code>.
     * @throws Exception
     */
@@ -871,7 +888,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
 
       for (int i=begin; i <= end; i++)
       {
-         // prepare child locators         
+         // prepare child locators
          List<PSLocator> childLocators = new ArrayList<PSLocator>();
          for (int j=0; j < itemCount; j++)
          {
@@ -879,24 +896,24 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
             childLocators.add(itemLocator);
          }
          relProxy.add(
-            PSRelationshipConfig.TYPE_FOLDER_CONTENT, 
-            childLocators, 
+            PSRelationshipConfig.TYPE_FOLDER_CONTENT,
+            childLocators,
             parents[i]);
       }
    }
-   
+
    /**
     * Creates a folder from the given parameters.
-    * 
-    * @param parentLocator The locator of the parent folder, assume not 
+    *
+    * @param parentLocator The locator of the parent folder, assume not
     *    <code>null</code>.
-    * 
+    *
     * @param level The level of the created folder, assume its range is 1-5.
-    * 
+    *
     * @param info The folder info, assume not <code>null</code>.
-    * 
+    *
     * @return The locator of the created folder, never <code>null</code>.
-    * 
+    *
     * @throws Exception if error occurs.
     */
    private PSLocator createFolder(
@@ -911,23 +928,23 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
             + String.valueOf(level)
             + "_"
             + info.m_siteName;
-            
+
       return createFolder(parentLocator, name, info);
    }
-      
+
    /**
     * Creates a folder from the given parameters.
-    * 
-    * @param parentLocator The locator of the parent folder, assume not 
+    *
+    * @param parentLocator The locator of the parent folder, assume not
     *    <code>null</code>.
-    * 
+    *
     * @param folderName The name of the created folder, assume it contains
     *    "_L1_", "_L2_", "_L3_", "_L4_", or "_L5_".
-    * 
+    *
     * @param info The folder info, assume not <code>null</code>.
-    * 
+    *
     * @return The locator of the created folder, never <code>null</code>.
-    * 
+    *
     * @throws Exception if error occurs.
     */
    private PSLocator createFolder(
@@ -936,36 +953,36 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       FolderInfo info)
       throws Exception
    {
-      // create the new folder object      
+      // create the new folder object
       Element folderEl = loadXmlResource(info.m_dataFile);
       PSFolder folder = new PSFolder(folderEl);
       folder.setName(folderName);
-   
+
       // insert the new folder
       PSComponentProcessorProxy compProxy = getRemoteComponentProxy();
-   
+
       PSSaveResults results =
          compProxy.save(new IPSDbComponent[] {folder});
       folder = (PSFolder) results.getResults()[0];
       PSLocator locator = folder.getLocator();
-   
+
       // add the new folder to its parent
       PSRelationshipProcessorProxy relProxy = getRemoteRelationshipProxy();
-   
+
       List<PSLocator> locatorList = new ArrayList<PSLocator>();
       locatorList.add(locator);
       relProxy.add(
-         PSRelationshipConfig.TYPE_FOLDER_CONTENT, 
-         locatorList, 
+         PSRelationshipConfig.TYPE_FOLDER_CONTENT,
+         locatorList,
          parentLocator);
-         
-      ms_log.info("create folder successful: " 
-         + info.m_nextCount[0] + ", " 
-         + info.m_nextCount[1] + ", " 
-         + info.m_nextCount[2] + ", " 
-         + info.m_nextCount[3] + ", " 
+
+      ms_log.info("create folder successful: "
+         + info.m_nextCount[0] + ", "
+         + info.m_nextCount[1] + ", "
+         + info.m_nextCount[2] + ", "
+         + info.m_nextCount[3] + ", "
          + info.m_nextCount[4] + ", ");
-   
+
       if (folderName.indexOf("_L1_") != -1)
       {
          info.m_l1Locators[info.m_nextCount[0] - 1] = locator;
@@ -991,26 +1008,26 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
          info.m_l5Locators[info.m_nextCount[4] - 1] = locator;
          info.m_nextCount[4]++;
       }
-      
+
       return locator;
    }
-   
+
    /**
     * An container class used to hold the information that is needed to create
-    * (site) folders. This is used for creating folders for the benchmark 
+    * (site) folders. This is used for creating folders for the benchmark
     * database.
     */
    private class FolderInfo
    {
       /**
        * Constructs an object from the given parameters.
-       * 
-       * @param siteName The name of the site folder, assume not 
+       *
+       * @param siteName The name of the site folder, assume not
        *    <code>null</code> or empty.
-       * 
+       *
        * @param dataFile The data file that is used to create folder, assume
        *    not <code>null</code> or empty.
-       */      
+       */
       private FolderInfo(
          String siteName,
          String dataFile,
@@ -1019,16 +1036,16 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       {
          m_siteName = siteName;
          m_dataFile = dataFile;
-         
+
          m_nextContentId = firstContentId;
          m_maxContentId = maxContentId;
-         
+
          m_l1Locators = new PSLocator[25];
          m_l2Locators = new PSLocator[150];
          m_l3Locators = new PSLocator[100];
          m_l4Locators = new PSLocator[100];
          m_l5Locators = new PSLocator[50];
-         
+
          m_nextCount = new int[5];
          for (int i=0; i<5; i++)
             m_nextCount[i] = 1;
@@ -1036,10 +1053,10 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
 
       /**
        * Get the next available content id.
-       * 
-       * @return the content id, which will next greater than 
+       *
+       * @return the content id, which will next greater than
        *    <code>m_maxContentId</code>.
-       * 
+       *
        * @throws IllegalStateException if there is no content id available
        */
       private int getNextContentId()
@@ -1054,23 +1071,23 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
                   + ")");
          }
          int currentId = m_nextContentId++;
-         
+
          return currentId;
       }
-      
+
       /**
        * The next content id, which is used to be a child of a folder. It will
-       * incremented for each usage, but it never greater than 
-       * <code>m_lastContentId</code>. It is initialized by ctor.     
+       * incremented for each usage, but it never greater than
+       * <code>m_lastContentId</code>. It is initialized by ctor.
        */
       int m_nextContentId;
 
       /**
-       * The maximum content id of the <code>m_nextContentId</code>. 
-       * It is initialized by ctor.     
+       * The maximum content id of the <code>m_nextContentId</code>.
+       * It is initialized by ctor.
        */
       int m_maxContentId;
-      
+
       /**
        * The name of the site, init by ctor, never <code>null</code> or empty
        * after that.
@@ -1078,11 +1095,11 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       private String m_siteName;
 
       /**
-       * The data file used to create folders, init by ctor, never 
+       * The data file used to create folders, init by ctor, never
        * <code>null</code> or empty after that.
        */
       private String m_dataFile;
-      
+
       // next folder# for 5 levels
       private int m_nextCount[] = new int[5];
 
@@ -1095,7 +1112,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       private PSLocator m_l4Locators[]; // locators of level 4
       private PSLocator m_l5Locators[]; // locators of level 5
    }
-   
+
    /**
     * Loads the xml resource into an xml document and returns the
     * root element.

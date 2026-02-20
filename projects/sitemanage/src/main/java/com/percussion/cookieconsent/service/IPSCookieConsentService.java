@@ -17,7 +17,7 @@
 
 package com.percussion.cookieconsent.service;
 
-import javax.ws.rs.PathParam;
+import jakarta.ws.rs.PathParam;
 
 /**
  * Service to interface with cookie consent service within DTS metadata service.

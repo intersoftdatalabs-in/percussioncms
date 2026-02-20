@@ -27,6 +27,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
@@ -41,7 +44,7 @@ public class PSXmlObjectStoreLockManagerTest {
 
    private static final Logger log = LogManager.getLogger(PSXmlObjectStoreLockManagerTest.class);
 
-   @Rule
+   @TempDir
    public Path temporaryFolder;
 
    public PSXmlObjectStoreLockManagerTest() {}
@@ -52,7 +55,9 @@ public class PSXmlObjectStoreLockManagerTest {
       int numTimes = 5;
       SecureRandom rand = new SecureRandom();
 
-      File lockDir = temporaryFolder.newFolder("Temp", "Testing", "TestLocks");
+      Path lockDirPath = temporaryFolder.resolve(Paths.get("Temp", "Testing", "TestLocks"));
+      java.nio.file.Files.createDirectories(lockDirPath);
+      File lockDir = lockDirPath.toFile();
 
       IPSObjectStoreLockManager locker = new PSXmlObjectStoreLockManager(lockDir);
 
@@ -73,7 +78,7 @@ public class PSXmlObjectStoreLockManagerTest {
    }
 
    public void doAssert(String msg, boolean cond) {
-      assertTrue(msg, cond);
+      assertTrue(cond, msg);
    }
 
    /**
@@ -85,8 +90,12 @@ public class PSXmlObjectStoreLockManagerTest {
       PSServerXmlObjectStore.RecoverableFile dirBkup;
 
       // cleanup both source and destination directories if exist
-      File newAppDir = temporaryFolder.newFolder("Temp", "TestDirDest");
-      File appDir = temporaryFolder.newFolder("Temp", "TestDir");
+      Path newAppDirPath = temporaryFolder.resolve(Paths.get("Temp", "TestDirDest"));
+      Files.createDirectories(newAppDirPath);
+      File newAppDir = newAppDirPath.toFile();
+      Path appDirPath = temporaryFolder.resolve(Paths.get("Temp", "TestDir"));
+      Files.createDirectories(appDirPath);
+      File appDir = appDirPath.toFile();
       dirBkup = new PSServerXmlObjectStore.RecoverableFile(newAppDir);
       dirBkup.delete();
       dirBkup = new PSServerXmlObjectStore.RecoverableFile(appDir);

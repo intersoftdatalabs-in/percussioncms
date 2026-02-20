@@ -18,21 +18,14 @@
 // assumed dependencies:
 //  - require.js
 
-requirejs
-(
-    [
-        'jquery',
-        'perc-utils/hashwatcher',
-        'widgets/app/app'
-        
-    ],
-    function ($,HashWatcher, app) {
-        $(document).ready(function () {
-            
-            var $app = $('#application');
-            $app.app();
-            
-            var watcher = new HashWatcher();
-        });
-    }
+requirejs(
+  ["jquery", "perc-utils/hashwatcher", "widgets/app/app"],
+  function ($, HashWatcher, app) {
+    $(document).ready(function () {
+      var $app = $("#application");
+      $app.app();
+
+      var watcher = new HashWatcher();
+    });
+  }
 );

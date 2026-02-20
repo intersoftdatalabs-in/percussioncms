@@ -38,6 +38,12 @@ public interface IPSTypedPrincipal extends Principal {
     /** Indicates the principal represents a subject name. */
     SUBJECT(50),
 
+    /** Indicates the principal represents a system entry (internal use). */
+    SYSTEM_ENTRY(60),
+
+    /** Indicates the principal represents a system community. */
+    SYSTEM_COMMUNITY(70),
+
     /** Indicates the type the principal represents is undefined. */
     UNDEFINED(-1);
 

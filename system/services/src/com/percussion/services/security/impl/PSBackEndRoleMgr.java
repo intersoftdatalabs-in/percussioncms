@@ -55,12 +55,9 @@ import com.percussion.utils.request.PSRequestInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.query.Query;
-import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.NamingException;
@@ -126,10 +123,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
     public List<String> getRhythmyxRoles() {
         List<String> roleList = new ArrayList<>();
 
-        Iterator roles = loadRoleList(null).iterator();
-
-        while (roles.hasNext()) {
-            PSBackEndRole role = (PSBackEndRole) roles.next();
+        for (PSBackEndRole role : loadRoleList(null)) {
             roleList.add(role.getName());
         }
 
@@ -142,24 +136,29 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
 
         Session session = getSession();
 
-        Criteria criteria = session.createCriteria(PSBackEndSubject.class);
-
+        StringBuilder hql = new StringBuilder("from PSBackEndSubject s");
+        var predicates = new ArrayList<String>();
         if (!StringUtils.isBlank(subjectName)) {
-            criteria.add(Restrictions.ilike("name", subjectName));
+            predicates.add("lower(s.name) like :name");
         }
-
         if (subjectType != 0) {
-            criteria.add(Restrictions.eq("type", subjectType));
+            predicates.add("s.type = :type");
+        }
+        if (!predicates.isEmpty()) {
+            hql.append(" where ").append(String.join(" and ", predicates));
         }
 
-        Iterator subjects = criteria.list().iterator();
+        Query<PSBackEndSubject> query = session.createQuery(hql.toString(), PSBackEndSubject.class);
+        if (!StringUtils.isBlank(subjectName)) {
+            query.setParameter("name", "%" + subjectName.toLowerCase() + "%");
+        }
+        if (subjectType != 0) {
+            query.setParameter("type", subjectType);
+        }
 
-        while (subjects.hasNext()) {
-            PSBackEndSubject sub = (PSBackEndSubject) subjects.next();
-            Iterator roles = sub.getRoles().iterator();
-
-            while (roles.hasNext()) {
-                PSBackEndRole role = (PSBackEndRole) roles.next();
+        var subjects = query.list();
+        for (PSBackEndSubject sub : subjects) {
+            for (PSBackEndRole role : sub.getRoles()) {
                 roleNames.add(role.getName());
             }
         }
@@ -499,23 +498,23 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
      * @see IPSBackendRoleMgr#loadCommunities(IPSGuid[])
      */
     public PSCommunity[] loadCommunities(IPSGuid[] ids) {
-        if (PSGuidUtils.isBlank(ids)) {
+        if (ids == null || ids.length == 0) {
             throw new IllegalArgumentException("ids cannot be null or empty");
         }
 
-        List communities = loadCommunityList(ids);
+        List<PSCommunity> communities = loadCommunityList(ids);
 
-        return (PSCommunity[]) communities.toArray(new PSCommunity[communities.size()]);
+        return communities.toArray(new PSCommunity[0]);
     }
 
     public PSBackEndRole[] loadRoles(IPSGuid[] ids) {
-        if (PSGuidUtils.isBlank(ids)) {
+        if (ids == null || ids.length == 0) {
             throw new IllegalArgumentException("ids cannot be null or empty");
         }
 
-        List roles = loadRoleList(ids);
+        List<PSBackEndRole> roles = loadRoleList(ids);
 
-        return (PSBackEndRole[]) roles.toArray(new PSBackEndRole[roles.size()]);
+        return roles.toArray(new PSBackEndRole[0]);
     }
 
     /**
@@ -526,14 +525,15 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
      * @return a list with all loaded roles in the same order as requested, never
      * <code>null</code> or empty.
      */
-    private List loadRoleList(IPSGuid[] ids) {
+    private List<PSBackEndRole> loadRoleList(IPSGuid[] ids) {
         Session session = getSession();
-        if (ids==null)
-            return session.createCriteria(PSBackEndRole.class).setCacheable(true).list();
-        else
+        if (ids == null) {
+            return session.createQuery("from PSBackEndRole", PSBackEndRole.class).setCacheable(true).list();
+        } else {
             return Arrays.stream(ids)
-                    .map(id -> session.get(PSBackEndRole.class,id.longValue()))
+                    .map(id -> session.get(PSBackEndRole.class, id.longValue()))
                     .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -544,15 +544,16 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
      * @return a list with all loaded communities in the same order as requested,
      * never <code>null</code> or empty.
      */
-   private List loadCommunityList(IPSGuid[] ids)
+   private List<PSCommunity> loadCommunityList(IPSGuid[] ids)
    {
         Session session = getSession();
-       if (ids==null)
-           return session.createCriteria(PSCommunity.class).setCacheable(true).list();
-       else
+       if (ids == null) {
+           return session.createQuery("from PSCommunity", PSCommunity.class).setCacheable(true).list();
+       } else {
            return Arrays.stream(ids)
-                   .map(id -> session.get(PSCommunity.class,id.longValue()))
+                   .map(id -> session.get(PSCommunity.class, id.longValue()))
                    .collect(Collectors.toList());
+       }
     }
 
     /*
@@ -692,9 +693,9 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
             b.append(qualify("RXCOMPONENTCOMMUNITY"));
             b.append(" WHERE COMMUNITYID = ?");
 
-            SQLQuery st = s.createSQLQuery(b.toString());
+            NativeQuery<?> st = s.createNativeQuery(b.toString());
 
-            st.setLong(1, id.longValue());
+            st.setParameter(1, id.longValue());
             st.executeUpdate();
 
             // cleanup menu visibilities
@@ -703,9 +704,9 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
             b.append(qualify("RXMENUVISIBILITY"));
             b.append(" WHERE VISIBILITYCONTEXT = ?");
             b.append(" AND VALUE = ?");
-            st = s.createSQLQuery(b.toString());
-            st.setString(1, PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY);
-            st.setString(2, Long.toString(id.longValue()));
+            st = s.createNativeQuery(b.toString());
+            st.setParameter(1, PSActionVisibilityContext.VIS_CONTEXT_COMMUNITY);
+            st.setParameter(2, Long.toString(id.longValue()));
             st.executeUpdate();
 
             // cleanup autotranslations
@@ -713,8 +714,8 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
             b.append("DELETE FROM ");
             b.append(qualify("PSX_AUTOTRANSLATION"));
             b.append(" WHERE COMMUNITYID = ?");
-            st = s.createSQLQuery(b.toString());
-            st.setLong(1, id.longValue());
+            st = s.createNativeQuery(b.toString());
+            st.setParameter(1, id.longValue());
             st.executeUpdate();
         } catch (SQLException e) {
             ms_log.error("Couldn't save community", e);
@@ -737,15 +738,22 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
 
          if (StringUtils.isBlank(name) || name.equals("%"))
          {
-            communities = session.createCriteria(PSCommunity.class).setCacheable(true).list();
+            communities = session.createQuery("from PSCommunity", PSCommunity.class).setCacheable(true).list();
         }
          else
          {
-        Criteria criteria = session.createCriteria(PSCommunity.class);
-        criteria.add(Restrictions.ilike("name", name));
-        criteria.addOrder(Order.asc("name"));
-            criteria.setCacheable(true);
-            communities = criteria.list();
+        StringBuilder hql = new StringBuilder("from PSCommunity c");
+        if (!StringUtils.isBlank(name)) {
+            hql.append(" where lower(c.name) like :name");
+        }
+        hql.append(" order by c.name asc");
+
+        Query<PSCommunity> query = session.createQuery(hql.toString(), PSCommunity.class);
+        if (!StringUtils.isBlank(name)) {
+            query.setParameter("name", "%" + name.toLowerCase() + "%");
+        }
+            query.setCacheable(true);
+            communities = query.list();
          }
 
          return communities;
@@ -802,7 +810,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
                 b.append(" FROM ");
                 b.append(qualify("RXSYSCOMPONENT"));
 
-                SQLQuery st = session.createSQLQuery(b.toString());
+                NativeQuery<?> st = session.createNativeQuery(b.toString());
                 st.executeUpdate();
             } else {
                 PSCommunity current = null;
@@ -856,11 +864,11 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
             name = "%";
         }
 
-        Criteria criteria = session.createCriteria(PSBackEndRole.class);
-        criteria.add(Restrictions.eq("name", name));
-        criteria.addOrder(Order.asc("name"));
+        String hql = "from PSBackEndRole r where r.name = :name order by r.name asc";
+        Query<PSBackEndRole> query = session.createQuery(hql, PSBackEndRole.class);
+        query.setParameter("name", name);
 
-        return (List<PSBackEndRole>) criteria.list();
+        return query.list();
     }
 
     /*

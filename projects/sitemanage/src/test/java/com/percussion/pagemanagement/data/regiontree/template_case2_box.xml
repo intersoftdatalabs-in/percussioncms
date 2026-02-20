@@ -2,101 +2,115 @@
 
 
 <RegionTree>
-    <regionWidgetAssociations>
-        <regionWidget>
-            <regionId>content</regionId>
-            <widgetItems>
-                <widgetItem>
-                    <cssProperties/>
-                    <definitionId>percNavBreadcrumb</definitionId>
-                    <description></description>
-                    <id>957627309</id>
-                    <name></name>
-                    <properties/>
-                </widgetItem>
-            </widgetItems>
-        </regionWidget>
-    </regionWidgetAssociations>
-    <rootRegion>
-        <regionId>percRoot</regionId>
-        <children>
-            <code>
-                <templateCode>#perc_templateHeader()</templateCode>
-            </code>
-            <region>
-                <regionId>container</regionId>
-                <startTag>&lt;div  class="perc-region  perc-vertical  hspan_12   "  noAutoResize="false" id="container"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
-                <children>
-                    <region>
-                        <regionId>header</regionId>
-                        <startTag>&lt;div  class="perc-region perc-region-leaf  perc-vertical   vspan_2  "  noAutoResize="false" id="header"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
-                        <children>
-                            <code>
-                                <templateCode>#region("header","","","","")</templateCode>
-                            </code>
-                        </children>
-                        <cssClass></cssClass>
-                        <endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
-                    </region>
-                    <region>
-                        <regionId>middle</regionId>
-                        <startTag>&lt;div  class="perc-region  perc-horizontal ui-helper-clearfix    "  noAutoResize="false" id="middle"&gt; &lt;div class=" perc-horizontal ui-helper-clearfix "&gt; </startTag>
-                        <children>
-                            <region>
-                                <regionId>leftsidebar</regionId>
-                                <startTag>&lt;div  class="perc-region perc-region-leaf  perc-vertical  hspan_2  vspan_4  "  noAutoResize="false" id="leftsidebar"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
-                                <children>
-                                    <code>
-                                        <templateCode>#region("leftsidebar","","","","")</templateCode>
-                                    </code>
-                                </children>
-                                <cssClass></cssClass>
-                                <endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
-                            </region>
-                            <region>
-                                <regionId>content</regionId>
-                                <startTag>&lt;div  class="perc-region perc-region-leaf  perc-vertical  hspan_8  vspan_4  "  noAutoResize="false" id="content"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
-                                <children>
-                                    <code>
-                                        <templateCode>#region("content","","","","")</templateCode>
-                                    </code>
-                                </children>
-                                <cssClass></cssClass>
-                                <endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
-                            </region>
-                            <region>
-                                <regionId>rightsidebar</regionId>
-                                <startTag>&lt;div  class="perc-region perc-region-leaf  perc-vertical  hspan_2  vspan_4  "  noAutoResize="false" id="rightsidebar"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
-                                <children>
-                                    <code>
-                                        <templateCode>#region("rightsidebar","","","","")</templateCode>
-                                    </code>
-                                </children>
-                                <cssClass></cssClass>
-                                <endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
-                            </region>
-                        </children>
-                        <cssClass></cssClass>
-                        <endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
-                    </region>
-                    <region>
-                        <regionId>footer</regionId>
-                        <startTag>&lt;div  class="perc-region perc-region-leaf  perc-vertical   vspan_2  "  noAutoResize="false" id="footer"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
-                        <children>
-                            <code>
-                                <templateCode>#region("footer","","","","")</templateCode>
-                            </code>
-                        </children>
-                        <cssClass></cssClass>
-                        <endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
-                    </region>
-                </children>
-                <cssClass></cssClass>
-                <endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
-            </region>
-            <code>
-                <templateCode>#perc_templateFooter()</templateCode>
-            </code>
-        </children>
-    </rootRegion>
+	<regionWidgetAssociations>
+		<regionWidget>
+			<regionId>content</regionId>
+			<widgetItems>
+				<widgetItem>
+					<cssProperties />
+					<definitionId>percNavBreadcrumb</definitionId>
+					<description></description>
+					<id>957627309</id>
+					<name></name>
+					<properties />
+				</widgetItem>
+			</widgetItems>
+		</regionWidget>
+	</regionWidgetAssociations>
+	<rootRegion>
+		<regionId>percRoot</regionId>
+		<children>
+			<code>
+				<templateCode>#perc_templateHeader()</templateCode>
+			</code>
+			<region>
+				<regionId>container</regionId>
+				<startTag>&lt;div class="perc-region perc-vertical hspan_12 "
+					noAutoResize="false" id="container"&gt; &lt;div class="
+					perc-vertical "&gt; </startTag>
+				<children>
+					<region>
+						<regionId>header</regionId>
+						<startTag>&lt;div class="perc-region perc-region-leaf
+							perc-vertical vspan_2 " noAutoResize="false" id="header"&gt;
+							&lt;div class=" perc-vertical "&gt; </startTag>
+						<children>
+							<code>
+								<templateCode>#region("header","","","","")</templateCode>
+							</code>
+						</children>
+						<cssClass></cssClass>
+						<endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
+					</region>
+					<region>
+						<regionId>middle</regionId>
+						<startTag>&lt;div class="perc-region perc-horizontal
+							ui-helper-clearfix " noAutoResize="false" id="middle"&gt; &lt;div
+							class=" perc-horizontal ui-helper-clearfix "&gt; </startTag>
+						<children>
+							<region>
+								<regionId>leftsidebar</regionId>
+								<startTag>&lt;div class="perc-region perc-region-leaf
+									perc-vertical hspan_2 vspan_4 " noAutoResize="false"
+									id="leftsidebar"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
+								<children>
+									<code>
+										<templateCode>#region("leftsidebar","","","","")</templateCode>
+									</code>
+								</children>
+								<cssClass></cssClass>
+								<endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
+							</region>
+							<region>
+								<regionId>content</regionId>
+								<startTag>&lt;div class="perc-region perc-region-leaf
+									perc-vertical hspan_8 vspan_4 " noAutoResize="false"
+									id="content"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
+								<children>
+									<code>
+										<templateCode>#region("content","","","","")</templateCode>
+									</code>
+								</children>
+								<cssClass></cssClass>
+								<endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
+							</region>
+							<region>
+								<regionId>rightsidebar</regionId>
+								<startTag>&lt;div class="perc-region perc-region-leaf
+									perc-vertical hspan_2 vspan_4 " noAutoResize="false"
+									id="rightsidebar"&gt; &lt;div class=" perc-vertical "&gt; </startTag>
+								<children>
+									<code>
+										<templateCode>#region("rightsidebar","","","","")</templateCode>
+									</code>
+								</children>
+								<cssClass></cssClass>
+								<endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
+							</region>
+						</children>
+						<cssClass></cssClass>
+						<endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
+					</region>
+					<region>
+						<regionId>footer</regionId>
+						<startTag>&lt;div class="perc-region perc-region-leaf
+							perc-vertical vspan_2 " noAutoResize="false" id="footer"&gt;
+							&lt;div class=" perc-vertical "&gt; </startTag>
+						<children>
+							<code>
+								<templateCode>#region("footer","","","","")</templateCode>
+							</code>
+						</children>
+						<cssClass></cssClass>
+						<endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
+					</region>
+				</children>
+				<cssClass></cssClass>
+				<endTag> &lt;/div&gt;&lt;/div&gt; </endTag>
+			</region>
+			<code>
+				<templateCode>#perc_templateFooter()</templateCode>
+			</code>
+		</children>
+	</rootRegion>
 </RegionTree>

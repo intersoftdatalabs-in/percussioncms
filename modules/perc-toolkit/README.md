@@ -246,7 +246,7 @@ All classes in `com.percussion.soln.jcr` have been refactored to use Java 17 fea
 - AbstractSimplyProperty.java
 
 All classes now use modern Java idioms and are marked with `// REFACTORED: CP-JAVA11` at the class level. No breaking changes were introduced; all public APIs remain backward compatible.
-The REST service implementation (`ItemRestServiceImpl.java`) was reverted to use `javax.ws.rs.*` imports and annotations due to missing Jakarta JAX-RS dependencies in this module. Migration to `jakarta.ws.rs.*` will be completed when compatible dependencies are available. See class-level comment in the source file for details.
+The REST service implementation (`ItemRestServiceImpl.java`) was reverted to use `jakarta.ws.rs.*` imports and annotations due to missing Jakarta JAX-RS dependencies in this module. Migration to `jakarta.ws.rs.*` will be completed when compatible dependencies are available. See class-level comment in the source file for details.
 
 No functional changes were made; all endpoints remain backward compatible.
 

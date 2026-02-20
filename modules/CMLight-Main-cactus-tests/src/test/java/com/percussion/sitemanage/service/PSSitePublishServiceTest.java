@@ -62,7 +62,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author Percussion (modernized by Sunny Sal)
  */
-@Tag("IntegrationTest")
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSSitePublishServiceTest {
 

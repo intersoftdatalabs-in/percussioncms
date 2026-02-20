@@ -1,40 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-	<xsl:variable name="datasource" select="//datasource"/>
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:variable name="datasource" select="//datasource" />
 	<!-- main template -->
 	<xsl:template match="/">
-		<xsl:apply-templates select="." mode="copy"/>
+		<xsl:apply-templates select="." mode="copy" />
 	</xsl:template>
 	<!-- copy any attribute or template -->
 	<xsl:template match="@*|*" mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:apply-templates mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:apply-templates mode="copy" />
 		</xsl:copy>
 	</xsl:template>
-	<!-- Template to add rxs_pubAppendPurgedOrMovedItems post exit to "unpub_clist" resource.-->
-	<xsl:template match="PSXDataSet[name='unpub_clist']/PSXQueryPipe/ResultDataExits/PSXExtensionCallSet" mode="copy">
+	<!-- Template to add rxs_pubAppendPurgedOrMovedItems post exit to "unpub_clist"
+		resource. -->
+	<xsl:template
+		match="PSXDataSet[name='unpub_clist']/PSXQueryPipe/ResultDataExits/PSXExtensionCallSet"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:apply-templates mode="copy"/>
-			<xsl:if test="not(PSXExtensionCall[name='Java/global/percussion/fastforward/sfp/rxs_pubAppendPurgedOrMovedItems'])">
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:apply-templates mode="copy" />
+			<xsl:if
+				test="not(PSXExtensionCall[name='Java/global/percussion/fastforward/sfp/rxs_pubAppendPurgedOrMovedItems'])">
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/fastforward/sfp/rxs_pubAppendPurgedOrMovedItems</name>
 				</PSXExtensionCall>
 			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
-	<!-- Template to convert CONTENTVALID condition from equal to 'n' to IN ('u','n')-->
-	<xsl:template match="PSXDataSet[name='unpubA_clist' or name='unpubB_clist']/PSXQueryPipe/PSXDataSelector/WhereClauses/PSXWhereClause[PSXConditional/variable/PSXBackEndColumn[tableAlias='STATES' and column='CONTENTVALID']]" mode="copy">
+	<!-- Template to convert CONTENTVALID condition from equal to 'n' to IN
+		('u','n') -->
+	<xsl:template
+		match="PSXDataSet[name='unpubA_clist' or name='unpubB_clist']/PSXQueryPipe/PSXDataSelector/WhereClauses/PSXWhereClause[PSXConditional/variable/PSXBackEndColumn[tableAlias='STATES' and column='CONTENTVALID']]"
+		mode="copy">
 		<PSXWhereClause id="0" omitWhenNull="no">
 			<PSXConditional id="0">
 				<variable>
 					<PSXBackEndColumn id="0">
 						<tableAlias>STATES</tableAlias>
 						<column>CONTENTVALID</column>
-						<columnAlias/>
+						<columnAlias />
 					</PSXBackEndColumn>
 				</variable>
 				<operator>IN</operator>
@@ -47,12 +55,15 @@
 			</PSXConditional>
 		</PSXWhereClause>
 	</xsl:template>
-	<!--Template to add parameters to rxs_SiteFolderContentListBulkBuilder exit.-->
-	<xsl:template match="PSXExtensionCall[name='Java/global/percussion/fastforward/sfp/rxs_SiteFolderContentListBulkBuilder']" mode="copy">
+	<!--Template to add parameters to rxs_SiteFolderContentListBulkBuilder exit. -->
+	<xsl:template
+		match="PSXExtensionCall[name='Java/global/percussion/fastforward/sfp/rxs_SiteFolderContentListBulkBuilder']"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:apply-templates mode="copy"/>
-			<xsl:if test="not(PSXExtensionParamValue[value/PSXSingleHtmlParameter/name='sys_protocol'])">
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:apply-templates mode="copy" />
+			<xsl:if
+				test="not(PSXExtensionParamValue[value/PSXSingleHtmlParameter/name='sys_protocol'])">
 				<PSXExtensionParamValue id="0">
 					<value>
 						<PSXSingleHtmlParameter id="0">
@@ -61,7 +72,8 @@
 					</value>
 				</PSXExtensionParamValue>
 			</xsl:if>
-			<xsl:if test="not(PSXExtensionParamValue[value/PSXSingleHtmlParameter/name='sys_host'])">
+			<xsl:if
+				test="not(PSXExtensionParamValue[value/PSXSingleHtmlParameter/name='sys_host'])">
 				<PSXExtensionParamValue id="0">
 					<value>
 						<PSXSingleHtmlParameter id="0">
@@ -70,7 +82,8 @@
 					</value>
 				</PSXExtensionParamValue>
 			</xsl:if>
-			<xsl:if test="not(PSXExtensionParamValue[value/PSXSingleHtmlParameter/name='sys_port'])">
+			<xsl:if
+				test="not(PSXExtensionParamValue[value/PSXSingleHtmlParameter/name='sys_port'])">
 				<PSXExtensionParamValue id="0">
 					<value>
 						<PSXSingleHtmlParameter id="0">
@@ -81,21 +94,24 @@
 			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
-	<!-- Template to add RXSITEITEMS.PUBOPERATION = 'publish' and RXSITEITEMS.PUBSTATUS='success' 
-		where clause conditions to "siteitem_clist" and "buildUnpub_clist" resources. If those conditions does not exist.
-	-->
-	<xsl:template match="PSXDataSet[name='siteitem_clist' or name='buildUnpub_clist']/PSXQueryPipe/PSXDataSelector/WhereClauses" mode="copy">
+	<!-- Template to add RXSITEITEMS.PUBOPERATION = 'publish' and RXSITEITEMS.PUBSTATUS='success'
+		where clause conditions to "siteitem_clist" and "buildUnpub_clist" resources.
+		If those conditions does not exist. -->
+	<xsl:template
+		match="PSXDataSet[name='siteitem_clist' or name='buildUnpub_clist']/PSXQueryPipe/PSXDataSelector/WhereClauses"
+		mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:apply-templates mode="copy"/>
-			<xsl:if test="not(PSXWhereClause[PSXConditional/variable/PSXBackEndColumn[tableAlias='RXSITEITEMS' and column='PUBOPERATION']])">
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:apply-templates mode="copy" />
+			<xsl:if
+				test="not(PSXWhereClause[PSXConditional/variable/PSXBackEndColumn[tableAlias='RXSITEITEMS' and column='PUBOPERATION']])">
 				<PSXWhereClause id="0" omitWhenNull="no">
 					<PSXConditional id="0">
 						<variable>
 							<PSXBackEndColumn id="0">
 								<tableAlias>RXSITEITEMS</tableAlias>
 								<column>PUBOPERATION</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</variable>
 						<operator>=</operator>
@@ -108,14 +124,15 @@
 					</PSXConditional>
 				</PSXWhereClause>
 			</xsl:if>
-			<xsl:if test="not(PSXWhereClause[PSXConditional/variable/PSXBackEndColumn[tableAlias='RXSITEITEMS' and column='PUBSTATUS']])">
+			<xsl:if
+				test="not(PSXWhereClause[PSXConditional/variable/PSXBackEndColumn[tableAlias='RXSITEITEMS' and column='PUBSTATUS']])">
 				<PSXWhereClause id="0" omitWhenNull="no">
 					<PSXConditional id="0">
 						<variable>
 							<PSXBackEndColumn id="0">
 								<tableAlias>RXSITEITEMS</tableAlias>
 								<column>PUBSTATUS</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</variable>
 						<operator>=</operator>
@@ -130,31 +147,39 @@
 			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
-	<!-- Template to add buildUnpub_clist and siteitem_clist datasets to the application. This is basically for 5.5 upgrades.-->
+	<!-- Template to add buildUnpub_clist and siteitem_clist datasets to the
+		application. This is basically for 5.5 upgrades. -->
 	<xsl:template match="PSXApplication" mode="copy">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" mode="copy"/>
-			<xsl:apply-templates select="node()[not(name()='userProperty' or name()='PSXLogger' or name()='PSXTraceInfo' or name()='PSXErrorWebPages' or name()='backEndLoginPassthru'  or name()='PSXNotifier')]" mode="copy"/>
+			<xsl:apply-templates select="@*" mode="copy" />
+			<xsl:apply-templates
+				select="node()[not(name()='userProperty' or name()='PSXLogger' or name()='PSXTraceInfo' or name()='PSXErrorWebPages' or name()='backEndLoginPassthru'  or name()='PSXNotifier')]"
+				mode="copy" />
 			<xsl:if test="not(PSXDataSet[name='buildUnpub_clist'])">
 				<PSXDataSet id="1216">
 					<name>buildUnpub_clist</name>
-					<description>This resource builds unpublish content list based on the list of content ids submitted as sys_contentid parameter, sys_siteid and sys_context. An outer join is made bwteen RXSIEITEMS and CONTENTSTATUS table to add info that is not available in RXSITEITEMS table. For items that are purged from the system, this information will be missing.</description>
+					<description>This resource builds unpublish content list based on
+						the list of content ids submitted as sys_contentid parameter,
+						sys_siteid and sys_context. An outer join is made bwteen
+						RXSIEITEMS and CONTENTSTATUS table to add info that is not
+						available in RXSITEITEMS table. For items that are purged from the
+						system, this information will be missing.</description>
 					<transactionType>none</transactionType>
 					<PSXQueryPipe id="1174">
 						<name>QueryPipe</name>
-						<description/>
+						<description />
 						<PSXBackEndDataTank id="1170">
 							<PSXBackEndTable id="1168">
 								<alias>RXSITEITEMS</alias>
 								<datasource>
-									<xsl:value-of select="$datasource"/>
+									<xsl:value-of select="$datasource" />
 								</datasource>
 								<table>RXSITEITEMS</table>
 							</PSXBackEndTable>
 							<PSXBackEndTable id="1169">
 								<alias>CONTENTSTATUS</alias>
 								<datasource>
-									<xsl:value-of select="$datasource"/>
+									<xsl:value-of select="$datasource" />
 								</datasource>
 								<table>CONTENTSTATUS</table>
 							</PSXBackEndTable>
@@ -163,14 +188,14 @@
 									<PSXBackEndColumn id="0">
 										<tableAlias>RXSITEITEMS</tableAlias>
 										<column>CONTENTID</column>
-										<columnAlias/>
+										<columnAlias />
 									</PSXBackEndColumn>
 								</leftColumn>
 								<rightColumn>
 									<PSXBackEndColumn id="0">
 										<tableAlias>CONTENTSTATUS</tableAlias>
 										<column>CONTENTID</column>
-										<columnAlias/>
+										<columnAlias />
 									</PSXBackEndColumn>
 								</rightColumn>
 							</PSXBackEndJoin>
@@ -183,9 +208,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>CONTENTURL</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -194,9 +219,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>LOCATION</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -205,9 +230,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>CONTEXT</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -216,7 +241,7 @@
 								<PSXSingleHtmlParameter id="0">
 									<name>delivery</name>
 								</PSXSingleHtmlParameter>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -225,9 +250,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>CONTENTID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -236,9 +261,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>REVISIONID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -247,7 +272,7 @@
 								<PSXTextLiteral id="0">
 									<text>yes</text>
 								</PSXTextLiteral>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="2" id="0">
 								<PSXXmlField id="0">
@@ -256,9 +281,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>CONTENTSTATUS</tableAlias>
 									<column>CONTENTLASTMODIFIEDDATE</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="3" id="0">
 								<PSXXmlField id="0">
@@ -267,9 +292,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>VARIANTID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="4" id="0">
 								<PSXXmlField id="0">
@@ -278,9 +303,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>CONTENTSTATUS</tableAlias>
 									<column>CONTENTLASTMODIFIER</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="4" id="0">
 								<PSXXmlField id="0">
@@ -289,9 +314,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>CONTENTSTATUS</tableAlias>
 									<column>CONTENTEXPIRYDATE</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="4" id="0">
 								<PSXXmlField id="0">
@@ -300,12 +325,13 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>CONTENTSTATUS</tableAlias>
 									<column>CONTENTTYPEID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 						</PSXDataMapper>
-						<PSXDataSelector id="1171" method="whereClause" unique="no">
+						<PSXDataSelector id="1171" method="whereClause"
+							unique="no">
 							<WhereClauses>
 								<PSXWhereClause id="0" omitWhenNull="no">
 									<PSXConditional id="0">
@@ -313,7 +339,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>SITEID</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>=</operator>
@@ -331,7 +357,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>CONTEXT</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>=</operator>
@@ -349,7 +375,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>PUBOPERATION</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>=</operator>
@@ -367,7 +393,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>PUBSTATUS</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>=</operator>
@@ -385,7 +411,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>CONTENTID</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>IN</operator>
@@ -402,7 +428,7 @@
 												<PSXFunctionParamValue id="0">
 													<value>
 														<PSXTextLiteral id="0">
-															<text/>
+															<text />
 														</PSXTextLiteral>
 													</value>
 												</PSXFunctionParamValue>
@@ -412,25 +438,26 @@
 									</PSXConditional>
 								</PSXWhereClause>
 							</WhereClauses>
-							<Sorting/>
-							<nativeStatement/>
+							<Sorting />
+							<nativeStatement />
 							<Caching enabled="no" type="interval">
 								<ageInterval>15</ageInterval>
 							</Caching>
 						</PSXDataSelector>
-						<PSXResourceCacheSettings enabled="no" id="0">
-							<Keys/>
-							<Dependencies/>
+						<PSXResourceCacheSettings enabled="no"
+							id="0">
+							<Keys />
+							<Dependencies />
 						</PSXResourceCacheSettings>
 					</PSXQueryPipe>
 					<PSXPageDataTank id="1215">
 						<schemaSource>file:contentlist.dtd</schemaSource>
-						<actionTypeXmlField/>
+						<actionTypeXmlField />
 					</PSXPageDataTank>
 					<PSXRequestor directDataStream="no" id="0">
 						<requestPage>buildUnpub_clist</requestPage>
-						<SelectionParams/>
-						<ValidationRules/>
+						<SelectionParams />
+						<ValidationRules />
 						<characterEncoding>UTF-8</characterEncoding>
 						<MimeProperties>
 							<html>
@@ -446,8 +473,9 @@
 						</MimeProperties>
 					</PSXRequestor>
 					<PSXResultPageSet id="0">
-						<PSXResultPage allowNamespaceCleanup="false" id="1201">
-							<extensionsSupported/>
+						<PSXResultPage allowNamespaceCleanup="false"
+							id="1201">
+							<extensionsSupported />
 						</PSXResultPage>
 					</PSXResultPageSet>
 				</PSXDataSet>
@@ -455,16 +483,19 @@
 			<xsl:if test="not(PSXDataSet[name='siteitem_clist'])">
 				<PSXDataSet id="1218">
 					<name>siteitem_clist</name>
-					<description>This resource builds a contentlist XML document (contentlist.dtd) for all items that were published to a site (sys_siteid parameter) and context (sys_context parameter). </description>
+					<description>This resource builds a contentlist XML document
+						(contentlist.dtd) for all items that were published to a site
+						(sys_siteid parameter) and context (sys_context parameter).
+					</description>
 					<transactionType>none</transactionType>
 					<PSXQueryPipe id="1180">
 						<name>QueryPipe</name>
-						<description/>
+						<description />
 						<PSXBackEndDataTank id="1176">
 							<PSXBackEndTable id="1175">
 								<alias>RXSITEITEMS</alias>
 								<datasource>
-									<xsl:value-of select="$datasource"/>
+									<xsl:value-of select="$datasource" />
 								</datasource>
 								<table>RXSITEITEMS</table>
 							</PSXBackEndTable>
@@ -477,9 +508,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>CONTENTURL</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -488,9 +519,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>LOCATION</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -499,9 +530,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>CONTEXT</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -510,9 +541,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>CONTENTID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -521,9 +552,9 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>REVISIONID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 							<PSXDataMapping groupId="1" id="0">
 								<PSXXmlField id="0">
@@ -532,12 +563,13 @@
 								<PSXBackEndColumn id="0">
 									<tableAlias>RXSITEITEMS</tableAlias>
 									<column>VARIANTID</column>
-									<columnAlias/>
+									<columnAlias />
 								</PSXBackEndColumn>
-								<Conditionals/>
+								<Conditionals />
 							</PSXDataMapping>
 						</PSXDataMapper>
-						<PSXDataSelector id="1177" method="whereClause" unique="yes">
+						<PSXDataSelector id="1177" method="whereClause"
+							unique="yes">
 							<WhereClauses>
 								<PSXWhereClause id="0" omitWhenNull="no">
 									<PSXConditional id="0">
@@ -545,7 +577,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>SITEID</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>=</operator>
@@ -563,7 +595,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>CONTEXT</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>=</operator>
@@ -581,7 +613,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>PUBOPERATION</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>=</operator>
@@ -599,7 +631,7 @@
 											<PSXBackEndColumn id="0">
 												<tableAlias>RXSITEITEMS</tableAlias>
 												<column>PUBSTATUS</column>
-												<columnAlias/>
+												<columnAlias />
 											</PSXBackEndColumn>
 										</variable>
 										<operator>=</operator>
@@ -612,25 +644,26 @@
 									</PSXConditional>
 								</PSXWhereClause>
 							</WhereClauses>
-							<Sorting/>
-							<nativeStatement/>
+							<Sorting />
+							<nativeStatement />
 							<Caching enabled="no" type="interval">
 								<ageInterval>15</ageInterval>
 							</Caching>
 						</PSXDataSelector>
-						<PSXResourceCacheSettings enabled="no" id="0">
-							<Keys/>
-							<Dependencies/>
+						<PSXResourceCacheSettings enabled="no"
+							id="0">
+							<Keys />
+							<Dependencies />
 						</PSXResourceCacheSettings>
 					</PSXQueryPipe>
 					<PSXPageDataTank id="1217">
 						<schemaSource>file:contentlist.dtd</schemaSource>
-						<actionTypeXmlField/>
+						<actionTypeXmlField />
 					</PSXPageDataTank>
 					<PSXRequestor directDataStream="no" id="0">
 						<requestPage>siteitem_clist</requestPage>
-						<SelectionParams/>
-						<ValidationRules/>
+						<SelectionParams />
+						<ValidationRules />
 						<characterEncoding>UTF-8</characterEncoding>
 						<MimeProperties>
 							<html>
@@ -646,18 +679,25 @@
 						</MimeProperties>
 					</PSXRequestor>
 					<PSXResultPageSet id="0">
-						<PSXResultPage allowNamespaceCleanup="false" id="1201">
-							<extensionsSupported/>
+						<PSXResultPage allowNamespaceCleanup="false"
+							id="1201">
+							<extensionsSupported />
 						</PSXResultPage>
 					</PSXResultPageSet>
 				</PSXDataSet>
 			</xsl:if>
-			<xsl:apply-templates select="PSXLogger" mode="copy"/>
-			<xsl:apply-templates select="PSXTraceInfo" mode="copy"/>
-			<xsl:apply-templates select="PSXErrorWebPages" mode="copy"/>
-			<xsl:apply-templates select="backEndLoginPassthru" mode="copy"/>
-			<xsl:apply-templates select="PSXNotifier" mode="copy"/>
-			<xsl:apply-templates select="userProperty" mode="copy"/>
+			<xsl:apply-templates select="PSXLogger"
+				mode="copy" />
+			<xsl:apply-templates select="PSXTraceInfo"
+				mode="copy" />
+			<xsl:apply-templates select="PSXErrorWebPages"
+				mode="copy" />
+			<xsl:apply-templates
+				select="backEndLoginPassthru" mode="copy" />
+			<xsl:apply-templates select="PSXNotifier"
+				mode="copy" />
+			<xsl:apply-templates select="userProperty"
+				mode="copy" />
 		</xsl:copy>
 	</xsl:template>
 </xsl:stylesheet>

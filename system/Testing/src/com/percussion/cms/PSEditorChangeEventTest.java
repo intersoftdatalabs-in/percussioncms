@@ -25,58 +25,52 @@ import org.w3c.dom.Document;
 
 
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Test the {@link PSEditorChangeEvent} class.
  */
-public class PSEditorChangeEventTest extends TestCase
+public class PSEditorChangeEventTest
 {
-   /**
-    * Constructor for PSEditorChangeEventTest.
-    * 
-    * @param name The name of the test.
-    */
-   public PSEditorChangeEventTest(String name)
-   {
-      super(name);
-   }
+   // legacy constructor removed; using @Test-annotated methods
+
 
    /**
     * Tests the equals and hashCode methods of this object.
-    * 
+    *
     * @throws Exception if there are any errors.
-    */   
-   public void testEquals() throws Exception 
+    */
+   @Test
+   public void testEquals() throws Exception
    {
       PSEditorChangeEvent evt1 = new PSEditorChangeEvent(
          PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
-      
+
       PSEditorChangeEvent evt2 = new PSEditorChangeEvent(
          PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
-      
+
       assertEquals(evt1, evt2);
       assertEquals(evt1.hashCode(), evt2.hashCode());
-      
+
       evt1.setPriority(1);
-      assertTrue(!evt1.equals(evt2));      
+      assertTrue(!evt1.equals(evt2));
       evt2.setPriority(1);
-      assertEquals(evt1, evt2);      
+      assertEquals(evt1, evt2);
       assertEquals(evt1.hashCode(), evt2.hashCode());
-      
+
       Collection binFields = new ArrayList();
       evt1.setBinaryFields(binFields);
-      assertEquals(evt1, evt2);      
-      
+      assertEquals(evt1, evt2);
+
       binFields.add("foo");
       binFields.add("bar");
       evt1.setBinaryFields(binFields);
-      assertTrue(!evt1.equals(evt2)); 
+      assertTrue(!evt1.equals(evt2));
       evt2.setBinaryFields(binFields);
-      assertEquals(evt1, evt2);      
+      assertEquals(evt1, evt2);
       assertEquals(evt1.hashCode(), evt2.hashCode());
-      
+
       evt1 = new PSEditorChangeEvent(
          PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
       evt2 = new PSEditorChangeEvent(
@@ -96,38 +90,33 @@ public class PSEditorChangeEventTest extends TestCase
       assertTrue(!evt1.equals(evt2));
 
    }
-     
-   
+
+
    /**
     * Tests the xml serialization of this object.  {@link #testEquals()} should
-    * be run before this test as this test assumes the equals method is 
+    * be run before this test as this test assumes the equals method is
     * working
-    * 
+    *
     * @throws Exception if there are any errors.
     */
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      
+
       PSEditorChangeEvent evt1 = new PSEditorChangeEvent(
          PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
-      evt1.setPriority(1);     
-      
+      evt1.setPriority(1);
+
       assertEquals(evt1, new PSEditorChangeEvent(evt1.toXml(doc)));
-      
+
       Collection binFields = new ArrayList();
       binFields.add("foo");
       binFields.add("bar");
       evt1.setBinaryFields(binFields);
-      assertEquals(evt1, new PSEditorChangeEvent(evt1.toXml(doc)));            
+      assertEquals(evt1, new PSEditorChangeEvent(evt1.toXml(doc)));
    }
 
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSEditorChangeEventTest("testEquals"));
-      suite.addTest(new PSEditorChangeEventTest("testXml"));
-      return suite;
-   }
+   // JUnit 3 style suite removed; using JUnit 5 @Test methods instead
+
 }

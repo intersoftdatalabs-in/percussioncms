@@ -20,6 +20,7 @@ import java.util.Date;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -28,12 +29,9 @@ import org.w3c.dom.Element;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-public class PSRevisionHistoryTest extends TestCase
+public class PSRevisionHistoryTest 
 {
-   public PSRevisionHistoryTest(String name)
-   {
-      super(name);
-   }
+   
 
    public void setUp()
    {
@@ -43,6 +41,7 @@ public class PSRevisionHistoryTest extends TestCase
     * Test that the <CODE>PSRevisionHistory</CODE> constructor runs but does  
     * not create any Revision History entries.
     */   
+   
    public void testConstructor() throws Exception
    {
       PSRevisionHistory hist = new PSRevisionHistory();
@@ -55,6 +54,7 @@ public class PSRevisionHistoryTest extends TestCase
     * Test that the initial and latest values for the Major and Minor
     * Revisions are correct when revision history entries are set.
     */
+   
    public void testSetRevision() throws Exception
    {
       int numEntries = 100;
@@ -104,6 +104,7 @@ public class PSRevisionHistoryTest extends TestCase
     * Test that the revision history is unchanged when written to an XML
     * document and read back.
     */   
+   
    public void testXml() throws Exception
    {
       int numEntries = 100;
@@ -138,13 +139,6 @@ public class PSRevisionHistoryTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSRevisionHistoryTest("testConstructor"));
-      suite.addTest(new PSRevisionHistoryTest("testSetRevision"));
-      suite.addTest(new PSRevisionHistoryTest("testXml"));
-      return suite;
-   }
+   
     
 }

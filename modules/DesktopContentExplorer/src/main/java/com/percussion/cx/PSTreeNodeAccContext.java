@@ -21,12 +21,12 @@ import java.awt.IllegalComponentStateException;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Locale;
-import javax.accessibility.Accessible;
-import javax.accessibility.AccessibleContext;
-import javax.accessibility.AccessibleRole;
-import javax.accessibility.AccessibleState;
-import javax.accessibility.AccessibleStateSet;
-import javax.accessibility.AccessibleText;
+import jakarta.accessibility.Accessible;
+import jakarta.accessibility.AccessibleContext;
+import jakarta.accessibility.AccessibleRole;
+import jakarta.accessibility.AccessibleState;
+import jakarta.accessibility.AccessibleStateSet;
+import jakarta.accessibility.AccessibleText;
 import javax.swing.text.AttributeSet;
 import javax.swing.tree.TreeNode;
 
@@ -57,14 +57,14 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleContext#getAccessibleRole()
+   * @see jakarta.accessibility.AccessibleContext#getAccessibleRole()
    */
   public AccessibleRole getAccessibleRole() {
     return AccessibleRole.LABEL;
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleContext#getAccessibleStateSet()
+   * @see jakarta.accessibility.AccessibleContext#getAccessibleStateSet()
    */
   public AccessibleStateSet getAccessibleStateSet() {
     AccessibleStateSet set = new AccessibleStateSet();
@@ -76,7 +76,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleContext#getAccessibleIndexInParent()
+   * @see jakarta.accessibility.AccessibleContext#getAccessibleIndexInParent()
    */
   public int getAccessibleIndexInParent() {
     // Get parent and look for this node in child list
@@ -89,28 +89,28 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleContext#getAccessibleChildrenCount()
+   * @see jakarta.accessibility.AccessibleContext#getAccessibleChildrenCount()
    */
   public int getAccessibleChildrenCount() {
     return m_node.getChildCount();
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleContext#getAccessibleChild(int)
+   * @see jakarta.accessibility.AccessibleContext#getAccessibleChild(int)
    */
   public Accessible getAccessibleChild(int arg0) {
     return (PSNavigationTree.PSTreeNode) m_node.getChildAt(arg0);
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleContext#getLocale()
+   * @see jakarta.accessibility.AccessibleContext#getLocale()
    */
   public Locale getLocale() throws IllegalComponentStateException {
     return m_tree.getLocale();
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleContext#getAccessibleDescription()
+   * @see jakarta.accessibility.AccessibleContext#getAccessibleDescription()
    */
   public String getAccessibleDescription() {
     PSNode data = (PSNode) m_node.getUserObject();
@@ -118,7 +118,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleContext#getAccessibleName()
+   * @see jakarta.accessibility.AccessibleContext#getAccessibleName()
    */
   public String getAccessibleName() {
     PSNode data = (PSNode) m_node.getUserObject();
@@ -126,7 +126,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getIndexAtPoint(java.awt.Point)
+   * @see jakarta.accessibility.AccessibleText#getIndexAtPoint(java.awt.Point)
    */
   public int getIndexAtPoint(Point arg0) {
     // XXX Auto-generated method stub
@@ -134,7 +134,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getCharacterBounds(int)
+   * @see jakarta.accessibility.AccessibleText#getCharacterBounds(int)
    */
   public Rectangle getCharacterBounds(int arg0) {
     // XXX Auto-generated method stub
@@ -142,7 +142,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getCharCount()
+   * @see jakarta.accessibility.AccessibleText#getCharCount()
    */
   public int getCharCount() {
     // XXX Auto-generated method stub
@@ -150,7 +150,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getCaretPosition()
+   * @see jakarta.accessibility.AccessibleText#getCaretPosition()
    */
   public int getCaretPosition() {
     // XXX Auto-generated method stub
@@ -158,7 +158,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getAtIndex(int, int)
+   * @see jakarta.accessibility.AccessibleText#getAtIndex(int, int)
    */
   public String getAtIndex(int arg0, int arg1) {
     // XXX Auto-generated method stub
@@ -166,7 +166,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getAfterIndex(int, int)
+   * @see jakarta.accessibility.AccessibleText#getAfterIndex(int, int)
    */
   public String getAfterIndex(int arg0, int arg1) {
     // XXX Auto-generated method stub
@@ -174,7 +174,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getBeforeIndex(int, int)
+   * @see jakarta.accessibility.AccessibleText#getBeforeIndex(int, int)
    */
   public String getBeforeIndex(int arg0, int arg1) {
     // XXX Auto-generated method stub
@@ -182,7 +182,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getCharacterAttribute(int)
+   * @see jakarta.accessibility.AccessibleText#getCharacterAttribute(int)
    */
   public AttributeSet getCharacterAttribute(int arg0) {
     // XXX Auto-generated method stub
@@ -190,14 +190,14 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getSelectionStart()
+   * @see jakarta.accessibility.AccessibleText#getSelectionStart()
    */
   public int getSelectionStart() {
     return 0;
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getSelectionEnd()
+   * @see jakarta.accessibility.AccessibleText#getSelectionEnd()
    */
   public int getSelectionEnd() {
     String text = getAccessibleName();
@@ -205,7 +205,7 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   }
 
   /* (non-Javadoc)
-   * @see javax.accessibility.AccessibleText#getSelectedText()
+   * @see jakarta.accessibility.AccessibleText#getSelectedText()
    */
   public String getSelectedText() {
     return getAccessibleName();

@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
 /** Integration tests for site publish status REST service. // REFACTORED: CP-JAVA11 */
-@Tag("IntegrationTest")
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSSitePublishStatusServiceTest {
 

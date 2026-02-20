@@ -22,8 +22,8 @@ import com.percussion.webservices.ui.data.NodeType;
 import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
- * Converts objects between the classes 
- * <code>PSHierarchyNode.NodeType</code> and 
+ * Converts objects between the classes
+ * <code>PSHierarchyNode.NodeType</code> and
  * <code>NodeType</code>.
  */
 public class PSNodeTypeConverter extends PSConverter
@@ -35,7 +35,7 @@ public class PSNodeTypeConverter extends PSConverter
    {
       super(beanUtils);
    }
-   
+
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
@@ -44,11 +44,11 @@ public class PSNodeTypeConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
          return PSHierarchyNode.NodeType.valueOf(value.toString().toUpperCase());
       else
-         return NodeType.fromString(value.toString().toLowerCase());
+         return NodeType.valueOf(value.toString().toLowerCase());
    }
 }
 

@@ -22,6 +22,7 @@ import com.percussion.design.objectstore.PSBackEndJoin;
 import com.percussion.design.objectstore.PSBackEndTable;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -36,17 +37,16 @@ import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * Unit tests for the query joiner class. 
+ * Unit tests for the query joiner class.
  *
  */
-public class PSQueryJoinerTest extends TestCase
+public class PSQueryJoinerTest
 {
-   public PSQueryJoinerTest(String name)
-   {
-      super(name);
+   public PSQueryJoinerTest() {
       ms_rand = new SecureRandom();
    }
 
+   @Test
    public void testNormalJoin() throws Exception
    {
       int[] dataTypes =
@@ -54,7 +54,7 @@ public class PSQueryJoinerTest extends TestCase
          // These types cannot be compared
          //   Boolean doesn't have a concept of < or >
          //   Byte[] doesn't implement Comparable, though we can fix this
-         // Types.BIT ,   
+         // Types.BIT ,
          // Types.BINARY,
          // Types.VARBINARY ,
          // Types.LONGVARBINARY ,
@@ -136,7 +136,7 @@ public class PSQueryJoinerTest extends TestCase
                leftData = new Byte((byte)(i%4));
                rightData = new Byte((byte)(i%3));
                break;
-               
+
             case Types.SMALLINT:
                leftData = new Short((short)(i%4));
                rightData = new Short((short)(i%3));
@@ -233,7 +233,7 @@ public class PSQueryJoinerTest extends TestCase
          case Types.TINYINT:
             System.err.println("Inner joining with TINYINT");
             break;
-            
+
          case Types.SMALLINT:
             System.err.println("Inner joining with SMALLINT");
             break;
@@ -368,12 +368,12 @@ public class PSQueryJoinerTest extends TestCase
     * Test the joining on 20 random result sets.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/8/1
-    * 
-    * 
+    *
+    *
     * @throws   Exception
-    * 
+    *
     */
    public void smokeTestJoins() throws Exception
    {
@@ -397,12 +397,12 @@ public class PSQueryJoinerTest extends TestCase
     * up and that the data has the correct number of rows.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/8/1
-    * 
-    * 
+    *
+    *
     * @throws   Exception
-    * 
+    *
     */
    public void smokeTestJoin(int joinType) throws Exception
    {
@@ -475,7 +475,7 @@ public class PSQueryJoinerTest extends TestCase
           join.setInnerJoin();
        }
 
-      PSQueryJoiner joiner = new PSSortedResultJoiner(null, join, columnNames, 
+      PSQueryJoiner joiner = new PSSortedResultJoiner(null, join, columnNames,
            null, columnNames, null, leftCard*rightCard);
 
       joiner.closeInputResultsAfterJoin(false);
@@ -491,7 +491,7 @@ public class PSQueryJoinerTest extends TestCase
 
        // debug messages to System.err have been commented out as they are
        // not useful for routine use of this test
-       
+
 //       System.err.println("Left cardinality:  " + leftCard);
 //       System.err.println("Right cardinality: " + rightCard);
 //       System.err.println("Join cardinality:  " + joinedRs.getNumRows());
@@ -510,22 +510,19 @@ public class PSQueryJoinerTest extends TestCase
       try {
          if (joinType == PSBackEndJoin.BEJ_TYPE_LEFT_OUTER)
          {
-            assertTrue(
-               "Left outer must be at least as large as left side",
-               leftCard <= joinedRs.getNumRows());
+            assertTrue(leftCard <= joinedRs.getNumRows(),
+               "Left outer must be at least as large as left side");
          }
          else if (joinType == PSBackEndJoin.BEJ_TYPE_RIGHT_OUTER)
          {
-            assertTrue(
-               "Right outer must be at least as large as right side",
-               rightCard <= joinedRs.getNumRows());
+            assertTrue(rightCard <= joinedRs.getNumRows(),
+               "Right outer must be at least as large as right side");
          }
          else if (joinType == PSBackEndJoin.BEJ_TYPE_FULL_OUTER)
          {
             int expected = Math.max(leftCard, rightCard);
-            assertTrue(
-               "Full outer must be at least as large as the larger side",
-               expected <= joinedRs.getNumRows());
+            assertTrue(expected <= joinedRs.getNumRows(),
+               "Full outer must be at least as large as the larger side");
          }
          else
          {   // inner - ? what's the check here?!
@@ -542,12 +539,12 @@ public class PSQueryJoinerTest extends TestCase
     * schema. The data will be more or less randomly generated.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/8/1
-    * 
+    *
     * @param   schema
     * @param   numRows
-    * 
+    *
     * @return   PSResultSet
     */
    protected static PSResultSet createResultSet(PSResultSetMetaData schema, int numRows, boolean sorted)
@@ -584,16 +581,16 @@ public class PSQueryJoinerTest extends TestCase
     * types are supported; mostly basic types.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/8/1
-    * 
-    * 
+    *
+    *
     * @param   javaSqlType
-    * 
+    *
     * @return   Object
-    * 
+    *
     * @throws IllegalArgumentException
-    * 
+    *
     */
    protected static Object randomObject(int javaSqlType)
    {
@@ -614,7 +611,7 @@ public class PSQueryJoinerTest extends TestCase
       case Types.VARCHAR:
          return RandomStringUtils.randomAscii(99);
       }
-      
+
       throw new IllegalArgumentException("unsupported type: " + javaSqlType);
    }
 
@@ -624,7 +621,7 @@ public class PSQueryJoinerTest extends TestCase
 
       ResultSetMetaData md = rs.getMetaData();
       int cols = md.getColumnCount();
-      
+
       // print result set header
       for (int i = 1; i <= cols; i++) // 1 based
       {
@@ -649,16 +646,6 @@ public class PSQueryJoinerTest extends TestCase
       out.flush();
       out.close();
    }
-
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSQueryJoinerTest("smokeTestJoins"));
-      suite.addTest(new PSQueryJoinerTest("testNormalJoin"));
-      return suite;
-   }
-
 
    protected static SecureRandom ms_rand;
 }

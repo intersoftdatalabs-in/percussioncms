@@ -18,54 +18,66 @@
 // assumed dependencies:
 //  - require.js
 
-define (
-    // prerequisites:
-    [
-		'pages/cm1adaptor',
-        'text!widgets/pagewizard/pagewizard.html',
-        'widgets/pagewizard/pagewizard.viewmodel',
-        'widgel-base'
-    ],
-    // module:
-    function (cm1Adaptor, defaultView, defaultViewModel) {
-        var widgetName = 'cui.pagewizard';
-		$.widGEL.baseWidget.injectCssFile('twitter.bootstrap', requirejs.toUrl('bootstrap'));
-        $.widGEL.baseWidget.injectCssFile('twitter.bootstrap.theme', requirejs.toUrl('bootstrap-theme'));
-        $.widGEL.baseWidget.injectCssFile('widgets.pagewizard', requirejs.toUrl('widgets/pagewizard/pagewizard.css'));
-       // $.widGEL.baseWidget.injectCssFile('jquery', requirejs.toUrl('css/jquery-ui-1.10.4.custom.css')); since this file does not exist
-        $.widGEL.baseWidget.injectCssFile('font.awesome', requirejs.toUrl('fontawesome-css'));
-		$.widGEL.baseWidget.injectCssFile('perc.css', requirejs.toUrl('perc-css'));
-		$.widGEL.baseWidget.injectCssFile('dynatree.css', requirejs.toUrl('dynatree-css'));
-        
-        $.widget(widgetName, $.widGEL.baseWidget, {
-            options: {
-                view: defaultView,
-                viewModel: defaultViewModel,
-				cm1Adaptor:cm1Adaptor,
-                debug: false
-            },
-            
-            destroy: function () { },
-            
-            // non-private properties of the ViewModel are part of the public widget API.
-            // see Widgets/Shared/BaseWidget.Model for external usage
-            _createDefaultViewModel: function () {
-                var thisWidget = this;
-                var viewModel = new thisWidget.options.viewModel(thisWidget.options);
-                return viewModel;
-            },
-            
-            _create: function () {
-                var thisWidget = this;
-                thisWidget._initModelView();
-                
-                setTimeout(function () {
-                    var viewModel = thisWidget._viewModel;
-                    viewModel.init();
-                }, 10);
-            }
-        });
-        
-        return "SUCCESS: " + widgetName + " Widget Registered.";
-    }
-);
+define(// prerequisites:
+[
+  "pages/cm1adaptor",
+  "text!widgets/pagewizard/pagewizard.html",
+  "widgets/pagewizard/pagewizard.viewmodel",
+  "widgel-base",
+], function (cm1Adaptor, defaultView, defaultViewModel) {
+  // module:
+  var widgetName = "cui.pagewizard";
+  $.widGEL.baseWidget.injectCssFile(
+    "twitter.bootstrap",
+    requirejs.toUrl("bootstrap")
+  );
+  $.widGEL.baseWidget.injectCssFile(
+    "twitter.bootstrap.theme",
+    requirejs.toUrl("bootstrap-theme")
+  );
+  $.widGEL.baseWidget.injectCssFile(
+    "widgets.pagewizard",
+    requirejs.toUrl("widgets/pagewizard/pagewizard.css")
+  );
+  // $.widGEL.baseWidget.injectCssFile('jquery', requirejs.toUrl('css/jquery-ui-1.10.4.custom.css')); since this file does not exist
+  $.widGEL.baseWidget.injectCssFile(
+    "font.awesome",
+    requirejs.toUrl("fontawesome-css")
+  );
+  $.widGEL.baseWidget.injectCssFile("perc.css", requirejs.toUrl("perc-css"));
+  $.widGEL.baseWidget.injectCssFile(
+    "dynatree.css",
+    requirejs.toUrl("dynatree-css")
+  );
+
+  $.widget(widgetName, $.widGEL.baseWidget, {
+    options: {
+      view: defaultView,
+      viewModel: defaultViewModel,
+      cm1Adaptor: cm1Adaptor,
+      debug: false,
+    },
+
+    destroy: function () {},
+
+    // non-private properties of the ViewModel are part of the public widget API.
+    // see Widgets/Shared/BaseWidget.Model for external usage
+    _createDefaultViewModel: function () {
+      var thisWidget = this;
+      var viewModel = new thisWidget.options.viewModel(thisWidget.options);
+      return viewModel;
+    },
+
+    _create: function () {
+      var thisWidget = this;
+      thisWidget._initModelView();
+
+      setTimeout(function () {
+        var viewModel = thisWidget._viewModel;
+        viewModel.init();
+      }, 10);
+    },
+  });
+
+  return "SUCCESS: " + widgetName + " Widget Registered.";
+});

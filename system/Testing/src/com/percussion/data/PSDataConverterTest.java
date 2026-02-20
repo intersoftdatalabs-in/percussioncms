@@ -21,8 +21,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -32,12 +32,8 @@ import org.junit.jupiter.api.Test;
  * @version   1.0
  * @since   1.0
  */
-public class PSDataConverterTest extends TestCase
+public class PSDataConverterTest
 {
-   public PSDataConverterTest(String name)
-   {
-      super(name);
-   }
 
    // this class is used to keep track of expected parse results for dates
    private static class DateTest
@@ -54,7 +50,7 @@ public class PSDataConverterTest extends TestCase
          this.seconds = seconds;
          this.milliseconds = milliseconds;
       }
-      
+
       public String dateText;
       public int month; // 0-11
       public int year; // whatever
@@ -69,6 +65,7 @@ public class PSDataConverterTest extends TestCase
    // test date conversion with many popular formats
    // TODO: For every format used in PSDataConverter.ms_datePatternArray,
    // compose several dates using that format
+   @Test
    public void testDateConversion() throws Exception
    {
       // a bunch of dates, all earlier than today
@@ -86,24 +83,18 @@ public class PSDataConverterTest extends TestCase
       for (int i = 0; i < myTests.length; i++)
       {
          DateTest t = myTests[i];
-         Date day = PSDataConverter.parseStringToDate(t.dateText);
+         Date day = com.percussion.util.PSDataTypeConverter.parseStringToDate(t.dateText);
          Calendar cal = new GregorianCalendar();
          cal.setTime(day);
-         assertEquals("For year in  " + t.dateText, t.year, cal.get(Calendar.YEAR));
-         assertEquals("For month in " + t.dateText, t.month, cal.get(Calendar.MONTH));
-         assertEquals("For day in  " + t.dateText, t.day, cal.get(Calendar.DAY_OF_MONTH));
-         assertEquals("For hours in " + t.dateText, t.hours, cal.get(Calendar.HOUR_OF_DAY));
-         assertEquals("For minutes in  " + t.dateText, t.minutes, cal.get(Calendar.MINUTE));
-         assertEquals("For seconds in " + t.dateText, t.seconds, cal.get(Calendar.SECOND));
+         assertEquals(t.year, cal.get(Calendar.YEAR), "For year in  " + t.dateText);
+         assertEquals(t.month, cal.get(Calendar.MONTH), "For month in " + t.dateText);
+         assertEquals(t.day, cal.get(Calendar.DAY_OF_MONTH), "For day in  " + t.dateText);
+         assertEquals(t.hours, cal.get(Calendar.HOUR_OF_DAY), "For hours in " + t.dateText);
+         assertEquals(t.minutes, cal.get(Calendar.MINUTE), "For minutes in  " + t.dateText);
+         assertEquals(t.seconds, cal.get(Calendar.SECOND), "For seconds in " + t.dateText);
          // TODO: test milliseconds
       }
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSDataConverterTest("testDateConversion"));
-      return suite;
-   }
 
 }

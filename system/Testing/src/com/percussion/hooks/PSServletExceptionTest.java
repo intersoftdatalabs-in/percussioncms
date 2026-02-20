@@ -19,28 +19,27 @@ package com.percussion.hooks;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Unit test class for testing <code>PSServletException</code>
  */
-public class PSServletExceptionTest extends TestCase
+public class PSServletExceptionTest 
 {
    /**
     * Construct this unit test
     *
     * @param name The name of this test.
     */
-    public PSServletExceptionTest(String name)
-   {
-      super(name);
-   }
+    
 
    /**
     * Tests all Xml functions for PSContentSelectorDef class
     *
     * @throws Exception if there are any errors.
     */
+   
    public void testAll() throws Exception
    {
       PSServletException e = new PSServletException(50155);
@@ -53,11 +52,6 @@ public class PSServletExceptionTest extends TestCase
    }
 
    // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSServletExceptionTest("testAll"));
-      return suite;
-   }
+   
 
 }

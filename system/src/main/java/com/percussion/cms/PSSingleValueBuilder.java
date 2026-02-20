@@ -1036,19 +1036,17 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   private static PSRelationship loadRelationship(IPSRequestContext request, String relationshipid)
       throws PSCmsException {
     IPSRelationshipService svc = PSRelationshipServiceLocator.getRelationshipService();
-    PSRelationship rel = null;
     try {
-      rel = svc.loadRelationship(Integer.parseInt(relationshipid)).orElse(null);
+      var relOpt = svc.loadRelationship(Integer.parseInt(relationshipid));
+      if (relOpt.isEmpty()) {
+        throw new PSCmsException(
+            IPSCmsErrors.LOAD_AA_RELATIONSHIP_FAILED, new Object[] {relationshipid});
+      }
+      return relOpt.get();
     } catch (NumberFormatException | PSException e) {
       throw new PSCmsException(
           IPSCmsErrors.LOAD_AA_RELATIONSHIP_FAILED, new Object[] {relationshipid}, e);
     }
-
-    if (rel == null) {
-      throw new PSCmsException(
-          IPSCmsErrors.LOAD_AA_RELATIONSHIP_FAILED, new Object[] {relationshipid});
-    }
-    return rel;
   }
 
   /**

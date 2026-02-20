@@ -8,4 +8,72 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-({"dateFormat-medium":"yyyy-M-d","field-second":"秒钟","field-week":"周","timeFormat-full":"ahh'时'mm'分'ss'秒' z","field-year":"年","field-minute":"分钟","timeFormat-medium":"ahh:mm:ss","field-hour":"�?时","dateFormat-long":"yyyy'年'M'月'd'日'","field-day":"日","field-dayperiod":"上�?�/下�?�","field-month":"月","dateFormat-short":"yy-M-d","field-era":"时期","timeFormat-short":"ah:mm","timeFormat-long":"ahh'时'mm'分'ss'秒'","dateFormat-full":"yyyy'年'M'月'd'日'EEEE","field-weekday":"周天","field-zone":"区域","days-standAlone-narrow":["日","一","二","三","四","五","六"],"eras":["公元�?","公元"],"am":"上�?�","months-format-abbr":["一月","二月","三月","四月","五月","六月","七月","八月","�?月","�??月","�??一月","�??二月"],"days-format-abbr":["周日","周一","周二","周三","周四","周五","周六"],"pm":"下�?�","months-format-wide":["一月","二月","三月","四月","五月","六月","七月","八月","�?月","�??月","�??一月","�??二月"],"months-standAlone-narrow":["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],"days-format-wide":["星期日","星期一","星期二","星期三","星期四","星期五","星期六"]})
+({
+  "dateFormat-medium": "yyyy-M-d",
+  "field-second": "ç§é",
+  "field-week": "å¨",
+  "timeFormat-full": "ahh'æ¶'mm'å'ss'ç§' z",
+  "field-year": "å¹´",
+  "field-minute": "åé",
+  "timeFormat-medium": "ahh:mm:ss",
+  "field-hour": "å°?æ¶",
+  "dateFormat-long": "yyyy'å¹´'M'æ'd'æ¥'",
+  "field-day": "æ¥",
+  "field-dayperiod": "ä¸å?/ä¸å?",
+  "field-month": "æ",
+  "dateFormat-short": "yy-M-d",
+  "field-era": "æ¶æ",
+  "timeFormat-short": "ah:mm",
+  "timeFormat-long": "ahh'æ¶'mm'å'ss'ç§'",
+  "dateFormat-full": "yyyy'å¹´'M'æ'd'æ¥'EEEE",
+  "field-weekday": "å¨å¤©",
+  "field-zone": "åºå",
+  "days-standAlone-narrow": ["æ¥", "ä¸", "äº", "ä¸", "å", "äº", "å­"],
+  eras: ["å¬åå?", "å¬å"],
+  am: "ä¸å?",
+  "months-format-abbr": [
+    "ä¸æ",
+    "äºæ",
+    "ä¸æ",
+    "åæ",
+    "äºæ",
+    "å­æ",
+    "ä¸æ",
+    "å«æ",
+    "ä¹?æ",
+    "å??æ",
+    "å??ä¸æ",
+    "å??äºæ",
+  ],
+  "days-format-abbr": ["å¨æ¥", "å¨ä¸", "å¨äº", "å¨ä¸", "å¨å", "å¨äº", "å¨å­"],
+  pm: "ä¸å?",
+  "months-format-wide": [
+    "ä¸æ",
+    "äºæ",
+    "ä¸æ",
+    "åæ",
+    "äºæ",
+    "å­æ",
+    "ä¸æ",
+    "å«æ",
+    "ä¹?æ",
+    "å??æ",
+    "å??ä¸æ",
+    "å??äºæ",
+  ],
+  "months-standAlone-narrow": [
+    "1æ",
+    "2æ",
+    "3æ",
+    "4æ",
+    "5æ",
+    "6æ",
+    "7æ",
+    "8æ",
+    "9æ",
+    "10æ",
+    "11æ",
+    "12æ",
+  ],
+  "days-format-wide": ["æææ¥", "ææä¸", "ææäº", "ææä¸", "ææå", "ææäº", "ææå­"],
+});

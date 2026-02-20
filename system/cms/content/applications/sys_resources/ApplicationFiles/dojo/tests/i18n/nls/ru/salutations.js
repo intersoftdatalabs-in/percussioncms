@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- ru: "ру�?�?кий",
- hello: "Привет"
-}
+({
+  ru: "ÑÑÑ?Ñ?ÐºÐ¸Ð¹",
+  hello: "ÐÑÐ¸Ð²ÐµÑ",
+});

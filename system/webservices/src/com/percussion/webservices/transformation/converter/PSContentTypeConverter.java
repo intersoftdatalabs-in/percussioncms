@@ -33,7 +33,7 @@ import org.apache.commons.beanutils.ConversionException;
 import org.w3c.dom.Document;
 
 /**
- * Converts between {@link com.percussion.cms.objectstore.PSItemDefinition} and 
+ * Converts between {@link com.percussion.cms.objectstore.PSItemDefinition} and
  * {@link PSContentType}
  */
 public class PSContentTypeConverter extends PSConverter
@@ -41,7 +41,7 @@ public class PSContentTypeConverter extends PSConverter
 
    /**
     * See {@link PSConverter#PSConverter(BeanUtilsBean)}
-    * 
+    *
     * @param beanUtils
     */
    public PSContentTypeConverter(BeanUtilsBean beanUtils)
@@ -59,26 +59,27 @@ public class PSContentTypeConverter extends PSConverter
          try
          {
             PSContentType ct = (PSContentType) value;
-            String strCE = ct.getContentEditor();
+            Object contentEditorObj = ct.getContentEditor();
+            String strCE = contentEditorObj == null ? "" : contentEditorObj.toString();
             StringReader reader = new StringReader(strCE);
-            Document doc = PSXmlDocumentBuilder.createXmlDocument(reader, 
+            Document doc = PSXmlDocumentBuilder.createXmlDocument(reader,
                false);
-            PSContentEditor ce = new PSContentEditor(doc.getDocumentElement(), 
+            PSContentEditor ce = new PSContentEditor(doc.getDocumentElement(),
                null, null, false);
             // get object type
             int objectType;
-            if (ct.getObjectType().getValue().equals(ObjectType._folder))
+            if (ct.getObjectType() == com.percussion.webservices.common.ObjectType.FOLDER)
                objectType = PSCmsObject.TYPE_FOLDER;
             else
                objectType = PSCmsObject.TYPE_ITEM;
-            
+
             PSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, ct.getId());
-            com.percussion.cms.objectstore.PSContentType typeDef = 
+            com.percussion.cms.objectstore.PSContentType typeDef =
                new com.percussion.cms.objectstore.PSContentType(
-                     (int)guid.longValue(), ct.getName(), ct.getLabel(), 
-                     ct.getDescription(), 
+                     (int)guid.longValue(), ct.getName(), ct.getLabel(),
+                     ct.getDescription(),
                ct.getRequestUrl(), ct.isHideFromMenu(), objectType);
-            String appName = 
+            String appName =
                com.percussion.cms.objectstore.PSContentType.getAppName(
                   ct.getRequestUrl());
             result = createDefinition(appName, typeDef, ce);
@@ -91,34 +92,39 @@ public class PSContentTypeConverter extends PSConverter
       else
       {
          PSItemDefinition itemDef = (PSItemDefinition) value;
-         
+
          String ceStr = PSXmlDocumentBuilder.toString(
             itemDef.getContentEditor().toXml(
             PSXmlDocumentBuilder.createXmlDocument())).trim();
-         
+
          // get the object type
-         ObjectType objectType;
+         com.percussion.webservices.common.ObjectType objectType;
          if (itemDef.getObjectType() == PSCmsObject.TYPE_FOLDER)
-            objectType = ObjectType.folder;
+            objectType = com.percussion.webservices.common.ObjectType.FOLDER;
          else
-            objectType = ObjectType.item;
-         
-         PSDesignGuid guid = new PSDesignGuid(PSTypeEnum.NODEDEF, 
+            objectType = com.percussion.webservices.common.ObjectType.ITEM;
+
+         PSDesignGuid guid = new PSDesignGuid(PSTypeEnum.NODEDEF,
             itemDef.getTypeId());
-         PSContentType contentType = new PSContentType(guid.getValue(), 
-            itemDef.getDescription(), ceStr, itemDef.getName(), 
-            itemDef.getLabel(), objectType, 
-            itemDef.getEditorUrl(), itemDef.isHidden());
-         
+         com.percussion.webservices.content.PSContentType contentType = new com.percussion.webservices.content.PSContentType();
+         contentType.setId(guid.getValue());
+         contentType.setDescription(itemDef.getDescription());
+         contentType.setContentEditor(ceStr);
+         contentType.setName(itemDef.getName());
+         contentType.setLabel(itemDef.getLabel());
+         contentType.setObjectType(objectType);
+         contentType.setRequestUrl(itemDef.getEditorUrl());
+         contentType.setHideFromMenu(itemDef.isHidden());
+
          result = contentType;
       }
-      
+
       return result;
    }
-   
+
    /**
     * Returns the item definition, this method will be overridden in
-    * the workbench so it can return a <code>PSUiItemDefinition</code>. 
+    * the workbench so it can return a <code>PSUiItemDefinition</code>.
     * @param appName cannot be <code>null<code> or empty.
     * @param typeDef cannot be <code>null</code>.
     * @param ce cannot be <code>null</code>.

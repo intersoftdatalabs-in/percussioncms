@@ -181,6 +181,14 @@ public class PSWidgetBuilderDefinition extends PSAbstractDataObject {
     }
 
     /**
+     * Returns the label as a legacy `getName()` for backward compatibility.
+     * @return the label or null
+     */
+    public String getName() {
+        return label;
+    }
+
+    /**
      * Sets the widget label with validation.
      *
      * @param label the label to set, may be null

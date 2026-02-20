@@ -47,7 +47,7 @@ public class PSLocaleModel extends PSLimitedDesignModel
       if (name == null || name.trim().length() == 0)
          throw new IllegalArgumentException("name may not be null or empty");
       IPSCmsObjectMgr cmsObjMgr = (IPSCmsObjectMgr) getService();
-      PSLocale locale = cmsObjMgr.findLocaleByLanguageString(name);
+      PSLocale locale = cmsObjMgr.findLocaleByLanguageString(name).orElse(null);
       if (locale == null)
       {
          String msg = "Failed to get the design object for name {0}";
@@ -66,7 +66,7 @@ public class PSLocaleModel extends PSLimitedDesignModel
       PSLocale loc = null;
       try
       {
-         loc = cmsObjMgr.loadLocale(guid.getUUID());
+         loc = cmsObjMgr.loadLocale(guid.getUUID()).orElse(null);
       }
       catch (Exception e)
       {

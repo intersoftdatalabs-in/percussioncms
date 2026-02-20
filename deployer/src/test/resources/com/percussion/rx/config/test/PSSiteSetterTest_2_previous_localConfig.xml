@@ -2,34 +2,35 @@
 
 
 
-<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
-   <SolutionConfig name="RSS">
+<SolutionConfigurations
+	publisherPrefix="com.percussion" publisherName="Percussion"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="RSS">
 
-<!---  ========================================
-        Site        "Corporate_Investments"      
-        =========================================
--->
-		<!--  Various properties for the "SiteVaraibleSetter" -->
+		<!--- ======================================== Site "Corporate_Investments"
+			========================================= -->
+		<!-- Various properties for the "SiteVaraibleSetter" -->
 
 		<property name="names">
 			<pvalues>
 				<pvalue>Corporate_Investments</pvalue>
 				<pvalue>Site_Created_By_UnitTest</pvalue>
 			</pvalues>
-		</property>		
-      
-      <property name="siteVariables_All"> 
-         <propertySet>
-		      <property name="name"  value="added_sitevar"/>
-		      <property name="context"  value="Site_Folder_Assembly"/>
-		      <property name="value"  value="Added Value"/>
-         </propertySet>
-         <propertySet>
-		      <property name="name"  value="added_sitevar2"/>
-		      <property name="context"  value="Site_Folder_Assembly"/>
-		      <property name="value"  value="Added Value"/>
-         </propertySet>
-      </property>
+		</property>
 
-   </SolutionConfig>
+		<property name="siteVariables_All">
+			<propertySet>
+				<property name="name" value="added_sitevar" />
+				<property name="context" value="Site_Folder_Assembly" />
+				<property name="value" value="Added Value" />
+			</propertySet>
+			<propertySet>
+				<property name="name" value="added_sitevar2" />
+				<property name="context" value="Site_Folder_Assembly" />
+				<property name="value" value="Added Value" />
+			</propertySet>
+		</property>
+
+	</SolutionConfig>
 </SolutionConfigurations>

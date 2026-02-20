@@ -8,6 +8,6 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- hello: "G'day"
-}
+({
+  hello: "G'day",
+});

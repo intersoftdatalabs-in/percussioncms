@@ -1,40 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Twitter Summary Cards"
-                 contenttype_name="percTwitterCards"
-                 category="social"
-                 description="Adds support for Twitter cards to the Page or Template."
-                 author="Nate Chadwick"
-                 thumbnail="/rx_resources/widgets/percTwitterSummaryCards/images/twitter-card-icon.png"
-                 preferred_editor_width="800"
-                 preferred_editor_height="600"/>
-    <UserPref name="twittercard_type"
-              display_name="Summary Card Type"
-              default_value="summary_large_image"
-              datatype="enum"
-              required="true">
-        <EnumValue value="summary_large_image" display_value="Summary Card Large Image" />
-        <EnumValue value="summary" display_value="Summary Card" />
-    </UserPref>
-    <UserPref name="twitter_site"
-              display_name="@username"
-              default_value=""
-              datatype="string" />
-    <UserPref name="twitter_image"
-              display_name="Default Image Asset (Path)"
-              required="false"
-              default_value=""
-              datatype="string"/>
-    <UserPref name="twitter_image_alt"
-              display_name="Default Image Alt Text"
-              required="false"
-              default_value=""
-              datatype="string"/>
-    <CssPref name="rootclass"
-             display_name="CSS root class"
-             datatype="string" />
-    <Code type="jexl">
-        <!-- This section is used to set up data that will be used in the content section -->
+	<WidgetPrefs title="Twitter Summary Cards"
+		contenttype_name="percTwitterCards" category="social"
+		description="Adds support for Twitter cards to the Page or Template."
+		author="Nate Chadwick"
+		thumbnail="/rx_resources/widgets/percTwitterSummaryCards/images/twitter-card-icon.png"
+		preferred_editor_width="800" preferred_editor_height="600" />
+	<UserPref name="twittercard_type"
+		display_name="Summary Card Type" default_value="summary_large_image"
+		datatype="enum" required="true">
+		<EnumValue value="summary_large_image"
+			display_value="Summary Card Large Image" />
+		<EnumValue value="summary" display_value="Summary Card" />
+	</UserPref>
+	<UserPref name="twitter_site" display_name="@username"
+		default_value="" datatype="string" />
+	<UserPref name="twitter_image"
+		display_name="Default Image Asset (Path)" required="false"
+		default_value="" datatype="string" />
+	<UserPref name="twitter_image_alt"
+		display_name="Default Image Alt Text" required="false"
+		default_value="" datatype="string" />
+	<CssPref name="rootclass" display_name="CSS root class"
+		datatype="string" />
+	<Code type="jexl">
+		<!-- This section is used to set up data that will be used in the content
+			section -->
         <![CDATA[
 	  $percPageID = $perc.getPage().getId();
 	   $pageId = $perc.page.id;
@@ -201,12 +192,12 @@
 	}
 
 	]]>
-    </Code>
-    <Content type="velocity">
+	</Code>
+	<Content type="velocity">
         <![CDATA[
 #if($perc.isEditMode())##
 <img src="/Rhythmyx/rx_resources/widgets/percTwitterSummaryCards/images/twitter-card-placeholder-small.png" alt="Twitter Summary Cards Widget Placeholder" title="Twitter Summary Cards Widget" />
 #end##
     ]]>
-    </Content>
+	</Content>
 </Widget>

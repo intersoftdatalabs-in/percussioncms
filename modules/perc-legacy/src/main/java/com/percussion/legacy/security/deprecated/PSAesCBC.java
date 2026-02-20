@@ -50,6 +50,15 @@ public class PSAesCBC {
   private final Key key;
   private final SecureRandom secureRandom;
 
+  /**
+   * Default constructor for compatibility with legacy callers that relied on a no-arg constructor.
+   * Uses a zero-filled 16-byte key. This keeps behavior predictable for legacy code and should not
+   * be used for new encryption operations.
+   */
+  public PSAesCBC() {
+    this(new byte[16]);
+  }
+
   public PSAesCBC(byte[] rawKey) {
     if (rawKey == null || rawKey.length == 0) {
       throw new IllegalArgumentException("Key must not be null or empty");

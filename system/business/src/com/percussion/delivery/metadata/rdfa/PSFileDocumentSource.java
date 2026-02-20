@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,46 +15,70 @@
  * limitations under the License.
  */
 
-package com.percussion.delivery.metadata.any23;
+package com.percussion.delivery.metadata.rdfa;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tika.io.IOUtils;
-import org.apache.any23.source.FileDocumentSource;
-
 /**
- * This is a DocumentSource implementation to use files as a source by
- * Any23.
+ * This is a DocumentSource implementation to use files as a source for RDF extraction.
  * <p>
- * This classes fixes some issues present in FileDocumentSource (from Any23). It
- * closes every InputStream created when the close method is invoked.
+ * This class manages InputStream lifecycle and closes every InputStream created when the close method is invoked.
  * 
  * @author miltonpividori
  * 
  */
-class PSFileDocumentSource extends FileDocumentSource implements IPSDocumentSource {
-    private final List<InputStream> openInputStream;
+class PSFileDocumentSource implements IPSDocumentSource
+{
+    private final File file;
+    private List<InputStream> openInputStreams;
 
-    public PSFileDocumentSource(File file) {
-        super(file);
-        openInputStream = new ArrayList<>();
+    public PSFileDocumentSource(File file)
+    {
+        this.file = file;
+        this.openInputStreams = new ArrayList<>();
     }
 
     @Override
-    public InputStream openInputStream() throws IOException {
-        InputStream inputStream = super.openInputStream();
-        openInputStream.add(inputStream);
+    public InputStream openInputStream() throws IOException
+    {
+        InputStream inputStream = new FileInputStream(file);
+        openInputStreams.add(inputStream);
         return inputStream;
     }
 
     @Override
-    public void close() {
-        openInputStream.forEach(org.apache.tika.io.IOUtils::closeQuietly);
-        openInputStream.clear();
+    public String getDocumentIRI()
+    {
+        return file.toURI().toString();
+    }
+
+    @Override
+    public String getContentType()
+    {
+        // Return a default content type for HTML
+        return "text/html";
+    }
+
+    @Override
+    public void close()
+    {
+        for (InputStream in : openInputStreams)
+        {
+            try
+            {
+                in.close();
+            }
+            catch (IOException e)
+            {
+                // ignore close failures
+            }
+        }
+        openInputStreams.clear();
     }
 }

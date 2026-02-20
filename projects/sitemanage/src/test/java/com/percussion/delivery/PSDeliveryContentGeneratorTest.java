@@ -30,6 +30,7 @@ import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.sitemanage.dao.IPSiteDao;
+import jakarta.ws.rs.WebApplicationException;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -37,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.ws.rs.WebApplicationException;
 import org.apache.commons.lang3.StringUtils;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -52,7 +52,7 @@ import org.junit.jupiter.api.Test;
 // @Disabled("There are no Tomcat running in the continuos machine. If you want to " +
 //        "run these unit tests, adjust the SERVER_URL constant and start your Tomcat " +
 //        "server. Be sure build and install the latest delivery services code.")
-// @Tag("IntegrationTest")
+//
 public class PSDeliveryContentGeneratorTest {
   private static final String SERVER_URL = "http://localhost:9970";
   private static final String SECURE_SERVER_URL = "https://localhost:8443";

@@ -32,7 +32,7 @@ import static com.percussion.content.ui.browse.PSContentBrowser.COLUMN_TYPE;
 /**
  * @author Andriy Palamarchuk
  */
-@Tag("IntegrationTest")
+
 public class PSContentBrowserTest extends ServletTestCase
 {
    @Override
@@ -51,7 +51,7 @@ public class PSContentBrowserTest extends ServletTestCase
       summary.setContentTypeId(311);
       summary.setName(name);
       summary.setObjectType(ObjectTypeEnum.ITEM);
-      
+
       // existing content type name
       {
          final String contentTypeName = "rffGeneric";
@@ -59,7 +59,7 @@ public class PSContentBrowserTest extends ServletTestCase
          summary.setContentTypeName(contentTypeName);
          final JSONObject json = PSContentBrowser.summaryToJsonObject(summary,
                new HashMap<String, String>());
-         
+
          TestCase.assertEquals(summary.getGUID().getUUID(), json.get(COLUMN_ID));
          TestCase.assertTrue(json.getString(COLUMN_NAME).contains(name));
          TestCase.assertEquals(contentTypeLabel, json.get(COLUMN_DESCRIPTION));

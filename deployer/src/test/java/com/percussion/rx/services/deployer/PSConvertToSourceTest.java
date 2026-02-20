@@ -32,7 +32,7 @@ import java.util.Date;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("IntegrationTest")
+
 public class PSConvertToSourceTest {
 
   @Test

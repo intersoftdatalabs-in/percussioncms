@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 
-@Tag("IntegrationTest")
+
 public class PSContentListSetterTest extends PSConfigurationTest {
   public void testNegative() throws Exception {
     try {

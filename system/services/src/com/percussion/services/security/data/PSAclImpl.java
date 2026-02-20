@@ -455,6 +455,20 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
       return entry.checkPermission(permission);
    }
 
+   @Override
+   public boolean checkPermission(javax.security.auth.Subject subject, Permission permission)
+   {
+      if (subject == null)
+         return false;
+      var principals = subject.getPrincipals();
+      for (var p : principals)
+      {
+         if (p instanceof Principal && checkPermission((Principal) p, permission))
+            return true;
+      }
+      return false;
+   }
+
    /**
     * Finds and returns the acl entry whose principal matches with the supplied
     * principal. The match is found using

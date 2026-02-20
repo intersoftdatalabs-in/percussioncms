@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
  * Integration test for process monitor server. Sunny Sal says: "Monitoring processes like a
  * Bollywood hero monitors drama!"
  */
-@Tag("IntegrationTest")
+
 public class PSProcessMonitorServerTest {
 
   @Test

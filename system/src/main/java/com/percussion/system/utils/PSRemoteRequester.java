@@ -29,6 +29,8 @@ import com.percussion.HTTPClient.ProtocolNotSuppException;
 import com.percussion.HTTPClient.RedirectionModule;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.tools.PSHttpRequest;
+import com.percussion.util.PSCharSets;
+import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,7 +41,6 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -263,25 +264,23 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * @return The array, will be <code>null</code> if <code>params</code> is <code>null</code> or
    *     emtpy.
    */
-  private NVPair[] getParams(Map params) {
-    if (params == null || params.size() <= 0) return null;
+  private NVPair[] getParams(Map<String, Object> params) {
+    if (params == null || params.isEmpty()) return null;
 
-    List pairs = new ArrayList();
+    List<NVPair> pairs = new ArrayList<>();
 
-    Iterator i = params.entrySet().iterator();
-
-    while (i.hasNext()) {
-      Map.Entry entry = (Map.Entry) i.next();
+    for (Map.Entry<String, Object> entry : params.entrySet()) {
       if (entry.getKey() == null)
         throw new IllegalArgumentException("params may not contain a null key");
 
-      String key = entry.getKey().toString();
+      String key = entry.getKey();
       Object val = entry.getValue();
 
       if (val != null) {
         if (val instanceof List) {
-          Iterator itValues = ((List) val).iterator();
-          while (itValues.hasNext()) pairs.add(new NVPair(key, itValues.next().toString()));
+          for (Object v : (List<?>) val) {
+            pairs.add(new NVPair(key, v.toString()));
+          }
         } else {
           pairs.add(new NVPair(key, val.toString()));
         }
@@ -290,11 +289,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
       }
     }
 
-    // now we know how many pairs are there, so that we can create an array
-    NVPair opts[] = new NVPair[pairs.size()];
-    int ind = 0;
-    for (Iterator it = pairs.iterator(); it.hasNext(); ind++) opts[ind] = (NVPair) it.next();
-
+    NVPair[] opts = pairs.toArray(new NVPair[0]);
     return opts;
   }
 
@@ -662,7 +657,8 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * @param resource the resource, not <code>null</code>.
    * @throws IOException if I/O error occurs.
    */
-  protected byte[] getBinary(String resource) throws IOException {
+  @Override
+  public byte[] getBinary(String resource) throws IOException {
     final String urlResource = getFullResourcePath(resource);
 
     final NVPair[] hdrs = new NVPair[1];
@@ -680,7 +676,8 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * @see com.percussion.util.IPSRemoteRequester#sendBinary
    *    (byte[], java.lang.String, java.util.Map)
    */
-  public PSLocator updateBinary(PSBinaryFileData[] files, String resource, Map params)
+  public PSLocator updateBinary(
+      PSBinaryFileData[] files, String resource, Map<String, Object> params)
       throws IOException, SAXException {
     final String urlResource = getFullResourcePath(resource);
 

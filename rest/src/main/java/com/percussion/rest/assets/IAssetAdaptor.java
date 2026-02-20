@@ -20,11 +20,11 @@ package com.percussion.rest.assets;
 import com.percussion.rest.Status;
 import com.percussion.rest.errors.BackendException;
 import com.percussion.share.service.exception.PSDataServiceException;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
-import javax.ws.rs.core.StreamingOutput;
 
 /** Asset adaptor interface for shared asset operations. */
 public interface IAssetAdaptor {

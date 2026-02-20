@@ -1,21 +1,28 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<PSXExtensionHandlerConfiguration handlerName="ExtensionHandler">
-  <Extension name="Java" context="Handlers/" handler="ExtensionHandler">
-    <initParam name="com.percussion.user.scriptable">no</initParam>
-    <initParam name="com.percussion.user.description">Processes extensions written in the Java language.</initParam>
-    <initParam name="com.percussion.extension.configFile">Extensions.xml</initParam>
-    <initParam name="com.percussion.extension.version">1</initParam>
-    <initParam name="com.percussion.extension.reentrant">yes</initParam>
-    <initParam name="className">com.percussion.extension.PSJavaExtensionHandler</initParam>
-    <interface name="com.percussion.extension.IPSExtensionHandler"/>
-  </Extension>
-  <Extension name="JavaScript" context="Handlers/" handler="ExtensionHandler">
-    <initParam name="com.percussion.user.scriptable">yes</initParam>
-    <initParam name="com.percussion.user.description">Processes scriptable functions written in the JavaScript language.</initParam>
-    <initParam name="com.percussion.extension.configFile">Extensions.xml</initParam>
-    <initParam name="com.percussion.extension.version">1</initParam>
-    <initParam name="com.percussion.extension.reentrant">yes</initParam>
-    <initParam name="className">com.percussion.extension.PSJavaScriptExtensionHandler</initParam>
-    <interface name="com.percussion.extension.IPSExtensionHandler"/>
-  </Extension>
+<PSXExtensionHandlerConfiguration
+	handlerName="ExtensionHandler">
+	<Extension name="Java" context="Handlers/"
+		handler="ExtensionHandler">
+		<initParam name="com.percussion.user.scriptable">no</initParam>
+		<initParam name="com.percussion.user.description">Processes extensions written in the Java
+			language.</initParam>
+		<initParam name="com.percussion.extension.configFile">Extensions.xml</initParam>
+		<initParam name="com.percussion.extension.version">1</initParam>
+		<initParam name="com.percussion.extension.reentrant">yes</initParam>
+		<initParam name="className">com.percussion.extension.PSJavaExtensionHandler</initParam>
+		<interface
+			name="com.percussion.extension.IPSExtensionHandler" />
+	</Extension>
+	<Extension name="JavaScript" context="Handlers/"
+		handler="ExtensionHandler">
+		<initParam name="com.percussion.user.scriptable">yes</initParam>
+		<initParam name="com.percussion.user.description">Processes scriptable functions written in
+			the JavaScript language.</initParam>
+		<initParam name="com.percussion.extension.configFile">Extensions.xml</initParam>
+		<initParam name="com.percussion.extension.version">1</initParam>
+		<initParam name="com.percussion.extension.reentrant">yes</initParam>
+		<initParam name="className">com.percussion.extension.PSJavaScriptExtensionHandler</initParam>
+		<interface
+			name="com.percussion.extension.IPSExtensionHandler" />
+	</Extension>
 </PSXExtensionHandlerConfiguration>

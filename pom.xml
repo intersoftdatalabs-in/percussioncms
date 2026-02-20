@@ -27,13 +27,13 @@
         <module>modules/TableFactory</module>
         <module>modules/perc-i18n</module>
         <module>modules/servletutils</module>
-        <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-ant</module>
         <module>delivery</module>
         <module>modules/Help</module>
         <module>modules/SSLTools</module>
         <module>modules/tlsutils</module>
         <module>modules/perc-rxapps</module>
+        <module>modules/webservices</module>
         <module>system</module>
         <module>modules/perc-service-wrapper</module>
         <module>rest</module>
@@ -74,7 +74,6 @@
         <activemq.version>6.2.0</activemq.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
-        <any23.version>2.7</any23.version>
         <aopalliance.version>1.0</aopalliance.version>
         <avalon.version>4.1.5</avalon.version>
         <awssdk.version>1.12.797</awssdk.version>
@@ -113,12 +112,12 @@
         <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
-        <hibernate.version>6.6.41.Final</hibernate.version>
+        <hibernate.version>6.6.42.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jackson.annotation.api.version>2.20</jackson.annotation.api.version>
+        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
         <jackson.version>2.21.0</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
@@ -135,6 +134,7 @@
         <jakarta.validation.api.version>3.1.1</jakarta.validation.api.version>
         <jakarta.ws.rs.version>4.0.0</jakarta.ws.rs.version>
         <jakarta.xml.bind.version>4.0.4</jakarta.xml.bind.version>
+        <jakarta.xml.soap.api.version>2.0.1</jakarta.xml.soap.api.version>
         <jasypt.version>1.9.3</jasypt.version>
         <java.source.version>17</java.source.version>
         <java.version>17</java.version>
@@ -151,6 +151,7 @@
         <json.version>20251224</json.version>
         <jsoup.version>1.22.1</jsoup.version>
         <jtds.version>1.3.1</jtds.version>
+        <junit4.version>4.13.2</junit4.version>
         <junit5.version>6.0.2</junit5.version>
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <liquibase.maven.plugin.version>5.0.1</liquibase.maven.plugin.version>
@@ -190,7 +191,7 @@
         <maven.version>[3.6,)</maven.version>
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
         <mockito.version>5.21.0</mockito.version>
-        <mssql.version>13.3.0.jre11-preview</mssql.version>
+        <mssql.version>13.3.1.jre11-preview</mssql.version>
         <myfaces.version>4.1.2</myfaces.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
         <opencsv.version>5.12.0</opencsv.version>
@@ -340,6 +341,11 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>jakarta.xml.soap</groupId>
+                <artifactId>jakarta.xml.soap-api</artifactId>
+                <version>${jakarta.xml.soap.api.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons.io.version}</version>
@@ -410,6 +416,18 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit4.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- End Junit 5-->
@@ -906,34 +924,10 @@
                 <version>0.13.6</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.any23</groupId>
-                <artifactId>apache-any23-core</artifactId>
-                <version>${any23.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.github.jsonld-java</groupId>
-                        <artifactId>jsonld</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>jcl-over-slf4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.tukaani</groupId>
-                        <artifactId>xz</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
                 <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.any23</groupId>
-                <artifactId>apache-any23-api</artifactId>
-                <version>${any23.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdom</groupId>
@@ -974,60 +968,8 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
-                <artifactId>tika-parsers</artifactId>
+                <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
-                <!-- was 1.3 update to bring in line
-                    with other deps -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcmail-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcpkix-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15to18</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-ext-jdk15to18</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bctls-jdk15to18</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.glassfish.jaxb</groupId>
-                        <artifactId>jaxb-runtime</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>jcl-over-slf4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.jsoup</groupId>
-                        <artifactId>jsoup</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>asm</groupId>
-                        <artifactId>asm</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcmail-jdk15to18</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15to18</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -1206,8 +1148,8 @@
                 <version>3.4</version>
             </dependency>
             <dependency>
-                <!-- our version 1.2 - this is old au\id\jericho\ namespace 2.6.1 last version 
-                    before package change. 2.3.x-2.6.x in net.htmlparser.jericho » jericho-html 
+                <!-- our version 1.2 - this is old au\id\jericho\ namespace 2.6.1 last version
+                    before package change. 2.3.x-2.6.x in net.htmlparser.jericho » jericho-html
                     maven package 2.3 last in this maven group -->
                 <groupId>net.htmlparser</groupId>
                 <artifactId>jericho-html</artifactId>
@@ -2135,7 +2077,7 @@
                         </compilerArgs>
                     </configuration>
                 </plugin>
-                <!--This plugin's configuration is used to store Eclipse 
+                <!--This plugin's configuration is used to store Eclipse
                 m2e settings only. It has no influence on the Maven build itself. -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
@@ -2354,9 +2296,59 @@
                                 <!-- You have to set the target manually -->
                                 <include>**/*.md</include>
                             </includes>
-                            <flexmark/>
+                            <excludes>
+                                <!-- Exclude generated and vendor content so docs/node modules aren't reformatted -->
+                                <exclude>**/target/**</exclude>
+                                <exclude>**/node_modules/**</exclude>
+                                <exclude>**/system/target/**</exclude>
+                                <exclude>**/system/**/target/**</exclude>
+                            </excludes>
+                            <flexmark>
+                                <extensions>YamlFrontMatter</extensions>
+                            </flexmark>
                             <!-- has its own section below -->
                         </markdown>
+                        <javascript>
+                            <includes>
+                                <include>**/*.js</include>
+                                <include>**/*.mjs</include>
+                                <include>**/*.cjs</include>
+                                <include>**/*.jsx</include>
+                            </includes>
+                            <excludes>
+                                <!-- Exclude built artifacts, packaged war contents, node modules, and vendor/build fragments that Prettier can't parse -->
+                                <exclude>**/war/**</exclude>
+                                <exclude>**/target/**</exclude>
+                                <exclude>**/node_modules/**</exclude>
+                                <exclude>**/WEB-INF/classes/**</exclude>
+                                <exclude>**/cui/components/jquery/**</exclude>
+                                <exclude>**/cui/components/jquery-migrate/**</exclude>
+                                <exclude>**/cui/components/jquery-ui/**</exclude>
+                                <exclude>**/cui/components/twitter-bootstrap-3.0.0/**</exclude>
+                                <exclude>**/cui/components/dynatree/**</exclude>
+                                <exclude>**/cui/components/pubsub-js/**</exclude>
+                                <exclude>**/cui/components/requirejs/**</exclude>
+                                <exclude>**/cui/components/requirejs-text/**</exclude>
+                                <exclude>**/cui/components/font-awesome-4.1.0/**</exclude>
+                                <exclude>**/cui/components/google-fonts/**</exclude>
+                                <exclude>**/cui/**/build/**</exclude>
+                                <exclude>**/cui/**/dist/**</exclude>
+                                <exclude>**/cui/components/twitter-bootstrap-3.0.0/assets/js/raw-files.js</exclude>
+                                <exclude>**/system/Docs/Rhythmyx_Publishing_Design_Help/dhtml_search.js</exclude>
+                                <exclude>**/*.min.js</exclude>
+                                <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
+                                <exclude>**/dojo/tests/**</exclude>
+                                <!-- Specific legacy Dojo files that Prettier can't parse -->
+                                <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
+                                <!-- Module-relative and generic patterns to ensure hostenv_jsc.js is ignored where it appears -->
+                                <exclude>**/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
+                                <exclude>**/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
+                                <exclude>**/hostenv_jsc.js</exclude>
+                            </excludes>
+                            <prettier>
+                                <prettierVersion>2.8.8</prettierVersion>
+                            </prettier>
+                        </javascript>
                         <pom>
                             <!-- These are the defaults, you can override if you want -->
                             <includes>
@@ -2384,6 +2376,155 @@
                                 <sortExecutions>false</sortExecutions>
                             </sortPom>
                         </pom>
+                        <formats>
+                            <format>
+                                <includes>
+                                    <include>**/src/main/resources/**/*.xml</include>
+                                    <include>**/src/main/resources/**/*.xsl</include>
+                                    <include>**/src/main/resources/**/*.xslt</include>
+                                    <include>**/src/main/webapp/**/*.xml</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/system/Docs/**</exclude>
+                                    <exclude>**/WEB-INF/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <exclude>**/UnitTestResources/**</exclude>
+                                    <exclude>modules/extensions-main/src/main/resources/Java/Extensions.xml</exclude>
+                                    <exclude>**/src/main/resources/Java/**</exclude>
+                                    <exclude>modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/data/RxffTableData.xml</exclude>
+                                    <exclude>modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/data/**</exclude>
+                                    <exclude>**/src/main/resources/distribution/rxconfig/Installer/data/**</exclude>
+                                    <exclude>**/distribution/rxconfig/Installer/data/**</exclude>
+                                </excludes>
+                                <eclipseWtp>
+                                    <type>XML</type>
+                                </eclipseWtp>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                            <format>
+                                <includes>
+                                    <include>**/*.html</include>
+                                    <include>**/*.htm</include>
+                                    <include>**/*.xhtml</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <exclude>**/*.jsp</exclude>
+                                    <!-- Exclude docs with legacy encodings to avoid UTF-8 checks -->
+                                    <exclude>**/system/Docs/**</exclude>
+                                    <exclude>**/Docs/**</exclude>
+                                    <!-- Exclude legacy Dojo vendor files that Prettier/Spotless can't parse -->
+                                    <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
+                                    <!-- Exclude vendor-provided component templates (may include templating tags) -->
+                                    <exclude>**/cui/components/**</exclude>
+                                    <!-- Exclude HTML files under test resources to avoid formatting issues in test fixtures -->
+                                    <exclude>**/src/test/resources/**/*.html</exclude>
+                                    <!-- Exclude third-party libraries and demo assets that may contain non-standard or templated HTML -->
+                                    <exclude>**/lib-js/**</exclude>
+                                    <exclude>**/demo/**</exclude>
+                                    <!-- Exclude rich text editor/tinymce plugin docs and vendor docs that Prettier can't parse safely -->
+                                    <exclude>**/sys_resources/tinymce/**</exclude>
+                                    <exclude>**/tinymce/**</exclude>
+                                    <!-- Exclude HTML files under test Java sources (test fixtures embedded in java) -->
+                                    <exclude>**/src/test/java/**/*.html</exclude>
+                                    <!-- Exclude legacy system tutorial and designer files that use non-standard HTML constructs -->
+                                    <exclude>**/system/Designer/**</exclude>
+                                    <exclude>**/system/**/Tutorial/**</exclude>
+                                    <!-- Exclude large collections of legacy/release documentation that contain non-standard HTML -->
+                                    <exclude>**/system/ReleasedDocuments/**</exclude>
+                                    <exclude>**/system/FastForward/**</exclude>
+                                    <!-- Exclude system content (many legacy HTML files that Prettier can't safely parse) -->
+                                    <exclude>**/system/**</exclude>
+                                    <!-- Exclude system release documentation and legacy release materials -->
+                                    <exclude>**/system/release/**</exclude>
+                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
+                                </excludes>
+                                <prettier>
+                                    <prettierVersion>2.8.8</prettierVersion>
+                                </prettier>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                            <!-- Format CSS/SCSS/LESS files using Prettier -->
+                            <format>
+                                <includes>
+                                    <include>**/*.css</include>
+                                    <include>**/*.scss</include>
+                                    <include>**/*.less</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <!-- exclude vendor/component libraries and test fixtures -->
+                                    <exclude>**/cui/components/**</exclude>
+                                    <exclude>**/lib-js/**</exclude>
+                                    <exclude>**/demo/**</exclude>
+                                    <exclude>**/src/test/resources/**/*.css</exclude>
+                                    <exclude>**/src/test/resources/**/*.scss</exclude>
+                                    <exclude>**/src/test/java/**/*.css</exclude>
+                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
+                                </excludes>
+                                <prettier>
+                                    <prettierVersion>2.8.8</prettierVersion>
+                                </prettier>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                            <!-- Format JSON files using Prettier -->
+                            <format>
+                                <includes>
+                                    <include>**/*.json</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <exclude>**/war/**</exclude>
+                                    <exclude>**/WEB-INF/**</exclude>
+                                    <exclude>**/src/test/resources/**/*.json</exclude>
+                                    <!-- Exclude specific legacy/third-party JSON that Prettier can't safely format -->
+                                    <exclude>modules/jcadf-master/audit_events.json</exclude>
+                                    <exclude>**/audit_events.json</exclude>
+                                </excludes>
+                                <prettier>
+                                    <prettierVersion>2.8.8</prettierVersion>
+                                </prettier>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                            <!-- Format YAML files using Prettier -->
+                            <format>
+                                <includes>
+                                    <include>**/*.yml</include>
+                                    <include>**/*.yaml</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                    <exclude>**/node_modules/**</exclude>
+                                    <exclude>**/.idea/**</exclude>
+                                    <exclude>**/src/test/resources/**/*.yml</exclude>
+                                    <exclude>**/src/test/resources/**/*.yaml</exclude>
+                                </excludes>
+                                <prettier>
+                                    <prettierVersion>2.8.8</prettierVersion>
+                                </prettier>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                            </format>
+                        </formats>
+                        <lintSuppressions>
+                            <lintSuppression>
+                                <path>*</path>
+                                <step>eclipseWtp</step>
+                                <shortCode>*</shortCode>
+                            </lintSuppression>
+                        </lintSuppressions>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -2393,14 +2534,14 @@
                         </dependency>
                     </dependencies>
                     <executions>
-                        <execution>
+                      <!--  <execution>
                             <id>auto-style</id>
                             <goals>
                                 <goal>check</goal>
                             </goals>
-                            <!-- Using validate phase, so this happens before enforce-style -->
                             <phase>validate</phase>
                         </execution>
+                        -->
                     </executions>
                 </plugin>
                 <plugin>
@@ -2622,6 +2763,12 @@
                 <skip.integration.tests>false</skip.integration.tests>
                 <skip.unit.tests>true</skip.unit.tests>
             </properties>
+        </profile>
+        <profile>
+            <id>with-dts</id>
+            <modules>
+                <module>deliverytiersuite/delivery-tier-suite</module>
+            </modules>
         </profile>
     </profiles>
 </project>

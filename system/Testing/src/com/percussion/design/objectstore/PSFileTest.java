@@ -17,6 +17,7 @@
 package com.percussion.design.objectstore;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,11 +27,12 @@ import java.util.List;
 
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 
-public class PSFileTest extends TestCase
+public class PSFileTest 
 {
    /**
     * Tests behavior of equals() and hashCode() methods.
     */
+   
    public void testEqualsHashCode() throws MalformedURLException
    {
       assertEqualsWithHash(new PSFileImpl(), new PSFileImpl());

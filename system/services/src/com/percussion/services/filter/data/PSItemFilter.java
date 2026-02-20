@@ -33,7 +33,6 @@ import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
@@ -42,7 +41,6 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
-import org.hibernate.annotations.SelectBeforeUpdate;
 import org.xml.sax.SAXException;
 
 import jakarta.persistence.Basic;
@@ -57,7 +55,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,12 +73,11 @@ import java.util.TreeSet;
  * @author dougrand
  */
 @Entity
-@SelectBeforeUpdate
 @NaturalIdCache(region = "PSItemFilter_NaturalId")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSItemFilter")
 @Table(name = "PSX_ITEM_FILTER")
 public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
-   IPSCloneTuner, Serializable
+   IPSCloneTuner
 {
    private static final Logger log = LogManager.getLogger(PSItemFilter.class);
 
@@ -224,7 +220,13 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    {
       this.name = name;
    }
-
+   /**
+    * Internal implementation for name setting.
+    */
+   public void setNameImpl(String name) throws PSFilterException
+   {
+      this.name = name;
+   }
    /**
     * @return Returns the parentFilter.
     */
@@ -283,6 +285,15 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    public String getDescription()
    {
       return description;
+   }
+
+   /**
+    * Check if this filter has a meaningful description.
+    *
+    * @return true if description is present and non-empty
+    */
+   public boolean hasDescription() {
+      return StringUtils.isNotBlank(description);
    }
 
    /**
@@ -391,6 +402,10 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
       rules.add(def);
    }
 
+   public void addRuleDefImpl(IPSItemFilterRuleDef def) {
+      addRuleDef(def);
+   }
+
    /**
     *  (non-Javadoc)
     * @see com.percussion.services.filter.IPSItemFilter#removeRuleDef(com.percussion.services.filter.IPSItemFilterRuleDef)
@@ -398,6 +413,10 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    public void removeRuleDef(IPSItemFilterRuleDef def)
    {
       rules.remove(def);
+   }
+
+   public void removeRuleDefImpl(IPSItemFilterRuleDef def) {
+      removeRuleDef(def);
    }
    
    /**
@@ -449,9 +468,9 @@ public class PSItemFilter implements IPSItemFilter, IPSCatalogSummary,
    }
 
    /* (non-Javadoc)
-    * @see com.percussion.services.filter.IPSItemFilter#filter(java.util.List, java.util.Map)
+    * @see com.percussion.services.filter.IPSItemFilter#filterImpl(java.util.List, java.util.Map)
     */
-   public List<IPSFilterItem> filter(List<IPSFilterItem> items,
+   public List<IPSFilterItem> filterImpl(List<IPSFilterItem> items,
          Map<String, String> params) throws PSFilterException
    {
       SortedSet<IPSItemFilterRuleDef> sortedDefs = new TreeSet<>();

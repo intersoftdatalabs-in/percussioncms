@@ -20,6 +20,8 @@ import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSUserContextExtractor;
 import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
+import com.percussion.design.objectstore.PSAttribute;
+import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSGlobalSubject;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.i18n.PSI18nUtils;
@@ -692,14 +694,14 @@ public class PSRequestContext implements IPSRequestContext {
 
   // see IPSRequestContext for desc
   public List<PSSubject> getSubjectRoleAttributes(String roleName) {
-    return getSubjectRoleAttributes(null, roleName);
+    return getSubjectRoleAttributes(null, PSSubject.SUBJECT_TYPE_USER, roleName, null);
   }
 
   /*
    *  (non-Javadoc)
    * @see com.percussion.server.IPSRequestContext#getSubjectRoleAttributes(com.percussion.design.objectstore.PSSubject, java.lang.String)
    */
-  public List<PSSubject> getSubjectRoleAttributes(PSSubject subject, String roleName) {
+  public List<String> getSubjectRoleAttributes(PSSubject subject, String roleName) {
     if (null == roleName || roleName.trim().length() == 0) {
       throw new IllegalArgumentException("role name can't be null or empty");
     }
@@ -708,7 +710,24 @@ public class PSRequestContext implements IPSRequestContext {
       subject = getSubjectFromSession();
       if (null == subject) return new ArrayList<>();
     }
-    return getSubjectRoleAttributes(subject.getName(), subject.getType(), roleName, null);
+
+    List<PSSubject> subs =
+        getSubjectRoleAttributes(subject.getName(), subject.getType(), roleName, null);
+    List<String> attrs = new ArrayList<>();
+    for (PSSubject s : subs) {
+      if (s.getName().equalsIgnoreCase(subject.getName()) && s.getType() == subject.getType()) {
+        PSAttributeList alist = s.getAttributes();
+        if (alist != null) {
+          Iterator attrsIter = alist.iterator();
+          while (attrsIter.hasNext()) {
+            PSAttribute a = (PSAttribute) attrsIter.next();
+            attrs.add(a.getName());
+          }
+        }
+        break;
+      }
+    }
+    return attrs;
   }
 
   // see IPSRequestContext for desc

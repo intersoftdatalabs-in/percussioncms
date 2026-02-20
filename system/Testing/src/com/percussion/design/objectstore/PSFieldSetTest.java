@@ -20,25 +20,29 @@ import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 // Test case
-public class PSFieldSetTest extends TestCase
+public class PSFieldSetTest 
 {
+   
    public void testEquals() throws Exception
    {
       PSFieldSet fs1 = new PSFieldSet("aaa");
       PSFieldSet fs2 = new PSFieldSet("aaa");
       PSFieldSet fs3 = new PSFieldSet("bbb");
       
-      assertTrue(fs1.equals(fs2));
-      assertTrue(!fs1.equals(fs3));
+      assertEquals(fs1, fs2);
+      assertFalse(fs1.equals(fs3));
       fs1.setUserSearchable(!fs1.isUserSearchable());
-      assertTrue(!fs1.equals(fs2));
+      assertFalse(fs1.equals(fs2));
    }
+
+   
 
    public void testXml() throws Exception
    {
@@ -74,17 +78,18 @@ public class PSFieldSetTest extends TestCase
 
       // create a new object and populate it from our testTo element
       PSFieldSet testFrom = new PSFieldSet(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
       testFrom.setUserSearchable(!testFrom.isUserSearchable());
       testFrom = new PSFieldSet(testFrom.toXml(doc), null, null);
       assertTrue(testFrom.isUserSearchable() != testTo.isUserSearchable());
-      assertTrue(!testTo.equals(testFrom));
+      assertFalse(testTo.equals(testFrom));
    }
 
    /**
     * Tests that the XML serialization has a predictable ordering (ascending
     * alphabetical fieldname).
     */
+   
    public void testXmlOrdering()
    {
       PSBackEndTable table = new PSBackEndTable("RXARTICLE");

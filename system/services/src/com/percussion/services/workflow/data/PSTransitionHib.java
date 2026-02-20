@@ -534,11 +534,18 @@ public class PSTransitionHib implements IPSTransition, IPSAgingTransition
       return PSXmlSerializationHelper.writeToXml(this);
    }
    
-   public PSAgingTransition.PSAgingTypeEnum getType()
+   @Override
+   public String getType()
    {
       if (agingType == null)
          agingType = PSAgingTransition.PSAgingTypeEnum.ABSOLUTE.getValue();
       
+      return PSAgingTransition.PSAgingTypeEnum.valueOf(agingType).name();
+   }
+
+   public PSAgingTransition.PSAgingTypeEnum getAgingTypeEnum() {
+      if (agingType == null)
+         return PSAgingTransition.PSAgingTypeEnum.ABSOLUTE;
       return PSAgingTransition.PSAgingTypeEnum.valueOf(agingType);
    }
 

@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-	<WidgetPrefs title="Evergage Beacon"
-				 contenttype_name=""
-				 category="integration,personalization"
-				 description="Add an Evergage Beacon to the Page or Template."
-				 author="Percussion Software Inc"
-				 thumbnail= "/rx_resources/widgets/evergageBeacon/images/widgetIconBeacon.png"
-				 is_responsive="true"/>
+	<WidgetPrefs title="Evergage Beacon" contenttype_name=""
+		category="integration,personalization"
+		description="Add an Evergage Beacon to the Page or Template."
+		author="Percussion Software Inc"
+		thumbnail="/rx_resources/widgets/evergageBeacon/images/widgetIconBeacon.png"
+		is_responsive="true" />
 
 	<UserPref name="evergageAccount"
-			  display_name="Evergage Account"
-			  default_value=""
-			  datatype="string" />
+		display_name="Evergage Account" default_value="" datatype="string" />
 
 	<UserPref name="evergageDataset"
-			  display_name="Evergage Data Set"
-			  default_value=""
-			  datatype = "string" />
+		display_name="Evergage Data Set" default_value="" datatype="string" />
 
-	<UserPref name="isEnabled"
-			  display_name="Enabled"
-			  default_value="enabled"
-			  datatype="enum">
+	<UserPref name="isEnabled" display_name="Enabled"
+		default_value="enabled" datatype="enum">
 		<EnumValue value="disable" display_value="Disabled" />
 		<EnumValue value="enabled" display_value="Enabled" />
 	</UserPref>

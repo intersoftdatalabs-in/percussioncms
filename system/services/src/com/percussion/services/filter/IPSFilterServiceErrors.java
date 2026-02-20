@@ -74,22 +74,37 @@ public interface IPSFilterServiceErrors {
     */
    int RULE_ARGUMENT_MISSING = 5;
 
+   /** Argument missing for filter processing (generic) */
+   int ARGUMENT_MISSING = 6;
+
+   /** Parameter combination error: auth type or filter expected */
+   int PARAMS_AUTHTYPE_OR_FILTER = 7;
+
+   /** A probable cycle detected in filter rule graph */
+   int PROBABLE_CYCLE = 8;
+
    /** All defined error codes for validation and lookup operations */
    Set<Integer> ALL_ERROR_CODES = Set.of(
       FILTER_MISSING,
       AUTHTYPE_MISSING,
       RULE_MISSING,
       DATABASE,
-      RULE_ARGUMENT_MISSING
+      RULE_ARGUMENT_MISSING,
+      ARGUMENT_MISSING,
+      PARAMS_AUTHTYPE_OR_FILTER,
+      PROBABLE_CYCLE
    );
 
    /** Error code descriptions for enhanced error reporting */
-   Map<Integer, String> ERROR_DESCRIPTIONS = Map.of(
-      FILTER_MISSING, "Filter not found",
-      AUTHTYPE_MISSING, "Unknown authentication type",
-      RULE_MISSING, "Filter rule not found",
-      DATABASE, "Database operation failed",
-      RULE_ARGUMENT_MISSING, "Required rule parameter missing"
+   Map<Integer, String> ERROR_DESCRIPTIONS = Map.ofEntries(
+      Map.entry(FILTER_MISSING, "Filter not found"),
+      Map.entry(AUTHTYPE_MISSING, "Unknown authentication type"),
+      Map.entry(RULE_MISSING, "Filter rule not found"),
+      Map.entry(DATABASE, "Database operation failed"),
+      Map.entry(RULE_ARGUMENT_MISSING, "Required rule parameter missing"),
+      Map.entry(ARGUMENT_MISSING, "Required argument missing"),
+      Map.entry(PARAMS_AUTHTYPE_OR_FILTER, "Missing auth type or filter parameter"),
+      Map.entry(PROBABLE_CYCLE, "Probable cycle detected in filter rules")
    );
 
    /**

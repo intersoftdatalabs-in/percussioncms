@@ -19,10 +19,10 @@ package com.percussion.share.web.service;
 
 import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.ext.Provider;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.Provider;
 import org.springframework.stereotype.Component;
 
 /**

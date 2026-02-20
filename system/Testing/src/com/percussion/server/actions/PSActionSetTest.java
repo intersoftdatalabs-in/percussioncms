@@ -28,6 +28,7 @@ import com.percussion.server.PSRequestTest;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -42,11 +43,13 @@ import java.util.StringTokenizer;
 /**
  * Tests the functionality of <code>PSActionSet</code>.
  */
-public class PSActionSetTest extends TestCase
+public class PSActionSetTest
 {
    /**
     * Tests that the getters return valid data
     */
+
+   @Test
    public void testGetters() throws Exception
    {
       PSActionSet actionSet = newActionSet( PSActionSet.XML_NODE_NAME,
@@ -60,11 +63,9 @@ public class PSActionSetTest extends TestCase
       {
          PSAction action = (PSAction) iter.next();
          if (i % 2 == 1)
-            assertTrue( "my odd actions should ignore errors",
-               action.ignoreError() );
+            assertTrue(action.ignoreError(), "my odd actions should ignore errors");
          else
-            assertTrue( "my even actions should not ignore errors",
-               !action.ignoreError() );
+            assertTrue(!action.ignoreError(), "my even actions should not ignore errors");
       }
 
       // prepare runtime environment for url extraction
@@ -85,8 +86,7 @@ public class PSActionSetTest extends TestCase
       {
          if (data != null) data.release();
       }
-      assertTrue( "did not throw illegal state when init method not called",
-         didThrow );
+      assertTrue(didThrow, "did not throw illegal state when init method not called");
 
       // need to call init method on action set before we can get redirect urls
       IPSExtensionManager extMgr = new PSExtensionManager();
@@ -102,7 +102,7 @@ public class PSActionSetTest extends TestCase
       // test normal behavior
       request.setParameter("foo", "bar");
       data = new PSExecutionData( null, null, request );
-      assertTrue(compareUrls("blue/green.htm?p3=param3&p2=bar&p1=param1", 
+      assertTrue(compareUrls("blue/green.htm?p3=param3&p2=bar&p1=param1",
             actionSet.getRedirectUrl( data )));
       data.release();
 
@@ -126,17 +126,17 @@ public class PSActionSetTest extends TestCase
    }
 
    /**
-    * Compares 2 urls of the form 
+    * Compares 2 urls of the form
     * <p>
     *    path?p1=v1&p2=v2
     * <p>
-    * by comparing the 2 paths (case sensitive) and verifying that for every 
-    * param (p1, p2...) in <code>url1</code>, there is the same param in 
+    * by comparing the 2 paths (case sensitive) and verifying that for every
+    * param (p1, p2...) in <code>url1</code>, there is the same param in
     * <code>url2</code> with a matching value (case sensitive).
-    * 
+    *
     * @param url1 Assumed not <code>null</code>.
     * @param url2 Assumed not <code>null</code>.
-    * @return <code>true</code> if the URLs match as noted above, 
+    * @return <code>true</code> if the URLs match as noted above,
     * <code>false</code> otherwise.
     */
    private boolean compareUrls(String url1, String url2)
@@ -176,10 +176,12 @@ public class PSActionSetTest extends TestCase
          return false;
       return true;
    }
-   
+
    /**
     * Tests the constructor with good and bad XML
     */
+
+   @Test
    public void testCtor() throws Exception
    {
       // tests that wrong element name is error
@@ -209,6 +211,8 @@ public class PSActionSetTest extends TestCase
     * Tests that an exception is thrown when a set contains multiple actions
     * with the same name.
     */
+
+   @Test
    public void testDuplicateActionNames() throws Exception
    {
       Element el = null;
@@ -242,6 +246,8 @@ public class PSActionSetTest extends TestCase
    /**
     * Tests that actions' exits can be loaded from XML.
     */
+
+   @Test
    public void testActionExits() throws Exception
    {
       InputStream input =
@@ -255,11 +261,9 @@ public class PSActionSetTest extends TestCase
       {
          PSAction action = (PSAction) iter.next();
          if (action.getName().equals( "insert" ))
-            assertNotNull( "this action should contain an extension set",
-               action.getExtensions() );
+            assertNotNull(action.getExtensions(), "this action should contain an extension set");
          else
-            assertNull( "this action should not contain an extension set",
-               action.getExtensions() );
+            assertNull(action.getExtensions(), "this action should not contain an extension set");
       }
 
       /*

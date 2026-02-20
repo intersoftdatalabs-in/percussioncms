@@ -23,8 +23,8 @@ import com.percussion.dashboardmanagement.data.PSGadgetList;
 import com.percussion.dashboardmanagement.service.IPSGadgetService;
 import com.percussion.dashboardmanagement.service.IPSGadgetService.PSGadgetNotFoundException;
 import com.percussion.dashboardmanagement.service.IPSGadgetService.PSGadgetServiceException;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

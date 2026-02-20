@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Percussion (modernized by Sunny Sal)
  */
-@Tag("IntegrationTest")
+
 public class PSSitePublishDaoTest {
 
   private PSSitePublishDao sitePubDao;

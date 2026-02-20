@@ -54,8 +54,8 @@ public class PSXmlDatabaseMetaDataTest
 {
    private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
 
-   @Rule
-   public Path tempFolder = new TemporaryFolder();
+   @TempDir
+   public File tempFolder;
 
    /** true if we already initialized */
    private static boolean ms_inited = false;
@@ -103,7 +103,7 @@ public class PSXmlDatabaseMetaDataTest
    /**
     *   Set up the testing directories and files
     */
-   @BeforeEach 
+   @BeforeEach
    public void init()
    {
       if (ms_inited)
@@ -115,8 +115,8 @@ public class PSXmlDatabaseMetaDataTest
 
          ms_singleElementFileName = "SingleEl.xml";
          ms_multiElementsFileName = "MultiEl.xml";
-         tempFolder.create();
-         ms_rootDir = tempFolder.newFolder("Testing");
+         ms_rootDir = new File(tempFolder, "Testing");
+         ms_rootDir.mkdirs();
          ms_rootDir.deleteOnExit();
          assertTrue(ms_rootDir.exists());
 
@@ -149,7 +149,7 @@ public class PSXmlDatabaseMetaDataTest
          f.deleteOnExit();
          doc = PSXmlDocumentBuilder.createXmlDocument();
          docRoot = PSXmlDocumentBuilder.createRoot(doc, "MultiElementDocument");
-         Element el = 
+         Element el =
             PSXmlDocumentBuilder.addEmptyElement(doc, docRoot, "Child0");
          for (int i = 0; i < 10; i++)
          {
@@ -181,7 +181,7 @@ public class PSXmlDatabaseMetaDataTest
                   subSubEl.setAttribute("id", "" + (i * 10 + j));
                }
             }
-         } 
+         }
          try(FileOutputStream out = new FileOutputStream(f)) {
             PSXmlDocumentBuilder.write(doc, out);
          }
@@ -201,11 +201,11 @@ public class PSXmlDatabaseMetaDataTest
                // this always is expected because elements at this level are leaves
                ms_multiElementsExpectedFields.put(
                   "MultiElementDocument/Child0/SubChild" + i + "/SubSubChild" + i + "_" + j, Boolean.TRUE);
-               
+
                if (shouldHaveAttribute(i, j))
                {
                   ms_multiElementsExpectedFields.put(
-                     "MultiElementDocument/Child0/SubChild" + i + "/SubSubChild" + i + "_" + j + "/@" + "id", Boolean.TRUE);               
+                     "MultiElementDocument/Child0/SubChild" + i + "/SubSubChild" + i + "_" + j + "/@" + "id", Boolean.TRUE);
                }
             }
          }
@@ -246,7 +246,7 @@ public class PSXmlDatabaseMetaDataTest
 
       DatabaseMetaData md = xmlConn.getMetaData();
       assertTrue(md instanceof com.percussion.data.jdbc.PSXmlDatabaseMetaData);
-      
+
       ResultSet rs = md.getColumns(
          ms_rootDir.getName(), "%", ms_singleElementFileName, "%");
 
@@ -261,7 +261,7 @@ public class PSXmlDatabaseMetaDataTest
       Connection xmlConn = DriverManager.getConnection("jdbc:psxml",
          ms_connProperties);
       assertTrue(xmlConn instanceof com.percussion.data.jdbc.PSXmlConnection);
-      
+
       DatabaseMetaData md = xmlConn.getMetaData();
       assertTrue(md instanceof com.percussion.data.jdbc.PSXmlDatabaseMetaData);
 
@@ -273,13 +273,13 @@ public class PSXmlDatabaseMetaDataTest
       xmlConn.close();
    }
 
-   @org.junit.Test
+   @Test
    public void testGetColumnsCgiVars() throws Exception
    {
       Connection xmlConn = DriverManager.getConnection("jdbc:psxml",
          ms_connProperties);
       assertTrue(xmlConn instanceof com.percussion.data.jdbc.PSXmlConnection);
-      
+
       DatabaseMetaData md = xmlConn.getMetaData();
       assertTrue(md instanceof com.percussion.data.jdbc.PSXmlDatabaseMetaData);
 
@@ -298,13 +298,13 @@ public class PSXmlDatabaseMetaDataTest
       Connection xmlConn = DriverManager.getConnection("jdbc:psxml",
          ms_connProperties);
       assertTrue(xmlConn instanceof com.percussion.data.jdbc.PSXmlConnection);
-      
+
       DatabaseMetaData md = xmlConn.getMetaData();
       assertTrue(md instanceof com.percussion.data.jdbc.PSXmlDatabaseMetaData);
 
       ResultSet rs = md.getTables(
          ms_rootDir.getName(), null, "%", null);
-      
+
       while (rs.next())
       {
          log.info(rs.getString(1) + "\t"
@@ -328,11 +328,11 @@ public class PSXmlDatabaseMetaDataTest
          String col_name = rs.getString(4);
          log.info(table_cat + "\t" + table_schem + "\t" +
             table_name + "\t" + col_name);
-          assertTrue(col_name, ef.containsKey(col_name));
+          assertTrue(ef.containsKey(col_name), col_name);
          ef.remove(col_name);
          assertFalse(ef.containsKey(col_name));
       }
-      assertTrue(ef.toString(), ef.isEmpty());
+      assertTrue(ef.isEmpty(), ef.toString());
    }
 
 

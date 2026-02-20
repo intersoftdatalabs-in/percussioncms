@@ -106,11 +106,11 @@ public class PSPubServerDao
     * com.percussion.services.pubservermgr.IPSPubServerManager#findServer(com
     * .percussion.utils.guid.IPSGuid)
     */
-   public PSPubServer findPubServer(IPSGuid serverId)
+   public java.util.Optional<PSPubServer> findPubServer(IPSGuid serverId)
    {
       notNull(serverId);
       
-      return findServerFromDatabase(serverId);
+      return java.util.Optional.ofNullable(findServerFromDatabase(serverId));
 
    }
 
@@ -120,7 +120,7 @@ public class PSPubServerDao
     * @see
     * com.percussion.services.pubservermgr.IPSPubServerManager#findServer(long)
     */
-   public PSPubServer findPubServer(long serverId)
+   public java.util.Optional<PSPubServer> findPubServer(long serverId)
    {
       IPSGuid guid = getGuidMgr().makeGuid(serverId, PSTypeEnum.PUBLISHING_SERVER);
       return findPubServer(guid);
@@ -151,11 +151,8 @@ public class PSPubServerDao
    {
       notNull(serverId, "serverId may not be null");
 
-      PSPubServer pubServer = findPubServer(serverId);
-      if (pubServer == null)
-         throw new PSNotFoundException(serverId);
-
-      return pubServer;
+      java.util.Optional<PSPubServer> opt = findPubServer(serverId);
+      return opt.orElseThrow(() -> new PSNotFoundException(serverId));
    }
 
    public PSPubServer loadPubServerModifiable(IPSGuid serverId) throws PSNotFoundException

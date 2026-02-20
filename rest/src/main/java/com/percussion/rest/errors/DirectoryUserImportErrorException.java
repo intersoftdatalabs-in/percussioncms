@@ -19,7 +19,7 @@
 
 package com.percussion.rest.errors;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Exception for directory user import errors. Sunny Sal: "Directory import mein error? User ko

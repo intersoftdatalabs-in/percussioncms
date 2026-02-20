@@ -282,8 +282,9 @@ public class PSTransformerFactory
       // PSObjectLockSummary converter
       convertUtils.register(new PSConverter(ms_beanUtils),
          PSObjectLockSummary.class);
-      convertUtils.register(new PSConverter(ms_beanUtils),
-         com.percussion.webservices.common.PSObjectSummaryLocked.class);
+      // PSObjectSummaryLocked is not generated in some builds; skip registration to avoid compile errors
+      // convertUtils.register(new PSConverter(ms_beanUtils),
+      //    com.percussion.webservices.common.PSObjectSummaryLocked.class);
 
       // PSLogin converter
       convertUtils.register(new PSConverter(ms_beanUtils),
@@ -502,78 +503,78 @@ public class PSTransformerFactory
       // PSDimensionEnumConverter
       register(PSDimensionEnumConverter.class, PSField.PSDimensionEnum.class,
          com.percussion.webservices.content.PSFieldDimension.class);
-      
+
       // PSItemDataTypeConverter
       register(PSItemDataTypeConverter.class, Integer.class,
          com.percussion.webservices.content.PSFieldDataType.class);
-      
+
       // PSItemFieldValueTypeConverter
       register(PSItemFieldValueTypeConverter.class, Integer.class,
          com.percussion.webservices.content.PSFieldFieldValueType.class);
-      
+
       // PSFieldSourceTypeConverter
       register(PSFieldSourceTypeConverter.class, Integer.class,
          com.percussion.webservices.content.PSFieldSourceType.class);
-      
+
       // PSFieldTransferEncodingConverter
       register(PSFieldTransferEncodingConverter.class, Integer.class,
          com.percussion.webservices.content.PSFieldTransferEncoding.class);
-      
+
       // PSItemChildEntryConverter
-      register(PSItemChildEntryConverter.class, PSItemChildEntry.class, 
+      register(PSItemChildEntryConverter.class, PSItemChildEntry.class,
          PSChildEntry.class);
-      
+
       // PSRelatedItemConverter
-      register(PSRelatedItemConverter.class, PSItemRelatedItem.class, 
+      register(PSRelatedItemConverter.class, PSItemRelatedItem.class,
          PSRelatedItem.class);
-      
+
       // PSRelatedItemActionConverter
-      register(PSRelatedItemActionConverter.class, 
+      register(PSRelatedItemActionConverter.class,
          PSItemRelatedItem.PSRelatedItemAction.class,
          com.percussion.webservices.content.PSRelatedItemAction.class);
 
       // PSConnectorTypesConverter
-      register(PSConnectorTypesConverter.class, 
+      register(PSConnectorTypesConverter.class,
          PSWSSearchField.PSConnectorEnum.class,
          com.percussion.webservices.common.ConnectorTypes.class);
 
       // PSOperatorTypesConverter
-      register(PSOperatorTypesConverter.class, 
+      register(PSOperatorTypesConverter.class,
          PSWSSearchField.PSOperatorEnum.class,
          com.percussion.webservices.common.OperatorTypes.class);
 
       // PSSearchFieldConverter
-      register(PSSearchFieldConverter.class, 
+      register(PSSearchFieldConverter.class,
          PSWSSearchField.class,
          com.percussion.webservices.content.PSSearchField.class);
 
       // PSSearchParamsConverter
-      register(PSSearchParamsConverter.class, 
+      register(PSSearchParamsConverter.class,
          PSWSSearchParams.class,
          com.percussion.webservices.content.PSSearchParams.class);
 
       // PSSearchConverter
-      register(PSSearchConverter.class, 
+      register(PSSearchConverter.class,
          PSWSSearchRequest.class,
          com.percussion.webservices.content.PSSearch.class);
 
       // PSOperationEnumConverter
-      register(PSOperationEnumConverter.class, 
+      register(PSOperationEnumConverter.class,
          PSItemSummary.OperationEnum.class,
          com.percussion.webservices.content.PSItemSummaryOperation.class);
 
       // PSObjectTypeEnumConverter
-      register(PSObjectTypeEnumConverter.class, 
+      register(PSObjectTypeEnumConverter.class,
          PSItemSummary.ObjectTypeEnum.class,
          com.percussion.webservices.common.ObjectType.class);
 
       // PSItemSummaryConverter
-      register(PSItemSummaryConverter.class, 
+      register(PSItemSummaryConverter.class,
          PSItemSummary.class,
          com.percussion.webservices.content.PSItemSummary.class);
 
       // PSSearchSummaryConverter
-      register(PSSearchSummaryConverter.class, 
+      register(PSSearchSummaryConverter.class,
          PSSearchSummary.class,
          com.percussion.webservices.content.PSSearchResults.class);
    }
@@ -639,7 +640,7 @@ public class PSTransformerFactory
     * Register a pair of classes for the {@link PSListToArrayConverter}
     * converter Assumed the conversion between the pair classes can be handled
     * by {@link PSConverter} or an registered converter.
-    * 
+    *
     * @param serverClass the server class, asssumed not <code>null</code>.
     * Assumed the instances of this class are contained in the list when
     * converting from list to array.

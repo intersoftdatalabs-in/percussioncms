@@ -8,7 +8,7 @@
  *
  *****************************************************************************/
 dojo.provide("ps.widget.ContentPaneProgress");
- 
+
 /**
  * Shows "wait" cursor while {@link dojo.widget.ContentPane} loads.
  *
@@ -17,44 +17,40 @@ dojo.provide("ps.widget.ContentPaneProgress");
  * Not null.
  * @constructor
  */
-ps.widget.ContentPaneProgress = function (contentPane)
-{
-   dojo.lang.assert(contentPane
-         && contentPane.onDownloadStart
-         && contentPane.onDownloadEnd, "Content pane must be defined");
+ps.widget.ContentPaneProgress = function (contentPane) {
+  dojo.lang.assert(
+    contentPane && contentPane.onDownloadStart && contentPane.onDownloadEnd,
+    "Content pane must be defined"
+  );
 
-   // the content pane element
-   var element = contentPane.domNode;
+  // the content pane element
+  var element = contentPane.domNode;
 
-   // the cursor 
-   var originalCursor = element.style.cursor;
-   var WAIT_CURSOR = "wait";
+  // the cursor
+  var originalCursor = element.style.cursor;
+  var WAIT_CURSOR = "wait";
 
-   // whether indication of progress is already shown
-   function isIndicating()
-   {
-      return element.style.cursor === WAIT_CURSOR;
-   }
+  // whether indication of progress is already shown
+  function isIndicating() {
+    return element.style.cursor === WAIT_CURSOR;
+  }
 
-   // show progress indicator
-   function start()
-   {
-      if (isIndicating())
-      {
-         return;
-      }
-      element.style.cursor = WAIT_CURSOR;
-   }
-   
-   // in case loading is already in progress ...
-   if (!contentPane.isLoaded)
-   {
-      start();
-   }
-   dojo.event.connect(contentPane, "onDownloadStart", function() {start()});
-   dojo.event.connect(contentPane, "onDownloadEnd", function()
-   {
-      element.style.cursor =
-            originalCursor === WAIT_CURSOR ? "" : originalCursor;
-   });
-}
+  // show progress indicator
+  function start() {
+    if (isIndicating()) {
+      return;
+    }
+    element.style.cursor = WAIT_CURSOR;
+  }
+
+  // in case loading is already in progress ...
+  if (!contentPane.isLoaded) {
+    start();
+  }
+  dojo.event.connect(contentPane, "onDownloadStart", function () {
+    start();
+  });
+  dojo.event.connect(contentPane, "onDownloadEnd", function () {
+    element.style.cursor = originalCursor === WAIT_CURSOR ? "" : originalCursor;
+  });
+};

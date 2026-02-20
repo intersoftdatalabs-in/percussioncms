@@ -509,47 +509,6 @@ public class PSExecSQLStmt extends PSAction {
    */
   private boolean mPrintExceptionStackTrace = true;
 
-  /*******************************************************************
-   * Member variables
-   *******************************************************************/
-
-  /**
-   * sql statement to use for MS Sql Server database, never <code>null</code>, may be empty. If
-   * empty, <code>sql</code> is executed if it is not empty
-   */
-  private String sqlSqlServer = "";
-
-  /**
-   * sql statement to use for Oracle database, never <code>null</code>, may be empty. If empty,
-   * <code>sql</code> is executed if it is not empty
-   */
-  private String sqlOracle = "";
-
-  /**
-   * sql statement to use for UDB (DB2) database, never <code>null</code>, may be empty. If empty,
-   * <code>sql</code> is executed if it is not empty
-   */
-  private String sqlUDB = "";
-
-  /**
-   * sql statement to use for Apache Derby database, never <code>null</code>, may be empty. If
-   * empty, <code>sql</code> is executed if it is not empty
-   */
-  private String sqlDerby = "";
-
-  /**
-   * sql statement to use for Mysql database, never <code>null</code>, may be empty. If empty,
-   * <code>sql</code> is executed if it is not empty
-   */
-  private String sqlMysql = "";
-
-  /**
-   * Indicates whether the stack trace of the exception generated when executing the SQL statement
-   * should be printed to the log, defaults to <code>true</code>, modified using <code>
-   * setPrintExceptionStackTrace()</code> method.
-   */
-  private boolean mPrintExceptionStackTrace = true;
-
   /**
    * ***************************************************************** Member variables
    * *****************************************************************

@@ -22,9 +22,9 @@ package com.percussion.rest.mimetypes;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /** REST resource for working with mime types. Sunny Sal: "MimeType resource, uploads ka force!" */

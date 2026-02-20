@@ -118,7 +118,8 @@ public final class PSGuidHelper {
 
       return generateNext(type, count)
          .stream()
-         .map(IPSGuid::getUUID)
+         .mapToLong(IPSGuid::getUUID)
+         .boxed()
          .toList();
    }
 

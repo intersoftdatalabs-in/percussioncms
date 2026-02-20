@@ -36,8 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -139,17 +137,18 @@ public class PSPkgInfoService implements IPSPkgInfoService {
       return null;
     }
     var session = getSession();
-    var criteria = session.createCriteria(PSPkgInfo.class);
-    criteria.add(Restrictions.eq("descriptorName", name).ignoreCase());
-    var pkgInfoList = criteria.list();
-    return pkgInfoList.isEmpty() ? null : (PSPkgInfo) pkgInfoList.get(0);
+    var pkgInfoList =
+        session
+            .createQuery("from PSPkgInfo where lower(descriptorName) = :name", PSPkgInfo.class)
+            .setParameter("name", name.toLowerCase())
+            .list();
+    return pkgInfoList.isEmpty() ? null : pkgInfoList.get(0);
   }
 
   @Override
   public List<PSPkgInfo> findAllPkgInfos() {
     var session = getSession();
-    var criteria = session.createCriteria(PSPkgInfo.class);
-    return criteria.list();
+    return session.createQuery("from PSPkgInfo", PSPkgInfo.class).list();
   }
 
   @Override
@@ -207,21 +206,25 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   public List<IPSGuid> findPkgElementGuids(IPSGuid parentPkgInfoId) {
     Objects.requireNonNull(parentPkgInfoId, "parentPkgInfoId may not be null");
     var session = getSession();
-    var criteria = session.createCriteria(PSPkgElement.class);
-    criteria.setProjection(Projections.property("guid"));
-    criteria.add(Restrictions.eq("packageGuid", parentPkgInfoId.longValue()));
-    var longList = criteria.list();
-    return ((List<Long>) longList)
-        .stream().map(l -> new PSGuid(PSTypeEnum.PACKAGE_ELEMENT, l)).collect(Collectors.toList());
+    var longList =
+        session
+            .createQuery(
+                "select p.guid from PSPkgElement p where p.packageGuid = :pkgGuid", Long.class)
+            .setParameter("pkgGuid", parentPkgInfoId.longValue())
+            .list();
+    return longList.stream()
+        .map(l -> new PSGuid(PSTypeEnum.PACKAGE_ELEMENT, l))
+        .collect(Collectors.toList());
   }
 
   @Override
   public PSPkgElement findPkgElement(IPSGuid id) {
     Objects.requireNonNull(id, "id may not be null");
     var session = getSession();
-    var criteria = session.createCriteria(PSPkgElement.class);
-    criteria.add(Restrictions.eq("guid", id.longValue()));
-    return (PSPkgElement) criteria.uniqueResult();
+    return session
+        .createQuery("from PSPkgElement p where p.guid = :guid", PSPkgElement.class)
+        .setParameter("guid", id.longValue())
+        .uniqueResult();
   }
 
   @Override
@@ -350,9 +353,12 @@ public class PSPkgInfoService implements IPSPkgInfoService {
     Objects.requireNonNull(guid, "ownerGuid may not be null");
     var session = getSession();
     var temp = depType ? "ownerPackageGuid" : "dependentPackageGuid";
-    var criteria = session.createCriteria(PSPkgDependency.class);
-    criteria.add(Restrictions.eq(temp, guid.longValue()));
-    return criteria.list();
+    var q =
+        session
+            .createQuery(
+                "from PSPkgDependency d where d." + temp + " = :guid", PSPkgDependency.class)
+            .setParameter("guid", guid.longValue());
+    return q.list();
   }
 
   @Override
@@ -364,9 +370,12 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   @Override
   public void deletePkgDependency(long pkgDepId) {
     var session = getSession();
-    var criteria = session.createCriteria(PSPkgDependency.class);
-    criteria.add(Restrictions.eq("pkgDependencyId", pkgDepId));
-    var pkgDep = (PSPkgDependency) criteria.uniqueResult();
+    var pkgDep =
+        session
+            .createQuery(
+                "from PSPkgDependency d where d.pkgDependencyId = :id", PSPkgDependency.class)
+            .setParameter("id", pkgDepId)
+            .uniqueResult();
     if (pkgDep == null) {
       return;
     }

@@ -31,7 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /** Integration tests for {@link IPSActivityService}. */
 @ExtendWith(SpringExtension.class)
-@Tag("IntegrationTest")
+
 class PSActivityServiceTest {
   private static final Logger log = LogManager.getLogger(PSActivityServiceTest.class);
   private boolean hasStarted = false;

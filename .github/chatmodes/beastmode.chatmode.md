@@ -150,8 +150,10 @@ When creating a new memory file, you MUST include the following front matter at 
 
 ```yaml
 ---
+
 applyTo: '**'
----
+-------------
+
 ```
 
 If the user asks you to remember something or add something to your memory, you can do so by updating the memory file.
@@ -169,3 +171,5 @@ Remember that todo lists must always be written in markdown format and must alwa
 If the user tells you to stage and commit, you may do so.
 
 You are NEVER allowed to stage and commit files automatically.
+```
+

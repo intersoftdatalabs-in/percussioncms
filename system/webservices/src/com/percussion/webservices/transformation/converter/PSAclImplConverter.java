@@ -53,51 +53,90 @@ public class PSAclImplConverter extends PSConverter
    {
       if (value == null)
          return null;
-      
+
       Object result = super.convert(type, value);
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.system.PSAclImpl src = 
+         com.percussion.webservices.system.PSAclImpl src =
             (com.percussion.webservices.system.PSAclImpl) value;
          PSAclImpl tgt = (PSAclImpl) result;
-         
+
          Converter converter = PSTransformerFactory.getInstance().getConverter(
             com.percussion.webservices.system.PSAclEntryImpl.class);
-         
-         for (com.percussion.webservices.system.PSAclEntryImpl entry : 
-            src.getEntries())
-         {
-            tgt.addEntry((PSAclEntryImpl) converter.convert(
-               PSAclEntryImpl.class, entry));
+
+         Object entriesObj = src.getEntries();
+         if (entriesObj != null) {
+            if (entriesObj instanceof com.percussion.webservices.system.PSAclEntryImpl[]) {
+               for (com.percussion.webservices.system.PSAclEntryImpl entry : (com.percussion.webservices.system.PSAclEntryImpl[]) entriesObj) {
+                  tgt.addEntry((PSAclEntryImpl) converter.convert(PSAclEntryImpl.class, entry));
+               }
+            } else if (entriesObj instanceof java.util.List) {
+               for (Object entryObj : (java.util.List<?>) entriesObj) {
+                  tgt.addEntry((PSAclEntryImpl) converter.convert(PSAclEntryImpl.class, entryObj));
+               }
+            } else {
+               try {
+                  Object list = null;
+                  try {
+                     list = getBeanUtils().getPropertyUtils().getSimpleProperty(entriesObj, "entry");
+                  } catch (Exception e1) {
+                     try {
+                        list = getBeanUtils().getPropertyUtils().getSimpleProperty(entriesObj, "psAclEntryImpl");
+                     } catch (Exception e2) {
+                        try {
+                           list = getBeanUtils().getPropertyUtils().getSimpleProperty(entriesObj, "PSAclEntryImpl");
+                        } catch (Exception e3) {
+                           // unknown wrapper shape; leave list null
+                        }
+                     }
+                  }
+
+                  if (list instanceof java.util.List) {
+                     for (Object entryObj : (java.util.List<?>) list) {
+                        tgt.addEntry((PSAclEntryImpl) converter.convert(PSAclEntryImpl.class, entryObj));
+                     }
+                  } else if (list != null && list.getClass().isArray()) {
+                     int len = java.lang.reflect.Array.getLength(list);
+                     for (int i = 0; i < len; i++) {
+                        Object entryObj = java.lang.reflect.Array.get(list, i);
+                        tgt.addEntry((PSAclEntryImpl) converter.convert(PSAclEntryImpl.class, entryObj));
+                     }
+                  }
+               } catch (Exception e) {
+                  throw new RuntimeException(e);
+               }
+            }
          }
       }
       else
       {
          PSAclImpl src = (PSAclImpl) value;
-         com.percussion.webservices.system.PSAclImpl tgt = 
+         com.percussion.webservices.system.PSAclImpl tgt =
             (com.percussion.webservices.system.PSAclImpl) result;
-         
+
          Collection<IPSAclEntry> entrySet = src.getEntries();
          List<com.percussion.webservices.system.PSAclEntryImpl> entries =
             new ArrayList<com.percussion.webservices.system.
                PSAclEntryImpl>();
-         
+
          Converter converter = PSTransformerFactory.getInstance().getConverter(
             PSAclEntryImpl.class);
          for (IPSAclEntry entry : entrySet)
          {
-            entries.add((com.percussion.webservices.system.PSAclEntryImpl) 
+            entries.add((com.percussion.webservices.system.PSAclEntryImpl)
                converter.convert(
-                  com.percussion.webservices.system.PSAclEntryImpl.class, 
+                  com.percussion.webservices.system.PSAclEntryImpl.class,
                   entry));
          }
-         
-         tgt.setEntries(entries.toArray(
-            new com.percussion.webservices.system.
-               PSAclEntryImpl[entries.size()]));
+
+         // Wrap entries in the generated Entries wrapper (uses live list accessor)
+         com.percussion.webservices.system.PSAclImpl.Entries entriesWrapper =
+               new com.percussion.webservices.system.PSAclImpl.Entries();
+         entriesWrapper.getPSAclEntryImpl().addAll(entries);
+         tgt.setEntries(entriesWrapper);
       }
-      
+
       return result;
    }
 }

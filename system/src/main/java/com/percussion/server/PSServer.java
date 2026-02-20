@@ -3055,7 +3055,7 @@ public class PSServer {
           Map<Integer, PSCmsObject> m = new ConcurrentHashMap<Integer, PSCmsObject>(8, 0.9f, 1);
 
           IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
-          List<PSCmsObject> cmsObjects = cmsMgr.findAllCmsObjects();
+          List<PSCmsObject> cmsObjects = cmsMgr.findAllCmsObjects().toList();
 
           for (PSCmsObject obj : cmsObjects) {
             m.put(obj.getTypeId(), obj);

@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
  * Tests for PSStartupPkgInstaller install and uninstall logic. Sunny Sal says: "Install, uninstall,
  * repeat - Java 11 style!"
  */
-@Tag("IntegrationTest")
+
 public class PSStartupPkgInstallerTest {
 
   private static final String TEMP_FILE_PREFIX = "perc.testPackageFileList";

@@ -147,6 +147,30 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
       setDisplayTitle(name);
    }
 
+   @Override
+   public void setNameImpl(String name)
+   {
+      setName(name);
+   }
+
+   @Override
+   public void copyImpl(IPSEdition other)
+   {
+      if (other == null)
+         throw new IllegalArgumentException("other may not be null");
+      setDisplayTitle(other.getDisplayTitle());
+      setComment(other.getComment());
+      setEditionType(other.getEditionType());
+      setSiteId(other.getSiteId());
+      // copy priority if available
+      try {
+         setPriority(other.getPriority());
+      } catch (Exception ignored) {
+         // preserve current priority if not available
+      }
+      setPubServerId(other.getPubServerId());
+   }
+
    /* (non-Javadoc)
     * @see com.percussion.services.publisher.data.IPSEdition#getComment()
     */
@@ -189,6 +213,12 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
          throw new IllegalArgumentException("editionType may not be null");
       }
       this.editiontype = Integer.toString(editionType.getTypeId());
+   }
+
+   @Override
+   public void setEditionTypeImpl(PSEditionType editionType)
+   {
+      setEditionType(editionType);
    }
 
    /* (non-Javadoc)
@@ -283,6 +313,12 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
          throw new IllegalArgumentException("ePriority may not be null");
       }
       this.priority = ePriority.getValue();
+   }
+
+   @Override
+   public void setPriorityImpl(Priority priority)
+   {
+      setPriority(priority);
    }
 
    /**

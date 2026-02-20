@@ -540,12 +540,23 @@ public class PSTemplateSlot
     }
 
     /**
-     * Get the type
+     * Get the textual type name for compatibility with
+     * {@link com.percussion.services.catalog.IPSCatalogIdentifier#getType()}.
      *
-     * @return get the type for this object
+     * @return the type name for this object
      */
     @IPSXmlSerialization(suppress = true)
-    public PSTypeEnum getType() {
+    public String getType() {
+        return PSTypeEnum.SLOT.name();
+    }
+
+    /**
+     * Get the enum type for new code that prefers a typed representation.
+     *
+     * @return the enum type for this object
+     */
+    @IPSXmlSerialization(suppress = true)
+    public PSTypeEnum getTypeEnum() {
         return PSTypeEnum.SLOT;
     }
 

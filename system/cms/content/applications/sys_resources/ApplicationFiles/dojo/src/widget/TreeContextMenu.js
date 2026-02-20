@@ -8,174 +8,193 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-
-
 dojo.provide("dojo.widget.TreeContextMenu");
 
 dojo.require("dojo.event.*");
 dojo.require("dojo.io.*");
 dojo.require("dojo.widget.Menu2");
 
+dojo.widget.defineWidget(
+  "dojo.widget.TreeContextMenu",
+  dojo.widget.PopupMenu2,
+  function () {
+    this.listenedTrees = [];
+  },
+  {
+    open: function (x, y, parentMenu, explodeSrc) {
+      var result = dojo.widget.PopupMenu2.prototype.open.apply(this, arguments);
 
-dojo.widget.defineWidget("dojo.widget.TreeContextMenu", dojo.widget.PopupMenu2, function() {
-	this.listenedTrees = [];
-},
-{
-	open: function(x, y, parentMenu, explodeSrc){
+      /* publish many events here about structural changes */
+      dojo.event.topic.publish(this.eventNames.open, { menu: this });
 
-		var result = dojo.widget.PopupMenu2.prototype.open.apply(this, arguments);
+      return result;
+    },
 
-		/* publish many events here about structural changes */
-		dojo.event.topic.publish(this.eventNames.open, { menu:this });
+    listenTree: function (tree) {
+      /* add context menu to all nodes that exist already */
+      var nodes = tree.getDescendants();
 
-		return result;
-	},
+      for (var i = 0; i < nodes.length; i++) {
+        if (!nodes[i].isTreeNode) continue;
+        this.bindDomNode(nodes[i].labelNode);
+      }
 
-	listenTree: function(tree) {
-		/* add context menu to all nodes that exist already */
-		var nodes = tree.getDescendants();
+      /* bind context menu to all nodes that will be created in the future (e.g loaded from server)*/
+      var _this = this;
+      dojo.event.topic.subscribe(
+        tree.eventNames.createDOMNode,
+        this,
+        "onCreateDOMNode"
+      );
+      dojo.event.topic.subscribe(tree.eventNames.moveFrom, this, "onMoveFrom");
+      dojo.event.topic.subscribe(tree.eventNames.moveTo, this, "onMoveTo");
+      dojo.event.topic.subscribe(
+        tree.eventNames.removeNode,
+        this,
+        "onRemoveNode"
+      );
+      dojo.event.topic.subscribe(tree.eventNames.addChild, this, "onAddChild");
+      dojo.event.topic.subscribe(
+        tree.eventNames.treeDestroy,
+        this,
+        "onTreeDestroy"
+      );
 
-		for(var i=0; i<nodes.length; i++) {
-			if (!nodes[i].isTreeNode) continue;
-			this.bindDomNode(nodes[i].labelNode);
-		}
+      this.listenedTrees.push(tree);
+    },
 
+    unlistenTree: function (tree) {
+      /* clear event listeners */
 
-		/* bind context menu to all nodes that will be created in the future (e.g loaded from server)*/
-		var _this = this;
-		dojo.event.topic.subscribe(tree.eventNames.createDOMNode, this, "onCreateDOMNode");
-		dojo.event.topic.subscribe(tree.eventNames.moveFrom, this, "onMoveFrom");
-		dojo.event.topic.subscribe(tree.eventNames.moveTo, this, "onMoveTo");
-		dojo.event.topic.subscribe(tree.eventNames.removeNode, this, "onRemoveNode");
-		dojo.event.topic.subscribe(tree.eventNames.addChild, this, "onAddChild");
-		dojo.event.topic.subscribe(tree.eventNames.treeDestroy, this, "onTreeDestroy");
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.createDOMNode,
+        this,
+        "onCreateDOMNode"
+      );
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.moveFrom,
+        this,
+        "onMoveFrom"
+      );
+      dojo.event.topic.unsubscribe(tree.eventNames.moveTo, this, "onMoveTo");
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.removeNode,
+        this,
+        "onRemoveNode"
+      );
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.addChild,
+        this,
+        "onAddChild"
+      );
+      dojo.event.topic.unsubscribe(
+        tree.eventNames.treeDestroy,
+        this,
+        "onTreeDestroy"
+      );
 
-		this.listenedTrees.push(tree);
+      for (var i = 0; i < this.listenedTrees.length; i++) {
+        if (this.listenedTrees[i] === tree) {
+          this.listenedTrees.splice(i, 1);
+          break;
+        }
+      }
+    },
 
-	},
+    onTreeDestroy: function (message) {
+      this.unlistenTree(message.source);
+    },
 
-	unlistenTree: function(tree) {
-		/* clear event listeners */
+    bindTreeNode: function (node) {
+      var _this = this;
+      //dojo.debug("bind to "+node);
+      dojo.lang.forEach(node.getDescendants(), function (e) {
+        _this.bindDomNode(e.labelNode);
+      });
+    },
 
-		dojo.event.topic.unsubscribe(tree.eventNames.createDOMNode, this, "onCreateDOMNode");
-		dojo.event.topic.unsubscribe(tree.eventNames.moveFrom, this, "onMoveFrom");
-		dojo.event.topic.unsubscribe(tree.eventNames.moveTo, this, "onMoveTo");
-		dojo.event.topic.unsubscribe(tree.eventNames.removeNode, this, "onRemoveNode");
-		dojo.event.topic.unsubscribe(tree.eventNames.addChild, this, "onAddChild");
-		dojo.event.topic.unsubscribe(tree.eventNames.treeDestroy, this, "onTreeDestroy");
+    unBindTreeNode: function (node) {
+      var _this = this;
+      //dojo.debug("Unbind from "+node);
+      dojo.lang.forEach(node.getDescendants(), function (e) {
+        _this.unBindDomNode(e.labelNode);
+      });
+    },
 
-		for(var i=0; i<this.listenedTrees.length; i++){
-           if(this.listenedTrees[i] === tree){
-                   this.listenedTrees.splice(i, 1);
-                   break;
-           }
-		}
-	},
+    onCreateDOMNode: function (message) {
+      this.bindTreeNode(message.source);
+    },
 
-	onTreeDestroy: function(message) {
-		this.unlistenTree(message.source);
-	},
+    onMoveFrom: function (message) {
+      if (!dojo.lang.inArray(this.listenedTrees, message.newTree)) {
+        this.unBindTreeNode(message.child);
+      }
+    },
 
-	bindTreeNode: function(node) {
-		var _this = this;
-		//dojo.debug("bind to "+node);
-		dojo.lang.forEach(node.getDescendants(),
-			function(e) {_this.bindDomNode(e.labelNode); }
-		);
-	},
+    onMoveTo: function (message) {
+      if (dojo.lang.inArray(this.listenedTrees, message.newTree)) {
+        this.bindTreeNode(message.child);
+      }
+    },
 
+    onRemoveNode: function (message) {
+      this.unBindTreeNode(message.child);
+    },
 
-	unBindTreeNode: function(node) {
-		var _this = this;
-		//dojo.debug("Unbind from "+node);
-		dojo.lang.forEach(node.getDescendants(),
-			function(e) {_this.unBindDomNode(e.labelNode); }
-		);
-	},
-
-	onCreateDOMNode: function(message) {
-		this.bindTreeNode(message.source);
-	},
-
-
-	onMoveFrom: function(message) {
-		if (!dojo.lang.inArray(this.listenedTrees, message.newTree)) {
-			this.unBindTreeNode(message.child);
-		}
-	},
-
-	onMoveTo: function(message) {
-		if (dojo.lang.inArray(this.listenedTrees, message.newTree)) {
-			this.bindTreeNode(message.child);
-		}
-	},
-
-	onRemoveNode: function(message) {
-		this.unBindTreeNode(message.child);
-	},
-
-	onAddChild: function(message) {
-		if (message.domNodeInitialized) {
-			// dom node was there already => I did not process onNodeDomCreate
-			this.bindTreeNode(message.child);
-		}
-	}
-
-
-});
+    onAddChild: function (message) {
+      if (message.domNodeInitialized) {
+        // dom node was there already => I did not process onNodeDomCreate
+        this.bindTreeNode(message.child);
+      }
+    },
+  }
+);
 
 dojo.widget.defineWidget("dojo.widget.TreeMenuItem", dojo.widget.MenuItem2, {
-	// treeActions menu item performs following actions (to be checked for permissions)
-	treeActions: "",
+  // treeActions menu item performs following actions (to be checked for permissions)
+  treeActions: "",
 
-	initialize: function(args, frag) {
+  initialize: function (args, frag) {
+    this.treeActions = this.treeActions.split(",");
+    for (var i = 0; i < this.treeActions.length; i++) {
+      this.treeActions[i] = this.treeActions[i].toUpperCase();
+    }
+  },
 
-		this.treeActions = this.treeActions.split(",");
-		for(var i=0; i<this.treeActions.length; i++) {
-			this.treeActions[i] = this.treeActions[i].toUpperCase();
-		}
+  getTreeNode: function () {
+    var menu = this;
 
-	},
+    while (!(menu instanceof dojo.widget.TreeContextMenu)) {
+      menu = menu.parent;
+    }
 
-	getTreeNode: function() {
-		var menu = this;
+    var source = menu.getTopOpenEvent().target;
 
-		while (! (menu instanceof dojo.widget.TreeContextMenu) ) {
-			menu = menu.parent;
-		}
+    while (!source.getAttribute("treeNode") && source.tagName != "body") {
+      source = source.parentNode;
+    }
+    if (source.tagName == "body") {
+      dojo.raise("treeNode not detected");
+    }
+    var treeNode = dojo.widget.manager.getWidgetById(
+      source.getAttribute("treeNode")
+    );
 
-		var source = menu.getTopOpenEvent().target;
+    return treeNode;
+  },
 
-		while (!source.getAttribute('treeNode') && source.tagName != 'body') {
-			source = source.parentNode;
-		}
-		if (source.tagName == 'body') {
-			dojo.raise("treeNode not detected");
-		}
-		var treeNode = dojo.widget.manager.getWidgetById(source.getAttribute('treeNode'));
+  menuOpen: function (message) {
+    var treeNode = this.getTreeNode();
 
-		return treeNode;
-	},
+    this.setDisabled(false); // enable by default
 
+    var _this = this;
+    dojo.lang.forEach(_this.treeActions, function (action) {
+      _this.setDisabled(treeNode.actionIsDisabled(action));
+    });
+  },
 
-	menuOpen: function(message) {
-		var treeNode = this.getTreeNode();
-
-		this.setDisabled(false); // enable by default
-
-		var _this = this;
-		dojo.lang.forEach(_this.treeActions,
-			function(action) {
-				_this.setDisabled( treeNode.actionIsDisabled(action) );
-			}
-		);
-
-	},
-
-	toString: function() {
-		return "["+this.widgetType+" node "+this.getTreeNode()+"]";
-	}
-
+  toString: function () {
+    return "[" + this.widgetType + " node " + this.getTreeNode() + "]";
+  },
 });
-
-

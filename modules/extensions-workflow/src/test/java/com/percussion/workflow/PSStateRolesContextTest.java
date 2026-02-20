@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
 /** The PSStateRolesContextTest class is a test class for the class StateRolesContext. */
-@Tag("IntegrationTest")
+
 public class PSStateRolesContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSStateRolesContextTest.class);

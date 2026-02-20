@@ -1,10 +1,10 @@
 #Move configuration files for DTS server into the Deployment Server configuration directory
 - Name: install_dts_configuration_setup
-  Class : com.percussion.service.conf.tasks.impl.PSConfigTaskFileCopy
+  Class: com.percussion.service.conf.tasks.impl.PSConfigTaskFileCopy
   RunFrequency: ON_CONTAINER_REFRESH
   RunAtState: BEFORE_CM1_STARTUP
-  RunInEnv :
-     - DOCKER
+  RunInEnv:
+    - DOCKER
   Parameters:
     Action: copy
     Type: directory

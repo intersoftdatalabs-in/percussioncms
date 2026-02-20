@@ -110,12 +110,6 @@ public class PSExplicitEtagFilter extends OncePerRequestFilter {
     }
 
     @Override
-    public void setStatus(int sc, String sm) {
-      super.setStatus(sc, sm);
-      this.statusCode = sc;
-    }
-
-    @Override
     public void sendError(int sc) throws IOException {
       super.sendError(sc);
       this.statusCode = sc;

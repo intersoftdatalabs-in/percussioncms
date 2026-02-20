@@ -18,6 +18,7 @@ package com.percussion.testing;
 
 import com.percussion.utils.string.PSStringUtils;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,7 +27,7 @@ import java.util.Map;
 
 /**
  * Comparison utilities for test writers
- * 
+ *
  * @author dougrand
  */
 public class PSTestCompare
@@ -35,7 +36,7 @@ public class PSTestCompare
     * Test two URLs as strings for equality
     * @param a first url, never <code>null</code> or empty
     * @param b second url, never <code>null</code> or empty
-    * @throws MalformedURLException 
+    * @throws MalformedURLException
     */
    public static void assertEqualURLs(String a, String b)
    throws MalformedURLException
@@ -47,10 +48,10 @@ public class PSTestCompare
       if (b == null || b.trim().length() == 0)
       {
          throw new IllegalArgumentException("b may not be null or empty");
-      }      
+      }
       assertEquals(new URL(a), new URL(b));
    }
-   
+
    /**
     * Test two URLs for equality
     * @param a first url
@@ -66,14 +67,14 @@ public class PSTestCompare
       {
          Assertions.fail("One url is null and the other isn't");
       }
-      
+
       Assertions.assertEquals(a.getProtocol(), b.getProtocol());
       Assertions.assertEquals(a.getHost(), b.getHost());
       Assertions.assertEquals(a.getPort(), b.getPort());
       Assertions.assertEquals(a.getPath(), b.getPath());
       Assertions.assertEquals(a.getAuthority(), b.getAuthority());
       Assertions.assertEquals(a.getUserInfo(), b.getUserInfo());
-      
+
       // Now, parse each query if it exists
       Map qm1 = processQuery(a.getQuery());
       Map qm2 = processQuery(b.getQuery());
@@ -114,39 +115,39 @@ public class PSTestCompare
       Assertions.assertEquals(o2, o1);
       Assertions.assertEquals(o1.hashCode(), o2.hashCode());
    }
-   
+
    /**
     * Compare two values, throwing an assertion if the two values are not
     * equal. First the values are trimmed. Then they are modified with all
-    * extra whitespace turned into single space characters. Then they are 
+    * extra whitespace turned into single space characters. Then they are
     * compared.
-    * 
+    *
     * @param exp first value
     * @param act second value
     */
    public static void assertEqualIgnoringWhitespace(String exp, String act)
    {
       if (exp != null)
-         assertNotNull("actual value must not be null", act);
+         assertNotNull(act, "actual value must not be null");
       if (act != null)
-         assertNotNull("expected value must not be null", exp);
-      
+         assertNotNull(exp, "expected value must not be null");
+
       if (exp == null)
-         Assert.assertNull("actual value must be null", act);
+         assertNull(act, "actual value must be null");
       if (act == null)
-         Assert.assertNull("expected value must be null", exp);
-      
+         assertNull(exp, "expected value must be null");
+
       if (exp == null) return;
-      
+
       // Trim
       act = act.trim();
       exp = exp.trim();
-      
+
       // Remove excess whitespace
       act = PSStringUtils.compressWhitespace(act);
       exp = PSStringUtils.compressWhitespace(exp);
-      
+
       Assertions.assertEquals(exp, act);
    }
-   
+
 }

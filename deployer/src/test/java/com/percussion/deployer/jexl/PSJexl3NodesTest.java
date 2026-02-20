@@ -15,8 +15,8 @@
  */
 package com.percussion.deployer.jexl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.commons.jexl3.parser.SimpleNode;
 import org.junit.jupiter.api.Test;

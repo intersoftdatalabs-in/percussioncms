@@ -18,11 +18,11 @@
 package com.percussion.rest.assets;
 
 import com.percussion.rest.Status;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
-import javax.ws.rs.core.StreamingOutput;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 

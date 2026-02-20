@@ -754,8 +754,13 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
       int jdbcType = PSStatementColumn.UNKNOWN_JDBC_TYPE;
 
       if (curVar instanceof PSFunctionCall) {
-        context.addReplacementField(curVar, null);
+        try {
+          context.addReplacementField(curVar, null);
+        } catch (PSDataExtractionException e) {
+          throw new IllegalArgumentException(e.getLocalizedMessage());
+        }
       } else {
+        if (curVar == null) throw new IllegalArgumentException("curVar may not be null");
         colName = curVar.getValueText();
         Integer iJdbcType = (Integer) datatypes.get(colName.toLowerCase());
         if (iJdbcType != null) jdbcType = iJdbcType.intValue();
@@ -786,7 +791,11 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
         context.addText(replValue.getValueText());
       } else if (replValue instanceof PSFunctionCall) {
         // this is not a bound col so don't bump bindColCount
-        context.addReplacementField(replValue, null);
+        try {
+          context.addReplacementField(replValue, null);
+        } catch (PSDataExtractionException e) {
+          throw new IllegalArgumentException(e.getLocalizedMessage());
+        }
       } else if (replValue instanceof PSLiteral) {
         // this is also not a bound col, but we need to get the
         // formatting right
@@ -866,7 +875,11 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
         PSBackEndColumn col = null;
         if (curVar instanceof PSBackEndColumn) col = (PSBackEndColumn) curVar;
         bindColCount++;
-        context.addReplacementField(replValue, jdbcType, col);
+        try {
+          context.addReplacementField(replValue, jdbcType, col);
+        } catch (PSDataExtractionException e) {
+          throw new IllegalArgumentException(e.getLocalizedMessage());
+        }
       }
     }
     context.closeGroup();

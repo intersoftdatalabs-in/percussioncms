@@ -12,10 +12,13 @@
 				>
 		%w3centities-f;
 		]>
-<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-   <xsl:import href="file:sys_resources/stylesheets/DefaultError.xsl"/>
-   <xsl:import href="file:rx_resources/stylesheets/DefaultError.xsl"/>
+<xsl:stylesheet version="1.1"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:import
+		href="file:sys_resources/stylesheets/DefaultError.xsl" />
+	<xsl:import
+		href="file:rx_resources/stylesheets/DefaultError.xsl" />
 	<xsl:template match="/">
-		<xsl:call-template name="generateErrorPage"/>
+		<xsl:call-template name="generateErrorPage" />
 	</xsl:template>
 </xsl:stylesheet>

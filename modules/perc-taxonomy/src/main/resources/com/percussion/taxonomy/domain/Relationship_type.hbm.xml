@@ -3,10 +3,13 @@
 
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-  <class name="com.percussion.taxonomy.domain.Relationship_type" table="TAX_RELATIONSHIP_TYPE">
-    <id name="Id" column="ID" type="integer">
-      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
-    </id>
-    <property name="Relationship_type" column="RELATIONSHIP_TYPE" type="string"  not-null="true"/>
-  </class>
+	<class name="com.percussion.taxonomy.domain.Relationship_type"
+		table="TAX_RELATIONSHIP_TYPE">
+		<id name="Id" column="ID" type="integer">
+			<generator
+				class="com.percussion.data.utils.PSNextNumberHibernateGenerator" />
+		</id>
+		<property name="Relationship_type" column="RELATIONSHIP_TYPE"
+			type="string" not-null="true" />
+	</class>
 </hibernate-mapping>

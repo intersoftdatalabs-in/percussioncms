@@ -16,7 +16,6 @@
  */
 package com.percussion.services.contentmgr;
 
-import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.utils.guid.IPSGuid;
 
 import javax.jcr.Node;

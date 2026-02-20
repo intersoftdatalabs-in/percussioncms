@@ -30,7 +30,7 @@ import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
 /** Test case for the {@link PSKeywordDependencyHandler}. */
-@Tag("IntegrationTest")
+
 public class PSKeywordDependencyHandlerTest extends ServletTestCase {
   /**
    * Test the handler

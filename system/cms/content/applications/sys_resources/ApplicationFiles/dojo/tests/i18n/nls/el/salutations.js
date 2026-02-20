@@ -8,7 +8,7 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-{
- el: "Ελληνικά",
- hello: "Γειά"
-}
+({
+  el: "Ελληνικά",
+  hello: "Γειά",
+});

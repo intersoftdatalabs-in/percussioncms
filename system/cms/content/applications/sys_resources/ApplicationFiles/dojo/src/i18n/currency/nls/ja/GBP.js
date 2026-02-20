@@ -8,4 +8,4 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-({"displayName":"英国�?ンド","symbol":"£"})
+({ displayName: "è±å½ã?ã³ã", symbol: "Â£" });

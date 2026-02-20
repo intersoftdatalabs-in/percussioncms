@@ -185,4 +185,18 @@ public interface IPSEditionContentList extends IPSCatalogIdentifier {
 
    @Override
    int hashCode();
+
+   /**
+    * Copy properties from another edition-content-list into this one.
+    * Default implementation copies the editable fields.
+    *
+    * @param other the other instance to copy from, may not be {@code null}
+    */
+   default void copy(IPSEditionContentList other) {
+      Objects.requireNonNull(other, "other may not be null");
+      setAuthtype(other.getAuthtype());
+      setDeliveryContextId(other.getDeliveryContextId());
+      setAssemblyContextId(other.getAssemblyContextId());
+      setSequence(other.getSequence());
+   }
 }

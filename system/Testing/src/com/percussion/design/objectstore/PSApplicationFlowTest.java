@@ -24,20 +24,20 @@ import org.w3c.dom.Element;
 
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // Test case
-public class PSApplicationFlowTest extends TestCase
+public class PSApplicationFlowTest
 {
-   public PSApplicationFlowTest(String name)
-   {
-      super(name);
-   }
 
+
+   @Test
    public void testEquals() throws Exception
    {
    }
 
+   @Test
    public void testXml() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -71,15 +71,7 @@ public class PSApplicationFlowTest extends TestCase
       Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
       Element elem2 = testFrom.toXml(doc);
       PSXmlDocumentBuilder.copyTree(doc2, root2, elem2, true);
-      assertTrue(testTo.equals(testFrom));
+      assertEquals(testTo, testFrom);
    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-
-      suite.addTest(new PSApplicationFlowTest("testXml"));
-
-      return suite;
-   }
 }

@@ -25,14 +25,16 @@ import java.io.StringReader;
 import org.w3c.dom.Document;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * The PSFormatVersionTest is the unit test for the PSFormatVersion class which
  * handles build version string formatting operations.
  */
-public class PSFormatVersionTest extends TestCase
+public class PSFormatVersionTest 
 {
+   
    public void testToXml() throws Exception
    {
       PSFormatVersion fv = new PSFormatVersion("com.percussion.util");
@@ -43,6 +45,8 @@ public class PSFormatVersionTest extends TestCase
       
       checkEqualProperties(fv, fv2);
    }
+   
+   
    
    public void testCreateFromXml() throws Exception
    {

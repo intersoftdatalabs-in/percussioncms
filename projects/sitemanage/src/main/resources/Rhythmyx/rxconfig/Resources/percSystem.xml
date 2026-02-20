@@ -2,55 +2,73 @@
 
 
 <Resources>
-	<asset primary="true" id="page" contentType="percPage" legacyTemplate="perc.base.plain" />
-	
-	<!-- "pageXml" is used to render pages in XML, but is not used for expanding to additional template -->
-	<asset primary="false" id="pageXml" contentType="percPage" legacyTemplate="perc.pageXml" />
-	<!-- "pageDatabase" is used to render pages for database publishing, but is not used for expanding to additional template -->
-	<asset primary="false" id="pageDatabase" contentType="percPage" legacyTemplate="perc.pageDatabase" />
-	
-	<asset primary="true" id="imageMainBinary" contentType="percImageAsset" legacyTemplate="perc.imageMainBinary">
+	<asset primary="true" id="page" contentType="percPage"
+		legacyTemplate="perc.base.plain" />
+
+	<!-- "pageXml" is used to render pages in XML, but is not used for expanding
+		to additional template -->
+	<asset primary="false" id="pageXml" contentType="percPage"
+		legacyTemplate="perc.pageXml" />
+	<!-- "pageDatabase" is used to render pages for database publishing, but
+		is not used for expanding to additional template -->
+	<asset primary="false" id="pageDatabase" contentType="percPage"
+		legacyTemplate="perc.pageDatabase" />
+
+	<asset primary="true" id="imageMainBinary"
+		contentType="percImageAsset" legacyTemplate="perc.imageMainBinary">
 		<linkAndLocations type="jexl">
 		<![CDATA[
         $rx.resourceHelper.createDefaultLinkAndLocations($perc);
 		]]>
-		</linkAndLocations>	
+		</linkAndLocations>
 	</asset>
-	<asset primary="false" id="imageThumbBinary" contentType="percImageAsset" legacyTemplate="perc.imageThumbBinary">
+	<asset primary="false" id="imageThumbBinary"
+		contentType="percImageAsset" legacyTemplate="perc.imageThumbBinary">
 		<linkAndLocations type="jexl">
 		<![CDATA[
 		$locations = $rx.resourceHelper.createLinkAndLocations();
 		$fields = $perc.resourceInstance.item.fields;
-	    $filename = $fields['thumbprefix'] + $fields['sys_title']; 		
+	    $filename = $fields['thumbprefix'] + $fields['sys_title'];
 		$locations.add($rx.resourceHelper.createLinkAndLocationForFileName($perc,$filename));
 		$locations;
 		]]>
 		</linkAndLocations>
 	</asset>
-    <asset primary="true" id="fileBinary" contentType="percFileAsset" legacyTemplate="perc.fileBinary">
-        <linkAndLocations type="jexl">
+	<asset primary="true" id="fileBinary" contentType="percFileAsset"
+		legacyTemplate="perc.fileBinary">
+		<linkAndLocations type="jexl">
         <![CDATA[
         $rx.resourceHelper.createDefaultLinkAndLocations($perc);
         ]]>
-        </linkAndLocations>    
-    </asset>
-    
-	<file id="jquery" path="/web_resources/cm/jslib/jquery.js" type="javascript"/>
-	<file id="perc_decoration_style" path="/cm/css/perc_decoration.css" type="css" context="PREVIEW" />	
-	<file id="jquery-ui" path="/web_resources/cm/jslib/jquery-ui.js" type="javascript">
+		</linkAndLocations>
+	</asset>
+
+	<file id="jquery" path="/web_resources/cm/jslib/jquery.js"
+		type="javascript" />
+	<file id="perc_decoration_style"
+		path="/cm/css/perc_decoration.css" type="css" context="PREVIEW" />
+	<file id="jquery-ui" path="/web_resources/cm/jslib/jquery-ui.js"
+		type="javascript">
 		<dependency refid="percSystem.jquery" />
 	</file>
-    <file id="jquery-cookie" path="/web_resources/cm/jslib/jquery.cookie.min.js" type="javascript">
-      <dependency refid="percSystem.jquery" />
-    </file>		
-	<file id="perc-jquery-ui-style" path="/web_resources/cm/themes/smoothness/jquery-ui-1.8.9.custom.css" type="css">
+	<file id="jquery-cookie"
+		path="/web_resources/cm/jslib/jquery.cookie.min.js" type="javascript">
+		<dependency refid="percSystem.jquery" />
+	</file>
+	<file id="perc-jquery-ui-style"
+		path="/web_resources/cm/themes/smoothness/jquery-ui-1.8.9.custom.css"
+		type="css">
 		<dependency refid="percSystem.perc_decoration_style" />
 	</file>
-	<file id="common_slim_js" path="/web_resources/cm/common/js/perc_common_ui_slim.js" type="javascript">
-		<dependency refid="percSystem.jquery"/>
-	</file>  
-	<file id="globalvariables_js"  path="/web_resources/cm/common/js/PercGlobalVariables.js"  type="javascript" >
-	    <dependency refid="percSystem.jquery"/>
+	<file id="common_slim_js"
+		path="/web_resources/cm/common/js/perc_common_ui_slim.js"
+		type="javascript">
+		<dependency refid="percSystem.jquery" />
 	</file>
-  
+	<file id="globalvariables_js"
+		path="/web_resources/cm/common/js/PercGlobalVariables.js"
+		type="javascript">
+		<dependency refid="percSystem.jquery" />
+	</file>
+
 </Resources>
