@@ -16,7 +16,7 @@
  */
 package com.percussion.itemmanagement.web.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
 import com.percussion.itemmanagement.data.PSRevision;

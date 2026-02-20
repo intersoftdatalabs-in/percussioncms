@@ -18,10 +18,10 @@
 package com.percussion.searchmanagement;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
@@ -139,7 +139,7 @@ public class PSSearchServiceTest extends PSRestTestCase<PSSearchServiceRestClien
     return true;
   }
 
-  @Before
+  @BeforeEach
   public void setup() {
     searchCriteria = new PSSearchCriteria();
     searchCriteria.setQuery("sys_title:asset???");

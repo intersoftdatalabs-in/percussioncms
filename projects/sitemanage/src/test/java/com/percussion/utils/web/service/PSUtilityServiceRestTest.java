@@ -17,7 +17,7 @@
 
 package com.percussion.utils.web.service;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.test.PSRestTestCase;
