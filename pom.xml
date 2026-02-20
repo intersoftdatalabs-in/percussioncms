@@ -113,12 +113,12 @@
         <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
-        <hibernate.version>6.6.41.Final</hibernate.version>
+        <hibernate.version>6.6.42.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jackson.annotation.api.version>2.20</jackson.annotation.api.version>
+        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
         <jackson.version>2.21.0</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
