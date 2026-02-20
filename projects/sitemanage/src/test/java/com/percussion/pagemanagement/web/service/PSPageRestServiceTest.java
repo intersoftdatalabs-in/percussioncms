@@ -18,11 +18,7 @@
 package com.percussion.pagemanagement.web.service;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship;
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship.PSAssetResourceType;
@@ -46,9 +42,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -59,7 +55,7 @@ import org.junit.jupiter.api.Test;
 public class PSPageRestServiceTest extends PSRestTestCase<PSPageRestClient> {
   private static PSTestSiteData testSiteData;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     testSiteData = new PSTestSiteData();
     testSiteData.setUp();
@@ -140,8 +136,8 @@ public class PSPageRestServiceTest extends PSRestTestCase<PSPageRestClient> {
     assertNotNull(page.getRegionBranches().getRegions());
     assertNotNull(page.getRegionBranches().getRegionWidgetAssociations());
     assertFalse(
-        "We should have widget assocations",
-        page.getRegionBranches().getRegionWidgetAssociations().isEmpty());
+        page.getRegionBranches().getRegionWidgetAssociations().isEmpty(),
+        "We should have widget assocations");
     List<PSRegion> regions = page.getRegionBranches().getRegions();
     assertNotNull(regions);
     assertFalse(regions.isEmpty());
@@ -696,13 +692,13 @@ public class PSPageRestServiceTest extends PSRestTestCase<PSPageRestClient> {
     wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_ARCHIVE);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     pageCleaner.clean();
     templateCleaner.clean();
   }
 
-  @AfterClass
+  @AfterAll
   public static void cleanup() throws Exception {
     testSiteData.tearDown();
   }
