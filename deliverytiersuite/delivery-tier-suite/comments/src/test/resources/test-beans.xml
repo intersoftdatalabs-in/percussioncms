@@ -59,32 +59,31 @@
 	<tx:annotation-driven
 		transaction-manager="txManager" />
 
-	<!-- Hibernate TransactionManager bean for Hibernate 5/6 (Spring ORM 6) -->
-	<bean id="txManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-		<property name="sessionFactory" ref="commentsSessionFactory" />
-	</bean>
+   <!-- Hibernate TransactionManager bean -->
+   <bean id="txManager" class="org.springframework.orm.jpa.hibernate.HibernateTransactionManager">
+      <property name="sessionFactory" ref="commentsSessionFactory" />
+   </bean>
 
-	<!-- Hibernate SessionFactory bean for Hibernate 5/6 (Spring ORM 6) -->
-	<bean id="commentsSessionFactory"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource">
-			<ref bean="${datasource}" />
-		</property>
-		<property name="hibernateProperties">
-			<ref bean="${hibernateProperties}" />
-		</property>
-		<!-- Remove configLocation to avoid conflicts with dataSource -->
-		<!-- <property name="configLocation"> <value>classpath:hibernate.cfg.xml</value> -->
-		<property name="annotatedClasses">
-			<list>
-				<value>com.percussion.delivery.comments.service.rdbms.PSComment</value>
-				<value>com.percussion.delivery.comments.service.rdbms.PSCommentTag</value>
-				<value>com.percussion.delivery.comments.service.rdbms.PSDefaultModerationState</value>
-				<value>com.percussion.delivery.likes.service.rdbms.PSLikes</value>
-			</list>
-		</property>
-	</bean>
+   <!-- Hibernate SessionFactory bean -->
+   <bean id="commentsSessionFactory"
+         class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean">
+      <property name="dataSource">
+         <ref bean="${datasource}" />
+      </property>
+      <property name="hibernateProperties">
+         <ref bean="${hibernateProperties}" />
+      </property>
+      <!-- Remove configLocation to avoid conflicts with dataSource -->
+      <!-- <property name="configLocation">
+         <value>classpath:hibernate.cfg.xml</value>
+      -->
+      <property name="packagesToScan">
+         <list>
+            <value>com.percussion.delivery.comments.service.rdbms</value>
+            <value>com.percussion.delivery.likes.service.rdbms</value>
+         </list>
+      </property>
+    </bean>
 
 	<!-- Likes DAO and Service -->
 	<bean id="likesDao"

@@ -170,6 +170,46 @@ updates:
       - dependency-name: "org.apache.velocity.tools:*"
         versions:
           - ">=4"
+      - dependency-name: "com.google.inject:guice"
+        versions:
+          - ">=3"
+      - dependency-name: "com.google.inject.extensions:guice-multibindings"
+        versions:
+          - ">=3"
+       - dependency-name: "com.google.inject.extensions:guice-jmx"
+        versions:
+          - ">=3"
+      - dependency-name: "org.apache.shiro:shiro-web"
+        versions:
+          - ">=2"
+      - dependency-name: "org.apache.shindig:*"
+        versions:
+          - ">1.1-BETA5-incubating"
+      - dependency-name: "net.oauth.core:oauth"
+        versions:
+          - ">20090531"
+      - dependency-name: "com.microsoft.sqlserver:mssql-jdbc"
+        versions: 
+          - ">=*jre11*"
+          - ">=13.3.1.jre11-preview"
+      - dependency-name: "com.fasterxml.jackson.core:*"
+        versions:
+          - ">=2.18.0"
+       - dependency-name: "com.fasterxml.jackson.dataformat:*"
+        versions:
+          - ">=2.18.0"
+       - dependency-name: "com.fasterxml.jackson.jaxrs:*"
+        versions:
+          - ">=2.18.0"
+       - dependency-name: "com.fasterxml.jackson.module:*"
+        versions:
+          - ">=2.18.0"
+       - dependency-name: "com.fasterxml.jackson.datatype:*"
+        versions:
+          - ">=2.18.0"
+      - dependency-name: "org.owasp:dependency-check-maven"
+        versions:
+          - ">=11.0.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:

@@ -50,28 +50,26 @@
 	<!-- Only import the minimal test DataSource/Hibernate props -->
 	<import resource="perc-datasources.xml" />
 
-	<!-- Hibernate SessionFactory -->
-	<bean id="membershipSessionFactory"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource">
-			<ref bean="${datasource}" />
-		</property>
-		<property name="hibernateProperties">
-			<ref bean="${hibernateProperties}" />
-		</property>
-		<property name="configLocation">
-			<value>hibernate.cfg.xml</value>
-		</property>
-	</bean>
+   <!-- Hibernate SessionFactory -->
+   <bean id="membershipSessionFactory"
+         class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean">
+      <property name="dataSource">
+         <ref bean="${datasource}" />
+      </property>
+      <property name="hibernateProperties">
+         <ref bean="${hibernateProperties}" />
+      </property>
+      <property name="configLocation">
+         <value>hibernate.cfg.xml</value>
+      </property>
+   </bean>
 
 	<tx:annotation-driven
 		transaction-manager="txManager" />
 
-	<bean id="txManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-		<property name="sessionFactory"
-			ref="membershipSessionFactory" />
-	</bean>
+   <bean id="txManager" class="org.springframework.orm.jpa.hibernate.HibernateTransactionManager">
+      <property name="sessionFactory" ref="membershipSessionFactory" />
+   </bean>
 
 	<bean id="genericKeyDao"
 		class="com.percussion.generickey.utils.services.rdbms.impl.PSGenericKeyDao">
