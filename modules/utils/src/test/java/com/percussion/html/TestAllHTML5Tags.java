@@ -144,6 +144,7 @@ public class TestAllHTML5Tags {
     globalAttributes.put("id", "testid");
     globalAttributes.put("lang", "en");
     globalAttributes.put("spellcheck", "true");
+    globalAttributes.put("role", "presentation");
     globalAttributes.put("style", "color:red");
     globalAttributes.put("tabindex", "1");
     globalAttributes.put("title", "testtitle");
