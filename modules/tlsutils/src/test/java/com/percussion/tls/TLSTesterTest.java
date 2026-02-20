@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class TLSTesterTest {
@@ -48,6 +49,14 @@ public class TLSTesterTest {
 
     // Store original OS name
     originalOsName = System.getProperty("os.name");
+    // clear cached OS value in TLSTester so each test sees the current property
+    try {
+        java.lang.reflect.Field osField = TLSTester.class.getDeclaredField("OS");
+        osField.setAccessible(true);
+        osField.set(null, null);
+    } catch (Exception ignored) {
+        // should not happen
+    }
   }
 
   @AfterEach
@@ -68,7 +77,7 @@ public class TLSTesterTest {
     String result = TLSTester.getOsName();
 
     // Then
-    assertEquals("Should return the system os.name property", expectedOsName, result);
+    assertEquals(expectedOsName, result, "Should return the system os.name property");
   }
 
   @Test
@@ -85,8 +94,8 @@ public class TLSTesterTest {
     String secondResult = TLSTester.getOsName();
 
     // Then
-    assertEquals("First call should return first OS name", firstOsName, firstResult);
-    assertEquals("Second call should return cached result", firstOsName, secondResult);
+    assertEquals(firstOsName, firstResult, "First call should return first OS name");
+    assertEquals(firstOsName, secondResult, "Second call should return cached result");
   }
 
   @Test
@@ -98,7 +107,7 @@ public class TLSTesterTest {
     boolean result = TLSTester.isWindows();
 
     // Then
-    assertTrue("Should return true for Windows OS", result);
+    assertTrue(result, "Should return true for Windows OS");
   }
 
   @Test
@@ -110,7 +119,7 @@ public class TLSTesterTest {
     boolean result = TLSTester.isWindows();
 
     // Then
-    assertFalse("Should return false for Linux OS", result);
+    assertFalse(result, "Should return false for Linux OS");
   }
 
   @Test
@@ -122,7 +131,7 @@ public class TLSTesterTest {
     boolean result = TLSTester.isWindows();
 
     // Then
-    assertFalse("Should return false for Mac OS", result);
+    assertFalse(result, "Should return false for Mac OS");
   }
 
   @Test
@@ -134,13 +143,13 @@ public class TLSTesterTest {
     boolean result = TLSTester.isWindows();
 
     // Then
-    assertTrue("Should return true for lowercase windows", result);
+    assertTrue(result, "Should return true for lowercase windows");
   }
 
   @Test
   public void testKeystorePassConstant() {
     // When/Then
-    assertEquals("KEYSTORE_PASS should have correct value", "changeit", TLSTester.KEYSTORE_PASS);
+    assertEquals("changeit", TLSTester.KEYSTORE_PASS, "KEYSTORE_PASS should have correct value");
   }
 
   @Test
@@ -153,29 +162,29 @@ public class TLSTesterTest {
     String result = TLSTester.convertToPem(mockCertificate);
 
     // Then
-    assertNotNull("Result should not be null", result);
+    assertNotNull(result, "Result should not be null");
     assertTrue(
-        "Result should start with BEGIN CERTIFICATE",
-        result.startsWith("-----BEGIN CERTIFICATE-----"));
+        result.startsWith("-----BEGIN CERTIFICATE-----"),
+        "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        "Result should end with END CERTIFICATE", result.endsWith("-----END CERTIFICATE-----"));
+        result.endsWith("-----END CERTIFICATE-----"),
+        "Result should end with END CERTIFICATE");
     assertTrue(
-        "Result should contain base64 encoded data",
-        result.contains("dGVzdCBjZXJ0aWZpY2F0ZSBkYXRh")); // base64 of "test certificate data"
+        result.contains("dGVzdCBjZXJ0aWZpY2F0ZSBkYXRh"),
+        "Result should contain base64 encoded data"); // base64 of "test certificate data"
 
     verify(mockCertificate).getEncoded();
   }
 
-  @Test(expected = CertificateEncodingException.class)
+  @Test
   public void testConvertToPem_CertificateEncodingException() throws Exception {
     // Given
     when(mockCertificate.getEncoded())
         .thenThrow(new CertificateEncodingException("Encoding failed"));
 
-    // When
-    TLSTester.convertToPem(mockCertificate);
-
     // Then - exception should be thrown
+    assertThrows(CertificateEncodingException.class,
+        () -> TLSTester.convertToPem(mockCertificate));
   }
 
   @Test
@@ -188,12 +197,13 @@ public class TLSTesterTest {
     String result = TLSTester.convertToPem(mockCertificate);
 
     // Then
-    assertNotNull("Result should not be null", result);
+    assertNotNull(result, "Result should not be null");
     assertTrue(
-        "Result should start with BEGIN CERTIFICATE",
-        result.startsWith("-----BEGIN CERTIFICATE-----"));
+        result.startsWith("-----BEGIN CERTIFICATE-----"),
+        "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        "Result should end with END CERTIFICATE", result.endsWith("-----END CERTIFICATE-----"));
+        result.endsWith("-----END CERTIFICATE-----"),
+        "Result should end with END CERTIFICATE");
 
     verify(mockCertificate).getEncoded();
   }
@@ -206,7 +216,7 @@ public class TLSTesterTest {
     // Then
     // The result depends on the JVM's crypto policy
     // We just verify it returns a boolean without throwing exceptions
-    assertNotNull("Should return a boolean value", Boolean.valueOf(result));
+    assertNotNull(Boolean.valueOf(result), "Should return a boolean value");
   }
 
   @Test
@@ -216,7 +226,7 @@ public class TLSTesterTest {
 
     // Then
     String output = outputStream.toString();
-    assertNotNull("Should produce some output", output);
+    assertNotNull(output, "Should produce some output");
     // The output content will depend on the system's SSL configuration
   }
 
@@ -235,7 +245,7 @@ public class TLSTesterTest {
 
     // Then
     String output = outputStream.toString();
-    assertNotNull("Main method should produce some output", output);
+    assertNotNull(output, "Main method should produce some output");
   }
 
   @Test
@@ -253,7 +263,7 @@ public class TLSTesterTest {
 
     // Then
     String output = outputStream.toString();
-    assertNotNull("Main method should produce some output", output);
+    assertNotNull(output, "Main method should produce some output");
   }
 
   @Test
@@ -271,7 +281,7 @@ public class TLSTesterTest {
 
     // Then
     String output = outputStream.toString();
-    assertNotNull("Main method should produce some output", output);
+    assertNotNull(output, "Main method should produce some output");
   }
 
   @Test
@@ -285,19 +295,19 @@ public class TLSTesterTest {
 
     // Then
     String[] lines = result.split("\n");
-    assertTrue("Should have at least 3 lines", lines.length >= 3);
-    assertEquals("First line should be BEGIN CERTIFICATE", "-----BEGIN CERTIFICATE-----", lines[0]);
+    assertTrue(lines.length >= 3, "Should have at least 3 lines");
+    assertEquals("-----BEGIN CERTIFICATE-----", lines[0], "First line should be BEGIN CERTIFICATE");
     assertEquals(
-        "Last line should be END CERTIFICATE",
         "-----END CERTIFICATE-----",
-        lines[lines.length - 1]);
+        lines[lines.length - 1],
+        "Last line should be END CERTIFICATE");
 
     // Verify that middle lines contain valid base64 content
     for (int i = 1; i < lines.length - 1; i++) {
       if (!lines[i].trim().isEmpty()) {
         assertTrue(
-            "Line should contain valid base64 characters",
-            lines[i].matches("^[A-Za-z0-9+/=\\s]*$"));
+            lines[i].matches("^[A-Za-z0-9+/=\\s]*$"),
+            "Line should contain valid base64 characters");
       }
     }
 
@@ -317,13 +327,14 @@ public class TLSTesterTest {
     String result = TLSTester.convertToPem(mockCertificate);
 
     // Then
-    assertNotNull("Result should not be null", result);
+    assertNotNull(result, "Result should not be null");
     assertTrue(
-        "Result should start with BEGIN CERTIFICATE",
-        result.startsWith("-----BEGIN CERTIFICATE-----"));
+        result.startsWith("-----BEGIN CERTIFICATE-----"),
+        "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        "Result should end with END CERTIFICATE", result.endsWith("-----END CERTIFICATE-----"));
-    assertTrue("Result should contain multiple lines", result.split("\n").length > 3);
+        result.endsWith("-----END CERTIFICATE-----"),
+        "Result should end with END CERTIFICATE");
+    assertTrue(result.split("\n").length > 3, "Result should contain multiple lines");
 
     verify(mockCertificate).getEncoded();
   }
