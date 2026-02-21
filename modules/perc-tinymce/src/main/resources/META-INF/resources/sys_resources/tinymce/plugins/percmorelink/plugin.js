@@ -11,7 +11,7 @@ tinymce.PluginManager.add("percmorelink", function (editor, url) {
     sep.replace(/[\?\.\*\[\]\(\)\{\}\+\^\$\:]/g, function (a) {
       return "\\" + a;
     }),
-    "g"
+    "g",
   );
 
   /**
@@ -106,7 +106,8 @@ tinymce.PluginManager.add("percmorelink", function (editor, url) {
   });
 
   editor.on("PreInit", function () {
-    if (editor.settings.content_css !== false)
+    // editor.options.get() replaces the deprecated editor.settings in TinyMCE 6+.
+    if (editor.options.get("content_css") !== false)
       editor.dom.loadCSS(url + "/css/moreLink.css");
 
     if (editor.theme.onResolveName) {

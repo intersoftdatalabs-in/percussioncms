@@ -1,13 +1,29 @@
 tinymce.PluginManager.add("rxinline", function (editor) {
-  var tinyMCEinlineLinkSlot = tinymce.trim(
-    editor.getParam("inlineLinkSlot", "103")
-  );
-  var tinyMCEinlineVariantSlot = tinymce.trim(
-    editor.getParam("inlineVariantSlot", "105")
-  );
-  var tinyMCEinlineImageSlot = tinymce.trim(
-    editor.getParam("inlineImageSlot", "104")
-  );
+  // Register custom options so TinyMCE 6+ can validate them.
+  // These correspond to slot IDs used by Percussion Rhythmyx inline content.
+  editor.options.register("inlineLinkSlot", {
+    processor: "string",
+    default: "103",
+  });
+  editor.options.register("inlineVariantSlot", {
+    processor: "string",
+    default: "105",
+  });
+  editor.options.register("inlineImageSlot", {
+    processor: "string",
+    default: "104",
+  });
+
+  // Use editor.options.get() instead of the deprecated editor.getParam().
+  var tinyMCEinlineLinkSlot = (
+    editor.options.get("inlineLinkSlot") || "103"
+  ).trim();
+  var tinyMCEinlineVariantSlot = (
+    editor.options.get("inlineVariantSlot") || "105"
+  ).trim();
+  var tinyMCEinlineImageSlot = (
+    editor.options.get("inlineImageSlot") || "104"
+  ).trim();
 
   var ctypeid;
   if (typeof document.forms.EditForm !== "undefined") {
@@ -51,7 +67,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
       tinyMCE.activeEditor.selection.getContent(),
       tinyMCEinlineLinkSlot,
       ctypeid,
-      insertInlineText
+      insertInlineText,
     );
   });
 
@@ -105,7 +121,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineLinkSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -132,7 +148,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineLinkSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -156,7 +172,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineVariantSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -183,7 +199,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineVariantSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -204,7 +220,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
       tinyMCE.activeEditor.selection.getContent(),
       tinyMCEinlineVariantSlot,
       ctypeid,
-      insertInlineText
+      insertInlineText,
     );
   });
 
@@ -218,7 +234,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineImageSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -245,7 +261,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineImageSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -266,7 +282,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
       tinyMCE.activeEditor.selection.getContent(),
       tinyMCEinlineImageSlot,
       ctypeid,
-      insertInlineText
+      insertInlineText,
     );
   });
 

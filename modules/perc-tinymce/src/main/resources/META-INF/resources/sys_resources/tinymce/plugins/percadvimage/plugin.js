@@ -16,7 +16,8 @@ tinymce.PluginManager.add("percadvimage", function (editor, url) {
     function buildImageList() {
       var linkImageItems = [{ text: "None", value: "" }];
 
-      tinymce.each(editor.settings.image_list, function (link) {
+      // editor.options.get() replaces the deprecated editor.settings in TinyMCE 6+.
+      tinymce.each(editor.options.get("image_list"), function (link) {
         linkImageItems.push({
           text: link.text || link.title,
           value: link.value || link.url,
@@ -347,7 +348,7 @@ tinymce.PluginManager.add("percadvimage", function (editor, url) {
               cm1LinkData.jcrpath =
                 pathItem.PathItem.folderPaths.replace(
                   "/Folders/$System$/",
-                  ""
+                  "",
                 ) +
                 "/" +
                 pathItem.PathItem.name;
@@ -488,9 +489,9 @@ tinymce.PluginManager.add("percadvimage", function (editor, url) {
               if (typeof callback === "function") {
                 callback(renderLink.url, renderLink.thumbUrl, renderLink.title);
               }
-            }
+            },
           );
-        }
+        },
       );
     }
     var isImage = imgElm.nodeName === "IMG";
@@ -773,10 +774,10 @@ tinymce.PluginManager.add("percadvimage", function (editor, url) {
                     formData.dimensiond.height = height;
 
                     addImage();
-                  }
+                  },
                 );
               }
-            }
+            },
           );
         } else {
           addImage();

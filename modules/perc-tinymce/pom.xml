@@ -11,8 +11,11 @@
     <version>8.2.0-SNAPSHOT</version>
     <licenses>
         <license>
-            <name>LGPL-2.1</name>
-            <url>http://www.tinymce.com/js/tinymce4/js/tinymce/license.txt</url>
+            <!-- TinyMCE 6.8.x (the version bundled here) is MIT-licensed. -->
+            <!-- TinyMCE 7+ switched to GPL-2.0-or-later. Do NOT upgrade past 6.8.x -->
+            <!-- without legal review; GPL-2.0 is incompatible with Apache 2.0 for distribution. -->
+            <name>MIT</name>
+            <url>https://github.com/tinymce/tinymce/blob/release/6.8/LICENSE.TXT</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -28,6 +31,10 @@
         <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>tinymce</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>codemirror</artifactId>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -52,7 +59,7 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <outputDirectory>${download-folder}</outputDirectory>
-                            <includeArtifactIds>tinymce</includeArtifactIds>
+                            <includeArtifactIds>tinymce,codemirror</includeArtifactIds>
                             <stripVersion>false</stripVersion>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <overWriteReleases>true</overWriteReleases>
@@ -78,36 +85,80 @@
                                 <move todir="${destDir}">
                                     <fileset dir="${project.build.directory}/META-INF/resources/webjars/tinymce/${tinymce.version}/"/>
                                 </move>
-                                <move todir="${destDir}/skins/lightgray">
+                                <!-- TinyMCE 5+ uses the 'oxide' skin (under skins/ui/oxide/). -->
+                                <!-- 'lightgray' was the TinyMCE 4 skin name and no longer exists. -->
+                                <move todir="${destDir}/skins/ui/oxide">
                                     <fileset dir="${destDir}/../../css"/>
                                 </move>
+                                <!-- Unpack only the files needed by the codemirror TinyMCE plugin. -->
+                                <!-- The full CodeMirror WebJar (~900 KB) contains ~400 files; we need only 15. -->
+                                <!-- Version is managed via codemirror.version in the parent POM. -->
+                                <echo message="installing CodeMirror ${codemirror.version} (MIT) into codemirror plugin"/>
+                                <delete dir="${project.build.directory}/codemirror-unpack"/>
+                                <mkdir dir="${project.build.directory}/codemirror-unpack"/>
+                                <unzip dest="${project.build.directory}/codemirror-unpack"
+                                       src="${download-folder}/codemirror-${codemirror.version}.jar"/>
+                                <copy todir="${project.build.outputDirectory}/META-INF/resources/sys_resources/tinymce/plugins/codemirror/codemirror">
+                                    <fileset dir="${project.build.directory}/codemirror-unpack/META-INF/resources/webjars/codemirror/${codemirror.version}">
+                                        <include name="lib/codemirror.js"/>
+                                        <include name="lib/codemirror.css"/>
+                                        <include name="addon/edit/matchbrackets.js"/>
+                                        <include name="addon/dialog/dialog.js"/>
+                                        <include name="addon/dialog/dialog.css"/>
+                                        <include name="addon/search/searchcursor.js"/>
+                                        <include name="addon/search/search.js"/>
+                                        <include name="addon/selection/active-line.js"/>
+                                        <include name="addon/display/fullscreen.js"/>
+                                        <include name="addon/display/fullscreen.css"/>
+                                        <include name="mode/xml/xml.js"/>
+                                        <include name="mode/javascript/javascript.js"/>
+                                        <include name="mode/css/css.js"/>
+                                        <include name="mode/htmlmixed/htmlmixed.js"/>
+                                        <include name="mode/velocity/velocity.js"/>
+                                    </fileset>
+                                </copy>
                             </target>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.samaxes.maven</groupId>
-                <artifactId>minify-maven-plugin</artifactId>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Node.js is installed once into the local Maven repository cache. -->
+                    <!-- The plugin checks for the binary before downloading, so mvn clean -->
+                    <!-- does NOT trigger a re-download. node_modules/ is git-ignored. -->
+                    <nodeVersion>v20.18.0</nodeVersion>
+                    <workingDirectory>${project.basedir}</workingDirectory>
+                    <installDirectory>${user.home}/.m2/frontend</installDirectory>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>min-common</id>
+                        <id>install-node-and-npm</id>
                         <goals>
-                            <goal>minify</goal>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>minify-tinymce-plugins</id>
+                        <goals>
+                            <goal>npm</goal>
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
-                            <!-- <yuiDisableOptimizations>true</yuiDisableOptimizations> -->
-                            <webappSourceDir>${basedir}/src/main/resources/META-INF/resources</webappSourceDir>
-                            <webappTargetDir>${project.build.outputDirectory}/META-INF/resources</webappTargetDir>
-                            <skipMerge>true</skipMerge>
-                            <skipMinify>false</skipMinify>
-                            <jsSourceDir>sys_resources/tinymce/plugins</jsSourceDir>
-                            <jsSourceIncludes>
-                                <jsSourceInclude>**/plugin.js</jsSourceInclude>
-                            </jsSourceIncludes>
-                            <jsEngine>YUI</jsEngine>
-                            <yuiPreserveSemicolons>true</yuiPreserveSemicolons>
+                            <arguments>run minify</arguments>
                         </configuration>
                     </execution>
                 </executions>

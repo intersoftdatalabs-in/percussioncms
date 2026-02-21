@@ -1411,51 +1411,51 @@ onchange    %Script;       #IMPLIED
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="codemirror.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/lib/codemirror.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/lib/codemirror.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="matchbrackets.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/addon/edit/matchbrackets.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/addon/edit/matchbrackets.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="xml.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/mode/xml/xml.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/mode/xml/xml.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="javascript.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/mode/javascript/javascript.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/mode/javascript/javascript.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="css.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/mode/css/css.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/mode/css/css.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="htmlmixed.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/mode/htmlmixed/htmlmixed.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/mode/htmlmixed/htmlmixed.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="dialog.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/addon/dialog/dialog.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/addon/dialog/dialog.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="searchcursor.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/addon/search/searchcursor.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/addon/search/searchcursor.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="search.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/addon/search/search.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/addon/search/search.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="active-line.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/addon/selection/active-line.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/addon/selection/active-line.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="codemirror.css" type="css" mimetype="text/css">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/lib/codemirror.css</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/lib/codemirror.css</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="dialog.css" type="css" mimetype="text/css">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror-4.8/addon/dialog/dialog.css</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/addon/dialog/dialog.css</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
       </psxctl:AssociatedFileList>

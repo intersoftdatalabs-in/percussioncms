@@ -18,7 +18,8 @@
 tinymce.PluginManager.add("percadvlink", function (editor) {
   function createLinkList(callback) {
     return function () {
-      var linkList = editor.settings.link_list;
+      // editor.options.get() replaces the deprecated editor.settings in TinyMCE 6+.
+      var linkList = editor.options.get("link_list");
 
       if (typeof linkList === "string") {
         tinymce.util.XHR.send({
@@ -73,7 +74,8 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
       ? dom.getAttrib(anchorElm, "inlinetype")
       : "";
 
-    if (editor.settings.rel_list) {
+    // editor.options.get() replaces the deprecated editor.settings in TinyMCE 6+.
+    if (editor.options.get("rel_list")) {
       relListCtrl = {
         name: "rel",
         type: "listbox",
@@ -165,13 +167,13 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
                 topFrJQ.perc_utils.alert_dialog({
                   title: I18N.message("perc.ui.widget.tinymce@Error"),
                   content: I18N.message(
-                    "perc.ui.widget.tinymce@Invalid Link Message"
+                    "perc.ui.widget.tinymce@Invalid Link Message",
                   ),
                 });
               } else {
                 updateLinkData(result.PathItem);
               }
-            }
+            },
           );
         } else {
           if (linkPath.match("^//Rhythmyx/") || linkPath.match("^/Rhythmyx/")) {
@@ -195,7 +197,7 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
             topFrJQ.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.widget.tincymce@Error"),
               content: I18N.message(
-                "perc.ui.widget.tinymce@Could not get item details"
+                "perc.ui.widget.tinymce@Could not get item details",
               ),
             });
             return;
@@ -213,7 +215,7 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
           data.title = renderLink.title;
           addLink("no");
           win.setData(data);
-        }
+        },
       );
     }
 

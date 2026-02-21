@@ -224,7 +224,17 @@
         <swagger.ui.version>5.31.0</swagger.ui.version>
         <swagger.version>2.2.42</swagger.version>
         <tika.version>3.2.3</tika.version>
-        <tinymce.version>8.2.2</tinymce.version>
+        <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
+        <!-- TinyMCE 7+ switched to GPL-2.0-or-later, which is incompatible -->
+        <!-- with this project's Apache 2.0 license for distribution. -->
+        <!-- Do NOT upgrade past 6.8.x without a legal review. -->
+        <tinymce.version>6.8.6</tinymce.version>
+        <!-- CodeMirror 5.x (MIT-licensed). The vendor copy in perc-tinymce is managed via this WebJar. -->
+        <!-- Do NOT upgrade to CodeMirror 6.x without refactoring source.html and the codemirror plugin; -->
+        <!-- CodeMirror 6 has a completely different API. -->
+        <codemirror.version>5.65.20</codemirror.version>
+        <!-- Closure Compiler is used by minify-maven-plugin. Pin to a specific build date version. -->
+        <closure.compiler.version>v20260112</closure.compiler.version>
         <trinidad.version>2.2.1</trinidad.version>
         <twelvemonkeys.version>3.13.0</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
@@ -263,6 +273,11 @@
                 <groupId>org.webjars.npm</groupId>
                 <artifactId>tinymce</artifactId>
                 <version>${tinymce.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars.npm</groupId>
+                <artifactId>codemirror</artifactId>
+                <version>${codemirror.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -321,7 +336,7 @@
             <dependency>
                 <groupId>com.google.javascript</groupId>
                 <artifactId>closure-compiler</artifactId>
-                <version>v20260112</version>
+                <version>${closure.compiler.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>junit</groupId>
@@ -1961,6 +1976,11 @@
                     <version>1.9.0</version>
                 </plugin>
                 <plugin>
+                    <groupId>com.github.eirslett</groupId>
+                    <artifactId>frontend-maven-plugin</artifactId>
+                    <version>1.15.1</version>
+                </plugin>
+                <plugin>
                     <groupId>com.samaxes.maven</groupId>
                     <artifactId>minify-maven-plugin</artifactId>
                     <version>1.7.6</version>
@@ -1969,6 +1989,11 @@
                             <groupId>org.codehaus.plexus</groupId>
                             <artifactId>plexus-utils</artifactId>
                             <version>4.0.2</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.google.javascript</groupId>
+                            <artifactId>closure-compiler</artifactId>
+                            <version>${closure.compiler.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
