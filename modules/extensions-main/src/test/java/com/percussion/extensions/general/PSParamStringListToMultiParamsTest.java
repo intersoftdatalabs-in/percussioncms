@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[0] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -56,7 +56,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[0] = " ";
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (IllegalArgumentException e) {
       // expected
     }
@@ -67,7 +67,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[1] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -78,7 +78,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[2] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -87,7 +87,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[2] = " ";
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (IllegalArgumentException e) {
       // expected
     }
