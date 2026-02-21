@@ -28,6 +28,7 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.HashMap;
+import java.util.Map;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -82,7 +83,8 @@ public class PSGenericAssembly extends PSDefaultExtension implements IPSAssembly
 
       String resource = params[0].toString().trim();
 
-      HashMap<String, String> newHTMLParams = new HashMap<>();
+      // request.getInternalRequest expects a map of <String,Object>
+      Map<String, Object> newHTMLParams = new HashMap<>();
       if ((params.length >= 2)
           && (params[1] != null)
           && (params[1].toString().trim().length() > 0)) {

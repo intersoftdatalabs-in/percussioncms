@@ -39,11 +39,15 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import com.percussion.services.security.PSServiceSecurityException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+// required for exception handling of security errors
+import com.percussion.security.PSSecurityException;
 
 /**
  * Walk the search properties in the request document. For sys_community, remove the property and
@@ -151,7 +155,7 @@ public class PSSearchCommunityHandler implements IPSRequestPreProcessor {
         acls.add(object_acl);
         asvc.saveAcls(acls);
       }
-    } catch (PSSecurityException e1) {
+    } catch (PSSecurityException | PSServiceSecurityException e1) {
       ms_log.error(e1);
     }
   }

@@ -19,10 +19,13 @@ package com.percussion.extensions.general;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Unit test for the <code>PSParamStringListToMultiParams</code> exit. */
 public class PSParamStringListToMultiParamsTest {
-  /** Tets all exit contracts and functionality. */
+  /** Test all exit contracts and functionality. */
+  @Test
   public void testExit() throws Exception {
     PSParamStringListToMultiParams test = new PSParamStringListToMultiParams();
 
@@ -44,7 +47,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[0] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue("Expected exception", false);
+      assertTrue(false, "Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -53,7 +56,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[0] = " ";
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue("Expected exception", false);
+      assertTrue(false, "Expected exception");
     } catch (IllegalArgumentException e) {
       // expected
     }
@@ -64,7 +67,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[1] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue("Expected exception", false);
+      assertTrue(false, "Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -75,7 +78,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[2] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue("Expected exception", false);
+      assertTrue(false, "Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -84,7 +87,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[2] = " ";
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue("Expected exception", false);
+      assertTrue(false, "Expected exception");
     } catch (IllegalArgumentException e) {
       // expected
     }
