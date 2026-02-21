@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class to handle discovery of state dependencies. The <code>PSWorkflowDefDependencyHandler</code>
@@ -113,13 +114,20 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
     var data =
         dbmsHelper.catalogTableData(TRANSITIONS_TABLE, new String[] {TRANSITION_ID}, fltWhere);
 
-    return data != null && data.getRows().hasNext()
-        ? data.getRows().stream()
-            .map(row -> getColumnValueNullable(STATES_TABLE, TRANSITION_ID, row))
-            .filter(id -> id != null && !id.isBlank())
-            .distinct()
-            .iterator()
-        : PSIteratorUtils.emptyIterator();
+    if (data != null && data.getRows().hasNext()) {
+      Iterator<PSJdbcRowData> rows = data.getRows();
+      Set<String> ids = new HashSet<>();
+      while (rows.hasNext()) {
+        PSJdbcRowData row = rows.next();
+        String id = getColumnValueNullable(STATES_TABLE, TRANSITION_ID, row);
+        if (id != null && !id.isBlank()) {
+          ids.add(id);
+        }
+      }
+      return ids.iterator();
+    } else {
+      return PSIteratorUtils.emptyIterator();
+    }
   }
 
   // see base class

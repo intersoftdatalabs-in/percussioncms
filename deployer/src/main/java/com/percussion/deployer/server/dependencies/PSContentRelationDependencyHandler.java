@@ -61,6 +61,7 @@ import com.percussion.tablefactory.PSJdbcRowData;
 import com.percussion.tablefactory.PSJdbcSelectFilter;
 import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.tablefactory.PSJdbcTableSchema;
+import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.Reader;
@@ -105,30 +106,32 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     var childDeps = new HashSet<PSDependency>();
     var ctHandler = getDependencyHandler(PSContentDefDependencyHandler.DEPENDENCY_TYPE);
 
-    var relationships = getRelationships(tok, dep.getDependencyId());
-    relationships.forEachRemaining(
-        rel -> {
-          var loc = rel.getDependent();
-          var child = ctHandler.getDependency(tok, String.valueOf(loc.getId()));
-          Optional.ofNullable(child).ifPresent(childDeps::add);
+    Iterator<PSRelationship> relationships = getRelationships(tok, dep.getDependencyId());
+    while (relationships.hasNext()) {
+      PSRelationship rel = relationships.next();
+      PSLocator loc = rel.getDependent();
+      PSDependency child = ctHandler.getDependency(tok, String.valueOf(loc.getId()));
+      if (child != null) {
+        childDeps.add(child);
+      }
 
-          rel.getUserProperties().entrySet().stream()
-              .filter(entry -> ms_propertyTypes.containsKey(entry.getKey()))
-              .forEach(
-                  entry -> {
-                    var type = ms_propertyTypes.get(entry.getKey());
-                    var value = entry.getValue();
-                    if (type != null && value != null && !value.trim().isEmpty()) {
-                      var handler = getDependencyHandler(type);
-                      if (type.equals(PSFolderDefDependencyHandler.DEPENDENCY_TYPE)) {
-                        var folderHandler = (PSFolderDefDependencyHandler) handler;
-                        value = folderHandler.getFolderPathFromId(tok, value);
-                      }
-                      Optional.ofNullable(handler.getDependency(tok, value))
-                          .ifPresent(childDeps::add);
-                    }
-                  });
-        });
+      for (Map.Entry<String, String> entry : rel.getUserProperties().entrySet()) {
+        if (!ms_propertyTypes.containsKey(entry.getKey())) continue;
+        String type = ms_propertyTypes.get(entry.getKey());
+        String value = entry.getValue();
+        if (type != null && value != null && !value.trim().isEmpty()) {
+          PSDependencyHandler handler = getDependencyHandler(type);
+          if (type.equals(PSFolderDefDependencyHandler.DEPENDENCY_TYPE)) {
+            PSFolderDefDependencyHandler folderHandler = (PSFolderDefDependencyHandler) handler;
+            value = folderHandler.getFolderPathFromId(tok, value);
+          }
+          PSDependency hdep = handler.getDependency(tok, value);
+          if (hdep != null) {
+            childDeps.add(hdep);
+          }
+        }
+      }
+    }
 
     var relHandler = getDependencyHandler(PSRelationshipDependencyHandler.DEPENDENCY_TYPE);
     var pairId = new PSPairDependencyId(dep.getDependencyId());
@@ -155,7 +158,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
       throw new IllegalArgumentException("Invalid arguments provided");
     }
 
-    var relationships = getRelationships(tok, id);
+    Iterator<PSRelationship> relationships = getRelationships(tok, id);
     if (relationships.hasNext()) {
       var pairId = new PSPairDependencyId(id);
       return createDependency(m_def, id, pairId.getChildId());
@@ -248,20 +251,20 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
         (PSFolderDefDependencyHandler)
             getDependencyHandler(PSFolderDefDependencyHandler.DEPENDENCY_TYPE);
 
-    var relationships = getRelationships(tok, dep.getDependencyId());
-    relationships.forEachRemaining(
-        rel -> {
-          var folderId = rel.getProperty(IPSHtmlParameters.SYS_FOLDERID);
-          if (folderId != null && !folderId.trim().isEmpty()) {
-            var folderPath = folderHandler.getFolderPathFromId(tok, folderId);
-            rel.setProperty(IPSHtmlParameters.SYS_FOLDERID, folderPath);
-          }
+    Iterator<PSRelationship> relationships = getRelationships(tok, dep.getDependencyId());
+    while (relationships.hasNext()) {
+      PSRelationship rel = relationships.next();
+      String folderId = rel.getProperty(IPSHtmlParameters.SYS_FOLDERID);
+      if (folderId != null && !folderId.trim().isEmpty()) {
+        String folderPath = folderHandler.getFolderPathFromId(tok, folderId);
+        rel.setProperty(IPSHtmlParameters.SYS_FOLDERID, folderPath);
+      }
 
-          var doc = PSXmlDocumentBuilder.createXmlDocument();
-          PSXmlDocumentBuilder.replaceRoot(doc, rel.toXml(doc));
-          var file = createXmlFile(doc);
-          files.add(new PSDependencyFile(PSDependencyFile.TYPE_COMPONENT_XML, file));
-        });
+      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+      PSXmlDocumentBuilder.replaceRoot(doc, rel.toXml(doc));
+      PSPurgableTempFile file = createXmlFile(doc);
+      files.add(new PSDependencyFile(PSDependencyFile.TYPE_COMPONENT_XML, file));
+    }
 
     return files.iterator();
   }
@@ -400,7 +403,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
 
     // get property deps, build a set so we don't end up with dupes
     Set propSet = new HashSet();
-    Iterator relationships = getRelationships(tok, id);
+    Iterator<PSRelationship> relationships = getRelationships(tok, id);
     while (relationships.hasNext()) {
       PSRelationship relationship = (PSRelationship) relationships.next();
       propSet.addAll(getUnknownProperties(relationship));
@@ -766,7 +769,8 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    *     </code>.
    * @throws PSDeployException if there are any errors.
    */
-  private Iterator getRelationships(PSSecurityToken tok, String id) throws PSDeployException {
+  private Iterator<PSRelationship> getRelationships(PSSecurityToken tok, String id)
+      throws PSDeployException {
     try {
       com.percussion.deployer.server.dependencies.PSPairDependencyId pairId =
           new PSPairDependencyId(id);
@@ -800,7 +804,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    * are added by a static intializer. If a property name is known, but does not have a
    * corresponding dependency type, the value will be <code>null</code>.
    */
-  private static Map ms_propertyTypes = new HashMap();
+  private static Map<String, String> ms_propertyTypes = new HashMap<>();
 
   static {
     ms_childTypes.add(PSContentDefDependencyHandler.DEPENDENCY_TYPE);

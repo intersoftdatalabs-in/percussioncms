@@ -171,8 +171,13 @@ public class PSAppUrlRequestIdContext extends PSApplicationIdContext {
 
     var tree = new PSXmlTreeWalker(sourceNode);
     var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-    Optional.ofNullable(ctxEl)
-        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+    // previous implementation used Optional.ifPresent with a lambda, but the
+    // lambda could not propagate the checked PSUnknownNodeTypeException thrown
+    // by PSApplicationIDContextFactory.fromXml. Convert to an explicit null
+    // check so the exception can be declared on this method.
+    if (ctxEl != null) {
+      setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+    }
   }
 
   // see IPSDeployComponent interface

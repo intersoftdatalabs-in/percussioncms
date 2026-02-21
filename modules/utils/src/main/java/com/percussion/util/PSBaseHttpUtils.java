@@ -155,8 +155,7 @@ public class PSBaseHttpUtils {
    *     value. The media type will be all lowercase. If <code>null</code> is supplied for the
    *     content type, <code>null</code> is returned.
    */
-  @SuppressWarnings("unchecked")
-  public static String parseContentType(String contentType, Map params) {
+  public static String parseContentType(String contentType, Map<String, String> params) {
     if (StringUtils.isBlank(contentType)) return null;
 
     // strip off the media type which occurs before the optional
@@ -187,8 +186,7 @@ public class PSBaseHttpUtils {
    *
    * <p>The params will be stored in the map as LCASE(name) -> value.
    */
-  @SuppressWarnings("unchecked")
-  protected static int parseHttpParamsString(String paramStr, Map params) {
+  protected static int parseHttpParamsString(String paramStr, Map<String, String> params) {
     final String str = paramStr.trim();
     final int strLen = str.length();
 

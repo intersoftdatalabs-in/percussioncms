@@ -76,7 +76,7 @@ public abstract class PSPairIdDependencyHandler extends PSDataObjectDependencyHa
 
   // see base c1ass
   @Override
-  protected String getTargetId(PSIdMapping mapping, String id) throws PSDeployException {
+  public String getTargetId(PSIdMapping mapping, String id) throws PSDeployException {
     if (mapping == null || id == null || id.isBlank()) {
       throw new IllegalArgumentException("Invalid arguments provided.");
     }

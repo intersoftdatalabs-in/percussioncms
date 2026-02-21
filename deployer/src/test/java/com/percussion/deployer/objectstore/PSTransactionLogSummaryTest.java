@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -27,20 +29,13 @@ import org.w3c.dom.Element;
  * </code> classes.
  */
 public class PSTransactionLogSummaryTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSTransactionLogSummaryTest(String name) {
-    super(name);
-  }
 
   /**
    * Test constructing <code>PSTransactionSummary</code> this object using parameters
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testTranxConstructor() throws Exception {
     // these should work fine
     assertTrue(
@@ -59,18 +54,18 @@ public class PSTransactionLogSummaryTest {
             PSTransactionSummary.ACTION_MODIFIED));
 
     // should be a problem
-    assertTrue(!testCtorValid(123, "dep_1", "id_1", "Hello", PSTransactionSummary.ACTION_MODIFIED));
-    assertTrue(!testCtorValid(123, "dep_1", "id_1", PSTransactionSummary.TYPE_SCHEMA, 101));
+    assertFalse(testCtorValid(123, "dep_1", "id_1", "Hello", PSTransactionSummary.ACTION_MODIFIED));
+    assertFalse(testCtorValid(123, "dep_1", "id_1", PSTransactionSummary.TYPE_SCHEMA, 101));
 
-    assertTrue(
-        !testCtorValid(
+    assertFalse(
+        testCtorValid(
             123, "", "", PSTransactionSummary.TYPE_DATA, PSTransactionSummary.ACTION_CREATED));
-    assertTrue(
-        !testCtorValid(
+    assertFalse(
+        testCtorValid(
             123, null, null, PSTransactionSummary.TYPE_DATA, PSTransactionSummary.ACTION_CREATED));
 
-    assertTrue(!testCtorValid(123, "f00", "foo", "", PSTransactionSummary.ACTION_CREATED));
-    assertTrue(!testCtorValid(123, "foo", "foo", null, PSTransactionSummary.ACTION_CREATED));
+    assertFalse(testCtorValid(123, "f00", "foo", "", PSTransactionSummary.ACTION_CREATED));
+    assertFalse(testCtorValid(123, "foo", "foo", null, PSTransactionSummary.ACTION_CREATED));
   }
 
   /**
@@ -78,6 +73,7 @@ public class PSTransactionLogSummaryTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testXml() throws Exception {
     PSTransactionSummary tranx1 =
         new PSTransactionSummary(
@@ -103,7 +99,7 @@ public class PSTransactionLogSummaryTest {
 
     PSTransactionLogSummary tgt = new PSTransactionLogSummary(srcEl);
 
-    assertTrue(src.equals(tgt));
+    assertEquals(src, tgt);
   }
 
   /**
@@ -122,13 +118,5 @@ public class PSTransactionLogSummaryTest {
     }
 
     return true;
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSTransactionLogSummaryTest("testTranxConstructor"));
-    suite.addTest(new PSTransactionLogSummaryTest("testXml"));
-    return suite;
   }
 }

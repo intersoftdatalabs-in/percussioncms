@@ -243,8 +243,9 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
     m_origCond = (PSConditional) m_cond.clone();
 
     var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-    Optional.ofNullable(ctxEl)
-        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+    if (ctxEl != null) {
+      setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+    }
   }
 
   // see IPSDeployComponent interface

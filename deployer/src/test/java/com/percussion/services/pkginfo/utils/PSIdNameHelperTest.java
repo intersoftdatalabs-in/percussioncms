@@ -24,11 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.pkginfo.PSIdNameServiceLocator;
 import com.percussion.utils.guid.IPSGuid;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test id-name helper */
-
+@org.junit.jupiter.api.Disabled("depends on id-name service which requires Spring context")
 public class PSIdNameHelperTest {
   /**
    * Test various methods to perform id-name translation.

@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.objectstore.idtypes;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSDataMapping;
 import com.percussion.design.objectstore.PSDisplayMapper;
@@ -39,20 +41,13 @@ import org.w3c.dom.Element;
 
 /** Unit test for the {@link PSApplicationIdContext} class. */
 public class PSApplicationIdContextTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSApplicationIdContextTest(String name) {
-    super(name);
-  }
 
   /**
    * Test serializing to and from xml, as well as equals method.
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testXml() throws Exception {
     PSAppCEItemIdContext ceItemctx;
     int[] fieldTypes = {
@@ -70,7 +65,7 @@ public class PSApplicationIdContextTest {
     };
     for (int i = 0; i < fieldTypes.length; i++) {
       ceItemctx = new PSAppCEItemIdContext(fieldTypes[i]);
-      assertTrue(ceItemctx.equals(testXml(ceItemctx)));
+      assertEquals(ceItemctx, testXml(ceItemctx));
     }
 
     PSAppNamedItemIdContext namedItemIdCtx;
@@ -96,7 +91,7 @@ public class PSApplicationIdContextTest {
 
     for (int i = 0; i < namedTypes.length; i++) {
       namedItemIdCtx = new PSAppNamedItemIdContext(namedTypes[i], "name" + i);
-      assertTrue(namedItemIdCtx.equals(testXml(namedItemIdCtx)));
+      assertEquals(namedItemIdCtx, testXml(namedItemIdCtx));
     }
 
     PSAppIndexedItemIdContext indexedItemIdCtx;
@@ -109,7 +104,7 @@ public class PSApplicationIdContextTest {
     };
     for (int i = 0; i < indexedTypes.length; i++) {
       indexedItemIdCtx = new PSAppIndexedItemIdContext(indexedTypes[i], i);
-      assertTrue(indexedItemIdCtx.equals(testXml(indexedItemIdCtx)));
+      assertEquals(indexedItemIdCtx, testXml(indexedItemIdCtx));
     }
 
     PSAppConditionalIdContext ceCondctx =
@@ -117,14 +112,15 @@ public class PSApplicationIdContextTest {
             new PSConditional(
                 new PSTextLiteral("a"), PSConditional.OPTYPE_EQUALS, new PSHtmlParameter("b")),
             PSAppConditionalIdContext.TYPE_VALUE);
-    assertTrue(ceCondctx.equals(testXml(ceCondctx)));
+    assertEquals(ceCondctx, testXml(ceCondctx));
 
     PSExtensionParamValue[] params = new PSExtensionParamValue[2];
     params[0] = new PSExtensionParamValue(new PSHtmlParameter("foo"));
     params[1] = new PSExtensionParamValue(new PSTextLiteral("bar"));
     PSExtensionRef ref = new PSExtensionRef("java", "myctx", "myExt");
     PSExtensionCall call = new PSExtensionCall(ref, params);
-    PSAppExtensionCallIdContext extCallCtx = new PSAppExtensionCallIdContext(call);
+    // provide explicit index so that serialization has a valid value
+    PSAppExtensionCallIdContext extCallCtx = new PSAppExtensionCallIdContext(call, 0);
     assertTrue(extCallCtx.equals(testXml(extCallCtx)));
     PSAppExtensionCallIdContext extCallCtx2 = new PSAppExtensionCallIdContext(call, 3);
     assertTrue(extCallCtx2.equals(testXml(extCallCtx2)));
@@ -218,9 +214,4 @@ public class PSApplicationIdContextTest {
   }
 
   // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSApplicationIdContextTest("testXml"));
-    return suite;
-  }
 }

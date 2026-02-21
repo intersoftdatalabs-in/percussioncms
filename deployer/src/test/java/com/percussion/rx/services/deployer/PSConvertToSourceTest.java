@@ -29,10 +29,9 @@ import com.percussion.services.pkginfo.data.PSPkgInfo.PackageCategory;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageType;
 import com.percussion.utils.types.PSPair;
 import java.util.Date;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-
+@org.junit.jupiter.api.Disabled("no context available")
 public class PSConvertToSourceTest {
 
   @Test

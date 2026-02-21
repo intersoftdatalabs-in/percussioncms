@@ -27,7 +27,7 @@ import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

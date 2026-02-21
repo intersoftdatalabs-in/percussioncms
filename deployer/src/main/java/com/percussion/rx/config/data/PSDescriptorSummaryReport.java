@@ -19,6 +19,7 @@ package com.percussion.rx.config.data;
 
 import com.percussion.deployer.client.IPSDeployConstants;
 import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDeployableElement;
 import com.percussion.deployer.objectstore.PSDescriptor;
 import com.percussion.deployer.objectstore.PSExportDescriptor;
 import com.percussion.deployer.objectstore.PSUserDependency;
@@ -162,9 +163,15 @@ public class PSDescriptorSummaryReport {
     m_dependsMap = new PSMultiValueHashMap<>();
     m_assocMap = new PSMultiValueHashMap<>();
     m_cats = new TreeSet<>();
-    var elements = desc.getPackages();
+    Iterator<PSDeployableElement> elements = desc.getPackages();
     while (elements.hasNext()) {
-      var depend = elements.next();
+      PSDeployableElement pe = elements.next();
+      // most packages are PSDependency instances masquerading as deployable
+      // elements during export, so cast for downstream use
+      if (!(pe instanceof PSDependency)) {
+        continue; // skip anything unexpected
+      }
+      PSDependency depend = (PSDependency) pe;
       if (IPSDeployConstants.DEP_OBJECT_TYPE_CUSTOM.equals(depend.getObjectType())
           && "sys_UserDependency".equals(depend.getDependencyId())) {
         m_files = handleFileResources(depend);

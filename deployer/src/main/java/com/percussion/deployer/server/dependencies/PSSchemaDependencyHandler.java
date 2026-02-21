@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -102,16 +101,19 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
         tableList.add(rs.getString(COLNO_TABLE_NAME));
       }
 
-      return tableList.stream()
-          .filter(
-              table ->
-                  !excludeTables.contains(table)
-                      && !table.endsWith("_BAK")
-                      && !table.endsWith("_BAKUP")
-                      && !table.endsWith("_UPG"))
-          .map(table -> getDependency(tok, table))
-          .filter(Objects::nonNull)
-          .iterator();
+      var results = new ArrayList<PSDependency>();
+      for (String table : tableList) {
+        if (!excludeTables.contains(table)
+            && !table.endsWith("_BAK")
+            && !table.endsWith("_BAKUP")
+            && !table.endsWith("_UPG")) {
+          PSDependency d = getDependency(tok, table);
+          if (d != null) {
+            results.add(d);
+          }
+        }
+      }
+      return results.iterator();
     } catch (SQLException e) {
       throw new PSDeployException(
           IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, PSDeployException.formatSqlException(e));

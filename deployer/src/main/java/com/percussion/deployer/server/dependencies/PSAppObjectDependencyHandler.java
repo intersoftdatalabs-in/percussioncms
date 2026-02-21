@@ -52,6 +52,7 @@ import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.tools.PSPatternMatcher;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -305,32 +306,37 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
       sheetNodeList.add((Element) imports.item(i));
     }
 
-    var rxGlobals = new PSRxGlobals(null);
-    var hasGlobals =
-        sheetNodeList.stream()
-            .anyMatch(
-                sheetEl -> {
-                  var href = sheetEl.getAttribute("href");
-                  if (!href.isBlank()) {
-                    try {
-                      var url = new URL(href);
-                      var path = url.getFile();
-                      var dep = getDepFromPath(tok, path);
-                      if (dep != null) {
-                        if (dep.getDependencyType() == PSDependency.TYPE_SHARED) {
-                          dep.setIsAssociation(false);
-                        }
-                        deps.add(dep);
-                        return normalizePathSep(path)
-                            .equals(normalizePathSep(rxGlobals.getGlobalTemplateFilePath()));
-                      }
-                    } catch (MalformedURLException
-                        | com.percussion.services.error.PSNotFoundException e) {
-                      // Ignore invalid URLs
-                    }
-                  }
-                  return false;
-                });
+    PSRxGlobals rxGlobals;
+    try {
+      rxGlobals = new PSRxGlobals(null);
+    } catch (IOException | org.xml.sax.SAXException e) {
+      // wrap in deploy exception so caller handles
+      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+    }
+    boolean hasGlobals = false;
+    for (Element sheetEl : sheetNodeList) {
+      String href = sheetEl.getAttribute("href");
+      if (!href.isBlank()) {
+        try {
+          URL url = new URL(href);
+          String path = url.getFile();
+          PSDependency dep = getDepFromPath(tok, path);
+          if (dep != null) {
+            if (dep.getDependencyType() == PSDependency.TYPE_SHARED) {
+              dep.setIsAssociation(false);
+            }
+            deps.add(dep);
+            if (normalizePathSep(path)
+                .equals(normalizePathSep(rxGlobals.getGlobalTemplateFilePath()))) {
+              hasGlobals = true;
+              break;
+            }
+          }
+        } catch (MalformedURLException | com.percussion.services.error.PSNotFoundException e) {
+          // Ignore invalid URLs
+        }
+      }
+    }
 
     if (hasGlobals) {
       var templateCalls = doc.getElementsByTagName("xsl:call-template");

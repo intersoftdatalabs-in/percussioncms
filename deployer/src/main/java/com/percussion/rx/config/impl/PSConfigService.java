@@ -59,7 +59,9 @@ public class PSConfigService implements IPSConfigService {
         var msg =
             "Missing one or more configuration files for configuration {0}. Skipping"
                 + " configuration.";
-        var error = new PSPair<>(cfg, new PSConfigException(MessageFormat.format(msg, cfg)));
+        var error =
+            new PSPair<String, Exception>(
+                cfg, new PSConfigException(MessageFormat.format(msg, cfg)));
         results.add(error);
         continue;
       }
@@ -108,7 +110,7 @@ public class PSConfigService implements IPSConfigService {
   public List<PSConfigValidation> validateConfiguartion(String configName) {
     if (StringUtils.isBlank(configName))
       throw new IllegalArgumentException("configName must not be empty");
-    var validationErrors = new ArrayList<PSConfigValidation>();
+    List<PSConfigValidation> validationErrors = new ArrayList<>();
     try {
       validationErrors = validateConfig(configName);
     } catch (Exception e) {
@@ -154,7 +156,6 @@ public class PSConfigService implements IPSConfigService {
     return lcFile.exists() && dcFile.exists() && cdFile.exists();
   }
 
-  @Override
   public void applyLocalConfiguration(File localConfigFile, boolean changesOnly) {
     Objects.requireNonNull(localConfigFile, "file must not be null");
 
@@ -166,7 +167,6 @@ public class PSConfigService implements IPSConfigService {
     applyLocalConfiguration(localConfigFile, prevProps, changesOnly);
   }
 
-  @Override
   public void applyLocalConfiguration(
       File localConfigFile, Map<String, Object> prevProps, boolean changesOnly) {
     Objects.requireNonNull(localConfigFile, "file must not be null");
@@ -233,7 +233,6 @@ public class PSConfigService implements IPSConfigService {
     }
   }
 
-  @Override
   public List<PSConfigValidation> validateConfig(String cfgName)
       throws FileNotFoundException, JAXBException {
     if (StringUtils.isBlank(cfgName))
@@ -342,18 +341,21 @@ public class PSConfigService implements IPSConfigService {
 
     var mgr = getConfigStatusManager();
     var cfgStatus = mgr.findLastSuccessfulConfigStatus(cfgName);
-    var configDef = cfgStatus == null ? null : cfgStatus.getConfigDef();
-    if (StringUtils.isBlank(configDef)) return;
+    Optional<String> configDef = cfgStatus == null ? Optional.empty() : cfgStatus.getConfigDef();
+    if (configDef.isEmpty() || StringUtils.isBlank(configDef.get())) return;
 
-    var defaultCfg = cfgStatus.getDefaultConfig();
-    var localCfg = cfgStatus.getLocalConfig();
+    Optional<String> defaultCfgOpt =
+        cfgStatus == null ? Optional.empty() : cfgStatus.getDefaultConfig();
+    Optional<String> localCfgOpt =
+        cfgStatus == null ? Optional.empty() : cfgStatus.getLocalConfig();
+    if (defaultCfgOpt.isEmpty() || localCfgOpt.isEmpty()) return;
 
-    try (var cfgFile = getTempConfigDefFile(cfgName, configDef)) {
+    try (var cfgFile = getTempConfigDefFile(cfgName, configDef.get())) {
       deApplyConfiguration(
           cfgName,
           cfgFile.getAbsolutePath(),
-          new ByteArrayInputStream(defaultCfg.getBytes(StandardCharsets.UTF_8)),
-          new ByteArrayInputStream(localCfg.getBytes(StandardCharsets.UTF_8)));
+          new ByteArrayInputStream(defaultCfgOpt.get().getBytes(StandardCharsets.UTF_8)),
+          new ByteArrayInputStream(localCfgOpt.get().getBytes(StandardCharsets.UTF_8)));
     } catch (Exception e) {
       ms_logger.error(
           "Failed to revert configuration in file: {} Error: {}",
@@ -362,7 +364,6 @@ public class PSConfigService implements IPSConfigService {
     }
   }
 
-  @Override
   public void deApplyConfiguration(
       String configName, String configDefPath, InputStream defaultCfg, InputStream localCfg)
       throws PSNotFoundException {
@@ -449,12 +450,16 @@ public class PSConfigService implements IPSConfigService {
     try {
       var mgr = getConfigStatusManager();
       var sucCfg = mgr.findLastSuccessfulConfigStatus(configName);
-      if (sucCfg != null && StringUtils.isNotBlank(sucCfg.getConfigDef())) {
-        var results =
-            applyDefaultProps(
-                normalizeConfig(sucCfg.getLocalConfig()),
-                normalizeConfig(sucCfg.getDefaultConfig()));
-        return new PSPair<>(sucCfg.getConfigDef(), results);
+      if (sucCfg != null) {
+        Optional<String> defOpt = sucCfg.getConfigDef();
+        if (defOpt.isPresent() && StringUtils.isNotBlank(defOpt.get())) {
+          String def = defOpt.get();
+          var results =
+              applyDefaultProps(
+                  normalizeConfig(sucCfg.getLocalConfig().orElse("")),
+                  normalizeConfig(sucCfg.getDefaultConfig().orElse("")));
+          return new PSPair<String, Map<String, Object>>(def, results);
+        }
       }
     } catch (Exception e) {
       var msg =
@@ -543,7 +548,6 @@ public class PSConfigService implements IPSConfigService {
     m_configRegMgr = mgr;
   }
 
-  @Override
   public IPSConfigStatusMgr getConfigStatusManager() {
     return m_configStatusMgr;
   }

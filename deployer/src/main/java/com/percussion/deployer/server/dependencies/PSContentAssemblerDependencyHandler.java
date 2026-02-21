@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,20 +81,20 @@ public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
 
     var tmpIds = getTemplateIdsByAssemblyUrl(tok, dep);
     var handler = getDependencyHandler(PSVariantDefDependencyHandler.DEPENDENCY_TYPE);
-    tmpIds.stream()
-        .map(g -> handler.getDependency(tok, String.valueOf(g.longValue())))
-        .filter(java.util.Objects::nonNull)
-        .peek(d -> d.setDependencyType(PSDependency.TYPE_LOCAL))
-        .forEach(childDeps::add);
+    for (IPSGuid g : tmpIds) {
+      PSDependency d = handler.getDependency(tok, String.valueOf(g.longValue()));
+      if (d != null) {
+        d.setDependencyType(PSDependency.TYPE_LOCAL);
+        childDeps.add(d);
+      }
+    }
 
     handler = getDependencyHandler(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
     var appDep = handler.getDependency(tok, dep.getDependencyId());
-    Optional.ofNullable(appDep)
-        .ifPresent(
-            d -> {
-              d.setDependencyType(PSDependency.TYPE_LOCAL);
-              childDeps.add(d);
-            });
+    if (appDep != null) {
+      appDep.setDependencyType(PSDependency.TYPE_LOCAL);
+      childDeps.add(appDep);
+    }
 
     return childDeps.iterator();
   }
@@ -119,16 +118,17 @@ public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
     return appNames.stream()
         .map(
             name ->
-                new PSDeployableElement(
-                    PSDependency.TYPE_SHARED,
-                    name,
-                    m_def.getObjectType(),
-                    m_def.getObjectTypeName(),
-                    name,
-                    m_def.supportsIdTypes(),
-                    m_def.supportsIdMapping(),
-                    m_def.supportsUserDependencies(),
-                    m_def.supportsParentId()))
+                (PSDependency)
+                    new PSDeployableElement(
+                        PSDependency.TYPE_SHARED,
+                        name,
+                        m_def.getObjectType(),
+                        m_def.getObjectTypeName(),
+                        name,
+                        m_def.supportsIdTypes(),
+                        m_def.supportsIdMapping(),
+                        m_def.supportsUserDependencies(),
+                        m_def.supportsParentId()))
         .peek(dep -> dep.setShouldAutoExpand(m_def.shouldAutoExpand()))
         .iterator();
   }

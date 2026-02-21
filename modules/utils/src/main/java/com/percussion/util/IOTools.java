@@ -344,7 +344,7 @@ public class IOTools {
    * @param dir directory to copy, never <code>null</code>.
    * @param targetDirs list of directories to create copies in, never <code>null</code>.
    */
-  public static void copyToDirs(File dir, List targetDirs) throws IOException {
+  public static void copyToDirs(File dir, List<File> targetDirs) throws IOException {
     if (dir == null) throw new IllegalArgumentException("dir may not be null");
     if (targetDirs == null) throw new IllegalArgumentException("targetDirs may not be null");
 
@@ -352,7 +352,7 @@ public class IOTools {
     for (int i = 0; i < copyFiles.length; i++) {
       File srcFile = copyFiles[i];
       for (int j = 0; j < targetDirs.size(); j++) {
-        File destDir = (File) targetDirs.get(j);
+        File destDir = targetDirs.get(j);
         copyToDir(srcFile, destDir);
       }
     }

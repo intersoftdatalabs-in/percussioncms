@@ -115,7 +115,10 @@ public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandle
     var fileDep =
         getDependencyHandler(super.DEPENDENCY_TYPE).getDependency(tok, dep.getDependencyId());
     if (fileDep != null) {
-      super.getChildDependencies(tok, fileDep).forEachRemaining(childDeps::add);
+      Iterator<PSDependency> iter1 = super.getChildDependencies(tok, fileDep);
+      while (iter1.hasNext()) {
+        childDeps.add(iter1.next());
+      }
 
       var doc = getXmlDocumentFromFile(new File(dep.getDependencyId()));
       getStylesheetDependencies(tok, doc).forEachRemaining(childDeps::add);

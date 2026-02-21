@@ -76,8 +76,13 @@ public class PSFolderDependencyHandler extends PSFolderObjectDependencyHandler {
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    var paths = getChildFolderPaths(getRelationshipProcessor(tok), null);
-    return paths.stream().map(path -> createDeployableElement(m_def, path, path)).iterator();
+    Iterator<String> paths = getChildFolderPaths(getRelationshipProcessor(tok), null);
+    java.util.List<PSDependency> deps = new java.util.ArrayList<>();
+    while (paths.hasNext()) {
+      String path = paths.next();
+      deps.add(createDeployableElement(m_def, path, path));
+    }
+    return deps.iterator();
   }
 
   // see base class
@@ -109,7 +114,7 @@ public class PSFolderDependencyHandler extends PSFolderObjectDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -122,7 +127,7 @@ public class PSFolderDependencyHandler extends PSFolderObjectDependencyHandler {
   static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER;
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSFolderDefDependencyHandler.DEPENDENCY_TYPE);

@@ -81,8 +81,9 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
     return contexts.stream()
         .map(
             context ->
-                createDependency(
-                    m_def, String.valueOf(context.getGUID().longValue()), context.getName()))
+                (PSDependency)
+                    createDependency(
+                        m_def, String.valueOf(context.getGUID().longValue()), context.getName()))
         .iterator();
   }
 
@@ -295,10 +296,14 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
 
     var schemes = m_siteMgr.findSchemesByContextId(context.getGUID());
     var handler = getDependencyHandler(PSLocSchemeDefDependencyHandler.DEPENDENCY_TYPE);
-    return schemes.stream()
-        .map(scheme -> handler.getDependency(tok, String.valueOf(scheme.getGUID().longValue())))
-        .filter(java.util.Objects::nonNull)
-        .toList();
+    var results = new ArrayList<PSDependency>();
+    for (var scheme : schemes) {
+      PSDependency d = handler.getDependency(tok, String.valueOf(scheme.getGUID().longValue()));
+      if (d != null) {
+        results.add(d);
+      }
+    }
+    return results;
   }
 
   /**

@@ -41,7 +41,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 
 /** Class to handle packaging and deploying authtypes. */
@@ -104,19 +103,20 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
     var props = getAuthTypesProps();
     var nameMap = getAuthtypeNames();
 
-    props.entrySet().stream()
-        .map(entry -> Map.entry((String) entry.getKey(), (String) entry.getValue()))
-        .filter(entry -> getAuthType(entry.getKey()) != null)
-        .forEach(
-            entry -> {
-              var authType = getAuthType(entry.getKey());
-              var name = nameMap.getOrDefault(authType, authType);
-              var dep = createDependency(m_def, authType, name);
-              var appDep = getAppDep(tok, entry.getValue());
-              Optional.ofNullable(appDep)
-                  .ifPresent(d -> dep.setDependencyType(d.getDependencyType()));
-              deps.add(dep);
-            });
+    for (var rawEntry : props.entrySet()) {
+      String key = (String) rawEntry.getKey();
+      String value = (String) rawEntry.getValue();
+      if (getAuthType(key) != null) {
+        var authType = getAuthType(key);
+        var name = nameMap.getOrDefault(authType, authType);
+        var dep = createDependency(m_def, authType, name);
+        var appDep = getAppDep(tok, value);
+        if (appDep != null) {
+          dep.setDependencyType(appDep.getDependencyType());
+        }
+        deps.add(dep);
+      }
+    }
 
     return deps.iterator();
   }

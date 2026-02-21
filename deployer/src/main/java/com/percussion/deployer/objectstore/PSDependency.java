@@ -25,6 +25,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -230,7 +231,7 @@ public abstract class PSDependency
    */
   public Iterator<PSDependency> getDependencies(int type) {
     if (m_dependencies == null) {
-      return Optional.empty().stream().iterator();
+      return Collections.emptyIterator();
     }
     return m_dependencies.stream().filter(dep -> dep.getDependencyType() == type).iterator();
   }

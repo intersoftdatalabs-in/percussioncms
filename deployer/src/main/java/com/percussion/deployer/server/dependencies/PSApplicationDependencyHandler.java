@@ -119,18 +119,21 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     childDeps.addAll(getStyleSheetDependencies(tok, dep));
 
     // walk each dataset
-    app.getDataSets().stream()
-        .map(PSDataSet::getPipe)
-        .filter(java.util.Objects::nonNull)
-        .map(PSPipe::getBackEndDataTank)
-        .filter(java.util.Objects::nonNull)
-        .flatMap(tank -> tank.getTables().stream())
-        .map(
-            table ->
-                getDependencyHandler(PSSchemaDependencyHandler.DEPENDENCY_TYPE)
-                    .getDependency(tok, table.getTable()))
-        .filter(java.util.Objects::nonNull)
-        .forEach(childDeps::add);
+    for (var rawDs : app.getDataSets()) {
+      var ds = (PSDataSet) rawDs;
+      var pipe = ds.getPipe();
+      if (pipe == null) continue;
+      var tank = pipe.getBackEndDataTank();
+      if (tank == null) continue;
+      Iterator dsTableIter = tank.getTables().iterator();
+      while (dsTableIter.hasNext()) {
+        var table = (PSBackEndTable) dsTableIter.next();
+        var schemaDep =
+            getDependencyHandler(PSSchemaDependencyHandler.DEPENDENCY_TYPE)
+                .getDependency(tok, table.getTable());
+        if (schemaDep != null) childDeps.add(schemaDep);
+      }
+    }
 
     // get app deps - make a new set so we can avoid adding the parent app
     Set<PSDependency> appDepSet = new HashSet<>();
@@ -245,13 +248,12 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
       var doc = os.getApplicationDoc(dep.getDependencyId(), tok);
       files.add(new PSDependencyFile(PSDependencyFile.TYPE_APPLICATION_XML, createXmlFile(doc)));
 
-      getAppFiles(tok, dep.getDependencyId())
-          .forEachRemaining(
-              appFile -> {
-                var tmpFile = getFileFromApp(tok, dep.getDependencyId(), appFile);
-                files.add(
-                    new PSDependencyFile(PSDependencyFile.TYPE_APPLICATION_FILE, tmpFile, appFile));
-              });
+      Iterator appFilesIter = getAppFiles(tok, dep.getDependencyId());
+      while (appFilesIter.hasNext()) {
+        File appFile = (File) appFilesIter.next();
+        File tmpFile = getFileFromApp(tok, dep.getDependencyId(), appFile);
+        files.add(new PSDependencyFile(PSDependencyFile.TYPE_APPLICATION_FILE, tmpFile, appFile));
+      }
 
       return files.iterator();
     } catch (Exception e) {

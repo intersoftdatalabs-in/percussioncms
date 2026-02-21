@@ -21,11 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test case for the {@link PSIdName} class */
-
 public class PSIdNameTest {
   /** Tests the constructor, and get/set methods. */
   @Test

@@ -248,11 +248,11 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
         Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_PARENT_ID))
             .filter(id -> !id.trim().isEmpty())
             .orElse(null);
-    m_parentType =
-        Optional.ofNullable(m_parentId)
-            .map(
-                id -> PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_PARENT_TYPE))
-            .orElse(null);
+    if (m_parentId != null) {
+      m_parentType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_PARENT_TYPE);
+    } else {
+      m_parentType = null;
+    }
 
     var tree = new PSXmlTreeWalker(sourceNode);
     var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);

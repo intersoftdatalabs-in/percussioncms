@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.catalog;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +28,6 @@ import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSDbmsInfo</code> class. */
 public class PSCatalogResultsTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSCatalogResultsTest(String name) {
-    super(name);
-  }
 
   /**
    * Test constructing all catalog result classes (<code>PSCatalogResultColumn
@@ -41,30 +35,31 @@ public class PSCatalogResultsTest {
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testConstructors() throws Exception {
     // Test PSCatalogResultColumn constructors
     // Should work fine
     assertTrue(testCatalogResultColumnCtor("Name", PSCatalogResultColumn.TYPE_TEXT));
 
     // empty column name, should fail
-    assertTrue(!testCatalogResultColumnCtor("", PSCatalogResultColumn.TYPE_TEXT));
+    assertFalse(testCatalogResultColumnCtor("", PSCatalogResultColumn.TYPE_TEXT));
 
     // invalid type
-    assertTrue(!testCatalogResultColumnCtor("Name", 5));
+    assertFalse(testCatalogResultColumnCtor("Name", 5));
 
     // Test PSCatalogResult constructors
     // Should work fine
     assertTrue(testCatalogResultCtor("Content Editors", "Content Editors"));
 
     // null id, should fail
-    assertTrue(!testCatalogResultCtor(null, "Content Editors"));
+    assertFalse(testCatalogResultCtor(null, "Content Editors"));
 
     // null displaytext, should fail
-    assertTrue(!testCatalogResultCtor("Content Editors", null));
+    assertFalse(testCatalogResultCtor("Content Editors", null));
 
     // Test PSCatalogResultSet, should construct empty results by default
     PSCatalogResultSet resultSet = new PSCatalogResultSet();
-    assertTrue(!resultSet.getResults().hasNext());
+    assertFalse(resultSet.getResults().hasNext());
   }
 
   /**
@@ -106,6 +101,7 @@ public class PSCatalogResultsTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testInterfaceMethods() throws Exception {
     List columns = new ArrayList();
     columns.add(new PSCatalogResultColumn("Name", PSCatalogResultColumn.TYPE_TEXT));
@@ -138,7 +134,7 @@ public class PSCatalogResultsTest {
     oneMore.addNumericColumn(7);
     oneMore.addDateColumn(System.currentTimeMillis());
     resultSet.addResult(oneMore);
-    assertTrue(!resultSet.equals(otherSet));
+    assertFalse(resultSet.equals(otherSet));
 
     otherSet.copyFrom(resultSet);
 
@@ -151,20 +147,12 @@ public class PSCatalogResultsTest {
     testWrongColumns.addDateColumn(System.currentTimeMillis());
     testWrongColumns.addTextColumn("testArchive3");
     testWrongColumns.addNumericColumn(7);
-    assertTrue(!resultSet.validateResultToAdd(testWrongColumns));
+    assertFalse(resultSet.validateResultToAdd(testWrongColumns));
 
     // Tests validation to add a result with columns to the result set which
     // does not support columns.
     PSCatalogResultSet set = new PSCatalogResultSet();
     // should fail as result has columns but set does not support
-    assertTrue(!set.validateResultToAdd(oneMore));
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSCatalogResultsTest("testConstructors"));
-    suite.addTest(new PSCatalogResultsTest("testInterfaceMethods"));
-    return suite;
+    assertFalse(set.validateResultToAdd(oneMore));
   }
 }

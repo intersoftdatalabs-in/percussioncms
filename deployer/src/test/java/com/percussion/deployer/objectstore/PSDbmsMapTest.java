@@ -22,22 +22,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
+import java.nio.file.Path;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSDbmsMapTest</code> class. */
 public class PSDbmsMapTest {
-  @Rule public Path temporaryFolder;
+  @TempDir Path temporaryFolder;
   private String rxdeploydir;
 
   @BeforeEach
   public void setup() throws IOException {
 
     rxdeploydir = System.getProperty("rxdeploydir");
-    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+    System.setProperty("rxdeploydir", temporaryFolder.toFile().getAbsolutePath());
   }
 
   @AfterEach

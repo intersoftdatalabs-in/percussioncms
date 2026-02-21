@@ -26,10 +26,12 @@ import com.percussion.deployer.objectstore.PSIdMapping;
 import com.percussion.deployer.server.IPSJobHandle;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
+import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -125,7 +127,10 @@ public class PSFolderContentsDescriptorBuilder {
 
     var pkg =
         Optional.ofNullable(getTopFolderElement())
-            .orElseThrow(() -> new PSDeployException("Failed to find top-level folder"));
+            .orElseThrow(
+                () ->
+                    new PSDeployException(
+                        IPSDeploymentErrors.UNEXPECTED_ERROR, "Failed to find top-level folder"));
 
     var previousMaxDeps = System.getProperty(IPSDeployConstants.PROP_MAX_DEPS);
     System.setProperty(IPSDeployConstants.PROP_MAX_DEPS, String.valueOf(MAX_DEPS));
@@ -169,8 +174,11 @@ public class PSFolderContentsDescriptorBuilder {
    * @throws PSDeployException
    */
   private PSDeployableElement getTopFolderElement() throws PSDeployException {
-    var deployableElements =
-        m_sourceMgr.getDeployableElements(IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER);
+    @SuppressWarnings("unchecked")
+    Iterator<PSDeployableElement> rawElements =
+        (Iterator<PSDeployableElement>)
+            m_sourceMgr.getDeployableElements(IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER);
+    List<PSDeployableElement> deployableElements = PSIteratorUtils.cloneList(rawElements);
     return deployableElements.stream()
         .filter(element -> m_sourceFolderId.startsWith(element.getDisplayName()))
         .findFirst()
@@ -179,22 +187,22 @@ public class PSFolderContentsDescriptorBuilder {
 
   private void loadChildren(PSDependency dep) throws PSDeployException {
     loadDependencies(dep);
-    dep.getDependencies()
-        .forEachRemaining(
-            childDep -> {
-              if (m_included.containsKey(childDep.getKey())) {
-                if (childDep.canBeIncludedExcluded()) {
-                  childDep.setIsIncluded(true);
-                }
-              } else if (previouslyRemoved(childDep)) {
-                dep.getDependencies().remove();
-              } else if (processDependency(childDep)) {
-                log.debug("removing {}", childDep);
-                dep.getDependencies().remove();
-                rememberRemoval(childDep);
-                m_included.remove(childDep.getKey());
-              }
-            });
+    Iterator<PSDependency> it = dep.getDependencies();
+    while (it.hasNext()) {
+      PSDependency childDep = it.next();
+      if (m_included.containsKey(childDep.getKey())) {
+        if (childDep.canBeIncludedExcluded()) {
+          childDep.setIsIncluded(true);
+        }
+      } else if (previouslyRemoved(childDep)) {
+        it.remove();
+      } else if (processDependency(childDep)) {
+        log.debug("removing {}", childDep);
+        it.remove();
+        rememberRemoval(childDep);
+        m_included.remove(childDep.getKey());
+      }
+    }
   }
 
   /**
@@ -316,7 +324,7 @@ public class PSFolderContentsDescriptorBuilder {
       return true;
     }
     loadDependencies(slot);
-    var slotChildren = slot.getDependencies();
+    List<PSDependency> slotChildren = PSIteratorUtils.cloneList(slot.getDependencies());
     var shouldRemoveSlot =
         slotChildren.stream()
             .filter(
@@ -332,65 +340,73 @@ public class PSFolderContentsDescriptorBuilder {
    * included by fetching dependencies and checking the map
    */
   private boolean shouldRemoveContentItem(PSDependency item) throws PSDeployException {
-    loadDependencies(item);
-    var itemChildren = item.getDependencies();
-    var shouldRemoveItem =
-        itemChildren.stream()
-            .filter(
-                itemChild ->
-                    itemChild
-                        .getObjectType()
-                        .equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_EDITOR))
-            .anyMatch(
-                itemChild -> {
-                  if (m_included.containsKey(itemChild.getKey())) {
-                    include(item);
-                    return false;
-                  } else if (previouslyRemoved(itemChild)) {
-                    return true;
-                  } else {
-                    loadDependencies(itemChild);
-                    var typeChildren = itemChild.getDependencies();
-                    return typeChildren.stream()
-                        .filter(
-                            typeChild ->
-                                typeChild
-                                    .getObjectType()
-                                    .equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_TYPE))
-                        .anyMatch(
-                            typeChild -> {
-                              if (isIdMapped(typeChild)) {
-                                include(item);
-                                m_included.put(itemChild.getKey(), itemChild);
-                                return false;
-                              } else {
-                                rememberRemoval(itemChild);
-                                return true;
-                              }
-                            });
-                  }
-                });
-    if (!shouldRemoveItem) {
-      itemChildren.forEachRemaining(
-          itemChild -> {
-            if (itemChild
-                .getObjectType()
-                .equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_RELATION)) {
-              include(itemChild);
+    try {
+      loadDependencies(item);
+      List<PSDependency> itemChildren = PSIteratorUtils.cloneList(item.getDependencies());
+      var shouldRemoveItem =
+          itemChildren.stream()
+              .filter(
+                  itemChild ->
+                      itemChild
+                          .getObjectType()
+                          .equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_EDITOR))
+              .anyMatch(
+                  itemChild -> {
+                    if (m_included.containsKey(itemChild.getKey())) {
+                      include(item);
+                      return false;
+                    } else if (previouslyRemoved(itemChild)) {
+                      return true;
+                    } else {
+                      try {
+                        loadDependencies(itemChild);
+                      } catch (PSDeployException e) {
+                        throw new RuntimeException(e);
+                      }
+                      List<PSDependency> typeChildren =
+                          PSIteratorUtils.cloneList(itemChild.getDependencies());
+                      return typeChildren.stream()
+                          .filter(
+                              typeChild ->
+                                  typeChild
+                                      .getObjectType()
+                                      .equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_TYPE))
+                          .anyMatch(
+                              typeChild -> {
+                                if (isIdMapped(typeChild)) {
+                                  include(item);
+                                  m_included.put(itemChild.getKey(), itemChild);
+                                  return false;
+                                } else {
+                                  rememberRemoval(itemChild);
+                                  return true;
+                                }
+                              });
+                    }
+                  });
+      if (!shouldRemoveItem) {
+        for (PSDependency itemChild : itemChildren) {
+          if (itemChild
+              .getObjectType()
+              .equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_RELATION)) {
+            include(itemChild);
+            try {
               loadChildren(itemChild);
+            } catch (PSDeployException e) {
+              throw new RuntimeException(e);
             }
-          });
+          }
+        }
+      }
+      return shouldRemoveItem;
+    } catch (RuntimeException e) {
+      if (e.getCause() instanceof PSDeployException) {
+        throw (PSDeployException) e.getCause();
+      }
+      throw e;
     }
-    return shouldRemoveItem;
   }
 
-  /**
-   * Checks if the supplied dependency has already been seen and removed.
-   *
-   * @param dep
-   * @return <code>true</code> if the dependency has already been seen and removed; <code>false
-   *     </code> otherwise.
-   */
   private boolean previouslyRemoved(PSDependency dep) {
     return m_excludedDependencies.contains(dep.getKey());
   }
@@ -521,7 +537,7 @@ public class PSFolderContentsDescriptorBuilder {
    * to the same dependency without children. Assigned in the <code>build()</code> method, never
    * <code>null</code>.
    */
-  private Map m_included;
+  private Map<String, PSDependency> m_included;
 
   /** Counts how many dependencies have been included. */
   private int m_includedCount;
@@ -530,7 +546,7 @@ public class PSFolderContentsDescriptorBuilder {
    * Tracks the dependencies that have been removed, using the dependency key for uniqueness.
    * Assigned in the <code>build()</code> method, never <code>null</code>.
    */
-  private Set m_excludedDependencies;
+  private Set<String> m_excludedDependencies;
 
   /**
    * Full path to the source folder, whose content will be recursively migrated. Assigned in ctor,

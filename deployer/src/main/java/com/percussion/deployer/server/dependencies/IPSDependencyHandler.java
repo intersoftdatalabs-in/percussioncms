@@ -18,6 +18,7 @@
 package com.percussion.deployer.server.dependencies;
 
 import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSIdMap;
 import com.percussion.deployer.objectstore.PSIdMapping;
 import com.percussion.deployer.server.PSArchiveHandler;
@@ -93,7 +94,7 @@ public interface IPSDependencyHandler {
   Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException;
 
-  Iterator<PSDependency> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException;
 
   void installDependencyFiles(

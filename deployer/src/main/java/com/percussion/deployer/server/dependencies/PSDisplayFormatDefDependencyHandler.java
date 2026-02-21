@@ -94,13 +94,14 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
       throw new IllegalArgumentException("tok may not be null");
     }
 
-    var dfs = loadAll(getComponentProcessor(tok));
-    return dfs.stream()
-        .map(
-            df ->
-                createDependency(
-                    m_def, getIdFromKey(df, df.getInternalName()), df.getInternalName()))
-        .iterator();
+    Iterator<PSDisplayFormat> dfs = loadAll(getComponentProcessor(tok));
+    java.util.List<PSDependency> deps = new java.util.ArrayList<>();
+    while (dfs.hasNext()) {
+      PSDisplayFormat df = dfs.next();
+      deps.add(
+          createDependency(m_def, getIdFromKey(df, df.getInternalName()), df.getInternalName()));
+    }
+    return deps.iterator();
   }
 
   // see base class
@@ -142,7 +143,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
 
     var df = loadDisplayFormat(getComponentProcessor(tok), dep.getDependencyId());
     return df != null
-        ? List.of(createDependencyFile(df)).iterator()
+        ? List.<PSDependencyFile>of(createDependencyFile(df)).iterator()
         : List.<PSDependencyFile>of().iterator();
   }
 
@@ -160,7 +161,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
 
     try {
       var files = getDependencyFilesFromArchive(archive, dep);
-      var root = getElementFromFile(archive, dep, files.next());
+      var root = getElementFromFile(archive, dep, (PSDependencyFile) files.next());
       var sourceDispFormat = new PSDisplayFormat(root);
       var newDispFormat = (PSDisplayFormat) sourceDispFormat.clone();
 

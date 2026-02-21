@@ -16,12 +16,15 @@
  */
 package com.percussion.rx.config.impl;
 
+import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDeployableElement;
 import com.percussion.deployer.objectstore.PSExportDescriptor;
 import com.percussion.deployer.server.PSDependencyManager;
 import com.percussion.deployer.server.PSDeploymentHandler;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.tools.PSParseFragments;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -63,14 +66,20 @@ public class PSConfigDefGenerator {
     var dh = PSDeploymentHandler.getInstance();
     var dm = (PSDependencyManager) dh.getDependencyManager();
     var packageName = desc.getName();
-    var it = desc.getPackages();
+    Iterator<PSDeployableElement> it = desc.getPackages();
     var sb = new StringBuilder();
     sb.append(ms_fragments.get("XMLHEAD"));
     while (it.hasNext()) {
-      var el = it.next();
+      PSDeployableElement pe = it.next();
+      if (!(pe instanceof PSDependency)) {
+        continue;
+      }
+      PSDependency el = (PSDependency) pe;
       if (el.getObjectType().equals("Custom")) {
-        var children = el.getDependencies();
-        if (children.hasNext()) el = children.next();
+        Iterator<PSDependency> children = el.getDependencies();
+        if (children.hasNext()) {
+          el = children.next();
+        }
       }
       var oName = el.getDisplayName();
       var typeEnum = dm.getGuidType(el.getObjectType());

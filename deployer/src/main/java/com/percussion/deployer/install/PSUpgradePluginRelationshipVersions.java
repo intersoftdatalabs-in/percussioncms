@@ -52,7 +52,9 @@ public class PSUpgradePluginRelationshipVersions implements IPSUpgradePlugin {
       var cfgDoc = relPlugin.getRelationshipConfigs(logger, conn);
       var cfgSet = relPlugin.getConfigSet(cfgDoc);
 
-      cfgSet.stream()
+      @SuppressWarnings("unchecked")
+      var cfgStream = (java.util.stream.Stream<PSRelationshipConfig>) cfgSet.stream();
+      cfgStream
           .filter(PSRelationshipConfig::isSystem)
           .forEach(
               relConfig -> {
@@ -63,10 +65,11 @@ public class PSUpgradePluginRelationshipVersions implements IPSUpgradePlugin {
 
                   var relName = relConfig.getName();
                   var relGuid = PSIdNameHelper.getGuid(relName, PSTypeEnum.RELATIONSHIP_CONFIGNAME);
+                  var foundElem = pkgInfoSvc.findPkgElementByObject(relGuid);
                   var pkgElem =
-                      Optional.ofNullable(pkgInfoSvc.findPkgElementByObject(relGuid))
-                          .map(pkgInfoSvc::loadPkgElementModifiable)
-                          .orElse(null);
+                      foundElem != null
+                          ? pkgInfoSvc.loadPkgElementModifiable(foundElem.getGuid())
+                          : null;
 
                   if (pkgElem != null) {
                     pkgElem.setVersion(version);

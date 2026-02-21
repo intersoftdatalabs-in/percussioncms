@@ -29,6 +29,7 @@ import java.util.Objects;
  * @version 1.0
  * @since 1.0
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public class PSCollection extends PSConcurrentList {
   /**
    * Construct a collection object to store objects of the specified type.

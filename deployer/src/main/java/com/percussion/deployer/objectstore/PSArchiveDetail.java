@@ -248,17 +248,20 @@ public class PSArchiveDetail implements IPSDeployComponent {
 
     PSArchiveDetail other = (PSArchiveDetail) obj;
     m_exportDescriptor = other.m_exportDescriptor;
-    m_externalDbmsMap = new HashMap();
+    m_externalDbmsMap = new HashMap<>();
     m_externalDbmsMap.putAll(other.m_externalDbmsMap);
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof PSArchiveDetail)) return false;
     PSArchiveDetail that = (PSArchiveDetail) o;
     return Objects.equals(m_exportDescriptor, that.m_exportDescriptor)
-        && PSMapUtils.areEqualWithArrayListValue(m_externalDbmsMap, that.m_externalDbmsMap);
+        && PSMapUtils.areEqualWithArrayListValue(
+            (Map<String, List>) (Map<?, ?>) m_externalDbmsMap,
+            (Map<String, List>) (Map<?, ?>) that.m_externalDbmsMap);
   }
 
   @Override
@@ -279,7 +282,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
 
   /** Ensures the external dbms info map has all packages currently in the export descriptor. */
   private void refreshDbmsInfoMap() {
-    var newMap = new HashMap<String, List<PSDbmsInfo>>();
+    var newMap = new HashMap<String, List<PSDatasourceMap>>();
     m_exportDescriptor
         .getPackages()
         .forEachRemaining(
@@ -310,7 +313,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
    * will contain a list even if it is empty. Contents are initialized during ctor and {@link
    * #fromXml(Element)}, never <code>null</code>.
    */
-  private Map m_externalDbmsMap = new HashMap();
+  private Map<String, List<PSDatasourceMap>> m_externalDbmsMap = new HashMap<>();
 
   // private Xml constants
   private static final String XML_EL_DBMS_INFO_MAP = "DbmsInfoMap";

@@ -93,9 +93,15 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   @Override
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     var sharedDef = PSDependencyUtils.getSharedDef();
-    return sharedDef.getFieldGroups().stream()
-        .map(group -> createDependency(m_def, group.getName(), group.getName()))
-        .iterator();
+    List<PSDependency> deps = new ArrayList<>();
+    Iterator groups = sharedDef.getFieldGroups();
+    while (groups != null && groups.hasNext()) {
+      Object grp = groups.next();
+      // field groups are PSSharedFieldGroup according to PSContentEditorSharedDef
+      String name = ((PSSharedFieldGroup) grp).getName();
+      deps.add(createDependency(m_def, name, name));
+    }
+    return deps.iterator();
   }
 
   // see base class

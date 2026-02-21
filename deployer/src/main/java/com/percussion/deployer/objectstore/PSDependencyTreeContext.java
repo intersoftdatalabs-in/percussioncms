@@ -115,7 +115,7 @@ public class PSDependencyTreeContext {
   public boolean shouldSuppressDependency(PSDependency dep) {
     if (dep == null) throw new IllegalArgumentException("dependency may not be null");
 
-    if (m_dependencySuppressor != null) return m_dependencySuppressor.suppress(dep);
+    if (m_dependencySuppressor != null) return m_dependencySuppressor.suppress(Optional.of(dep));
     else return false;
   }
 
@@ -230,7 +230,7 @@ public class PSDependencyTreeContext {
    *
    * @param ctx The context that has changed, may not be <code>null</code>.
    */
-  private void notifyCtxChangeListeners(PSDependencyContext ctx) {
+  void notifyCtxChangeListeners(PSDependencyContext ctx) {
     if (ctx == null) {
       throw new IllegalArgumentException("ctx may not be null");
     }

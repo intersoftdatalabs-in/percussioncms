@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -24,32 +26,25 @@ import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSIdMapping</code> class. */
 public class PSIdMappingTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSIdMappingTest(String name) {
-    super(name);
-  }
 
   /**
    * Test constructing this object using parameters
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testConstructor() throws Exception {
     // these should work fine
     assertTrue(testCtorValid("sourceId_1", "sourceName_1", "type_1"));
     assertTrue(testCtorValid("sourceId_2", "sourceName_2", "type_2"));
 
     // should be a problem
-    assertTrue(!testCtorValid(null, "foo", "type"));
-    assertTrue(!testCtorValid("", "foo", "type"));
-    assertTrue(!testCtorValid("id", null, "type"));
-    assertTrue(!testCtorValid("id", "", "type"));
-    assertTrue(!testCtorValid("id", "foo", null));
-    assertTrue(!testCtorValid("id", "foo", ""));
+    assertFalse(testCtorValid(null, "foo", "type"));
+    assertFalse(testCtorValid("", "foo", "type"));
+    assertFalse(testCtorValid("id", null, "type"));
+    assertFalse(testCtorValid("id", "", "type"));
+    assertFalse(testCtorValid("id", "foo", null));
+    assertFalse(testCtorValid("id", "foo", ""));
   }
 
   /**
@@ -57,6 +52,7 @@ public class PSIdMappingTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testEquals() throws Exception {
     // testing with PSIdMapping(String, String, String)
     PSIdMapping mapping1 = new PSIdMapping("sourceId_1", "sourceName_1", "type1");
@@ -91,6 +87,7 @@ public class PSIdMappingTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testXml() throws Exception {
     //
     // testing object without targetId and targetName
@@ -103,10 +100,10 @@ public class PSIdMappingTest {
     PSIdMapping tgt = new PSIdMapping(srcEl);
 
     assertTrue(src.equals(tgt));
-    assertTrue(!src.isNewMapping());
+    assertFalse(src.isNewMapping());
 
     src.setIsNewObject(true);
-    assertTrue(!src.equals(tgt));
+    assertFalse(src.equals(tgt));
 
     //
     // testing object with targetId and targetName
@@ -138,8 +135,8 @@ public class PSIdMappingTest {
     PSIdMapping src_new_2 = new PSIdMapping("sourceId_new", "sourceName_new", "type_new");
     src_new_2.setIsNewObject(true);
 
-    assertTrue(!src_new_2.equals(src_new));
-    assertTrue(src_new_2.equals(tgt_new)); // both have NO target id and name
+    assertFalse(src_new_2.equals(src_new));
+    assertEquals(src_new_2, tgt_new); // both have NO target id and name
 
     assertTrue(src_new_2.isNewObject());
     assertTrue(tgt_new.isNewObject());
@@ -159,14 +156,5 @@ public class PSIdMappingTest {
     }
 
     return true;
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSIdMappingTest("testConstructor"));
-    suite.addTest(new PSIdMappingTest("testEquals"));
-    suite.addTest(new PSIdMappingTest("testXml"));
-    return suite;
   }
 }

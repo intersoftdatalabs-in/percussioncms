@@ -78,17 +78,18 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
     var childDeps = new ArrayList<PSDependency>();
     if (parentFolder != null) {
       var translatedFolders = getTranslatedFolderSummaries(proc, parentFolder, relType);
-      translatedFolders.forEach(
-          trans -> {
-            var transFolderPath = getFolderPath(proc, trans);
-            var childDep =
-                getDependencyHandler(PSFolderDefDependencyHandler.DEPENDENCY_TYPE)
-                    .getDependency(tok, transFolderPath);
-            if (childDep != null) {
-              childDep.setDependencyType(dep.getDependencyType());
-              childDeps.add(childDep);
-            }
-          });
+      Iterator<PSComponentSummary> it = translatedFolders.iterator();
+      while (it.hasNext()) {
+        PSComponentSummary trans = it.next();
+        var transFolderPath = getFolderPath(proc, trans);
+        var childDep =
+            getDependencyHandler(PSFolderDefDependencyHandler.DEPENDENCY_TYPE)
+                .getDependency(tok, transFolderPath);
+        if (childDep != null) {
+          childDep.setDependencyType(dep.getDependencyType());
+          childDeps.add(childDep);
+        }
+      }
     }
 
     var relDep =

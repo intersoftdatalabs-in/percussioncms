@@ -181,7 +181,6 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If there are any errors.
    */
-  @Override
   protected Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, String id)
       throws PSDeployException {
     if (tok == null || id == null || id.isBlank()) {

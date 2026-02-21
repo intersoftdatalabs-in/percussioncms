@@ -42,10 +42,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
-import org.junit.jupiter.api.Tag;
 
 /** This is used to test PSServletRequester class */
-
 public class PSServletRequesterTest extends PSWebdavServlet {
 
   // see HttpServlet.service(HttpServletRequest req, HttpServletResponse resp)

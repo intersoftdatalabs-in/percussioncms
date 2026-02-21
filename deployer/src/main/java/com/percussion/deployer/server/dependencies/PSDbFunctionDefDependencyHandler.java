@@ -24,9 +24,7 @@ import com.percussion.error.PSDeployException;
 import com.percussion.extension.PSDatabaseFunction;
 import com.percussion.extension.PSDatabaseFunctionManager;
 import com.percussion.security.PSSecurityToken;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.Iterator;
-import java.util.stream.StreamSupport;
 
 /**
  * Class to handle discovering database function definitions as dependencies. Database functions are
@@ -56,7 +54,7 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
       throw new IllegalArgumentException("dep wrong type");
 
     // no child types
-    return PSIteratorUtils.emptyIterator();
+    return java.util.Collections.emptyIterator();
   }
 
   // see base class
@@ -64,9 +62,15 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     var mgr = PSDatabaseFunctionManager.getInstance();
-    var funcs = mgr.getDatabaseFunctions(ALL_FUNC_TYPES);
+    @SuppressWarnings("unchecked")
+    Iterator<PSDatabaseFunction> funcs =
+        (Iterator<PSDatabaseFunction>) mgr.getDatabaseFunctions(ALL_FUNC_TYPES);
 
-    return StreamSupport.stream(funcs.spliterator(), false).map(this::createDependency).iterator();
+    var deps = new java.util.HashSet<PSDependency>();
+    while (funcs.hasNext()) {
+      deps.add(createDependency(funcs.next()));
+    }
+    return deps.iterator();
   }
 
   // see base class
@@ -91,8 +95,8 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
    *
    * @return An empty iterator, never <code>null</code>.
    */
-  public Iterator getChildTypes() {
-    return PSIteratorUtils.emptyIterator();
+  public Iterator<String> getChildTypes() {
+    return java.util.Collections.emptyIterator();
   }
 
   /**

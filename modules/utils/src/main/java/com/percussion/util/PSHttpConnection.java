@@ -83,7 +83,7 @@ public class PSHttpConnection {
    *
    * @throws IOException if an error occurs during send/receive data
    */
-  public String postData(URL url, Map paramMap) throws IOException, PSException {
+  public String postData(URL url, Map<String, String> paramMap) throws IOException, PSException {
     if (url == null) throw new IllegalArgumentException("url may not be null");
     if (paramMap == null) throw new IllegalArgumentException("paramMap may not be null");
 
@@ -117,13 +117,13 @@ public class PSHttpConnection {
 
     StringBuilder data = new StringBuilder(100);
     if (!paramMap.isEmpty()) {
-      Iterator i = paramMap.keySet().iterator();
+      Iterator<String> i = paramMap.keySet().iterator();
       while (i.hasNext()) {
-        String key = (String) i.next();
+        String key = i.next();
         Object obj = paramMap.get(key);
-        if (obj instanceof List) // deal with multivalued param
+        if (obj instanceof List<?>) // deal with multivalued param
         {
-          List vals = (List) obj;
+          List<?> vals = (List<?>) obj;
           for (int ii = 0; ii < vals.size(); ii++) {
             data.append(boundaryUsed + "\r\n");
             data.append(prefix + key + "\"\r\n\r\n");
@@ -199,14 +199,14 @@ public class PSHttpConnection {
    * @param paramsMap The to be examed parameters, assume not <code>null</code>.
    * @return The unique boundary string.
    */
-  private String getBoundary(Map paramsMap) {
+  private String getBoundary(Map<String, String> paramsMap) {
     String boundary = ms_boundary;
     boolean done = false;
 
     while (!done) {
-      Iterator values = paramsMap.values().iterator();
+      Iterator<String> values = paramsMap.values().iterator();
       while (values.hasNext()) {
-        String value = values.next().toString();
+        String value = values.next();
         if (value.indexOf(boundary) >= 0) // if not unique, get new one
         { // and try again
           boundary = getNewBoundary(boundary);

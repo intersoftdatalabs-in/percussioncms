@@ -99,8 +99,10 @@ public class PSIdTypeManager {
     var filterCache = new HashMap<String, List<String>>();
     var extensionDefCache = new HashMap<String, IPSExtensionDef>();
 
-    deps.forEachRemaining(
-        dep -> typeList.add(loadIdTypes(tok, dep, true, filterCache, extensionDefCache)));
+    while (deps.hasNext()) {
+      PSDependency dep = deps.next();
+      typeList.add(loadIdTypes(tok, dep, true, filterCache, extensionDefCache));
+    }
     return typeList.iterator();
   }
 
