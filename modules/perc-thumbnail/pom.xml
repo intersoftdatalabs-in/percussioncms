@@ -9,10 +9,6 @@
     </parent>
     <artifactId>perc-thumbnail</artifactId>
     <version>8.2.0-SNAPSHOT</version>
-    <properties>
-        <version.arquillian>1.10.0.Final</version.arquillian>
-        <version.shrinkwrap>1.0.0-cr-3</version.shrinkwrap>
-    </properties>
     <dependencies>
         <!-- core libraries -->
         <dependency>
