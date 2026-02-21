@@ -680,19 +680,7 @@
                                 <exclude>jslibMin</exclude>
                             </excludes>
                         </resource>
-                        <resource>
-                            <directory>../cui</directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath>cm/cui</targetPath>
-                            <!-- enable filtering -->
-                            <filtering>false</filtering>
-                            <excludes>
-                                <exclude>**/components/jasmine/**</exclude>
-                                <exclude>**/components/jasmine-jquery/**</exclude>
-                                <exclude>**/test/**</exclude>
-                                <exclude>**/node_modules/**</exclude>
-                            </excludes>
-                        </resource>
+                        <!-- cui content is now in war/cui/ and copied via the war/ resource above -->
                         <resource>
                             <directory>war/WEB-INF</directory>
                             <targetPath>WEB-INF</targetPath>

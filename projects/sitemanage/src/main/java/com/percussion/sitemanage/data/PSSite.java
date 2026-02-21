@@ -57,8 +57,8 @@ public class PSSite extends PSSiteSummary implements IPSFolderPath {
   }
 
   @Override
-  public String getDescription() {
-    return description;
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
   }
 
   @Override
@@ -80,8 +80,8 @@ public class PSSite extends PSSiteSummary implements IPSFolderPath {
    */
   @Override
   @Deprecated
-  public String getDefaultFileExtention() {
-    return defaultFileExtension;
+  public Optional<String> getDefaultFileExtention() {
+    return Optional.ofNullable(defaultFileExtension);
   }
 
   /**

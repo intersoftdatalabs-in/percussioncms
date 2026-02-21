@@ -131,6 +131,16 @@ public interface IPSPublisherService extends IPSCataloger {
     }
 
     /**
+     * Get the number of last published items for the given site and set of content
+     * ids.  This mirrors the implementation in {@code PSPublisherService}.
+     *
+     * @param siteId the site GUID, not {@code null}
+     * @param contentIds a collection of content ids, not {@code null}
+     * @return the number of last published items for the supplied site
+     */
+    int findLastPublishedItemsBySite(IPSGuid siteId, Collection<Integer> contentIds);
+
+    /**
      * Load the content list specified by the ID. The returned object should be
      * treated as an immutable object and may not be saved by calling
      * {@link #saveContentList(IPSContentList)}.

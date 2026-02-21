@@ -200,6 +200,13 @@ public interface IPSWorkflowService {
     }
 
     /**
+     * Get the name of the default workflow configured in the system.
+     *
+     * @return workflow name never {@code null} or empty
+     */
+    String getDefaultWorkflowName();
+
+    /**
      * Save the designated workflow. Only used for testing at this point.
      * For internal use only.
      *

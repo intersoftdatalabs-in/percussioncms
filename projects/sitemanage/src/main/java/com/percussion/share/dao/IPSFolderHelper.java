@@ -286,7 +286,9 @@ public interface IPSFolderHelper {
     public PathTarget(String path, IPSItemSummary item) {
       this(path);
       this.item = item;
-      this.targetType = item.isFolder() ? PathTargetType.FOLDER : PathTargetType.ITEM;
+      this.targetType = item.getCategory() == IPSItemSummary.Category.FOLDER
+          ? PathTargetType.FOLDER
+          : PathTargetType.ITEM;
     }
 
     /**
