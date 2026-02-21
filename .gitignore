@@ -11,6 +11,7 @@ system/.settings/*
 spotless-index-file
 bin/
 target/
+node_modules/
 *.iml
 *.ipr
 *.iws
@@ -22,7 +23,7 @@ derby.log
 null
 undefined
 build.log
-**/*.log 
+**/*.log
 ${sys:catalina.base}/
 **/*/refactored-java11-packages.txt
 **/*.*~

@@ -1,10 +1,26 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 function percTinyMceInitialized(tinymceEditor) {
   var mainEditor = window.parent;
 
   if (!mainEditor.jQuery) return;
   var topFrJQ = mainEditor.jQuery;
   if (topFrJQ.PercDirtyController) {
-    dirtyController = topFrJQ.PercDirtyController;
+    var dirtyController = topFrJQ.PercDirtyController;
     // if user types into tiny mce, the asset is dirty until saved
     tinymceEditor.on("keypress", function () {
       dirtyController.setDirty(true, "asset");
@@ -14,11 +30,11 @@ function percTinyMceInitialized(tinymceEditor) {
 
   // This event listener creates a tooltip when hovering over a broken image
   tinymceEditor.on("MouseOver", function (e) {
-    $target = $(e.target);
+    var $target = $(e.target);
     if ($target.is(".perc-brokenlink, .perc-notpubliclink")) {
-      $itemTarget = $target;
-      itemJcrPath = $itemTarget.data("jcrpath");
-      itemObject = $itemTarget.data("pathitem");
+      var $itemTarget = $target;
+      var itemJcrPath = $itemTarget.data("jcrpath");
+      var itemObject = $itemTarget.data("pathitem");
     }
   });
 
@@ -59,19 +75,17 @@ function percTinyMceInitialized(tinymceEditor) {
 }
 
 function openEditor(itemObject, itemJcrPath) {
-  editorUrl = buildEditorUrl(itemObject, itemJcrPath);
+  var editorUrl = buildEditorUrl(itemObject, itemJcrPath);
   window.open(editorUrl);
 }
 
 function buildEditorUrl(itemObject, itemJcrPath) {
-  itemId = itemObject.id;
-  itemName = itemObject.name;
-  itemPath = encodeURIComponent(itemJcrPath);
-  itemView = itemObject.type == "percPage" ? "editor" : "editAsset";
+  var itemId = itemObject.id;
+  var itemName = itemObject.name;
+  var itemPath = encodeURIComponent(itemJcrPath);
+  var itemView = itemObject.type === "percPage" ? "editor" : "editAsset";
 
-  url = `/cm/app?view=${itemView}&mode=readonly&id=${itemId}&name=${itemName}&path=${itemPath}`;
-
-  return url;
+  return `/cm/app?view=${itemView}&mode=readonly&id=${itemId}&name=${itemName}&path=${itemPath}`;
 }
 
 function mergeConfig(options, url) {
@@ -95,7 +109,7 @@ function mergeConfig(options, url) {
                 $.inArray(options.typeName, item.fields) >= 0 ||
                 $.inArray(
                   options.typeName + "." + options.fieldName,
-                  item.fields
+                  item.fields,
                 ) >= 0)
             ) {
               config = $.extend({}, config, item);
@@ -113,7 +127,7 @@ function mergeConfig(options, url) {
             config.external_plugins = $.extend(
               {},
               config.external_plugins,
-              external_plugins
+              external_plugins,
             );
           }
         }
@@ -188,7 +202,9 @@ function getBaseConfig(parameters) {
         style_formats_merge: true,
         style_formats: styleFormats,
         autosave_restore_when_empty: false,
-        init_instance_callback: "percTinyMceInitialized",
+        // Pass the callback as a direct function reference — avoids a global
+        // name lookup and works correctly in strict mode.
+        init_instance_callback: percTinyMceInitialized,
         file_picker_callback: function (callback, value, meta) {
           var mainEditor = window.parent;
           var topFrJQ = mainEditor.jQuery;
@@ -219,7 +235,7 @@ function getBaseConfig(parameters) {
 
             filePickerDialog = topFrJQ.PercPathSelectionDialog.open(
               pathSelectionOptions,
-              callback
+              callback,
             );
           }
 
@@ -227,12 +243,12 @@ function getBaseConfig(parameters) {
           if (meta.filetype == "image") {
             var openCreateImageDialog = function (
               successCallback,
-              cancelCallback
+              cancelCallback,
             ) {
               $.topFrameJQuery.PercCreateNewAssetDialog(
                 "percImage",
                 successCallback,
-                cancelCallback
+                cancelCallback,
               );
             };
             var validator = function (pathItem) {
@@ -256,67 +272,65 @@ function getBaseConfig(parameters) {
               },
             };
             imagePickerDialog = topFrJQ.PercPathSelectionDialog.open(
-              pathSelectionOptions2
+              pathSelectionOptions2,
             );
           }
         },
         convert_urls: false,
       },
-      options
+      options,
     );
     console.log(
-      "From base config=" + JSON.stringify(mergedBaseOptions, null, 2)
+      "From base config=" + JSON.stringify(mergedBaseOptions, null, 2),
     );
 
     resolve(mergedBaseOptions);
   });
 }
 
+/**
+ * Resolves custom style formats for the editor.
+ * Custom styles should now be defined directly in
+ * rx_resources/tinymce/config/customer_config_override.json using the
+ * TinyMCE 'style_formats' option. The deprecated PercCustomStylesService
+ * (a server-side REST call) has been removed.
+ */
 function getStyles(options) {
-  return new Promise(function (resolve, reject) {
-    if (options.readonly) {
-      resolve([options, []]);
-    } else {
-      $.PercCustomStyleService.getCustomStyles(function (status, result) {
-        styleFormats = status ? result : [];
-        resolve([options, styleFormats]);
-      });
-    }
-  });
+  return Promise.resolve([options, []]);
 }
 
 function perc_tinymce_init(options) {
-  load_type_config = function (options) {
+  var load_type_config = function (options) {
     console.log("load type config=" + JSON.stringify(options, null, 2));
     return mergeConfig(options, options.perc_config);
   };
 
-  load_user_config = function (options) {
+  var load_user_config = function (options) {
     console.log("load user config=" + JSON.stringify(options, null, 2));
     return mergeConfig(
       options,
-      "../rx_resources/tinymce/config/customer_config_override.json"
+      "../rx_resources/tinymce/config/customer_config_override.json",
     );
   };
 
-  fail_type_config = function (options) {
+  var fail_type_config = function (options) {
     return new Promise(function (resolve, reject) {
       alert(options.error);
       reject(options);
     });
   };
 
-  fail_user_config = function (options) {
+  var fail_user_config = function (options) {
     return new Promise(function (resolve, reject) {
       alert(options.error);
       resolve(options);
     });
   };
 
-  init_tinymce = function (options) {
+  var init_tinymce = function (options) {
     return new Promise(function (resolve, reject) {
       console.log(
-        "Effective TinyMCE config1=" + JSON.stringify(options, null, 2)
+        "Effective TinyMCE config1=" + JSON.stringify(options, null, 2),
       );
       tinyMCE.init(options);
       resolve();
