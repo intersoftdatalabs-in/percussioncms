@@ -17,6 +17,8 @@
 
 package com.percussion.category.web.service;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.marshaller.PSCategoryMarshaller;
 import com.percussion.category.marshaller.PSCategoryUnMarshaller;
@@ -25,7 +27,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PSJerseyRestClientTest {
 

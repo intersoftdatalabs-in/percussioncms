@@ -21,11 +21,9 @@ package com.percussion.monitor.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for monitor service. Sunny Sal says: "Testing monitors, Bollywood style!" */
-
 public class PSMonitorServiceTest {
 
   @Test

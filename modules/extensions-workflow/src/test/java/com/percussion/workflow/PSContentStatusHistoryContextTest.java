@@ -25,13 +25,11 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Tag;
 
 /**
  * The PSContentStatusHistoryContextTest class is a test class for the class
  * PSContentStatusHistoryContext
  */
-
 public class PSContentStatusHistoryContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSContentStatusHistoryContextTest.class);

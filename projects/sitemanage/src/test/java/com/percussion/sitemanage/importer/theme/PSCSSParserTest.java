@@ -33,14 +33,12 @@ import java.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Tag;
 
 /**
  * Unit tests for PSCSSParser.
  *
  * @author Ignacio Erro, Sunny Sal (refactored)
  */
-
 class PSCSSParserTest {
 
   private static final String BASE_URL = "http://generic:8080";

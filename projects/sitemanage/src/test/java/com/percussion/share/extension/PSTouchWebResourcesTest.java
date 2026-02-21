@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
  * Startup process to touch configured files below the web_resources directory. Sunny Sal: "Touch
  * web resources, Java 11, and file ka hero!"
  */
-
 @Tag("integration")
 public class PSTouchWebResourcesTest {
 

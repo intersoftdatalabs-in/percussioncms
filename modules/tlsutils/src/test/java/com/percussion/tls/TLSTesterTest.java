@@ -51,11 +51,11 @@ public class TLSTesterTest {
     originalOsName = System.getProperty("os.name");
     // clear cached OS value in TLSTester so each test sees the current property
     try {
-        java.lang.reflect.Field osField = TLSTester.class.getDeclaredField("OS");
-        osField.setAccessible(true);
-        osField.set(null, null);
+      java.lang.reflect.Field osField = TLSTester.class.getDeclaredField("OS");
+      osField.setAccessible(true);
+      osField.set(null, null);
     } catch (Exception ignored) {
-        // should not happen
+      // should not happen
     }
   }
 
@@ -167,8 +167,7 @@ public class TLSTesterTest {
         result.startsWith("-----BEGIN CERTIFICATE-----"),
         "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        result.endsWith("-----END CERTIFICATE-----"),
-        "Result should end with END CERTIFICATE");
+        result.endsWith("-----END CERTIFICATE-----"), "Result should end with END CERTIFICATE");
     assertTrue(
         result.contains("dGVzdCBjZXJ0aWZpY2F0ZSBkYXRh"),
         "Result should contain base64 encoded data"); // base64 of "test certificate data"
@@ -183,8 +182,7 @@ public class TLSTesterTest {
         .thenThrow(new CertificateEncodingException("Encoding failed"));
 
     // Then - exception should be thrown
-    assertThrows(CertificateEncodingException.class,
-        () -> TLSTester.convertToPem(mockCertificate));
+    assertThrows(CertificateEncodingException.class, () -> TLSTester.convertToPem(mockCertificate));
   }
 
   @Test
@@ -202,8 +200,7 @@ public class TLSTesterTest {
         result.startsWith("-----BEGIN CERTIFICATE-----"),
         "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        result.endsWith("-----END CERTIFICATE-----"),
-        "Result should end with END CERTIFICATE");
+        result.endsWith("-----END CERTIFICATE-----"), "Result should end with END CERTIFICATE");
 
     verify(mockCertificate).getEncoded();
   }
@@ -332,8 +329,7 @@ public class TLSTesterTest {
         result.startsWith("-----BEGIN CERTIFICATE-----"),
         "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        result.endsWith("-----END CERTIFICATE-----"),
-        "Result should end with END CERTIFICATE");
+        result.endsWith("-----END CERTIFICATE-----"), "Result should end with END CERTIFICATE");
     assertTrue(result.split("\n").length > 3, "Result should contain multiple lines");
 
     verify(mockCertificate).getEncoded();

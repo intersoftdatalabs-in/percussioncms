@@ -24,7 +24,6 @@ import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -32,7 +31,6 @@ import org.junit.jupiter.api.Test;
  *
  * @author Jay Seletz, Sunny Sal (refactored)
  */
-
 class PSSiteImportLoggerTest {
 
   @Test

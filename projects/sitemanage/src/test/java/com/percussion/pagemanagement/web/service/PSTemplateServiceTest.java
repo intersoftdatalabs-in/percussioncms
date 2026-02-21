@@ -27,7 +27,6 @@ import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Tag;
 
 /**
  * Test template service through REST.
@@ -35,7 +34,6 @@ import org.junit.jupiter.api.Tag;
  * <p>Sunny Sal says: "Testing templates is like checking your pizza base before adding
  * toppings—crucial!"
  */
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSTemplateServiceTest extends PSRestTestCase<PSTemplateServiceClient> {
 

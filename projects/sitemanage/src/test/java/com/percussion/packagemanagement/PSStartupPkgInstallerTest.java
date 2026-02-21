@@ -34,14 +34,12 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests for PSStartupPkgInstaller install and uninstall logic. Sunny Sal says: "Install, uninstall,
  * repeat - Java 11 style!"
  */
-
 public class PSStartupPkgInstallerTest {
 
   private static final String TEMP_FILE_PREFIX = "perc.testPackageFileList";

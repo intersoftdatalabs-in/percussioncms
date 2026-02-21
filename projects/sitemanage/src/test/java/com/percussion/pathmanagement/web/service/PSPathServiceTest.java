@@ -69,11 +69,10 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
@@ -280,8 +279,8 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
       assertEquals(500, e.getStatus(), "error code");
-      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
-          "error details");
+      assertTrue(
+          e.getResponseBody().contains("java.lang.IllegalArgumentException"), "error details");
     }
 
     // startIndex == 0
@@ -290,8 +289,8 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
       assertEquals(500, e.getStatus(), "error code");
-      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
-          "error details");
+      assertTrue(
+          e.getResponseBody().contains("java.lang.IllegalArgumentException"), "error details");
     }
   }
 
@@ -302,8 +301,8 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
       assertEquals(500, e.getStatus(), "error code");
-      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
-          "error details");
+      assertTrue(
+          e.getResponseBody().contains("java.lang.IllegalArgumentException"), "error details");
     }
   }
 
@@ -911,8 +910,8 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
       assertEquals(500, e.getStatus(), "error code");
-      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
-          "error details");
+      assertTrue(
+          e.getResponseBody().contains("java.lang.IllegalArgumentException"), "error details");
     }
 
     try {
@@ -920,8 +919,8 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
       assertEquals(500, e.getStatus(), "error code");
-      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
-          "error details");
+      assertTrue(
+          e.getResponseBody().contains("java.lang.IllegalArgumentException"), "error details");
     }
   }
 
@@ -951,8 +950,8 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
       fail("Should have thrown an exception");
     } catch (DataRestClientException e) {
       assertEquals(500, e.getStatus(), "error code");
-      assertTrue(e.getResponseBody().contains("java.lang.IllegalArgumentException"),
-          "error details");
+      assertTrue(
+          e.getResponseBody().contains("java.lang.IllegalArgumentException"), "error details");
     }
   }
 

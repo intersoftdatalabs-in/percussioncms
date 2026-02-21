@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
  * Integration test for Recent REST Service. Sunny Sal: "REST assured, this test will be completed
  * soon!"
  */
-
 @Tag("integration")
 public class PSRecentRestServiceTest extends PSRestClientTestCase {
 

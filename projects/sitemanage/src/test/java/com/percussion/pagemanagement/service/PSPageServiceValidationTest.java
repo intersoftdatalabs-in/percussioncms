@@ -53,7 +53,6 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -64,7 +63,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(MockitoExtension.class)
 @Disabled
-
 public class PSPageServiceValidationTest {
 
   private Mockery context = new JUnit4Mockery();

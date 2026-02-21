@@ -113,7 +113,7 @@ public class ApiUtils {
   }
 
   public static IPSGuid convertGuid(Guid guid) {
-    return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue());
+    return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue().orElse(null));
   }
 
   /***
@@ -125,17 +125,22 @@ public class ApiUtils {
     Community ret =
         new Community(
             c.getId(), convertGuid(c.getGUID()), c.getName(), c.getDescription(), c.getLabel());
+    // unwrap Optional GUID for convenience
+    var optGuid = ret.getGuid().orElse(null);
 
     ArrayList<CommunityRole> roles = new ArrayList<>();
-    for (IPSGuid ipsGuid : c.getRoleAssociations()) {
-      CommunityRole assoc = new CommunityRole();
-      IPSGuid roleGuid = ipsGuid;
-      assoc.setCommunityGuid(ret.getGuid());
-      assoc.setCommunityid(ret.getGuid().getLongValue());
-      assoc.setRoleId(roleGuid.longValue());
-      assoc.setRoleGuid(convertGuid(roleGuid));
-      roles.add(assoc);
-    }
+    // handle optional role list from PSCommunity
+    c.getRoleAssociations()
+        .forEach(
+            ipsGuid -> {
+              CommunityRole assoc = new CommunityRole();
+              IPSGuid roleGuid = ipsGuid;
+              assoc.setCommunityGuid(optGuid);
+              assoc.setCommunityid(optGuid != null ? optGuid.getLongValue() : 0L);
+              assoc.setRoleId(roleGuid.longValue());
+              assoc.setRoleGuid(convertGuid(roleGuid));
+              roles.add(assoc);
+            });
     ret.setRoleList(new CommunityRoleList(roles));
 
     return ret;

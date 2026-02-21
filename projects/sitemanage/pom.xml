@@ -155,9 +155,11 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
+        <!-- jakarta.inject API is needed by several exception mapper classes -->
         <dependency>
-            <groupId>se.fishtank</groupId>
-            <artifactId>css-selectors</artifactId>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>${jakarta.inject.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>

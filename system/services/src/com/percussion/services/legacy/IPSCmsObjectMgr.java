@@ -25,6 +25,7 @@ import com.percussion.i18n.PSLocale;
 import com.percussion.server.PSPersistentPropertyMeta;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.data.IPSIdentifiableItem;
+import com.percussion.services.menus.PSActionMenu;
 import com.percussion.services.relationship.data.PSRelationshipConfigName;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
@@ -194,6 +195,16 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
      * @throws PSORMException if there is a problem in the data persistence layer
      */
     Stream<PSComponentSummary> findComponentSummariesByType(long contentType) throws PSORMException;
+
+    /**
+     * Retrieve all available action menus.  This method was added to support
+     * the legacy helpers used by sitemanage module.  The menus are represented by
+     * {@link com.percussion.services.menus.PSActionMenu}, which lives in the
+     * <code>services</code> package rather than the old cms.objectstore namespace.
+     *
+     * @return never {@code null}
+     */
+    List<PSActionMenu> findActionMenus();
 
     /**
      * Finds content IDs by content type with Stream support.
