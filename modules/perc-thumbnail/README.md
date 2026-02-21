@@ -31,7 +31,7 @@ screenshotCommandLine=<command> @@file@@ @@url@@
   image.
 * `@@url@@` will be replaced with the web address to capture.
 
-For example, using the open‑source `wkhtmltoimage` tool:
+For example, using the open-source `wkhtmltoimage` tool:
 
 ```bash
 screenshotCommandLine=/usr/local/bin/wkhtmltoimage --width 300 --height 200 "@@url@@" "@@file@@"
