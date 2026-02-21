@@ -16,6 +16,8 @@
  */
 package com.percussion.rx.config.test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.rx.config.impl.PSConfigNormalizer;
 import com.percussion.utils.types.PSPair;
 import java.io.InputStream;
@@ -26,6 +28,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests {@link PSConfigNormalizer}
@@ -39,10 +42,12 @@ public class PSConfigNormalizerTest {
    * @throws Exception if an error occurs.
    */
   @SuppressWarnings("unchecked")
+  @Test
   public void testLocalConfigTest() throws Exception {
     loadLocalConfigTest(true);
   }
 
+  @Test
   public void testLocalConfigTest_2() throws Exception {
     loadLocalConfigTest(false);
   }
@@ -79,9 +84,9 @@ public class PSConfigNormalizerTest {
     String KEY3 = "com.percussion.Smog.LosAngeles";
     String VALUE3 = "Bad";
 
-    assertTrue(props.get(KEY1).equals(VALUE1));
-    assertTrue(props.get(KEY2).equals(VALUE2));
-    assertTrue(props.get(KEY3).equals(VALUE3));
+    assertEquals(VALUE1, props.get(KEY1));
+    assertEquals(VALUE2, props.get(KEY2));
+    assertEquals(VALUE3, props.get(KEY3));
 
     // Properties in 2nd solution ----------------------
     //
@@ -97,9 +102,9 @@ public class PSConfigNormalizerTest {
     String VALUE4_2 = "value3";
 
     List<String> valueList = (List<String>) props.get(KEY4);
-    assertTrue(valueList.get(0).equals(VALUE4_0));
-    assertTrue(valueList.get(1).equals(VALUE4_1));
-    assertTrue(valueList.get(2).equals(VALUE4_2));
+    assertEquals(VALUE4_0, valueList.get(0));
+    assertEquals(VALUE4_1, valueList.get(1));
+    assertEquals(VALUE4_2, valueList.get(2));
 
     // Property Pair List --------------------------------------------
     //
@@ -112,12 +117,12 @@ public class PSConfigNormalizerTest {
     String VALUE5_PAIR2_VALUE1 = "3";
 
     List<PSPair> valueList2 = (List<PSPair>) props.get(KEY5);
-    assertTrue(valueList2.get(0).getFirst().equals(VALUE5_PAIR0_VALUE0));
-    assertTrue(valueList2.get(0).getSecond().equals(VALUE5_PAIR0_VALUE1));
-    assertTrue(valueList2.get(1).getFirst().equals(VALUE5_PAIR1_VALUE0));
-    assertTrue(valueList2.get(1).getSecond().equals(VALUE5_PAIR1_VALUE1));
-    assertTrue(valueList2.get(2).getFirst().equals(VALUE5_PAIR2_VALUE0));
-    assertTrue(valueList2.get(2).getSecond().equals(VALUE5_PAIR2_VALUE1));
+    assertEquals(VALUE5_PAIR0_VALUE0, valueList2.get(0).getFirst());
+    assertEquals(VALUE5_PAIR0_VALUE1, valueList2.get(0).getSecond());
+    assertEquals(VALUE5_PAIR1_VALUE0, valueList2.get(1).getFirst());
+    assertEquals(VALUE5_PAIR1_VALUE1, valueList2.get(1).getSecond());
+    assertEquals(VALUE5_PAIR2_VALUE0, valueList2.get(2).getFirst());
+    assertEquals(VALUE5_PAIR2_VALUE1, valueList2.get(2).getSecond());
 
     // Simple PropertySet containing Simple Properties ----------------------
     //

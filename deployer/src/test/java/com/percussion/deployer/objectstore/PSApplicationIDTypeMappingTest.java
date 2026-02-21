@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.deployer.objectstore.idtypes.PSAppCEItemIdContext;
 import com.percussion.deployer.objectstore.idtypes.PSApplicationIdContext;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -26,20 +28,13 @@ import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSApplicationIDTypeMapping</code> class. */
 public class PSApplicationIDTypeMappingTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSApplicationIDTypeMappingTest(String name) {
-    super(name);
-  }
 
   /**
    * Test constructing this object using parameters
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testConstructor() throws Exception {
 
     // these should work fine
@@ -50,11 +45,11 @@ public class PSApplicationIDTypeMappingTest {
     assertTrue(testCtorValid(ctx2, "value_2", "type_2"));
 
     // should be a problem
-    assertTrue(!testCtorValid(null, "foo", "type"));
-    assertTrue(!testCtorValid(ctx1, null, "type"));
-    assertTrue(!testCtorValid(ctx1, "", "type"));
-    assertTrue(!testCtorValid(ctx1, "foo", null));
-    assertTrue(!testCtorValid(ctx1, "foo", ""));
+    assertFalse(testCtorValid(null, "foo", "type"));
+    assertFalse(testCtorValid(ctx1, null, "type"));
+    assertFalse(testCtorValid(ctx1, "", "type"));
+    assertFalse(testCtorValid(ctx1, "foo", null));
+    assertFalse(testCtorValid(ctx1, "foo", ""));
   }
 
   /**
@@ -62,6 +57,7 @@ public class PSApplicationIDTypeMappingTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testEquals() throws Exception {
 
     PSAppCEItemIdContext ctx1 = new PSAppCEItemIdContext(PSAppCEItemIdContext.TYPE_DEFAULT_VALUE);
@@ -76,22 +72,22 @@ public class PSApplicationIDTypeMappingTest {
     assertNull(mapping1.getParentType());
     assertNull(mapping2.getParentType());
     mapping2.setParent("35", "WorkflowDef");
-    assertTrue(!mapping1.equals(mapping2));
+    assertFalse(mapping1.equals(mapping2));
 
     mapping1.setParent("35", "WorkflowDef");
     assertEquals(mapping1, mapping2);
     assertEquals(mapping1.getParentId(), mapping2.getParentId());
     assertEquals(mapping1.getParentType(), mapping2.getParentType());
     mapping1.setParent(null, null);
-    assertTrue(!mapping1.equals(mapping2));
+    assertFalse(mapping1.equals(mapping2));
     mapping2.setParent(null, null);
     assertEquals(mapping1, mapping2);
 
     mapping2 = new PSApplicationIDTypeMapping(ctx2, "value_2");
-    assertTrue(!mapping1.equals(mapping2));
+    assertFalse(mapping1.equals(mapping2));
 
     // check defined/undefined type
-    assertTrue(!mapping1.hasDefinedType());
+    assertFalse(mapping1.hasDefinedType());
 
     mapping1.setType("type_2");
     assertTrue(mapping1.hasDefinedType());
@@ -102,11 +98,12 @@ public class PSApplicationIDTypeMappingTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testTypeMapping() throws Exception {
     PSAppCEItemIdContext ctx1 = new PSAppCEItemIdContext(PSAppCEItemIdContext.TYPE_DEFAULT_VALUE);
     PSApplicationIDTypeMapping mapping1 = new PSApplicationIDTypeMapping(ctx1, "value_1");
 
-    assertTrue(!mapping1.hasDefinedType());
+    assertFalse(mapping1.hasDefinedType());
 
     mapping1.setType("type_1");
     assertTrue(mapping1.hasDefinedType());
@@ -117,6 +114,7 @@ public class PSApplicationIDTypeMappingTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testXml() throws Exception {
     PSAppCEItemIdContext ctx1 = new PSAppCEItemIdContext(PSAppCEItemIdContext.TYPE_DEFAULT_VALUE);
     PSApplicationIDTypeMapping src = new PSApplicationIDTypeMapping(ctx1, "value_1");
@@ -148,15 +146,5 @@ public class PSApplicationIDTypeMappingTest {
     }
 
     return true;
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSApplicationIDTypeMappingTest("testConstructor"));
-    suite.addTest(new PSApplicationIDTypeMappingTest("testEquals"));
-    suite.addTest(new PSApplicationIDTypeMappingTest("testTypeMapping"));
-    suite.addTest(new PSApplicationIDTypeMappingTest("testXml"));
-    return suite;
   }
 }

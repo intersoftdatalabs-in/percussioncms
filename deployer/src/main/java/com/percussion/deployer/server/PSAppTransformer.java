@@ -87,10 +87,10 @@ import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.design.objectstore.PSVisibilityRules;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
+import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.tablefactory.PSJdbcColumnData;
 import com.percussion.tablefactory.PSJdbcRowData;
 import com.percussion.util.PSCollection;
-import com.percussion.util.PSUrlUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,21 +141,26 @@ public class PSAppTransformer {
       PSFieldSet fieldSet,
       PSItemData itemData,
       PSApplicationIdContext ctx) {
+    // ctx may be updated for nested elements; lambdas require captured
+    // variables to be final or effectively final, so use a local copy that
+    // we can replace instead of modifying the original parameter.
+    PSApplicationIdContext effectiveCtx = ctx;
     if (fieldSet.getType() == PSFieldSet.TYPE_COMPLEX_CHILD) {
       var fieldCtx =
           new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_ITEM_FIELD, fieldSet.getName());
-      fieldCtx.setParentCtx(ctx);
-      ctx = fieldCtx;
+      fieldCtx.setParentCtx(effectiveCtx);
+      effectiveCtx = fieldCtx;
     }
 
+    PSApplicationIdContext finalCtx = effectiveCtx;
     fieldSet
         .getAll(false)
         .forEachRemaining(
             o -> {
               if (o instanceof PSField field) {
-                checkFieldData(mappings, field, itemData, fieldSet.getType(), ctx);
+                checkFieldData(mappings, field, itemData, fieldSet.getType(), finalCtx);
               } else if (o instanceof PSFieldSet nestedFieldSet) {
-                checkFieldSetData(mappings, nestedFieldSet, itemData, ctx);
+                checkFieldSetData(mappings, nestedFieldSet, itemData, finalCtx);
               }
             });
   }
@@ -228,11 +233,17 @@ public class PSAppTransformer {
                   mappings.add(mapping);
                 }
               } else {
-                var paramMap = PSDeployComponentUtils.parseParams(val, null);
-                paramMap.entrySet().stream()
-                    .map(entry -> PSDeployComponentUtils.convertToParams(entry))
-                    .flatMap(Collection::stream)
-                    .forEach(param -> checkParam(mappings, param, curCtx));
+                @SuppressWarnings("unchecked")
+                var paramMap =
+                    (java.util.Map<String, String>) PSDeployComponentUtils.parseParams(val, null);
+                for (var entry : paramMap.entrySet()) {
+                  @SuppressWarnings("unchecked")
+                  List<PSParam> params =
+                      (List<PSParam>) PSDeployComponentUtils.convertToParams(entry);
+                  // curCtx is modified above, so create an effectively final copy
+                  PSApplicationIdContext lambdaCtx = curCtx;
+                  params.forEach(param -> checkParam(mappings, param, lambdaCtx));
+                }
               }
             });
   }

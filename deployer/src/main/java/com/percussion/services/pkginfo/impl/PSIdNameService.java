@@ -22,15 +22,14 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.pkginfo.IPSIdNameService;
 import com.percussion.services.pkginfo.data.PSIdName;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,22 +59,22 @@ public class PSIdNameService implements IPSIdNameService {
     clearCache();
   }
 
-  public synchronized Optional<IPSGuid> findId(String name, PSTypeEnum type) {
-    if (StringUtils.isBlank(name)) {
+  public synchronized IPSGuid findId(String name, PSTypeEnum type) {
+    if (name == null || name.trim().isEmpty()) {
       throw new IllegalArgumentException("name may not be null or empty");
     }
     if (type == null) {
       throw new IllegalArgumentException("type may not be null");
     }
     var key = getNameTypeKey(name, type);
-    return Optional.ofNullable(loadNameTypeToIdMap().get(key));
+    return loadNameTypeToIdMap().get(key);
   }
 
-  public synchronized Optional<String> findName(IPSGuid guid) {
+  public synchronized String findName(IPSGuid guid) {
     if (guid == null) {
       throw new IllegalArgumentException("guid may not be null");
     }
-    return Optional.ofNullable(loadIdToNameMap().get(guid));
+    return loadIdToNameMap().get(guid);
   }
 
   private Collection<PSIdName> loadAll() {
@@ -123,12 +122,19 @@ public class PSIdNameService implements IPSIdNameService {
 
   @SuppressWarnings("unchecked")
   private Map<String, IPSGuid> getNameTypeToIdMap() {
-    return (Map<String, IPSGuid>) cache.get(NAME_TYPE_ID_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+    // cache.get now returns Optional<Serializable>
+    return cache
+        .get(NAME_TYPE_ID_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE)
+        .map(o -> (Map<String, IPSGuid>) o)
+        .orElse(null);
   }
 
   @SuppressWarnings("unchecked")
   private Map<IPSGuid, String> getIdToNameMap() {
-    return (Map<IPSGuid, String>) cache.get(ID_NAME_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+    return cache
+        .get(ID_NAME_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE)
+        .map(o -> (Map<IPSGuid, String>) o)
+        .orElse(null);
   }
 
   private void loadMaps(Map<String, IPSGuid> ntMap, Map<IPSGuid, String> idMap) {
@@ -144,7 +150,8 @@ public class PSIdNameService implements IPSIdNameService {
           var name = mapping.getName();
           ntMap.put(getNameTypeKey(name, mapping.getType()), guid);
         });
-    cache.save(NAME_TYPE_ID_MAP_KEY, ntMap, IPSCacheAccess.IN_MEMORY_STORE);
+    // map is serializable but generics cause compilation issues
+    cache.save(NAME_TYPE_ID_MAP_KEY, (Serializable) ntMap, IPSCacheAccess.IN_MEMORY_STORE);
   }
 
   private void populateIdToNameMap(Collection<PSIdName> mappings, Map<IPSGuid, String> idMap) {
@@ -154,7 +161,7 @@ public class PSIdNameService implements IPSIdNameService {
           var name = mapping.getName();
           idMap.put(guid, name);
         });
-    cache.save(ID_NAME_MAP_KEY, idMap, IPSCacheAccess.IN_MEMORY_STORE);
+    cache.save(ID_NAME_MAP_KEY, (Serializable) idMap, IPSCacheAccess.IN_MEMORY_STORE);
   }
 
   private void clearCache() {

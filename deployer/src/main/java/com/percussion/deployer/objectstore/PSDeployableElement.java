@@ -21,6 +21,7 @@ import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

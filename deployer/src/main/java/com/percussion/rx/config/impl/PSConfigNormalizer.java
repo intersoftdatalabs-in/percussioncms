@@ -110,7 +110,7 @@ public class PSConfigNormalizer {
    * @return Map of name-value pairs of normalized properties, may be empty but never null.
    */
   private Map<String, Object> solConfToNormMap(SolutionConfigurations sc) {
-    var nameMap = new HashMap<String, Object>();
+    Map<String, Object> nameMap = new HashMap<>();
     var solConfList = sc.getSolutionConfig();
     for (var solConf : solConfList) {
       var propOrPropSetList = solConf.getPropertyOrPropertySet();

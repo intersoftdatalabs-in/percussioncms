@@ -49,7 +49,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.w3c.dom.Document;
@@ -226,14 +229,17 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
       throw new IllegalArgumentException("col may not be null or empty");
 
     // use "Set" to make sure it is a distinct list
-    Set<String> ids =
-        data != null && data.getRows().hasNext()
-            ? StreamSupport.stream(
-                    Spliterators.spliteratorUnknownSize(data.getRows(), Spliterator.ORDERED), false)
-                .map(row -> getColumnValueNullable(table, col, row))
-                .filter(id -> id != null && !id.isBlank())
-                .collect(Collectors.toSet())
-            : Set.of();
+    Set<String> ids = new HashSet<>();
+    if (data != null) {
+      Iterator<PSJdbcRowData> rows = data.getRows();
+      while (rows.hasNext()) {
+        PSJdbcRowData row = rows.next();
+        String idVal = getColumnValueNullable(table, col, row);
+        if (idVal != null && !idVal.isBlank()) {
+          ids.add(idVal);
+        }
+      }
+    }
 
     return ids.iterator();
   }
@@ -413,9 +419,10 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     // get all registered content types
     List<PSDependency> deps = new ArrayList<>();
 
-    for (Map.Entry<String, String> stringStringEntry :
-        (Iterable<Map.Entry<String, String>>)
-            PSDbmsHelper.getInstance().getRegistrationEntries(table, idCol, nameCol, null)) {
+    for (com.percussion.util.PSEntrySet entry :
+        PSDbmsHelper.getInstance().getRegistrationEntries(table, idCol, nameCol, null)) {
+      @SuppressWarnings("unchecked")
+      Map.Entry<String, String> stringStringEntry = (Map.Entry<String, String>) entry;
       deps.add(createDependency(m_def, stringStringEntry));
     }
 

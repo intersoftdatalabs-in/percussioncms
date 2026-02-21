@@ -79,16 +79,17 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
     var proc = getComponentProcessor(tok);
     var action = loadAction(proc, dep, isLeaf());
 
-    loadActions(proc, false, action.getId())
-        .forEachRemaining(
-            parent -> {
-              var name = parent.getName();
-              var childType = PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE;
-              var def = getType().equals(childType) ? m_def : getDependencyHandler(childType).m_def;
-              var childDep = createDependency(def, getIdFromKey(parent, name), name);
-              childDep.setDependencyType(PSDependency.TYPE_LOCAL);
-              childDeps.add(childDep);
-            });
+    Iterator actions = loadActions(proc, false, String.valueOf(action.getId()));
+    while (actions != null && actions.hasNext()) {
+      PSAction parent = (PSAction) actions.next();
+      String name = parent.getName();
+      String childType = PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE;
+      PSDependencyDef def =
+          getType().equals(childType) ? m_def : getDependencyHandler(childType).m_def;
+      PSDependency childDep = createDependency(def, getIdFromKey(parent, name), name);
+      childDep.setDependencyType(PSDependency.TYPE_LOCAL);
+      childDeps.add(childDep);
+    }
 
     // now get action's dependencies
 

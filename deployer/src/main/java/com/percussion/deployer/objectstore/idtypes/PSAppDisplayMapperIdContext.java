@@ -145,8 +145,9 @@ public class PSAppDisplayMapperIdContext extends PSApplicationIdContext {
 
     var tree = new PSXmlTreeWalker(sourceNode);
     var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-    Optional.ofNullable(ctxEl)
-        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+    if (ctxEl != null) {
+      setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+    }
   }
 
   // see IPSDeployComponent interface

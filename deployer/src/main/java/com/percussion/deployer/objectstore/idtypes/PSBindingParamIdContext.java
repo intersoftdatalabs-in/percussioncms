@@ -243,8 +243,9 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
     m_param = new PSTextLiteral(paramEl, null, null);
 
     var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-    Optional.ofNullable(ctxEl)
-        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+    if (ctxEl != null) {
+      setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+    }
   }
 
   // see IPSDeployComponent interface

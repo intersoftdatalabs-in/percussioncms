@@ -134,25 +134,25 @@ public class PSDbmsHelper {
     var data = catalogTableData(table, new String[] {idCol, nameCol}, filter);
 
     if (data != null) {
-      data.getRows()
-          .forEachRemaining(
-              row -> {
-                var id = row.getColumn(idCol);
-                var name = row.getColumn(nameCol);
+      Iterator<PSJdbcRowData> rows = data.getRows();
+      while (rows.hasNext()) {
+        PSJdbcRowData row = rows.next();
+        PSJdbcColumnData id = row.getColumn(idCol);
+        PSJdbcColumnData name = row.getColumn(nameCol);
 
-                if (id == null || id.getValue() == null || id.getValue().isBlank()) {
-                  throw new PSDeployException(
-                      IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE,
-                      new Object[] {table, idCol, id.getValue()});
-                }
-                if (name == null || name.getValue() == null || name.getValue().isBlank()) {
-                  throw new PSDeployException(
-                      IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE,
-                      new Object[] {table, nameCol, name.getValue()});
-                }
+        if (id == null || id.getValue() == null || id.getValue().isBlank()) {
+          throw new PSDeployException(
+              IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE,
+              new Object[] {table, idCol, id.getValue()});
+        }
+        if (name == null || name.getValue() == null || name.getValue().isBlank()) {
+          throw new PSDeployException(
+              IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE,
+              new Object[] {table, nameCol, name.getValue()});
+        }
 
-                result.add(new PSEntrySet(id.getValue(), name.getValue()));
-              });
+        result.add(new PSEntrySet(id.getValue(), name.getValue()));
+      }
     }
 
     return result;

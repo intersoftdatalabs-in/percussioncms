@@ -114,9 +114,12 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
 
     return findAllLocationSchemes().stream()
         .map(
-            scheme ->
-                createDependency(
-                    m_def, String.valueOf(scheme.getGUID().longValue()), scheme.getName()))
+            scheme -> {
+              PSDependency dep =
+                  createDependency(
+                      m_def, String.valueOf(scheme.getGUID().longValue()), scheme.getName());
+              return dep;
+            })
         .iterator();
   }
 

@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
@@ -25,20 +27,13 @@ import org.w3c.dom.Element;
 
 /** Unit test for the <code>PSValidationResult</code> class. */
 public class PSValidationResultTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSValidationResultTest(String name) {
-    super(name);
-  }
 
   /**
    * Test XML and Equals features for PSValidationResult class
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testXmlEquals() throws Exception {
     PSValidationResult vResult1 = getVResultNotAllowSkip();
     PSValidationResult tgtResult1 = getValidationResultFromXML(vResult1);
@@ -47,11 +42,11 @@ public class PSValidationResultTest {
     PSValidationResult tgtResult2 = getValidationResultFromXML(vResult2);
 
     // these should work fine
-    assertTrue(vResult1.equals(tgtResult1));
-    assertTrue(vResult2.equals(tgtResult2));
+    assertEquals(vResult1, tgtResult1);
+    assertEquals(vResult2, tgtResult2);
 
     // these should not work
-    assertTrue(!vResult1.equals(vResult2));
+    assertFalse(vResult1.equals(vResult2));
   }
 
   /**
@@ -59,6 +54,7 @@ public class PSValidationResultTest {
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testAllowSkip() throws Exception {
     PSValidationResult vResult1 = getVResultNotAllowSkip();
     PSValidationResult vResult2 = getValidationResult2();
@@ -69,7 +65,7 @@ public class PSValidationResultTest {
     assertTrue(testSetSkip(vResult2, true));
 
     // these should not work
-    assertTrue(!testSetSkip(vResult1, true));
+    assertFalse(testSetSkip(vResult1, true));
   }
 
   /**
@@ -143,13 +139,5 @@ public class PSValidationResultTest {
     }
 
     return true;
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSValidationResultTest("testXmlEquals"));
-    suite.addTest(new PSValidationResultTest("testAllowSkip"));
-    return suite;
   }
 }

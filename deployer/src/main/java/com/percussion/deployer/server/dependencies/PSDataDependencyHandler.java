@@ -205,10 +205,12 @@ public class PSDataDependencyHandler extends PSSchemaDependencyHandler {
    * @throws PSDeployException if any error occurs.
    */
   private PSJdbcTableData setDataForReplace(PSJdbcTableData srcData) throws PSDeployException {
-    var tgtRowList =
-        srcData.getRows().stream()
-            .map(row -> new PSJdbcRowData(row.getColumns(), PSJdbcRowData.ACTION_REPLACE))
-            .toList();
+    java.util.List<PSJdbcRowData> tgtRowList = new java.util.ArrayList<>();
+    Iterator<PSJdbcRowData> rows = srcData.getRows();
+    while (rows.hasNext()) {
+      PSJdbcRowData row = rows.next();
+      tgtRowList.add(new PSJdbcRowData(row.getColumns(), PSJdbcRowData.ACTION_REPLACE));
+    }
 
     return new PSJdbcTableData(srcData.getName(), tgtRowList.iterator());
   }

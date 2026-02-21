@@ -104,17 +104,16 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
   private void getChildDepFiles(
       PSComponentProcessorProxy proc, PSDependency dep, List<PSDependencyFile> files)
       throws PSDeployException {
-    var deps = dep.getDependencies(PSDependency.TYPE_LOCAL);
+    Iterator<PSDependency> deps = dep.getDependencies(PSDependency.TYPE_LOCAL);
     if (deps != null) {
-      deps.forEachRemaining(
-          child -> {
-            if (child
-                .getObjectType()
-                .equals(PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE)) {
-              files.add(getActionDepFile(proc, child, false));
-              getChildDepFiles(proc, child, files);
-            }
-          });
+      while (deps.hasNext()) {
+        PSDependency child = deps.next();
+        if (child.getObjectType().equals(PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE)) {
+          // recursion may throw PSDeployException, which we can propagate
+          files.add(getActionDepFile(proc, child, false));
+          getChildDepFiles(proc, child, files);
+        }
+      }
     }
   }
 

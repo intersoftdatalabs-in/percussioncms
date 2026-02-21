@@ -66,9 +66,9 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
    * @return <code>true</code> if it is supported, otherwise <code>false</code>
    */
   static boolean validateObject(Object obj) {
-    Iterator supportedTypes = ms_typeObjects.keySet().iterator();
+    Iterator<Class<?>> supportedTypes = ms_typeObjects.keySet().iterator();
     while (supportedTypes.hasNext()) {
-      Class cl = (Class) supportedTypes.next();
+      Class<?> cl = supportedTypes.next();
       if (cl.isInstance(obj)) return true;
     }
     return false;
@@ -246,11 +246,11 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
    *
    * @return the class, never <code>null</code>.
    */
-  public Class getColumnClass() {
+  public Class<?> getColumnClass() {
     var entry =
         ms_typeObjects.entrySet().stream()
             .filter(e -> e.getValue().intValue() == m_type)
-            .findFirst()
+            .<java.util.Map.Entry<Class<?>, Integer>>findFirst()
             .orElseThrow(() -> new IllegalStateException("Invalid column type"));
     return entry.getKey();
   }
@@ -294,7 +294,7 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
    * See {@link #TYPE_TEXT text}, {@link #TYPE_NUMERIC numeric}, {@link #TYPE_DATE date} and {@link
    * #TYPE_BOOL boolean} for the corresponding supported object types(classes).
    */
-  private static Map<Class, Integer> ms_typeObjects = new HashMap<>();
+  private static Map<Class<?>, Integer> ms_typeObjects = new HashMap<>();
 
   static {
     ms_typeObjects.put(String.class, TYPE_TEXT);

@@ -1018,14 +1018,6 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     WORKFLOW_TABLE
   };
 
-  /** List of child types supported by this handler, never <code>null</code> or empty. */
-  private static List<String> ms_childTypes = new ArrayList<>();
-
-  static {
-    ms_childTypes.add(PSStateDefDependencyHandler.DEPENDENCY_TYPE);
-    ms_childTypes.add(PSAclDefDependencyHandler.DEPENDENCY_TYPE);
-  }
-
   /**
    * List of table schemas for all tables with table name as the map key (in <code>String</code> and
    * the schema object as the map value (in <code>PSJdbcTableSchema</code>, initialized by

@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.error;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.conn.PSServerException;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSDeployNonUniqueException;
@@ -27,20 +29,13 @@ import org.w3c.dom.Element;
 
 /** Unit test for the PSDeployException class. */
 public class PSDeployExceptionTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSDeployExceptionTest(String name) {
-    super(name);
-  }
 
   /**
    * Tests the Xml functions.
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testXml() throws Exception {
     Object[] args1 = {"a", "b", "c"};
     PSDeployException ex1 = new PSDeployException(555, args1);
@@ -77,6 +72,7 @@ public class PSDeployExceptionTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testNonUnique() throws Exception {
     Object[] args1 = {"a", "b", "c"};
     PSDeployNonUniqueException ex1 = new PSDeployNonUniqueException(555, args1);
@@ -86,22 +82,12 @@ public class PSDeployExceptionTest {
     assertEquals(ex1.getErrorCode(), ex2.getErrorCode());
     assertEquals(ex1.getClass().getName(), ex2.getOriginalExceptionClass());
 
-    boolean didThrow = false;
-    try {
-      Object[] args3 = {"a", "", "c"};
-      PSServerException sEx1 = new PSServerException(123, args3);
-      ex1 = new PSDeployNonUniqueException(sEx1);
-    } catch (UnsupportedOperationException ex) {
-      didThrow = true;
-    }
-    assertTrue(didThrow);
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSDeployExceptionTest("testXml"));
-    suite.addTest(new PSDeployExceptionTest("testNonUnique"));
-    return suite;
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> {
+          Object[] args3 = {"a", "", "c"};
+          PSServerException sEx1 = new PSServerException(123, args3);
+          new PSDeployNonUniqueException(sEx1);
+        });
   }
 }

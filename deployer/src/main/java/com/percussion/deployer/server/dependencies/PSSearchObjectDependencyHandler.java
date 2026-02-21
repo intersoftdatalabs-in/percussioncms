@@ -50,13 +50,11 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import org.w3c.dom.Element;
 
@@ -162,22 +160,21 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
       var proc = getComponentProcessor(tok);
       var elements = proc.load(PSSearch.getComponentType(PSSearch.class), null);
 
-      return Arrays.stream(elements)
-          .map(
-              element -> {
-                try {
-                  var search = new PSSearch(element);
-                  if (isDependentType(search)) {
-                    var name = search.getInternalName();
-                    return createDependency(m_def, getIdFromKey(search, name), name);
-                  }
-                  return null;
-                } catch (PSUnknownNodeTypeException e) {
-                  throw new RuntimeException(e);
-                }
-              })
-          .filter(Objects::nonNull)
-          .iterator();
+      List<PSDependency> deps = new ArrayList<>();
+      if (elements != null) {
+        for (Object element : elements) {
+          try {
+            PSSearch search = new PSSearch((Element) element);
+            if (isDependentType(search)) {
+              String name = search.getInternalName();
+              deps.add(createDependency(m_def, getIdFromKey(search, name), name));
+            }
+          } catch (PSUnknownNodeTypeException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }
+      return deps.iterator();
     } catch (PSCmsException e) {
       throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }

@@ -614,10 +614,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
               saveUserDependency(userDep);
             }
           }
-        } catch (PSDeployException
-            | PSRuntimeException
-            | PSAssemblyException
-            | PSNotFoundException e) {
+        } catch (PSDeployException | PSAssemblyException | PSRuntimeException e) {
           // log the specific dependency that failed, to aid debugging
           log.error("failure while processing: {}", dependency);
           throw e;

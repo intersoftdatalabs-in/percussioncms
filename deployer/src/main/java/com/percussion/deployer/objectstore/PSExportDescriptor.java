@@ -477,21 +477,21 @@ public class PSExportDescriptor extends PSDescriptor {
    * <code>null</code>, may be empty and may be modified at any time by a call to <code>
    * setModifiedPackages()</code>.
    */
-  private List m_modifiedPackageNames = new ArrayList();
+  private List<String> m_modifiedPackageNames = new ArrayList<>();
 
   /**
    * List of names of packages whose underlying object has been deleted since this descriptor was
    * last saved. Never <code>null</code>, may be empty and may be modified at any time by a call to
    * <code>setMissingPackages()</code>.
    */
-  private List m_missingPackageNames = new ArrayList();
+  private List<String> m_missingPackageNames = new ArrayList<>();
 
   /**
    * Set of dependencies that should not be added in the exported archive. Never <code>null</code>
    * but frequently empty, as dependencies only need to be filtered in special circumstances.
    * Modified by calling setter.
    */
-  private Set m_depKeysToExclude = new HashSet();
+  private Set<String> m_depKeysToExclude = new HashSet<>();
 
   // private Xml variable for serialization
   private static final String XML_EL_PACKAGES = "Packages";

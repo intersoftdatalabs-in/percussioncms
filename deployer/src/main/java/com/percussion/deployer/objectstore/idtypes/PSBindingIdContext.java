@@ -205,8 +205,13 @@ public class PSBindingIdContext extends PSApplicationIdContext {
 
     var tree = new PSXmlTreeWalker(sourceNode);
     var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-    Optional.ofNullable(ctxEl)
-        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+    // cannot use Optional.ifPresent with a lambda here because the
+    // lambda would be required to handle PSUnknownNodeTypeException, which
+    // is checked.  Use an explicit null check so the exception can propagate
+    // via the method signature.
+    if (ctxEl != null) {
+      setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+    }
   }
 
   // see IPSDeployComponent interface

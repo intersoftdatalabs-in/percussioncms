@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** Class to handle packaging and deploying an edition task. */
 public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHandler
@@ -82,7 +83,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
   private List<PSDependency> getExtensionDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     var task = findEditionTask(dep.getDependencyId());
-    var exts = task != null ? List.of(task.getExtensionName()) : List.of();
+    List<String> exts = task != null ? List.of(task.getExtensionName()) : List.<String>of();
 
     var eHandler = getDependencyHandler(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
     return exts.stream()
@@ -98,7 +99,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
                 throw new RuntimeException(e);
               }
             })
-        .filter(dep -> dep != null)
+        .filter(d -> d != null)
         .toList();
   }
 
@@ -109,14 +110,15 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
       throw new IllegalArgumentException("tok may not be null");
     }
 
-    return findAllEditionTasks().stream()
-        .map(
-            task ->
-                createDependency(
-                    m_def,
-                    String.valueOf(task.getTaskId().longValue()),
-                    new PSExtensionRef(task.getExtensionName()).getExtensionName()))
-        .iterator();
+    java.util.List<PSDependency> deps = new java.util.ArrayList<>();
+    for (IPSEditionTaskDef task : findAllEditionTasks()) {
+      deps.add(
+          createDependency(
+              m_def,
+              String.valueOf(task.getTaskId().longValue()),
+              new PSExtensionRef(task.getExtensionName()).getExtensionName()));
+    }
+    return deps.iterator();
   }
 
   // see base class
@@ -151,8 +153,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
    *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
-  @SuppressWarnings("unchecked")
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -177,8 +178,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
 
   // see base class
   @Override
-  @SuppressWarnings("unchecked")
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -273,7 +273,6 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
    * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
   private void transferIdsForEditionTask(
       PSEditionTaskDef task, PSDependency taskDep, PSImportCtx ctx) throws PSDeployException {
     PSIdMapping taskMapping = getIdMapping(ctx, taskDep);
@@ -320,7 +319,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // retrieve the data from the archive
-    Iterator files = getDependecyDataFiles(archive, dep);
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
     PSDependencyFile file = (PSDependencyFile) files.next();
 
     IPSEditionTaskDef task = null;
@@ -330,9 +329,9 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
 
     IPSPublisherService pubSvc = PSPublisherServiceLocator.getPublisherService();
 
-    boolean isNew = (task == null) ? true : false;
+    boolean isNew = (task == null);
     Integer ver = null;
-    if (!isNew) {
+    if (!isNew && task != null) {
       ver = ((PSEditionTaskDef) task).getVersion();
       ((PSEditionTaskDef) task).setVersion(null);
     } else {

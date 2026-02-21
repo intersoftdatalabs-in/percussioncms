@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** The class to represent a result row in catalog result set. */
-public class PSCatalogResult implements IPSDeployComponent, Comparable {
+public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalogResult> {
   /**
    * Constructs the catalog result object.
    *
@@ -346,6 +346,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
    *
    * @return the string, never <code>null</code> or empty.
    */
+  @Override
   public String toString() {
     return m_displayText;
   }
@@ -365,10 +366,11 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
    * PSCatalogResult</code>
    * @see java.lang.Comparable#compareTo(Object)
    */
-  public int compareTo(Object obj) {
+  @Override
+  public int compareTo(PSCatalogResult obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null.");
 
-    PSCatalogResult result = (PSCatalogResult) obj;
+    PSCatalogResult result = obj; // type is already PSCatalogResult due to signature
 
     return getDisplayText().compareTo(result.getDisplayText());
   }
@@ -389,7 +391,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
    * The column data if this result has data to present in multiple columns. User can add column
    * data using <code>addColumn(Object)</code>. Never <code>null</code> after initialization.
    */
-  private List m_columns = new ArrayList();
+  private List<Object> m_columns = new ArrayList<>();
 
   // xml element names
   public static final String XML_NODE_NAME = "PSXCatalogResult";

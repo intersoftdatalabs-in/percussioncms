@@ -24,6 +24,7 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.design.objectstore.PSControlMeta;
 import com.percussion.design.objectstore.PSControlParameter;
+import com.percussion.design.objectstore.PSFileDescriptor;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
@@ -36,7 +37,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -56,7 +56,6 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
   @Override
   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
@@ -70,27 +69,32 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
             ? getSysControl(tok, dep.getDependencyId())
             : getRxControl(tok, dep.getDependencyId());
 
-    Optional.ofNullable(meta)
-        .ifPresent(
-            controlMeta -> {
-              controlMeta.getAssociatedFiles().stream()
-                  .map(file -> getDepFromPath(tok, file.getFileLocation()))
-                  .filter(java.util.Objects::nonNull)
-                  .forEach(deps::add);
+    if (meta != null) {
+      // associated files may be raw, so iterate and cast
+      for (Object fileObj : meta.getAssociatedFiles()) {
+        PSFileDescriptor file = (PSFileDescriptor) fileObj;
+        PSDependency d = getDepFromPath(tok, file.getFileLocation());
+        if (d != null) {
+          deps.add(d);
+        }
+      }
 
-              controlMeta.getParams().stream()
-                  .map(PSControlParameter::getDefaultValue)
-                  .filter(value -> !value.isBlank())
-                  .map(value -> getDepFromPath(tok, value))
-                  .filter(java.util.Objects::nonNull)
-                  .forEach(deps::add);
-            });
+      for (Object paramObj : meta.getParams()) {
+        PSControlParameter param = (PSControlParameter) paramObj;
+        String value = param.getDefaultValue();
+        if (value != null && !value.isBlank()) {
+          PSDependency d = getDepFromPath(tok, value);
+          if (d != null) {
+            deps.add(d);
+          }
+        }
+      }
+    }
 
     return deps.iterator();
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
   @Override
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) {
@@ -134,9 +138,8 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -181,10 +184,9 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    * @return A list of dependencies, never <code>null</code>, may be empty.
    * @throws PSDeployException if any errors occur.
    */
-  @SuppressWarnings("unchecked")
-  private List getControlDependencies(PSSecurityToken tok, boolean system)
+  private List<PSDependency> getControlDependencies(PSSecurityToken tok, boolean system)
       throws PSDeployException {
-    List deps = new ArrayList();
+    List<PSDependency> deps = new ArrayList<>();
 
     List<PSControlMeta> controls;
     if (system) {
@@ -372,7 +374,7 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
   private static final String SYS_CONTROL_PATH = SYS_CONTROL_APP + "/stylesheets/sys_Templates.xsl";
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   /** Get the custom control manager. */
   private static PSCustomControlManager ms_ctrlMgr = PSCustomControlManager.getInstance();

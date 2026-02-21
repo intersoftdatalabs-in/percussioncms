@@ -19,6 +19,7 @@
 package com.percussion.deployer.server;
 
 import com.percussion.deployer.objectstore.PSIdMap;
+import com.percussion.deployer.objectstore.PSIdMapping;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import java.util.HashMap;
@@ -71,16 +72,14 @@ public class PSIdMapManager {
    */
   private void validateSavedIdMap(PSIdMap map) throws PSDeployException {
     var mappingList = map.getMappings();
-    mappingList.forEachRemaining(
-        mapping -> {
-          if (mapping.getTargetId() == null && !mapping.isNewObject()) {
-            var args =
-                new Object[] {
-                  map.getSourceServer(), mapping.getSourceId(), mapping.getSourceName()
-                };
-            throw new PSDeployException(IPSDeploymentErrors.INVALID_SAVED_ID_MAP, args);
-          }
-        });
+    while (mappingList.hasNext()) {
+      PSIdMapping mapping = mappingList.next();
+      if (mapping.getTargetId() == null && !mapping.isNewObject()) {
+        var args =
+            new Object[] {map.getSourceServer(), mapping.getSourceId(), mapping.getSourceName()};
+        throw new PSDeployException(IPSDeploymentErrors.INVALID_SAVED_ID_MAP, args);
+      }
+    }
   }
 
   /**

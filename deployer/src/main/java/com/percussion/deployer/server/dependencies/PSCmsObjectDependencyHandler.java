@@ -279,12 +279,11 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
     if (handler == null) throw new IllegalArgumentException("handler may not be null");
 
     var deps = new ArrayList<PSDependency>();
-    prop.iterator()
-        .forEachRemaining(
-            val -> {
-              var dep = handler.getDependency(tok, val);
-              Optional.ofNullable(dep).ifPresent(deps::add);
-            });
+    var propIter = prop.iterator();
+    while (propIter.hasNext()) {
+      var dep = handler.getDependency(tok, (String) propIter.next());
+      Optional.ofNullable(dep).ifPresent(deps::add);
+    }
     return deps;
   }
 

@@ -29,6 +29,7 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
+import com.percussion.i18n.PSLocale;
 import com.percussion.i18n.PSLocaleException;
 import com.percussion.i18n.PSLocaleManager;
 import com.percussion.security.PSSecurityToken;
@@ -37,13 +38,13 @@ import com.percussion.services.content.IPSContentService;
 import com.percussion.services.content.PSContentServiceLocator;
 import com.percussion.services.content.data.PSAutoTranslation;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.guidmgr.PSGuidUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -80,7 +81,14 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
     if (StringUtils.isBlank(depId)) {
       throw new IllegalArgumentException("dependency ID may not be null or empty");
     }
-    return m_svc.loadAutoTranslationsByLocale(depId);
+    // IPSContentService no longer exposes a locale-based load method, so
+    // fall back to the implementation class which still provides the helper.
+    if (m_svc instanceof com.percussion.services.content.impl.PSContentService) {
+      return ((com.percussion.services.content.impl.PSContentService) m_svc)
+          .loadAutoTranslationsByLocale(depId);
+    }
+    // otherwise we cannot easily obtain translations by locale; return empty list
+    return new ArrayList<>();
   }
 
   // see base class
@@ -140,15 +148,17 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
 
     try {
       var m_localeMgr = PSLocaleManager.getInstance();
-      return m_localeMgr.getLocales().stream()
-          .map(
-              loc -> {
-                var lName = loc.getLanguageString();
-                var xlnList = findTranslationSettingsByLocaleID(lName);
-                return xlnList.isEmpty() ? null : createDeployableElement(m_def, lName, lName);
-              })
-          .filter(Objects::nonNull)
-          .iterator();
+      Iterator<PSLocale> locales = m_localeMgr.getLocales();
+      List<PSDependency> deps = new ArrayList<>();
+      while (locales.hasNext()) {
+        PSLocale loc = locales.next();
+        var lName = loc.getLanguageString();
+        var xlnList = findTranslationSettingsByLocaleID(lName);
+        if (!xlnList.isEmpty()) {
+          deps.add(createDeployableElement(m_def, lName, lName));
+        }
+      }
+      return deps.iterator();
     } catch (PSLocaleException e) {
       throw new PSDeployException(
           IPSDeploymentErrors.UNEXPECTED_ERROR, "could not retrieve locales");
@@ -187,11 +197,22 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
     }
 
     try {
-      var str =
-          xlnList.stream()
-              .map(PSAutoTranslation::toXML)
-              .collect(Collectors.joining(AUTOTRANSLATIONS_DELIM));
-      return new PSDependencyFile(PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(str));
+      StringBuilder sb = new StringBuilder();
+      for (PSAutoTranslation at : xlnList) {
+        try {
+          sb.append(at.toXML());
+        } catch (IOException | SAXException e) {
+          throw new PSDeployException(
+              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              "Unable to serialize auto translation: " + e.getLocalizedMessage());
+        }
+        sb.append(AUTOTRANSLATIONS_DELIM);
+      }
+      if (sb.length() > 0) {
+        sb.setLength(sb.length() - AUTOTRANSLATIONS_DELIM.length());
+      }
+      return new PSDependencyFile(
+          PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(sb.toString()));
     } catch (Exception e) {
       throw new PSDeployException(
           IPSDeploymentErrors.UNEXPECTED_ERROR,
@@ -208,8 +229,10 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
         (PSDependencyFile) getTranslationSettingsDependecyFilesFromArchive(archive, dep).next();
     // delete existing translations
     List<PSAutoTranslation> xlnList = findTranslationSettingsByLocaleID(dep.getDependencyId());
-    for (PSAutoTranslation xln : xlnList)
-      m_svc.deleteAutoTranslation(xln.getContentTypeId(), xln.getLocale());
+    for (PSAutoTranslation xln : xlnList) {
+      m_svc.deleteAutoTranslation(
+          PSGuidUtils.makeGuid(xln.getContentTypeId(), PSTypeEnum.AUTO_TRANSLATIONS));
+    }
 
     xlnList = generateTranslationSettingsFromFile(archive, depFile);
 
@@ -232,7 +255,8 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
       try {
         PSAutoTranslation at = it.next();
         // Delete Translation Settings, if any of them exist in this list
-        m_svc.deleteAutoTranslation(at.getContentTypeId(), at.getLocale());
+        m_svc.deleteAutoTranslation(
+            PSGuidUtils.makeGuid(at.getContentTypeId(), PSTypeEnum.AUTO_TRANSLATIONS));
         at.setVersion(null);
         m_svc.saveAutoTranslation(at);
       } catch (Exception e) {

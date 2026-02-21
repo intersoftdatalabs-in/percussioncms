@@ -411,11 +411,11 @@ public class PSCatalogHandler {
   private static PSCatalogResultSet catalogPackageLogs(Properties props) throws PSDeployException {
     PSLogHandler logHandler = ms_depHandler.getLogHandler();
     String serverName = PSServer.getHostName() + ":" + PSServer.getListenerPort();
-    Iterator logs = logHandler.getLogSummaries(serverName);
+    Iterator<PSLogSummary> logs = logHandler.getLogSummaries(serverName);
     PSCatalogResultSet resultSet = new PSCatalogResultSet(getPackageLogColumns());
 
     while (logs.hasNext()) {
-      PSLogSummary log = (PSLogSummary) logs.next();
+      PSLogSummary log = logs.next();
       PSArchiveSummary summary = log.getArchiveSummary();
       PSArchiveInfo info = summary.getArchiveInfo();
       PSCatalogResult result =

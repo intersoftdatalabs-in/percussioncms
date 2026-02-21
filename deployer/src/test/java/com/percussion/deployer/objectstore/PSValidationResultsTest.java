@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
@@ -25,20 +27,13 @@ import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSValidationResults</code> class. */
 public class PSValidationResultsTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSValidationResultsTest(String name) {
-    super(name);
-  }
 
   /**
    * Test PSValidationResults class
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testAll() throws Exception {
     // prepare data
     PSValidationResult vResult1 = PSValidationResultTest.getVResultNotAllowSkip();
@@ -78,7 +73,7 @@ public class PSValidationResultsTest {
     PSValidationResults emptyResults = new PSValidationResults();
     PSValidationResults tgtEmptyResults = object2Xml2Object(emptyResults);
 
-    assertTrue(emptyResults.equals(tgtEmptyResults));
+    assertEquals(emptyResults, tgtEmptyResults);
 
     // compare objects have only validation result list
     results = new PSValidationResults();
@@ -107,12 +102,5 @@ public class PSValidationResultsTest {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     Element element = results.toXml(doc);
     return new PSValidationResults(element);
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSValidationResultsTest("testAll"));
-    return suite;
   }
 }

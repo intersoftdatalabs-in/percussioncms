@@ -18,7 +18,6 @@ package com.percussion.util;
 
 import com.percussion.utils.tools.PSPatternMatcher;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -146,7 +145,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * least one of the added pattern matchers.
    */
   public void addNamePattern(PSPatternMatcher namePattern) {
-    if (m_namePatterns == null) m_namePatterns = new java.util.ArrayList();
+    if (m_namePatterns == null) m_namePatterns = new java.util.ArrayList<PSPatternMatcher>();
     m_namePatterns.add(namePattern);
   }
 
@@ -156,7 +155,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * pattern matcher.
    */
   public void setNamePattern(PSPatternMatcher namePattern) {
-    m_namePatterns = new java.util.ArrayList();
+    m_namePatterns = new java.util.ArrayList<PSPatternMatcher>();
     m_namePatterns.add(namePattern);
   }
 
@@ -198,7 +197,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
     // test fileame patterns
     if (m_namePatterns != null) {
       for (int i = 0; i < m_namePatterns.size(); i++) {
-        PSPatternMatcher namePat = (PSPatternMatcher) m_namePatterns.get(i);
+        PSPatternMatcher namePat = m_namePatterns.get(i);
 
         if (namePat.doesMatchPattern(pathname.getName())) return true;
       }
@@ -231,5 +230,5 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * Name of file or dir must match at least one of the patterns contained in <CODE>m_namePatterns
    * </CODE>
    */
-  private ArrayList m_namePatterns;
+  private java.util.List<PSPatternMatcher> m_namePatterns;
 }

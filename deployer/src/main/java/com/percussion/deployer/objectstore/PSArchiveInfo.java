@@ -20,7 +20,7 @@ package com.percussion.deployer.objectstore;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
-import com.percussion.util.PSFormatVersion;
+import com.percussion.system.utils.PSFormatVersion;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Date;
 import java.util.Objects;
@@ -302,8 +302,9 @@ public class PSArchiveInfo implements IPSDeployComponent {
 
     var repositoryEl =
         Optional.ofNullable(
+                // repository is a sibling of the format version element, not a child
                 tree.getNextElement(
-                    PSDbmsInfo.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+                    PSDbmsInfo.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS))
             .orElseThrow(
                 () ->
                     new PSUnknownNodeTypeException(
@@ -312,7 +313,7 @@ public class PSArchiveInfo implements IPSDeployComponent {
 
     var detailEl =
         tree.getNextElement(PSArchiveDetail.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-    m_detail = Optional.ofNullable(detailEl).map(PSArchiveDetail::new).orElse(null);
+    m_detail = detailEl != null ? new PSArchiveDetail(detailEl) : null;
   }
 
   // see IPSDeployComponent

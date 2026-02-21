@@ -27,8 +27,9 @@ import com.percussion.error.PSDeployException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -120,6 +121,11 @@ public class PSArchiveHandler {
     var dupFiles = new ArrayList<PSDependencyFile>();
     var tmpFiles = new ArrayList<File>();
 
+    // ensure lambda uses effectively-final copies
+    final String finalTmpName = tmpName;
+    final String finalTmpExt = tmpExt;
+    final String finalType = type;
+
     try {
       // Adds to the archive first
       files.forEachRemaining(
@@ -134,22 +140,27 @@ public class PSArchiveHandler {
                 && fileName.startsWith("dpl_")
                 && (fileName.endsWith(".xml") || fileName.endsWith(".tmp"))) {
               if (ms_tmpDir == null) {
-                var tmpFile = File.createTempFile("tmp", ".tmp");
-                tmpFile.deleteOnExit();
-                ms_tmpDir = tmpFile.getParentFile();
+                try {
+                  var tmpFile = File.createTempFile("tmp", ".tmp");
+                  tmpFile.deleteOnExit();
+                  ms_tmpDir = tmpFile.getParentFile();
+                } catch (IOException e) {
+                  throw new RuntimeException(e);
+                }
               }
 
-              var tmpFileName = tmpName + tmpExt;
-              if (type.equals(PSContentTypeDependencyHandler.DEPENDENCY_TYPE)) {
-                tmpFileName = tmpName + '.' + ms_depFileTypeMap.get(depFile.getType()) + tmpExt;
+              var tmpFileName = finalTmpName + finalTmpExt;
+              if (finalType.equals(PSContentTypeDependencyHandler.DEPENDENCY_TYPE)) {
+                tmpFileName =
+                    finalTmpName + '.' + ms_depFileTypeMap.get(depFile.getType()) + finalTmpExt;
               }
               var tmp = new File(ms_tmpDir, tmpFileName);
               log.debug("Created temp file: {} in {}", tmpFileName, ms_tmpDir.getAbsolutePath());
 
               int i = 1;
               while (tmp.exists()) {
-                log.debug("Creating temp file: {} count: {}", tmpName, i);
-                tmp = new File(ms_tmpDir, tmpName + '(' + i++ + ')' + tmpExt);
+                log.debug("Creating temp file: {} count: {}", finalTmpName, i);
+                tmp = new File(ms_tmpDir, finalTmpName + '(' + i++ + ')' + finalTmpExt);
               }
               log.debug("Adding file: {}", tmp.getAbsolutePath());
               tmpFiles.add(tmp);
@@ -159,7 +170,8 @@ public class PSArchiveHandler {
                     "Copying file {} to temp file: {}",
                     depFile.getFile().getAbsolutePath(),
                     tmp.getAbsolutePath());
-                FileUtils.copyFile(depFile.getFile(), tmp);
+                Files.copy(
+                    depFile.getFile().toPath(), tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
               } catch (IOException e) {
                 throw new RuntimeException(e);
               }
@@ -272,7 +284,7 @@ public class PSArchiveHandler {
    * @throws IllegalArgumentException If <code>dep</code> is <code>null</code>
    * @throws PSDeployException if there are any errors.
    */
-  public Iterator getFiles(PSDependency dep) throws PSDeployException {
+  public Iterator<PSDependencyFile> getFiles(PSDependency dep) throws PSDeployException {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
     return m_archiveMan.getFiles(dep);

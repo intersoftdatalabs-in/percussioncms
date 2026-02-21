@@ -16,7 +16,13 @@
  */
 package com.percussion.deployer.server.uninstall;
 
+import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.rx.config.PSConfigServiceLocator;
+import com.percussion.rx.design.IPSDesignModel;
+import com.percussion.rx.design.IPSDesignModelFactory;
+import com.percussion.rx.design.PSDesignModelFactoryLocator;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageAction;
@@ -234,7 +240,17 @@ public class PSPackageUninstaller {
    * @return The uninstall result, may be <code>null</code>.
    */
   private IPSUninstallResult deleteElement(PSPkgInfo pkgInfo, IPSGuid objGuid) {
-    var model = getDesignModel(objGuid);
+    // obtain design model based on the object's type
+    IPSDesignModel model = null;
+    if (objGuid != null) {
+      PSTypeEnum type = PSTypeEnum.valueOf(objGuid.getType());
+      try {
+        IPSDesignModelFactory factory = PSDesignModelFactoryLocator.getDesignModelFactory();
+        model = factory.getDesignModel(type);
+      } catch (PSMissingBeanConfigurationException e) {
+        // design model may not exist for this type
+      }
+    }
     if (model != null) {
       try {
         model.delete(objGuid);
@@ -260,6 +276,7 @@ public class PSPackageUninstaller {
    */
   private boolean canIgnoreForUninstall(IPSGuid guid) {
     var ignoreTypes = List.of("CONFIGURATION", "IMAGE_FILE", "USER_DEPENDENCY");
-    return ignoreTypes.contains(guid.getType());
+    String typeName = PSTypeEnum.valueOf(guid.getType()).name();
+    return ignoreTypes.contains(typeName);
   }
 }

@@ -38,7 +38,7 @@ import com.percussion.server.job.IPSJobErrors;
 import com.percussion.server.job.PSJobException;
 import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
-import com.percussion.util.PSFormatVersion;
+import com.percussion.system.utils.PSFormatVersion;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Properties;
@@ -121,19 +121,21 @@ public class PSExportJob extends PSDeployJob {
       }
 
       // now add missing deps
-      m_descriptor
-          .getPackages()
-          .forEachRemaining(
-              de -> {
-                if (!isCancelled()) {
-                  var msg =
-                      MessageFormat.format(
-                          bundle.getString("analyzingDeps"), de.getDisplayIdentifier());
-                  setStatusMessage(msg);
-                  dm.addMissingDependencies(
-                      getSecurityToken(), (PSDeployableElement) de, treeCtx, this);
-                }
-              });
+      var iter1 = m_descriptor.getPackages();
+      while (iter1.hasNext()) {
+        var de = iter1.next();
+        if (!isCancelled()) {
+          var msg =
+              MessageFormat.format(bundle.getString("analyzingDeps"), de.getDisplayIdentifier());
+          setStatusMessage(msg);
+          try {
+            dm.addMissingDependencies(getSecurityToken(), (PSDeployableElement) de, treeCtx, this);
+          } catch (PSDeployException e) {
+            // wrap checked exception so we can handle it in the outer catch
+            throw new RuntimeException(e);
+          }
+        }
+      }
 
       // create the archive
       var archiveFile =
@@ -165,18 +167,19 @@ public class PSExportJob extends PSDeployJob {
 
       handleConfigFiles(dh, archive);
 
-      m_descriptor
-          .getPackages()
-          .forEachRemaining(
-              de -> {
-                if (!isCancelled()) {
-                  var msg =
-                      MessageFormat.format(
-                          bundle.getString("processing"), de.getDisplayIdentifier());
-                  setStatusMessage(msg);
-                  dm.addToArchive(getSecurityToken(), (PSDeployableElement) de, ah, this);
-                }
-              });
+      var iter2 = m_descriptor.getPackages();
+      while (iter2.hasNext()) {
+        var de = iter2.next();
+        if (!isCancelled()) {
+          var msg = MessageFormat.format(bundle.getString("processing"), de.getDisplayIdentifier());
+          setStatusMessage(msg);
+          try {
+            dm.addToArchive(getSecurityToken(), (PSDeployableElement) de, ah, this);
+          } catch (PSDeployException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }
 
       ah.close();
       if (!isCancelled()) {
@@ -203,7 +206,8 @@ public class PSExportJob extends PSDeployJob {
     }
   }
 
-  private void handleConfigFiles(PSDeploymentHandler dh, PSArchive archive) throws PSJobException {
+  private void handleConfigFiles(PSDeploymentHandler dh, PSArchive archive)
+      throws PSJobException, PSDeployException {
     var hasConfigDef = StringUtils.isNotBlank(m_descriptor.getConfigDefFile());
     var hasLocalConfig = StringUtils.isNotBlank(m_descriptor.getLocalConfigFile());
     File config;

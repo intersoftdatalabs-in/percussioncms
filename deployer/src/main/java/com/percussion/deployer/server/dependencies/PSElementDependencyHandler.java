@@ -85,20 +85,23 @@ public abstract class PSElementDependencyHandler extends PSDependencyHandler {
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    return getChildHandler().getDependencies(tok).stream()
+    return com.percussion.utils.collections.PSIteratorUtils.cloneList(
+            getChildHandler().getDependencies(tok))
+        .stream()
         .filter(defDep -> defDep.getDependencyType() != PSDependency.TYPE_SYSTEM)
         .map(
             defDep ->
-                new PSDeployableElement(
-                    PSDependency.TYPE_SHARED,
-                    defDep.getDependencyId(),
-                    getType(),
-                    m_def.getObjectTypeName(),
-                    defDep.getDisplayName(),
-                    m_def.supportsIdTypes(),
-                    m_def.supportsIdMapping(),
-                    m_def.supportsUserDependencies(),
-                    m_def.supportsParentId()))
+                (PSDependency)
+                    new PSDeployableElement(
+                        PSDependency.TYPE_SHARED,
+                        defDep.getDependencyId(),
+                        getType(),
+                        m_def.getObjectTypeName(),
+                        defDep.getDisplayName(),
+                        m_def.supportsIdTypes(),
+                        m_def.supportsIdMapping(),
+                        m_def.supportsUserDependencies(),
+                        m_def.supportsParentId()))
         .iterator();
   }
 

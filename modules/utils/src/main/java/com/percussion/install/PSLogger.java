@@ -112,12 +112,12 @@ public class PSLogger {
       ensureLog4jConfiguration(ms_absoluteLogFilePath);
     }
 
-    Collection logList = getLogList("info");
+    Collection<Object> logList = getLogList("info");
 
     if (ms_Logger != null) {
       if (logList != null && logList.size() > 0) {
         // dump whatever has accumulated before we knew where to log
-        Iterator it = logList.iterator();
+        Iterator<Object> it = logList.iterator();
         while (it.hasNext()) {
           Object obj = it.next();
           ms_Logger.info(obj);
@@ -152,12 +152,12 @@ public class PSLogger {
       ensureLog4jConfiguration(ms_absoluteLogFilePath);
     }
 
-    Collection logList = getLogList("warn");
+Collection<Object> logList = getLogList("warn");
 
     if (ms_Logger != null) {
       if (logList != null && logList.size() > 0) {
         // dump whatever has accumulated before we knew where to log
-        Iterator it = logList.iterator();
+        Iterator<Object> it = logList.iterator();
         while (it.hasNext()) {
           Object obj = it.next();
           ms_Logger.warn(obj);
@@ -192,12 +192,12 @@ public class PSLogger {
       ensureLog4jConfiguration(ms_absoluteLogFilePath);
     }
 
-    Collection logList = getLogList("error");
+Collection<Object> logList = getLogList("error");
 
     if (ms_Logger != null) {
       if (logList != null && logList.size() > 0) {
         // dump whatever has accumulated before we knew where to log
-        Iterator it = logList.iterator();
+        Iterator<Object> it = logList.iterator();
         while (it.hasNext()) {
           Object obj = it.next();
           ms_Logger.error(obj);
@@ -254,11 +254,11 @@ public class PSLogger {
    * @param level one of the Log4j log levels, never <code>null</code> or <code>empty</code>.
    * @return coll of log entries, may be <code>null</code> or <code>empty</code>.
    */
-  private static Collection getLogList(String level) {
+  private static Collection<Object> getLogList(String level) {
     if (level == null || level.trim().length() == 0)
       throw new IllegalArgumentException("level may not be null or empty");
 
-    return (Collection) ms_mapLevel2LogList.get(level);
+    return ms_mapLevel2LogList.get(level);
   }
 
   /*************************************************************************
@@ -292,7 +292,7 @@ public class PSLogger {
    * stores the log strings, grouped by a log level, to be logged later to log file, never <code>
    * null</code>.
    */
-  private static Map ms_mapLevel2LogList = new HashMap<>();
+  private static Map<String,Collection<Object>> ms_mapLevel2LogList = new HashMap<>();
 
   static {
     ms_mapLevel2LogList.put("trace", new ArrayList<>());

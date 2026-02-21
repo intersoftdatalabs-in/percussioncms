@@ -53,7 +53,7 @@ public class PSHtmlParamDocument {
    * @see setParams
    * @throws IllegalArgumentException if the paarameter supplied is <code>null</code>.
    */
-  public PSHtmlParamDocument(Map params) {
+  public PSHtmlParamDocument(Map<String, ?> params) {
     setParams(params);
   }
 
@@ -75,14 +75,14 @@ public class PSHtmlParamDocument {
           sourceNode.getNodeName() + " is not a valid document root element");
     }
     NodeList nl = sourceNode.getChildNodes();
-    Set keys = new HashSet();
+    Set<String> keys = new HashSet<>();
     Node node = null;
     for (int i = 0; i < nl.getLength(); i++) {
       node = nl.item(i);
       if (!(node instanceof Element)) continue;
       keys.add(node.getNodeName());
     }
-    Iterator iter = keys.iterator();
+    Iterator<String> iter = keys.iterator();
     Node child = null;
     String key = null;
     while (iter.hasNext()) {
@@ -92,7 +92,7 @@ public class PSHtmlParamDocument {
         child = nl.item(0).getFirstChild();
         if (child != null && child instanceof Text) m_params.put(key, ((Text) child).getData());
       } else {
-        List list = new ArrayList();
+        List<String> list = new ArrayList<>();
         for (int i = 0; i < nl.getLength(); i++) {
           child = nl.item(i).getFirstChild();
           if (child != null && child instanceof Text) list.add(((Text) child).getData());
@@ -115,7 +115,7 @@ public class PSHtmlParamDocument {
     }
     Element root = PSXmlDocumentBuilder.createRoot(doc, ROOT);
 
-    Iterator keys = m_params.keySet().iterator();
+    Iterator<String> keys = m_params.keySet().iterator();
     String key = null;
     String value = null;
     Object obj = null;
@@ -125,8 +125,8 @@ public class PSHtmlParamDocument {
       if (obj == null) continue;
       if (obj instanceof String) {
         PSXmlDocumentBuilder.addElement(doc, root, key, obj.toString());
-      } else if (obj instanceof List) {
-        List values = (List) obj;
+      } else if (obj instanceof List<?>) {
+        List<?> values = (List<?>) obj;
         Object val = null;
         for (int i = 0; i < values.size(); i++) {
           val = values.get(i);
@@ -152,9 +152,12 @@ public class PSHtmlParamDocument {
    * @param params must not be <code>null</code>.
    * @throws IllegalArgumentException if the parameter set is <code>null</code>.
    */
-  public void setParams(Map params) {
+  public void setParams(Map<String, ?> params) {
     if (params == null) throw new IllegalArgumentException("params must not be null");
-    m_params = params;
+    // unchecked assignment: we trust caller to supply correct types
+    @SuppressWarnings("unchecked")
+    Map<String, Object> tmp = (Map<String, Object>) params;
+    m_params = tmp;
   }
 
   /**
@@ -221,9 +224,9 @@ public class PSHtmlParamDocument {
     if (!m_params.containsKey(name)) return value;
 
     Object obj = m_params.get(name);
-    List list = new ArrayList();
+    List<Object> list = new ArrayList<>();
     if (obj instanceof String) list.add(obj);
-    else if (obj instanceof List) list.addAll((List) obj);
+    else if (obj instanceof List<?>) list.addAll((List<?>) obj);
 
     for (int i = 0; i < list.size(); i++) {
       if (encloseInQuotes) value = value + "\'";
@@ -239,12 +242,12 @@ public class PSHtmlParamDocument {
    *
    * @return map of parameters, never <code>null</code> may be empty.
    */
-  public Map getParams() {
+  public Map<String,Object> getParams() {
     return m_params;
   }
 
   /** Map of all parameter name-value pairs, never <code>null</code>. */
-  Map m_params = new HashMap();
+  Map<String,Object> m_params = new HashMap<>();
 
   /**
    * main method for testing
@@ -259,10 +262,10 @@ public class PSHtmlParamDocument {
     log.info("Test Case1: single values parameters");
     log.info(htmlDoc.getXmlString());
 
-    Map params = new HashMap();
+    Map<String,Object> params = new HashMap<>();
     params.put("testParam1", "testParamValue1");
     params.put("testParam2", "testParamValue2");
-    List values = new ArrayList();
+    List<String> values = new ArrayList<>();
     values.add("testParamValue31");
     values.add("testParamValue32");
     values.add("testParamValue33");

@@ -41,8 +41,8 @@ import com.percussion.security.PSEncryptor;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServerLockException;
 import com.percussion.server.job.PSJobException;
+import com.percussion.system.utils.PSFormatVersion;
 import com.percussion.util.PSCharSetsConstants;
-import com.percussion.util.PSFormatVersion;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.server.IPSCgiVariables;
@@ -56,7 +56,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -395,7 +394,7 @@ public class PSDeploymentServerConnection {
    * @throws PSDeployException if the connection is not valid or any other errors occur executing
    *     the request.
    */
-  public Document execute(String type, Document req, Map params)
+  public Document execute(String type, Document req, Map<String, String> params)
       throws PSAuthenticationFailedException,
           PSAuthorizationException,
           PSServerException,
@@ -421,7 +420,7 @@ public class PSDeploymentServerConnection {
    *     session has timed out. If <code>false</code>, no attempt to reconnect and re-execute is
    *     made.
    */
-  private Document execute(String type, Document req, Map params, boolean reconnect)
+  private Document execute(String type, Document req, Map<String, String> params, boolean reconnect)
       throws PSAuthenticationFailedException,
           PSAuthorizationException,
           PSServerException,
@@ -550,7 +549,8 @@ public class PSDeploymentServerConnection {
    * @throws PSDeployException if the connection is not valid or any other errors occur executing
    *     the request.
    */
-  public Document execute(String type, Map params, File body, PSDeployFileJobControl controller)
+  public Document execute(
+      String type, Map<String, String> params, File body, PSDeployFileJobControl controller)
       throws PSAuthenticationFailedException,
           PSAuthorizationException,
           PSServerException,
@@ -586,7 +586,7 @@ public class PSDeploymentServerConnection {
    */
   private Document execute(
       String type,
-      Map params,
+      Map<String, ?> params,
       File body,
       PSDeployFileJobControl controller,
       boolean reconnect,
@@ -1241,21 +1241,20 @@ public class PSDeploymentServerConnection {
    * @return The array, will be <code>null</code> if <code>params</code> is <code>null</code> or
    *     emtpy.
    */
-  private NVPair[] getParams(Map params) {
+  private NVPair[] getParams(Map<String, ?> params) {
     // add the params
     NVPair[] opts = null;
     if (params != null && params.size() > 0) {
       opts = new NVPair[params.size()];
-      Iterator i = params.entrySet().iterator();
+      var iterator = params.entrySet().iterator();
       int onParam = 0;
-      while (i.hasNext()) {
-        Map.Entry entry = (Map.Entry) i.next();
+      while (iterator.hasNext()) {
+        @SuppressWarnings("unchecked")
+        Map.Entry<String, ?> entry = (Map.Entry<String, ?>) iterator.next();
         if (entry.getKey() == null)
           throw new IllegalArgumentException("params may not contain a null key");
 
-        String val = null;
-        if (entry.getValue() != null) val = entry.getValue().toString();
-        else val = "";
+        String val = entry.getValue() != null ? entry.getValue().toString() : "";
 
         opts[onParam] = new NVPair(entry.getKey().toString(), val);
         onParam++;

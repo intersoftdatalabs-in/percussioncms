@@ -74,7 +74,9 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
     }
 
     return dep.supportsIdTypes()
-        ? PSIdTypeManager.getIdTypeDependencies(tok, dep).stream()
+        ? com.percussion.utils.collections.PSIteratorUtils.cloneList(
+                PSIdTypeManager.getIdTypeDependencies(tok, dep))
+            .stream()
             .map(
                 mapping -> {
                   try {

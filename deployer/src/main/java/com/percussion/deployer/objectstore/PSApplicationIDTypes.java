@@ -262,7 +262,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public boolean isComplete(String resourceName, String elementName) {
-    return getIdTypeMappings(resourceName, elementName, false).stream()
+    return getIdTypeMappingsList(resourceName, elementName, false).stream()
         .allMatch(PSApplicationIDTypeMapping::hasDefinedType);
   }
 
@@ -805,7 +805,8 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * Convenience method that calls {@link #getIdTypeMappingsList(String, String, boolean)
    * getIdTypeMappingsList(resourceName, elementName, true}
    */
-  private List getIdTypeMappingsList(String resourceName, String elementName) {
+  private List<PSApplicationIDTypeMapping> getIdTypeMappingsList(
+      String resourceName, String elementName) {
     return getIdTypeMappingsList(resourceName, elementName, true);
   }
 
@@ -824,25 +825,26 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    *     <code>null</code>, may be empty.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  private List getIdTypeMappingsList(String resourceName, String elementName, boolean mustExist) {
+  private List<PSApplicationIDTypeMapping> getIdTypeMappingsList(
+      String resourceName, String elementName, boolean mustExist) {
     if (resourceName == null || resourceName.trim().length() == 0)
       throw new IllegalArgumentException("Resource name may not be null or empty");
 
     if (elementName == null || elementName.trim().length() == 0)
       throw new IllegalArgumentException("Element name may not be null or empty");
 
-    Map elementMap = (Map) m_resourceMap.get(resourceName);
+    var elementMap = m_resourceMap.get(resourceName);
     if (elementMap == null) {
       if (mustExist)
         throw new IllegalArgumentException("Resource name, " + resourceName + ", does not exist");
-      else return new ArrayList();
+      else return new ArrayList<>();
     }
 
-    List idTypeList = (List) elementMap.get(elementName);
+    var idTypeList = elementMap.get(elementName);
     if (idTypeList == null) {
       if (mustExist)
         throw new IllegalArgumentException("Element name, " + elementName + ", does not exist");
-      else return new ArrayList();
+      else return new ArrayList<>();
     }
 
     return idTypeList;
@@ -928,7 +930,8 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * </code>) object will never be empty / <code>null</code>. Each list of <code>PSIdTypeMapping
    * </code> object (for a given element) will never be empty or <code>null</code>.
    */
-  private Map m_resourceMap = new HashMap();
+  private Map<String, Map<String, List<PSApplicationIDTypeMapping>>> m_resourceMap =
+      new HashMap<>();
 
   /**
    * The dependency for which this map defines literal id types. Initialized during construction,

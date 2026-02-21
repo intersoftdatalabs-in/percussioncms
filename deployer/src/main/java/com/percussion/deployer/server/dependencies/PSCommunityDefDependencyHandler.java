@@ -56,7 +56,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.naming.NamingException;
 
 /** Class to handle packaging and deploying a community definition. */
@@ -192,11 +191,14 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
     files.add(getDepFileFromDepData(getDepDataFromTable(dep, COMMUNITY_TABLE, COMMUNITY_ID, true)));
 
     var depData = getDepDataFromTable(dep, COMM_CP_TABLE, COMMUNITY_ID, false);
-    Optional.ofNullable(depData).ifPresent(data -> files.add(getDepFileFromDepData(data)));
+    if (depData != null) {
+      files.add(getDepFileFromDepData(depData));
+    }
 
     depData = getDepDataFromTable(dep, COMM_RL_TABLE, COMMUNITY_ID, false);
-    Optional.ofNullable(depData)
-        .ifPresent(data -> files.add(getDepFileFromDepData(convertRoleIdToRoleName(data))));
+    if (depData != null) {
+      files.add(getDepFileFromDepData(convertRoleIdToRoleName(depData)));
+    }
 
     return files.iterator();
   }
