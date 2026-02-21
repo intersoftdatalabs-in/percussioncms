@@ -47,7 +47,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[0] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -56,7 +56,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[0] = " ";
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (IllegalArgumentException e) {
       // expected
     }
@@ -67,7 +67,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[1] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -78,7 +78,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[2] = null;
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (PSParameterMismatchException e) {
       // expected
     }
@@ -87,7 +87,7 @@ public class PSParamStringListToMultiParamsTest {
     parameters[2] = " ";
     try {
       test.preProcessRequest(parameters, request);
-      assertTrue(false, "Expected exception");
+      fail("Expected exception");
     } catch (IllegalArgumentException e) {
       // expected
     }
