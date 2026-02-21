@@ -106,16 +106,18 @@ public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
     else if (params[0] instanceof Date) {
       day = (Date) params[0];
     } else {
-      // parseStringToDate now throws unchecked exceptions on failure, handle accordingly
+      // parseStringToDate throws IllegalArgumentException for null/empty input,
+      // and returns null when the string cannot be parsed as a date.
+      String paramContext =
+          "Param 1 is (" + params[0].toString() + ") PSSimpleJavaUdf_dateAdjust/processUdf";
       try {
         day = com.percussion.util.PSDataTypeConverter.parseStringToDate(params[0].toString());
       } catch (IllegalArgumentException e) {
-        int errCode = 0;
-        Object[] args = {
-          e.toString(),
-          "Param 1 is (" + params[0].toString() + ")" + " PSSimpleJavaUdf_dateAdjust/processUdf"
-        };
-        throw new PSConversionException(errCode, args);
+        throw new PSConversionException(0, new Object[] {e.toString(), paramContext});
+      }
+      if (day == null) {
+        throw new PSConversionException(
+            0, new Object[] {"Unable to parse date string", paramContext});
       }
     }
 
