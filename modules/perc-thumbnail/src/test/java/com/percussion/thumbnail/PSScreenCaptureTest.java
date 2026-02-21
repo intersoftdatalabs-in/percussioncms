@@ -36,8 +36,6 @@ public class PSScreenCaptureTest {
 
   protected static final Logger log = LogManager.getLogger();
 
-  public static final String RXDEPLOYDIR = "rxdeploydir";
-
   public static File temp;
 
   @BeforeEach
@@ -71,7 +69,7 @@ public class PSScreenCaptureTest {
 
   @Test
   public void generateEmptyThumb() throws IOException {
-    File file = new File(System.getProperty(RXDEPLOYDIR), "emptythumb.jpg");
+    File file = new File(System.getProperty(PathUtils.DEPLOY_DIR_PROP), "emptythumb.jpg");
     log.info("Creating empty thumb to " + file.getAbsolutePath());
     PSScreenCapture.generateEmptyThumb(file.getAbsolutePath());
     assertTrue(file.exists());
@@ -89,7 +87,7 @@ public class PSScreenCaptureTest {
 
   public void capture(int height, int width) throws IOException {
     File file =
-        new File(System.getProperty(RXDEPLOYDIR), "testimg_" + height + "_" + width + ".jpg");
+        new File(System.getProperty(PathUtils.DEPLOY_DIR_PROP), "testimg_" + height + "_" + width + ".jpg");
     log.info("Taking capture to " + file.getAbsolutePath());
     PSScreenCapture.takeCapture("https://www.percussion.com", file.getAbsolutePath());
     assertTrue(file.exists(), "capture command should create a file");
