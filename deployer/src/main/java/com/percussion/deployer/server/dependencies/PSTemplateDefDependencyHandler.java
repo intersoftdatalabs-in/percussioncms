@@ -406,12 +406,12 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     init();
     var templates = m_assemblyHelper.getNamedTemplatesMap();
-    return templates.values().stream()
-        .map(
-            tmp ->
-                createDeployableElement(
-                    m_def, String.valueOf(tmp.getGUID().longValue()), tmp.getName()))
-        .iterator();
+    List<PSDependency> deps = new ArrayList<>();
+    for (IPSAssemblyTemplate tmp : templates.values()) {
+      deps.add(
+          createDeployableElement(m_def, String.valueOf(tmp.getGUID().longValue()), tmp.getName()));
+    }
+    return deps.iterator();
   }
 
   // see base class
@@ -493,12 +493,13 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
       ((PSAssemblyTemplate) tmp).setVersion(null);
 
       // remove any existing slot associations
-      List<Long> slots = ((PSAssemblyTemplate) tmp).getTemplateSlotIds();
-
-      Iterator<Long> it = slots.iterator();
-      while (it.hasNext()) {
-        IPSTemplateSlot s = m_assemblySvc.findSlot(new PSGuid(PSTypeEnum.SLOT, it.next()));
-        if (s != null) tmp.removeSlot(s);
+      // The old getTemplateSlotIds method was removed in newer assembly
+      // service versions, so retrieve slots via getSlots() and remove them.
+      Set<IPSTemplateSlot> slotSet = ((PSAssemblyTemplate) tmp).getSlots();
+      for (IPSTemplateSlot slot : slotSet) {
+        if (slot != null) {
+          tmp.removeSlot(slot);
+        }
       }
     }
 

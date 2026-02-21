@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -24,20 +26,13 @@ import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSLogDetail</code> class. */
 public class PSLogDetailTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSLogDetailTest(String name) {
-    super(name);
-  }
 
   /**
    * Test all features of PSLogDetail class
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testAll() throws Exception {
     // prepare data
     PSValidationResults vResults = new PSValidationResults();
@@ -57,14 +52,7 @@ public class PSLogDetailTest {
     PSLogDetail tgtDetailNoIdMap = new PSLogDetail(element);
 
     // source should be the same as the target object.
-    assertTrue(srcDetail.equals(tgtDetail));
-    assertTrue(srcDetailNoIdMap.equals(tgtDetailNoIdMap));
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSLogDetailTest("testAll"));
-    return suite;
+    assertEquals(srcDetail, tgtDetail);
+    assertEquals(srcDetailNoIdMap, tgtDetailNoIdMap);
   }
 }

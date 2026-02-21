@@ -25,7 +25,7 @@ import com.percussion.services.pkginfo.data.PSPkgDependency;
 import com.percussion.services.pkginfo.data.PSPkgElement;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageAction;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -236,8 +236,8 @@ public class PSPkgInfoService implements IPSPkgInfoService {
             + " p.objectGuid = :objId"
             + " and i.lastAction != :action and p.packageGuid = i.guid";
     var q = session.createQuery(query);
-    q.setString("objId", objId.toString());
-    q.setString("action", PackageAction.UNINSTALL.name());
+    q.setParameter("objId", objId.toString());
+    q.setParameter("action", PackageAction.UNINSTALL.name());
     q.setCacheable(true);
     return (PSPkgElement) q.uniqueResult();
   }

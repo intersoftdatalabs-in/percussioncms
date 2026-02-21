@@ -47,7 +47,7 @@ import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.data.PSContentList;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.utils.guid.IPSGuid;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections.IterableMap;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -301,8 +300,8 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
     // pack the data into the files
     List<PSDependencyFile> files = new ArrayList<>();
-    IterableMap namedCList = m_publisherHelper.getNamedContentListMap();
-    IPSContentList cList = (IPSContentList) namedCList.get(dep.getDisplayName());
+    Map<String, IPSContentList> namedCList = m_publisherHelper.getNamedContentListMap();
+    IPSContentList cList = namedCList.get(dep.getDisplayName());
     files.add(getDepFileFromContentList(cList));
     return files.iterator();
   }
@@ -550,7 +549,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
     // ADD ANY EXPANDER PARAMS THAT ARE ID-TYPED
     Map<String, String> paramMap = cList.getExpanderParams();
-    List<String> mappings = new ArrayList<>();
+    List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
     // check each param for idtypes
     Iterator<Map.Entry<String, String>> entries = paramMap.entrySet().iterator();
     while (entries.hasNext()) {

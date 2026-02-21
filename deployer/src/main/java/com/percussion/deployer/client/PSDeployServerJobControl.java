@@ -18,6 +18,7 @@
 package com.percussion.deployer.client;
 
 import com.percussion.error.PSDeployException;
+import java.util.Optional;
 
 /**
  * The job controller that represents a job started on the server. Provides ability to query the job
@@ -55,10 +56,8 @@ public class PSDeployServerJobControl implements IPSDeployJobControl {
   }
 
   // IPSDeployJobControl interface implementation
-  public String getStatusMessage() {
-    if (m_statusMsg != null) return m_statusMsg.toString();
-
-    return null;
+  public Optional<String> getStatusMessage() {
+    return Optional.ofNullable(m_statusMsg == null ? null : m_statusMsg.toString());
   }
 
   // IPSDeployJobControl interface implementation

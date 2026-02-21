@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 public class PSConcurrentIterator<T> implements Iterator<T> {
 
-  private final Iterator iterator;
+  private final Iterator<T> iterator;
   private static final Logger log = LogManager.getLogger(PSConcurrentIterator.class);
 
   public PSConcurrentIterator(Iterator<T> iterator) {
@@ -51,7 +51,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    */
   @Override
   public T next() {
-    return (T) iterator.next();
+    return iterator.next();
   }
 
   /**
@@ -99,7 +99,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    * @since 1.8
    */
   @Override
-  public void forEachRemaining(Consumer action) {
+  public void forEachRemaining(Consumer<? super T> action) {
     this.iterator.forEachRemaining(action);
   }
 }

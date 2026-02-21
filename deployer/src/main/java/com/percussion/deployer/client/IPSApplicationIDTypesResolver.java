@@ -17,6 +17,7 @@
 
 package com.percussion.deployer.client;
 
+import com.percussion.deployer.objectstore.PSApplicationIDTypeMapping;
 import java.util.Iterator;
 
 /**

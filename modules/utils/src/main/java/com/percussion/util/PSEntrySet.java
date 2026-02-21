@@ -26,14 +26,14 @@ package com.percussion.util;
  * @version 1.0
  * @since 1.0
  */
-public class PSEntrySet implements java.util.Map.Entry {
+public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {
   /**
    * Create an entry set for the specified key and value.
    *
    * @param key the key corresponding to this entry
    * @param value the value corresponding to this entry
    */
-  public PSEntrySet(Object key, Object value) {
+  public PSEntrySet(K key, V value) {
     super();
     m_key = key;
     m_value = value;
@@ -44,7 +44,8 @@ public class PSEntrySet implements java.util.Map.Entry {
    *
    * @return the key corresponding to this entry.
    */
-  public Object getKey() {
+  @Override
+  public K getKey() {
     return m_key;
   }
 
@@ -53,7 +54,8 @@ public class PSEntrySet implements java.util.Map.Entry {
    *
    * @return the value corresponding to this entry.
    */
-  public Object getValue() {
+  @Override
+  public V getValue() {
     return m_value;
   }
 
@@ -71,8 +73,9 @@ public class PSEntrySet implements java.util.Map.Entry {
    * @exception NullPointerException the backing map does not permit null values, and the specified
    *     value is null.
    */
-  public Object setValue(Object value) {
-    Object oldValue = m_value;
+  @Override
+  public V setValue(V value) {
+    V oldValue = m_value;
     m_value = value;
     return oldValue;
   }
@@ -100,9 +103,10 @@ public class PSEntrySet implements java.util.Map.Entry {
 
     if (!(o instanceof java.util.Map.Entry)) return false;
 
-    java.util.Map.Entry entry = (java.util.Map.Entry) o;
-    Object key = entry.getKey();
-    Object val = entry.getValue();
+    @SuppressWarnings("unchecked")
+    java.util.Map.Entry<K,V> entry = (java.util.Map.Entry<K,V>) o;
+    K key = entry.getKey();
+    V val = entry.getValue();
 
     return ((m_key == null) ? (key == null) : m_key.equals(key))
         && ((m_value == null) ? (val == null) : m_value.equals(val));
@@ -129,6 +133,6 @@ public class PSEntrySet implements java.util.Map.Entry {
     return ((m_key == null) ? 0 : m_key.hashCode()) ^ ((m_value == null) ? 0 : m_value.hashCode());
   }
 
-  protected Object m_key;
-  protected Object m_value;
+  protected K m_key;
+  protected V m_value;
 }

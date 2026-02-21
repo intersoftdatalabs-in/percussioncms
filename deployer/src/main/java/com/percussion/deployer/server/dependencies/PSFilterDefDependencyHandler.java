@@ -184,9 +184,9 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
    *
    * @return iterator on a set of names
    */
-  public Iterator getFilterNames() {
+  public Iterator<String> getFilterNames() {
     init();
-    Set names = m_namedFiltersMap.keySet();
+    Set<String> names = m_namedFiltersMap.keySet();
     return names.iterator();
   }
 
@@ -198,14 +198,15 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
     return m_namedFiltersMap.values().stream()
         .map(
             filter ->
-                createDeployableElement(
-                    m_def, String.valueOf(filter.getGUID().longValue()), filter.getName()))
+                (PSDependency)
+                    createDeployableElement(
+                        m_def, String.valueOf(filter.getGUID().longValue()), filter.getName()))
         .iterator();
   }
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
       throw new IllegalArgumentException("Invalid arguments provided.");
@@ -213,7 +214,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
     init();
     var filter = m_namedFiltersMap.get(dep.getDisplayName());
-    return List.of(getDepFileFromFilter(filter)).iterator();
+    return List.<PSDependencyFile>of(getDepFileFromFilter(filter)).iterator();
   }
 
   /**

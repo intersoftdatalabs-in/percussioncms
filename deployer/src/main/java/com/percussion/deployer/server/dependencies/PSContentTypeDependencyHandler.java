@@ -23,6 +23,7 @@ import com.percussion.cms.objectstore.PSContentType;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.deployer.client.IPSDeployConstants;
+import com.percussion.deployer.objectstore.PSApplicationIDTypeMapping;
 import com.percussion.deployer.objectstore.PSApplicationIDTypes;
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.objectstore.PSDependencyFile;
@@ -88,8 +89,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -277,7 +276,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     var node = findNodeDefByDependencyID(dep.getDependencyId());
 
     var appName = PSDependencyUtils.getColumnAppName(((PSNodeDefinition) node).getNewRequest());
-    if (StringUtils.isBlank(appName)) {
+    if (appName == null || appName.isBlank()) {
       throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "App name was null");
     }
     childDeps.addAll(getCEChildDependencies(tok, appName));
@@ -399,10 +398,22 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     List<PSDependencyFile> files = new ArrayList<>();
 
     var item = findItemDefByDependencyID(dep.getDependencyId());
-    Optional.ofNullable(item).ifPresent(i -> files.add(getDepFileFromItemDef(i)));
+    if (item != null) {
+      try {
+        files.add(getDepFileFromItemDef(item));
+      } catch (PSDeployException e) {
+        throw e; // propagate
+      }
+    }
 
     var node = findNodeDefByDependencyID(dep.getDependencyId());
-    Optional.ofNullable(node).ifPresent(n -> files.add(getDepFileFromNodeDef(n)));
+    if (node != null) {
+      try {
+        files.add(getDepFileFromNodeDef(node));
+      } catch (PSDeployException e) {
+        throw e;
+      }
+    }
     files.addAll(getSchemaDepFiles(tok, dep));
 
     return files.iterator();
@@ -432,7 +443,10 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
         if (schemaDep.getDependencyType() == PSDependency.TYPE_SHARED)
           schemaDep.setIsAssociation(false);
 
-        CollectionUtils.addAll(depFiles, schemaHandler.getDependencyFiles(tok, schemaDep));
+        Iterator<PSDependencyFile> iter = schemaHandler.getDependencyFiles(tok, schemaDep);
+        while (iter.hasNext()) {
+          depFiles.add(iter.next());
+        }
       }
     }
 
@@ -533,7 +547,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     if (item == null) throw new IllegalArgumentException("Item definition may not be null");
 
     // nothing to transform ??
-    if (clMapping == null || StringUtils.isBlank(clMapping.getTargetId())) return item;
+    if (clMapping == null || clMapping.getTargetId() == null || clMapping.getTargetId().isBlank())
+      return item;
 
     PSTypeEnum type = PSDependencyManager.getInstance().getGuidType(dep.getObjectType());
     if (type == null) throw new IllegalArgumentException("Dependency not a GUID type");
@@ -793,7 +808,10 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     // assumes one nodedef and one itemdef CAN THERE BE MANY? WHY NOT????
     PSDependencyFile itemFile = null;
     List<PSDependencyFile> files = new ArrayList<>();
-    CollectionUtils.addAll(files, archive.getFiles(dep));
+    Iterator<PSDependencyFile> tmpFilesIt = archive.getFiles(dep);
+    while (tmpFilesIt.hasNext()) {
+      files.add(tmpFilesIt.next());
+    }
     for (PSDependencyFile file : files) {
       if (file.getType() == PSDependencyFile.TYPE_ITEM_DEFINITION) {
         itemFile = file;
@@ -837,7 +855,10 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     // data in the current table (not to remove column)
 
     List<PSJdbcColumnDef> columns = new ArrayList<>();
-    CollectionUtils.addAll(columns, curSchema.getColumns());
+    Iterator<PSJdbcColumnDef> curCols = curSchema.getColumns();
+    while (curCols.hasNext()) {
+      columns.add(curCols.next());
+    }
     for (PSJdbcColumnDef col : columns) {
       if (newSchema.getColumn(col.getName()) == null) newSchema.setColumn(col);
     }
@@ -861,7 +882,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     IPSNodeDefinition node = null;
     PSIdMapping map = getIdMapping(ctx, dep);
 
-    if (map != null && !StringUtils.isBlank(map.getTargetId()))
+    if (map != null && map.getTargetId() != null && !map.getTargetId().isBlank())
       node = findNodeDefByDependencyID(map.getTargetId());
     else node = findNodeDefByDependencyID(dep.getDependencyId());
 
@@ -1182,7 +1203,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   public boolean doesDependencyExist(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    if (StringUtils.isBlank(id)) throw new IllegalArgumentException("id may not be null or empty");
+    if (id == null || id.isBlank())
+      throw new IllegalArgumentException("id may not be null or empty");
 
     if (!PSGuid.isValid(PSTypeEnum.NODEDEF, id)) return false;
     IPSNodeDefinition node = findNodeDefByDependencyID(id);
@@ -1351,18 +1373,19 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     if (!(obj instanceof PSItemDefinition)) return;
     item = (PSItemDefinition) obj;
 
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
+      String resource = resources.next();
       PSContentEditor ce = item.getContentEditor();
-      Iterator elements = idTypes.getElementList(resource, false);
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
-          PSApplicationIDMapping mapping = (PSApplicationIDMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
-          if (mapping.getType().equals(PSApplicationIDMapping.TYPE_NONE)) {
+          if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
           }
           PSContentEditorPipe cePipe = (PSContentEditorPipe) ce.getPipe();
@@ -1466,7 +1489,10 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     if (defaultWfId == -1) {
       // use default workflow from target system
 
-      defaultWfId = ms_wfSvc.getDefaultWorkflowId().getUUID();
+      defaultWfId =
+          ((com.percussion.services.workflow.impl.PSWorkflowService) ms_wfSvc)
+              .getDefaultWorkflowId()
+              .getUUID();
     }
 
     return defaultWfId;

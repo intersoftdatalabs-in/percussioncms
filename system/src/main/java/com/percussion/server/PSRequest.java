@@ -2140,9 +2140,9 @@ public class PSRequest {
     String mediaType = null;
     String charSet = null;
 
-    Map<String, Object> contentParams = Collections.synchronizedMap(new HashMap<String, Object>());
+    Map<String, String> contentParams = Collections.synchronizedMap(new HashMap<String, String>());
     mediaType = PSBaseHttpUtils.parseContentType(contentType, contentParams);
-    charSet = (String) contentParams.get("charset");
+    charSet = contentParams.get("charset");
     if (StringUtils.isNotBlank(charSet)) {
       // If the charSet is presented with quotes, remove them (Dreamweaver)
       charSet = PSStringUtils.stripQuotes(charSet);

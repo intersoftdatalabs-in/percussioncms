@@ -16,22 +16,27 @@
  */
 package com.percussion.rx.config.test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.rx.config.impl.PSConfigDefGenerator;
 import com.percussion.utils.tools.PSParseFragments;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 public class PSParseFragmentsTest {
+  @Test
   public void testAll() throws Exception {
     PSConfigDefGenerator gen = PSConfigDefGenerator.getInstance();
     String content = gen.getFragementFileContents();
 
     Map<String, String> frags = PSParseFragments.parseContent(content);
-    assertTrue("Must have more than one fragments", frags.size() > 1);
+    assertTrue(frags.size() > 1, "Must have more than one fragments");
 
-    assertTrue("Must have XMLHEAD", frags.get("XMLHEAD") != null);
-    assertTrue("Must have SLOT", frags.get("SLOT") != null);
+    assertTrue(frags.get("XMLHEAD") != null, "Must have XMLHEAD");
+    assertTrue(frags.get("SLOT") != null, "Must have SLOT");
   }
 
+  @Test
   public void testParse() throws Exception {
     String text = "1st\n2nd line\r\n3rd line";
     String[] lines = PSParseFragments.splitByNewlines(text);
@@ -39,8 +44,8 @@ public class PSParseFragmentsTest {
       char ch = line.charAt(line.length() - 1);
       assertTrue(ch != '\r' && ch != '\n');
     }
-    assertTrue(lines[0].equals("1st"));
-    assertTrue(lines[1].equals("2nd line"));
-    assertTrue(lines[2].equals("3rd line"));
+    assertEquals("1st", lines[0]);
+    assertEquals("2nd line", lines[1]);
+    assertEquals("3rd line", lines[2]);
   }
 }

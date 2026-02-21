@@ -24,34 +24,38 @@ import com.percussion.utils.request.PSRequestInfo;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
-import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author JaySeletz
  */
 
-public class PSLocalDeployerClientTest extends ServletTestCase {
+public class PSLocalDeployerClientTest {
 
   private static final String PKG_DIR = "Packages/Percussion";
   private static final String TEST_PKG = "perc.Test";
   private static final String PKG_EXT = ".ppkg";
 
-  public void test() throws Exception {
+  @BeforeEach
+  public void setup() {
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_USER, "Admin");
-    PSSecurityFilter.authenticate(request, response, "Admin", "demo");
+    // Cactus request/response not available; authenticate using service directly
+    PSSecurityFilter.authenticate(null, null, "Admin", "demo");
+  }
 
-    try {
+  @Test
+  public void testPackageInstallation() throws Exception {
       PSLocalDeployerClient client = new PSLocalDeployerClient();
       Date started = new Date();
 
-      client.installPackage(new File(PKG_DIR, TEST_PKG + PKG_EXT));
+      assertDoesNotThrow(() ->
+          client.installPackage(new File(PKG_DIR, TEST_PKG + PKG_EXT))
+      );
       checkPackageIsInstalled(TEST_PKG, started);
-
-    } catch (Exception e) {
-      fail("Exception thrown: " + e.getLocalizedMessage());
-    }
   }
 
   private void checkPackageIsInstalled(String pkgName, Date started) throws Exception {

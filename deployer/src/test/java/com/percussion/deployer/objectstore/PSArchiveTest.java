@@ -17,30 +17,29 @@
 
 package com.percussion.deployer.objectstore;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for the <code>PSArchive</code> object. */
 public class PSArchiveTest {
-  @Rule public Path temporaryFolder;
+  @TempDir Path temporaryFolder;
   private String rxdeploydir;
 
   @BeforeEach
   public void setup() throws IOException {
 
     rxdeploydir = System.getProperty("rxdeploydir");
-    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+    System.setProperty("rxdeploydir", temporaryFolder.toFile().getAbsolutePath());
   }
 
   @AfterEach

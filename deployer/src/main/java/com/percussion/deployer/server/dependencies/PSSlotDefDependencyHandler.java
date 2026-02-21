@@ -285,12 +285,14 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
     }
 
     init();
-    return m_assemblyHelper.getSlots().stream()
-        .map(
-            slot ->
-                createDeployableElement(
-                    m_def, String.valueOf(slot.getGUID().longValue()), slot.getName()))
-        .iterator();
+    List<PSDependency> deps = new ArrayList<>();
+    for (IPSTemplateSlot slot : m_assemblyHelper.getSlots()) {
+      PSDependency dep =
+          createDeployableElement(
+              m_def, String.valueOf(slot.getGUID().longValue()), slot.getName());
+      deps.add(dep);
+    }
+    return deps.iterator();
   }
 
   // see base class

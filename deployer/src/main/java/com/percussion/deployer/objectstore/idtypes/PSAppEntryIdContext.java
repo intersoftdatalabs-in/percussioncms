@@ -124,7 +124,9 @@ public class PSAppEntryIdContext extends PSApplicationIdContext {
 
     var root = doc.createElement(XML_NODE_NAME);
     root.appendChild(m_entry.toXml(doc));
-    Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
+    if (getParentCtx() != null) {
+      root.appendChild(getParentCtx().toXml(doc));
+    }
     return root;
   }
 
@@ -156,8 +158,9 @@ public class PSAppEntryIdContext extends PSApplicationIdContext {
     m_origEntry = m_entry;
 
     var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-    Optional.ofNullable(ctxEl)
-        .ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
+    if (ctxEl != null) {
+      setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+    }
   }
 
   // see IPSDeployComponent interface

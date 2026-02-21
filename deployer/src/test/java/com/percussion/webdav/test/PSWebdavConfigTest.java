@@ -16,6 +16,8 @@
  */
 package com.percussion.webdav.test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.webdav.error.IPSWebdavErrors;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.IPSRxWebDavDTD;
@@ -29,20 +31,13 @@ import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSWebdavConfig</code> class. */
 public class PSWebdavConfigTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSWebdavConfigTest(String name) {
-    super(name);
-  }
 
   /**
    * Test loading a good configuration
    *
    * @throws Exception for any error
    */
+  @Test
   public void testGoodConfig() throws Exception {
     PSWebdavConfigDef config = new PSWebdavConfigDef(loadXmlResource(CONFIG_GOOD));
     assertEquals("default", config.getCommunityName());
@@ -67,6 +62,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingCommunity() throws Exception {
     String errorMsg = "";
     try {
@@ -84,6 +80,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingContentField() throws Exception {
     String errorMsg = "";
     try {
@@ -101,6 +98,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingPropName() throws Exception {
     String errorMsg = "";
     try {
@@ -118,6 +116,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingRoot() throws Exception {
     String errorMsg = "";
     try {
@@ -134,6 +133,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingTypeID() throws Exception {
     String errorMsg = "";
     try {
@@ -150,6 +150,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingTypeName() throws Exception {
     String errorMsg = "";
     try {
@@ -166,6 +167,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingFieldName() throws Exception {
     PSWebdavException expectedEx = null;
     try {
@@ -181,6 +183,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingProps() throws Exception {
     PSWebdavException expectedEx = null;
     try {
@@ -196,6 +199,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testDuplicateTypes() throws Exception {
     PSWebdavException expectedEx = null;
     try {
@@ -211,6 +215,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testDuplicateProps() throws Exception {
     PSWebdavException expectedEx = null;
     try {
@@ -226,6 +231,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMissingMimetypes() throws Exception {
     PSWebdavException expectedEx = null;
     try {
@@ -241,6 +247,7 @@ public class PSWebdavConfigTest {
    *
    * @throws Exception for any error
    */
+  @Test
   public void testMoreThenOneDefaultCT() throws Exception {
     PSWebdavException expectedEx = null;
     try {
@@ -262,25 +269,6 @@ public class PSWebdavConfigTest {
     InputStream in = getClass().getResourceAsStream("/com/percussion/webdav/test/" + name);
     Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
     return doc.getDocumentElement();
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSWebdavConfigTest("testGoodConfig"));
-    suite.addTest(new PSWebdavConfigTest("testMissingCommunity"));
-    suite.addTest(new PSWebdavConfigTest("testMissingContentField"));
-    suite.addTest(new PSWebdavConfigTest("testMissingPropName"));
-    suite.addTest(new PSWebdavConfigTest("testMissingRoot"));
-    suite.addTest(new PSWebdavConfigTest("testMissingTypeID"));
-    suite.addTest(new PSWebdavConfigTest("testMissingTypeName"));
-    suite.addTest(new PSWebdavConfigTest("testMissingFieldName"));
-    suite.addTest(new PSWebdavConfigTest("testMissingProps"));
-    suite.addTest(new PSWebdavConfigTest("testDuplicateTypes"));
-    suite.addTest(new PSWebdavConfigTest("testDuplicateProps"));
-    suite.addTest(new PSWebdavConfigTest("testMissingMimetypes"));
-    suite.addTest(new PSWebdavConfigTest("testMoreThenOneDefaultCT"));
-    return suite;
   }
 
   private String getAttributeErrorMsg(String attr, String elem) {

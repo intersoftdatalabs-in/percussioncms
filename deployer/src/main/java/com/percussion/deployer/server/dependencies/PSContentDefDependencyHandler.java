@@ -67,8 +67,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /** Class to handle packaging and deploying a content definition. */
 public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
@@ -107,21 +110,27 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
             PSCEDependencyHandler.DEPENDENCY_TYPE,
             tok));
 
-    var wfDepIds =
-        Stream.of(
+    Set<String> wfDepIds =
+        Stream.<Iterator<String>>of(
                 getChildIdsFromTable(CONTENT_TABLE, WORKFLOW_ID, CONTENT_ID, csId),
                 getChildIdsFromTable(CONTENT_APPROVALS_TABLE, WORKFLOW_ID, CONTENT_ID, csId),
                 getChildIdsFromTable(CONTENT_STATUS_HISTORY_TABLE, WORKFLOW_ID, CONTENT_ID, csId))
-            .flatMap(Iterator::asIterator)
+            .flatMap(
+                it ->
+                    StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(it, Spliterator.ORDERED), false))
             .collect(Collectors.toSet());
     childDeps.addAll(
         getDepsFromIds(wfDepIds.iterator(), PSWorkflowDependencyHandler.DEPENDENCY_TYPE, tok));
 
-    var roleDepIds =
-        Stream.of(
+    Set<String> roleDepIds =
+        Stream.<Iterator<String>>of(
                 getChildIdsFromTable(CONTENT_ADHOC_USERS_TABLE, ROLE_ID_COL, CONTENT_ID, csId),
                 getChildIdsFromTable(CONTENT_APPROVALS_TABLE, ROLE_ID_COL, CONTENT_ID, csId))
-            .flatMap(Iterator::asIterator)
+            .flatMap(
+                it ->
+                    StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(it, Spliterator.ORDERED), false))
             .collect(Collectors.toSet());
     childDeps.addAll(
         getDepsFromIds(roleDepIds.iterator(), PSRoleDefDependencyHandler.DEPENDENCY_TYPE, tok));
@@ -132,11 +141,16 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
               if (!PSRelationshipConfig.CATEGORY_FOLDER.equals(config.getCategory())) {
                 var crHandler =
                     getDependencyHandler(PSContentRelationDependencyHandler.DEPENDENCY_TYPE);
-                var crDep =
-                    crHandler.getDependency(
-                        tok,
-                        PSPairDependencyId.getPairDependencyId(
-                            dep.getDependencyId(), config.getName()));
+                PSDependency crDep = null;
+                try {
+                  crDep =
+                      crHandler.getDependency(
+                          tok,
+                          PSPairDependencyId.getPairDependencyId(
+                              dep.getDependencyId(), config.getName()));
+                } catch (PSDeployException e) {
+                  throw new RuntimeException(e);
+                }
                 Optional.ofNullable(crDep)
                     .ifPresent(
                         d -> {

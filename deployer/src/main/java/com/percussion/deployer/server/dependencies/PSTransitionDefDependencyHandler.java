@@ -77,18 +77,21 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
     }
 
     var ids = getChildPairIdsFromTable(TRANSITIONS_TABLE, TRANSITION_ID, WORKFLOW_ID, null);
-    return ids.stream()
-        .map(
-            id -> {
-              var pairId = new PSPairDependencyId(id);
-              return getDependency(
-                  tok,
-                  pairId.getChildId(),
-                  PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE,
-                  pairId.getParentId());
-            })
-        .filter(dep -> dep != null)
-        .iterator();
+    List<PSDependency> deps = new ArrayList<>();
+    while (ids.hasNext()) {
+      String id = (String) ids.next();
+      var pairId = new PSPairDependencyId(id);
+      PSDependency dep =
+          getDependency(
+              tok,
+              pairId.getChildId(),
+              PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE,
+              pairId.getParentId());
+      if (dep != null) {
+        deps.add(dep);
+      }
+    }
+    return deps.iterator();
   }
 
   // see base class

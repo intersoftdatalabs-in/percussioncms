@@ -31,6 +31,8 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.request.PSRequestInfo;
 import java.io.File;
 import java.util.List;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,7 +90,12 @@ public class PSLocalDeployerClient implements IPSPackageInstaller {
 
     var validationErrors =
         importDesc.getImportPackageList().stream()
-            .flatMap(pkg -> pkg.getValidationResults().getResults())
+            .flatMap(
+                pkg ->
+                    StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(
+                            pkg.getValidationResults().getResults(), 0),
+                        false))
             .filter(PSValidationResult::isError)
             .map(
                 result ->

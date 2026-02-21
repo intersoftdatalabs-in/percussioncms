@@ -318,7 +318,12 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
             key,
             PSDependencyUtils.getGuidValFromString(
                 dep.getDependencyId(), m_def.getObjectTypeName()));
-    PSAclImpl acl = (PSAclImpl) m_aclSvc.loadAclForObject(guid);
+    PSAclImpl acl = null;
+    try {
+      acl = (PSAclImpl) m_aclSvc.loadAclForObject(guid);
+    } catch (com.percussion.services.security.PSServiceSecurityException e) {
+      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e);
+    }
 
     if (acl != null) {
       PSDependency aclDep = null;
@@ -774,7 +779,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
    * @throws PSDeployException If there are any errors.
    */
   protected static PSPurgableTempFile createXmlFile(String str) throws PSDeployException {
-    if (org.apache.commons.lang3.StringUtils.isBlank(str))
+    if (str == null || str.isBlank())
       throw new IllegalArgumentException("doc may not be empty or null");
 
     try {
@@ -1300,7 +1305,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
   private List<String> getIdTypes() {
     if (m_idTypes == null) {
       m_idTypes =
-          m_map.getDefs().stream()
+          com.percussion.utils.collections.PSIteratorUtils.cloneList(m_map.getDefs()).stream()
               .filter(PSDependencyDef::supportsIdTypes)
               .map(PSDependencyDef::getObjectType)
               .toList();

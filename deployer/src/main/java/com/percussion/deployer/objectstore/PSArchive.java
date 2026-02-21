@@ -20,7 +20,7 @@ package com.percussion.deployer.objectstore;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.util.PSArchiveFiles;
+import com.percussion.system.utils.PSArchiveFiles;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
@@ -274,7 +274,7 @@ public class PSArchive {
     if (getArchiveManifest() != null) {
       Iterator<PSDeployableElement> pkgs = detail.getPackages();
       while (pkgs.hasNext()) {
-        Set infoSet = new HashSet();
+        Set<PSDatasourceMap> infoSet = new HashSet<>();
         PSDeployableElement pkg = pkgs.next();
         Iterator<PSDependency> deps = pkg.getDependencies();
         if (deps != null) {
@@ -296,7 +296,7 @@ public class PSArchive {
    * @param infoSet The set to which dbmsInfo objects are to be added, assumed not <code>null</code>
    *     .
    */
-  private void updateDbmsInfoList(PSDependency dep, Set<PSDbmsInfo> infoSet) {
+  private void updateDbmsInfoList(PSDependency dep, Set<PSDatasourceMap> infoSet) {
     if (m_archiveManifest != null && !(dep instanceof PSDeployableElement)) {
       if (dep.isIncluded()) {
         Optional.ofNullable(m_archiveManifest.getDbmsInfoList(dep)).ifPresent(infoSet::addAll);

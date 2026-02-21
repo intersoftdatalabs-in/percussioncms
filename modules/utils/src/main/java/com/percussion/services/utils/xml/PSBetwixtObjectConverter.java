@@ -43,11 +43,12 @@ public class PSBetwixtObjectConverter extends DefaultObjectStringConverter {
    *      org.apache.commons.betwixt.expression.Context)
    */
   @Override
+  @SuppressWarnings({"rawtypes","unchecked"})
   public String objectToString(Object object, Class type, String flavour, Context context) {
     if (object instanceof java.util.Date && isUtilDate(type)) {
       return ms_iso8601date.format((java.util.Date) object);
-    } else if (object instanceof Enum) {
-      Enum value = (Enum) object;
+    } else if (object instanceof Enum<?>) {
+      Enum<?> value = (Enum<?>) object;
       return value.name();
     } else if (object instanceof IPSGuid) {
       IPSGuid guid = (IPSGuid) object;
@@ -64,8 +65,8 @@ public class PSBetwixtObjectConverter extends DefaultObjectStringConverter {
    *      java.lang.Class, java.lang.String,
    *      org.apache.commons.betwixt.expression.Context)
    */
-  @SuppressWarnings("unchecked")
   @Override
+  @SuppressWarnings({"rawtypes","unchecked"})
   public Object stringToObject(String value, Class type, String flavour, Context context) {
     if (value.trim().length() == 0) {
       return null;
@@ -77,7 +78,10 @@ public class PSBetwixtObjectConverter extends DefaultObjectStringConverter {
         return value;
       }
     } else if (Enum.class.isAssignableFrom(type)) {
-      return Enum.valueOf(type, value);
+      // safe cast because of the instanceof check
+      @SuppressWarnings("unchecked")
+      Class<Enum> enumType = (Class<Enum>) type;
+      return Enum.valueOf(enumType, value);
     } else if (IPSGuid.class.isAssignableFrom(type)) {
       return new PSGuid(value);
     } else {

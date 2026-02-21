@@ -27,13 +27,11 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.util.Iterator;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSApplicationIDTypes</code> class. */
-
 public class PSApplicationIDTypesTest {
   /**
    * Construct this unit test

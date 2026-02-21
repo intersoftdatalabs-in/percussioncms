@@ -19,6 +19,7 @@ package com.percussion.deployer.server.dependencies;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.deployer.client.IPSDeployConstants;
 import com.percussion.deployer.objectstore.PSDependency;
@@ -44,7 +45,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -77,32 +77,32 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
 
     var sum = getFolderSummary(getRelationshipProcessor(tok), dep.getDependencyId());
     if (sum == null) {
-      return PSIteratorUtils.emptyIterator();
+      return java.util.Collections.emptyIterator();
     }
 
     var handler = getDependencyHandler(PSContentDefDependencyHandler.DEPENDENCY_TYPE);
-    return getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator()).stream()
-        .map(
-            itemSum -> {
-              try {
-                var itemDep =
-                    handler.getDependency(tok, String.valueOf(itemSum.getCurrentLocator().getId()));
-                if (itemDep != null) {
-                  itemDep.setDependencyType(PSDependency.TYPE_LOCAL);
-                }
-                return itemDep;
-              } catch (PSNotFoundException e) {
-                log.warn(PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                return null;
-              }
-            })
-        .filter(Objects::nonNull)
-        .iterator();
+    Iterator<PSComponentSummary> items =
+        getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
+    java.util.List<PSDependency> deps = new java.util.ArrayList<>();
+    while (items.hasNext()) {
+      PSComponentSummary itemSum = items.next();
+      try {
+        var itemDep =
+            handler.getDependency(tok, String.valueOf(itemSum.getCurrentLocator().getId()));
+        if (itemDep != null) {
+          itemDep.setDependencyType(PSDependency.TYPE_LOCAL);
+          deps.add(itemDep);
+        }
+      } catch (PSNotFoundException e) {
+        log.warn(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      }
+    }
+    return deps.iterator();
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     return PSIteratorUtils.emptyIterator();
@@ -137,7 +137,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -147,7 +147,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -156,7 +156,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
       throw new IllegalArgumentException("dep wrong type");
 
-    List files = new ArrayList();
+    List<PSDependencyFile> files = new ArrayList<>();
 
     // get all child item summaries and save them
     PSComponentSummary sum = getFolderSummary(getRelationshipProcessor(tok), dep.getDependencyId());
@@ -191,7 +191,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
 
       // need to disable the managed nav folder effect when saving folder
       // contents
-      Map params = new HashMap();
+      Map<String, String> params = new HashMap<>();
       params.put(IPSHtmlParameters.RXS_DISABLE_NAV_FOLDER_EFFECT, "y");
       PSRelationshipProcessor proc = getRelationshipProcessor(tok, params);
 
@@ -204,8 +204,8 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
       PSLocator tgtFolderLoc = tgtFolderSum.getCurrentLocator();
 
       // delete all current items
-      List deletes = new ArrayList();
-      Iterator sums = getChildItemSummaries(proc, tgtFolderLoc);
+      List<PSKey> deletes = new ArrayList<>();
+      Iterator<PSComponentSummary> sums = getChildItemSummaries(proc, tgtFolderLoc);
       while (sums.hasNext()) {
         PSComponentSummary itemSum = (PSComponentSummary) sums.next();
         deletes.add(itemSum.getLocator());
@@ -278,7 +278,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
   static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER_CONTENTS;
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSContentDefDependencyHandler.DEPENDENCY_TYPE);

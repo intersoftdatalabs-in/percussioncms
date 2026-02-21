@@ -25,11 +25,10 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.pkginfo.data.PSIdName;
 import com.percussion.services.pkginfo.impl.PSIdNameService;
 import com.percussion.utils.guid.IPSGuid;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test case for the {@link PSIdNameService} class. */
-
+@org.junit.jupiter.api.Disabled("needs Spring application context")
 public class PSIdNameServiceTest {
   /**
    * Test saving and loading id-name mappings.

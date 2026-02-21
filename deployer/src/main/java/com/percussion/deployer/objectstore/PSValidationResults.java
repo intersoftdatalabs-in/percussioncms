@@ -231,7 +231,7 @@ public class PSValidationResults implements IPSDeployComponent {
    * A list of Absent Ancestors (as <code>PSDependency</code> object). It will never be <code>null
    * </code>, but may be empty.
    */
-  private List m_absentAncestors = new ArrayList();
+  private List<PSDependency> m_absentAncestors = new ArrayList<>();
 
   /**
    * A list of <code>PSValidationResult</code> objects. It will never be <code>null</code>, but may

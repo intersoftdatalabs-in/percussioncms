@@ -21,6 +21,7 @@ import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /** Job control to use when copying a file to or from the server. */
@@ -42,7 +43,7 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
       else if (m_cancelledStatus == IPSDeployJobControl.JOB_COMPLETED) result = 100;
       else if (m_streamCounter != null) {
         m_bytes = m_streamCounter.getByteCount();
-        result = (m_bytes * 100) / m_totalBytes;
+        result = (int) ((m_bytes * 100) / m_totalBytes);
         // not allowed a status less than 1
         if (result == 0) result = 1;
         if (result >= 100 && m_cancelledStatus != IPSDeployJobControl.JOB_COMPLETED) {
@@ -91,8 +92,8 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
    * @return The status message, may be <code>null</code> or empty.
    * @throws PSDeployException if there are any errors.
    */
-  public String getStatusMessage() throws PSDeployException {
-    return m_statusMessage;
+  public Optional<String> getStatusMessage() throws PSDeployException {
+    return Optional.ofNullable(m_statusMessage);
   }
 
   /**
@@ -237,7 +238,7 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
   private String m_statusMessage = null;
 
   /** The count of the number of bytes updated during latest call to {@link #getStatus()}. */
-  private int m_bytes = 0;
+  private long m_bytes = 0;
 
   /**
    * Errror message to use when getting status message and status indicates job is aborted.

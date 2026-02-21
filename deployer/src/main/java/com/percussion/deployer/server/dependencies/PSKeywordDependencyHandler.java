@@ -94,8 +94,14 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
     return ms_contentSvc.findKeywordsByLabel(null, null).stream()
         .map(
             keyword -> {
-              var dep = createDependency(m_def, keyword.getValue(), keyword.getName());
-              if (!keyword.getId().equals(Long.valueOf(keyword.getValue()))) {
+              PSDependency dep = createDependency(m_def, keyword.getValue(), keyword.getName());
+              long val;
+              try {
+                val = Long.parseLong(keyword.getValue());
+              } catch (NumberFormatException e) {
+                val = Long.MIN_VALUE;
+              }
+              if (keyword.getId() != val) {
                 dep.setDependencyType(PSDependency.TYPE_SYSTEM);
               }
               return dep;

@@ -107,7 +107,7 @@ public class PSCatalogResultSet implements IPSDeployComponent {
     }
 
     m_results.clear();
-    tree.getNextElement(PSCatalogResult.XML_NODE_NAME, firstFlags);
+    var catalogResult = tree.getNextElement(PSCatalogResult.XML_NODE_NAME, firstFlags);
     while (catalogResult != null) {
       var result = new PSCatalogResult(catalogResult);
       if (validateResultToAdd(result)) {
@@ -251,7 +251,7 @@ public class PSCatalogResultSet implements IPSDeployComponent {
    *
    * @return the results, never <code>null</code> may be empty.
    */
-  public Iterator getResults() {
+  public Iterator<PSCatalogResult> getResults() {
     return m_results.iterator();
   }
 
@@ -274,7 +274,7 @@ public class PSCatalogResultSet implements IPSDeployComponent {
    * The list of <code>PSCatalogResult</code> objects, initialized to empty list and gets updated
    * with results.
    */
-  private List m_results = new ArrayList();
+  private List<PSCatalogResult> m_results = new ArrayList<>();
 
   private static final String XML_NODE_NAME = "PSXCatalogResultSet";
   private static final String XML_COLUMN_META = "PSXCatalogResultColumnMeta";

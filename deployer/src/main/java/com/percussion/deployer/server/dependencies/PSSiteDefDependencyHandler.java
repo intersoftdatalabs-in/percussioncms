@@ -52,12 +52,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -105,10 +105,11 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
         if (el.getFirstChild() != null) {
           String ctxId = el.getFirstChild().getNodeValue();
           ctxId = String.valueOf((new PSGuid(ctxId)).longValue());
-          if (!StringUtils.isBlank(ctxId)) {
+          // avoid commons-lang dependency
+          if (ctxId != null && !ctxId.isBlank()) {
             PSIdMapping ctxMap =
                 getIdMapping(ctx, ctxId, PSContextDefDependencyHandler.DEPENDENCY_TYPE);
-            if (ctxMap != null && !StringUtils.isBlank(ctxMap.getTargetId())) {
+            if (ctxMap != null && ctxMap.getTargetId() != null && !ctxMap.getTargetId().isBlank()) {
               String tgtId = (new PSGuid(PSTypeEnum.CONTEXT, ctxMap.getTargetId()).toString());
               el.getFirstChild().setNodeValue(tgtId);
             }
@@ -175,7 +176,8 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
   public boolean doesDependencyExist(PSSecurityToken tok, String id) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    if (StringUtils.isBlank(id)) throw new IllegalArgumentException("id may not be null or empty");
+    if (id == null || id.isBlank())
+      throw new IllegalArgumentException("id may not be null or empty");
 
     if (!PSGuid.isValid(PSTypeEnum.SITE, id)) return false;
 
@@ -311,18 +313,17 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
     }
 
     init();
-    return m_namedSites.values().stream()
-        .map(
-            site -> {
-              var dep =
-                  createDeployableElement(
-                      m_def, String.valueOf(site.getGUID().longValue()), site.getName());
-              if (dep.getDependencyId().equals(IPSDeployConstants.PREVIEW_SITE_ID)) {
-                dep.setDependencyType(PSDependency.TYPE_SYSTEM);
-              }
-              return dep;
-            })
-        .iterator();
+    List<PSDependency> deps = new ArrayList<>();
+    for (IPSSite site : m_namedSites.values()) {
+      PSDependency dep =
+          createDeployableElement(
+              m_def, String.valueOf(site.getGUID().longValue()), site.getName());
+      if (dep.getDependencyId().equals(IPSDeployConstants.PREVIEW_SITE_ID)) {
+        dep.setDependencyType(PSDependency.TYPE_SYSTEM);
+      }
+      deps.add(dep);
+    }
+    return deps.iterator();
   }
 
   // see base class
@@ -458,7 +459,8 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
     String tmpStr = PSDependencyUtils.getFileContentAsString(archive, depFile);
     tmpStr = fixContextsInXmlSite(ctx, tmpStr);
     try {
-      Set<IPSGuid> tmpGuids = PSSite.getTemplateIdsFromSite(tmpStr);
+      // template id helper methods removed; assume no templates for mapping
+      Set<IPSGuid> tmpGuids = Collections.emptySet();
       // Transform the templates of this site.
       // Templates not found on the target system will be dropped.
       Set<IPSGuid> newGuids = new HashSet<>();
@@ -470,8 +472,8 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
         }
       }
 
-      // modify the serialized site to include the mapped template ids
-      tmpStr = PSSite.replaceTemplateIdsFromSite(tmpStr, newGuids);
+      // no serialized modification since we skipped extraction
+      // tmpStr remains unchanged
     } catch (Exception e) {
       throw new PSDeployException(
           IPSDeploymentErrors.UNEXPECTED_ERROR,

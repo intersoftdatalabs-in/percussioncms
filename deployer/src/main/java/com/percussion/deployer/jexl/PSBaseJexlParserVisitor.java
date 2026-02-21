@@ -30,23 +30,32 @@ import org.apache.commons.jexl3.parser.ASTBitwiseOrNode;
 import org.apache.commons.jexl3.parser.ASTBitwiseXorNode;
 import org.apache.commons.jexl3.parser.ASTBlock;
 import org.apache.commons.jexl3.parser.ASTBreak;
+import org.apache.commons.jexl3.parser.ASTCaseExpression;
+import org.apache.commons.jexl3.parser.ASTCaseStatement;
 import org.apache.commons.jexl3.parser.ASTConstructorNode;
 import org.apache.commons.jexl3.parser.ASTContinue;
+import org.apache.commons.jexl3.parser.ASTDecrementGetNode;
+import org.apache.commons.jexl3.parser.ASTDefineVars;
 import org.apache.commons.jexl3.parser.ASTDivNode;
+import org.apache.commons.jexl3.parser.ASTDoWhileStatement;
 import org.apache.commons.jexl3.parser.ASTEQNode;
+import org.apache.commons.jexl3.parser.ASTEQSNode;
 import org.apache.commons.jexl3.parser.ASTERNode;
 import org.apache.commons.jexl3.parser.ASTEWNode;
 import org.apache.commons.jexl3.parser.ASTEmptyFunction;
-import org.apache.commons.jexl3.parser.ASTEmptyMethod;
 import org.apache.commons.jexl3.parser.ASTExtendedLiteral;
 import org.apache.commons.jexl3.parser.ASTFalseNode;
 import org.apache.commons.jexl3.parser.ASTForeachStatement;
 import org.apache.commons.jexl3.parser.ASTFunctionNode;
 import org.apache.commons.jexl3.parser.ASTGENode;
 import org.apache.commons.jexl3.parser.ASTGTNode;
+import org.apache.commons.jexl3.parser.ASTGetDecrementNode;
+import org.apache.commons.jexl3.parser.ASTGetIncrementNode;
 import org.apache.commons.jexl3.parser.ASTIdentifier;
 import org.apache.commons.jexl3.parser.ASTIdentifierAccess;
 import org.apache.commons.jexl3.parser.ASTIfStatement;
+import org.apache.commons.jexl3.parser.ASTIncrementGetNode;
+import org.apache.commons.jexl3.parser.ASTInstanceOf;
 import org.apache.commons.jexl3.parser.ASTJexlScript;
 import org.apache.commons.jexl3.parser.ASTJxltLiteral;
 import org.apache.commons.jexl3.parser.ASTLENode;
@@ -57,16 +66,21 @@ import org.apache.commons.jexl3.parser.ASTMethodNode;
 import org.apache.commons.jexl3.parser.ASTModNode;
 import org.apache.commons.jexl3.parser.ASTMulNode;
 import org.apache.commons.jexl3.parser.ASTNENode;
+import org.apache.commons.jexl3.parser.ASTNESNode;
 import org.apache.commons.jexl3.parser.ASTNEWNode;
 import org.apache.commons.jexl3.parser.ASTNRNode;
 import org.apache.commons.jexl3.parser.ASTNSWNode;
+import org.apache.commons.jexl3.parser.ASTNotInstanceOf;
 import org.apache.commons.jexl3.parser.ASTNotNode;
 import org.apache.commons.jexl3.parser.ASTNullLiteral;
+import org.apache.commons.jexl3.parser.ASTNullpNode;
 import org.apache.commons.jexl3.parser.ASTNumberLiteral;
 import org.apache.commons.jexl3.parser.ASTOrNode;
+import org.apache.commons.jexl3.parser.ASTQualifiedIdentifier;
 import org.apache.commons.jexl3.parser.ASTRangeNode;
 import org.apache.commons.jexl3.parser.ASTReference;
 import org.apache.commons.jexl3.parser.ASTReferenceExpression;
+import org.apache.commons.jexl3.parser.ASTRegexLiteral;
 import org.apache.commons.jexl3.parser.ASTReturnStatement;
 import org.apache.commons.jexl3.parser.ASTSWNode;
 import org.apache.commons.jexl3.parser.ASTSetAddNode;
@@ -76,15 +90,26 @@ import org.apache.commons.jexl3.parser.ASTSetLiteral;
 import org.apache.commons.jexl3.parser.ASTSetModNode;
 import org.apache.commons.jexl3.parser.ASTSetMultNode;
 import org.apache.commons.jexl3.parser.ASTSetOrNode;
+import org.apache.commons.jexl3.parser.ASTSetShiftLeftNode;
+import org.apache.commons.jexl3.parser.ASTSetShiftRightNode;
+import org.apache.commons.jexl3.parser.ASTSetShiftRightUnsignedNode;
 import org.apache.commons.jexl3.parser.ASTSetSubNode;
 import org.apache.commons.jexl3.parser.ASTSetXorNode;
+import org.apache.commons.jexl3.parser.ASTShiftLeftNode;
+import org.apache.commons.jexl3.parser.ASTShiftRightNode;
+import org.apache.commons.jexl3.parser.ASTShiftRightUnsignedNode;
 import org.apache.commons.jexl3.parser.ASTSizeFunction;
-import org.apache.commons.jexl3.parser.ASTSizeMethod;
 import org.apache.commons.jexl3.parser.ASTStringLiteral;
 import org.apache.commons.jexl3.parser.ASTSubNode;
+import org.apache.commons.jexl3.parser.ASTSwitchExpression;
+import org.apache.commons.jexl3.parser.ASTSwitchStatement;
 import org.apache.commons.jexl3.parser.ASTTernaryNode;
+import org.apache.commons.jexl3.parser.ASTThrowStatement;
 import org.apache.commons.jexl3.parser.ASTTrueNode;
+import org.apache.commons.jexl3.parser.ASTTryResources;
+import org.apache.commons.jexl3.parser.ASTTryStatement;
 import org.apache.commons.jexl3.parser.ASTUnaryMinusNode;
+import org.apache.commons.jexl3.parser.ASTUnaryPlusNode;
 import org.apache.commons.jexl3.parser.ASTVar;
 import org.apache.commons.jexl3.parser.ASTWhileStatement;
 import org.apache.commons.jexl3.parser.ParserVisitor;
@@ -443,16 +468,6 @@ public abstract class PSBaseJexlParserVisitor extends ParserVisitor {
   /**
    * (non-Javadoc)
    *
-   * @see ParserVisitor#visit(ASTSizeMethod,Object)
-   */
-  public Object visit(ASTSizeMethod arg0, Object arg1) {
-    log.debug("Visiting ASTSizeMethod");
-    return doVisit(arg0, arg1);
-  }
-
-  /**
-   * (non-Javadoc)
-   *
    * @see ParserVisitor#visit(ASTMapLiteral,Object)
    */
   public Object visit(ASTMapLiteral arg0, Object arg1) {
@@ -555,11 +570,6 @@ public abstract class PSBaseJexlParserVisitor extends ParserVisitor {
     return doVisit(node, data);
   }
 
-  protected Object visit(ASTEmptyMethod node, Object data) {
-    log.debug("Visiting ASTEmptyMethod");
-    return doVisit(node, data);
-  }
-
   protected Object visit(ASTFunctionNode node, Object data) {
     log.debug("Visiting ASTFunctionNode");
     return doVisit(node, data);
@@ -643,6 +653,141 @@ public abstract class PSBaseJexlParserVisitor extends ParserVisitor {
   @Override
   protected Object visit(ASTContinue node, Object data) {
     log.debug("Visiting ASTContinue");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTUnaryPlusNode node, Object data) {
+    log.debug("Visiting ASTUnaryPlusNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTDecrementGetNode node, Object data) {
+    log.debug("Visiting ASTDecrementGetNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTGetDecrementNode node, Object data) {
+    log.debug("Visiting ASTGetDecrementNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTGetIncrementNode node, Object data) {
+    log.debug("Visiting ASTGetIncrementNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTIncrementGetNode node, Object data) {
+    log.debug("Visiting ASTIncrementGetNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTDefineVars node, Object data) {
+    log.debug("Visiting ASTDefineVars");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTDoWhileStatement node, Object data) {
+    log.debug("Visiting ASTDoWhileStatement");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTEQSNode node, Object data) {
+    log.debug("Visiting ASTEQSNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTNESNode node, Object data) {
+    log.debug("Visiting ASTNESNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTInstanceOf node, Object data) {
+    log.debug("Visiting ASTInstanceOf");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTNotInstanceOf node, Object data) {
+    log.debug("Visiting ASTNotInstanceOf");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTNullpNode node, Object data) {
+    log.debug("Visiting ASTNullpNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTQualifiedIdentifier node, Object data) {
+    log.debug("Visiting ASTQualifiedIdentifier");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTRegexLiteral node, Object data) {
+    log.debug("Visiting ASTRegexLiteral");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTShiftLeftNode node, Object data) {
+    log.debug("Visiting ASTShiftLeftNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTShiftRightNode node, Object data) {
+    log.debug("Visiting ASTShiftRightNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTShiftRightUnsignedNode node, Object data) {
+    log.debug("Visiting ASTShiftRightUnsignedNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTSetShiftLeftNode node, Object data) {
+    log.debug("Visiting ASTSetShiftLeftNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTSetShiftRightNode node, Object data) {
+    log.debug("Visiting ASTSetShiftRightNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTSetShiftRightUnsignedNode node, Object data) {
+    log.debug("Visiting ASTSetShiftRightUnsignedNode");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTSwitchStatement node, Object data) {
+    log.debug("Visiting ASTSwitchStatement");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTCaseStatement node, Object data) {
+    log.debug("Visiting ASTCaseStatement");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTSwitchExpression node, Object data) {
+    log.debug("Visiting ASTSwitchExpression");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTCaseExpression node, Object data) {
+    log.debug("Visiting ASTCaseExpression");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTTryStatement node, Object data) {
+    log.debug("Visiting ASTTryStatement");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTTryResources node, Object data) {
+    log.debug("Visiting ASTTryResources");
+    return doVisit(node, data);
+  }
+
+  protected Object visit(ASTThrowStatement node, Object data) {
+    log.debug("Visiting ASTThrowStatement");
     return doVisit(node, data);
   }
 

@@ -17,26 +17,21 @@
 
 package com.percussion.deployer.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Unit tests for <code>PSDeploymentServerConnectionInfo</code>. */
 public class PSDeploymentServerConnectionInfoTest {
-  /**
-   * Constructs a test case for the specified test name.
-   *
-   * @param name The name of this test.
-   */
-  public PSDeploymentServerConnectionInfoTest(String name) {
-    super(name);
-  }
 
   /**
    * Tests constructor using valid and invalid parameters.
    *
    * @throws Exception If there are any errors.
    */
+  @Test
   public void testConstructor() throws Exception {
     // these should work fine
     assertTrue(isCtorValid("localhost", 9992, "admin1", "demo", false));
@@ -45,11 +40,11 @@ public class PSDeploymentServerConnectionInfoTest {
     assertTrue(isCtorValid("localhost", 9992, "admin1", "", false));
 
     // these should be a problem
-    assertTrue(!isCtorValid("", 9992, "admin1", "demo", false));
-    assertTrue(!isCtorValid(null, 9992, "admin1", "demo", false));
-    assertTrue(!isCtorValid("localhost", 0, "admin1", "demo", false));
-    assertTrue(!isCtorValid("localhost", 9992, "", "demo", false));
-    assertTrue(!isCtorValid("localhost", 9992, null, "demo", false));
+    assertFalse(isCtorValid("", 9992, "admin1", "demo", false));
+    assertFalse(isCtorValid(null, 9992, "admin1", "demo", false));
+    assertFalse(isCtorValid("localhost", 0, "admin1", "demo", false));
+    assertFalse(isCtorValid("localhost", 9992, "", "demo", false));
+    assertFalse(isCtorValid("localhost", 9992, null, "demo", false));
   }
 
   /**
@@ -57,12 +52,13 @@ public class PSDeploymentServerConnectionInfoTest {
    *
    * @throws Exception if there are any errors.
    */
+  @Test
   public void testEquals() throws Exception {
     PSDeploymentServerConnectionInfo info =
         new PSDeploymentServerConnectionInfo("host", 1, "user", "pass", false);
     PSDeploymentServerConnectionInfo same =
         new PSDeploymentServerConnectionInfo("host", 1, "user", "pass", false);
-    assertTrue(info.equals(same));
+    assertEquals(info, same);
     assertTrue(info.hashCode() == same.hashCode());
 
     PSDeploymentServerConnectionInfo different;
@@ -70,11 +66,11 @@ public class PSDeploymentServerConnectionInfoTest {
     assertFalse(info.equals(different));
     different = new PSDeploymentServerConnectionInfo("host", 1, "user", "pass", true);
     assertFalse(info.equals(different));
-    assertFalse(info.hashCode() == different.hashCode());
+    assertNotEquals(info.hashCode(), different.hashCode());
 
     different.copyFrom(info);
-    assertTrue(info.equals(different));
-    assertTrue(info.hashCode() == different.hashCode());
+    assertEquals(info, different);
+    assertEquals(info.hashCode(), different.hashCode());
   }
 
   /**
@@ -82,6 +78,7 @@ public class PSDeploymentServerConnectionInfoTest {
    *
    * @throws Exception if there are any errors
    */
+  @Test
   public void testXml() throws Exception {
     PSDeploymentServerConnectionInfo info =
         new PSDeploymentServerConnectionInfo("host", 1, "user", "pass", false);
@@ -110,18 +107,5 @@ public class PSDeploymentServerConnectionInfoTest {
       valid = false;
     }
     return valid;
-  }
-
-  /**
-   * Collects all this class' tests into a TestSuite.
-   *
-   * @return A suite of tests, one for each test in the class. Never <code>null</code>.
-   */
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSDeploymentServerConnectionInfoTest("testConstructor"));
-    suite.addTest(new PSDeploymentServerConnectionInfoTest("testEquals"));
-    suite.addTest(new PSDeploymentServerConnectionInfoTest("testXml"));
-    return suite;
   }
 }

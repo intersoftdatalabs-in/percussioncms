@@ -52,7 +52,7 @@ public class PSFilteredFileList {
    * @return List of files satisfying the criteria, may be <code>null</code> or <code>empty</code>.
    * @throws IllegalArgumentException if the argument supplied is <code>null</code>
    */
-  public List getFiles(String dirName) {
+  public List<File> getFiles(String dirName) {
     if (dirName == null) throw new IllegalArgumentException("dirName must not be null");
 
     File dir = new File(dirName);
@@ -67,16 +67,15 @@ public class PSFilteredFileList {
    * @return List of files satisfying the criteria, may be <code>null</code> or <code>empty</code>.
    * @throws IllegalArgumentException if the argument supplied is <code>null</code>
    */
-  public List getFiles(File dir) {
+  public List<File> getFiles(File dir) {
     if (dir == null) throw new IllegalArgumentException("dir must not be null");
-    List list = new ArrayList();
+    List<File> list = new ArrayList<>();
     getFiles(dir, list);
-    List files = new ArrayList();
-    Iterator iter = list.iterator();
-    Object obj = null;
+    List<File> files = new ArrayList<>();
+    Iterator<File> iter = list.iterator();
     while (iter.hasNext()) {
-      obj = iter.next();
-      if (((File) obj).isDirectory()) continue;
+      File obj = iter.next();
+      if (obj.isDirectory()) continue;
       files.add(obj);
     }
     list = null;
@@ -91,7 +90,7 @@ public class PSFilteredFileList {
    * @param list List object to which the new files will be added. Must not be <code>null</code>
    * @throws IllegalArgumentException if the argument <em>list</em>is <code>null</code>
    */
-  private void getFiles(File dir, List list) {
+  private void getFiles(File dir, List<File> list) {
     if (list == null) throw new IllegalArgumentException("list must must not be null");
     if (dir == null) return;
     if (dir.isFile()) {

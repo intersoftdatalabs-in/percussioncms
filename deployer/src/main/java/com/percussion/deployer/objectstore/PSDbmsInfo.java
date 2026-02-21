@@ -387,10 +387,15 @@ public class PSDbmsInfo implements IPSDeployComponent {
       throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
     }
     var tree = new PSXmlTreeWalker(sourceNode);
-    m_connInfo =
-        new PSDbmsConnectionInfo(
-            Optional.ofNullable(tree.getElementData(DATASOURCE_XML_ELEMENT))
-                .orElseGet(() -> PSDbmsHelper.getInstance().findADataSource()));
+    String ds;
+    String el = tree.getElementData(DATASOURCE_XML_ELEMENT);
+    if (el != null) {
+      ds = el;
+    } else {
+      // findADataSource throws PSDeployException which is declared on this method
+      ds = PSDbmsHelper.getInstance().findADataSource();
+    }
+    m_connInfo = new PSDbmsConnectionInfo(ds);
     m_driver =
         PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, DRIVER_XML_ELEMENT, true);
     m_server =

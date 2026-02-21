@@ -19,6 +19,7 @@ package com.percussion.deployer.client;
 
 import com.percussion.deployer.objectstore.PSDependency;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * A dependency suppressor that will suppress any dependency whose key is included in a specified
@@ -46,11 +47,11 @@ public class PSCollectionDependencySuppressor implements IPSDependencySuppressor
    * @return <code>true</code> if the dependency should be suppressed because its key is included in
    *     the collection, <code>false</code> otherwise.
    */
-  public boolean suppress(PSDependency dependency) {
+  public boolean suppress(Optional<PSDependency> dependency) {
     if (dependency == null) {
       throw new IllegalArgumentException("dependency may not be null");
     }
-    return m_depsToSuppress.contains(dependency.getKey());
+    return dependency.map(d -> m_depsToSuppress.contains(d.getKey())).orElse(false);
   }
 
   /**

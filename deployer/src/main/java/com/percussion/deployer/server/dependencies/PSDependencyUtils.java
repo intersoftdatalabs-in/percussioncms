@@ -385,9 +385,11 @@ public class PSDependencyUtils {
    * @throws PSDeployException if an error occurs.
    */
   public static List<String> getAllContentTypeTables(PSSecurityToken tok) throws PSDeployException {
-    return PSContentTypeHelper.loadNodeDefs("").stream()
-        .flatMap(node -> getContentTypeTables(tok, node).stream())
-        .toList();
+    var results = new ArrayList<String>();
+    for (var node : PSContentTypeHelper.loadNodeDefs("")) {
+      results.addAll(getContentTypeTables(tok, node));
+    }
+    return results;
   }
 
   /**

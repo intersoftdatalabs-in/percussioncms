@@ -25,8 +25,11 @@ import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequestHandlerConfiguration;
+import com.percussion.server.PSRequestHandlerDef;
 import com.percussion.utils.collections.PSIteratorUtils;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /** Class to handle loadable handler dependencies */
 public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
@@ -43,7 +46,7 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -58,10 +61,13 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    var defs = getReqHandlerCfg().getHandlerDefs();
-    return defs.stream()
-        .map(def -> createDependency(m_def, def.getHandlerName(), def.getHandlerName()))
-        .iterator();
+    Iterator defs = getReqHandlerCfg().getHandlerDefs();
+    List<PSDependency> result = new ArrayList<>();
+    while (defs != null && defs.hasNext()) {
+      PSRequestHandlerDef def = (PSRequestHandlerDef) defs.next();
+      result.add(createDependency(m_def, def.getHandlerName(), def.getHandlerName()));
+    }
+    return result.iterator();
   }
 
   // see base class
@@ -87,7 +93,7 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
    *
    * @return An empty iterator, never <code>null</code>.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return PSIteratorUtils.emptyIterator();
   }
 

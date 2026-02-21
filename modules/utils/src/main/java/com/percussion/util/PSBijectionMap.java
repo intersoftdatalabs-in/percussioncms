@@ -24,13 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * purposes. Like all hash tables, there is at most one value for a given key. However, unlike hash
  * tables, this class guarantees that there is at most one key for a given value.
  */
-public class PSBijectionMap {
+public class PSBijectionMap<K, V> {
   public PSBijectionMap(int initialCapacity) {
-    m_values = new ConcurrentHashMap(initialCapacity);
-    m_keys = new ConcurrentHashMap(initialCapacity);
+    m_values = new ConcurrentHashMap<K, V>(initialCapacity);
+    m_keys = new ConcurrentHashMap<V, K>(initialCapacity);
   }
 
-  public void put(Object key, Object value) {
+  public void put(K key, V value) {
     m_values.put(key, value);
     m_keys.put(value, key);
   }
@@ -42,8 +42,8 @@ public class PSBijectionMap {
    * @return The previous value associated with this key, or <CODE>null</CODE> if this key was not
    *     paired with a value.
    */
-  public Object removePairingWithKey(Object key) {
-    Object value = m_values.get(key);
+  public V removePairingWithKey(K key) {
+    V value = m_values.get(key);
     if (value != null) {
       m_keys.remove(value);
       m_values.remove(key);
@@ -58,8 +58,8 @@ public class PSBijectionMap {
    * @return The previous key associated with this value, or <CODE>null</CODE> if this value was not
    *     paired with a key.
    */
-  public Object removePairingWithValue(Object value) {
-    Object key = m_keys.get(value);
+  public K removePairingWithValue(V value) {
+    K key = m_keys.get(value);
     if (key != null) {
       m_values.remove(key);
       m_keys.remove(value);
@@ -73,7 +73,7 @@ public class PSBijectionMap {
    * @return the key paired with this value, or <CODE>null</CODE> if the value is not paired with a
    *     key.
    */
-  public Object getKey(Object value) {
+  public K getKey(V value) {
     return m_keys.get(value);
   }
 
@@ -83,20 +83,20 @@ public class PSBijectionMap {
    * @return the value paired with this key, or <CODE>null</CODE> if the key is not paired with a
    *     value.
    */
-  public Object getValue(Object key) {
+  public V getValue(K key) {
     return m_values.get(key);
   }
 
   /** Returns an enumeration of all the values in the bijection map */
-  public Enumeration values() {
+  public Enumeration<V> values() {
     return m_values.elements();
   }
 
   /** Returns an enumeration of all the keys in the bijection map */
-  public Enumeration keys() {
+  public Enumeration<K> keys() {
     return m_keys.elements();
   }
 
-  private ConcurrentHashMap m_values;
-  private ConcurrentHashMap m_keys;
+  private ConcurrentHashMap<K, V> m_values;
+  private ConcurrentHashMap<V, K> m_keys;
 }

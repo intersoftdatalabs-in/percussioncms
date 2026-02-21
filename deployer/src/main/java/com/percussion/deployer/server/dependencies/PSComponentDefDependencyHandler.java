@@ -83,11 +83,11 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
         var childDep = handler.getDependency(tok, appName);
         Optional.ofNullable(childDep)
             .ifPresent(
-                dep -> {
-                  if (!PSApplicationDependencyHandler.isSystemApp(dep.getDependencyId())) {
-                    dep.setDependencyType(PSDependency.TYPE_LOCAL);
+                d -> {
+                  if (!PSApplicationDependencyHandler.isSystemApp(d.getDependencyId())) {
+                    d.setDependencyType(PSDependency.TYPE_LOCAL);
                   }
-                  childDeps.add(dep);
+                  childDeps.add(d);
                 });
       }
     }

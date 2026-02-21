@@ -32,11 +32,10 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test case for the {@link IPSPkgInfoService} class. */
-
+@org.junit.jupiter.api.Disabled("needs Spring application context")
 public class PSPkgInfoServiceTest {
 
   // Constants for testing (tc)

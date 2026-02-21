@@ -30,10 +30,12 @@ import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.utils.guid.IPSGuid;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.collections.IterableMap;
-import org.apache.commons.collections.map.HashedMap;
+import java.util.Map;
 
 /**
  * A util class to interface msm with the Publisher service
@@ -51,8 +53,8 @@ public class PSPublisherServiceHelper {
    * MUST BE STATELESS
    */
   private void resetContentLists() {
-    m_namedContentList = new HashedMap();
-    m_guidContentList = new HashedMap();
+    m_namedContentList = new HashMap<>();
+    m_guidContentList = new HashMap<>();
   }
 
   /**
@@ -162,8 +164,7 @@ public class PSPublisherServiceHelper {
    * @return a map of <contentlist_name, IPSContentList>
    * @throws PSDeployException
    */
-  @Override
-  public IterableMap getNamedContentListMap() throws PSDeployException {
+  public Map<String, IPSContentList> getNamedContentListMap() throws PSDeployException {
     getContentLists();
     return m_namedContentList;
   }
@@ -177,9 +178,19 @@ public class PSPublisherServiceHelper {
    * @throws PSDeployException
    */
   public List<String> getAllContentListNames(String nameFilter) throws PSDeployException {
+    if (nameFilter == null) {
+      throw new IllegalArgumentException("nameFilter may not be null");
+    }
     try {
-      List<String> sList = m_publisherSvc.findAllContentListNames(nameFilter);
-      return sList;
+      List<IPSContentList> cLists = m_publisherSvc.findAllContentLists(nameFilter);
+      List<String> names = new ArrayList<>();
+      for (IPSContentList cl : cLists) {
+        if (cl != null) {
+          names.add(cl.getName());
+        }
+      }
+      Collections.sort(names);
+      return names;
     } catch (Exception e) {
       throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e);
     }
@@ -214,7 +225,7 @@ public class PSPublisherServiceHelper {
    * @return a Map<IPSGuid, IPSContentList>
    * @throws PSDeployException
    */
-  public IterableMap getGuidContentListMap() throws PSDeployException {
+  public Map<IPSGuid, IPSContentList> getGuidContentListMap() throws PSDeployException {
     getContentLists();
     return m_guidContentList;
   }
@@ -224,10 +235,10 @@ public class PSPublisherServiceHelper {
       PSPublisherServiceLocator.getPublisherService();
 
   /** A content list indexed by names */
-  private IterableMap m_namedContentList = null;
+  private Map<String, IPSContentList> m_namedContentList = null;
 
   /** A content list indexed by GUIDS, the guid is */
-  private IterableMap m_guidContentList = null;
+  private Map<IPSGuid, IPSContentList> m_guidContentList = null;
 
   /**
    * the Primary key column for contentlist table, this might not be the best way to do it, probably

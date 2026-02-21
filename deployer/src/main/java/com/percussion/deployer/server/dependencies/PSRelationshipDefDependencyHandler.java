@@ -42,6 +42,7 @@ import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.config.PSConfigManager;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceUtils;
@@ -100,9 +101,12 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
     }
 
     var cfgSet = PSRelationshipCommandHandler.getConfigurationSet();
-    return cfgSet.stream()
-        .map(cfg -> createDependency(m_def, cfg.getName(), cfg.getName()))
-        .iterator();
+    List<PSDependency> result = new ArrayList<>();
+    for (Object o : cfgSet) {
+      PSRelationshipConfig cfg = (PSRelationshipConfig) o;
+      result.add(createDependency(m_def, cfg.getName(), cfg.getName()));
+    }
+    return result.iterator();
   }
 
   // see base class

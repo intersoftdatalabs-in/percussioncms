@@ -40,7 +40,7 @@ public class PSFilenameFilter implements FilenameFilter {
    *     extension is allowed.
    * @param bIncludeDir flag If <code>true</code>, directories are also included otherwise not.
    */
-  public PSFilenameFilter(List fileExtensions, boolean bIncludeDir) {
+  public PSFilenameFilter(List<String> fileExtensions, boolean bIncludeDir) {
     m_fileExtensions = fileExtensions;
     m_bIncludeDir = bIncludeDir;
   }
@@ -52,7 +52,7 @@ public class PSFilenameFilter implements FilenameFilter {
    * @param fileExtensions list of file extensions to allow, if <code>null</code> or empty any
    *     extension is allowed.
    */
-  public PSFilenameFilter(List fileExtensions) {
+  public PSFilenameFilter(List<String> fileExtensions) {
     this(fileExtensions, false);
   }
 
@@ -70,7 +70,7 @@ public class PSFilenameFilter implements FilenameFilter {
     if (fileExtension == null)
       throw new IllegalArgumentException("The allowed file extension can not be null.");
 
-    m_fileExtensions = new ArrayList();
+    m_fileExtensions = new ArrayList<String>();
     m_fileExtensions.add(fileExtension);
 
     m_bIncludeDir = bIncludeDir;
@@ -118,7 +118,7 @@ public class PSFilenameFilter implements FilenameFilter {
         if (index != -1) fileExtension = name.substring(index + 1);
         // Files with no file extensions are allowed if an empty string
         // is an entry in file extensions list
-        Iterator iter = m_fileExtensions.iterator();
+        Iterator<String> iter = m_fileExtensions.iterator();
         while (iter.hasNext()) {
           if (fileExtension.equalsIgnoreCase((String) iter.next())) {
             accept = true;
@@ -134,7 +134,7 @@ public class PSFilenameFilter implements FilenameFilter {
    * List of allowed extensions, gets initialized in constructor. If it is <code>null</code>, any
    * extension is allowed. The default value is <code>null</code>.
    */
-  private List m_fileExtensions;
+  private List<String> m_fileExtensions;
 
   /**
    * Flag to indicate whether directories should be included in list of files or not, gets

@@ -16,43 +16,59 @@
  */
 package com.percussion.deployer.jexl;
 
-import java.io.StringReader;
+import org.apache.commons.jexl3.internal.Engine;
 import org.apache.commons.jexl3.parser.ASTJexlScript;
 import org.apache.commons.jexl3.parser.ParseException;
-import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.SimpleNode;
-import org.apache.commons.jexl3.parser.TokenMgrError;
 
 /**
- * A util class for parsing jexl expressions or scripts
+ * A util class for parsing jexl expressions or scripts.
  *
  * @author vamsinukala
  */
 public class PSJexlParserUtils {
-  /** the jexl parser */
-  protected static Parser ms_parser = new Parser(new StringReader(";"));
 
   /**
-   * With the JEXL script, parse it
-   *
-   * @param scriptText
-   * @return the parsed expression as a simple node
-   * @throws Exception any parser exception
+   * Internal Engine subclass used to expose the protected {@code parse()} method for AST
+   * construction without using reflection. This is required because the internal JEXL3 {@code
+   * Parser} class changed its constructor signature in 3.6.1 to require a {@code JexlParser}
+   * parent, removing the previous {@code StringReader}-based initialization.
    */
-  public static PSJexlSimpleNode createScriptNode(String scriptText) throws Exception {
-    var script = parseScript(scriptText);
-    if (script instanceof ASTJexlScript) {
-      return new PSJexlSimpleNode(script, scriptText);
-    } else {
-      throw new IllegalStateException("Parsed script is not a JEXL Script");
+  private static final class JexlParseHelper extends Engine {
+    /**
+     * Parses the given script text and returns the root AST node.
+     *
+     * @param scriptText the JEXL script or expression text, not {@code null}
+     * @return the parsed {@link ASTJexlScript}
+     */
+    public ASTJexlScript parseScript(String scriptText) {
+      return super.parse(null, null, scriptText, null);
     }
   }
 
+  /** Singleton parse helper, reuses the same Engine for all parsing operations. */
+  private static final JexlParseHelper PARSE_HELPER = new JexlParseHelper();
+
   /**
-   * With the JEXL expression, parse it
+   * Parses a JEXL script and returns a {@link PSJexlSimpleNode} wrapping the root AST.
    *
-   * @param expression
-   * @return the parsed expression as a simple node
+   * @param scriptText the JEXL script text to parse, not {@code null}
+   * @return a {@link PSJexlSimpleNode} wrapping the parsed script
+   * @throws Exception if any parsing error occurs
+   */
+  public static PSJexlSimpleNode createScriptNode(String scriptText) throws Exception {
+    var script = parseToAst(scriptText);
+    return new PSJexlSimpleNode(script, scriptText);
+  }
+
+  /**
+   * Parses a JEXL expression and returns a {@link PSJexlSimpleNode} wrapping the first child of the
+   * root AST, which represents the expression statement.
+   *
+   * @param expression the JEXL expression text, not {@code null}
+   * @param isBoolean unused in JEXL3 3.6+ (kept for API compatibility)
+   * @return a {@link PSJexlSimpleNode} wrapping the parsed expression
+   * @throws ParseException if any parsing error occurs
    */
   public static PSJexlSimpleNode createNewExpression(final String expression, boolean isBoolean)
       throws ParseException {
@@ -61,17 +77,23 @@ public class PSJexlParserUtils {
       expr += ";";
     }
 
-    var tree = parseScript(expr, isBoolean);
+    var tree = parseToAst(expr);
     var node = (SimpleNode) tree.jjtGetChild(0);
     return new PSJexlSimpleNode(node, expression);
   }
 
-  private static SimpleNode parseScript(String scriptText, boolean isBoolean)
-      throws ParseException {
+  /**
+   * Parses the given script text to an {@link ASTJexlScript}.
+   *
+   * @param scriptText the text to parse, not {@code null}
+   * @return the root {@link ASTJexlScript} node
+   * @throws ParseException if the text cannot be parsed
+   */
+  private static ASTJexlScript parseToAst(String scriptText) throws ParseException {
     try {
-      return ms_parser.parse(null, scriptText, null, false, isBoolean);
-    } catch (TokenMgrError tme) {
-      throw new ParseException(tme.getMessage());
+      return PARSE_HELPER.parseScript(scriptText);
+    } catch (org.apache.commons.jexl3.JexlException e) {
+      throw new ParseException(e.getMessage());
     }
   }
 }

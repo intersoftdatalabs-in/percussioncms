@@ -19,6 +19,7 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import java.util.Iterator;
+import java.util.List;
 
 /** Class to handle packaging and deploying a site deployable element. */
 public class PSSiteDependencyHandler extends PSElementDependencyHandler {

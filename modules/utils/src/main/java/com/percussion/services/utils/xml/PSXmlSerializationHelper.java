@@ -68,6 +68,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @author dougrand
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public class PSXmlSerializationHelper {
   /** Static for logging */
   private static final Logger log = LogManager.getLogger(PSXmlSerializationHelper.class);
@@ -213,7 +214,7 @@ public class PSXmlSerializationHelper {
   }
 
   /** Maps element names to implementation classes. Used for deserialization. */
-  static Map<String, Class> ms_typeMap = new HashMap<String, Class>();
+  static Map<String, Class<?>> ms_typeMap = new HashMap<String, Class<?>>();
 
   /**
    * Add a type and element name to the mappings
@@ -221,7 +222,7 @@ public class PSXmlSerializationHelper {
    * @param elementName the element name, never <code>null</code> or empty
    * @param type the class, never <code>null</code>
    */
-  public static synchronized void addType(String elementName, Class type) {
+  public static synchronized void addType(String elementName, Class<?> type) {
     if (elementName == null || StringUtils.isBlank(elementName)) {
       throw new IllegalArgumentException("elementName may not be null or empty");
     }
@@ -237,7 +238,7 @@ public class PSXmlSerializationHelper {
    *
    * @param type the class, never <code>null</code>
    */
-  public static synchronized void addType(Class type) {
+  public static synchronized void addType(Class<?> type) {
     if (type == null) {
       throw new IllegalArgumentException("type may not be null");
     }

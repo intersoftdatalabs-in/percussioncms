@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.deployer.objectstore.PSArchive;
 import com.percussion.deployer.objectstore.PSArchiveInfo;
 import com.percussion.deployer.objectstore.PSArchiveManifest;
+import com.percussion.system.utils.PSArchiveFiles;
 import com.percussion.util.IOTools;
-import com.percussion.util.PSArchiveFiles;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.InputStream;
@@ -33,13 +33,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Unit test for the PSPackageLockManager. */
 @SuppressWarnings("unchecked")
-
+@org.junit.jupiter.api.Disabled("requires packaged resources that are not available on CI")
 public class PSPackageLockManagerTest {
   /**
    * Tests lock/unlock.

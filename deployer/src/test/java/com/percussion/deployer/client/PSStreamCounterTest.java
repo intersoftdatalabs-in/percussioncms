@@ -17,26 +17,16 @@
 
 package com.percussion.deployer.client;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for the {@link PSInputStreamCounter} and {@link PSOutputStreamCounter} classes. */
 public class PSStreamCounterTest {
-  /**
-   * Construct this unit test
-   *
-   * @param name The name of this test.
-   */
-  public PSStreamCounterTest(String name) {
-    super(name);
-  }
 
-  /**
-   * Tests the <code>PSInputStreamCounter</code> class
-   *
-   * @throws Exception if any errors occur.
-   */
+  @Test
   public void testInputStreamCounter() throws Exception {
     String str = "The quick brown fox jumped over the lazy doc, deployment rocks!!!!";
     byte[] data = str.getBytes();
@@ -47,23 +37,18 @@ public class PSStreamCounterTest {
 
     ic.read();
     total++;
-    assertTrue(ic.getByteCount() == total);
+    assertEquals(total, ic.getByteCount());
 
-    byte[] buf;
-    buf = new byte[2];
+    byte[] buf = new byte[2];
     total += ic.read(buf);
-    assertTrue(ic.getByteCount() == total);
+    assertEquals(total, ic.getByteCount());
 
     buf = new byte[4];
     total += ic.read(buf, 0, buf.length);
-    assertTrue(ic.getByteCount() == total);
+    assertEquals(total, ic.getByteCount());
   }
 
-  /**
-   * Tests the <code>PSOutputStreamCounter</code> class
-   *
-   * @throws Exception if any errors occur.
-   */
+  @Test
   public void testOutputStreamCounter() throws Exception {
     String str = "The quick brown fox jumped over the lazy doc, deployment rocks!!!!";
     byte[] data = str.getBytes();
@@ -74,22 +59,14 @@ public class PSStreamCounterTest {
 
     oc.write(data[0]);
     total++;
-    assertEquals(oc.getByteCount(), total);
+    assertEquals(total, oc.getByteCount());
 
     oc.write(data, 1, 4);
     total += 4;
-    assertEquals(oc.getByteCount(), total);
+    assertEquals(total, oc.getByteCount());
 
     oc.write(data);
     total += data.length;
-    assertEquals(oc.getByteCount(), total);
-  }
-
-  // collect all tests into a TestSuite and return it
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSStreamCounterTest("testInputStreamCounter"));
-    suite.addTest(new PSStreamCounterTest("testOutputStreamCounter"));
-    return suite;
+    assertEquals(total, oc.getByteCount());
   }
 }

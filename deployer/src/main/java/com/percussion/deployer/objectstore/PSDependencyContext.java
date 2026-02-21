@@ -59,7 +59,10 @@ public class PSDependencyContext {
     if (dep == null) {
       throw new IllegalArgumentException("dep may not be null");
     }
-    return getDependencies().stream().anyMatch(d -> d == dep);
+    for (Iterator<PSDependency> it = getDependencies(); it.hasNext(); ) {
+      if (it.next() == dep) return true;
+    }
+    return false;
   }
 
   /**
@@ -434,14 +437,14 @@ public class PSDependencyContext {
    * of the package containing the dependency, value is a <code>List</code> of {@link PSDependency}
    * objects.
    */
-  private Map m_depMap = new HashMap();
+  private Map<String, List<PSDependency>> m_depMap = new HashMap<>();
 
   /**
    * Map of package objects by package key, never <code>null</code> or modified. Key is the
    * package's dependency key as a <code>String</code>, value is the matching {@link
    * PSDeployableElement} object.
    */
-  private Map m_pkgMap = new HashMap();
+  private Map<String, PSDeployableElement> m_pkgMap = new HashMap<>();
 
   /**
    * Determines if the dependencies represented by this context are included in the archive. <code>

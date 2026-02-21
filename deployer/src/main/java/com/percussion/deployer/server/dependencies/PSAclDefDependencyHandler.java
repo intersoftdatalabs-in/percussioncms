@@ -51,7 +51,6 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 /** Class to handle packaging and deploying an ACL definition. */
 public class PSAclDefDependencyHandler extends PSDependencyHandler {
@@ -93,19 +92,20 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
 
     if (acl != null) {
       var roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
-      acl.getEntries().stream()
-          .filter(
-              entry ->
-                  entry.getType() == IPSTypedPrincipal.PrincipalTypes.COMMUNITY
-                      && !entry.getName().equals(PSTypedPrincipal.ANY_COMMUNITY_ENTRY))
-          .map(entry -> roleMgr.findCommunitiesByName(entry.getName()))
-          .filter(cList -> !cList.isEmpty())
-          .map(
-              cList ->
-                  getDependencyHandler(PSCommunityDependencyHandler.DEPENDENCY_TYPE)
-                      .getDependency(tok, String.valueOf(cList.get(0).getGUID().getUUID())))
-          .filter(java.util.Objects::nonNull)
-          .forEach(childDeps::add);
+      for (var entry : acl.getEntries()) {
+        if (entry.getType() == IPSTypedPrincipal.PrincipalTypes.COMMUNITY
+            && !entry.getName().equals(PSTypedPrincipal.ANY_COMMUNITY_ENTRY)) {
+          var cList = roleMgr.findCommunitiesByName(entry.getName());
+          if (!cList.isEmpty()) {
+            PSDependency child =
+                getDependencyHandler(PSCommunityDependencyHandler.DEPENDENCY_TYPE)
+                    .getDependency(tok, String.valueOf(cList.get(0).getGUID().getUUID()));
+            if (child != null) {
+              childDeps.add(child);
+            }
+          }
+        }
+      }
     }
 
     return childDeps.iterator();
@@ -128,7 +128,8 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
             PSTypeEnum.ACL,
             PSDependencyUtils.getGuidValFromString(depId, m_def.getObjectTypeName()));
     try {
-      return (PSAclImpl) m_aclSvc.loadAcl(guid);
+      List<IPSAcl> acls = m_aclSvc.loadAcls(List.of(guid));
+      return acls.isEmpty() ? null : (PSAclImpl) acls.get(0);
     } catch (PSServiceSecurityException e) {
       return null;
     }
@@ -237,7 +238,9 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
     var files = new ArrayList<PSDependencyFile>();
     var acl = findAclByDependencyID(dep.getDependencyId());
 
-    Optional.ofNullable(acl).ifPresent(a -> files.add(getDepFileFromAcl(a)));
+    if (acl != null) {
+      files.add(getDepFileFromAcl(acl));
+    }
     return files.iterator();
   }
 
@@ -397,7 +400,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
           m_aclSvc.saveAcls(aclList);
         }
 
-      } catch (NotOwnerException | PSSecurityException e) {
+      } catch (NotOwnerException | PSServiceSecurityException e) {
         throw new PSDeployException(
             IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not install the ACL: " + tmp.getName());
       }

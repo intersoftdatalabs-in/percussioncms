@@ -196,7 +196,7 @@ public class PSLogSummary implements IPSDeployComponent {
     m_archiveSummary = new PSArchiveSummary(childEl);
 
     childEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-    m_detail = Optional.ofNullable(childEl).map(PSLogDetail::new).orElse(null);
+    m_detail = childEl != null ? new PSLogDetail(childEl) : null;
   }
 
   // see IPSDeployComponent interface

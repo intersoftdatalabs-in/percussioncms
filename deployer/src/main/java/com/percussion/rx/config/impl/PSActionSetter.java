@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
@@ -118,8 +119,9 @@ public class PSActionSetter extends PSSimplePropertySetter {
     }
     // Prepare a delete list by getting current params
     List<PSActionParameter> deleteList = new ArrayList<>();
-    for (var paramObj : aps) {
-      var param = (PSActionParameter) paramObj;
+    Iterator<?> apsIter = aps.iterator();
+    while (apsIter.hasNext()) {
+      var param = (PSActionParameter) apsIter.next();
       if (params.get(param.getName()) == null) deleteList.add(param);
     }
     // Delete the params in delete list if not empty
@@ -140,8 +142,9 @@ public class PSActionSetter extends PSSimplePropertySetter {
   private Map<String, Object> getUrlParams(PSAction action) {
     var params = new HashMap<String, Object>();
     var aps = action.getParameters();
-    for (var paramObj : aps) {
-      var param = (PSActionParameter) paramObj;
+    Iterator<?> apsIter2 = aps.iterator();
+    while (apsIter2.hasNext()) {
+      var param = (PSActionParameter) apsIter2.next();
       params.put(param.getName(), param.getValue());
     }
     return params;
@@ -160,7 +163,7 @@ public class PSActionSetter extends PSSimplePropertySetter {
     var ctxIter = actionContexts.iterator();
     String avCxtName = "";
     var contexts = getResourceLookupData(VISIBILITY_CONTEXTS_LOOKUP_KEY);
-    var revContexts = getReverseMap(contexts);
+    Map<String, String> revContexts = (Map<String, String>) getReverseMap(contexts);
     initVisibilityContexts();
     List<String> processedContexts = new ArrayList<>();
     while (ctxIter.hasNext()) {
@@ -173,8 +176,11 @@ public class PSActionSetter extends PSSimplePropertySetter {
       Map<String, String> supportedVals = new HashMap<>();
       if (resource != null) supportedVals = getReverseMap(getResourceLookupData(resource));
       while (propsIter.hasNext()) {
-        var val = (String) propsIter.next();
-        val = supportedVals.get(val) == null ? val : supportedVals.get(val);
+        String val = (String) propsIter.next();
+        String remapped = supportedVals.get(val);
+        if (remapped != null) {
+          val = remapped;
+        }
         values.add(val);
       }
       propValue.put(revContexts.get(avCxtName), values);
@@ -236,8 +242,9 @@ public class PSActionSetter extends PSSimplePropertySetter {
         continue;
       }
       List<String> delList = new ArrayList<>();
-      for (var valObj : cxt) {
-        var val = (String) valObj;
+      Iterator<?> cxtIter = cxt.iterator();
+      while (cxtIter.hasNext()) {
+        String val = (String) cxtIter.next();
         if (!ArrayUtils.contains(validValues, val)) {
           delList.add(val);
         }

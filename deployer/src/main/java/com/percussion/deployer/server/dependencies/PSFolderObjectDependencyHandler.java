@@ -84,7 +84,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
         getFolderObject(
             getRelationshipProcessor(tok), getComponentProcessor(tok), dep.getDependencyId());
     return folder != null
-        ? List.of(createDependencyFile(folder)).iterator()
+        ? List.<PSDependencyFile>of(createDependencyFile(folder)).iterator()
         : List.<PSDependencyFile>of().iterator();
   }
 
@@ -103,7 +103,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
 
     try {
       var files = getDependencyFilesFromArchive(archive, dep);
-      var root = getElementFromFile(archive, dep, files.next());
+      var root = getElementFromFile(archive, dep, (PSDependencyFile) files.next());
       var srcFolder = new PSFolder(root);
       var newFolder = (PSFolder) srcFolder.clone();
 
@@ -408,7 +408,6 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
-  @Override
   protected Iterator<String> getChildFolderPaths(PSRelationshipProcessor processor, String path)
       throws PSDeployException {
     if (processor == null || (path != null && path.isBlank())) {
@@ -416,11 +415,16 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
     }
 
     var loc = path == null ? m_rootLocator : getFolderSummary(processor, path).getCurrentLocator();
-    return loc == null
-        ? PSIteratorUtils.emptyIterator()
-        : getChildFolderSummaries(processor, loc).stream()
-            .map(child -> path + PATH_SEP + child.getName())
-            .iterator();
+    if (loc == null) {
+      return java.util.Collections.emptyIterator();
+    }
+    Iterator<PSComponentSummary> summaries = getChildFolderSummaries(processor, loc);
+    java.util.List<String> results = new java.util.ArrayList<>();
+    while (summaries.hasNext()) {
+      PSComponentSummary child = summaries.next();
+      results.add(path + PATH_SEP + child.getName());
+    }
+    return results.iterator();
   }
 
   /**
@@ -433,8 +437,8 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
-  protected Iterator getChildFolderSummaries(PSRelationshipProcessor processor, PSLocator locator)
-      throws PSDeployException {
+  protected Iterator<PSComponentSummary> getChildFolderSummaries(
+      PSRelationshipProcessor processor, PSLocator locator) throws PSDeployException {
     if (processor == null) throw new IllegalArgumentException("processor may not be null");
     if (locator == null) throw new IllegalArgumentException("locator may not be null");
 
@@ -461,8 +465,8 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
-  protected Iterator getChildItemSummaries(PSRelationshipProcessor processor, PSLocator locator)
-      throws PSDeployException {
+  protected Iterator<PSComponentSummary> getChildItemSummaries(
+      PSRelationshipProcessor processor, PSLocator locator) throws PSDeployException {
     if (processor == null) throw new IllegalArgumentException("processor may not be null");
     if (locator == null) throw new IllegalArgumentException("locator may not be null");
 
@@ -663,7 +667,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
     String oldDfId = folder.getDisplayFormatPropertyValue();
     if (oldDfId != null && oldDfId.trim().length() > 0) {
       String dfType = PSDisplayFormatDefDependencyHandler.DEPENDENCY_TYPE;
-      Iterator deps = dep.getDependencies(dfType);
+      Iterator<PSDependency> deps = dep.getDependencies(dfType);
       if (!deps.hasNext()) {
         Object[] args = {oldDfId, dfType, dep.getDependencyId(), dep.getObjectTypeName()};
         throw new PSDeployException(IPSDeploymentErrors.CHILD_DEP_NOT_FOUND, args);
@@ -711,7 +715,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
   private PSComponentSummary getChildFolderSummary(
       PSRelationshipProcessor processor, PSLocator locator, String name) throws PSDeployException {
     PSComponentSummary childSum = null;
-    Iterator children = getChildFolderSummaries(processor, locator);
+    Iterator<PSComponentSummary> children = getChildFolderSummaries(processor, locator);
     while (children.hasNext() && childSum == null) {
       PSComponentSummary test = (PSComponentSummary) children.next();
       if (test.getName().equals(name)) childSum = test;
