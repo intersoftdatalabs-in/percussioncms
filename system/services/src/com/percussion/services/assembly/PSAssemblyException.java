@@ -51,6 +51,16 @@ import java.util.Optional;
 public class PSAssemblyException extends PSBaseException {
 
    /**
+    * Legacy error code used when an unexpected exception occurs during
+    * assembly.  Restored for backward compatibility; new callers should
+    * prefer more specific codes or simply throw with a message.
+    *
+    * @deprecated retained only for compatibility with existing code.
+    */
+   @Deprecated
+   public static final int UNEXPECTED_ASSEMBLY_ERROR = 5;
+
+   /**
     * Serial version UID for serialization compatibility.
     */
    private static final long serialVersionUID = 3256726182123680309L;

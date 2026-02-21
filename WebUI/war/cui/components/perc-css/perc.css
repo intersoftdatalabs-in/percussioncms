@@ -96,7 +96,7 @@ p {
 
 .primary-button {
     color: #ffffff;
-    background-color: #133c55;
+    background-color: #007ea8;
 }
 .primary-button-ext {
     width: 150px;
@@ -104,7 +104,7 @@ p {
 .primary-button:hover {
     color: #e9f6fc;
     text-decoration: none;
-    background-color: #d22f12;
+    background-color: #0093B3;
 }
 
 .secondary-button {
@@ -135,7 +135,7 @@ p {
 .gray-tab-bar{
     height:40px;
     margin:20px 20px 20px 40px;
-    background-color:#133c55;
+    background-color:gray;
     color:#f1f1f1;
     font-size:14px;
     border: 0px;

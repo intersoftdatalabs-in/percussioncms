@@ -66,6 +66,12 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
   /** See {@link #getLabel()} for detail. */
   private String label;
 
+  /**
+   * All tags associated with the item.  Historically this was called
+   * "folderPaths" and we keep the same backing field for compatibility.
+   */
+  private List<String> tags;
+
   @Override
   public String getId() {
     return id;
@@ -183,4 +189,16 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
 
   /** The type for a site item summary. */
   public static final String TYPE_SITE = "site";
+
+  @Override
+  public List<String> getTags() {
+    return tags == null ? Collections.emptyList() : tags;
+  }
+
+  /**
+   * Helper used by JAXB & legacy code that previously relied on folderPaths.
+   */
+  public void setTags(List<String> tags) {
+    this.tags = tags;
+  }
 }

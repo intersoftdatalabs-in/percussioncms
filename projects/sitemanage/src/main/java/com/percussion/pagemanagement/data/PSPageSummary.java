@@ -17,7 +17,7 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSDataItemSummarySingleFolderPath;
-import java.util.Collection;
+import java.util.List;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
@@ -39,7 +39,7 @@ public class PSPageSummary extends PSDataItemSummarySingleFolderPath {
 
   private String noindex;
   private String author;
-  private Collection<String> tags;
+  private List<String> tags;
   private String templateContentMigrationVersion = "0";
   private boolean migrationEmptyWidgetFlag = false;
   private String description;
@@ -157,7 +157,7 @@ public class PSPageSummary extends PSDataItemSummarySingleFolderPath {
    *
    * @return the tags
    */
-  public Collection<String> getTags() {
+  public List<String> getTags() {
     return tags;
   }
 
@@ -166,7 +166,7 @@ public class PSPageSummary extends PSDataItemSummarySingleFolderPath {
    *
    * @param tags the page tags to set
    */
-  public void setTags(Collection<String> tags) {
+  public void setTags(List<String> tags) {
     this.tags = tags;
   }
 

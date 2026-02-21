@@ -1,7 +1,6 @@
 # Modern UI Replacement Plan (Draft)
 
 ## Problem / Goal
-
 Replace the legacy JSP/JS UI (WebUI + cui) with a modern TypeScript UI (React or Angular), while running both side-by-side for a beta period before deprecating the old UI.
 
 ## Current State (from codebase)
@@ -71,4 +70,3 @@ Create a new **TypeScript SPA** under a new module (recommended: `modules/fireho
 ## See Also
 
 - [Plan B — Incremental UI Modernization](plan-b-incremental.md): Alternate approach that merges cui into WebUI, adds a build pipeline, and replaces components incrementally without a parallel SPA rewrite.
-

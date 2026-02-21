@@ -91,7 +91,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -173,7 +172,9 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
       throws PSDataServiceException, BackendException {
     checkAPIPermission();
     if (StringUtils.isBlank(path) && StringUtils.isBlank(type)) {
-      throw new NullArgumentException(StringUtils.isBlank(path) ? "path" : "type");
+      // the incoming arguments must not be null or empty; IllegalArgumentException
+      // has always been the runtime counterpart used elsewhere in the codebase.
+      throw new IllegalArgumentException(StringUtils.isBlank(path) ? "path" : "type");
     }
     try {
       path = URLDecoder.decode(path, "UTF-8");

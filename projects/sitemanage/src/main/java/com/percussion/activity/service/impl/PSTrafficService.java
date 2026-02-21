@@ -34,6 +34,7 @@ import com.percussion.analytics.service.IPSAnalyticsProviderService;
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pathmanagement.service.IPSPathService;
+import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
@@ -91,75 +92,74 @@ public class PSTrafficService implements IPSTrafficService {
   @Override
   public PSContentTraffic getContentTraffic(PSContentTrafficRequest request)
       throws PSTrafficServiceException, PSValidationException {
-    var results = new PSContentTraffic();
-    var df = FastDateFormat.getInstance("MM/dd/yyyy");
-    var dates = new ArrayList<String>();
-    var updateTotals = new ArrayList<Integer>();
-    var newPages = new ArrayList<Integer>();
-    var pageUpdates = new ArrayList<Integer>();
-    var takeDowns = new ArrayList<Integer>();
-    var livePages = new ArrayList<Integer>();
-    var visits = new ArrayList<Integer>();
-    PSSiteSummary siteInfo;
-    try {
-      siteInfo = siteDataService.findByPath(request.getPath());
-    } catch (Exception e) {
-      throw new PSTrafficServiceException(NOT_FOUND_ERROR);
-    }
+    String path = request.getPath().orElse("");
+    String startDate = request.getStartDate().orElse("");
+    String endDate = request.getEndDate().orElse("");
+    String granularity = request.getGranularity().orElse("");
+    List<String> dataReq = request.getTrafficRequested().orElse(Collections.emptyList());
 
-    PSDateRange range;
-    try {
-      range =
-          createPSDateRange(request.getStartDate(), request.getEndDate(), request.getGranularity());
-    } catch (ParseException e) {
-      throw new PSTrafficServiceException(e.getMessage());
-    }
+      PSContentTraffic results = new PSContentTraffic();
+      FastDateFormat df = FastDateFormat.getInstance("MM/dd/yyyy");
+      List<String> dates = new ArrayList<>();
+      List<Integer> updateTotals = new ArrayList<>();
+      List<Integer> newPages = new ArrayList<>();
+      List<Integer> pageUpdates = new ArrayList<>();
+      List<Integer> takeDowns = new ArrayList<>();
+      List<Integer> livePages = new ArrayList<>();
+      List<Integer> visits = new ArrayList<>();
 
-    for (var date : range.getGranularityBreakdown()) {
-      dates.add(df.format(date));
-    }
-
-    var dateList = new ArrayList<>(range.getGranularityBreakdown());
-    dateList.add(range.getEnd());
-    var dataReq = request.getTrafficRequested();
-    var pageIds = activityService.findPageIdsByPath(request.getPath());
-
-    if (dataReq.contains(PSTrafficTypeEnum.LIVE_PAGES.toString())) {
-      livePages.addAll(activityService.findPublishedItems(pageIds, dateList));
-    }
-    if (dataReq.contains(PSTrafficTypeEnum.NEW_PAGES.toString())) {
-      newPages.addAll(activityService.findNewContentActivities(pageIds, dateList));
-    }
-    if (dataReq.contains(PSTrafficTypeEnum.UPDATED_PAGES.toString())) {
-      var activity =
-          activityService.findNumberContentActivities(pageIds, dateList, WF_STATE_LIVE, null);
-      for (int i = 0; i < activity.size(); i++) {
-        pageUpdates.add(i, activity.get(i) - newPages.get(i));
-      }
-    }
-    if (dataReq.contains(PSTrafficTypeEnum.TAKE_DOWNS.toString())) {
-      takeDowns.addAll(
-          activityService.findNumberContentActivities(
-              pageIds, dateList, WF_STATE_ARCHIVE, WF_TAKE_DOWN_TRANSITION));
-    }
-    if (dataReq.contains(PSTrafficTypeEnum.VISITS.toString())) {
+      PSSiteSummary siteInfo;
       try {
-        visits.addAll(
-            createAnalyticsActivity(range, dateList, siteInfo.getName(), request.getUsage()));
-      } catch (PSAnalyticsProviderException e) {
-        var errorHandler = providerService.getErrorMessageHandler();
-        throw new PSTrafficServiceException(errorHandler.getMessage(e), e);
-      } catch (IPSGenericDao.LoadException e) {
-        throw new PSTrafficServiceException(e.getMessage(), e);
+        siteInfo = siteDataService.findByPath(path);
+      } catch (Exception e) {
+        throw new PSTrafficServiceException(NOT_FOUND_ERROR);
       }
-    }
 
-    for (int i = 0; i < dates.size(); i++) {
-      updateTotals.add(i, newPages.get(i) + pageUpdates.get(i) + takeDowns.get(i));
-    }
+      PSDateRange range;
+      try {
+        range = createPSDateRange(startDate, endDate, granularity);
+      } catch (ParseException e) {
+        throw new PSTrafficServiceException(e.getMessage());
+      }
 
-    results.setStartDate(request.getStartDate());
-    results.setEndDate(request.getEndDate());
+      for (Date d : range.getGranularityBreakdown()) {
+        dates.add(df.format(d));
+      }
+
+      List<Date> dateList = new ArrayList<>(range.getGranularityBreakdown());
+      dateList.add(range.getEnd());
+
+      List<Integer> pageIds = activityService.findPageIdsByPath(path);
+
+      if (dataReq.contains(PSTrafficTypeEnum.LIVE_PAGES.toString())) {
+        livePages.addAll(activityService.findPublishedItems(pageIds, dateList));
+      }
+      if (dataReq.contains(PSTrafficTypeEnum.NEW_PAGES.toString())) {
+        newPages.addAll(activityService.findNewContentActivities(pageIds, dateList));
+      }
+      if (dataReq.contains(PSTrafficTypeEnum.UPDATED_PAGES.toString())) {
+        List<Integer> activity = activityService.findNumberContentActivities(pageIds, dateList, WF_STATE_LIVE, null);
+        for (int i = 0; i < activity.size(); i++) {
+          pageUpdates.add(i, activity.get(i) - newPages.get(i));
+        }
+      }
+      if (dataReq.contains(PSTrafficTypeEnum.TAKE_DOWNS.toString())) {
+        takeDowns.addAll(activityService.findNumberContentActivities(pageIds, dateList, WF_STATE_ARCHIVE, WF_TAKE_DOWN_TRANSITION));
+      }
+      if (dataReq.contains(PSTrafficTypeEnum.VISITS.toString())) {
+        try {
+          visits.addAll(createAnalyticsActivity(range, dateList, siteInfo.getName(), request.getUsage()));
+          } catch (PSAnalyticsProviderException e) {
+            var errorHandler = providerService.getErrorMessageHandler();
+            throw new PSTrafficServiceException(errorHandler.getMessage(e), e);
+          } catch (IPSGenericDao.LoadException e) {
+            throw new PSTrafficServiceException(e.getMessage(), e);
+          }
+        }
+
+        for (int i = 0; i < dates.size(); i++) {
+          updateTotals.add(i, newPages.get(i) + pageUpdates.get(i) + takeDowns.get(i));
+        }
     results.setDates(removeLast(dates));
     results.setPageUpdates(removeLast(pageUpdates));
     results.setNewPages(removeLast(newPages));
@@ -190,19 +190,19 @@ public class PSTrafficService implements IPSTrafficService {
     var previousRange =
         new PSDateRange(range.getStart(), PSDateRange.Granularity.DAY, range.getDaysInRange());
     var pageIds = activityService.findPageIdsByPath(request.getPath());
-    var activityIds =
+    List<Integer> activityIds =
         activityService.findPageIdsContentActivities(
-            pageIds, range.getStart(), range.getEnd(), WF_STATE_LIVE, null);
+            pageIdsTyped, range.getStart(), range.getEnd(), WF_STATE_LIVE, null);
 
     var itemPropList = new ArrayList<PSTrafficDetails>();
-    for (var pageId : activityIds) {
+    for (Integer pageId : activityIds) {
       try {
-        var pathItem = folderHelper.findItemById(pageId);
-        var path = pathItem.getFolderPaths().get(0) + "/" + pathItem.getName();
-        var finderPath = PSPathUtils.getFinderPath(path);
-        var itemProp = pathService.findItemProperties(finderPath);
+        PSPathItem pathItem = folderHelper.findItemById(pageId.toString());
+        String itemPath = pathItem.getFolderPaths().get(0) + "/" + pathItem.getName();
+        String finderPath = PSPathUtils.getFinderPath(itemPath);
+        PSItemProperties itemProp = pathService.findItemProperties(finderPath);
         itemProp.setPath(finderPath);
-        PSPage page = pageService.findPageByPath(path);
+        PSPage page = pageService.findPageByPath(itemPath);
         if (page != null) {
           itemProp.setSummary(page.getSummary());
         }
@@ -213,7 +213,7 @@ public class PSTrafficService implements IPSTrafficService {
       }
     }
 
-    var siteInfo = siteDataService.findByPath(request.getPath());
+    var siteInfo = siteDataService.findByPath(path);
     List<IPSAnalyticsQueryResult> currentAnalytics = new ArrayList<>();
     List<IPSAnalyticsQueryResult> previousAnalytics = new ArrayList<>();
     try {

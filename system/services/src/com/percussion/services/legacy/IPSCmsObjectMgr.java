@@ -196,6 +196,14 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
     Stream<PSComponentSummary> findComponentSummariesByType(long contentType) throws PSORMException;
 
     /**
+     * Retrieve all available action menus.  This method was added to support
+     * the legacy helpers used by sitemanage module.
+     *
+     * @return never {@code null}
+     */
+    List<PSActionMenu> findActionMenus();
+
+    /**
      * Finds content IDs by content type with Stream support.
      *
      * @param contentType the content type being searched for
