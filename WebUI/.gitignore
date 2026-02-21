@@ -108,3 +108,6 @@ fabric.properties
 # https://plugins.jetbrains.com/plugin/12206-codestream
 .idea/codestream.xml
 /war/jslib/profiles/3x/jquery/plugins/jquery-fancytree/node_modules/
+
+# Vite build output (generated from src/main/ts during Maven build)
+/war/modern/
