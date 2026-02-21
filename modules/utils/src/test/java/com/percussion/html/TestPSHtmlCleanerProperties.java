@@ -159,21 +159,21 @@ public class TestPSHtmlCleanerProperties {
     String input = "<table role=\"presentation\" border=\"1\"><tr><td>Cell</td></tr></table>";
     String result = cleanseFragment(input);
     assertTrue(
-        "role attribute should be preserved on table", result.contains("role=\"presentation\""));
+        result.contains("role=\"presentation\""), "role attribute should be preserved on table");
   }
 
   @Test
   public void testRoleAttributePreservedOnDiv() {
     String input = "<div role=\"navigation\">Nav content</div>";
     String result = cleanseFragment(input);
-    assertTrue("role attribute should be preserved on div", result.contains("role=\"navigation\""));
+    assertTrue(result.contains("role=\"navigation\""), "role attribute should be preserved on div");
   }
 
   @Test
   public void testRoleAttributePreservedOnNav() {
     String input = "<nav role=\"navigation\">Nav content</nav>";
     String result = cleanseFragment(input);
-    assertTrue("role attribute should be preserved on nav", result.contains("role=\"navigation\""));
+    assertTrue(result.contains("role=\"navigation\""), "role attribute should be preserved on nav");
   }
 
   @Test
@@ -182,14 +182,14 @@ public class TestPSHtmlCleanerProperties {
         "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\" role=\"grid\" summary=\"Data table\" width=\"100%\" align=\"center\" height=\"200\">"
             + "<tr><td>Cell</td></tr></table>";
     String result = cleanseFragment(input);
-    assertTrue("border should be preserved on table", result.contains("border=\"1\""));
-    assertTrue("cellpadding should be preserved on table", result.contains("cellpadding=\"5\""));
-    assertTrue("cellspacing should be preserved on table", result.contains("cellspacing=\"0\""));
-    assertTrue("role should be preserved on table", result.contains("role=\"grid\""));
-    assertTrue("summary should be preserved on table", result.contains("summary=\"Data table\""));
-    assertTrue("width should be preserved on table", result.contains("width=\"100%\""));
-    assertTrue("align should be preserved on table", result.contains("align=\"center\""));
-    assertTrue("height should be preserved on table", result.contains("height=\"200\""));
+    assertTrue(result.contains("border=\"1\""), "border should be preserved on table");
+    assertTrue(result.contains("cellpadding=\"5\""), "cellpadding should be preserved on table");
+    assertTrue(result.contains("cellspacing=\"0\""), "cellspacing should be preserved on table");
+    assertTrue(result.contains("role=\"grid\""), "role should be preserved on table");
+    assertTrue(result.contains("summary=\"Data table\""), "summary should be preserved on table");
+    assertTrue(result.contains("width=\"100%\""), "width should be preserved on table");
+    assertTrue(result.contains("align=\"center\""), "align should be preserved on table");
+    assertTrue(result.contains("height=\"200\""), "height should be preserved on table");
   }
 
   @Test
@@ -197,12 +197,12 @@ public class TestPSHtmlCleanerProperties {
     String input =
         "<table><tr><td colspan=\"2\" rowspan=\"1\" height=\"50\" align=\"center\" valign=\"top\" bgcolor=\"#ff0000\">Cell</td></tr></table>";
     String result = cleanseFragment(input);
-    assertTrue("colspan should be preserved on td", result.contains("colspan=\"2\""));
-    assertTrue("rowspan should be preserved on td", result.contains("rowspan=\"1\""));
-    assertTrue("height should be preserved on td", result.contains("height=\"50\""));
-    assertTrue("align should be preserved on td", result.contains("align=\"center\""));
-    assertTrue("valign should be preserved on td", result.contains("valign=\"top\""));
-    assertTrue("bgcolor should be preserved on td", result.contains("bgcolor=\"#ff0000\""));
+    assertTrue(result.contains("colspan=\"2\""), "colspan should be preserved on td");
+    assertTrue(result.contains("rowspan=\"1\""), "rowspan should be preserved on td");
+    assertTrue(result.contains("height=\"50\""), "height should be preserved on td");
+    assertTrue(result.contains("align=\"center\""), "align should be preserved on td");
+    assertTrue(result.contains("valign=\"top\""), "valign should be preserved on td");
+    assertTrue(result.contains("bgcolor=\"#ff0000\""), "bgcolor should be preserved on td");
   }
 
   @Test
@@ -210,12 +210,12 @@ public class TestPSHtmlCleanerProperties {
     String input =
         "<table><tr><th scope=\"col\" colspan=\"2\" height=\"40\" align=\"left\" valign=\"middle\" bgcolor=\"#cccccc\">Header</th></tr></table>";
     String result = cleanseFragment(input);
-    assertTrue("scope should be preserved on th", result.contains("scope=\"col\""));
-    assertTrue("colspan should be preserved on th", result.contains("colspan=\"2\""));
-    assertTrue("height should be preserved on th", result.contains("height=\"40\""));
-    assertTrue("align should be preserved on th", result.contains("align=\"left\""));
-    assertTrue("valign should be preserved on th", result.contains("valign=\"middle\""));
-    assertTrue("bgcolor should be preserved on th", result.contains("bgcolor=\"#cccccc\""));
+    assertTrue(result.contains("scope=\"col\""), "scope should be preserved on th");
+    assertTrue(result.contains("colspan=\"2\""), "colspan should be preserved on th");
+    assertTrue(result.contains("height=\"40\""), "height should be preserved on th");
+    assertTrue(result.contains("align=\"left\""), "align should be preserved on th");
+    assertTrue(result.contains("valign=\"middle\""), "valign should be preserved on th");
+    assertTrue(result.contains("bgcolor=\"#cccccc\""), "bgcolor should be preserved on th");
   }
 
   @Test
@@ -223,10 +223,10 @@ public class TestPSHtmlCleanerProperties {
     String input =
         "<table><tr align=\"center\" valign=\"top\" height=\"30\" bgcolor=\"#eeeeee\"><td>Cell</td></tr></table>";
     String result = cleanseFragment(input);
-    assertTrue("align should be preserved on tr", result.contains("align=\"center\""));
-    assertTrue("valign should be preserved on tr", result.contains("valign=\"top\""));
-    assertTrue("height should be preserved on tr", result.contains("height=\"30\""));
-    assertTrue("bgcolor should be preserved on tr", result.contains("bgcolor=\"#eeeeee\""));
+    assertTrue(result.contains("align=\"center\""), "align should be preserved on tr");
+    assertTrue(result.contains("valign=\"top\""), "valign should be preserved on tr");
+    assertTrue(result.contains("height=\"30\""), "height should be preserved on tr");
+    assertTrue(result.contains("bgcolor=\"#eeeeee\""), "bgcolor should be preserved on tr");
   }
 
   @Test
@@ -239,12 +239,12 @@ public class TestPSHtmlCleanerProperties {
             + "</table>";
     String result = cleanseFragment(input);
     // thead
-    assertTrue("align should be preserved on thead", result.contains("<thead align=\"center\""));
-    assertTrue("valign should be preserved on thead", result.contains("valign=\"top\""));
+    assertTrue(result.contains("<thead align=\"center\""), "align should be preserved on thead");
+    assertTrue(result.contains("valign=\"top\""), "valign should be preserved on thead");
     // tbody
-    assertTrue("align should be preserved on tbody", result.contains("<tbody align=\"left\""));
+    assertTrue(result.contains("<tbody align=\"left\""), "align should be preserved on tbody");
     // tfoot
-    assertTrue("align should be preserved on tfoot", result.contains("<tfoot align=\"right\""));
+    assertTrue(result.contains("<tfoot align=\"right\""), "align should be preserved on tfoot");
   }
 
   @Test
@@ -252,26 +252,26 @@ public class TestPSHtmlCleanerProperties {
     String input =
         "<table><caption align=\"bottom\">Table Caption</caption><tr><td>Cell</td></tr></table>";
     String result = cleanseFragment(input);
-    assertTrue("align should be preserved on caption", result.contains("align=\"bottom\""));
-    assertTrue("caption content should be preserved", result.contains("Table Caption"));
+    assertTrue(result.contains("align=\"bottom\""), "align should be preserved on caption");
+    assertTrue(result.contains("Table Caption"), "caption content should be preserved");
   }
 
   @Test
   public void testFontAttributes() {
     String input = "<font color=\"red\" face=\"Arial\" size=\"3\">Styled text</font>";
     String result = cleanseFragment(input);
-    assertTrue("color should be preserved on font", result.contains("color=\"red\""));
-    assertTrue("face should be preserved on font", result.contains("face=\"Arial\""));
-    assertTrue("size should be preserved on font", result.contains("size=\"3\""));
+    assertTrue(result.contains("color=\"red\""), "color should be preserved on font");
+    assertTrue(result.contains("face=\"Arial\""), "face should be preserved on font");
+    assertTrue(result.contains("size=\"3\""), "size should be preserved on font");
   }
 
   @Test
   public void testHrAttributes() {
     String input = "<hr width=\"50%\" size=\"2\" align=\"center\" />";
     String result = cleanseFragment(input);
-    assertTrue("width should be preserved on hr", result.contains("width=\"50%\""));
-    assertTrue("size should be preserved on hr", result.contains("size=\"2\""));
-    assertTrue("align should be preserved on hr", result.contains("align=\"center\""));
+    assertTrue(result.contains("width=\"50%\""), "width should be preserved on hr");
+    assertTrue(result.contains("size=\"2\""), "size should be preserved on hr");
+    assertTrue(result.contains("align=\"center\""), "align should be preserved on hr");
   }
 
   @Test
@@ -279,10 +279,10 @@ public class TestPSHtmlCleanerProperties {
     String input =
         "<video src=\"video.mp4\" controls=\"controls\" playsinline=\"playsinline\" width=\"640\" height=\"480\"></video>";
     String result = cleanseFragment(input);
-    assertTrue("playsinline should be preserved on video", result.contains("playsinline"));
-    assertTrue("controls should be preserved on video", result.contains("controls"));
-    assertTrue("width should be preserved on video", result.contains("width=\"640\""));
-    assertTrue("height should be preserved on video", result.contains("height=\"480\""));
+    assertTrue(result.contains("playsinline"), "playsinline should be preserved on video");
+    assertTrue(result.contains("controls"), "controls should be preserved on video");
+    assertTrue(result.contains("width=\"640\""), "width should be preserved on video");
+    assertTrue(result.contains("height=\"480\""), "height should be preserved on video");
   }
 
   @Test
@@ -291,16 +291,16 @@ public class TestPSHtmlCleanerProperties {
         "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\" width=\"100\" height=\"100\" fill=\"none\" stroke=\"black\" preserveAspectRatio=\"xMidYMid meet\"></svg>";
     String result = cleanseFragment(input);
     assertTrue(
-        "xmlns should be preserved on svg",
-        result.contains("xmlns=\"http://www.w3.org/2000/svg\""));
-    assertTrue("viewBox should be preserved on svg", result.contains("viewBox=\"0 0 100 100\""));
-    assertTrue("width should be preserved on svg", result.contains("width=\"100\""));
-    assertTrue("height should be preserved on svg", result.contains("height=\"100\""));
-    assertTrue("fill should be preserved on svg", result.contains("fill=\"none\""));
-    assertTrue("stroke should be preserved on svg", result.contains("stroke=\"black\""));
+        result.contains("xmlns=\"http://www.w3.org/2000/svg\""),
+        "xmlns should be preserved on svg");
+    assertTrue(result.contains("viewBox=\"0 0 100 100\""), "viewBox should be preserved on svg");
+    assertTrue(result.contains("width=\"100\""), "width should be preserved on svg");
+    assertTrue(result.contains("height=\"100\""), "height should be preserved on svg");
+    assertTrue(result.contains("fill=\"none\""), "fill should be preserved on svg");
+    assertTrue(result.contains("stroke=\"black\""), "stroke should be preserved on svg");
     assertTrue(
-        "preserveAspectRatio should be preserved on svg",
-        result.contains("preserveAspectRatio=\"xMidYMid meet\""));
+        result.contains("preserveAspectRatio=\"xMidYMid meet\""),
+        "preserveAspectRatio should be preserved on svg");
   }
 
   @Test
@@ -322,23 +322,23 @@ public class TestPSHtmlCleanerProperties {
     String result = cleanseFragment(input);
 
     // Table-level
-    assertTrue("table role should be preserved", result.contains("role=\"presentation\""));
-    assertTrue("table border should be preserved", result.contains("border=\"1\""));
+    assertTrue(result.contains("role=\"presentation\""), "table role should be preserved");
+    assertTrue(result.contains("border=\"1\""), "table border should be preserved");
 
     // Caption
-    assertTrue("caption should be preserved", result.contains("Monthly Report"));
+    assertTrue(result.contains("Monthly Report"), "caption should be preserved");
 
     // Thead
-    assertTrue("thead should be preserved", result.contains("<thead"));
+    assertTrue(result.contains("<thead"), "thead should be preserved");
 
     // Th scope
-    assertTrue("th scope should be preserved", result.contains("scope=\"col\""));
+    assertTrue(result.contains("scope=\"col\""), "th scope should be preserved");
 
     // Td attributes
-    assertTrue("td align should be preserved", result.contains("align=\"left\""));
-    assertTrue("td colspan should be preserved", result.contains("colspan=\"2\""));
+    assertTrue(result.contains("align=\"left\""), "td align should be preserved");
+    assertTrue(result.contains("colspan=\"2\""), "td colspan should be preserved");
 
     // Tr bgcolor
-    assertTrue("tr bgcolor should be preserved", result.contains("bgcolor=\"#f0f0f0\""));
+    assertTrue(result.contains("bgcolor=\"#f0f0f0\""), "tr bgcolor should be preserved");
   }
 }
