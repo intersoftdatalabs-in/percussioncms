@@ -75,7 +75,7 @@ tinymce.PluginManager.add("percglobalvariables", function (editor, url) {
             //Fix for IE losing cursor position on insert
             if (tinymce.Env.ie) {
               tinyMCE.activeEditor.selection.moveToBookmark(
-                actualCaretPositionBookmark
+                actualCaretPositionBookmark,
               );
               editor.execCommand("mceInsertContent", 0, gvhtml);
             } else {
@@ -221,7 +221,8 @@ tinymce.PluginManager.add("percglobalvariables", function (editor, url) {
   });
 
   editor.on("PreInit", function () {
-    if (editor.settings.content_css !== false)
+    // editor.options.get() replaces the deprecated editor.settings in TinyMCE 6+.
+    if (editor.options.get("content_css") !== false)
       editor.dom.loadCSS(url + "/css/globalVariables.css");
 
     if (editor.theme.onResolveName) {
