@@ -73,7 +73,7 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
       System.arraycopy(ps, 0, packages, 0, ps.length);
     }
 
-    Map keyValueMap = getMapFromKeys(theLang, packages);
+    Map<String, PSTmxUnit> keyValueMap = getMapFromKeys(theLang, packages);
     if (keyValueMap == null) {
       Object[] errs = {getClass().getName(), theLang};
 
@@ -101,17 +101,17 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
    * @return may return <code>null</code> if default language or the passed language isn't
    *     supported.
    */
-  private Map getMapFromKeys(String language, String[] packages) {
+  private Map<String, PSTmxUnit> getMapFromKeys(String language, String[] packages) {
     // this calls a method that will already check the default.
-    Iterator it = PSI18nUtils.getKeys(getActiveLocale(language));
-    Map keyValueMap = null;
+    Iterator<String> it = PSI18nUtils.getKeys(getActiveLocale(language));
+    Map<String, PSTmxUnit> keyValueMap = null;
 
     if (it != null) {
-      keyValueMap = new HashMap();
+      keyValueMap = new HashMap<>();
 
       String theKey = "";
       while (it.hasNext()) {
-        theKey = (String) it.next();
+        theKey = it.next();
         String value = PSI18nUtils.getString(theKey, language);
         String mnemonic = PSI18nUtils.getMnemonic(theKey, language);
         String tooltip = PSI18nUtils.getTooltip(theKey, language);
@@ -150,7 +150,8 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
   private String getActiveLocale(String lang) {
     IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
     List<String> langs = new ArrayList<>();
-    List<PSLocale> locales = mgr.findLocaleByStatus(PSLocale.STATUS_ACTIVE);
+    // findLocaleByStatus was removed; use the stream-based replacement
+    List<PSLocale> locales = mgr.findLocalesByStatus(PSLocale.STATUS_ACTIVE).toList();
     for (PSLocale locale : locales) {
       langs.add(locale.getLanguageString());
     }

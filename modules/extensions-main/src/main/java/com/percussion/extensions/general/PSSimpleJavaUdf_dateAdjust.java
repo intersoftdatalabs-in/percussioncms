@@ -18,7 +18,7 @@
 package com.percussion.extensions.general;
 
 import com.percussion.data.PSConversionException;
-import com.percussion.data.PSDataConverter;
+// PSDataConverter was used only for parseStringToDate which is now private
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.PSCalculation;
@@ -106,22 +106,25 @@ public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
     else if (params[0] instanceof Date) {
       day = (Date) params[0];
     } else {
+      // parseStringToDate throws IllegalArgumentException for null/empty input,
+      // and returns null when the string cannot be parsed as a date.
+      String paramContext =
+          "Param 1 is (" + params[0].toString() + ") PSSimpleJavaUdf_dateAdjust/processUdf";
       try {
-        day = PSDataConverter.parseStringToDate(params[0].toString());
-      } catch (java.text.ParseException e) {
-        int errCode = 0;
-        Object[] args = {
-          e.toString(),
-          "Param 1 is (" + params[0].toString() + ")" + " PSSimpleJavaUdf_dateAdjust/processUdf"
-        };
-        throw new PSConversionException(errCode, args);
+        day = com.percussion.util.PSDataTypeConverter.parseStringToDate(params[0].toString());
+      } catch (IllegalArgumentException e) {
+        throw new PSConversionException(0, new Object[] {e.toString(), paramContext});
+      }
+      if (day == null) {
+        throw new PSConversionException(
+            0, new Object[] {"Unable to parse date string", paramContext});
       }
     }
 
     // First initialize spaces for -all- adjust numbers to 0
     Number[] paramArray = new Number[MAX_PARAMS - 1];
     for (int i = 0; i < MAX_PARAMS - 1; i++) {
-      paramArray[i] = new Integer(0);
+      paramArray[i] = Integer.valueOf(0);
     }
 
     // All parameters after 1 are the adjustment numbers
