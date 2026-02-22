@@ -16,19 +16,14 @@
  */
 package com.percussion.services.workflow;
 
-import com.percussion.cx.objectstore.PSMenuAction;
+
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
-import com.percussion.services.workflow.data.PSContentAdhocUser;
-import com.percussion.services.workflow.data.PSContentApproval;
-import com.percussion.services.workflow.data.PSContentWorkflowState;
 import com.percussion.services.workflow.data.PSNotification;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
-import com.percussion.services.workflow.data.PSContentAdhocUser;
-import com.percussion.services.workflow.data.PSContentApproval;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
@@ -134,6 +129,21 @@ public interface IPSWorkflowService {
      */
     default Optional<PSWorkflow> findWorkflow(IPSGuid id) {
         return Optional.ofNullable(loadWorkflow(id));
+    }
+
+    /**
+     * Convenience method to obtain the default workflow GUID for the system.
+     *
+     * <p>Historically this method existed in various helpers; having it on the
+     * service allows callers to avoid hardcoding defaults.
+     *
+     * <p>The default implementation returns {@code null} to maintain backward
+     * compatibility.  Implementations should override as appropriate.
+     *
+     * @return the default workflow GUID or {@code null} if unknown
+     */
+    default IPSGuid getDefaultWorkflowId() {
+        return null;
     }
 
     /**
@@ -500,4 +510,16 @@ public interface IPSWorkflowService {
     default boolean hasWorkflows(String name) {
         return streamWorkflows(name).findAny().isPresent();
     }
+
+    /**
+     * Copy all workflow assignments that reference {@code fromRole} to {@code toRole}.
+     *
+     * <p>This is primarily a convenience method used when renaming or duplicating roles.  The
+     * implementation is responsible for efficiently updating any database records or caches
+     * that refer to the original role.
+     *
+     * @param fromRole the name of the role to copy assignments from, not {@code null}
+     * @param toRole the name of the role to copy assignments to, not {@code null}
+     */
+    void copyWorkflowToRole(String fromRole, String toRole);
 }

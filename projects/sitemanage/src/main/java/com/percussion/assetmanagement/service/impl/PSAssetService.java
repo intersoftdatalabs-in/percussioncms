@@ -16,6 +16,9 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.percussion.apibridge.ApiUtils;
+import java.util.Optional;
+
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAbstractAssetRequest;
 import com.percussion.assetmanagement.data.PSAbstractAssetRequest.AssetType;
@@ -683,10 +686,10 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
             loadOwner(ownerId),
             asset,
             String.valueOf(awRel.getWidgetId()),
-            awRel.getAction(),
+            awRel.getAction().orElse(null),
             awRel.getResourceType(),
             awRel.getAssetOrder(),
-            awRel.getWidgetInstanceName(),
+            awRel.getWidgetInstanceName().orElse(null),
             awRel.getReplacedRelationshipId());
 
     /*
@@ -695,7 +698,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     if (awRel.getResourceType() == PSAssetResourceType.local) {
       log.trace("Related local asset: {}", assetId);
 
-      IPSItemSummary owner = find(ownerId);
+      PSAssetSummary owner = find(ownerId);
       /*
        * We will lock the local content if its parent (page) has revision
        * lock turned on (The page has been in the pending state before).
@@ -747,11 +750,11 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
         PSAsset newAsset = save(asset);
         results.add(newAsset);
 
-        String ownerId = assetData.getOwnerId();
+        String ownerId = assetData.getOwnerId().orElse(null);
         PSAssetWidgetRelationship awRel =
             new PSAssetWidgetRelationship(
                 ownerId,
-                Long.parseLong(assetData.getWidgetId()),
+                Long.parseLong(assetData.getWidgetId().orElse("0")),
                 "percRawHtml",
                 newAsset.getId(),
                 0);
@@ -901,10 +904,13 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     boolean isLocalContent = false;
     PSWidgetItem w = getWidget(request, isPage);
     PSWidgetDefinition wdef = widgetService.load(w.getDefinitionId());
-    String ctName = wdef.getWidgetPrefs().getContenttypeName();
+    PSWidgetDefinition.WidgetPrefs prefs = ApiUtils.orNull(wdef.getWidgetPrefs());
+    String ctName = prefs == null ? null : prefs.getContenttypeName();
     String editView = getEditView(w, Collections.singletonList(IPSHtmlParameters.SYS_TITLE));
+    Optional<String> optAssetId = request.getAssetId();
+    String assetId = optAssetId.orElse(null);
     IPSGuid itemId = null;
-    if (!isBlank(request.getAssetId())) itemId = idMapper.getGuid(request.getAssetId());
+    if (!isBlank(assetId)) itemId = idMapper.getGuid(assetId);
     ceCrit.setUrl(getUrl(itemId, ctName, editView, false));
     // If there is an itemId then set its type.
     if (itemId != null) {
@@ -922,33 +928,31 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
 
     // generate a name if it is a new item request and if the content type
     // does not produce a resource
-    if (isBlank(request.getAssetId()) && !producesResource) {
+    if (isBlank(assetId) && !producesResource) {
       isLocalContent = true;
       ceCrit.setContentName(nameGenerator.generateLocalContentName());
     }
 
     // Set preferred height and widths
-    int prefHt =
-        wdef.getWidgetPrefs().getPreferredEditorHeight() == null
+    int prefHt = prefs == null || prefs.getPreferredEditorHeight() == null
             ? PSContentEditCriteria.DEFAULT_PREFERRED_EDITOR_HEIGHT
-            : wdef.getWidgetPrefs().getPreferredEditorHeight().intValue();
+            : prefs.getPreferredEditorHeight().intValue();
 
-    int prefWd =
-        wdef.getWidgetPrefs().getPreferredEditorWidth() == null
+    int prefWd = prefs == null || prefs.getPreferredEditorWidth() == null
             ? PSContentEditCriteria.DEFAULT_PREFERRED_EDITOR_WIDTH
-            : wdef.getWidgetPrefs().getPreferredEditorWidth().intValue();
+            : prefs.getPreferredEditorWidth().intValue();
     ceCrit.setPreferredEditorHeight(prefHt);
     ceCrit.setPreferredEditorWidth(prefWd);
 
-    boolean createSharedAsset = wdef.getWidgetPrefs().getCreateSharedAsset();
+    boolean createSharedAsset = prefs == null ? false : prefs.getCreateSharedAsset();
     ceCrit.setCreateSharedAsset(createSharedAsset);
 
     /*
      * Add the folder id of where we should create the asset into return object.
      * The UI can then decide whether or not to use it.
      */
-    if (isNotBlank(request.getAssetId())) {
-      PSAssetSummary sum = find(request.getAssetId());
+    if (isNotBlank(assetId)) {
+      PSAssetSummary sum = find(assetId);
       ceCrit.setLegacyFolderId(assetUploadFolderPathMap.getLegacyFolderIdForAsset(sum).intValue());
       if (sum.getFolderPaths() != null && (!sum.getFolderPaths().isEmpty())) {
         String folderPath = getFinderPath(sum.getFolderPaths().get(0));
@@ -957,7 +961,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     } else {
       String parentFolderForAsset;
       if (isPage && !producesResource) {
-        IPSGuid parentGuid = idMapper.getGuid(request.getParentId());
+        String parentId = request.getParentId();
+        IPSGuid parentGuid = idMapper.getGuid(parentId);
         IPSGuid folderId = this.folderHelper.getParentFolderId(parentGuid, true);
 
         ceCrit.setLegacyFolderId(folderId.getUUID());
@@ -1032,7 +1037,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       throws PSDataServiceException, PSItemWorkflowServiceException {
     rejectIfNull("getAssetEditor", "widgetId", widgetId);
     PSWidgetSummary widget = widgetService.find(widgetId);
-    String parentFolderPath = assetUploadFolderPathMap.getFolderPathForType(widget.getType());
+    String parentFolderPath = assetUploadFolderPathMap.getFolderPathForType(ApiUtils.orNull(widget.getType()));
     return getAssetEditor(parentFolderPath, widget);
   }
 
@@ -1062,11 +1067,12 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     boolean isLocalContent = false;
     PSAssetEditor assetEditor = new PSAssetEditor();
     PSWidgetDefinition widgetDef = widgetService.load(widget.getId());
-    String ctName = widgetDef.getWidgetPrefs().getContenttypeName();
-    createSharedAsset = widgetDef.getWidgetPrefs().getCreateSharedAsset();
+    PSWidgetDefinition.WidgetPrefs prefs = ApiUtils.orNull(widgetDef.getWidgetPrefs());
+    String ctName = prefs == null ? null : prefs.getContenttypeName();
+    createSharedAsset = prefs == null ? false : prefs.getCreateSharedAsset();
     if (isNotEmpty(ctName) && (createSharedAsset)) {
-      assetEditor.setTitle(widgetDef.getWidgetPrefs().getTitle());
-      assetEditor.setIcon(widget.getIcon());
+      assetEditor.setTitle(prefs == null ? null : prefs.getTitle());
+      assetEditor.setIcon(ApiUtils.orNull(widget.getIcon()));
       if (isEmpty(parentFolderPath)) isLocalContent = true;
       assetEditor.setWorkflowId(getWorkflowId(ctName, true, parentFolderPath, isLocalContent));
       assetEditor.setUrl(getUrl(null, ctName, getEditView(ctName), false));
@@ -1083,9 +1089,10 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     // Loop all widgets
     for (PSWidgetSummary widget : widgetList) {
       PSWidgetDefinition widgetDef = widgetService.load(widget.getId());
-      String ctName = widgetDef.getWidgetPrefs().getContenttypeName();
+      PSWidgetDefinition.WidgetPrefs prefs = ApiUtils.orNull(widgetDef.getWidgetPrefs());
+      String ctName = prefs == null ? null : prefs.getContenttypeName();
       if (isNotEmpty(ctName)
-          && Boolean.TRUE.equals(widgetDef.getWidgetPrefs().getCreateSharedAsset())) {
+          && Boolean.TRUE.equals(prefs == null ? null : prefs.getCreateSharedAsset())) {
         try {
           PSItemDefinition ceDef =
               itemDefManager.getItemDef(ctName, PSItemDefManager.COMMUNITY_ANY);
@@ -1094,8 +1101,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
           wc.setContentTypeId("" + id);
           wc.setContentTypeName(ctName);
           wc.setWidgetId(widgetDef.getId());
-          wc.setWidgetLabel(widgetDef.getWidgetPrefs().getTitle());
-          wc.setIcon(widget.getIcon());
+          wc.setWidgetLabel(prefs == null ? null : prefs.getTitle());
+          wc.setIcon(ApiUtils.orNull(widget.getIcon()));
           results.add(wc);
         } catch (PSInvalidContentTypeException e) {
           log.warn(
@@ -1291,33 +1298,38 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
    */
   private PSWidgetItem getWidget(PSAssetEditUrlRequest request, boolean isPage)
       throws PSDataServiceException {
+    String parentId = request.getParentId();
     String templateId = null;
     Set<PSRegionWidgets> regionSet;
     if (isPage) {
-      PSPage page = pageService.load(request.getParentId());
+      PSPage page = pageService.load(parentId);
       regionSet = page.getRegionBranches().getRegionWidgetAssociations();
 
-      PSWidgetItem w = getWidget(request.getWidgetId(), regionSet);
+      String widgetId = request.getWidgetId().orElse(null);
+      PSWidgetItem w = getWidget(widgetId, regionSet);
       if (w != null) return w;
 
       templateId = page.getTemplateId();
     } else {
-      templateId = request.getParentId();
+      templateId = parentId;
     }
     PSTemplate template = templateService.load(templateId);
     regionSet = template.getRegionTree().getRegionWidgetAssociations();
-    PSWidgetItem w = getWidget(request.getWidgetId(), regionSet);
+    String widgetId2 = request.getWidgetId().orElse(null);
+    PSWidgetItem w = getWidget(widgetId2, regionSet);
     if (w != null) return w;
 
     // If still there is no widget item found, try to get it given the request
-    if (isNotBlank(request.getWidgetDefinition())) {
-      String assetType = request.getWidgetDefinition();
+    String widgetDefStr = request.getWidgetDefinition().orElse(null);
+    if (isNotBlank(widgetDefStr)) {
+      String assetType = widgetDefStr;
       try {
         List<PSWidgetSummary> widgetList = widgetService.findAll();
         if (widgetList != null) {
           for (PSWidgetSummary widgetSummary : widgetList) {
+            var widgetName = widgetSummary.getName().orElse("");
             if (widgetSummary.getId().equalsIgnoreCase(assetType)
-                || widgetSummary.getName().equalsIgnoreCase(assetType)) {
+                || widgetName.equalsIgnoreCase(assetType)) {
               w = new PSWidgetItem();
               w.setDefinitionId(widgetSummary.getId());
               if (w != null) return w;
@@ -1334,11 +1346,11 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
 
     throw new PSAssetServiceException(
         "Cannot find widget id="
-            + request.getWidgetId()
+            + request.getWidgetId().orElse("unknown")
             + " in "
             + request.getType()
             + " parent id="
-            + request.getParentId());
+            + parentId);
   }
 
   /**
@@ -1441,7 +1453,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
   private boolean validateEditUrlRequest(PSAssetEditUrlRequest req) {
     notNull(req, "Request must not be null.");
     notEmpty(req.getParentId(), "Request parent ID must not be empty.");
-    notEmpty(req.getWidgetId(), "Request widget ID must not be empty.");
+    notEmpty(req.getWidgetId().orElse(null), "Request widget ID must not be empty.");
     notEmpty(req.getType(), "Request type must not be empty.");
     return (req.getType().equals(PSAssetEditUrlRequest.PAGE_PARENT));
   }
@@ -1738,7 +1750,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     IPSCmsObjectMgr objMgr = PSCmsObjectMgrLocator.getObjectManager();
     try {
       objMgr.changeWorkflowForItem(
-          idMapper.getGuid(assetId).getUUID(), wfId, steppedWfMetadata.getSystemStatesList());
+          (int) idMapper.getGuid(assetId).getUUID(), wfId, steppedWfMetadata.getSystemStatesList());
     } catch (PSORMException e) {
       String msg =
           "Failed to assign workflow for asset with ID \""

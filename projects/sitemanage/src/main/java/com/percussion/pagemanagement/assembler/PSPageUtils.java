@@ -1289,12 +1289,15 @@ public class PSPageUtils extends PSJexlUtilBase {
     if (!context.isEditMode()) return defaultTooltip;
 
     PSWidgetItem widget = widgetInstance.getItem();
-    if (isBlank(widget.getName()) && isBlank(widget.getDescription())) return defaultTooltip;
+    var name = widget.getName().orElse("");
+    var desc = widget.getDescription().orElse("");
 
-    if (isNotBlank(widget.getName()) && isNotBlank(widget.getDescription()))
-      return widget.getName() + ": " + widget.getDescription();
+    if (isBlank(name) && isBlank(desc)) return defaultTooltip;
 
-    return isNotBlank(widget.getName()) ? widget.getName() : widget.getDescription();
+    if (isNotBlank(name) && isNotBlank(desc))
+      return name + ": " + desc;
+
+    return isNotBlank(name) ? name : desc;
   }
 
   // ====================================================
@@ -1883,9 +1886,9 @@ public class PSPageUtils extends PSJexlUtilBase {
       return depId;
     }
 
-    PSManagedLink link = managedLinkDao.findLinkByLinkId(linkIdVal);
-    if (link != null) {
-      depId = String.valueOf(link.getChildId());
+    var link = managedLinkDao.findLinkByLinkId(linkIdVal);
+    if (link.isPresent()) {
+      depId = String.valueOf(link.get().getChildId());
     }
 
     return depId;
@@ -2852,8 +2855,14 @@ public class PSPageUtils extends PSJexlUtilBase {
       serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.STAGING);
     } else {
       if (serverId != null && pubServer != null) {
-        PSPubServerProperty p = pubServer.getProperty("publishServer");
-        serverBase = deliveryInfoService.findBaseByServerName(p.getValue());
+        var maybeServerName = pubServer.getProperty("publishServer")
+            .map(PSPubServerProperty::getValue)
+            .orElse(null);
+        if (maybeServerName != null) {
+          serverBase = deliveryInfoService.findBaseByServerName(maybeServerName);
+        } else {
+          serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.PRODUCTION);
+        }
       } else {
         serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.PRODUCTION);
       }

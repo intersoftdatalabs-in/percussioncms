@@ -86,9 +86,11 @@ public class PSContentActivityService implements IPSContentActivityService {
   public List<PSContentActivity> getContentActivity(PSContentActivityRequest request) {
     try {
       contentActivityReqvalidator.validate(request);
+      String path = request.getPath().orElse(null);
+      String durationType = request.getDurationType().orElse(null);
+      String duration = request.getDuration().orElse(null);
       return new PSContentActivityList(
-          getContentActivity(
-              request.getPath(), request.getDurationType(), request.getDuration(), true));
+          getContentActivity(path, durationType, duration, true));
     } catch (PSValidationException
         | IPSActivityService.PSActivityServiceException
         | IPSPathService.PSPathServiceException e) {
@@ -113,9 +115,9 @@ public class PSContentActivityService implements IPSContentActivityService {
       }
 
       List<PSEffectiveness> eList = new ArrayList<>();
-      var durationType = request.getDurationType();
-      var duration = request.getDuration();
-      var path = request.getPath();
+      String durationType = request.getDurationType().orElse(null);
+      String duration = request.getDuration().orElse(null);
+      String path = request.getPath().orElse(null);
       var caList = getContentActivity(path, durationType, duration, false);
       if (caList.isEmpty()) {
         var pathSplit = path.split("/");
@@ -228,14 +230,14 @@ public class PSContentActivityService implements IPSContentActivityService {
     protected void doValidation(PSContentActivityRequest req, PSBeanValidationException e) {
       String duration = "0";
       try {
-        var path = req.getPath();
-        var durationType = req.getDurationType();
-        duration = req.getDuration();
+        String path = req.getPath().orElse(null);
+        String durationType = req.getDurationType().orElse(null);
+        duration = req.getDuration().orElse("0");
         rejectIfBlank("contentactivity", "path", path);
         rejectIfBlank("contentactivity", "durationType", durationType);
         rejectIfBlank("contentactivity", "duration", duration);
 
-        var dtype = PSDurationTypeEnum.valueOf(req.getDurationType());
+        var dtype = PSDurationTypeEnum.valueOf(durationType);
         if (dtype == null) {
           e.rejectValue(
               "Duration Type",

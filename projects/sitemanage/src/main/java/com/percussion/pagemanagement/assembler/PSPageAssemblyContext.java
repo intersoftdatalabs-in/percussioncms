@@ -160,7 +160,7 @@ public class PSPageAssemblyContext extends PSAbstractAssemblyContext {
         this.regionId = regionId;
         final var wId = result.getWidget().getItem().getId();
         widgetId = (isNotBlank(wId) && isNumeric(wId)) ? Long.parseLong(wId) : -1L;
-        widgetName = result.getWidget().getItem().getName();
+          widgetName = result.getWidget().getItem().getName().orElse(null);
         widgetType = result.getWidget().getDefinition().getId();
         content = result.getResult();
       }

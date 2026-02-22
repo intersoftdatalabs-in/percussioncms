@@ -50,4 +50,16 @@ public class PSDashboardDao extends PSGenericItemDao<PSDashboard> implements IPS
     // All dashboards live in the user profiles folder.
     return List.of(FOLDER_PATH);
   }
-}
+  @Override
+  public void remove(String id) throws com.percussion.share.dao.IPSGenericDao.DeleteException {
+    // simply delegate; DeleteException is a PSDataServiceException subtype so
+    // this still satisfies the IPSGenericDao contract.
+    delete(id);
+  }
+
+  @Override
+  public void remove(PSDashboard object) throws com.percussion.share.dao.IPSGenericDao.DeleteException {
+    if (object != null) {
+      remove(object.getId());
+    }
+  }}

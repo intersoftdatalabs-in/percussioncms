@@ -178,13 +178,38 @@ public final class PSNotificationEvent implements Serializable {
          */
         JMS_ERROR(false,
                 "JMS error event"),
-                
-        SEARCH_INDEX_ITEM_PROCESSED(true, 
-        "Search index item processed"), 
-        SEARCH_INDEX_STATUS_CHANGE(true, 
-        "Search index status change"), 
-        SEARCH_INDEX_ITEM_QUEUED(true, 
-        "Search index item queued");
+
+        SEARCH_INDEX_ITEM_PROCESSED(true,
+        "Search index item processed"),
+        SEARCH_INDEX_STATUS_CHANGE(true,
+        "Search index status change"),
+        SEARCH_INDEX_ITEM_QUEUED(true,
+        "Search index item queued"),
+
+        /**
+         * A page has been deleted. The target will be the page ID.
+         */
+        PAGE_DELETE(false, "Page deletion event"),
+
+        /**
+         * A user has been deleted. The target will be the user ID.
+         */
+        USER_DELETE(false, "User deletion event"),
+
+        /**
+         * An asset has been deleted. The target will be the asset ID.
+         */
+        ASSET_DELETED(false, "Asset deletion event"),
+
+        /**
+         * A page failed to assemble a region. The target contains assembly context information.
+         */
+        PAGE_FAILED_TO_ASSEMBLE_REGION(false, "Page failed to assemble region"),
+
+        /**
+         * A startup package installation completed. The target contains installation details.
+         */
+        STARTUP_PKG_INSTALL_COMPLETE(false, "Startup package installation complete");
 
         private final boolean usesQueue;
         private final String description;

@@ -473,7 +473,7 @@ public class PSRenderLinkService
           PSInlineRenderLink thumbLink = new PSInlineRenderLink();
           renderLinkHelper(thumbLink, context, thumbNailResource, linkAsset);
           renLink.setThumbUrl(thumbLink.getUrl());
-          renLink.setThumbResourceDefinition(thumbLink.getResourceDefinition());
+            renLink.setThumbResourceDefinition(thumbLink.getResourceDefinition().orElse(null));
         }
       } catch (PSDataServiceException e) {
         log.error(PSExceptionUtils.getMessageForLog(e));
@@ -644,7 +644,7 @@ public class PSRenderLinkService
     renderLink.setUrl(rl.getUrl());
     renderLink.setResourceType(rl.getResourceType());
     renderLink.setResourceDefinitionId(rl.getResourceDefinitionId());
-    renderLink.setResourceDefinition(rl.getResourceDefinition());
+    renderLink.setResourceDefinition(rl.getResourceDefinition().orElse(null));
   }
 
   /** {@inheritDoc} */

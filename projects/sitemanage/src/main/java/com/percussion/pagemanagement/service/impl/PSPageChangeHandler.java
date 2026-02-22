@@ -21,7 +21,6 @@ import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.get
 
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.assetmanagement.service.impl.PSWidgetAssetRelationshipService;
-import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.impl.PSItemWorkflowService;
 import com.percussion.pagemanagement.data.PSPageChangeEvent;
 import com.percussion.pagemanagement.data.PSPageChangeEvent.PSPageChangeEventType;
@@ -164,10 +163,9 @@ public class PSPageChangeHandler implements IPSPageChangeListener {
     }
     updateSummary(page);
 
+    // send generic content-changed notification since specific page/template events were removed
     var notifyEvent =
-        page.isPage()
-            ? new PSNotificationEvent(EventType.PAGE_SAVED, page.getId())
-            : new PSNotificationEvent(EventType.TEMPLATE_SAVED, page.getId());
+        new PSNotificationEvent(EventType.CONTENT_CHANGED, page.getId());
     var srv = PSNotificationServiceLocator.getNotificationService();
     srv.notifyEvent(notifyEvent);
   }
@@ -204,8 +202,7 @@ public class PSPageChangeHandler implements IPSPageChangeListener {
               }
               break;
             }
-          } catch (PSDataServiceException
-              | IPSItemWorkflowService.PSItemWorkflowServiceException e) {
+          } catch (PSDataServiceException e) {
             log.warn("Error updating Linked Title. Error:{}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
           }
@@ -248,7 +245,7 @@ public class PSPageChangeHandler implements IPSPageChangeListener {
         if (pageFields.containsKey(PAGE_LINK_TEXT_FIELD_NAME)) {
           pageFields.put(PAGE_LINK_TEXT_FIELD_NAME, assetTitle);
           contentItemDao.save(page);
-          contentItemDao.delete(asset.getId());
+          contentItemDao.remove(asset.getId());
         }
         updateBlogPostWidgetTitle(page);
       }
@@ -326,7 +323,7 @@ public class PSPageChangeHandler implements IPSPageChangeListener {
           if (asset != null && moreLinkSupportTypes.containsKey(asset.getType())) {
             var assetFields = asset.getFields();
             var text = (String) assetFields.get(moreLinkSupportTypes.get(asset.getType()));
-            var moreIndex = StringUtils.indexOf(text, MORE_LINK_TEXT);
+            var moreIndex = text.indexOf(MORE_LINK_TEXT);
             if (moreIndex != -1) {
               summary = text.substring(0, moreIndex + MORE_LINK_TEXT.length());
               break;

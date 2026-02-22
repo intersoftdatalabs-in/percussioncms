@@ -129,7 +129,7 @@ public class PSTrafficService implements IPSTrafficService {
     List<Date> dateList = new ArrayList<>(range.getGranularityBreakdown());
     dateList.add(range.getEnd());
 
-    List<Integer> pageIds = activityService.findPageIdsByPath(path);
+Collection<Integer> pageIds = activityService.findPageIdsByPath(path);
 
     if (dataReq.contains(PSTrafficTypeEnum.LIVE_PAGES.toString())) {
       livePages.addAll(activityService.findPublishedItems(pageIds, dateList));

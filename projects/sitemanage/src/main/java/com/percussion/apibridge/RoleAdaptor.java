@@ -82,14 +82,16 @@ public class RoleAdaptor implements IRoleAdaptor {
 
   @Override
   public List<Role> findRoles(URI baseURI, String pattern) throws BackendException {
-    try {
       var roleList = roleService.getRoleMgr().getDefinedRoles();
       return roleList.stream()
-          .map(s -> ApiUtils.convertRole(roleService.find(new PSStringWrapper(s))))
+          .map(s -> {
+              try {
+                  return ApiUtils.convertRole(roleService.find(new PSStringWrapper(s)));
+              } catch (PSDataServiceException e) {
+                  throw new RuntimeException(e);
+              }
+          })
           .collect(Collectors.toList());
-    } catch (PSDataServiceException e) {
-      throw new BackendException(e);
-    }
   }
 
   public RoleAdaptor() {

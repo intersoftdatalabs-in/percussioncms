@@ -126,7 +126,7 @@ public class SiteManageAdaptorBase {
   static {
     // Will get to live through approve if available, or through submit steps if not.
     TRANSITION_MAP.put(
-        DefaultWorkflowStates.live,
+        DefaultWorkflowStates.LIVE,
         new String[] {
           IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE,
           IPSItemWorkflowService.TRANSITION_TRIGGER_SUBMIT
@@ -134,7 +134,7 @@ public class SiteManageAdaptorBase {
 
     // Will get to Quick Edit through Submit and approve
     TRANSITION_MAP.put(
-        DefaultWorkflowStates.quickEdit,
+        DefaultWorkflowStates.QUICK_EDIT,
         new String[] {
           IPSItemWorkflowService.TRANSITION_TRIGGER_EDIT,
           IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE,
@@ -143,7 +143,7 @@ public class SiteManageAdaptorBase {
 
     // Resubmit back to draft if already approved, or will reject back if not
     TRANSITION_MAP.put(
-        DefaultWorkflowStates.draft,
+        DefaultWorkflowStates.DRAFT,
         new String[] {
           IPSItemWorkflowService.TRANSITION_TRIGGER_RESUBMIT,
           IPSItemWorkflowService.TRANSITION_TRIGGER_REJECT
@@ -151,7 +151,7 @@ public class SiteManageAdaptorBase {
 
     // Will get to archive through Approve and Quick Edit.
     TRANSITION_MAP.put(
-        DefaultWorkflowStates.archive,
+        DefaultWorkflowStates.ARCHIVE,
         new String[] {
           IPSItemWorkflowService.TRANSITION_TRIGGER_ARCHIVE,
           IPSItemWorkflowService.TRANSITION_TRIGGER_EDIT,
@@ -164,7 +164,7 @@ public class SiteManageAdaptorBase {
     // May not be quickest path, reject may be quicker. Loop check will throw error if state cannot
     // be found
     TRANSITION_MAP.put(
-        DefaultWorkflowStates.review,
+        DefaultWorkflowStates.REVIEW,
         new String[] {
           IPSItemWorkflowService.TRANSITION_TRIGGER_RESUBMIT,
           IPSItemWorkflowService.TRANSITION_TRIGGER_SUBMIT,
@@ -182,5 +182,5 @@ public class SiteManageAdaptorBase {
   }
 
   protected static final List<String> APPROVED_STATES =
-      new ArrayList<>(Arrays.asList(DefaultWorkflowStates.live, DefaultWorkflowStates.pending));
+        new ArrayList<>(Arrays.asList(DefaultWorkflowStates.LIVE, DefaultWorkflowStates.PENDING));
 }

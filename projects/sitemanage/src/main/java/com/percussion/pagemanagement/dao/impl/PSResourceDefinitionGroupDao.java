@@ -129,6 +129,18 @@ public class PSResourceDefinitionGroupDao
   }
 
   @Override
+  public void remove(String id) throws PSDataServiceException {
+    delete(id);
+  }
+
+  @Override
+  public void remove(PSResourceDefinitionGroup object) throws PSDataServiceException {
+    if (object != null) {
+      remove(object.getId());
+    }
+  }
+
+  @Override
   public PSResourceDefinitionGroup save(
       @SuppressWarnings("unused") PSResourceDefinitionGroup object)
       throws com.percussion.share.dao.IPSGenericDao.SaveException {

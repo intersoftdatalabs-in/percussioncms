@@ -204,7 +204,7 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
     rel.setProperty(PSRelationshipConfig.PDU_SLOTID, String.valueOf(awRel.getWidgetId()));
     rel.setProperty(PSRelationshipConfig.PDU_SORTRANK, String.valueOf(awRel.getAssetOrder()));
     String widgetName =
-        isBlank(awRel.getWidgetInstanceName()) ? null : awRel.getWidgetInstanceName();
+        isBlank(awRel.getWidgetInstanceName().orElse("")) ? null : awRel.getWidgetInstanceName().orElse(null);
     rel.setProperty(PSRelationshipConfig.PDU_WIDGET_NAME, widgetName);
 
     systemWs.saveRelationships(Collections.singletonList(rel));
@@ -362,7 +362,7 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
     if (getRelationshipOwners(assetId).isEmpty()) {
       try {
         // delete asset
-        assetDao.delete(assetId);
+        assetDao.remove(assetId);
         log.debug("Deleted asset with id: {}", assetId);
       } catch (PSDataServiceException e) {
         log.error("Error deleting Asset with id: {} Error: {}", assetId, e.getMessage());
@@ -447,7 +447,7 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
     notEmpty(id, "id");
     for (String assetId : getLocalAssets(id)) {
       try {
-        assetDao.delete(assetId);
+        assetDao.remove(assetId);
         log.debug("Deleted local asset with id: {}", assetId);
       } catch (PSDataServiceException e) {
         log.error("Error deleting local asset with id: {} Error: {}", assetId, e.getMessage());
@@ -1115,7 +1115,10 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
       criteria.setMultiItemSupport(multiItemSupport);
 
       if (ctypes.isEmpty()) {
-        ctypes.add(widgetDef.getWidgetPrefs().getContenttypeName());
+        var widgetPrefs = widgetDef.getWidgetPrefs();
+        if (widgetPrefs.isPresent()) {
+          ctypes.add(widgetPrefs.get().getContenttypeName());
+        }
         criteria.setSupportedCtypes(ctypes);
       } else {
         criteria.setSupportedCtypes(ctypes);
@@ -1148,7 +1151,7 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
 
     criteria.setOwnerId(id);
     criteria.setWidgetId(widget.getId());
-    criteria.setWidgetName(widget.getName());
+criteria.setWidgetName(widget.getName().orElse(null));
 
     // Check to see if widget has an existing asset
     if (rel != null) {

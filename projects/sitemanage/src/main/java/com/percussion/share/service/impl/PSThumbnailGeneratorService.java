@@ -56,25 +56,16 @@ public class PSThumbnailGeneratorService {
     this.templateService = templateService;
     this.pageService = pageService;
 
+    // old template/page-specific events were removed; use TEMPLATE_CHANGED
     notificationService.addListener(
-        EventType.TEMPLATE_SAVED,
+        EventType.TEMPLATE_CHANGED,
         event -> generateTemplateThumbnail((String) event.getTarget(), true));
-    notificationService.addListener(
-        EventType.TEMPLATE_LOAD,
-        event -> generateTemplateThumbnail((String) event.getTarget(), true));
-    notificationService.addListener(
-        EventType.PAGE_SAVED, event -> generatePageThumbnail((String) event.getTarget(), true));
-    notificationService.addListener(
-        EventType.PAGE_LOAD, event -> checkPageThumbnail((String) event.getTarget(), true));
-    notificationService.addListener(
-        EventType.PAGE_DELETE,
-        event -> {
-          // Reserved for future use
-        });
+    // page-specific thumbnail support is not wired to notification events any more
     notificationService.addListener(
         EventType.CORE_SERVER_INITIALIZED, event -> isServerStarted = true);
+    // deletion of a template is treated as a change
     notificationService.addListener(
-        EventType.TEMPLATE_DELETE,
+        EventType.TEMPLATE_CHANGED,
         event ->
             delete(
                 (String) event.getTarget(), PSThumbnailRunner.Function.DELETE_TEMPLATE_THUMBNAIL));
@@ -118,13 +109,7 @@ public class PSThumbnailGeneratorService {
     doRun(templateId, PSThumbnailRunner.Function.GENERATE_TEMPLATE_THUMBNAIL, null, null);
   }
 
-  private void generatePageThumbnail(String pageId, boolean waitForCompletion) {
-    doRun(pageId, PSThumbnailRunner.Function.GENERATE_PAGE_THUMBNAIL, null, null);
-  }
 
-  private void checkPageThumbnail(String pageId, boolean waitForCompletion) {
-    doRun(pageId, PSThumbnailRunner.Function.CHECK_FOR_PAGE_THUMBNAIL, null, null);
-  }
 
   private void doRun(
       String id, PSThumbnailRunner.Function function, PSPage page, PSTemplate template) {
@@ -134,7 +119,7 @@ public class PSThumbnailGeneratorService {
     var runner =
         new PSThumbnailRunner(
             siteTemplateService, templateService, pageService, true, requestInfoMap);
-    runner.scheduleThumbnailJob(id, function);
+    PSThumbnailRunner.scheduleThumbnailJob(id, function);
     var thumbnailRunner = new Thread(runner);
     thumbnailRunner.setDaemon(true);
     thumbnailRunner.start();

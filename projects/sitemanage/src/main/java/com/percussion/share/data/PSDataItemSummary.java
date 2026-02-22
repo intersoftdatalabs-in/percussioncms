@@ -28,6 +28,7 @@ import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlSeeAlso;
+import java.util.Collections;
 import java.util.List;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
@@ -133,6 +134,7 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
    *
    * @return true if this is a folder; otherwise false.
    */
+  @Override
   public boolean isFolder() {
     return "Folder".equals(type) || "FSFolder".equals(type);
   }

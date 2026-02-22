@@ -191,7 +191,7 @@ public class PSRoleService implements IPSRoleService {
       checkRole(oldRoleName);
       role.setOldName(null);
       create(role);
-      wfService.copyWorkflowToRole(oldRoleName, role.getName());
+      wfService.copyWorkflowToRole(oldRoleName, (String) role.getName());
       delete(new PSStringWrapper(oldRoleName));
     }
     PSParameterValidationUtils.rejectIfNull("update", "role", role);

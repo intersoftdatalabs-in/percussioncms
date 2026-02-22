@@ -119,7 +119,7 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
 
       // Load up the available communities for this user
       if (userCommunities != null) {
-        var availGuids =
+        List<IPSGuid> availGuids =
             userCommunities.stream()
                 .map(s -> new PSGuid(PSTypeEnum.COMMUNITY_DEF, Integer.parseInt(s)))
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -142,9 +142,9 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
       boolean isNewUser = false;
 
       try {
-        var findUsers = userService.getUserNames(user.getUserName());
-        if (findUsers.getUsers().contains(user.getUserName())) {
-          newUser = userService.find(user.getUserName());
+        var findUsers = userService.getUserNames(user.getUserName().orElse(null));
+        if (findUsers.getUsers().contains(user.getUserName().orElse(null))) {
+          newUser = userService.find(user.getUserName().orElse(null));
         } else {
           newUser = new PSUser();
           isNewUser = true;
@@ -154,11 +154,11 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
         isNewUser = true;
       }
 
-      newUser.setName(user.getUserName());
+        newUser.setName(user.getUserName().orElse(null));
       newUser.setRoles(user.getRoles());
 
-      if (!user.getEmailAddress().isEmpty()) {
-        newUser.setEmail(user.getEmailAddress());
+      if (user.getEmailAddress().isPresent()) {
+        newUser.setEmail(user.getEmailAddress().orElse(null));
       }
 
       // newUser.setRoles(user.getRoles()); // Already set above
@@ -167,12 +167,12 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
       if (!isNewUser) {
         newUser = userService.update(newUser);
       } else {
-        if (user.getUserType().equalsIgnoreCase(PSUserProviderType.INTERNAL.name())) {
+        if (user.getUserType().orElse("").equalsIgnoreCase(PSUserProviderType.INTERNAL.name())) {
           newUser = userService.create(newUser);
-        } else if (user.getUserType().equalsIgnoreCase(PSUserProviderType.DIRECTORY.name())) {
+        } else if (user.getUserType().orElse("").equalsIgnoreCase(PSUserProviderType.DIRECTORY.name())) {
           var newUsers = new PSImportUsers();
           var dirUsers = new ArrayList<PSExternalUser>();
-          dirUsers.add(new PSExternalUser(user.getUserName()));
+          dirUsers.add(new PSExternalUser(user.getUserName().orElse(null)));
           newUsers.setExternalUsers(dirUsers);
           var importUsers = userService.importDirectoryUsers(newUsers);
 
@@ -182,8 +182,8 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
             // Handle new imports and treat duplicates as if they should be updates
             if (impU.getStatus() == ImportStatus.SUCCESS
                 || impU.getStatus() == ImportStatus.DUPLICATE) {
-              newUser.setEmail(user.getEmailAddress());
-              newUser.setName(user.getUserName());
+              newUser.setEmail(user.getEmailAddress().orElse(null));
+              newUser.setName(user.getUserName().orElse(null));
               newUser.setProviderType(PSUserProviderType.DIRECTORY);
               newUser.setRoles(user.getRoles());
               newUser = userService.update(newUser);

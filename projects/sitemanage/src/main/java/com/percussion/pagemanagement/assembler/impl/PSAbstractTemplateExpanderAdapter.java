@@ -100,7 +100,7 @@ public abstract class PSAbstractTemplateExpanderAdapter<CACHE> implements IPSTem
     notNull(results, "results");
     notEmpty(parameters, "parameters");
     var contentListItems = new ArrayList<PSContentListItem>();
-    var siteId = getSiteId(parameters);
+    var siteId = parseSiteGuid(parameters);
     var context = getContext(parameters);
 
     try {
@@ -138,7 +138,16 @@ public abstract class PSAbstractTemplateExpanderAdapter<CACHE> implements IPSTem
     return new PSContentListItem(contentId, folderId, templateId, siteId, context);
   }
 
-  protected IPSGuid getSiteId(Map<String, String> parameters) {
+  /**
+   * Parse the {@link IPSHtmlParameters#SYS_SITEID} parameter and convert it to a
+   * {@link IPSGuid}. This helper is internal to the adapter and deliberately
+   * not public to avoid conflicting with the interface default method which
+   * returns an {@code Optional<String>}.
+   *
+   * @param parameters the parameter map, never {@code null}
+   * @return the site guid or {@code null} if the parameter was missing/blank
+   */
+  protected IPSGuid parseSiteGuid(Map<String, String> parameters) {
     String siteid = parameters.get(IPSHtmlParameters.SYS_SITEID);
     IPSGuid siteg = null;
     if (!StringUtils.isBlank(siteid)) {

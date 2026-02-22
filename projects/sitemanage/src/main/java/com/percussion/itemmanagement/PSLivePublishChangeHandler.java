@@ -84,7 +84,7 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
       IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
       IPSPageTemplateService pageTemplateService,
       IPSResourceDefinitionService resourceDefinitionService) {
-    changeSvc.addContentChangeHander(this);
+      changeSvc.addContentChangeHandler(this);
     this.changeSvc = changeSvc;
     this.wfHelper = wfHelper;
     this.idMapper = idMapper;
@@ -412,7 +412,7 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
     } else {
       List<PSSiteSummary> sums = siteDataService.findAll();
       for (PSSiteSummary sum : sums) {
-        siteList.add(sum.getSiteId());
+        sum.getSiteId().ifPresent(siteList::add);
       }
     }
 

@@ -41,6 +41,7 @@ import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -152,7 +153,9 @@ public class PSRelationshipWidgetContentFinder extends PSWidgetContentFinder {
     public WidgetCriteria(PSWidgetInstance widget) throws PSNotFoundException {
       notNull(widget, "widget");
       var w = widget;
-      var ctType = w.getDefinition().getWidgetPrefs().getContenttypeName();
+      var ctType = w.getDefinition().getWidgetPrefs()
+          .map(prefs -> prefs.getContenttypeName())
+          .orElse(null);
       try {
         contentTypeId =
             StringUtils.isEmpty(ctType)
@@ -164,7 +167,7 @@ public class PSRelationshipWidgetContentFinder extends PSWidgetContentFinder {
         throw new PSNotFoundException(errMsg);
       }
       widgetId = Long.parseLong(w.getItem().getId());
-      widgetName = w.getItem().getName();
+      widgetName = w.getItem().getName().orElse(null);
     }
 
     public String getWidgetName() {
@@ -196,7 +199,8 @@ public class PSRelationshipWidgetContentFinder extends PSWidgetContentFinder {
       if (params == null) {
         return true;
       }
-      return Optional.ofNullable((Boolean) params.get(IS_MATCH_BY_NAME)).orElse(true);
+      var val = params.get(IS_MATCH_BY_NAME);
+      return val instanceof Boolean ? (Boolean) val : true;
     }
 
     private boolean matchContentType(PSRelationship r, WidgetCriteria criteria) {

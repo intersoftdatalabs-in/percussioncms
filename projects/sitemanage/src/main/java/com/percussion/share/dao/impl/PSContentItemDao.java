@@ -25,6 +25,8 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import java.util.stream.Collectors;
+
 import com.percussion.auditlog.PSActionOutcome;
 import com.percussion.auditlog.PSAuditLogService;
 import com.percussion.auditlog.PSContentEvent;
@@ -112,7 +114,7 @@ public class PSContentItemDao implements IPSContentItemDao {
     }
     var ctypeId = nodes.get(0).getGUID();
     try {
-      return cmsObjectMgr.findContentIdsByType(ctypeId.getUUID());
+      return cmsObjectMgr.findContentIdsByType(ctypeId.getUUID()).collect(Collectors.toList());
     } catch (PSORMException e) {
       throw new PSDataServiceException("failed to find item IDs by content type name: " + name, e);
     }
@@ -216,7 +218,7 @@ public class PSContentItemDao implements IPSContentItemDao {
     }
   }
 
-  @Override
+  // not part of the public interface - remove incorrect @Override
   public void delete(String id) throws com.percussion.share.dao.IPSGenericDao.DeleteException {
     notNull(id, "id");
     var guid = idMapper.getGuid(id);
@@ -250,7 +252,23 @@ public class PSContentItemDao implements IPSContentItemDao {
               PSSecurityFilter.getCurrentRequest().getServletRequest(),
               PSActionOutcome.FAILURE);
       psAuditLogService.logContentEvent(psContentEvent);
-      throw new DeleteException(convertException(e));
+      throw new DeleteException("Failed to delete content item: " + id, convertException(e));
+    }
+  }
+
+  @Override
+  public void remove(String id) throws PSDataServiceException {
+    try {
+      delete(id);
+    } catch (Exception e) {
+      throw new PSDataServiceException("Failed to remove content item: " + id, e);
+    }
+  }
+
+  @Override
+  public void remove(PSContentItem object) throws PSDataServiceException {
+    if (object != null) {
+      remove(object.getId());
     }
   }
 
@@ -259,7 +277,8 @@ public class PSContentItemDao implements IPSContentItemDao {
     try {
       return find(id, false);
     } catch (PSDataServiceException e) {
-      throw new LoadException(e);
+      // wrap with message and cause
+      throw new LoadException(e.getMessage(), e);
     }
   }
 
@@ -273,7 +292,7 @@ public class PSContentItemDao implements IPSContentItemDao {
     try {
       nodes = contentDesignWs.findNodesByIds(asList(guid), isSummary);
     } catch (Exception e) {
-      throw new LoadException(convertException(e));
+      throw new LoadException("Error loading nodes for id " + id, convertException(e));
     }
     if (nodes.isEmpty()) {
       return null;

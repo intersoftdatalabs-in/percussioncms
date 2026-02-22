@@ -789,8 +789,10 @@ public class PSAssetRestService {
       throws PSDataServiceException {
     PSUnusedAssetSummary unused = new PSUnusedAssetSummary(summary);
     unused.setLabel(getContentTypeLabel(summary.getType()));
-    unused.setTitle(getAssetName(unused, orphanedAsset.getWidgetName(), assetOcurrences));
-    unused.setWidgetId(orphanedAsset.getSlotId());
+    var widgetName = orphanedAsset.getWidgetName().orElse(null);
+    unused.setTitle(getAssetName(unused, widgetName, assetOcurrences));
+    var slotId = orphanedAsset.getSlotId().orElse(null);
+    unused.setWidgetId(slotId);
     unused.setRelationshipId(orphanedAsset.getRelationshipId());
 
     String icon = getWidgetIcon(unused.getType());
@@ -838,9 +840,10 @@ public class PSAssetRestService {
     }
 
     for (PSWidgetSummary widgetSummary : widgetList) {
+      var widgetName = widgetSummary.getName().orElse("");
       if (widgetSummary.getId().equalsIgnoreCase(type)
-          || widgetSummary.getName().equalsIgnoreCase(type)) {
-        return widgetSummary.getIcon();
+          || widgetName.equalsIgnoreCase(type)) {
+        return widgetSummary.getIcon().orElse(null);
       }
     }
     return null;

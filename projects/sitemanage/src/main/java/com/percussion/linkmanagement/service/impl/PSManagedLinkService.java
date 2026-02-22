@@ -307,7 +307,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
                     entry.getString(PERC_IMAGEPATH_LINKID),
                     entry.get(PERC_IMAGEPATH));
               mLink =
-                  dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_IMAGEPATH_LINKID)));
+                  dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_IMAGEPATH_LINKID))).orElse(null);
               newPath = renderHref(mLink, linkContext, isStaging);
               if (log.isDebugEnabled())
                 log.debug(
@@ -331,7 +331,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
                     "Getting updated path for File entry: {} with current path of {}",
                     entry.getString(PERC_FILEPATH_LINKID),
                     entry.get(PERC_FILEPATH));
-              mLink = dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_FILEPATH_LINKID)));
+              mLink = dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_FILEPATH_LINKID))).orElse(null);
               newPath = renderHref(mLink, linkContext, isStaging);
               if (log.isDebugEnabled())
                 log.debug(
@@ -355,7 +355,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
                     "Getting updated path for Page entry: {} with current path of {}",
                     entry.getString(PERC_PAGEPATH_LINKID),
                     entry.get(PERC_PAGEPATH));
-              mLink = dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_PAGEPATH_LINKID)));
+              mLink = dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_PAGEPATH_LINKID))).orElse(null);
               newPath = renderHref(mLink, linkContext, isStaging);
               if (log.isDebugEnabled())
                 log.debug(
@@ -461,7 +461,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
     newLinkIds.remove();
 
     for (Long linkId : linkIds) {
-      PSManagedLink link = dao.findLinkByLinkId(linkId);
+      PSManagedLink link = dao.findLinkByLinkId(linkId).orElse(null);
       if (link != null) {
         try {
           PSLocator parentLoc = idMapper.getLocator(parentId);
@@ -517,7 +517,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
   public int getDependent(String linkId, String path) {
     int dependent = -1;
     if (StringUtils.isNotBlank(linkId) && StringUtils.isNumeric(linkId)) {
-      PSManagedLink link = dao.findLinkByLinkId(Long.parseLong(linkId));
+      PSManagedLink link = dao.findLinkByLinkId(Long.parseLong(linkId)).orElse(null);
       if (link != null) dependent = link.getChildId();
     }
     if (dependent == -1) {
@@ -623,7 +623,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
 
       linkId = getLinkId(link);
       if (linkId != -1 && linkId != 0) {
-        mLink = dao.findLinkByLinkId(linkId);
+        mLink = dao.findLinkByLinkId(linkId).orElse(null);
       }
 
       String path = StringUtils.defaultString(link.attr(HREF_ATTR));
@@ -732,7 +732,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
       PSManagedLink mLink = null;
 
       if (linkId != -1 && linkId != 0) {
-        mLink = dao.findLinkByLinkId(linkId);
+        mLink = dao.findLinkByLinkId(linkId).orElse(null);
       }
 
       String path = StringUtils.defaultString(link.attr(SRC_ATTR));
@@ -1029,7 +1029,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
       // see if already managed
       long linkId = getLinkId(link);
       if (linkId != -1 && linkId != 0) {
-        // PSManagedLink managedLink = dao.findLinkByLinkId(linkId);
+        // PSManagedLink managedLink = dao.findLinkByLinkId(linkId).orElse(null);
         // dao.deleteLink(managedLink);
 
         removeManagedAttributes(link);
@@ -1094,7 +1094,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
   private boolean validateLink(String parentId, long linkId, Element linkEl) throws Exception {
     boolean isValid = false;
 
-    PSManagedLink link = dao.findLinkByLinkId(linkId);
+    PSManagedLink link = dao.findLinkByLinkId(linkId).orElse(null);
     if (link != null) {
       String itemPath = findItemPath(link.getChildId());
       if (itemPath != null) {
@@ -1104,7 +1104,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
         if (!Objects.equals(link.getAnchor(), anchor)) {
           link.setAnchor(anchor);
           dao.saveLink(link);
-          link = dao.findLinkByLinkId(linkId);
+          link = dao.findLinkByLinkId(linkId).orElse(null);
         }
         // update link href
         linkEl.attr(HREF_ATTR, itemPath);
@@ -1132,7 +1132,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
   private boolean validateLink(String parentId, long linkId, String path) throws Exception {
     boolean isValid = false;
 
-    PSManagedLink link = dao.findLinkByLinkId(linkId);
+    PSManagedLink link = dao.findLinkByLinkId(linkId).orElse(null);
     if (link != null) {
       String itemPath = findItemPath(link.getChildId());
       if (itemPath != null) {
@@ -1170,7 +1170,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
   private boolean validateImageLink(String parentId, long linkId, Element linkEl) throws Exception {
     boolean isValid = false;
 
-    PSManagedLink link = dao.findLinkByLinkId(linkId);
+    PSManagedLink link = dao.findLinkByLinkId(linkId).orElse(null);
     if (link != null) {
       String itemPath = findItemPath(link.getChildId());
       if (itemPath != null) {
@@ -1459,7 +1459,7 @@ public class PSManagedLinkService implements IPSManagedLinkService {
       long linkIdVal = NumberUtils.toLong(linkId, -1);
 
       if (linkIdVal != -1) {
-        PSManagedLink mLink = dao.findLinkByLinkId(linkIdVal);
+        PSManagedLink mLink = dao.findLinkByLinkId(linkIdVal).orElse(null);
         href = renderHref(mLink, linkContext, isStaging);
         if (href == null) {
           href = "#";

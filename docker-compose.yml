@@ -1,0 +1,69 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: percussion-mysql
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-percussion}
+      MYSQL_USER: ${MYSQL_USER:-percussion}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-percussion}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-me-root-password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  cms-dts:
+    build:
+      context: .
+      dockerfile: docker/cms/Dockerfile
+    container_name: percussion-cms-dts
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SERVICE_MODE: cms-dts
+      PERC_INSTALL_ROOT: ${PERC_INSTALL_ROOT:-/opt/Percussion}
+      PERC_INSTALL_MODE: ${PERC_INSTALL_MODE:-install-if-missing}
+      PERC_INSTALL_MARKER: ${PERC_INSTALL_MARKER:-.percussion-install-complete}
+      CMS_DISTRIBUTION_JAR: /workspace/modules/perc-distribution-tree/target/perc-distribution-tree.jar
+      DTS_DISTRIBUTION_JAR: /workspace/deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar
+      CMS_PORT: ${CMS_PORT:-9992}
+      DTS_PORT: ${DTS_PORT:-9980}
+    ports:
+      - "${CMS_PORT:-9992}:9992"
+      - "${DTS_PORT:-9980}:9980"
+    volumes:
+      - ${PROJECT_ROOT:-.}:/workspace:ro
+      - ./docker/dev-data/cms-dts/ObjectStore:/opt/Percussion/ObjectStore
+      - ./docker/dev-data/cms-dts/var:/opt/Percussion/var
+      - ./docker/dev-data/cms-dts/rxconfig:/opt/Percussion/rxconfig
+      - ./docker/dev-data/cms-dts/Deployment/Server/conf:/opt/Percussion/Deployment/Server/conf
+      - ./docker/dev-data/cms-dts/jetty/base:/opt/Percussion/jetty/base
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "cms=$$(curl -s -o /dev/null -w '%{http_code}' http://localhost:9992/Rhythmyx/rest/folders/by-path/Assets || true); dts=$$(curl -s -o /dev/null -w '%{http_code}' http://localhost:9980/ || true); ([ \"$$cms\" = \"200\" ] || [ \"$$cms\" = \"401\" ] || [ \"$$cms\" = \"403\" ]) && ([ \"$$dts\" = \"200\" ] || [ \"$$dts\" = \"401\" ] || [ \"$$dts\" = \"403\" ])",
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: ${PERC_HEALTHCHECK_RETRIES:-60}
+      start_period: ${PERC_HEALTHCHECK_START_PERIOD:-300s}
+
+volumes:
+  mysql-data:

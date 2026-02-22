@@ -36,6 +36,8 @@ public interface IPSItemSummary {
         SITE,
         PAGE,
         FOLDER,
+        SECTION_FOLDER,
+        EXTERNAL_SECTION_FOLDER,
         ASSET,
         RESOURCE,
         UNKNOWN
@@ -46,6 +48,8 @@ public interface IPSItemSummary {
      *
      * @return the item name, never {@code null} or empty
      */
+    String getId();
+
     String getName();
 
     /**
@@ -56,9 +60,74 @@ public interface IPSItemSummary {
     Category getCategory();
 
     /**
+     * Gets the content type of the item (eg. "percPage", "Folder", etc).
+     *
+     * @return the type string, may be {@code null} for incomplete summaries.
+     */
+    String getType();
+
+    /**
+     * All folder paths associated with the item. May be empty but never null.
+     */
+    List<String> getFolderPaths();
+
+    /**
      * Gets the list of tags for the item.
      *
      * @return a non-null, possibly empty list of tags
      */
     List<String> getTags();
-}
+
+    /**
+     * Helper to determine if this summary represents a folder.
+     *
+     * @return {@code true} when the type is known to be a folder.
+     */
+    default boolean isFolder() {
+        String t = getType();
+        return "Folder".equals(t) || "FSFolder".equals(t);
+    }
+
+    /**
+     * Convenience helper to identify a page item.
+     *
+     * @return {@code true} when the type is "percPage".
+     */
+    default boolean isPage() {
+        return "percPage".equals(getType());
+    }
+    /**
+     * Sets the item ID. Default implementation does nothing.
+     *
+     * @param id the item ID
+     */
+    default void setId(String id) {
+        // Default no-op implementation
+    }
+
+    /**
+     * Sets the item type. Default implementation does nothing.
+     *
+     * @param type the item type
+     */
+    default void setType(String type) {
+        // Default no-op implementation
+    }
+
+    /**
+     * Sets the folder paths. Default implementation does nothing.
+     *
+     * @param folderPaths the list of folder paths
+     */
+    default void setFolderPaths(List<String> folderPaths) {
+        // Default no-op implementation
+    }
+
+    /**
+     * Sets the item category. Default implementation does nothing.
+     *
+     * @param category the item category
+     */
+    default void setCategory(Category category) {
+        // Default no-op implementation
+    }}

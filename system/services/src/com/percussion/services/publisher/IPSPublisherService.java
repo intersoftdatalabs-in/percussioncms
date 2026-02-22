@@ -118,6 +118,28 @@ public interface IPSPublisherService extends IPSCataloger {
     }
 
     /**
+     * Retrieve the publishing history for a specific item by its GUID.
+     *
+     * @param id the GUID of the item, not {@code null}
+     * @return list of publishing history records, never {@code null}, may be empty
+     */
+    List<PSItemPublishingHistory> findItemPublishingHistory(IPSGuid id);
+    /**
+     * Finds all site items associated with a given publishing server and delivery context.
+     * This method is not part of the original public API but is required by
+     * `PSFeedsInfoService` for filtering feeds.  The default implementation throws
+     * {@link UnsupportedOperationException} so that existing implementations are not
+     * forced to provide it immediately.
+     *
+     * @param serverId the GUID of the publishing server, never {@code null}
+     * @param deliveryContext the delivery context identifier (typically 10)
+     * @return a collection of site items, never {@code null}
+     * @throws PSPublisherException on errors
+     */
+    default Collection<IPSSiteItem> findSiteItemsByPubServer(IPSGuid serverId, int deliveryContext) throws PSPublisherException {
+        throw new UnsupportedOperationException("findSiteItemsByPubServer not implemented");
+    }
+    /**
      * Load content lists as a stream for efficient processing.
      *
      * @param ids a list of GUIDs, not {@code null} or empty

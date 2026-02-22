@@ -215,8 +215,10 @@ public class PSWebResourcesRestService {
         response = e.getMessage();
         return Response.ok().entity(response).build();
       } catch (PSFileNameInUseByFolderException
-          | PSReservedFileNameException
-          | PSFileOperationException e) {
+          | PSReservedFileNameException e) {
+        response = e.getMessage();
+        return Response.status(Status.CONFLICT).entity(response).build();
+      } catch (PSFileOperationException e) {
         response = e.getMessage();
         return Response.status(Status.CONFLICT).entity(response).build();
       }
@@ -240,7 +242,15 @@ public class PSWebResourcesRestService {
     try {
       return URLDecoder.decode(path, PSCharSets.rxJavaEnc());
     } catch (UnsupportedEncodingException e1) {
-      return URLDecoder.decode(path);
+      // charset provided by PSCharSets should always be available; fallback
+      // to UTF-8 using the Charset overload.  Guard the fall-back in its own
+      // try/catch in case the compiler binds to the legacy String overload.
+      try {
+        return URLDecoder.decode(path, java.nio.charset.StandardCharsets.UTF_8.name());
+      } catch (UnsupportedEncodingException e2) {
+        // impossibility, rethrow as runtime
+        throw new RuntimeException(e2);
+      }
     }
   }
 

@@ -58,6 +58,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.IPSItemEntry;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
@@ -691,7 +692,7 @@ public class PSWorkflowHelper implements IPSWorkflowHelper {
           changeEvent.setContentId(assetId);
           changeEvent.setSiteId(site.getSiteId());
           changeService.contentChanged(changeEvent);
-        } catch (IPSGenericDao.SaveException e) {
+        } catch (PSDataServiceException e) {
           log.error(
               "An error occurred while adding asset to incremental queue item id: {}. Error: {}",
               assetId,

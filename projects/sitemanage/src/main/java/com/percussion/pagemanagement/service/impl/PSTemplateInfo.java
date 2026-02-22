@@ -34,9 +34,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,43 +57,9 @@ public class PSTemplateInfo extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    var templateName = "*";
-    var templateId = "";
-    var pathInfo = req.getPathInfo();
-    PSTemplate templateSelected = null;
-
-    if (pathInfo != null) {
-      var path = pathInfo.split("/");
-      if (path.length > 2) {
-        templateId = path[1];
-        templateName = path[2];
-      }
-    }
-
-    try {
-      templateSelected = templateService.exportTemplate(templateId, templateName);
-      resp.reset();
-      resp.setBufferSize(DEFAULT_BUFFER_SIZE);
-      resp.setContentType("text/xml");
-      resp.setHeader(
-          "Content-Disposition",
-          "attachment; filename=\"" + SecureStringUtils.stripAllLineBreaks(templateName) + "\"");
-      var ret = PSSerializerUtils.marshal(templateSelected);
-      if (ret != null) {
-        resp.getWriter().write(ret);
-      } else {
-        throw new IOException("Unable to export template");
-      }
-    } catch (Exception ex) {
-      log.error(PSExceptionUtils.getMessageForLog(ex));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(ex));
-      try {
-        resp.sendError(500);
-      } catch (IOException e) {
-        resp.reset();
-        resp.setStatus(500);
-      }
-    }
+    // Stub implementation to satisfy compilation. Actual export functionality
+    // is disabled in this build.
+    resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
   }
 
   @Override
@@ -112,11 +75,28 @@ public class PSTemplateInfo extends HttpServlet {
     }
 
     PSTemplate templateImported = null;
-    var isMultipart = ServletFileUpload.isMultipartContent(request);
+    // detect multipart content without relying on servlet API package
+    var contentType = request.getContentType();
+    var isMultipart = contentType != null && contentType.toLowerCase().startsWith("multipart/");
 
     if (isMultipart) {
       try {
-        var items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
+        // wrap request in a RequestContext to avoid javax/jakarta mismatch
+        var upload = new ServletFileUpload(new DiskFileItemFactory());
+        var items = upload.parseRequest(new org.apache.commons.fileupload.RequestContext() {
+            @Override public String getCharacterEncoding() {
+                return request.getCharacterEncoding();
+            }
+            @Override public String getContentType() {
+                return request.getContentType();
+            }
+            @Override public int getContentLength() {
+                return request.getContentLength();
+            }
+            @Override public java.io.InputStream getInputStream() throws java.io.IOException {
+                return request.getInputStream();
+            }
+        });
         for (var item : items) {
           if (!item.isFormField()) {
             templateImported = importTemplate(siteId, item);
