@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -362,7 +363,9 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
       }
     }
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    sc = cms.loadWorkflowState(workflowID, csc.getContentStateID());
+    Optional<? extends IPSStatesContext> scOpt =
+        cms.loadWorkflowState(workflowID, csc.getContentStateID());
+    sc = scOpt.orElse(null);
 
     // if it's not a checkin or checkout, get the transition context
 

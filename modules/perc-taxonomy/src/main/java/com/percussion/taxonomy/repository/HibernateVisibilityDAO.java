@@ -19,33 +19,51 @@ package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Visibility;
 import java.util.Collection;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class HibernateVisibilityDAO extends HibernateDaoSupport implements VisibilityDAO {
+@Repository
+@Transactional
+public class HibernateVisibilityDAO implements VisibilityDAO {
+
+  @Autowired private SessionFactory sessionFactory;
 
   public Visibility getVisibility(int id) {
-    return (Visibility) getHibernateTemplate().get(Visibility.class, new Integer(id));
+    Session session = sessionFactory.getCurrentSession();
+    return session.get(Visibility.class, id);
   }
 
-  public Collection getAllVisibilities() {
-    // Optional: Add order by to query
-    return getHibernateTemplate().find("from Visibility v");
+  @SuppressWarnings("unchecked")
+  public Collection<Visibility> getAllVisibilities() {
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Visibility>) (Collection<?>) session.createQuery("from Visibility v", Visibility.class).list();
   }
 
-  public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
-    // Optional: Add order by to query
-    return getHibernateTemplate().find("from Visibility v where v.taxonomy.id = " + taxonomy_id);
+  @SuppressWarnings("unchecked")
+  public Collection<Visibility> getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Visibility>) (Collection<?>) session.createQuery("from Visibility v where v.taxonomy.id = :taxonomy_id", Visibility.class)
+        .setParameter("taxonomy_id", taxonomy_id)
+        .list();
   }
 
   public void saveVisibility(Visibility Visibility) {
-    getHibernateTemplate().saveOrUpdate(Visibility);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(Visibility);
   }
 
   public void removeVisibility(Visibility Visibility) {
-    getHibernateTemplate().delete(Visibility);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(Visibility);
   }
 
   public void removeVisibilities(Collection<Visibility> Visibilities) {
-    getHibernateTemplate().deleteAll(Visibilities);
+    Session session = sessionFactory.getCurrentSession();
+    for (Visibility v : Visibilities) {
+      session.remove(v);
+    }
   }
 }

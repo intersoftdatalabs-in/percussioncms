@@ -36,42 +36,40 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class AssetsTest {
 
-    @Mock
-    IAssetAdaptor assetAdaptor;
+  @Mock IAssetAdaptor assetAdaptor;
 
-    @Mock
-    IUserAdaptor userAdaptor;
+  @Mock IUserAdaptor userAdaptor;
 
-    @Mock
-    UriInfo uriInfo;
+  @Mock UriInfo uriInfo;
 
-    @InjectMocks
-    AssetsResource resource;
+  @InjectMocks AssetsResource resource;
 
-    @BeforeEach
-    void init() {
-        when(uriInfo.getBaseUri()).thenReturn(UriBuilder.fromUri("http://localhost/api").build());
-        resource.setUriInfo(uriInfo);
-        resource.setAssetAdaptor(assetAdaptor);
-        resource.setUserAdaptor(userAdaptor);
-    }
+  @BeforeEach
+  void init() {
+    when(uriInfo.getBaseUri()).thenReturn(UriBuilder.fromUri("http://localhost/api").build());
+    resource.setUriInfo(uriInfo);
+    resource.setAssetAdaptor(assetAdaptor);
+    resource.setUserAdaptor(userAdaptor);
+  }
 
-    @Test
-    void renameAsset_delegatesToAdaptor() throws Exception {
-        Asset a = new Asset();
-        a.setName("old.png");
-        when(assetAdaptor.renameSharedAsset(any(), anyString(), anyString(), anyString(), anyString()))
-            .thenReturn(a);
+  @Test
+  void renameAsset_delegatesToAdaptor() throws Exception {
+    Asset a = new Asset();
+    a.setName("old.png");
+    when(assetAdaptor.renameSharedAsset(any(), anyString(), anyString(), anyString(), anyString()))
+        .thenReturn(a);
 
-        Asset result = resource.renameAsset("Assets/path1/old.png", "new.png");
-        assertSame(a, result);
-        verify(assetAdaptor).renameSharedAsset(uriInfo.getBaseUri(), "Assets", "path1", "old.png", "new.png");
-    }
+    Asset result = resource.renameAsset("Assets/path1/old.png", "new.png");
+    assertSame(a, result);
+    verify(assetAdaptor)
+        .renameSharedAsset(uriInfo.getBaseUri(), "Assets", "path1", "old.png", "new.png");
+  }
 
-    @Test
-    void renameAsset_backendExceptionWrapped() throws Exception {
-        when(assetAdaptor.renameSharedAsset(any(), anyString(), anyString(), anyString(), anyString()))
-            .thenThrow(new BackendException("fail", new Exception("cause")));
-        assertThrows(WebApplicationException.class, () -> resource.renameAsset("Assets/x.png", "y.png"));
-    }
+  @Test
+  void renameAsset_backendExceptionWrapped() throws Exception {
+    when(assetAdaptor.renameSharedAsset(any(), anyString(), anyString(), anyString(), anyString()))
+        .thenThrow(new BackendException("fail", new Exception("cause")));
+    assertThrows(
+        WebApplicationException.class, () -> resource.renameAsset("Assets/x.png", "y.png"));
+  }
 }

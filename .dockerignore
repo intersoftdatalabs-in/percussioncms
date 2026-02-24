@@ -1,0 +1,9 @@
+.git
+**/.git
+**/target/
+**/node_modules/
+**/.idea/
+**/.vscode/
+**/.DS_Store
+
+# Keep docker and build artifact paths available for compose/image flows.

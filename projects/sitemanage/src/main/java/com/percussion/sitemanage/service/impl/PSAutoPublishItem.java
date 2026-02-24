@@ -76,7 +76,7 @@ public class PSAutoPublishItem extends PSDefaultExtension implements IPSWorkflow
             "Publication stopped: license is inactive/suspended or usage limits exceeded. Check"
                 + " License Monitor Gadget on Dashboard.");
       }
-      if (response != null && StringUtils.isNotBlank(response.getWarningMessage())) {
+      if (response != null && StringUtils.isNotBlank(response.getWarningMessage().orElse(""))) {
         log.warn(response.getWarningMessage());
       }
     } catch (IPSPubServerService.PSPubServerServiceException

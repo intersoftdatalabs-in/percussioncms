@@ -64,6 +64,7 @@ import java.util.List;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -328,7 +329,7 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public void purgeLog(PSSitePublishPurgeRequest purgeReq) throws PSDataServiceException {
     try {
-      for (var jobid : purgeReq.getJobids()) {
+      for (var jobid : purgeReq.getJobids().orElse(Collections.emptyList())) {
         log.debug("purging log for job {}", jobid);
         doPurge(jobid);
       }
@@ -575,7 +576,7 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
     job.setSiteName(getSiteName(status.getEditionId()));
     job.setStatus(getStateDescription(status.getState()));
     job.setIsStopping(
-        job.getStatus().equalsIgnoreCase(IPSPublisherJobStatus.State.CANCELLED.toString()));
+        job.getStatus().orElse("").equalsIgnoreCase(IPSPublisherJobStatus.State.CANCELLED.toString()));
     job.setPubServerId(getPubServerId(status.getEditionId()).longValue());
     return job;
   }

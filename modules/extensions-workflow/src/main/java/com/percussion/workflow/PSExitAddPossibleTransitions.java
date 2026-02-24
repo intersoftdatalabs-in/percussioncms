@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -191,7 +192,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
 
     sContentID = new Integer(contentID).toString();
 
-    IPSWorkflowAppsContext wac = null;
+    Optional<IPSWorkflowAppsContext> wacOpt;
     PSContentStatusContext csc = null;
     int nWorkFlowAppID = -1;
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
@@ -200,11 +201,16 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
       nWorkFlowAppID = csc.getWorkflowID();
       csc.close();
 
-      wac = cms.loadWorkflowAppContext(nWorkFlowAppID);
+      wacOpt = cms.loadWorkflowAppContext(nWorkFlowAppID);
     } catch (PSEntryNotFoundException e) {
       return;
     }
     csc.close(); // release the JDBC resources
+
+    if (wacOpt.isEmpty()) {
+      return; // no workflow, nothing to add
+    }
+    IPSWorkflowAppsContext wac = wacOpt.get();
 
     // Add workflow info element and set required attributes
     Element elemWorkflowInfo = doc.createElement(ELEMENT_WORKFLOWINFO);
@@ -219,8 +225,12 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     elemState = (Element) elemWorkflowInfo.appendChild(elemState);
     elemState.setAttribute(this.ATTRIB_STATEID, Integer.toString(csc.getContentStateID()));
 
-    IPSStatesContext sc;
-    sc = cms.loadWorkflowState(nWorkFlowAppID, csc.getContentStateID());
+    Optional<? extends IPSStatesContext> scOpt =
+        cms.loadWorkflowState(nWorkFlowAppID, csc.getContentStateID());
+    if (scOpt.isEmpty()) {
+        return; // can't determine state
+    }
+    IPSStatesContext sc = scOpt.get();
 
     String sPublishable = (sc.getIsValid()) ? "Y" : "N";
     elemState.setAttribute(this.ATTRIB_PUBLISHABLE, sPublishable);

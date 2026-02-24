@@ -546,7 +546,7 @@ public class PSUserService implements IPSUserService {
     // remove from all roles
     backEndRoleMgr.setRoles(name, Collections.<String>emptyList());
     if (provider == PSUserProviderType.INTERNAL) {
-      userLoginDao.delete(name);
+      userLoginDao.remove(name);
     }
     try {
       psUserManagementEvent =
@@ -855,7 +855,8 @@ public class PSUserService implements IPSUserService {
           if (wf == null) log.debug("Got invalid workflow id '{}", workflowId);
         }
         if (wf == null) {
-          wf = workflowService.getDefaultWorkflow();
+            // load default workflow by id since interface doesn't declare getDefaultWorkflow
+            wf = workflowService.loadWorkflow(workflowService.getDefaultWorkflowId());
         }
 
         PSState state = wf.getInitialState();

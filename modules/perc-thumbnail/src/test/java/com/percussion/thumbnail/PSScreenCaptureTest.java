@@ -19,18 +19,17 @@ package com.percussion.thumbnail;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.utils.io.PathUtils;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.percussion.utils.io.PathUtils;
-import org.apache.commons.io.FileUtils;
-
 
 public class PSScreenCaptureTest {
 
@@ -42,17 +41,18 @@ public class PSScreenCaptureTest {
   public void before() throws IOException {
     temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
     if (!temp.delete() || !temp.mkdir()) {
-        throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
+      throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
     }
     // create minimal rxconfig/Server structure so PSScreenCapture.getRxConfigDir succeeds
     File serverDir = new File(temp, "rxconfig/Server");
     if (!serverDir.mkdirs()) {
-        throw new IOException("Could not create server config directory: " + serverDir.getAbsolutePath());
+      throw new IOException(
+          "Could not create server config directory: " + serverDir.getAbsolutePath());
     }
     // write a basic server.properties file that uses touch to generate thumbnails
     File propsFile = new File(serverDir, "server.properties");
     try (java.io.PrintWriter pw = new java.io.PrintWriter(propsFile)) {
-        pw.println("screenshotCommandLine=touch @@file@@");
+      pw.println("screenshotCommandLine=touch @@file@@");
     }
     System.setProperty(PathUtils.DEPLOY_DIR_PROP, temp.getAbsolutePath());
     log.info("Temp folder set to " + System.getProperty(PathUtils.DEPLOY_DIR_PROP));
@@ -61,7 +61,7 @@ public class PSScreenCaptureTest {
   @AfterEach
   public void after() throws IOException {
     if (temp != null && temp.exists()) {
-        FileUtils.deleteDirectory(temp);
+      FileUtils.deleteDirectory(temp);
     }
     // reset any static rx directory detection
     PathUtils.clearRxDir();
@@ -87,7 +87,9 @@ public class PSScreenCaptureTest {
 
   public void capture(int height, int width) throws IOException {
     File file =
-        new File(System.getProperty(PathUtils.DEPLOY_DIR_PROP), "testimg_" + height + "_" + width + ".jpg");
+        new File(
+            System.getProperty(PathUtils.DEPLOY_DIR_PROP),
+            "testimg_" + height + "_" + width + ".jpg");
     log.info("Taking capture to " + file.getAbsolutePath());
     PSScreenCapture.takeCapture("https://www.percussion.com", file.getAbsolutePath());
     assertTrue(file.exists(), "capture command should create a file");

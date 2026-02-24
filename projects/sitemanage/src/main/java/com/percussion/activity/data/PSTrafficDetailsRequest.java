@@ -21,7 +21,6 @@ package com.percussion.activity.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
 import java.io.Serializable;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 /** A request object used for getting the traffic details data from the REST service. */
@@ -40,8 +39,8 @@ public class PSTrafficDetailsRequest implements Serializable {
    *
    * @return Optional containing the path, or empty if not set.
    */
-  public Optional<String> getPath() {
-    return Optional.ofNullable(path);
+  public String getPath() {
+    return path;
   }
 
   /**
@@ -49,8 +48,8 @@ public class PSTrafficDetailsRequest implements Serializable {
    *
    * @return Optional containing the start date, or empty if not set.
    */
-  public Optional<String> getStartDate() {
-    return Optional.ofNullable(startDate);
+  public String getStartDate() {
+    return startDate;
   }
 
   /**
@@ -58,8 +57,8 @@ public class PSTrafficDetailsRequest implements Serializable {
    *
    * @return Optional containing the end date, or empty if not set.
    */
-  public Optional<String> getEndDate() {
-    return Optional.ofNullable(endDate);
+  public String getEndDate() {
+    return endDate;
   }
 
   /**

@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -76,14 +76,14 @@ public class TaxonomyTextConverter implements IPSLuceneTextConverter {
       // get similar ID for our main query
       Query query = session.createQuery(SQL_SIMILAR);
       query.setParameterList("nodes", ids);
-      query.setInteger("relationship_type_id", Relationship_type.SIMILAR);
+      query.setParameter("relationship_type_id", Relationship_type.SIMILAR);
 
       // add them
       ids.addAll((Collection<Integer>) query.list());
 
       // run our main query
       query = session.createQuery(SQL_GET_VALUES);
-      query.setInteger("language_id", langID);
+      query.setParameter("language_id", langID);
       query.setParameterList("ids", ids);
       Collection<String> values = (Collection<String>) query.list();
 

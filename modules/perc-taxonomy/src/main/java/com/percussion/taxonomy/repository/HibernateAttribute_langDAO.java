@@ -19,24 +19,36 @@ package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Attribute_lang;
 import java.util.Collection;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class HibernateAttribute_langDAO extends HibernateDaoSupport implements Attribute_langDAO {
+@Repository
+@Transactional
+public class HibernateAttribute_langDAO implements Attribute_langDAO {
+
+  @Autowired private SessionFactory sessionFactory;
 
   public Attribute_lang getAttribute_lang(int id) {
-    return (Attribute_lang) getHibernateTemplate().get(Attribute_lang.class, new Integer(id));
+    Session session = sessionFactory.getCurrentSession();
+    return session.get(Attribute_lang.class, id);
   }
 
+  @SuppressWarnings("unchecked")
   public Collection getAllAttribute_langs() {
-    // Optional: Add order by to query
-    return getHibernateTemplate().find("from Attribute_lang att");
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection) (Collection<?>) session.createQuery("from Attribute_lang att", Attribute_lang.class).list();
   }
 
   public void saveAttribute_lang(Attribute_lang attribute_lang) {
-    getHibernateTemplate().saveOrUpdate(attribute_lang);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(attribute_lang);
   }
 
   public void removeAttribute_lang(Attribute_lang attribute_lang) {
-    getHibernateTemplate().delete(attribute_lang);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(attribute_lang);
   }
 }

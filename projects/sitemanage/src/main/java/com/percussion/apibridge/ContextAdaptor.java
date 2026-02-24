@@ -17,6 +17,7 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.rest.Guid;
 import com.percussion.rest.contexts.Context;
 import com.percussion.rest.contexts.IContextsAdaptor;
 import com.percussion.rest.errors.BackendException;
@@ -104,10 +105,12 @@ public class ContextAdaptor implements IContextsAdaptor {
   public Context createOrUpdateContext(URI baseURI, Context context) throws BackendException {
     try {
       IPSPublishingContext ctx;
-      if (context.getId() == null || StringUtils.isBlank(context.getId().getStringValue())) {
+      Guid idGuid = ApiUtils.orNull(context.getId());
+      String idStr = (idGuid == null) ? null : ApiUtils.orNull(idGuid.getStringValue());
+      if (idStr == null || StringUtils.isBlank(idStr)) {
         ctx = siteManager.createContext();
       } else {
-        var guid = new PSGuid(context.getId().getStringValue());
+        var guid = new PSGuid(idStr);
         ctx = siteManager.loadContext(guid);
       }
       return copyContext(ctx);
@@ -142,12 +145,26 @@ public class ContextAdaptor implements IContextsAdaptor {
 
   private IPSPublishingContext copyContext(Context context) {
     var ret = new PSPublishingContext();
-    var guid = new PSGuid(context.getId().getStringValue());
-    ((PSPublishingContext) ret).setGUID(guid);
-    ret.setName(context.getName());
-    ret.setDescription(context.getDescription());
-    var schemeGuid = new PSGuid(context.getDefaultScheme().getSchemeId().getStringValue());
-    ret.setDefaultSchemeId(schemeGuid);
+    Guid idGuid = ApiUtils.orNull(context.getId());
+    if (idGuid != null) {
+      String idStr = ApiUtils.orNull(idGuid.getStringValue());
+      if (idStr != null) {
+        var guid = new PSGuid(idStr);
+        ((PSPublishingContext) ret).setGUID(guid);
+      }
+    }
+    ret.setName(ApiUtils.orNull(context.getName()));
+    ret.setDescription(ApiUtils.orNull(context.getDescription()));
+    Guid schemeId = null;
+    if (context.getDefaultScheme() != null) {
+      schemeId = ApiUtils.orNull(context.getDefaultScheme().flatMap(LocationScheme::getSchemeId));
+    }
+    if (schemeId != null) {
+      String schemeStr = ApiUtils.orNull(schemeId.getStringValue());
+      if (schemeStr != null) {
+        ret.setDefaultSchemeId(new PSGuid(schemeStr));
+      }
+    }
     return ret;
   }
 }

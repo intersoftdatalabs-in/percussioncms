@@ -35,6 +35,7 @@ import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.IPSSiteItem;
+import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.relationship.IPSRelationshipService;
@@ -137,9 +138,10 @@ public class PSFeedsInfoService implements IPSFeedsInfoService {
       return;
     }
     try {
-      var descriptors = createDescriptorsJson(site, feeds, server.getServerType(), publishServer);
+      var descriptors =
+          createDescriptorsJson(site, feeds, server.getServerType().orElse(null), publishServer);
       log.info("Queuing {} feeds for site {}", feeds.size(), site.getName());
-      queue.queueDescriptors(site.getName(), descriptors, server.getServerType());
+      queue.queueDescriptors(site.getName(), descriptors, server.getServerType().orElse(null));
       if (feeds.isEmpty()) {
         emptyFeedSetSent.add(site.getSiteId());
       } else {
@@ -279,7 +281,10 @@ public class PSFeedsInfoService implements IPSFeedsInfoService {
    * currently published. Also adds site specific info to the feed info nodes for the earliest page
    * that contains the feed. Modifies the feed info objects passed in.
    */
-  private void filterFeeds(Collection<PSFeedInfo> feeds, long serverId) {
+  private static final int DELIVERY_CONTEXT = 10;
+
+  private void filterFeeds(Collection<PSFeedInfo> feeds, long serverId)
+      throws PSPublisherException {
     if (feeds.isEmpty()) {
       return;
     }
@@ -357,5 +362,4 @@ public class PSFeedsInfoService implements IPSFeedsInfoService {
 
   private static final String CONTENT_TYPE_PAGE = "percPage";
   private static final String CONTENT_TYPE_TEMPLATE = "percPageTemplate";
-  private static final int DELIVERY_CONTEXT = 10;
 }

@@ -315,8 +315,9 @@ public class PSCategoryServiceUtil {
               .map(String::trim)
               .collect(Collectors.toList()));
     }
-    if (nodeAllowedSites.isEmpty()) nodeAllowedSites = parentSites;
-    else if (parentSites != null) {
+    if (nodeAllowedSites.isEmpty()) {
+      nodeAllowedSites = parentSites != null ? new ArrayList<>(parentSites) : new ArrayList<>();
+    } else if (parentSites != null) {
       nodeAllowedSites.retainAll(parentSites);
     }
     return nodeAllowedSites;

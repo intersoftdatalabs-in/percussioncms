@@ -473,6 +473,7 @@ public class PSRenderLinkService
           PSInlineRenderLink thumbLink = new PSInlineRenderLink();
           renderLinkHelper(thumbLink, context, thumbNailResource, linkAsset);
           renLink.setThumbUrl(thumbLink.getUrl());
+          // getResourceDefinition() returns object directly
           renLink.setThumbResourceDefinition(thumbLink.getResourceDefinition());
         }
       } catch (PSDataServiceException e) {

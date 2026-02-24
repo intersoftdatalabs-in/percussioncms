@@ -166,8 +166,8 @@ public class PSWidgetBuilderService implements IPSWidgetBuilderService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSWidgetBuilderDefinitionData loadWidgetDefinition(
       @PathParam("definitionId") final long definitionId) {
-    var daoObject = dao.find(definitionId);
-    return daoObject != null ? new PSWidgetBuilderDefinitionData(daoObject) : null;
+      var daoObjectOpt = dao.find(definitionId);
+      return daoObjectOpt.map(PSWidgetBuilderDefinitionData::new).orElse(null);
   }
 
   @Override
@@ -242,23 +242,24 @@ public class PSWidgetBuilderService implements IPSWidgetBuilderService {
           "Unable to create temp widget directory: " + tmpDir.getAbsoluteFile());
     }
     try {
-      var definition = this.dao.find(definitionId);
-      Validate.notNull(definition, "Widget definition not found for deployment");
+        var definitionOpt = this.dao.find(definitionId);
+        Validate.isTrue(definitionOpt.isPresent(), "Widget definition not found for deployment");
+        var definition = definitionOpt.get();
       var builder = new PSWidgetPackageBuilder(srcFile, tmpDir);
       var spec =
           new PSWidgetPackageSpec(
-              definition.getPrefix(),
-              definition.getPublisherUrl(),
-              definition.getLabel(),
-              definition.getDescription(),
-              definition.getVersion(),
+              definition.getPrefix().orElse(""),
+              definition.getPublisherUrl().orElse(""),
+              definition.getLabel().orElse(""),
+              definition.getDescription().orElse(""),
+              definition.getVersion().orElse(""),
               PSServer.getVersion());
       spec.setResponsive(definition.isResponsive());
-      if (StringUtils.isNotBlank(definition.getWidgetTrayCustomizedIconPath())) {
-        spec.setWidgetTrayCustomizedIconPath(definition.getWidgetTrayCustomizedIconPath());
+      if (StringUtils.isNotBlank(definition.getWidgetTrayCustomizedIconPath().orElse(""))) {
+        spec.setWidgetTrayCustomizedIconPath(definition.getWidgetTrayCustomizedIconPath().orElse(""));
       }
-      if (StringUtils.isNotBlank(definition.getToolTipMessage())) {
-        spec.setTooTipMessage(definition.getToolTipMessage());
+      if (StringUtils.isNotBlank(definition.getToolTipMessage().orElse(""))) {
+        spec.setTooTipMessage(definition.getToolTipMessage().orElse(""));
       }
       if (StringUtils.isNotBlank(definition.getFields())) {
         spec.setFields(PSWidgetBuilderFieldsListData.fromXml(definition.getFields()).getFields());

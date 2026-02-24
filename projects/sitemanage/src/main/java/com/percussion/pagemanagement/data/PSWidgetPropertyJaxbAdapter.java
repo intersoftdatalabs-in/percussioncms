@@ -64,6 +64,7 @@ public class PSWidgetPropertyJaxbAdapter
             ps ->
                 ps.forEach(
                     wp -> {
+                      // getValue() returns a String directly, not Optional
                       var v = PSSerializerUtils.getObjectFromJson(wp.getValue());
                       map.put(wp.getName(), v);
                     }));

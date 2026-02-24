@@ -18,7 +18,6 @@
 package com.percussion.services.publisher;
 
 import com.percussion.rx.publisher.IPSPublisherItemStatus;
-import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.catalog.IPSCataloger;
 import com.percussion.services.error.PSNotFoundException;
@@ -27,9 +26,6 @@ import com.percussion.services.publisher.data.PSContentListItem;
 import com.percussion.services.publisher.data.PSContentListResults;
 import com.percussion.services.publisher.data.PSItemPublishingHistory;
 import com.percussion.services.publisher.data.PSSiteItem;
-import com.percussion.services.publisher.data.PSSortCriterion;
-import com.percussion.services.pubserver.data.PSPubServer;
-import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 
 import javax.jcr.query.QueryResult;
@@ -39,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -118,17 +113,81 @@ public interface IPSPublisherService extends IPSCataloger {
     }
 
     /**
-     * Load content lists as a stream for efficient processing.
+     * Retrieve the publishing history for a specific item by its GUID.
      *
-     * @param ids a list of GUIDs, not {@code null} or empty
-     * @return Stream of content lists (excluding null entries), never {@code null}
-     * @throws PSPublisherException if there is a database error
-     * @throws IllegalArgumentException if ids is null or empty
+     * @param id the GUID of the item, not {@code null}
+     * @return list of publishing history records, never {@code null}, may be empty
+     */
+    List<PSItemPublishingHistory> findItemPublishingHistory(IPSGuid id);
+    /**
+     * Finds all site items associated with a given publishing server and delivery context.
+    /**
+     * Retrieve the last published status record for the specified item.
+     *
+     * @param id the item GUID, never null
+     * @return the status record or null if the item was never published
+     */
+    IPSPubItemStatus findLastPublishedItemStatus(IPSGuid id);
+    /**
+     * Retrieve the last published status record for the specified item on a particular server.
+     *
+     * @param id the item GUID, never null
+     * @param serverId the publishing server GUID, may be null
+     * @return the status record or null if the item was never published
+     */
+    IPSPubItemStatus findLastPublishedItemStatus(IPSGuid id, Long serverId);
+    /**
+     * This method is not part of the original public API but is required by
+     * `PSFeedsInfoService` for filtering feeds.  The default implementation throws
+     * {@link UnsupportedOperationException} so that existing implementations are not
+     * forced to provide it immediately.
+     *
+     * @param serverId the GUID of the publishing server, never {@code null}
+     * @param deliveryContext the delivery context identifier (typically 10)
+     * @return a collection of site items, never {@code null}
+     * @throws PSPublisherException on errors
+     */
+    default Collection<IPSSiteItem> findSiteItemsByPubServer(IPSGuid serverId, int deliveryContext) throws PSPublisherException {
+        throw new UnsupportedOperationException("findSiteItemsByPubServer not implemented");
+    }
+    /**
+    /**
+     * Load content lists as a stream for efficient processing.
      */
     default Stream<IPSContentList> streamContentLists(List<IPSGuid> ids) throws PSPublisherException {
         return loadContentLists(ids).stream()
             .filter(Objects::nonNull);
     }
+
+    /**
+     * Touch all items that belong to the supplied content types.  The implementation
+     * typically records the current timestamp on all items of the given types so that
+     * index maintenance or other cache flushes may detect them.  This API was added to
+     * support the auto‑indexing extension and was originally only exposed on the
+     * implementation. Adding it to the interface allows callers to compile without
+     * casting.
+     *
+     * <p>The default implementation throws {@link UnsupportedOperationException} to
+     * preserve backwards compatibility for any custom service implementations.
+     *
+     * @param ctypeids the set of content type GUIDs to touch, not {@code null}
+     * @return collection of item ids that were touched, never {@code null}
+     * @throws PSPublisherException on service error
+     */
+    default Collection<Integer> touchContentTypeItems(Collection<IPSGuid> ctypeids) throws PSPublisherException {
+        throw new UnsupportedOperationException("touchContentTypeItems not implemented");
+    }
+
+
+    /**
+     * Get the number of last published items for the given site and set of content
+     * ids.  This mirrors the implementation in {@code PSPublisherService}.
+     *
+     * @param siteId the site GUID, not {@code null}
+     * @param contentIds a collection of content ids, not {@code null}
+     * @return the number of last published items for the supplied site
+     */
+    int findLastPublishedItemsBySite(IPSGuid siteId, Collection<Integer> contentIds);
 
     /**
      * Load the content list specified by the ID. The returned object should be
@@ -302,6 +361,37 @@ public interface IPSPublisherService extends IPSCataloger {
      * @return a list of publish status entries, never {@code null}
      */
     List<IPSPubStatus> findPubStatusBySite(IPSGuid siteId);
+
+    /**
+     * Retrieve publishing status records filtered by site, server, and date range.
+     *
+     * @param siteId the site GUID, not {@code null}
+     * @param serverId the publishing server GUID, not {@code null}
+     * @param numDays the number of days of history to return
+     * @param maxCount maximum number of records to return
+     * @return a list of publishing status records, never {@code null}
+     */
+    List<IPSPubStatus> findPubStatusBySiteAndServerWithFilters(
+        IPSGuid siteId, IPSGuid serverId, int numDays, int maxCount);
+
+    /**
+     * Retrieve publishing status records filtered by site and date range.
+     */
+    List<IPSPubStatus> findPubStatusBySiteWithFilters(
+        IPSGuid siteId, int numDays, int maxCount);
+
+    /**
+     * Retrieve publishing status records across all sites filtered by date range.
+     */
+    List<IPSPubStatus> findAllPubStatusWithFilters(int numDays, int maxCount);
+
+    /**
+     * Determines whether the specified site has been published recently.
+     *
+     * @param siteId the site GUID, not {@code null}
+     * @return {@code true} if the site has any publish records, {@code false} otherwise
+     */
+    boolean isSitePublished(IPSGuid siteId);
 
     /**
      * Find publish status records for the specified edition.

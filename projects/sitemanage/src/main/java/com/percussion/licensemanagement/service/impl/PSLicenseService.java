@@ -140,7 +140,7 @@ public class PSLicenseService implements IPSLicenseService {
     var mls = findAllModuleLicenses();
     if (mls.getModuleLicenses() != null) {
       for (var ml : mls.getModuleLicenses()) {
-        if (ml.getName().equalsIgnoreCase(name)) {
+        if (ml.getName().orElse("").equalsIgnoreCase(name)) {
           result = ml;
           break;
         }
@@ -160,9 +160,9 @@ public class PSLicenseService implements IPSLicenseService {
    * @param moduleLicense assumed not null
    */
   private void validateModuleLicense(PSModuleLicense moduleLicense) {
-    if (StringUtils.isBlank(moduleLicense.getName())
-        || StringUtils.isBlank(moduleLicense.getKey())
-        || StringUtils.isBlank(moduleLicense.getHandshake())) {
+    if (StringUtils.isBlank(moduleLicense.getName().orElse(""))
+        || StringUtils.isBlank(moduleLicense.getKey().orElse(""))
+        || StringUtils.isBlank(moduleLicense.getHandshake().orElse(""))) {
       var mapper = new ObjectMapper();
       try {
         log.error(

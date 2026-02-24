@@ -17,23 +17,22 @@
 
 package com.percussion.taxonomy.repository;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
 
 /**
+ * Helper class to execute a delete query without requiring HibernateCallback.
  * @author Steffen Gates May 6, 2011
  */
-public class HibernateDeleteQuery implements HibernateCallback {
+public class HibernateDeleteQuery {
   private String query;
 
   public HibernateDeleteQuery(String query) {
     this.query = query;
   }
 
-  public Object doInHibernate(Session session) throws HibernateException {
-    Query q = session.createQuery(query);
+  public Object execute(Session session) {
+    Query<?> q = session.createQuery(query);
     q.executeUpdate();
     return null;
   }

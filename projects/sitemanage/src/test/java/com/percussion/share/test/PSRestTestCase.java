@@ -18,8 +18,8 @@ package com.percussion.share.test;
 
 import java.io.InputStream;
 import java.util.Properties;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class PSRestTestCase<REST_CLIENT extends PSObjectRestClient> {
   public static String baseUrl;

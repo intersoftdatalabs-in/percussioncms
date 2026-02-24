@@ -20,19 +20,17 @@ package com.percussion.sitemanage.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
-import net.sf.oval.constraint.NotBlank;
-import net.sf.oval.constraint.NotEqual;
-import net.sf.oval.constraint.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 @XmlRootElement(name = "SitePublishItem")
 @JsonRootName("SitePublishItem")
 public class PSSitePublishItem extends PSAbstractDataObject {
 
-  @NotEqual(value = "0")
+  @Min(1)
   private long itemStatusId;
 
-  @NotBlank @NotNull private String status;
+  @NotBlank private String status;
 
   private String fileName;
   private String fileLocation;
@@ -40,14 +38,14 @@ public class PSSitePublishItem extends PSAbstractDataObject {
   private long templateid;
   private String deliveryType;
 
-  @NotEqual(value = "0")
+  @Min(1)
   private long contentid;
 
   private long revisionid;
   private String assemblyUrl;
   private long elapsedTime;
 
-  @NotBlank @NotNull private String operation;
+  @NotBlank private String operation;
 
   private String errorMessage;
 
@@ -67,16 +65,16 @@ public class PSSitePublishItem extends PSAbstractDataObject {
     this.status = status;
   }
 
-  public Optional<String> getFileName() {
-    return Optional.ofNullable(fileName);
+  public String getFileName() {
+    return fileName;
   }
 
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
 
-  public Optional<String> getFileLocation() {
-    return Optional.ofNullable(fileLocation);
+  public String getFileLocation() {
+    return fileLocation;
   }
 
   public void setFileLocation(String fileLocation) {
@@ -107,8 +105,8 @@ public class PSSitePublishItem extends PSAbstractDataObject {
     this.operation = operation;
   }
 
-  public Optional<String> getErrorMessage() {
-    return Optional.ofNullable(errorMessage);
+  public String getErrorMessage() {
+    return errorMessage;
   }
 
   public void setErrorMessage(String errorMessage) {
@@ -131,8 +129,8 @@ public class PSSitePublishItem extends PSAbstractDataObject {
     this.templateid = templateid;
   }
 
-  public Optional<String> getDeliveryType() {
-    return Optional.ofNullable(deliveryType);
+  public String getDeliveryType() {
+    return deliveryType;
   }
 
   public void setDeliveryType(String deliveryType) {
@@ -147,8 +145,8 @@ public class PSSitePublishItem extends PSAbstractDataObject {
     this.revisionid = revisionid;
   }
 
-  public Optional<String> getAssemblyUrl() {
-    return Optional.ofNullable(assemblyUrl);
+  public String getAssemblyUrl() {
+    return assemblyUrl;
   }
 
   public void setAssemblyUrl(String assemblyUrl) {

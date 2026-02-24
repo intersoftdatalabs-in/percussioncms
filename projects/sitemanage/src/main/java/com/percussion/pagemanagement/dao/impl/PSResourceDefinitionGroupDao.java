@@ -122,10 +122,21 @@ public class PSResourceDefinitionGroupDao
     return new ArrayList<>(rvalue);
   }
 
-  @Override
   public void delete(@SuppressWarnings("unused") String id)
       throws com.percussion.share.dao.IPSGenericDao.DeleteException {
     throw new UnsupportedOperationException("delete is not yet supported");
+  }
+
+  @Override
+  public void remove(String id) throws PSDataServiceException {
+    delete(id);
+  }
+
+  @Override
+  public void remove(PSResourceDefinitionGroup object) throws PSDataServiceException {
+    if (object != null) {
+      remove(object.getId());
+    }
   }
 
   @Override

@@ -90,9 +90,7 @@ public class PSRedirectService implements IPSRedirectService {
       }
       var sitename = getSiteNameFromPath(path);
       var site = siteDataService.find(sitename, true);
-      if (site.getPubInfo() != null) {
-        response.setBucketName(site.getPubInfo().getBucketName());
-      }
+      site.getPubInfo().ifPresent(p -> response.setBucketName(p.getBucketName()));
       status = validatePathStatus(path, data.getType(), site);
     } catch (Exception e) {
       status = RedirectValidationStatus.ERROR;

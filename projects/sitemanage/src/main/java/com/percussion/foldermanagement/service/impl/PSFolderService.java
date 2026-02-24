@@ -333,7 +333,7 @@ public class PSFolderService implements IPSFolderService {
               PSRequestInfo.initRequestInfo(requestInfoMap);
 
               for (var pairs : workflowsMap.entrySet()) {
-                cmsObjectManager.changeWorfklowForItems(
+                cmsObjectManager.changeWorkflowForItems(
                     pairs.getValue(), pairs.getKey(), systemStateNames);
               }
             } catch (Exception e) {

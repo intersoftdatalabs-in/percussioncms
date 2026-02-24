@@ -96,8 +96,7 @@
                                 <echo message="installing CodeMirror ${codemirror.version} (MIT) into codemirror plugin"/>
                                 <delete dir="${project.build.directory}/codemirror-unpack"/>
                                 <mkdir dir="${project.build.directory}/codemirror-unpack"/>
-                                <unzip dest="${project.build.directory}/codemirror-unpack"
-                                       src="${download-folder}/codemirror-${codemirror.version}.jar"/>
+                                <unzip dest="${project.build.directory}/codemirror-unpack" src="${download-folder}/codemirror-${codemirror.version}.jar"/>
                                 <copy todir="${project.build.outputDirectory}/META-INF/resources/sys_resources/tinymce/plugins/codemirror/codemirror">
                                     <fileset dir="${project.build.directory}/codemirror-unpack/META-INF/resources/webjars/codemirror/${codemirror.version}">
                                         <include name="lib/codemirror.js"/>

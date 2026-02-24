@@ -78,7 +78,6 @@ public class PSAssetDao implements IPSAssetDao {
     contentItemDao.removeItemFromPath(item, folderPath);
   }
 
-  @Override
   public void delete(String id) throws PSDataServiceException {
     // Local content is not in a folder, also orphaned content. Both of these types of asset should
     // be able to be deleted without validation. Local content validation is based upon the page.
@@ -98,12 +97,24 @@ public class PSAssetDao implements IPSAssetDao {
       log.error("Error trying to find folder paths for item id {}", id);
     }
 
-    contentItemDao.delete(id);
+    contentItemDao.remove(id);
     if (StringUtils.isNotBlank(itemName)) {
       var currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
       log.info("{} has been deleted by: {}", itemName, currentUser);
     }
     PSNotificationHelper.notifyEvent(EventType.ASSET_DELETED, id);
+  }
+
+  @Override
+  public void remove(String id) throws PSDataServiceException {
+    delete(id);
+  }
+
+  @Override
+  public void remove(PSAsset object) throws PSDataServiceException {
+    if (object != null) {
+      remove(object.getId());
+    }
   }
 
   @Override

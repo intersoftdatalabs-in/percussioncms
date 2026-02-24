@@ -176,7 +176,6 @@ public abstract class PSPathItemService implements IPSPathService {
     return listViewHelper;
   }
 
-  @Override
   public void setListViewHelper(IPSListViewHelper listViewHelper) {
     this.listViewHelper = listViewHelper;
   }
@@ -186,7 +185,6 @@ public abstract class PSPathItemService implements IPSPathService {
     return rolesAllowed;
   }
 
-  @Override
   public void setRolesAllowed(List<String> rolesAllowed) {
     this.rolesAllowed = rolesAllowed;
   }
@@ -238,7 +236,8 @@ public abstract class PSPathItemService implements IPSPathService {
     int stateId;
     try {
       workflowId = itemWorkflowService.getWorkflowId(workflowName);
-      stateId = itemWorkflowService.getStateId(workflowName, stateName);
+      var stateNameStr = stateName == null ? "" : stateName;
+      stateId = itemWorkflowService.getStateId(workflowName, stateNameStr);
     } catch (PSItemWorkflowServiceException e) {
       throw new PSPathServiceException(e);
     }
@@ -520,12 +519,10 @@ public abstract class PSPathItemService implements IPSPathService {
     return StringUtils.removeStart(StringUtils.removeEnd(tmpPath, "/"), "/");
   }
 
-  @Override
   public String getRootName() {
     return rootName;
   }
 
-  @Override
   public void setRootName(String rootName) {
     this.rootName = rootName;
   }

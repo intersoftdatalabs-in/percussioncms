@@ -18,7 +18,7 @@
 package com.percussion.pagemanagement.data;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.pagemanagement.data.PSWidgetProperties.PSWidgetProperty;
 import com.percussion.share.data.PSDataObjectTestCase;

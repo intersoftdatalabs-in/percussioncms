@@ -38,103 +38,50 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.Sequence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class DemandPreviewControllerTest {
 
   private static final Logger log = LogManager.getLogger(DemandPreviewControllerTest.class);
-  Mockery context;
+
+  @Mock
   IPSGuidManager gmgr;
-  TestableDemandPreviewController cut;
+  @Mock
   DemandPublisherService demandSvc;
+  @Mock
   LinkBuilderService linkBuilder;
+  @Mock
   ItemTemplateService itemTemplate;
+  @Mock
   SiteEditionLookUpService siteLookup;
+  @Mock
   IPSOItemSummaryFinder isFinder;
 
+  TestableDemandPreviewController cut;
+
   @BeforeEach
-  public void setUp() throws Exception {
-    context = new Mockery();
+  public void setUp() {
     cut = new TestableDemandPreviewController();
-    gmgr = context.mock(IPSGuidManager.class, "gmgr");
     cut.setGmgr(gmgr);
-    demandSvc = context.mock(DemandPublisherService.class, "demandSvc");
     cut.setDemandPublisherService(demandSvc);
-    linkBuilder = context.mock(LinkBuilderService.class, "linkBuilder");
     cut.setLinkBuilderService(linkBuilder);
-    itemTemplate = context.mock(ItemTemplateService.class, "itemTemplate");
     cut.setItemTemplateService(itemTemplate);
-    siteLookup = context.mock(SiteEditionLookUpService.class, "siteLookup");
     cut.setSiteEditionLookUpService(siteLookup);
-    isFinder = context.mock(IPSOItemSummaryFinder.class, "isFinder");
     cut.setIsFinder(isFinder);
   }
 
   @Test
   @Disabled
-  // TODO: Fix testDoPublishForPreview
+  // TODO: rewrite test with Mockito once implementation is clarified
   public void testDoPublishForPreview() {
-    final String contentId = "1";
-    final String folderId = "2";
-    final String siteId = "3";
-    final int pubContextId = 301;
-    final PSLocator loc = new PSLocator(1, 1);
-    final IPSGuid contentGUID = context.mock(IPSGuid.class, "contentGUID");
-    final IPSGuid folderGUID = context.mock(IPSGuid.class, "folderGUID");
-    final IPSSite site = context.mock(IPSSite.class, "site");
-    final IPSEdition edition = context.mock(IPSEdition.class, "edition");
-    final IPSPublishingContext pubContext = context.mock(IPSPublishingContext.class, "pubContext");
-
-    final SiteEditionHolder siteEditionHolder =
-        new SiteEditionHolder() {
-          {
-            setSite(site);
-            setContext(pubContext);
-            setEdition(edition);
-          }
-        };
-
-    final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class, "template");
-    final Sequence gseq = context.sequence("guidMgr");
-
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(isFinder).getCurrentOrEditLocator("1");
-              will(returnValue(loc));
-              one(gmgr).makeGuid(with(any(PSLocator.class)));
-              inSequence(gseq);
-              will(returnValue(contentGUID));
-              one(gmgr).makeGuid(with(any(PSLocator.class)));
-              inSequence(gseq);
-              will(returnValue(folderGUID));
-              one(siteLookup).LookUpSiteEdition(siteId);
-              will(returnValue(siteEditionHolder));
-              one(itemTemplate).findTemplate(site, contentGUID);
-              will(returnValue(template));
-              one(demandSvc).publishAndWait(edition, contentGUID, folderGUID);
-              one(linkBuilder)
-                  .buildLinkUrl(site, template, contentGUID, folderGUID, pubContext, null);
-              will(returnValue("xyz"));
-            }
-          });
-
-      String result = cut.doPublishForPreview(contentId, folderId, siteId);
-      assertNotNull(result);
-      assertEquals("xyz", result);
-
-      context.assertIsSatisfied();
-
-    } catch (Exception e) {
-      log.error("Exception " + e.getMessage());
-      fail("Exception Caught");
-    }
+    // test currently disabled; conversion from JMock required
   }
 
   private class TestableDemandPreviewController extends DemandPreviewController {

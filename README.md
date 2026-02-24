@@ -96,3 +96,19 @@ These settings disable automatic Java builds, exclude `target/` from file watche
 ## Interested in Contributing?
 
 Check out our [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md) for more information.
+
+### GitHub Target Preflight (Fork Safety)
+
+Before running `gh issue ...` or `gh pr ...`, verify your GitHub target is the Intersoft fork:
+
+```bash
+./scripts/gh-preflight.sh
+```
+
+If needed, auto-fix local defaults:
+
+```bash
+./scripts/gh-preflight.sh --fix
+```
+
+This prevents accidentally creating issues/PRs in upstream (`percussion/percussioncms`) when work should stay in `intersoftdatalabs-in/percussioncms`.

@@ -61,7 +61,7 @@ public class ItemFilterAdaptor implements IItemFilterAdaptor {
 
   private ItemFilter copyFilter(IPSItemFilter filter) {
     var ret = new ItemFilter();
-    ret.setFilter_id(ApiUtils.convertGuid(filter.getGUID()));
+    ret.setFilterId(ApiUtils.convertGuid(filter.getGUID()));
     ret.setDescription(filter.getDescription());
     ret.setName(filter.getName());
     ret.setLegacyAuthtype(filter.getLegacyAuthtypeId());

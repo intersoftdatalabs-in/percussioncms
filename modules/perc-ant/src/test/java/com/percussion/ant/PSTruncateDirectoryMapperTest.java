@@ -16,10 +16,11 @@
  */
 package com.percussion.ant;
 
-import org.apache.tools.ant.BuildException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import org.apache.tools.ant.BuildException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

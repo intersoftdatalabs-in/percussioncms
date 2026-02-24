@@ -96,7 +96,6 @@ public class PSReplaceLandingPage extends PSAbstractDataObject {
   public Optional<String> getOldLandingPageToState() {
     return Optional.ofNullable(oldLandingPageToState);
   }
-
   public void setOldLandingPageToState(String state) {
     oldLandingPageToState = state;
   }

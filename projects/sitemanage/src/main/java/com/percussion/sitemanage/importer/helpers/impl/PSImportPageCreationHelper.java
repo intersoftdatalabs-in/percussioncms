@@ -61,14 +61,14 @@ public class PSImportPageCreationHelper extends PSImportHelper {
         .appendLogMessage(
             PSLogEntryType.STATUS,
             STATUS_MESSAGE,
-            "Starting to move imported page " + context.getPageName() + " to the actual location");
+            "Starting to move imported page " + context.getPageName().orElse("") + " to the actual location");
 
     try {
-      pageCatalogService.createImportedPage(context.getCatalogedPageId());
+      pageCatalogService.createImportedPage(context.getCatalogedPageId().orElse(null));
     } catch (Exception e) {
       var errorMsg =
           "Could not move the imported page "
-              + context.getPageName()
+              + context.getPageName().orElse("")
               + " to the matching site folder.";
       context.getLogger().appendLogMessage(PSLogEntryType.ERROR, STATUS_MESSAGE, errorMsg);
       context
@@ -86,7 +86,7 @@ public class PSImportPageCreationHelper extends PSImportHelper {
             PSLogEntryType.STATUS,
             STATUS_MESSAGE,
             "Successfully moved imported page "
-                + context.getPageName()
+                + context.getPageName().orElse("")
                 + " to the actual location");
     endTimer();
   }

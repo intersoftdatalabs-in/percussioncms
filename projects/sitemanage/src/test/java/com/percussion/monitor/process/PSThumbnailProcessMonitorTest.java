@@ -17,7 +17,7 @@
  */
 package com.percussion.monitor.process;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,19 +30,19 @@ public class PSThumbnailProcessMonitorTest {
   @Test
   void testThumbnailMonitor() {
     var mon = new PSThumbnailProcessMonitor();
-    assertEquals(0, mon.getCurrentCount());
+    assertEquals(0L, mon.getCurrentCount());
     mon.incrementCount();
-    assertEquals(1, mon.getCurrentCount());
+    assertEquals(1L, mon.getCurrentCount());
     mon.incrementCount();
-    assertEquals(2, mon.getCurrentCount());
+    assertEquals(2L, mon.getCurrentCount());
     mon.decrementCount();
-    assertEquals(1, mon.getCurrentCount());
+    assertEquals(1L, mon.getCurrentCount());
     mon.incrementCount(5);
-    assertEquals(6, mon.getCurrentCount());
+    assertEquals(6L, mon.getCurrentCount());
     mon.decrementCount(4);
-    assertEquals(2, mon.getCurrentCount());
+    assertEquals(2L, mon.getCurrentCount());
     mon.decrementCount(2);
-    assertEquals(0, mon.getCurrentCount());
+    assertEquals(0L, mon.getCurrentCount());
     mon.decrementCount();
   }
 }

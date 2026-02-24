@@ -17,7 +17,7 @@
 package com.percussion.share.data;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import org.junit.jupiter.api.Test;
 

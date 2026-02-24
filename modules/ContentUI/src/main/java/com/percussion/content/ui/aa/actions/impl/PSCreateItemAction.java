@@ -45,7 +45,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -258,7 +258,8 @@ public class PSCreateItemAction extends PSAAActionBase {
         PSCms.getDefaultWorkflowId(
             PSServer.getRequest(getRequestContext()), itemDef.getContentEditor());
     String editorUrl = def.getQueryRequest();
-    Map<String, String> params = new HashMap<String, String>();
+    // internal request expects a map with Object values
+    Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_VIEW, IPSConstants.SYS_ALL_VIEW_NAME);
     params.put(IPSHtmlParameters.SYS_COMMAND, "edit");
     params.put("sys_workflowappid", workflowId + "");

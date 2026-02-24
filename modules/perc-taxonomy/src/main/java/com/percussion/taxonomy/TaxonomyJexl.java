@@ -36,7 +36,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -98,11 +98,11 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
 
       Query q = session.createQuery(queryString);
       if (taxID > 0) {
-        q.setInteger(0, taxID);
+        q.setParameter(0, taxID);
       } else {
-        q.setString(0, taxName);
+        q.setParameter(0, taxName);
       }
-      q.setInteger(1, langID);
+      q.setParameter(1, langID);
       attLang = (List<Attribute_lang>) q.list();
       ret = new TaxAttMap(attLang);
       tx.commit();
@@ -169,8 +169,8 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
       queryString += "where rn.node.id = ? and rt.Relationship_type = ?";
 
       Query q = session.createQuery(queryString);
-      q.setInteger(0, nodeID);
-      q.setString(1, relationship_type_name);
+      q.setParameter(0, nodeID);
+      q.setParameter(1, relationship_type_name);
       nodes = (List<Node>) q.list();
       for (Node node : nodes) {
         TaxNode taxNode = new TaxNode(node);
@@ -248,8 +248,8 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
       queryString += "and v.lang.id = ? order by n.id";
 
       Query q = session.createQuery(queryString);
-      q.setInteger(0, langID);
-      q.setInteger(1, langID);
+      q.setParameter(0, langID);
+      q.setParameter(1, langID);
       nodes = (List<Node>) q.list();
 
       for (Node node : nodes) {
@@ -329,12 +329,12 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
 
       Query q = session.createQuery(queryString);
       if (taxID > 0) {
-        q.setInteger(0, taxID);
+        q.setParameter(0, taxID);
       } else {
-        q.setString(0, taxName);
+        q.setParameter(0, taxName);
       }
-      q.setInteger(1, langID);
-      q.setInteger(2, langID);
+      q.setParameter(1, langID);
+      q.setParameter(2, langID);
       nodes = (List<Node>) q.list();
       for (Node node : nodes) {
         TaxNode taxNode = new TaxNode(node);

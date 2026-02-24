@@ -56,7 +56,7 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
   }
 
   public void delete(String id) throws PSDataServiceException {
-    dao.delete(id);
+    dao.remove(id);
   }
 
   /** {@inheritDoc} */

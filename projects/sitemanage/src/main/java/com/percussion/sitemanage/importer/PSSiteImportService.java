@@ -37,6 +37,7 @@ import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Lazy;
@@ -66,7 +67,10 @@ public class PSSiteImportService implements IPSSiteImportService {
       siteImportCtx.setSite(site);
       siteImportCtx.setLogger(new PSSiteImportLogger(PSLogObjectType.TEMPLATE));
       siteImportCtx.setSiteUrl(
-          PSSiteImporter.getRedirectedUrl(site.getBaseUrl(), siteImportCtx.getLogger(), userAgent));
+          PSSiteImporter.getRedirectedUrl(
+              site.getBaseUrl().orElse(""),
+              siteImportCtx.getLogger(),
+              userAgent));
       siteImportCtx.setUserAgent(userAgent);
       siteImportCtx.setSummaryService(siteImportSummaryService);
 
@@ -80,13 +84,17 @@ public class PSSiteImportService implements IPSSiteImportService {
       throw new PSSiteImportException("The URL is invalid or unreachable.", e);
     } finally {
       var logger = (PSSiteImportLogger) siteImportCtx.getLogger();
-      var templateId = siteImportCtx.getTemplateId();
-      if (logger != null && templateId != null) {
+      Optional<String> templateIdOpt = siteImportCtx.getTemplateId();
+      if (logger != null && templateIdOpt.isPresent()) {
+        String templateId = templateIdOpt.get();
+        String siteId = siteImportCtx.getSite().map(s -> s.getSiteId().toString()).orElse("");
+        String folderPath = siteImportCtx.getSite().map(s -> s.getFolderPath()).orElse("");
+        String pageName = siteImportCtx.getPageName().orElse("");
         saveImportLog(
             templateId,
             logger,
-            siteImportCtx.getSite().getSiteId().toString(),
-            siteImportCtx.getSite().getFolderPath() + "/" + siteImportCtx.getPageName());
+            siteId,
+            folderPath + "/" + pageName);
       }
     }
   }
@@ -109,12 +117,13 @@ public class PSSiteImportService implements IPSSiteImportService {
     String pagePath = null;
 
     try {
-      var page = pageDao.find(context.getCatalogedPageId());
+      String catalogedPageId = context.getCatalogedPageId().orElse(null);
+      var page = pageDao.find(catalogedPageId);
       if (page == null)
         throw new PSSiteImportException(
             "Failed to import page id:" + pageId + ". It does not exist.");
 
-      if (pageCatalogService.doesImportedPageExist(page)) {
+      if (page != null && pageCatalogService.doesImportedPageExist(page)) {
         throw new PSSiteImportException(
             "Skip import page (id="
                 + pageId
@@ -135,7 +144,8 @@ public class PSSiteImportService implements IPSSiteImportService {
 
       context.setSiteUrl(
           PSSiteImporter.getRedirectedUrl(
-              page.getDescription(), context.getLogger(), context.getUserAgent()));
+              page.getDescription(), context.getLogger(), context.getUserAgent().orElse("")));
+
       context.setTemplateId(page.getTemplateId());
 
       var importedPageContent = PSSiteImporter.getPageContentFromSite(context);
@@ -150,7 +160,8 @@ public class PSSiteImportService implements IPSSiteImportService {
       throw new PSSiteImportException("The URL is invalid or unreachable.", e);
     } finally {
       if (logger != null && pageId != null) {
-        saveImportLog(pageId, logger, context.getSite().getSiteId().toString(), pagePath);
+        String siteId = context.getSite().map(s -> s.getSiteId().toString()).orElse("");
+        saveImportLog(pageId, logger, siteId, pagePath);
       }
     }
   }

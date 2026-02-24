@@ -20,6 +20,7 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
+import com.percussion.security.PSSecurityException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidHelper;
@@ -31,6 +32,7 @@ import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSRoleMgrLocator;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.services.security.data.PSCommunity;
@@ -39,15 +41,11 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import com.percussion.services.security.PSServiceSecurityException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-// required for exception handling of security errors
-import com.percussion.security.PSSecurityException;
 
 /**
  * Walk the search properties in the request document. For sys_community, remove the property and
