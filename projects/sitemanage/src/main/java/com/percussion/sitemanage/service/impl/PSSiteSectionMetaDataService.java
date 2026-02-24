@@ -134,8 +134,8 @@ public class PSSiteSectionMetaDataService implements IPSSiteSectionMetaDataServi
   public List<IPSFolderPath> findSections(String category, String itemId) {
     try {
       var sep = folderHelper.pathSeparator();
-      var matchPath = sep + folderHelper.concatPath(SECTION_SYSTEM_FOLDER_NAME, category);
-      matchPath = removeEnd(matchPath, sep);
+      String matchPathRaw = sep + folderHelper.concatPath(SECTION_SYSTEM_FOLDER_NAME, category);
+      final String matchPath = removeEnd(matchPathRaw, sep);
       var paths = folderHelper.findPaths(itemId);
 
       if (log.isDebugEnabled()) {
@@ -145,15 +145,15 @@ public class PSSiteSectionMetaDataService implements IPSSiteSectionMetaDataServi
                 matchPath, paths, itemId, category));
       }
 
-      // Java 11: Use Stream to filter and map to SectionPath
-      var sections =
+      // Java 11: Use Stream to filter and map to SectionPath (implements IPSFolderPath)
+      List<IPSFolderPath> sections =
           paths.stream()
               .filter(p -> endsWith(p, matchPath))
               .map(
                   p -> {
                     var path = removeEnd(p, matchPath);
                     isTrue(isNotBlank(path), "The section path should not be empty.");
-                    return new SectionPath(path);
+                    return (IPSFolderPath) new SectionPath(path);
                   })
               .toList();
 

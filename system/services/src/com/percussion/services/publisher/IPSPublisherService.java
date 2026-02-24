@@ -18,7 +18,6 @@
 package com.percussion.services.publisher;
 
 import com.percussion.rx.publisher.IPSPublisherItemStatus;
-import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.catalog.IPSCataloger;
 import com.percussion.services.error.PSNotFoundException;
@@ -27,9 +26,6 @@ import com.percussion.services.publisher.data.PSContentListItem;
 import com.percussion.services.publisher.data.PSContentListResults;
 import com.percussion.services.publisher.data.PSItemPublishingHistory;
 import com.percussion.services.publisher.data.PSSiteItem;
-import com.percussion.services.publisher.data.PSSortCriterion;
-import com.percussion.services.pubserver.data.PSPubServer;
-import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 
 import javax.jcr.query.QueryResult;
@@ -39,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -158,16 +153,31 @@ public interface IPSPublisherService extends IPSCataloger {
     /**
     /**
      * Load content lists as a stream for efficient processing.
-     *
-     * @param ids a list of GUIDs, not {@code null} or empty
-     * @return Stream of content lists (excluding null entries), never {@code null}
-     * @throws PSPublisherException if there is a database error
-     * @throws IllegalArgumentException if ids is null or empty
      */
     default Stream<IPSContentList> streamContentLists(List<IPSGuid> ids) throws PSPublisherException {
         return loadContentLists(ids).stream()
             .filter(Objects::nonNull);
     }
+
+    /**
+     * Touch all items that belong to the supplied content types.  The implementation
+     * typically records the current timestamp on all items of the given types so that
+     * index maintenance or other cache flushes may detect them.  This API was added to
+     * support the auto‑indexing extension and was originally only exposed on the
+     * implementation. Adding it to the interface allows callers to compile without
+     * casting.
+     *
+     * <p>The default implementation throws {@link UnsupportedOperationException} to
+     * preserve backwards compatibility for any custom service implementations.
+     *
+     * @param ctypeids the set of content type GUIDs to touch, not {@code null}
+     * @return collection of item ids that were touched, never {@code null}
+     * @throws PSPublisherException on service error
+     */
+    default Collection<Integer> touchContentTypeItems(Collection<IPSGuid> ctypeids) throws PSPublisherException {
+        throw new UnsupportedOperationException("touchContentTypeItems not implemented");
+    }
+
 
     /**
      * Get the number of last published items for the given site and set of content

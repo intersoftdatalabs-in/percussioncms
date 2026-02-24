@@ -389,7 +389,8 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
   private void generateContentItems(String location_context, String contentIds, Map siteItems)
       throws PSExtensionProcessingException, PSCmsException {
     // set required parameters.
-    Map<String, String> lookupParams = new HashMap<>(6);
+    // request parameters may eventually hold non-string values
+    Map<String, Object> lookupParams = new HashMap<>(6);
     lookupParams.put(
         IPSHtmlParameters.SYS_SITEID, m_request.getParameter(IPSHtmlParameters.SYS_SITEID));
     // must use IPSHtmlParameters.SYS_CONTEXT to lookup the publishable items

@@ -16,6 +16,8 @@
  */
 package com.percussion.sitemanage.task.impl;
 
+import com.percussion.services.pubserver.data.PSPubServerProperty;
+
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.*;
 import static org.apache.commons.lang3.StringUtils.*;

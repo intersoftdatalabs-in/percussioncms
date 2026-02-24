@@ -1678,7 +1678,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     node.setTitle(section.getTitle());
     node.setSectionType(section.getSectionType());
     node.setRequiresLogin(section.isRequiresLogin());
-    node.setAllowAccessTo(section.getAllowAccessTo());
+    node.setAllowAccessTo(section.getAllowAccessTo().orElse(""));
     node.setFolderPath(section.getFolderPath());
     List<PSSectionNode> childNodes = new ArrayList<>();
     if (section.getSectionType() == PSSectionTypeEnum.section) {

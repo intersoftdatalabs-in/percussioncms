@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -84,8 +85,12 @@ public class PSContentStatusHistoryContextTest extends PSAbstractWorkflowTest {
       int nWorkFlowAppID = csc.getWorkflowID();
 
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      PSStatesContext sc =
-          (PSStatesContext) cms.loadWorkflowState(nWorkFlowAppID, csc.getContentStateID());
+      Optional<? extends IPSStatesContext> scOpt =
+          cms.loadWorkflowState(nWorkFlowAppID, csc.getContentStateID());
+      PSStatesContext sc = scOpt.isPresent() ? (PSStatesContext) scOpt.get() : null;
+      if (sc == null) {
+          throw new PSEntryNotFoundException("State context not found");
+      }
 
       // if it's not a checkin or checkout, get the transition context
       PSTransitionsContext tc = null;

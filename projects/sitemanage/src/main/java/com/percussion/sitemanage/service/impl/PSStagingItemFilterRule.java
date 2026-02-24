@@ -16,6 +16,8 @@
  */
 package com.percussion.sitemanage.service.impl;
 
+import com.percussion.services.pubserver.data.PSPubServerProperty;
+
 import com.percussion.services.contentchange.PSContentChangeServiceLocator;
 import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.filter.IPSFilterItem;
