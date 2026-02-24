@@ -38,8 +38,8 @@
 
 				<!-- Apache Derby -->
 				<prop key="jdbcUrl">jdbc:derby:memory:percpolls;create=true</prop>
-				<!-- EmbeddedDriver was removed in newer Derby; use autoloading driver instead -->
-				<prop key="jdbcDriver">org.apache.derby.iapi.jdbc.AutoloadedDriver</prop>
+				<!-- Use the public Derby embedded driver implementation -->
+				<prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver40</prop>
 				<prop key="db.username">test</prop>
 				<prop key="db.password">test</prop>
 				<prop key="db.schema">APP</prop>
