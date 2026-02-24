@@ -19,7 +19,7 @@
 package com.percussion.pagemanagement.service;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.impl.PSTemplateService.PSTemplateSorter;

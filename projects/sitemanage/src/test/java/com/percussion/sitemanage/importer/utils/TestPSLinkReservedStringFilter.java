@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.services.assembly.impl.PSReplacementFilter;
 import org.junit.jupiter.api.Tag;

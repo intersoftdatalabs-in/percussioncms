@@ -18,7 +18,7 @@
 
 package com.percussion.pathmanagement.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;

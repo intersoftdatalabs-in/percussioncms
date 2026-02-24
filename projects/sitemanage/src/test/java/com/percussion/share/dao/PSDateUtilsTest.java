@@ -17,7 +17,7 @@
  */
 package com.percussion.share.dao;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import java.text.ParseException;
 import java.util.Date;

@@ -120,4 +120,9 @@ public class MockItemSummary implements IPSItemSummary {
   public boolean isResource() {
     throw new UnsupportedOperationException("isResource is not yet supported");
   }
+
+  @Override
+  public List<String> getTags() {
+    throw new UnsupportedOperationException("getTags is not yet supported");
+  }
 }

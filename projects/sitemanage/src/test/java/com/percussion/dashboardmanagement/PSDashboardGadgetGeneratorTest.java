@@ -18,7 +18,7 @@
 
 package com.percussion.dashboardmanagement;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.metadata.web.service.PSMetadataServiceRestClient;
@@ -75,17 +75,17 @@ public class PSDashboardGadgetGeneratorTest {
 
     var dashboardContent = contentGenerator.getRootData();
     assertNotNull(dashboardContent, "dashboard content not null");
-    assertEquals(3, dashboardContent.getGadgetDef().size(), "gadget count");
+    assertEquals(3L, dashboardContent.getGadgetDef().size(), "gadget count");
 
     int count = 0;
 
     for (var gad : dashboardContent.getGadgetDef()) {
       if (gad.getGadgetType().equals("perc_comments_gadget")) {
         count += 7;
-        assertEquals(1, gad.getColumn(), "comments gadget - column");
+        assertEquals(1L, gad.getColumn(), "comments gadget - column");
         assertFalse(gad.isExpanded(), "comments gadget - extended");
 
-        assertEquals(2, gad.getUserPref().size(), "comments gadget - settings count");
+        assertEquals(2L, gad.getUserPref().size(), "comments gadget - settings count");
         assertEquals(
             "site", gad.getUserPref().get(0).getName(), "comments gadget - setting 1 - name");
         assertEquals(
@@ -97,16 +97,16 @@ public class PSDashboardGadgetGeneratorTest {
             "5", gad.getUserPref().get(1).getValue(), "comments gadget - setting 2 - value");
       } else if (gad.getGadgetType().equals("cm1_welcome_gadget/perc_welcome_gadget.xml")) {
         count += 11;
-        assertEquals(0, gad.getColumn(), "welcome gadget - column");
+        assertEquals(0L, gad.getColumn(), "welcome gadget - column");
         assertTrue(gad.isExpanded(), "welcome gadget - extended");
 
-        assertEquals(0, gad.getUserPref().size(), "welcome gadget - settings count");
+        assertEquals(0L, gad.getUserPref().size(), "welcome gadget - settings count");
       } else if (gad.getGadgetType().equals("perc_workflow_status_gadget")) {
         count += 13;
-        assertEquals(1, gad.getColumn(), "workflow gadget - column");
+        assertEquals(1L, gad.getColumn(), "workflow gadget - column");
         assertFalse(gad.isExpanded(), "workflow gadget - extended");
 
-        assertEquals(3, gad.getUserPref().size(), "workflow gadget - settings count");
+        assertEquals(3L, gad.getUserPref().size(), "workflow gadget - settings count");
         assertEquals(
             "site", gad.getUserPref().get(0).getName(), "workflow gadget - setting 1 - name");
         assertEquals(
@@ -126,7 +126,7 @@ public class PSDashboardGadgetGeneratorTest {
       }
     }
 
-    assertEquals(31, count, "all gadgets loaded");
+    assertEquals(31L, count, "all gadgets loaded");
   }
 
   @Test
@@ -148,7 +148,7 @@ public class PSDashboardGadgetGeneratorTest {
     assertTrue(contentGenerator.dataSuccessfullyLoaded(), "data is valid");
 
     List<PSGadget> gadgets = restClient.getCurrentGadgets();
-    assertEquals(3, gadgets.size(), "gadget count");
+    assertEquals(3L, gadgets.size(), "gadget count");
 
     int count = 0;
 
@@ -157,13 +157,13 @@ public class PSDashboardGadgetGeneratorTest {
         count += 7;
 
         assertNotNull(aGadget.getInstanceId(), "1 - instanceId not null");
-        assertEquals(1, aGadget.getInstanceId(), "1 - instanceId");
-        assertEquals(1, (int) aGadget.getCol(), "1 - column");
-        assertEquals(0, (int) aGadget.getRow(), "1 - row");
+        assertEquals(1L, aGadget.getInstanceId().longValue(), "1 - instanceId");
+        assertEquals(1L, (int) aGadget.getCol(), "1 - column");
+        assertEquals(0L, (int) aGadget.getRow(), "1 - row");
         assertFalse(aGadget.isExpanded(), "1 - expanded");
 
         assertNotNull(aGadget.getSettings(), "1 - settings not null");
-        assertEquals(2, aGadget.getSettings().size(), "1 - settings count");
+        assertEquals(2L, aGadget.getSettings().size(), "1 - settings count");
         assertEquals("Site1", aGadget.getSettings().get("site"), "1 - site");
         assertEquals("5", aGadget.getSettings().get("zrows"), "1 - zrows");
       } else if (aGadget
@@ -172,24 +172,24 @@ public class PSDashboardGadgetGeneratorTest {
         count += 11;
 
         assertNotNull(aGadget.getInstanceId(), "2 - instanceId not null");
-        assertEquals(2, aGadget.getInstanceId(), "2 - instanceId");
-        assertEquals(0, (int) aGadget.getCol(), "2 - column");
-        assertEquals(0, (int) aGadget.getRow(), "2 - row");
+        assertEquals(2L, aGadget.getInstanceId().longValue(), "2 - instanceId");
+        assertEquals(0L, (int) aGadget.getCol(), "2 - column");
+        assertEquals(0L, (int) aGadget.getRow(), "2 - row");
         assertTrue(aGadget.isExpanded(), "2 - expanded");
 
         assertNotNull(aGadget.getSettings(), "2 - settings not null");
-        assertEquals(0, aGadget.getSettings().size(), "2 - settings count");
+        assertEquals(0L, aGadget.getSettings().size(), "2 - settings count");
       } else if (aGadget.getUrl().equals(getGadgetUrl("perc_workflow_status_gadget"))) {
         count += 13;
 
         assertNotNull(aGadget.getInstanceId(), "3 - instanceId not null");
-        assertEquals(3, aGadget.getInstanceId(), "3 - instanceId");
-        assertEquals(1, (int) aGadget.getCol(), "3 - column");
-        assertEquals(1, (int) aGadget.getRow(), "3 - row");
+        assertEquals(3L, aGadget.getInstanceId().longValue(), "3 - instanceId");
+        assertEquals(1L, (int) aGadget.getCol(), "3 - column");
+        assertEquals(1L, (int) aGadget.getRow(), "3 - row");
         assertFalse(aGadget.isExpanded(), "3 - expanded");
 
         assertNotNull(aGadget.getSettings(), "3 - settings not null");
-        assertEquals(3, aGadget.getSettings().size(), "3 - settings count");
+        assertEquals(3L, aGadget.getSettings().size(), "3 - settings count");
         assertEquals("@all", aGadget.getSettings().get("site"), "3 - site");
         assertEquals("5", aGadget.getSettings().get("zrows"), "3 - zrows");
         assertEquals("Pending", aGadget.getSettings().get("status"), "3 - status");
@@ -198,7 +198,7 @@ public class PSDashboardGadgetGeneratorTest {
       }
     }
 
-    assertEquals(31, count, "count");
+    assertEquals(31L, count, "count");
   }
 
   @Test
@@ -211,7 +211,7 @@ public class PSDashboardGadgetGeneratorTest {
     assertTrue(contentGenerator.dataSuccessfullyLoaded(), "data is valid");
 
     List<PSGadget> gadgets = restClient.getCurrentGadgets();
-    assertEquals(10, gadgets.size(), "gadget count");
+    assertEquals(10L, gadgets.size(), "gadget count");
   }
 
   @Test
@@ -227,7 +227,7 @@ public class PSDashboardGadgetGeneratorTest {
     PSDashboardGadgetGenerator.main(args);
 
     List<PSGadget> gadgets = restClient.getCurrentGadgets();
-    assertEquals(10, gadgets.size(), "gadget count");
+    assertEquals(10L, gadgets.size(), "gadget count");
   }
 
   @Test
@@ -280,7 +280,7 @@ public class PSDashboardGadgetGeneratorTest {
     contentGenerator.generateContent();
 
     List<PSGadget> gadgets = restClient.getCurrentGadgets();
-    assertEquals(3, gadgets.size(), "gadget count");
+    assertEquals(3L, gadgets.size(), "gadget count");
 
     // Cleanup. Use a different file with different gadgets. Make sure
     // that the cleanup method is removing only the gadgets present
@@ -291,7 +291,7 @@ public class PSDashboardGadgetGeneratorTest {
     contentGenerator2.cleanup();
 
     gadgets = restClient.getCurrentGadgets();
-    assertEquals(1, gadgets.size(), "gadget count");
+    assertEquals(1L, gadgets.size(), "gadget count");
 
     assertEquals(getGadgetUrl("perc_comments_gadget"), gadgets.get(0).getUrl(), "gadget url");
   }

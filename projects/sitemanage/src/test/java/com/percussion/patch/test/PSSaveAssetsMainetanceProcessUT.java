@@ -19,8 +19,8 @@
 
 package com.percussion.patch.test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.percussion.test.TestAssertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import org.jsoup.Jsoup;

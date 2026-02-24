@@ -17,7 +17,7 @@
  */
 package com.percussion.sitemanage.importer.theme;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
@@ -95,7 +95,7 @@ class PSHTMLHeaderImporterTest {
       var linkPaths = headerImporter.getLinkPaths();
       assertNotNull(linkPaths);
       assertFalse(linkPaths.isEmpty());
-      assertEquals(12, linkPaths.size());
+      assertEquals(12L, linkPaths.size());
 
       var links = docHeader.select("link");
       links.addAll(docBody.select("link"));
@@ -158,7 +158,7 @@ class PSHTMLHeaderImporterTest {
     var scriptsPaths = headerImporter.getScriptPaths();
     assertNotNull(scriptsPaths);
     assertFalse(scriptsPaths.isEmpty());
-    assertEquals(9, scriptsPaths.size());
+    assertEquals(9L, scriptsPaths.size());
 
     var headerScripts = docHeader.select("script");
     String newSrcExpected =
@@ -182,7 +182,7 @@ class PSHTMLHeaderImporterTest {
     var inlineImages = headerImporter.processInlineStyles();
     assertNotNull(inlineImages);
     assertFalse(inlineImages.isEmpty());
-    assertEquals(5, inlineImages.size());
+    assertEquals(5L, inlineImages.size());
 
     assertTrue(
         inlineImages.containsKey(
@@ -221,7 +221,7 @@ class PSHTMLHeaderImporterTest {
     var imgElements = docBody.getElementsByTag("img");
     assertNotNull(imgElements);
     assertFalse(imgElements.isEmpty());
-    assertEquals(12, imgElements.size());
+    assertEquals(12L, imgElements.size());
 
     assertEquals("/homepage/2011/047.jpg", imgElements.get(2).attr("src"));
     assertEquals(
@@ -232,7 +232,7 @@ class PSHTMLHeaderImporterTest {
     var bodyImages = headerImporter.processHeaderAndBodyImages();
     assertNotNull(bodyImages);
     assertFalse(bodyImages.isEmpty());
-    assertEquals(13, bodyImages.size());
+    assertEquals(13L, bodyImages.size());
 
     assertTrue(bodyImages.containsKey("http://www.percussion.com/homepage/2011/047.jpg"));
     assertTrue(
@@ -275,7 +275,7 @@ class PSHTMLHeaderImporterTest {
     var flashPaths = headerImporter.processFlashFiles(themeName);
     assertNotNull(flashPaths);
     assertFalse(flashPaths.isEmpty());
-    assertEquals(3, flashPaths.size());
+    assertEquals(3L, flashPaths.size());
 
     var objectFlash = docBody.select("object");
     var bodyFlashFiles = docBody.select("embed");
