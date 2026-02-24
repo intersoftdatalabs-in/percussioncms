@@ -44,7 +44,6 @@
         <liquibase-core.version>5.0.1</liquibase-core.version>
         <macker.version>1.0.2</macker.version>
         <mariadb.version>3.5.7</mariadb.version>
-        <micrometer-observation.version>1.16.2</micrometer-observation.version>
         <morphia.version>0.104</morphia.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -132,11 +131,6 @@
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-runtime.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.micrometer</groupId>
-                <artifactId>micrometer-observation</artifactId>
-                <version>${micrometer-observation.version}</version>
             </dependency>
             <!-- Tomcat -->
             <dependency>
