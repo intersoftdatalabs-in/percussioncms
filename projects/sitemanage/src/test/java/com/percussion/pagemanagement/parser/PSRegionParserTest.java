@@ -18,7 +18,7 @@
 package com.percussion.pagemanagement.parser;
 
 import static com.percussion.pagemanagement.data.PSRegionTreeUtils.getChildRegions;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.pagemanagement.data.PSRegion;
 import com.percussion.pagemanagement.data.PSRegionCode;
@@ -73,7 +73,7 @@ public class PSRegionParserTest {
     var html = getHtml("Default.html");
     var regTree = parser.parse(html);
     var regions = regTree.getRegions();
-    assertEquals(6, regions.size());
+    assertEquals(6L, regions.size());
     assertTrue(regionExists("1", regions.values()));
     assertTrue(regionExists("2", regions.values()));
     assertTrue(regionExists("3", regions.values()));
@@ -81,7 +81,7 @@ public class PSRegionParserTest {
       var region = regions.get(id);
       var children = getChildRegions(region);
       if (id.equals("1")) {
-        assertEquals(3, children.size());
+        assertEquals(3L, children.size());
         assertTrue(regionExists("1.1", children));
         assertTrue(regionExists("1.3", children));
         assertTrue(regionExists("1.4.1", children));

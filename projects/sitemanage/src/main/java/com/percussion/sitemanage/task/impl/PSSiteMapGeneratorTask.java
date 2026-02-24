@@ -132,7 +132,7 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
             log.error(PSExceptionUtils.getMessageForLog(e));
             throw new PSExtensionException(e);
           }
-          if (cl.getType() == IPSContentList.Type.INCREMENTAL) {
+            if (IPSContentList.Type.INCREMENTAL.name().equals(cl.getType())) {
             // If this is an incremental edition we want to skip generation
             log.warn("Skipping sitemap generation for incremental edition. ");
             return;

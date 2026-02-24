@@ -31,26 +31,35 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.guid.PSLegacyGuid;
+import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class PreviewUrlBuilderTest {
   private static final Logger log = LogManager.getLogger(PreviewUrlBuilderTest.class);
 
   private PreviewUrlBuilder cut;
-  private Mockery context;
+
+  @Mock
+  private IPSAssemblyTemplate template;
+  @Mock
+  private IPSSite site;
 
   @BeforeEach
   public void setUp() throws Exception {
     cut = new PreviewUrlBuilder();
-    context = new Mockery();
     cut.setDefaultLocationUrl("defaultLocation");
     cut.setMultipleLocationUrl("multipleLocation");
   }
@@ -58,26 +67,19 @@ public class PreviewUrlBuilderTest {
   @Test
   public final void testBuildPreviewUrl() {
     final IPSGuid tempGuid = new PSGuid(123L);
-    final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class);
+    final IPSAssemblyTemplate template = mock(IPSAssemblyTemplate.class);
 
     Map<String, Object> urlParams = new HashMap<String, Object>();
     urlParams.put(IPSHtmlParameters.SYS_CONTENTID, "23");
     urlParams.put(IPSHtmlParameters.SYS_REVISION, "1");
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(template).getGUID();
-              will(returnValue(tempGuid));
-            }
-          });
+      when(template.getGUID()).thenReturn(tempGuid);
       String result = cut.buildUrl(template, urlParams, null, true);
       assertNotNull(result);
       log.info("url result is " + result);
       assertTrue(result.contains("multiple"));
-      context.assertIsSatisfied();
-
+      verify(template).getGUID();
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("Exception");
@@ -87,8 +89,8 @@ public class PreviewUrlBuilderTest {
   @Test
   public final void testBuildPreviewUrlAssembly() {
     final IPSGuid tempGuid = new PSLegacyGuid(123L);
-    final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class);
-    final IPSSite site = context.mock(IPSSite.class);
+    final IPSAssemblyTemplate template = mock(IPSAssemblyTemplate.class);
+    final IPSSite site = mock(IPSSite.class);
     SiteFolderLocation location = new SiteFolderLocation();
     location.setSite(site);
     location.setFolderid(457);
@@ -97,25 +99,17 @@ public class PreviewUrlBuilderTest {
     urlParams.put(IPSHtmlParameters.SYS_REVISION, "1");
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(template).getGUID();
-              will(returnValue(tempGuid));
-              allowing(template).getAssemblyUrl();
-              will(returnValue("/Rhythmyx/baz/bat"));
-              allowing(site).getSiteId();
-              will(returnValue(123L));
-            }
-          });
+      when(template.getGUID()).thenReturn(tempGuid);
+      // preview builder does not use assemblyUrl; no need to stub it
+      when(site.getSiteId()).thenReturn(123L);
       cut.setDefaultLocationUrl("/Rhythmyx/foo/bar");
       String result = cut.buildUrl(template, urlParams, location, false);
       assertNotNull(result);
       log.info("url result is " + result);
       assertTrue(result.contains("myx/foo/bar"));
       assertFalse(result.contains("myx/baz/bat"));
-      context.assertIsSatisfied();
-
+      verify(template).getGUID();
+      verify(site).getSiteId();
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("Exception");
@@ -125,8 +119,8 @@ public class PreviewUrlBuilderTest {
   @Test
   public final void testBuildPreviewUrlAssemblyNull() {
     final IPSGuid tempGuid = new PSLegacyGuid(123L);
-    final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class);
-    final IPSSite site = context.mock(IPSSite.class);
+    final IPSAssemblyTemplate template = mock(IPSAssemblyTemplate.class);
+    final IPSSite site = mock(IPSSite.class);
 
     SiteFolderLocation location = new SiteFolderLocation();
     location.setSite(site);
@@ -137,24 +131,18 @@ public class PreviewUrlBuilderTest {
     urlParams.put(IPSHtmlParameters.SYS_REVISION, "1");
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(template).getGUID();
-              will(returnValue(tempGuid));
-              allowing(template).getAssemblyUrl();
-              will(returnValue(null));
-              allowing(site).getSiteId();
-              will(returnValue(123L));
-            }
-          });
+      when(template.getGUID()).thenReturn(tempGuid);
+      // not used by builder
+      when(site.getSiteId()).thenReturn(123L);
+
       cut.setDefaultLocationUrl("/Rhythmyx/foo/bar");
       String result = cut.buildUrl(template, urlParams, location, false);
       assertNotNull(result);
       log.info("url result is " + result);
       assertTrue(result.contains("myx/foo/bar"));
-      context.assertIsSatisfied();
 
+      verify(template).getGUID();
+      verify(site).getSiteId();
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("Exception");

@@ -16,7 +16,7 @@
  */
 package com.percussion.monitor.process;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.monitor.service.PSMonitorService;
 import org.junit.jupiter.api.Test;

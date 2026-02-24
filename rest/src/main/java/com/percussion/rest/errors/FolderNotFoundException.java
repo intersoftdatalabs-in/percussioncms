@@ -19,9 +19,7 @@
 
 package com.percussion.rest.errors;
 
-/**
- * Exception thrown when a folder is not found.
- */
+/** Exception thrown when a folder is not found. */
 public class FolderNotFoundException extends RestExceptionBase {
 
   private static final long serialVersionUID = -4398063672305185319L;

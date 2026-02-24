@@ -744,6 +744,52 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
   public static class CssPref extends AbstractUserPref {}
 
   /**
+   * Represents an individual <Resource> element in the widget definition XML.
+   *
+   * <p>This nested type used to be generated from PSWidgetDefinition.xsd in earlier branches; it
+   * was accidentally removed during refactoring and caused numerous "cannot find symbol Resource"
+   * compile errors.
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "")
+  public static class Resource {
+    @XmlAttribute(required = true)
+    protected String href;
+
+    @XmlAttribute(required = true)
+    protected String type;
+
+    @XmlAttribute protected String placement;
+
+    public String getHref() {
+      return href;
+    }
+
+    public void setHref(String value) {
+      this.href = value;
+    }
+
+    public String getType() {
+      return type;
+    }
+
+    public void setType(String value) {
+      this.type = value;
+    }
+
+    public String getPlacement() {
+      if (placement == null) {
+        return "head";
+      }
+      return placement;
+    }
+
+    public void setPlacement(String value) {
+      this.placement = value;
+    }
+  }
+
+  /**
    * Java class for anonymous complex type.
    *
    * <p>The following schema fragment specifies the expected content contained within this class.

@@ -6,7 +6,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%@page import="com.percussion.pso.utils.RxRequestUtils"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
-<%@page import="com.percussion.util.IPSHtmlParameters"%>
+<%@page import="com.percussion.system.utils.IPSHtmlParameters"%>
 <%@page import="com.percussion.webservices.content.IPSContentWs"%>
 <%@page import="com.percussion.webservices.content.PSContentWsLocator"%>
 <%@page import="java.util.List"%>
@@ -24,7 +24,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" href="/Rhythmyx/sys_resources/css/menupage.css" type="text/css" />		
+<link rel="stylesheet" href="/Rhythmyx/sys_resources/css/menupage.css" type="text/css" />
 <title>Child Test Page</title>
 </head>
 <body>
@@ -36,16 +36,16 @@
 	String field2 = "field2";
 	String binaryField = "binaryField";
 
-	IPSContentWs cws = PSContentWsLocator.getContentWebservice(); 
+	IPSContentWs cws = PSContentWsLocator.getContentWebservice();
 	IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
 
 	String user = RxRequestUtils.getUserName(request);
-	String rxsession = RxRequestUtils.getSessionId(request); 
-	String contentid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID); 
+	String rxsession = RxRequestUtils.getSessionId(request);
+	String contentid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
 	if(StringUtils.isNotBlank(contentid))
 	{
-	   
-	       IPSGuid guid = gmgr.makeGuid(new PSLocator(contentid));  
+
+	       IPSGuid guid = gmgr.makeGuid(new PSLocator(contentid));
 	       List glist = Collections.singletonList(guid);
 	       List slist = cws.prepareForEdit(glist, user);
 	       List clist = cws.loadItems(glist, true, false, false, false, rxsession, user);
@@ -55,18 +55,18 @@
 
 	       List childrenToSave = new ArrayList();
 
-	       List elist = cws.createChildEntries(itemGuid, childName, 1, rxsession, user); 
+	       List elist = cws.createChildEntries(itemGuid, childName, 1, rxsession, user);
 	       PSItemChildEntry entry = (PSItemChildEntry) elist.get(0);
 
 	       RxItemUtils.setFieldValue(entry, field1, "Nabeel");
 	       RxItemUtils.setFieldValue(entry, field2, "Saad");
 	       RxItemUtils.setFieldValue(entry, binaryField, "Saad");
 
-	       childrenToSave.add(entry); 
+	       childrenToSave.add(entry);
 
 	       if(childrenToSave.size() > 0 )
 	       {
-		  cws.saveChildEntries(itemGuid, childName, childrenToSave, rxsession, user);	       
+		  cws.saveChildEntries(itemGuid, childName, childrenToSave, rxsession, user);
 %>
 		  <p>Saved the child entry</p>
 <%
@@ -75,7 +75,7 @@
 	       try
 	       {
 	       	  PSItemStatus itemStatus = new PSItemStatus(Integer.parseInt(contentid));
-		  cws.releaseFromEdit(Collections.singletonList(itemStatus), false); 
+		  cws.releaseFromEdit(Collections.singletonList(itemStatus), false);
 %>
 		  <p>Released from edit...</p>
 <%
@@ -94,7 +94,7 @@
 %>
 		No content id available
 <%	}
-		
+
 
 %>
 	</body>

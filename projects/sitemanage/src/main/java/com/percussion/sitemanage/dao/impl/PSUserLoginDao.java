@@ -23,6 +23,7 @@ import com.percussion.auditlog.PSUserManagementEvent;
 import com.percussion.cms.IPSConstants;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.dao.IPSUserLoginDao;
 import com.percussion.user.data.PSUserLogin;
 import jakarta.persistence.EntityManager;
@@ -55,9 +56,10 @@ public class PSUserLoginDao implements IPSUserLoginDao {
   private PSUserManagementEvent psUserManagementEvent;
 
   /* (non-Javadoc)
-   * @see com.percussion.share.dao.IPSGenericDao#delete(java.io.Serializable)
+   * Legacy delete that used to be declared on IPSGenericDao.  The current
+   * interface now uses `remove` instead, so this method is kept for
+   * backward-compatibility and is **not** annotated with @Override.
    */
-  @Override
   public void delete(String name) throws IPSGenericDao.DeleteException {
     String emsg;
     var session = getSession();
@@ -82,6 +84,25 @@ public class PSUserLoginDao implements IPSUserLoginDao {
       throw new IPSGenericDao.DeleteException(emsg, he);
     } finally {
       session.flush();
+    }
+  }
+
+  // new methods to satisfy IPSGenericDao
+  @Override
+  public void remove(PSUserLogin object) throws PSDataServiceException {
+    if (object == null) {
+      throw new IllegalArgumentException("object must not be null");
+    }
+    remove(object.getUserid());
+  }
+
+  @Override
+  public void remove(String name) throws PSDataServiceException {
+    try {
+      delete(name);
+    } catch (IPSGenericDao.DeleteException e) {
+      // DeleteException is a PSDataServiceException subclass
+      throw e;
     }
   }
 

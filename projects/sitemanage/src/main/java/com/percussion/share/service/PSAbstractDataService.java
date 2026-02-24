@@ -65,7 +65,7 @@ public abstract class PSAbstractDataService<FULL, SUM, PK extends Serializable>
   public void delete(PK id) throws PSDataServiceException {
     validateIdParameter("delete", id);
     try {
-      getDao().delete(id);
+      getDao().remove(id);
     } catch (DeleteException e) {
       var error = format("Error deleting object: {0}", id);
       log.error("Error: {}", e.getMessage());

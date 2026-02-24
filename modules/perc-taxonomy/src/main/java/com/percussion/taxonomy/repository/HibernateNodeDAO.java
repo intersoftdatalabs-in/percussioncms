@@ -49,16 +49,16 @@ public class HibernateNodeDAO implements NodeDAO {
 
   private Object executeQuery(String queryString) {
     Session session = sessionFactory.getCurrentSession();
-    Query query = session.createQuery(queryString);
+    Query<?> query = session.createQuery(queryString, Object.class);
     return query.list();
   }
 
   private Object executeQuery(String queryString, Map<String, String> substitutions) {
     Session session = sessionFactory.getCurrentSession();
-    Query query = session.createQuery(queryString);
+    Query<?> query = session.createQuery(queryString, Object.class);
     if (substitutions != null) {
       for (Map.Entry<String, String> entry : substitutions.entrySet()) {
-        query.setText(entry.getKey(), entry.getValue());
+        query.setParameter(entry.getKey(), entry.getValue());
       }
     }
     return query.list();
@@ -66,7 +66,7 @@ public class HibernateNodeDAO implements NodeDAO {
 
   private void executeUpdate(String queryString) {
     Session session = sessionFactory.getCurrentSession();
-    Query query = session.createQuery(queryString);
+    Query<?> query = session.createQuery(queryString);
     query.executeUpdate();
   }
 
@@ -463,7 +463,7 @@ public class HibernateNodeDAO implements NodeDAO {
 
   public List<PSLocator> findItemsUsingNode(
       String table, String column, Node node, int maxItems, boolean remove) {
-    Session session = this.currentSession();
+    Session session = sessionFactory.getCurrentSession();
 
     List<PSLocator> locators = new ArrayList<PSLocator>();
     String testId = Integer.toString(node.getId());
@@ -477,17 +477,17 @@ public class HibernateNodeDAO implements NodeDAO {
                 + column
                 + " like '%"
                 + testId
-                + "%'");
+                + "%'",
+            Object[].class);
     if (maxItems > 0) query.setMaxResults(maxItems);
 
-    ScrollableResults<Object[]> rows =
-        query.setCacheMode(CacheMode.IGNORE).scroll(ScrollMode.FORWARD_ONLY);
+    var resultList = query.list();
     int updateCount = 0;
-    while (rows.next()) {
-      Object[] row = rows.get();
-      int id = (Integer.parseInt(row[0].toString()));
-      int revision = (Integer.parseInt(row[1].toString()));
-      String itemList = row[2].toString();
+    for (var row : resultList) {
+      Object[] rowArray = (Object[]) row;
+      int id = (Integer.parseInt(rowArray[0].toString()));
+      int revision = (Integer.parseInt(rowArray[1].toString()));
+      String itemList = rowArray[2].toString();
 
       String[] splitArray = StringUtils.split(itemList, " ,");
       List<String> splitList = new ArrayList<>(Arrays.asList(splitArray));

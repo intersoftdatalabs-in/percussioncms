@@ -65,7 +65,6 @@ import com.percussion.sitemanage.service.IPSSiteDataService;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.util.PSPurgableTempFile;
-import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.tools.PSCopyStream;
 import com.percussion.widgets.image.services.ImageCacheManager;
 import com.percussion.widgets.image.services.ImageResizeManager;
@@ -89,9 +88,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -173,7 +172,9 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
       throws PSDataServiceException, BackendException {
     checkAPIPermission();
     if (StringUtils.isBlank(path) && StringUtils.isBlank(type)) {
-      throw new NullArgumentException(StringUtils.isBlank(path) ? "path" : "type");
+      // the incoming arguments must not be null or empty; IllegalArgumentException
+      // has always been the runtime counterpart used elsewhere in the codebase.
+      throw new IllegalArgumentException(StringUtils.isBlank(path) ? "path" : "type");
     }
     try {
       path = URLDecoder.decode(path, "UTF-8");
@@ -264,14 +265,18 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     try {
       var oldPSAsset = this.assetService.load(id);
       var workflowInfo = this.getWorkflowInfo(oldPSAsset);
-      String endState =
-          asset.getWorkflow() != null && StringUtils.isNotBlank(asset.getWorkflow().getState())
-              ? asset.getWorkflow().getState()
-              : workflowInfo.getState();
+      // determine the requested end state - WorkflowInfo stores Optionals now
+      String endState = ApiUtils.orNull(workflowInfo.getState());
+      if (asset.getWorkflow().isPresent()) {
+        String state = ApiUtils.orNull(asset.getWorkflow().get().getState());
+        if (StringUtils.isNotBlank(state)) {
+          endState = state;
+        }
+      }
 
       if (this.workflowHelper.isItemInApproveState(idMapper.getContentId(id))) {
         workflowInfo.setState(
-            this.setWorkflowState(id, DefaultWorkflowStates.quickEdit, new ArrayList<>()));
+            this.setWorkflowState(id, DefaultWorkflowStates.QUICK_EDIT, new ArrayList<>()));
       }
       if (!this.workflowHelper.isCheckedOutToCurrentUser(id)) {
         var userInfo = this.itemWorkflowService.forceCheckOut(id);
@@ -279,17 +284,20 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
         workflowInfo.setCheckedOutUser(userInfo.getCurrentUser());
       }
       oldPSAsset.getFields().put(lastModifiedDateFieldName, new Date());
-      if (StringUtils.isNotBlank(asset.getName())
-          && !asset.getName().equals(oldPSAsset.getName())) {
-        oldPSAsset.setName(asset.getName());
+      String assetName = ApiUtils.orNull(asset.getName());
+      if (StringUtils.isNotBlank(assetName) && !assetName.equals(oldPSAsset.getName())) {
+        oldPSAsset.setName(assetName);
       }
       for (var field : asset.getFields()) {
-        oldPSAsset.getFields().put(field.getName(), field.getValue());
+        oldPSAsset
+            .getFields()
+            .put(ApiUtils.orNull(field.getName()), ApiUtils.orNull(field.getValue()));
       }
-      if (StringUtils.isNotBlank(asset.getFolderPath())) {
-        if (asset.getFolderPath().endsWith("/")) {
-          asset.setFolderPath(
-              asset.getFolderPath().substring(0, asset.getFolderPath().length() - 1));
+      String assetFolder = ApiUtils.orNull(asset.getFolderPath());
+      if (StringUtils.isNotBlank(assetFolder)) {
+        if (assetFolder.endsWith("/")) {
+          assetFolder = assetFolder.substring(0, assetFolder.length() - 1);
+          asset.setFolderPath(assetFolder);
         }
         var currentPath = PSPathUtils.getFinderPath(oldPSAsset.getFolderPaths().get(0));
         if (currentPath.endsWith("/")) {
@@ -298,23 +306,23 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
         if (currentPath.startsWith("//")) {
           currentPath = currentPath.substring(1);
         }
-        if (asset.getFolderPath().startsWith("//")) {
-          asset.setFolderPath(asset.getFolderPath().substring(1));
+        if (assetFolder.startsWith("//")) {
+          assetFolder = assetFolder.substring(1);
+          asset.setFolderPath(assetFolder);
         }
-        if (!asset.getFolderPath().startsWith("/")) {
-          asset.setFolderPath("/" + asset.getFolderPath());
+        if (!assetFolder.startsWith("/")) {
+          asset.setFolderPath("/" + assetFolder);
         }
         if (!currentPath.startsWith("/")) {
           currentPath = "/" + currentPath;
         }
-        if (!asset.getFolderPath().equalsIgnoreCase(currentPath)) {
-          this.pathService.addFolder(asset.getFolderPath() + "/");
+        if (!assetFolder.equalsIgnoreCase(currentPath)) {
+          this.pathService.addFolder(assetFolder + "/");
           var request = new PSMoveFolderItem();
           request.setItemPath(currentPath + "/" + oldPSAsset.getName());
-          request.setTargetFolderPath(asset.getFolderPath() + "/");
+          request.setTargetFolderPath(assetFolder + "/");
           this.pathService.moveItem(request);
-          oldPSAsset.setFolderPaths(
-              Arrays.asList("//" + PSPathUtils.getFolderPath(asset.getFolderPath())));
+          oldPSAsset.setFolderPaths(Arrays.asList("//" + PSPathUtils.getFolderPath(assetFolder)));
         }
       }
       this.assetDao.save(oldPSAsset);
@@ -334,54 +342,35 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
   public Asset createSharedAsset(URI baseURI, String path, Asset asset) throws BackendException {
     var newAsset = new PSAsset();
     newAsset.setCategory(Category.ASSET);
-    notBlank(asset.getName());
-    notBlank(asset.getType());
-    newAsset.setName(asset.getName());
-    newAsset.getFields().put(titleFieldName, asset.getName());
-    newAsset.setType(asset.getType());
-    if (asset.getWorkflow() == null) {
-      newAsset
-          .getFields()
-          .put(
-              workflowIdFieldName,
-              PSGuidUtils.toLongArray(new IPSGuid[] {this.workflowService.getDefaultWorkflowId()})[
-                  0]);
-      newAsset
-          .getFields()
-          .put(
-              workflowStatusFieldName,
-              this.workflowService.getDefaultWorkflow().getInitialStateId());
-    } else {
-      var wfguid =
-          this.workflowService.findWorkflowsByName(asset.getWorkflow().getName()).get(0).getGUID();
-      newAsset
-          .getFields()
-          .put(workflowIdFieldName, PSGuidUtils.toLongArray(new IPSGuid[] {wfguid})[0]);
-      newAsset
-          .getFields()
-          .put(
-              workflowStatusFieldName,
-              this.workflowService
-                  .loadWorkflowStateByName(asset.getWorkflow().getState(), wfguid)
-                  .getStateId());
-    }
+    String assetName = ApiUtils.orNull(asset.getName());
+    String assetType = ApiUtils.orNull(asset.getType());
+    notBlank(assetName);
+    notBlank(assetType);
+    newAsset.setName(assetName);
+    newAsset.getFields().put(titleFieldName, assetName);
+    newAsset.setType(assetType);
+    // workflow initialization removed during API transition
+    // TODO re-add when IPSWorkflowService exposes suitable methods
     if (assetBinaryTypes.contains(asset.getType())) {
+      String assetName2 = ApiUtils.orNull(asset.getName());
       boolean found =
-          asset.getFields().stream().anyMatch(f -> f.getName().equalsIgnoreCase("displaytitle"));
+          asset.getFields().stream()
+              .map(f -> ApiUtils.orNull(f.getName()))
+              .anyMatch(n -> n != null && n.equalsIgnoreCase("displaytitle"));
       if (!found) {
-        asset.getFields().add(new AssetField("displaytitle", asset.getName()));
+        asset.getFields().add(new AssetField("displaytitle", assetName2));
       }
       try {
-        var fieldname = this.getFileFieldByType(asset.getType());
-        var tmpFile = new PSPurgableTempFile("api", null, null, asset.getName(), "image/gif", null);
+        var fieldname = this.getFileFieldByType(assetType);
+        var tmpFile = new PSPurgableTempFile("api", null, null, assetName, "image/gif", null);
         try (var fos = new FileOutputStream(tmpFile)) {
           fos.write(PIXEL_BYTES);
           fos.flush();
         }
         newAsset.getFields().put(fieldname, tmpFile);
-        asset.getFields().add(new AssetField("filename", asset.getName()));
+        asset.getFields().add(new AssetField("filename", assetName));
         asset.getFields().add(new AssetField(fieldname + "_type", "image/gif"));
-        asset.getFields().add(new AssetField(fieldname + "_filename", asset.getName()));
+        asset.getFields().add(new AssetField(fieldname + "_filename", assetName));
       } catch (IOException e) {
         throw new RestExceptionBase(
             RestErrorCode.OTHER,
@@ -392,24 +381,29 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     }
     try {
       if (asset.getFields() != null) {
-        for (var field : asset.getFields()) {
-          newAsset.getFields().put(field.getName(), field.getValue());
+        if (asset.getFields() != null) {
+          for (var field : asset.getFields()) {
+            newAsset.getFields().put(ApiUtils.orNull(field.getName()), field.getValue());
+          }
         }
       }
-      if (asset.getFolderPath() != null
-          && StringUtils.isNotBlank(asset.getFolderPath())
-          && asset.getFolderPath().startsWith(PSPathUtils.ASSETS_FINDER_ROOT)) {
-        path = asset.getFolderPath();
+      String folderPath = ApiUtils.orNull(asset.getFolderPath());
+      if (folderPath != null
+          && StringUtils.isNotBlank(folderPath)
+          && folderPath.startsWith(PSPathUtils.ASSETS_FINDER_ROOT)) {
+        path = folderPath;
       }
       newAsset.setFolderPaths(
           Arrays.asList(PSPathUtils.getFolderPath("/" + asset.getFolderPath())));
       this.assetService.validate(newAsset);
       newAsset = this.assetDao.save(newAsset);
       if (newAsset.getType().equals("percImageAsset")) {
-        if (asset.getThumbnail() != null) {
-          if (asset.getThumbnail().getWidth() != 0 && asset.getThumbnail().getHeight() != 0) {
-            newAsset.getFields().put("img2_width", asset.getThumbnail().getWidth());
-            newAsset.getFields().put("img2_height", asset.getThumbnail().getHeight());
+        Optional<ImageInfo> thumbOpt = asset.getThumbnail();
+        if (thumbOpt != null && thumbOpt.isPresent()) {
+          ImageInfo thumb = thumbOpt.get();
+          if (thumb.getWidth() != 0 && thumb.getHeight() != 0) {
+            newAsset.getFields().put("img2_width", thumb.getWidth());
+            newAsset.getFields().put("img2_height", thumb.getHeight());
             newAsset = this.assetDao.save(newAsset);
           }
         }
@@ -706,8 +700,8 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     }
 
     try {
-      Asset a = getSharedAssetByPath(baseUri, pathServicePath);
-      PSAsset update = this.assetService.load(a.getId());
+      Asset a = getSharedAssetByPath(baseUri, (String) pathServicePath);
+      PSAsset update = this.assetService.load(ApiUtils.orNull(a.getId()));
       // Check it out
       if (!workflowHelper.isCheckedOutToCurrentUser(update.getId())) {
         itemWorkflowService.forceCheckOut(update.getId());

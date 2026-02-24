@@ -19,28 +19,43 @@ package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Node_editor;
 import java.util.Collection;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class HibernateNode_editorDAO extends HibernateDaoSupport implements Node_editorDAO {
+@Repository
+@Transactional
+public class HibernateNode_editorDAO implements Node_editorDAO {
+
+  @Autowired private SessionFactory sessionFactory;
 
   public Node_editor getNode_editor(int id) {
-    return (Node_editor) getHibernateTemplate().get(Node_editor.class, new Integer(id));
+    Session session = sessionFactory.getCurrentSession();
+    return session.get(Node_editor.class, id);
   }
 
-  public Collection getAllNode_editors() {
-    // Optional: Add order by to query
-    return getHibernateTemplate().find("from Node_editor nod");
+  @SuppressWarnings("unchecked")
+  public Collection<Node_editor> getAllNode_editors() {
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Node_editor>) (Collection<?>) session.createQuery("from Node_editor nod", Node_editor.class).list();
   }
 
   public void saveNode_editor(Node_editor node_editor) {
-    getHibernateTemplate().saveOrUpdate(node_editor);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(node_editor);
   }
 
   public void removeNode_editor(Node_editor node_editor) {
-    getHibernateTemplate().delete(node_editor);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(node_editor);
   }
 
   public void removeNode_editors(Collection<Node_editor> node_editors) {
-    getHibernateTemplate().deleteAll(node_editors);
+    Session session = sessionFactory.getCurrentSession();
+    for (Node_editor editor : node_editors) {
+      session.remove(editor);
+    }
   }
 }

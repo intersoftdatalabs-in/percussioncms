@@ -16,8 +16,8 @@
  */
 package com.percussion.user.data;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.percussion.test.TestAssertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSDataObjectTestCase;

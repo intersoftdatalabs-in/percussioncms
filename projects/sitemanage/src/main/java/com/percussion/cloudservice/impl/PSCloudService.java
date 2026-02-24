@@ -123,7 +123,7 @@ public class PSCloudService implements IPSCloudService {
     }
     var info = new PSCloudServiceInfo();
     info.setClientIdentity(generateClientIdentity(poLic));
-    info.setUiProvider(StringUtils.defaultString(poLic.getUiProvider()));
+    info.setUiProvider(StringUtils.defaultString(poLic.getUiProvider().orElse(null)));
     return info;
   }
 
@@ -144,7 +144,7 @@ public class PSCloudService implements IPSCloudService {
     }
     var info = new PSCloudServiceInfo();
     info.setClientIdentity(generateClientIdentity(poLic));
-    info.setUiProvider(StringUtils.defaultString(poLic.getUiProvider()));
+    info.setUiProvider(StringUtils.defaultString(poLic.getUiProvider().orElse(null)));
     return info;
   }
 

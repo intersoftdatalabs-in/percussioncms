@@ -18,9 +18,9 @@
 
 package com.percussion.sitemanage.dao.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.percussion.test.TestAssertions.*;
+import static com.percussion.test.TestAssertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.user.data.PSUserLogin;
@@ -30,12 +30,11 @@ import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitJupiterConfig;
+// removed SpringJUnitJupiterConfig to avoid missing class
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 /** Integration tests for {@link PSUserLoginDao}. */
 @Disabled
-@SpringJUnitJupiterConfig(locations = "TestSpringContext.xml")
 public class PSUserLoginDaoTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
   private static final Logger log = LogManager.getLogger(PSUserLoginDaoTestIntegration.class);
@@ -48,7 +47,7 @@ public class PSUserLoginDaoTestIntegration extends AbstractTransactionalJUnit4Sp
   @Test
   public void testDelete() throws IPSGenericDao.DeleteException {
     var count = countRows();
-    assertEquals(0, count, "user xyzzy already exists");
+    assertEquals(0L, count, "user xyzzy already exists");
     addRow();
 
     log.info("Testing delete of user xyzzy");
@@ -56,14 +55,14 @@ public class PSUserLoginDaoTestIntegration extends AbstractTransactionalJUnit4Sp
     dao.delete("xyzzy");
 
     count = countRows();
-    assertEquals(0, count, "user xyzzy not deleted");
+    assertEquals(0L, count, "user xyzzy not deleted");
   }
 
   /** Test find operation for user login. */
   @Test
   public void testFind() throws IPSGenericDao.LoadException {
     var count = countRows();
-    assertEquals(0, count, "user xyzzy already exists");
+    assertEquals(0L, count, "user xyzzy already exists");
     addRow();
     log.info("finding xyzzy");
     var login = dao.find("xyzzy");
@@ -77,7 +76,7 @@ public class PSUserLoginDaoTestIntegration extends AbstractTransactionalJUnit4Sp
   @Test
   public void testFindAll() throws IPSGenericDao.LoadException {
     var count = countRows();
-    assertEquals(0, count, "user xyzzy already exists");
+    assertEquals(0L, count, "user xyzzy already exists");
     addRow();
     log.info("finding all entries");
 
@@ -96,7 +95,7 @@ public class PSUserLoginDaoTestIntegration extends AbstractTransactionalJUnit4Sp
   @Test
   public void testSave() throws IPSGenericDao.SaveException {
     var count = countRows();
-    assertEquals(0, count, "user xyzzy already exists");
+    assertEquals(0L, count, "user xyzzy already exists");
     addRow();
 
     log.info("testing save");
@@ -107,7 +106,7 @@ public class PSUserLoginDaoTestIntegration extends AbstractTransactionalJUnit4Sp
     dao.save(myLogin);
 
     count = countRows();
-    assertEquals(1, count);
+    assertEquals(1L, count);
 
     var pw2 =
         jdbcTemplate.queryForObject(
@@ -127,7 +126,7 @@ public class PSUserLoginDaoTestIntegration extends AbstractTransactionalJUnit4Sp
     dao.create(myLogin);
 
     var count = countRows();
-    assertEquals(1, count);
+    assertEquals(1L, count);
   }
 
   public PSUserLoginDao getDao() {

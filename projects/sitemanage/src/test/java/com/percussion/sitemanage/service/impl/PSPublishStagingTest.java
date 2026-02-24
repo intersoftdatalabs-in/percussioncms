@@ -17,7 +17,7 @@
 
 package com.percussion.sitemanage.service.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.metadata.data.PSMetadata;
 import com.percussion.metadata.service.IPSMetadataService;

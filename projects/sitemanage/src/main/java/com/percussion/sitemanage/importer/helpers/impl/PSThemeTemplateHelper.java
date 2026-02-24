@@ -90,7 +90,7 @@ public class PSThemeTemplateHelper extends PSImportHelper {
     logger = context.getLogger();
     PSThemeSummary themeSummary = null;
     String templateId = null;
-    var siteName = context.getSite().getName();
+    var siteName = context.getSite().map(s -> s.getName()).orElse("");
     var siteSummary = siteDao.findSummary(siteName);
 
     PSPage homePage = null;

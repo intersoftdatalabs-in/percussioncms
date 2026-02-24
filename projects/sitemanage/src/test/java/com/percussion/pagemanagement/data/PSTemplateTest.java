@@ -5,7 +5,7 @@
  */
 package com.percussion.pagemanagement.data;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

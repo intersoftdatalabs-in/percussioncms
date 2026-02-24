@@ -35,13 +35,13 @@ public class PSPageOptimizerData extends PSCloudServicePageData {
 
   public void setPageOptimizerUrl(String pageOptimizerUrl) {
     this.pageOptimizerUrl = pageOptimizerUrl;
-    this.uiProviderUrl = pageOptimizerUrl;
+    super.setUiProviderUrl(pageOptimizerUrl);
   }
 
   @Override
   public void setUiProviderUrl(String uiProviderUrl) {
     this.pageOptimizerUrl = uiProviderUrl;
-    this.uiProviderUrl = uiProviderUrl;
+    super.setUiProviderUrl(uiProviderUrl);
   }
 
   /**

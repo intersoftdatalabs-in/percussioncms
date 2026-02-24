@@ -27,6 +27,7 @@
 package com.percussion.content.data;
 
 import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(

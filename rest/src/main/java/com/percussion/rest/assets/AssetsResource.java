@@ -497,7 +497,8 @@ public class AssetsResource {
       var currentUser = (String) PSRequestInfoBase.getRequestInfo(PSRequestInfo.KEY_USER);
       var user = userAdaptor.getUser(null, currentUser);
       var toAddress = user.getEmailAddress().orElse(null);
-      CompletableFuture.runAsync(() -> {
+      CompletableFuture.runAsync(
+          () -> {
             try {
               if (!PSRequestInfoBase.isInited()) {
                 PSRequestInfoBase.initRequestInfo(requestThreadMap);

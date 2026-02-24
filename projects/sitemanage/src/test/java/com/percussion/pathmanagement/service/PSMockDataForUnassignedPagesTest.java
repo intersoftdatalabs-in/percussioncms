@@ -20,7 +20,7 @@ package com.percussion.pathmanagement.service;
 import static com.percussion.pagemanagement.service.impl.PSMockDataForUnassignedPages.INC_COUNT;
 import static com.percussion.pagemanagement.service.impl.PSMockDataForUnassignedPages.MAX_COUNT;
 import static com.percussion.pagemanagement.service.impl.PSMockDataForUnassignedPages.TRY_COUNT;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.pagemanagement.service.impl.PSMockDataForUnassignedPages;
 import org.junit.jupiter.api.Test;

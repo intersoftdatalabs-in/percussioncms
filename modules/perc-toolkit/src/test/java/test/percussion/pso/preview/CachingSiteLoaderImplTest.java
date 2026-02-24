@@ -33,58 +33,46 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class CachingSiteLoaderImplTest {
   private static final Logger log = LogManager.getLogger(CachingSiteLoaderImplTest.class);
 
   private CachingSiteLoaderImpl cut;
 
-  Mockery context;
-
+  @Mock
   IPSSiteManager siteMgr;
 
   public CachingSiteLoaderImplTest() {}
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     cut = new CachingSiteLoaderImpl();
-    context = new Mockery();
-    siteMgr = context.mock(IPSSiteManager.class);
     CachingSiteLoaderImpl.setSiteMgr(siteMgr);
   }
 
   @Test
-  public final void testFindAllSites() {
+  public final void testFindAllSites() throws Exception {
     cut.setSiteReloadDelay(0L);
-    final IPSSite site1 = context.mock(IPSSite.class);
-    final List<IPSSite> sites = new ArrayList<IPSSite>();
+    final IPSSite site1 = mock(IPSSite.class);
+    final List<IPSSite> sites = new ArrayList<>();
     sites.add(site1);
 
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(siteMgr).findAllSites();
-              will(returnValue(sites));
-            }
-          });
+    when(siteMgr.findAllSites()).thenReturn(sites);
 
-      cut.afterPropertiesSet();
+    cut.afterPropertiesSet();
 
-      List<IPSSite> results = cut.findAllSites();
-      assertNotNull(results);
-      assertEquals(1, results.size());
-      assertEquals(site1, results.get(0));
+    List<IPSSite> results = cut.findAllSites();
+    assertNotNull(results);
+    assertEquals(1, results.size());
+    assertEquals(site1, results.get(0));
 
-      context.assertIsSatisfied();
-
-    } catch (Exception ex) {
-      log.error("Unexpected Exception " + ex, ex);
-      fail("Exception");
-    }
+    verify(siteMgr).findAllSites();
   }
 }

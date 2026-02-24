@@ -212,7 +212,7 @@ public class PSTemplateService implements IPSTemplateService {
       }
     }
     pageDaoHelper.replaceTemplateForPageInOlderRevisions(id);
-    templateDao.delete(id);
+    templateDao.remove(id);
   }
 
   private boolean isAssociatedToBlogs(String templateId)
@@ -377,14 +377,15 @@ public class PSTemplateService implements IPSTemplateService {
   }
 
   private Map<String, String> getWidgetIdsToNameMap(List<PSWidgetItem> list) {
-    return list.stream().collect(Collectors.toMap(PSWidgetItem::getId, PSWidgetItem::getName));
+    return list.stream()
+        .collect(Collectors.toMap(PSWidgetItem::getId, w -> w.getName().orElse("")));
   }
 
   private void checkDuplicatedNames(PSRegionTree region) throws DataServiceSaveException {
     var widgetNames = new HashSet<String>();
     for (var regionWidget : region.getRegionWidgetAssociations()) {
       for (var widgetItem : regionWidget.getWidgetItems()) {
-        var name = widgetItem.getName();
+        var name = widgetItem.getName().orElse("");
         if (!isBlank(name) && !widgetNames.add(name)) {
           throw new DataServiceSaveException(
               "Widget name '" + name + "' is already in use. Please use another name.");

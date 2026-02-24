@@ -37,24 +37,25 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * @author DavidBenua
  */
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class PSOSlotContentsTest {
   private static final Logger log = LogManager.getLogger(PSOSlotContentsTest.class);
 
-  JUnit4Mockery mocks =
-      new JUnit4Mockery() {
-        {
-          setImposteriser(ClassImposteriser.INSTANCE);
-        }
-      };
+  // using Mockito mocks in place of JMock context
 
   private List<PSAaRelationship> rels = new ArrayList<PSAaRelationship>();
 
@@ -62,19 +63,29 @@ public class PSOSlotContentsTest {
   IPSTemplateSlot otherSlot;
   IPSAssemblyTemplate template;
 
+  @Mock
+  IPSContentWs cws;
+  @Mock
+  IPSGuidManager gmgr;
+  @Mock
+  PSAaRelationship rel1;
+  @Mock
+  PSAaRelationship rel2;
+  @Mock
+  PSAaRelationship rel3;
+  @Mock
+  PSAaRelationship rel4;
+
   /**
    * @param name
    */
-  public PSOSlotContentsTest(String name) {
-    super(name);
-  }
 
   /**
    * @see junit.framework.TestCase#setUp()
    */
-  @Before
+  @BeforeEach
   protected void setUp() throws Exception {
-    super.setUp();
+    // nothing special: mocks created by MockitoExtension
   }
 
   /** Test method for {@link com.percussion.pso.utils.PSOSlotContents#PSOSlotContents()}. */
@@ -87,47 +98,23 @@ public class PSOSlotContentsTest {
     final IPSGuid slot1 = new PSLegacyGuid(1L);
     final IPSGuid slot2 = new PSLegacyGuid(2L);
 
-    final PSAaRelationship rel1 = mocks.mock(PSAaRelationship.class, "rel1");
-    final PSAaRelationship rel2 = mocks.mock(PSAaRelationship.class, "rel2");
-    final PSAaRelationship rel3 = mocks.mock(PSAaRelationship.class, "rel3");
-    final PSAaRelationship rel4 = mocks.mock(PSAaRelationship.class, "rel4");
-
     rels.add(rel1);
     rels.add(rel2);
     rels.add(rel3);
     rels.add(rel4);
 
-    final IPSContentWs cws = mocks.mock(IPSContentWs.class, "cws");
-    final IPSGuidManager gmgr = mocks.mock(IPSGuidManager.class, "gmgr");
-
     try {
-      mocks.checking(
-          new Expectations() {
-            {
-              atLeast(1)
-                  .of(cws)
-                  .loadContentRelations(with(any(PSRelationshipFilter.class)), with(equal(true)));
-              will(returnValue(rels));
-              ignoring(gmgr).makeLocator(with(any(IPSGuid.class)));
-              will(returnValue(parent));
-              atLeast(1).of(rel1).getSlotId();
-              will(returnValue(slot1));
-              atLeast(1).of(rel2).getSlotId();
-              will(returnValue(slot2));
-              atLeast(1).of(rel3).getSlotId();
-              will(returnValue(slot1));
-              atLeast(1).of(rel4).getSlotId();
-              will(returnValue(slot1));
-              atLeast(1).of(rel1).getSortRank();
-              will(returnValue(3));
-              atLeast(1).of(rel2).getSortRank();
-              will(returnValue(1));
-              atLeast(1).of(rel3).getSortRank();
-              will(returnValue(2));
-              atLeast(1).of(rel4).getSortRank();
-              will(returnValue(1));
-            }
-          });
+      when(cws.loadContentRelations(any(PSRelationshipFilter.class), eq(true)))
+          .thenReturn(rels);
+      when(gmgr.makeLocator(any(IPSGuid.class))).thenReturn(parent);
+      when(rel1.getSlotId()).thenReturn(slot1);
+      when(rel2.getSlotId()).thenReturn(slot2);
+      when(rel3.getSlotId()).thenReturn(slot1);
+      when(rel4.getSlotId()).thenReturn(slot1);
+      when(rel1.getSortRank()).thenReturn(3);
+      when(rel2.getSortRank()).thenReturn(1);
+      when(rel3.getSortRank()).thenReturn(2);
+      when(rel4.getSortRank()).thenReturn(1);
 
       contents.setCws(cws);
       contents.setGmgr(gmgr);

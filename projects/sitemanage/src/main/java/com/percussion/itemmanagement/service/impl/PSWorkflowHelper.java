@@ -67,6 +67,7 @@ import com.percussion.services.workflow.data.PSTransitionRole;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.IPSIdMapper;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSWebserviceUtils;
@@ -691,7 +692,7 @@ public class PSWorkflowHelper implements IPSWorkflowHelper {
           changeEvent.setContentId(assetId);
           changeEvent.setSiteId(site.getSiteId());
           changeService.contentChanged(changeEvent);
-        } catch (IPSGenericDao.SaveException e) {
+        } catch (PSDataServiceException e) {
           log.error(
               "An error occurred while adding asset to incremental queue item id: {}. Error: {}",
               assetId,

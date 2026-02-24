@@ -49,8 +49,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class PSORevisionCorrectingItemFilterTest {
 
   private static final Logger log = LogManager.getLogger(PSORevisionCorrectingItemFilterTest.class);
@@ -96,6 +99,9 @@ public class PSORevisionCorrectingItemFilterTest {
       when(item.clone(any(IPSGuid.class))).thenReturn(item2);
       when(work.loadWorkflowState(workflowStateGuid, workflowAppGuid)).thenReturn(state);
       when(state.getName()).thenReturn("fee");
+      // ensure makeGuid calls produce the GUIDs we expect for workflow and state
+      when(gmgr.makeGuid(4, PSTypeEnum.WORKFLOW)).thenReturn(workflowAppGuid);
+      when(gmgr.makeGuid(5, PSTypeEnum.WORKFLOW_STATE)).thenReturn(workflowStateGuid);
       when(summary.getCurrentLocator()).thenReturn(badLocator);
       when(gmgr.makeGuid(badLocator)).thenReturn(correctedGuid);
       when(item2.getItemId()).thenReturn(correctedGuid);

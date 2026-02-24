@@ -19,29 +19,29 @@ package com.percussion.services.assembly.impl.finder;
 
 import com.percussion.services.assembly.impl.finder.PSContentFinderBase.ContentItem;
 import com.percussion.services.assembly.impl.finder.PSContentFinderBase.ContentItemOrder;
-import com.percussion.services.filter.IPSFilterItem;
 import com.percussion.utils.guid.IPSGuid;
-import org.jmock.Expectations;
-
-import org.jmock.Mockery;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 /**
- * Unit test class for 
+ * Unit test class for
  * com.percussion.services.assembly.impl.finder.PSBaseSlotContentFinder.SlotItemOrder
  */
 
+@ExtendWith(MockitoExtension.class)
 public class PSSlotItemOrderTest
 {
-    Mockery context = new Mockery();;
+    // Mockito will be used directly; no JMock context
 
    /**
-    * Tests SlotItemOrder.compare() with variously configured 
+    * Tests SlotItemOrder.compare() with variously configured
     * <code>SlotItem</code>s.
     */
    @Test
@@ -51,87 +51,42 @@ public class PSSlotItemOrderTest
       Comparator<ContentItem> c = new ContentItemOrder();
       int result;
 
-      IPSGuid itemId = context.mock(IPSGuid.class,"itemId");
-      IPSGuid templateId = context.mock(IPSGuid.class, "templateId");
+      IPSGuid itemId = mock(IPSGuid.class);
+      IPSGuid templateId = mock(IPSGuid.class);
 
-     
       // #1: check with valid sort ranks
-       ContentItem item1 = (ContentItem) context.mock(IPSFilterItem.class,"item1");
-      item1.setItemId(itemId);
-      item1.setTemplate(templateId);
-      item1.setSortrank(1);
+      ContentItem item1 = new ContentItem(itemId, templateId, 1);
+      ContentItem item2 = new ContentItem(itemId, templateId, 2);
 
-       ContentItem item2 = (ContentItem)context.mock(IPSFilterItem.class, "item2");
-      item2.setSortrank(2);
-      item2.setTemplate(templateId);
-      item2.setItemId(itemId);
-
-      context.checking(new Expectations() {
-          {
-              never (item1);
-          }
-
-      });
-      //itemId.expects(never());
       result = c.compare(item1, item2);
       assertTrue(result < 0);
       result = c.compare(item2, item1);
       assertTrue(result > 0);
-      context.assertIsSatisfied();
-     
+
       // #2: equal sort ranks, no relationship ids = should use item id
       item1.setSortrank(0);
       item2.setSortrank(0);
 
-      context.checking(new Expectations() {
-           {
-               atLeast(1).of(itemId).longValue(); will(onConsecutiveCalls(returnValue((long)1), returnValue((long)2)));
-
-           }
-
-       });
-
-      result = c.compare(item1, item2);;
-      assertTrue(result<0);
-      context.assertIsSatisfied();
-
-      
-      // #3: equal sort ranks, only one relationship id = should use item id
-       IPSGuid relationshipId = context.mock(IPSGuid.class,"relationshipId");
-
-
-
-      item1.setRelationshipId((IPSGuid)relationshipId);
-
-       context.checking(new Expectations() {
-           {
-               never(relationshipId);
-               atLeast(1).of(itemId).longValue(); will(onConsecutiveCalls(returnValue((long)1), returnValue((long)2)));
-           }
-
-       });
-
+      when(itemId.longValue()).thenReturn(1L, 2L);
 
       result = c.compare(item1, item2);
       assertTrue(result < 0);
-      context.assertIsSatisfied();
+
+      // #3: equal sort ranks, only one relationship id = should use item id
+      IPSGuid relationshipId = mock(IPSGuid.class);
+      item1.setRelationshipId(relationshipId);
+      // itemId stub already returns 1 then 2 again
+      when(itemId.longValue()).thenReturn(1L, 2L);
+
+      result = c.compare(item1, item2);
+      assertTrue(result < 0);
 
       // #4: equal sort ranks, both relationship id = should use relationship id
       item2.setRelationshipId(relationshipId);
+      when(relationshipId.longValue()).thenReturn(20L, 10L);
 
-       context.checking(new Expectations() {
-           {
-
-               atLeast(1).of(relationshipId).longValue(); will(onConsecutiveCalls(returnValue((long)20), returnValue((long)10)));
-               never(itemId);
-           }
-
-       });
-
-       result = c.compare(item1, item2);
-       assertTrue(result > 0);
-        context.assertIsSatisfied();
-
+      result = c.compare(item1, item2);
+      assertTrue(result > 0);
    }
-   
+
 }

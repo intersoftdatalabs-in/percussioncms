@@ -11,6 +11,10 @@
 	<property name="perc.java.home" value="${install.dir}/JRE" />
 	<property name="perc.dts.backup"
 		value="${install.dir}/PreInstall/Backups" />
+	<property name="perc.db.type" value="derby" />
+	<property name="perc.db.ssl.enabled" value="true" />
+	<property name="perc.db.ssl.verify" value="true" />
+	<property name="perc.db.ssl.allowSelfSigned" value="false" />
 
 	<echo>Setting up TaskDefs</echo>
 	<path id="ant.deps" cache="true">
@@ -982,6 +986,32 @@
 
 				</else>
 			</if>
+			<if>
+				<and>
+					<isfalse value="@{upgrade}" />
+					<available
+						file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.properties" />
+					<not>
+						<equals arg1="${perc.db.type}" arg2="derby" casesensitive="false" />
+					</not>
+				</and>
+				<then>
+					<echo>Applying DTS datasource configuration for ${perc.db.type}...</echo>
+					<propertyfile
+						file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.properties">
+						<entry key="db.username" value="${perc.db.user}" />
+						<entry key="db.password" value="${perc.db.password}" />
+						<entry key="db.schema" value="${perc.db.dts.schema}" />
+						<entry key="jdbcDriver" value="${perc.db.dts.jdbcDriver}" />
+						<entry key="jdbcUrl" value="${perc.db.dts.jdbcUrl}" />
+						<entry key="hibernate.dialect" value="${perc.db.dts.hibernateDialect}" />
+						<entry key="db.ssl.enabled" value="${perc.db.ssl.enabled}" />
+						<entry key="db.ssl.verify" value="${perc.db.ssl.verify}" />
+						<entry key="db.ssl.allowSelfSigned" value="${perc.db.ssl.allowSelfSigned}" />
+					</propertyfile>
+				</then>
+			</if>
+
 			<!-- Updating hibernate.dialect for MySql -->
 			<echo>Updating hibernate.dialect </echo>
 			<if>

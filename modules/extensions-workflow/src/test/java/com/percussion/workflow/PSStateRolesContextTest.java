@@ -21,10 +21,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Tag;
 
 /** The PSStateRolesContextTest class is a test class for the class StateRolesContext. */
-
 public class PSStateRolesContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSStateRolesContextTest.class);

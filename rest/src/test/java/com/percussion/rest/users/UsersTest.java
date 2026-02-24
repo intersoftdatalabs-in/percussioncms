@@ -22,9 +22,7 @@ package com.percussion.rest.users;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.rest.MainTest;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 
 public class UsersTest extends MainTest {
 

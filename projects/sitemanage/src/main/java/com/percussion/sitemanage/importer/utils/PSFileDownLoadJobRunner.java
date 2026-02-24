@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.Validate;
 
 /** Executes a file download job, optionally creating an asset. */
@@ -152,7 +153,7 @@ public class PSFileDownLoadJobRunner implements Runnable {
         connection.setConnectTimeout(timeout);
         connection.setReadTimeout(timeout);
         stream = connection.getInputStream();
-        copyInputStreamToFile(stream, file);
+        FileUtils.copyInputStreamToFile(stream, file);
         returnStatus = true;
       }
     } catch (Exception e) {
@@ -256,7 +257,7 @@ public class PSFileDownLoadJobRunner implements Runnable {
     Validate.notNull(logger);
 
     boolean success = true;
-    if (isEmpty(results) || logger == null) {
+    if (results.isEmpty() || logger == null) {
       return success;
     }
 

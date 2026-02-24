@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class RxItemUtilsTest {
   private static final Logger log = LogManager.getLogger(RxItemUtilsTest.class);
 
+
   @Test
   public final void testIsBinaryFieldTrue() {
     IPSItemAccessor item = mock(IPSItemAccessor.class);
@@ -71,26 +72,17 @@ public class RxItemUtilsTest {
 
   @Test
   public final void testGetFieldBinary() {
-    final IPSItemAccessor item = context.mock(IPSItemAccessor.class);
-    final PSItemField fld = context.mock(PSItemField.class);
-    final PSBinaryValue value = context.mock(PSBinaryValue.class);
+    final IPSItemAccessor item = mock(IPSItemAccessor.class);
+    final PSItemField fld = mock(PSItemField.class);
+    final PSBinaryValue value = mock(PSBinaryValue.class);
     final byte[] myArray = new byte[100];
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(item).getFieldByName("a");
-              will(returnValue(fld));
-              one(fld).getValue();
-              will(returnValue(value));
-              one(value).getValue();
-              will(returnValue(myArray));
-            }
-          });
+      when(item.getFieldByName("a")).thenReturn(fld);
+      when(fld.getValue()).thenReturn(value);
+      when(value.getValue()).thenReturn(myArray);
 
       Object o = RxItemUtils.getFieldBinary(item, "a");
       assertNotNull(o);
-      context.assertIsSatisfied();
     } catch (PSCmsException ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("exception");

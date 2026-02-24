@@ -257,8 +257,8 @@ public class PSSitePublishServiceWebAdapter {
         if (item.getRelationshipId() != null) {
           PSRelationship relationship = null;
           try {
-            relationship =
-                relsvc.loadRelationship(idMapper.getGuid(item.getRelationshipId()).getUUID());
+            relationship = relsvc.loadRelationship(idMapper.getGuid(item.getRelationshipId()).getUUID()).orElse(null);
+
 
             if (relationship.isInlineRelationship()) {
               var filter = new PSRelationshipFilter();
@@ -298,7 +298,7 @@ public class PSSitePublishServiceWebAdapter {
           try {
             changeEvent.setSiteId(siteIds.get(0).getSiteId());
             changeSvc.contentChanged(changeEvent);
-          } catch (IPSGenericDao.SaveException e) {
+          } catch (PSDataServiceException e) {
             log.warn(
                 "Error creating change event for takedown change. Error: {}",
                 PSExceptionUtils.getMessageForLog(e));

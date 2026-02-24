@@ -17,8 +17,8 @@
  */
 package com.percussion.utils;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.percussion.test.TestAssertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

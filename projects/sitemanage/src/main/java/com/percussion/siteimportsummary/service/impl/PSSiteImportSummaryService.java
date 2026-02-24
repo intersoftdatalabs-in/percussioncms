@@ -21,6 +21,7 @@ package com.percussion.siteimportsummary.service.impl;
 import com.percussion.services.siteimportsummary.IPSSiteImportSummaryDao;
 import com.percussion.services.siteimportsummary.data.PSSiteImportSummary;
 import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import java.util.Map;
 import org.apache.commons.lang3.Validate;
@@ -50,10 +51,14 @@ public class PSSiteImportSummaryService implements IPSSiteImportSummaryService {
 
   @Override
   public PSSiteImportSummary create(int siteId) throws IPSGenericDao.SaveException {
-    var summary = new PSSiteImportSummary();
-    summary.setSiteId(siteId);
-    summaryDao.save(summary);
-    return find(siteId);
+      var summary = new PSSiteImportSummary();
+      summary.setSiteId(siteId);
+      try {
+          summaryDao.save(summary);
+      } catch (PSDataServiceException e) {
+          throw new IPSGenericDao.SaveException("Failed to save site import summary", e);
+      }
+      return find(siteId);
   }
 
   @Override
@@ -94,7 +99,11 @@ public class PSSiteImportSummaryService implements IPSSiteImportSummaryService {
     if (internallinks != null) {
       summary.setInternallinks(summary.getInternallinks() + internallinks);
     }
-    summaryDao.save(summary);
+    try {
+      summaryDao.save(summary);
+    } catch (PSDataServiceException e) {
+      throw new IPSGenericDao.SaveException("Failed to save site import summary", e);
+    }
     return summary;
   }
 }
