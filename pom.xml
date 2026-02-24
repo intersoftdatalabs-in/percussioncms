@@ -234,7 +234,7 @@
         <!-- TinyMCE 7+ switched to GPL-2.0-or-later, which is incompatible -->
         <!-- with this project's Apache 2.0 license for distribution. -->
         <!-- Do NOT upgrade past 6.8.x without a legal review. -->
-        <tinymce.version>6.8.6</tinymce.version>
+        <tinymce.version>8.3.2</tinymce.version>
         <trinidad.version>2.2.1</trinidad.version>
         <twelvemonkeys.version>3.13.0</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
