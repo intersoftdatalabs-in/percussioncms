@@ -38,7 +38,8 @@
 
 				<!-- Apache Derby -->
 				<prop key="jdbcUrl">jdbc:derby:memory:percpolls;create=true</prop>
-				<prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+				<!-- EmbeddedDriver was removed in newer Derby; use autoloading driver instead -->
+				<prop key="jdbcDriver">org.apache.derby.iapi.jdbc.AutoloadedDriver</prop>
 				<prop key="db.username">test</prop>
 				<prop key="db.password">test</prop>
 				<prop key="db.schema">APP</prop>
@@ -90,33 +91,33 @@
 	<context:component-scan
 		base-package="com.percussion.delivery.polls.services" />
 
-	<!-- Hibernate SessionFactory -->
-	<bean id="pollsSessionFactory"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource">
-			<ref bean="${datasource}" />
+	<!-- JPA EntityManagerFactory (Spring 6+/7 no longer ships org.springframework.orm.hibernate5.* helpers) -->
+	<bean id="pollsEntityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<!-- Avoid proxying the Hibernate SessionFactory interface (conflicts on getSchemaManager() return type) -->
+		<property name="entityManagerFactoryInterface" value="jakarta.persistence.EntityManagerFactory" />
+		<property name="dataSource" ref="${datasource}" />
+		<property name="packagesToScan" value="com.percussion.delivery.polls.service.rdbms" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>
-		<property name="hibernateProperties">
-			<ref bean="${hibernateProperties}" />
-		</property>
-		<property name="configLocation">
-			<value>hibernate.cfg.xml</value>
-		</property>
+		<property name="jpaProperties" ref="${hibernateProperties}" />
+	</bean>
+
+	<bean id="pollsEntityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+		<property name="entityManagerFactory" ref="pollsEntityManagerFactory" />
 	</bean>
 
 	<tx:annotation-driven
 		transaction-manager="txManager" />
 
-	<bean id="txManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-		<property name="sessionFactory" ref="pollsSessionFactory" />
+	<bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="pollsEntityManagerFactory" />
 	</bean>
 
 	<bean id="pollsDao"
 		class="com.percussion.delivery.polls.service.rdbms.PSPollsDao">
-		<property name="sessionFactory">
-			<ref bean="pollsSessionFactory" />
-		</property>
+		<property name="entityManager" ref="pollsEntityManager" />
 	</bean>
 
 	<!-- Polls Service bean -->
