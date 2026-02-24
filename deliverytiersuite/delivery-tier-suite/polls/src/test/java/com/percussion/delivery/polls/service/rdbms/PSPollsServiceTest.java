@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import jakarta.persistence.criteria.CriteriaDelete;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSPollsServiceTest {
+  private static final Logger log = LogManager.getLogger(PSPollsServiceTest.class);
   @Autowired private IPSPollsService pollsService;
   @Autowired
   @Qualifier("pollsEntityManager")
@@ -84,7 +87,7 @@ public class PSPollsServiceTest {
     try {
       entityManager.flush();
     } catch (Exception e) {
-
+      log.warn("EntityManager flush failed during testSave; test may still pass if data was written", e);
     }
     IPSPoll poll = pollsService.findPollByQuestion("TestQuestion");
     assertNotNull(poll);
