@@ -65,3 +65,4 @@ Out of scope:
 
 - Agreement on final installer input contract (env vars/properties/CLI/system properties).
 - Test matrix definition for supported databases.
+

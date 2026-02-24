@@ -154,7 +154,7 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
         isNewUser = true;
       }
 
-        newUser.setName(user.getUserName().orElse(null));
+      newUser.setName(user.getUserName().orElse(null));
       newUser.setRoles(user.getRoles());
 
       if (user.getEmailAddress().isPresent()) {
@@ -169,7 +169,9 @@ public class UserAdaptor extends SiteManageAdaptorBase implements IUserAdaptor {
       } else {
         if (user.getUserType().orElse("").equalsIgnoreCase(PSUserProviderType.INTERNAL.name())) {
           newUser = userService.create(newUser);
-        } else if (user.getUserType().orElse("").equalsIgnoreCase(PSUserProviderType.DIRECTORY.name())) {
+        } else if (user.getUserType()
+            .orElse("")
+            .equalsIgnoreCase(PSUserProviderType.DIRECTORY.name())) {
           var newUsers = new PSImportUsers();
           var dirUsers = new ArrayList<PSExternalUser>();
           dirUsers.add(new PSExternalUser(user.getUserName().orElse(null)));

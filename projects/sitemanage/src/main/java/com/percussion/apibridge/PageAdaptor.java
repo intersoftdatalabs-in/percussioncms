@@ -38,8 +38,6 @@ import com.percussion.itemmanagement.service.IPSItemService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.assembler.PSAbstractMergedRegionTree;
-import java.util.Collection;
-import java.util.Optional;
 import com.percussion.pagemanagement.assembler.PSMergedRegion;
 import com.percussion.pagemanagement.assembler.PSMergedRegion.PSMergedRegionOwner;
 import com.percussion.pagemanagement.assembler.PSMergedRegionTree;
@@ -102,6 +100,7 @@ import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.service.IPSUserService;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -109,6 +108,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -337,7 +337,7 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
         List<PSWidgetItem> updateWidgetList = new ArrayList<>();
         List<PSWidgetItem> newWidgetList = new ArrayList<>();
 
-for (Widget updateWidget : ApiUtils.orEmpty(updateRegion.getWidgets())) {
+        for (Widget updateWidget : ApiUtils.orEmpty(updateRegion.getWidgets())) {
 
           PSWidgetItem existingWidget = findWidget(existingInstances, updateWidget);
 
@@ -383,12 +383,14 @@ for (Widget updateWidget : ApiUtils.orEmpty(updateRegion.getWidgets())) {
           }
 
           if (!clearRegion) {
-              pullTemplateRegionToPage(psPage, template, ApiUtils.orNull(updateRegion.getName()));
+            pullTemplateRegionToPage(psPage, template, ApiUtils.orNull(updateRegion.getName()));
           }
 
           psPage.getRegionBranches().setRegionWidgetAssociations(newWidgetAssoc);
 
-psPage.getRegionBranches().setRegionWidgets(ApiUtils.orNull(updateRegion.getName()), updateWidgetList);
+          psPage
+              .getRegionBranches()
+              .setRegionWidgets(ApiUtils.orNull(updateRegion.getName()), updateWidgetList);
 
           savePage = true;
         }
@@ -662,15 +664,15 @@ psPage.getRegionBranches().setRegionWidgets(ApiUtils.orNull(updateRegion.getName
   public Page updatePage(URI baseUri, Page toPage) throws BackendException, PSDataServiceException {
     checkAPIPermission();
 
-    var url = new UrlParts(
-        ApiUtils.orNull(toPage.getSiteName()),
-        ApiUtils.orNull(toPage.getFolderPath()),
-        ApiUtils.orNull(toPage.getName()));
+    var url =
+        new UrlParts(
+            ApiUtils.orNull(toPage.getSiteName()),
+            ApiUtils.orNull(toPage.getFolderPath()),
+            ApiUtils.orNull(toPage.getName()));
 
-    var folderUrl = new UrlParts(
-        ApiUtils.orNull(toPage.getSiteName()),
-        ApiUtils.orNull(toPage.getFolderPath()),
-        null);
+    var folderUrl =
+        new UrlParts(
+            ApiUtils.orNull(toPage.getSiteName()), ApiUtils.orNull(toPage.getFolderPath()), null);
     var pathServicePath = StringUtils.substring(folderUrl.getUrl(), 1);
 
     try {
@@ -699,7 +701,8 @@ psPage.getRegionBranches().setRegionWidgets(ApiUtils.orNull(updateRegion.getName
     }
 
     Page currentPage =
-        getPage(baseUri,
+        getPage(
+            baseUri,
             ApiUtils.orNull(toPage.getSiteName()),
             ApiUtils.orNull(toPage.getFolderPath()),
             ApiUtils.orNull(toPage.getName()));
@@ -743,13 +746,13 @@ psPage.getRegionBranches().setRegionWidgets(ApiUtils.orNull(updateRegion.getName
       currentState = getWorkflowState(page);
     }
 
-Optional<WorkflowInfo> wfOpt = toPage.getWorkflow();
-      Optional<String> stateOpt = wfOpt.flatMap(WorkflowInfo::getState);
-      if (stateOpt.isPresent() && StringUtils.isNotEmpty(stateOpt.get())) {
-        endState = stateOpt.get();
-        } else {
-          endState = currentState;
-        }
+    Optional<WorkflowInfo> wfOpt = toPage.getWorkflow();
+    Optional<String> stateOpt = wfOpt.flatMap(WorkflowInfo::getState);
+    if (stateOpt.isPresent() && StringUtils.isNotEmpty(stateOpt.get())) {
+      endState = stateOpt.get();
+    } else {
+      endState = currentState;
+    }
 
     if (!newPage && !wfHelper.isCheckedOutToCurrentUser(page.getId())) {
       try {
@@ -759,57 +762,59 @@ Optional<WorkflowInfo> wfOpt = toPage.getWorkflow();
       }
     }
 
-UrlParts folderUrl = new UrlParts(
-          ApiUtils.orNull(toPage.getSiteName()),
-          ApiUtils.orNull(toPage.getFolderPath()),
-          null);
+    UrlParts folderUrl =
+        new UrlParts(
+            ApiUtils.orNull(toPage.getSiteName()), ApiUtils.orNull(toPage.getFolderPath()), null);
 
     // set default values
     if (newPage) {
-        page.setTitle(ApiUtils.orNull(toPage.getName()));
-        page.setLinkTitle(ApiUtils.orNull(toPage.getName()));
-      }
+      page.setTitle(ApiUtils.orNull(toPage.getName()));
+      page.setLinkTitle(ApiUtils.orNull(toPage.getName()));
+    }
 
-Optional<CodeInfo> codeOpt = toPage.getCode();
-      if (codeOpt.isPresent()) {
-          CodeInfo code = codeOpt.get();
-          String head = ApiUtils.orNull(code.getHead());
-          if (head != null) {
-              page.setAdditionalHeadContent(head);
-          }
-          String afterStart = ApiUtils.orNull(code.getAfterStart());
-          if (afterStart != null) {
-              page.setAfterBodyStartContent(afterStart);
-          }
-          String beforeClose = ApiUtils.orNull(code.getBeforeClose());
-          if (beforeClose != null) {
-              page.setBeforeBodyCloseContent(beforeClose);
-          }
+    Optional<CodeInfo> codeOpt = toPage.getCode();
+    if (codeOpt.isPresent()) {
+      CodeInfo code = codeOpt.get();
+      String head = ApiUtils.orNull(code.getHead());
+      if (head != null) {
+        page.setAdditionalHeadContent(head);
       }
+      String afterStart = ApiUtils.orNull(code.getAfterStart());
+      if (afterStart != null) {
+        page.setAfterBodyStartContent(afterStart);
+      }
+      String beforeClose = ApiUtils.orNull(code.getBeforeClose());
+      if (beforeClose != null) {
+        page.setBeforeBodyCloseContent(beforeClose);
+      }
+    }
 
     // `page` will be updated later so capture a final reference for lambda
     final PSPage pageRef = page;
-    toPage.getSeo().ifPresent(seo -> {
-      if (seo.getMetaDescription() != null) {
-        pageRef.setDescription(ApiUtils.orNull(seo.getMetaDescription()));
-      }
+    toPage
+        .getSeo()
+        .ifPresent(
+            seo -> {
+              if (seo.getMetaDescription() != null) {
+                pageRef.setDescription(ApiUtils.orNull(seo.getMetaDescription()));
+              }
 
-      // default title to page name
-      if (seo.getBrowserTitle() != null) {
-        pageRef.setTitle(ApiUtils.orNull(seo.getBrowserTitle()));
-      }
+              // default title to page name
+              if (seo.getBrowserTitle() != null) {
+                pageRef.setTitle(ApiUtils.orNull(seo.getBrowserTitle()));
+              }
 
-      Boolean hideSearch = seo.getHideSearch().orElse(null);
-      pageRef.setNoindex((hideSearch != null && hideSearch) ? "true" : "false");
+              Boolean hideSearch = seo.getHideSearch().orElse(null);
+              pageRef.setNoindex((hideSearch != null && hideSearch) ? "true" : "false");
 
-      List<String> tags = seo.getTags().orElse(null);
-      if (tags != null) {
-        pageRef.setTags(tags);
-      }
+              List<String> tags = seo.getTags().orElse(null);
+              if (tags != null) {
+                pageRef.setTags(tags);
+              }
 
-      // toPage.getSeo().getCategories();
+              // toPage.getSeo().getCategories();
 
-      });
+            });
     // default linktitle to name
     toPage.getDisplayName().ifPresent(page::setLinkTitle);
 
@@ -825,7 +830,8 @@ Optional<CodeInfo> codeOpt = toPage.getCode();
     if (templateName != null && !templateName.isEmpty()) {
       templateId =
           idMapper.getString(
-              templateService.findUserTemplateIdByName(templateName, ApiUtils.orNull(toPage.getSiteName())));
+              templateService.findUserTemplateIdByName(
+                  templateName, ApiUtils.orNull(toPage.getSiteName())));
 
       page.setTemplateId(templateId);
     } else {
@@ -962,64 +968,65 @@ Optional<CodeInfo> codeOpt = toPage.getCode();
     List<Region> bodyRegions = ApiUtils.orNull(toPage.getBody());
     if (bodyRegions != null) {
       for (Region region : bodyRegions) {
-      PSMergedRegion systemRegion = tree.getMergedRegionMap().get(ApiUtils.orNull(region.getName()));
-      List<Widget> widgets = ApiUtils.orNull(region.getWidgets());
-      List<PSWidgetInstance> systemRegionWidgets = systemRegion.getWidgetInstances();
+        PSMergedRegion systemRegion =
+            tree.getMergedRegionMap().get(ApiUtils.orNull(region.getName()));
+        List<Widget> widgets = ApiUtils.orNull(region.getWidgets());
+        List<PSWidgetInstance> systemRegionWidgets = systemRegion.getWidgetInstances();
 
-      if (widgets != null) {
-        for (Widget widget : widgets) {
+        if (widgets != null) {
+          for (Widget widget : widgets) {
 
-          PSWidgetItem widgetItem = findWidget(systemRegionWidgets, widget);
+            PSWidgetItem widgetItem = findWidget(systemRegionWidgets, widget);
 
-          boolean isEditable =
-              widgetItem != null
-                  && (emptyTemplateWidgetIds.contains(widgetItem.getId())
-                      || systemRegion.getOwner().equals(PSMergedRegionOwner.PAGE));
+            boolean isEditable =
+                widgetItem != null
+                    && (emptyTemplateWidgetIds.contains(widgetItem.getId())
+                        || systemRegion.getOwner().equals(PSMergedRegionOwner.PAGE));
 
-          if (isEditable && widget.getAsset() != null) {
+            if (isEditable && widget.getAsset() != null) {
 
-            String id = widgetItem.getId();
+              String id = widgetItem.getId();
 
-            PSRelationship assetRels = assetWidgets.get(id);
-Asset asset = ApiUtils.orNull(widget.getAsset());
+              PSRelationship assetRels = assetWidgets.get(id);
+              Asset asset = ApiUtils.orNull(widget.getAsset());
 
-            //
-            if (assetRels != null && Boolean.TRUE.equals(asset.getRemove())) {
-              try {
-                // delete asset
-                String toRemoveGuid = idMapper.getString(assetRels.getDependent());
-                if (assetRels.getConfig().getName().equals("LocalContent")) {
-                  assetService.delete(toRemoveGuid);
-                } else {
-                  // clear shared asset relationship but do not remove item
-                  String assetId = idMapper.getString(assetRels.getDependent());
-                  PSAssetWidgetRelationship awRel =
-                      new PSAssetWidgetRelationship(
-                          page.getId(),
-                          Long.parseLong(ApiUtils.orNull(widget.getId())),
-                          ApiUtils.orNull(widget.getType()),
-                          assetId,
-                          0);
-                  assetService.clearAssetWidgetRelationship(awRel);
+              //
+              if (assetRels != null && Boolean.TRUE.equals(asset.getRemove())) {
+                try {
+                  // delete asset
+                  String toRemoveGuid = idMapper.getString(assetRels.getDependent());
+                  if (assetRels.getConfig().getName().equals("LocalContent")) {
+                    assetService.delete(toRemoveGuid);
+                  } else {
+                    // clear shared asset relationship but do not remove item
+                    String assetId = idMapper.getString(assetRels.getDependent());
+                    PSAssetWidgetRelationship awRel =
+                        new PSAssetWidgetRelationship(
+                            page.getId(),
+                            Long.parseLong(ApiUtils.orNull(widget.getId())),
+                            ApiUtils.orNull(widget.getType()),
+                            assetId,
+                            0);
+                    assetService.clearAssetWidgetRelationship(awRel);
+                  }
+                } catch (PSDataServiceException | PSNotFoundException e) {
+                  throw new BackendException(e.getMessage(), e);
                 }
-              } catch (PSDataServiceException | PSNotFoundException e) {
-                throw new BackendException(e.getMessage(), e);
-              }
-            } else {
-              boolean requestSharedAsset =
-                  (asset.getFolderPath() != null && asset.getName() != null);
-
-              if (requestSharedAsset) {
-
-                updateSharedAsset(page, widget, assetRels, asset);
-
               } else {
-                updateLocalAsset(page, template, widget, id, assetRels, asset);
+                boolean requestSharedAsset =
+                    (asset.getFolderPath() != null && asset.getName() != null);
+
+                if (requestSharedAsset) {
+
+                  updateSharedAsset(page, widget, assetRels, asset);
+
+                } else {
+                  updateLocalAsset(page, template, widget, id, assetRels, asset);
+                }
               }
-            }
-          } // if ediable widget
-        } // end loop widgets
-      } // end if widgets
+            } // if ediable widget
+          } // end loop widgets
+        } // end if widgets
       } // end for body
     } // end if bodyRegions != null
   }
@@ -1085,7 +1092,9 @@ Asset asset = ApiUtils.orNull(widget.getAsset());
         }
 
         if (!foundOrphan) {
-          guidString = createAndAssociateLocalAsset(page.getId(), id, ApiUtils.orNull(widget.getType()), fields);
+          guidString =
+              createAndAssociateLocalAsset(
+                  page.getId(), id, ApiUtils.orNull(widget.getType()), fields);
         }
       } else // existing asset
       {
@@ -1152,7 +1161,9 @@ Asset asset = ApiUtils.orNull(widget.getAsset());
                 idMapper.getString(assetRels.getDependent()),
                 0);
         assetService.shareLocalContent(
-            ApiUtils.orNull(asset.getName()), StringUtils.substringAfter(ApiUtils.orNull(asset.getFolderPath()), "/"), awRel);
+            ApiUtils.orNull(asset.getName()),
+            StringUtils.substringAfter(ApiUtils.orNull(asset.getFolderPath()), "/"),
+            awRel);
 
       } else {
         if (pathItem == null) throw new AssetNotFoundException();
@@ -1356,7 +1367,8 @@ Asset asset = ApiUtils.orNull(widget.getAsset());
           }
           fields.putAll(setFields);
           fields.put(
-              IPSHtmlParameters.SYS_WORKFLOWID, "" + itemWorkflowService.getLocalContentWorkflowId());
+              IPSHtmlParameters.SYS_WORKFLOWID,
+              "" + itemWorkflowService.getLocalContentWorkflowId());
           fields.put(IPSHtmlParameters.SYS_TITLE, newName);
           newAsset = assetService.save(asset);
           PSAssetWidgetRelationship awRel =
@@ -1458,7 +1470,8 @@ Asset asset = ApiUtils.orNull(widget.getAsset());
 
       String templateId =
           idMapper.getString(
-              templateService.findUserTemplateIdByName(templateName, ApiUtils.orNull(p.getSiteName())));
+              templateService.findUserTemplateIdByName(
+                  templateName, ApiUtils.orNull(p.getSiteName())));
 
       if (templateId != null) {
         ArrayList<String> pageIds = new ArrayList<>();

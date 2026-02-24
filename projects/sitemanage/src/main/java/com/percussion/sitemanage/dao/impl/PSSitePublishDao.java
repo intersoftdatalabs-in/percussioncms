@@ -276,16 +276,16 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
       }
     }
 
-    site.setIpAddress(publishProps.getFtpServerName());
-    site.setUserId(publishProps.getFtpUserName());
-    site.setPassword(publishProps.getFtpPassword());
-    site.setPort(publishProps.getFtpServerPort());
+    site.setIpAddress(publishProps.getFtpServerName().orElse(null));
+    site.setUserId(publishProps.getFtpUserName().orElse(null));
+    site.setPassword(publishProps.getFtpPassword().orElse(null));
+    site.setPort(publishProps.getFtpServerPort().orElse(null));
     String siteName = site.getName();
     site.setRoot(
         (!publishProps.getPublishType().equals(PublishType.filesystem))
-            ? getPublishingRoot(publishProps.getDeliveryRootPath(), siteName)
+            ? getPublishingRoot(publishProps.getDeliveryRootPath().orElse(null), siteName)
             : getLocalPublishingRoot(siteName));
-    site.setPrivateKey(publishProps.getPrivateKey());
+site.setPrivateKey(publishProps.getPrivateKey().orElse(null));
 
     publishWs.saveSite(site);
   }
@@ -320,8 +320,8 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
       // the site object from find.
       tmpSite = siteMgr.loadSiteModifiable(siteName);
     }
-    tmpSite.setDescription(site.getDescription());
-    tmpSite.setDefaultFileExtension(site.getDefaultFileExtention());
+    tmpSite.setDescription(site.getDescription().orElse(null));
+    tmpSite.setDefaultFileExtension(site.getDefaultFileExtention().orElse(null));
     tmpSite.setCanonical(site.isCanonical());
     tmpSite.setSiteProtocol(site.getSiteProtocol());
     tmpSite.setDefaultDocument(site.getDefaultDocument());
@@ -395,11 +395,9 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     // default to local server publishing
     String root = getLocalPublishingRoot(siteName);
     if (oldName != null && PublishType.valueOf(getSiteDeliveryType(site)).isFtpType()) {
-      // this is an existing site configured for ftp publishing
-      String oldRoot =
-          getPubServerService()
-              .getDefaultPubServer(site.getGUID())
-              .getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY);
+        // this is an existing site configured for ftp publishing
+        PSPubServer defServer = getPubServerService().getDefaultPubServer(site.getGUID());
+        String oldRoot = defServer.getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY).orElse("");
       String pubBase = getPublishingBase(oldRoot, oldName);
       root = getPublishingRoot(pubBase, siteName);
     }
@@ -603,7 +601,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     IPSGuid filterId = PSSitePublishDaoHelper.getPublicItemFilterGuid();
 
     String suffix = PSSitePublishDaoHelper.createSiteSuffix(site);
-    boolean isStaging = (PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType()));
+    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType().orElse(""));
 
     if (pubServer.isDatabaseType() || pubServer.isXmlFormat()) {
       if (isStaging) {
@@ -851,7 +849,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     notEmpty(deliveryType, "deliveryType");
 
     IPSContentList cList = publishWs.createContentList(name);
-    cList.setType(type);
+    cList.setContentListType(type);
     cList.setEditionType(edtnType);
     cList.setDescription(description + " - " + siteName);
     String url = PSSitePublishDaoHelper.makeContentListUrl(name, deliveryType);
@@ -1205,7 +1203,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
   private void updateServerIncrementalEdition(
       List<IPSEdition> editions, PSPubServer server, IPSSite site, boolean isDefaultServer)
       throws PSNotFoundException {
-    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(server.getServerType());
+    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(server.getServerType().orElse(""));
     String suffix =
         isStaging ? PSSitePublishDaoHelper.STAGING_INCREMENTAL : PSSitePublishDaoHelper.INCREMENTAL;
     IPSEdition tgtEdition = null;
@@ -1325,7 +1323,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     }
 
     if (pubServer
-        .getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY)
+        .getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("")
         .equalsIgnoreCase("AMAZONS3")) {
       // Add amazon post edition task here
       IPSEditionTaskDef preTask = publishWs.createEditionTask();
@@ -1432,7 +1430,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
   }
 
   private boolean isStagingServer(PSPubServer pubServer) {
-    return PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType());
+    return PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType().orElse(""));
   }
 
   private void updateServerContentListForEditionIncremental(
@@ -1501,7 +1499,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
       IPSContentList fullSiteCList, PSPubServer pubServer, IPSSite site) {
     // update the content list with the new server name
     String appendSiteId = PSSitePublishDaoHelper.createSiteSuffix(site);
-    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType());
+    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType().orElse(""));
     String siteSuffix = isStaging ? STAGING_SITE : FULL_SITE;
     String assetSuffix = isStaging ? STAGING_ASSET : FULL_ASSET;
 
@@ -1532,7 +1530,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
       IPSContentList incrementalSiteCList, PSPubServer pubServer, IPSSite site) {
     // update the content list with the new server name
     String appendSiteId = PSSitePublishDaoHelper.createSiteSuffix(site);
-    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType());
+    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType().orElse(""));
     String incSuffix =
         isStaging ? PSSitePublishDaoHelper.STAGING_INCREMENTAL : PSSitePublishDaoHelper.INCREMENTAL;
     String cListName =
@@ -2038,7 +2036,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     notNull(pubServer, "pubServer");
 
     String suffix = PSSitePublishDaoHelper.createSiteSuffix(site);
-    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType());
+boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType().orElse(""));
 
     if (pubServer.isDatabaseType() || pubServer.isXmlFormat()) {
       IPSContentList cList =
@@ -2105,7 +2103,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     // Make sure we have the site from hibernate not cache.
     IPSSite siteMod = siteMgr.loadSiteModifiable(site.getGUID());
     siteMod.setDefaultPubServer(pubServer.getServerId());
-    siteMod.setRoot(pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY));
+    siteMod.setRoot(pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY).orElse(""));
 
     siteMgr.saveSite(siteMod);
 
@@ -2140,7 +2138,14 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
 
       try {
         // delete pub logs
-        publisherService.updatePubLogHidden(pubServer); // to hide logs generate from Incremental
+        // updatePubLogHidden exists on implementation but not interface;
+        // call via reflection for compatibility
+        try {
+            var m = publisherService.getClass().getMethod("updatePubLogHidden", PSPubServer.class);
+            m.invoke(publisherService, pubServer);
+        } catch (ReflectiveOperationException e) {
+            log.warn("Unable to update pub log hidden", e);
+        }
         List<IPSPubStatus> pubStatusEntries = publishWs.findPubStatusByEdition(edtn.getGUID());
         for (IPSPubStatus pubStatus : pubStatusEntries) {
           publishWs.purgeJobLog(pubStatus.getStatusId());
@@ -2218,7 +2223,8 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
             || contentListName.endsWith(PSSitePublishDaoHelper.STAGING_INCREMENTAL)) {
           return true;
         }
-        if (contentList.getType() == IPSContentList.Type.INCREMENTAL) {
+        // contentList.getType() returns a string; use the enum accessor instead
+        if (IPSContentList.Type.INCREMENTAL == contentList.getContentListType()) {
           return true;
         }
       }

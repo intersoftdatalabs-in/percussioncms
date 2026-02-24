@@ -336,7 +336,8 @@
 				<if>
 					<and>
 						<not>
-							<equals arg1="${perc.db.type}" arg2="derby" casesensitive="false" />
+							<equals arg1="${perc.db.type}" arg2="derby"
+								casesensitive="false" />
 						</not>
 						<or>
 							<not>
@@ -360,17 +361,22 @@
 						</or>
 					</and>
 					<then>
-						<fail message="Missing required DB settings for perc.db.type=${perc.db.type}. Required properties: perc.db.cms.backend, perc.db.cms.driverName, perc.db.cms.driverClass, perc.db.cms.server, perc.db.user, perc.db.password" />
+						<fail
+							message="Missing required DB settings for perc.db.type=${perc.db.type}. Required properties: perc.db.cms.backend, perc.db.cms.driverName, perc.db.cms.driverClass, perc.db.cms.server, perc.db.user, perc.db.password" />
 					</then>
 				</if>
 
 				<if>
-					<equals arg1="${perc.db.type}" arg2="mysql" casesensitive="false" />
+					<equals arg1="${perc.db.type}" arg2="mysql"
+						casesensitive="false" />
 					<then>
-						<propertyfile file="${rxrepository.properties}" comment="Repository Properties">
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
 							<entry key="DB_BACKEND" value="${perc.db.cms.backend}" />
-							<entry key="DB_DRIVER_NAME" value="${perc.db.cms.driverName}" />
-							<entry key="DB_DRIVER_CLASS_NAME" value="${perc.db.cms.driverClass}" />
+							<entry key="DB_DRIVER_NAME"
+								value="${perc.db.cms.driverName}" />
+							<entry key="DB_DRIVER_CLASS_NAME"
+								value="${perc.db.cms.driverClass}" />
 							<entry key="DB_SERVER" value="${perc.db.cms.server}" />
 							<entry key="DB_NAME" value="${perc.db.cms.name}" />
 							<entry key="DB_SCHEMA" value="${perc.db.cms.schema}" />
@@ -379,18 +385,23 @@
 							<entry key="PWD_ENCRYPTED" value="N" />
 							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
 							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
-							<entry key="DB_SSL_ALLOW_SELF_SIGNED" value="${perc.db.ssl.allowSelfSigned}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
 						</propertyfile>
 					</then>
 				</if>
 
 				<if>
-					<equals arg1="${perc.db.type}" arg2="sqlserver" casesensitive="false" />
+					<equals arg1="${perc.db.type}" arg2="sqlserver"
+						casesensitive="false" />
 					<then>
-						<propertyfile file="${rxrepository.properties}" comment="Repository Properties">
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
 							<entry key="DB_BACKEND" value="${perc.db.cms.backend}" />
-							<entry key="DB_DRIVER_NAME" value="${perc.db.cms.driverName}" />
-							<entry key="DB_DRIVER_CLASS_NAME" value="${perc.db.cms.driverClass}" />
+							<entry key="DB_DRIVER_NAME"
+								value="${perc.db.cms.driverName}" />
+							<entry key="DB_DRIVER_CLASS_NAME"
+								value="${perc.db.cms.driverClass}" />
 							<entry key="DB_SERVER" value="${perc.db.cms.server}" />
 							<entry key="DB_NAME" value="${perc.db.cms.name}" />
 							<entry key="DB_SCHEMA" value="${perc.db.cms.schema}" />
@@ -399,18 +410,22 @@
 							<entry key="PWD_ENCRYPTED" value="N" />
 							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
 							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
-							<entry key="DB_SSL_ALLOW_SELF_SIGNED" value="${perc.db.ssl.allowSelfSigned}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
 						</propertyfile>
 					</then>
 				</if>
 
 				<if>
-					<equals arg1="${perc.db.type}" arg2="derby" casesensitive="false" />
+					<equals arg1="${perc.db.type}" arg2="derby"
+						casesensitive="false" />
 					<then>
-						<propertyfile file="${rxrepository.properties}" comment="Repository Properties">
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
 							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
 							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
-							<entry key="DB_SSL_ALLOW_SELF_SIGNED" value="${perc.db.ssl.allowSelfSigned}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
 						</propertyfile>
 					</then>
 				</if>
@@ -421,7 +436,8 @@
 			<isset property="PWD" />
 			<then>
 				<echo>Setting repository password</echo>
-				<propertyfile file="${rxrepository.properties}" comment="Repository Properties">
+				<propertyfile file="${rxrepository.properties}"
+					comment="Repository Properties">
 					<entry key="PWD" value="${PWD}" />
 					<entry key="PWD_ENCRYPTED" value="N" />
 				</propertyfile>

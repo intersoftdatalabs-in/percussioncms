@@ -16,7 +16,7 @@
  */
 package com.percussion.guitools;
 
-import jakarta.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleContext; // use javax namespace, jakarta not available
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

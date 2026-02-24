@@ -41,8 +41,8 @@
         <module>modules/perc-toolkit</module>
         <module>modules/perc-taxonomy</module>
         <module>deployer</module>
-        <module>modules/ContentUI</module>
         <module>modules/ServerUIComponents</module>
+        <module>modules/ContentUI</module>
         <module>modules/extensions-default-template</module>
         <module>modules/extensions-main</module>
         <module>modules/extensions-nav</module>
@@ -1140,7 +1140,8 @@
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
-                <version>3.3.1-PATCHED</version>
+                <!-- snapshot version was unavailable in public repositories; downgrade to a released version that is compatible -->
+                <version>3.3.0</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
@@ -2463,6 +2464,8 @@
                                     <!-- Exclude system release documentation and legacy release materials -->
                                     <exclude>**/system/release/**</exclude>
                                     <exclude>**/system/ApplicationFiles/dojo/**</exclude>
+                                    <!-- Exclude docker development data which contains unparseable HTML snippets and is not part of source -->
+                                    <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
                                     <prettierVersion>2.8.8</prettierVersion>
@@ -2489,6 +2492,7 @@
                                     <exclude>**/src/test/resources/**/*.scss</exclude>
                                     <exclude>**/src/test/java/**/*.css</exclude>
                                     <exclude>**/system/ApplicationFiles/dojo/**</exclude>
+                                    <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
                                     <prettierVersion>2.8.8</prettierVersion>
@@ -2511,6 +2515,7 @@
                                     <!-- Exclude specific legacy/third-party JSON that Prettier can't safely format -->
                                     <exclude>modules/jcadf-master/audit_events.json</exclude>
                                     <exclude>**/audit_events.json</exclude>
+                                    <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
                                     <prettierVersion>2.8.8</prettierVersion>
@@ -2529,6 +2534,7 @@
                                     <exclude>**/node_modules/**</exclude>
                                     <exclude>**/.idea/**</exclude>
                                     <exclude>**/src/test/resources/**/*.yml</exclude>
+                                    <exclude>**/docker/dev-data/**</exclude>
                                     <exclude>**/src/test/resources/**/*.yaml</exclude>
                                 </excludes>
                                 <prettier>
@@ -2787,10 +2793,10 @@
         <profile>
             <id>docker-compose</id>
             <properties>
+                <docker.cms.health.url>http://localhost:9992/Rhythmyx/rest/folders/by-path/Assets</docker.cms.health.url>
                 <docker.compose.env.file>${maven.multiModuleProjectDirectory}/.env.compose</docker.compose.env.file>
                 <docker.compose.file>${maven.multiModuleProjectDirectory}/docker-compose.yml</docker.compose.file>
                 <docker.compose.project.name>percussion-dev</docker.compose.project.name>
-                <docker.cms.health.url>http://localhost:9992/Rhythmyx/rest/folders/by-path/Assets</docker.cms.health.url>
                 <docker.dts.health.url>http://localhost:9980/</docker.dts.health.url>
             </properties>
             <build>
@@ -2801,10 +2807,10 @@
                         <executions>
                             <execution>
                                 <id>docker-compose-up</id>
-                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
                                 </goals>
+                                <phase>pre-integration-test</phase>
                                 <configuration>
                                     <executable>docker</executable>
                                     <arguments>
@@ -2823,10 +2829,10 @@
                             </execution>
                             <execution>
                                 <id>docker-compose-wait-cms</id>
-                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
                                 </goals>
+                                <phase>pre-integration-test</phase>
                                 <configuration>
                                     <executable>bash</executable>
                                     <arguments>
@@ -2837,10 +2843,10 @@
                             </execution>
                             <execution>
                                 <id>docker-compose-wait-dts</id>
-                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
                                 </goals>
+                                <phase>pre-integration-test</phase>
                                 <configuration>
                                     <executable>bash</executable>
                                     <arguments>
@@ -2851,10 +2857,10 @@
                             </execution>
                             <execution>
                                 <id>docker-compose-down</id>
-                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
                                 </goals>
+                                <phase>post-integration-test</phase>
                                 <configuration>
                                     <executable>docker</executable>
                                     <arguments>

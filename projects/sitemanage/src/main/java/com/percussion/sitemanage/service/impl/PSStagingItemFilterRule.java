@@ -42,7 +42,9 @@ public class PSStagingItemFilterRule extends PSPublicAssetItemFilterRule
     var ignoreAssets =
         pubServer == null
             ? "false"
-            : pubServer.getProperty(PUBLISH_IGNORE_UNMODIFIED_ASSETS_PROPERTY).getValue();
+              : pubServer.getProperty(PUBLISH_IGNORE_UNMODIFIED_ASSETS_PROPERTY)
+                    .map(PSPubServerProperty::getValue)
+                    .orElse("false");
     var ignoreUnModAssets = StringUtils.equals(ignoreAssets, "true");
     var serverId = pubServer == null ? null : pubServer.getServerId();
     var worker = getWorker(params);

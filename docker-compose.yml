@@ -58,7 +58,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "cms=$$(curl -s -o /dev/null -w '%{http_code}' http://localhost:9992/Rhythmyx/rest/folders/by-path/Assets || true); dts=$$(curl -s -o /dev/null -w '%{http_code}' http://localhost:9980/ || true); ([ \"$$cms\" = \"200\" ] || [ \"$$cms\" = \"401\" ] || [ \"$$cms\" = \"403\" ]) && ([ \"$$dts\" = \"200\" ] || [ \"$$dts\" = \"401\" ] || [ \"$$dts\" = \"403\" ])",
+          'cms=$$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:9992/Rhythmyx/rest/folders/by-path/Assets || true); dts=$$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:9980/ || true); ([ "$$cms" = "200" ] || [ "$$cms" = "401" ] || [ "$$cms" = "403" ]) && ([ "$$dts" = "200" ] || [ "$$dts" = "401" ] || [ "$$dts" = "403" ])',
         ]
       interval: 20s
       timeout: 5s

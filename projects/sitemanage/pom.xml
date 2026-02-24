@@ -197,6 +197,12 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
+        <!-- OVAL validation library (used by many data classes) -->
+        <dependency>
+            <groupId>net.sf.oval</groupId>
+            <artifactId>oval</artifactId>
+            <version>3.2.1</version>
+        </dependency>
         <dependency>
             <groupId>com.google.gdata</groupId>
             <artifactId>core</artifactId>

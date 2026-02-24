@@ -25,8 +25,6 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import java.util.stream.Collectors;
-
 import com.percussion.auditlog.PSActionOutcome;
 import com.percussion.auditlog.PSAuditLogService;
 import com.percussion.auditlog.PSContentEvent;
@@ -59,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import javax.jcr.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

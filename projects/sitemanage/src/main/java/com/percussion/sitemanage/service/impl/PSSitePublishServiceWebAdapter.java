@@ -257,8 +257,8 @@ public class PSSitePublishServiceWebAdapter {
         if (item.getRelationshipId() != null) {
           PSRelationship relationship = null;
           try {
-            relationship =
-                relsvc.loadRelationship(idMapper.getGuid(item.getRelationshipId()).getUUID());
+            relationship = relsvc.loadRelationship(idMapper.getGuid(item.getRelationshipId()).getUUID()).orElse(null);
+            
 
             if (relationship.isInlineRelationship()) {
               var filter = new PSRelationshipFilter();

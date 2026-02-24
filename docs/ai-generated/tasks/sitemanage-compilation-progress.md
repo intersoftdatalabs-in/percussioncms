@@ -13,12 +13,10 @@
    - Applied sed pattern: `s/= dao\.findLinkByLinkId(\([^)]*\));/= dao.findLinkByLinkId(\1).orElse(null);/g`
    - Filed: `/projects/sitemanage/src/main/java/com/percussion/linkmanagement/service/impl/PSManagedLinkService.java`
    - Pattern: All `findLinkByLinkId()` calls now properly unwrap with `.orElse(null)`
-
 2. **EventType Enum Extensions** (+6 errors fixed)
    - Added constants to: `/system/services/src/com/percussion/services/notification/PSNotificationEvent.java`
    - New enum values: `PAGE_DELETE`, `USER_DELETE`, `ASSET_DELETED`, `PAGE_FAILED_TO_ASSEMBLE_REGION`, `STARTUP_PKG_INSTALL_COMPLETE`
    - Each with proper documentation and use flag
-
 3. **IPSItemSummary Interface Extensions** (+2 errors fixed)
    - File: `/system/business/src/com/percussion/share/data/IPSItemSummary.java`
    - Added default setter methods: `setId()`, `setType()`, `setFolderPaths()`, `setCategory()`
@@ -30,7 +28,6 @@
    - Fixed: Line 2858 - PSPubServerProperty Optional unwrapping
    - Pattern: `.map(PSPubServerProperty::getValue).orElse(null)`
    - Status: Code modified but may need additional fixes for error checking
-
 2. **IPSCmsObjectMgr Interface Methods**
    - Added: `findPersistentPropertiesByName()`, `savePersistentPropertyMeta()`, `savePersistentProperty()`, `deletePersistentProperty()`, `changeWorkflowForItem()`
    - File: `/system/services/src/com/percussion/services/legacy/IPSCmsObjectMgr.java`
@@ -40,7 +37,7 @@
 
 ## Remaining Error Categories (~168 errors)
 
-###  **Type 1: Method Override Mismatches** (~44 errors)
+### **Type 1: Method Override Mismatches** (~44 errors)
 
 **Files Affected:**
 - PSPageAssembler.java (lines 56, 66)
@@ -121,17 +118,20 @@
 ## Recommended Fix Priority Order
 
 ### **Phase 1: Quick Wins (20 min, ~30 errors)**
+
 1. Fix Optional<String> identity in PSTemplateService.java (lines 380, 388)
 2. Add delete() to IPSResourceDefinitionGroupDao and IPSTemplateDao interfaces
 3. Fix PSWidgetService.java line 153 - don't call methods on Optional
 4. Batch fix remaining Optional.orElse() patterns in PSPageCatalogService
 
 ### **Phase 2: Medium Impact (2 hours, ~60 errors)**
+
 1. PSResourceDefinitionService - fix Optional unwrapping
 2. PSPageAssemblyContextFactory - investigate and fix "cannot find symbol" errors
 3. Fix all Optional<Long> → Long conversions across services
 
 ### **Phase 3: Complex (2-3 hours, ~50 errors)**
+
 1. Resolve @Override mismatches - either remove or update signatures
 2. Fix FileUpload jakarta.servlet compatibility
 3. Investigate PSFolderService, PSPathItemService method-related errors

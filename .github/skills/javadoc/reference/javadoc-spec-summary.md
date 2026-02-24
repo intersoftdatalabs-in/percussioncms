@@ -9,6 +9,7 @@ Sources:
 - JDK 25 Doc Comment Spec: https://docs.oracle.com/en/java/javase/25/docs/specs/javadoc/doc-comment-spec.html
 
 ## JDK 8
+
 - Traditional doc comments only: `/** ... */` immediately before declarations.
 - Structure: summary sentence, main description, then block tags.
 - Block tags start at line beginning (`@param`, `@return`, `@throws`, etc.).
@@ -17,6 +18,7 @@ Sources:
 - Extra package docs live in `doc-files` (HTML only).
 
 ## JDK 21
+
 - Same core structure as JDK 8: summary + main description + block tags.
 - Recognized on module, package, class/interface, constructor, method, enum member,
   and field declarations.
@@ -25,6 +27,7 @@ Sources:
 - No Markdown doc comments.
 
 ## JDK 25
+
 - Two comment kinds: traditional `/** ... */` and Markdown `///` comments.
 - Markdown comments can include Markdown plus inline and block tags.
 - `doc-files/*.md` is supported (treated as Markdown comments); `.html` still works.
@@ -32,6 +35,8 @@ Sources:
   declaration is used.
 
 ## Version Guardrails
+
 - If the project JDK is less than 25, do NOT use Markdown `///` comments or
   `doc-files/*.md`.
 - If the project JDK is 8, avoid module documentation and newer syntax.
+

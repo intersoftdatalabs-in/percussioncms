@@ -53,7 +53,6 @@ public class PSDesignPathItemService extends PSDispatchingPathService {
     this.rootName = rootName;
   }
 
-  @Override
   protected PSPathItem findRoot() throws PSPathNotFoundServiceException {
     var root = new PSPathItem();
     root.setName(rootName);
@@ -64,7 +63,6 @@ public class PSDesignPathItemService extends PSDispatchingPathService {
     return root;
   }
 
-  @Override
   protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
     PSPathUtils.validatePath(path);
     var fullFolderPath = getRootFolderPath();

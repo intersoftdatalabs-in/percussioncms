@@ -72,3 +72,4 @@ At minimum:
 - Fresh install to MySQL works without manual file edits.
 - Verification command confirms selected backend in both CMS and DTS configs.
 - Existing upgrade behavior remains unchanged.
+

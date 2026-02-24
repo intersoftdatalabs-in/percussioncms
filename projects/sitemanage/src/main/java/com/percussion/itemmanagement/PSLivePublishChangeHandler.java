@@ -84,7 +84,7 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
       IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
       IPSPageTemplateService pageTemplateService,
       IPSResourceDefinitionService resourceDefinitionService) {
-      changeSvc.addContentChangeHandler(this);
+    changeSvc.addContentChangeHandler(this);
     this.changeSvc = changeSvc;
     this.wfHelper = wfHelper;
     this.idMapper = idMapper;
@@ -196,6 +196,7 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
    */
   private void handleUpdate(PSEditorChangeEvent e)
       throws IPSGenericDao.SaveException,
+          PSDataServiceException,
           PSValidationException,
           PSNotFoundException,
           IPSPageService.PSPageException {
@@ -217,7 +218,12 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
         }
       }
     } else if (wfHelper.isPage(id) && isStagingItem(id)) {
-      doAdd(id, PSContentChangeType.PENDING_STAGED, getPageSiteId(id));
+      try {
+        doAdd(id, PSContentChangeType.PENDING_STAGED, getPageSiteId(id));
+      } catch (PSDataServiceException dataEx) {
+        log.error(PSExceptionUtils.getMessageForLog(dataEx));
+        log.debug(dataEx.getMessage(), dataEx);
+      }
     }
   }
 
@@ -281,7 +287,9 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
     for (var owner : pageOwners) {
       try {
         doAdd(owner, getPageSiteId(owner));
-      } catch (IPSGenericDao.SaveException e) {
+      } catch (PSDataServiceException e) {
+        // SaveException is a subclass of PSDataServiceException, so the
+        // multi-catch was invalid.  Catch the base type only.
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(e.getMessage());
         // continue loop
@@ -290,14 +298,12 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
     for (var owner : pageOwnersStaging) {
       try {
         doAdd(owner, PSContentChangeType.PENDING_STAGED, getPageSiteId(owner));
-      } catch (IPSGenericDao.SaveException e) {
+      } catch (PSDataServiceException e) {
+        // similarly catch only base class
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(e.getMessage());
         // continue loop
       }
-    }
-    for (var owner : templateOwners) {
-      handleTemplateChange(owner);
     }
   }
 
@@ -309,11 +315,21 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
       var pageId = idMapper.getString(new PSLocator(id));
       try {
         if (isPublishedPage(pageId)) {
-          doAdd(pageId, getPageSiteId(pageId));
+          try {
+            doAdd(pageId, getPageSiteId(pageId));
+          } catch (PSDataServiceException dataEx) {
+            log.error(PSExceptionUtils.getMessageForLog(dataEx));
+            log.debug(dataEx.getMessage(), dataEx);
+          }
         } else if (wfHelper.isItemInStagingState(id)) {
-          doAdd(pageId, PSContentChangeType.PENDING_STAGED, getPageSiteId(pageId));
+          try {
+            doAdd(pageId, PSContentChangeType.PENDING_STAGED, getPageSiteId(pageId));
+          } catch (PSDataServiceException dataEx) {
+            log.error(PSExceptionUtils.getMessageForLog(dataEx));
+            log.debug(dataEx.getMessage(), dataEx);
+          }
         }
-      } catch (IPSGenericDao.SaveException | PSValidationException | PSNotFoundException e) {
+      } catch (PSValidationException | PSNotFoundException e) {
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(e.getMessage());
         // continue loop
@@ -321,13 +337,14 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
     }
   }
 
-  private void doAdd(String id, long... siteIds) throws IPSGenericDao.SaveException {
+  private void doAdd(String id, long... siteIds)
+      throws IPSGenericDao.SaveException, PSDataServiceException {
     doAdd(id, PSContentChangeType.PENDING_LIVE, siteIds);
     doAdd(id, PSContentChangeType.PENDING_STAGED, siteIds);
   }
 
   private void doAdd(String id, PSContentChangeType changeType, long... siteIds)
-      throws IPSGenericDao.SaveException {
+      throws IPSGenericDao.SaveException, PSDataServiceException {
     for (long siteId : siteIds) {
       if (siteId == -1L) {
         return;

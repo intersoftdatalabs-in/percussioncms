@@ -46,41 +46,37 @@ Database and credential verification commands:
 
 1. Build CMS + DTS artifacts:
 
-    ```bash
-    ./mvn-env.sh clean install -P with-dts -DskipTests
-    ```
-
+   ```bash
+   ./mvn-env.sh clean install -P with-dts -DskipTests
+   ```
 2. Configure compose environment:
 
-    ```bash
-    cp .env.compose.example .env.compose
-    ```
+   ```bash
+   cp .env.compose.example .env.compose
+   ```
 
 ### Lifecycle goals
 
 - Start stack (MySQL 8 + CMS-DTS) and wait for readiness:
 
-   ```bash
-   ./mvn-env.sh -P with-dts,docker-compose pre-integration-test
-   ```
-
+  ```bash
+  ./mvn-env.sh -P with-dts,docker-compose pre-integration-test
+  ```
 - Run integration tests only (against running stack):
 
-   ```bash
-   ./mvn-env.sh -P integration-test verify
-   ```
-
+  ```bash
+  ./mvn-env.sh -P integration-test verify
+  ```
 - Stop and remove stack (+ volumes):
 
-   ```bash
-   ./mvn-env.sh -P with-dts,docker-compose post-integration-test
-   ```
-
+  ```bash
+  ./mvn-env.sh -P with-dts,docker-compose post-integration-test
+  ```
 - One-command flow (up + wait + integration tests + teardown):
 
-   ```bash
-   ./mvn-env.sh -P with-dts,integration-test,docker-compose verify
-   ```
+  ```bash
+  ./mvn-env.sh -P with-dts,integration-test,docker-compose verify
+  ```
 
 ### Startup modes
 
@@ -119,17 +115,17 @@ The CMS-DTS container installs under `/opt/Percussion`. The following directorie
 
 Percussion CMS developer skills rely on your shell environment — there is no built-in `.env` file. Export (or set) the variables below before you run the scripts, or add them to your shell profile / PowerShell profile so they persist across sessions.
 
-| Variable             | Default                                     | Description                                    |
-|----------------------|---------------------------------------------|------------------------------------------------|
-| `CMS_BASE_URL`       | `http://localhost:9992`                     | Base URL of the running CMS instance           |
-| `API_BASE`           | `http://localhost:9992/Rhythmyx/rest`       | REST API base URL                              |
-| `GITHUB_REPO`        | `intersoftdatalabs-in/percussioncms`         | GitHub org/repo used for release downloads     |
-| `CMS_INSTALL_DIR`    | `~/percussioncms-install`                    | CMS installation directory                     |
-| `DTS_INSTALL_DIR`    | `~/percussiondts-install`                    | DTS installation directory                     |
-| `JAVA_HOME`          | `JAVA_HOME_21` or another JDK 21 install      | Used for installers and runtime                |
-| `PROJECT_ROOT`       | Auto-detected from `git rev-parse`           | Root of this workspace (used to find build jars) |
-| `CMS_USER`           | `Admin`                                      | Default CMS admin username                     |
-| `CMS_PASSWORD`       | (prompt or secret manager)                   | CMS admin password (never commit hardcoded)    |
+|     Variable      |                 Default                  |                   Description                    |
+|-------------------|------------------------------------------|--------------------------------------------------|
+| `CMS_BASE_URL`    | `http://localhost:9992`                  | Base URL of the running CMS instance             |
+| `API_BASE`        | `http://localhost:9992/Rhythmyx/rest`    | REST API base URL                                |
+| `GITHUB_REPO`     | `intersoftdatalabs-in/percussioncms`     | GitHub org/repo used for release downloads       |
+| `CMS_INSTALL_DIR` | `~/percussioncms-install`                | CMS installation directory                       |
+| `DTS_INSTALL_DIR` | `~/percussiondts-install`                | DTS installation directory                       |
+| `JAVA_HOME`       | `JAVA_HOME_21` or another JDK 21 install | Used for installers and runtime                  |
+| `PROJECT_ROOT`    | Auto-detected from `git rev-parse`       | Root of this workspace (used to find build jars) |
+| `CMS_USER`        | `Admin`                                  | Default CMS admin username                       |
+| `CMS_PASSWORD`    | (prompt or secret manager)               | CMS admin password (never commit hardcoded)      |
 
 > Tip: Windows developers can set variables with `setx VAR value` (persisted) or `set VAR=value` for the current session. Treat the shell environment as the configuration source; no `.env` file is required.
 
@@ -142,10 +138,12 @@ Percussion CMS developer skills rely on your shell environment — there is no b
 Download the latest release artifacts from GitHub.
 
 1. Run the Linux script:
+
    ```bash
    .github/skills/percussioncms-dev/scripts/download-latest.sh
    ```
 2. Windows developers can use the PowerShell helper:
+
    ```powershell
    .github/skills/percussioncms-dev/scripts/download-latest.ps1
    ```
@@ -158,18 +156,23 @@ Download the latest release artifacts from GitHub.
 Install the CMS from the local Maven build artifact. To install a release JAR, pass `--jar downloads/perc-distribution-tree.jar`.
 
 1. Ensure the project has been built:
+
    ```bash
    ls "${PROJECT_ROOT}/modules/perc-distribution-tree/target/perc-distribution-tree.jar"
    ```
 2. Run the Linux script:
+
    ```bash
    .github/skills/percussioncms-dev/scripts/install-cms.sh
    ```
+
    To install a release JAR instead:
+
    ```bash
    .github/skills/percussioncms-dev/scripts/install-cms.sh --jar downloads/perc-distribution-tree.jar
    ```
 3. Windows developers can run:
+
    ```powershell
    .github/skills/percussioncms-dev/scripts/install-cms.ps1
    ```
@@ -184,14 +187,17 @@ This mirrors `install_latest` but clarifies the developer intent. Use the same s
 Install DTS from the local build artifact (use `--jar downloads/delivery-tier-distribution.jar` for a release build).
 
 1. Make sure the DTS artifact exists:
+
    ```bash
    ls "${PROJECT_ROOT}/deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar"
    ```
 2. Run the Linux script:
+
    ```bash
    .github/skills/percussioncms-dev/scripts/install-dts.sh
    ```
 3. Windows developers can run:
+
    ```powershell
    .github/skills/percussioncms-dev/scripts/install-dts.ps1
    ```
@@ -208,10 +214,12 @@ Same workflow as `install_latest_dts` — the scripts already default to the dev
 ### 2.1 start_local_cms
 
 1. Linux/macOS:
+
    ```bash
    .github/skills/percussioncms-dev/scripts/start-cms.sh
    ```
 2. Windows:
+
    ```powershell
    .github/skills/percussioncms-dev/scripts/start-cms.ps1
    ```
@@ -221,10 +229,12 @@ Same workflow as `install_latest_dts` — the scripts already default to the dev
 ### 2.2 start_local_dts
 
 1. Linux/macOS:
+
    ```bash
    .github/skills/percussioncms-dev/scripts/start-dts.sh
    ```
 2. Windows:
+
    ```powershell
    .github/skills/percussioncms-dev/scripts/start-dts.ps1
    ```
@@ -277,19 +287,19 @@ Pages are returned as part of folder responses. Use `/pages/by-path/MySite/MyPag
 
 ## 4. Quick Reference
 
-| Skill                     | Trigger phrase                                  |
-|---------------------------|-------------------------------------------------|
-| `download_latest`         | "download the latest Percussion CMS release"    |
-| `install_latest`          | "install the latest CMS release"                |
-| `dev_install_latest`      | "install CMS from my local build"               |
-| `install_latest_dts`      | "install the latest DTS release"                |
-| `dev_install_latest_dts`  | "install DTS from my local build"              |
-| `start_local_cms`         | "start the local CMS"                           |
-| `start_local_dts`         | "start the local DTS"                           |
-| `api_list_sites`          | "list all sites"                                |
-| `api_list_folders`        | "list folders in MySite"                        |
-| `api_list_assets`         | "list assets"                                   |
-| `api_list_pages`          | "list pages in MySite"                          |
+|          Skill           |                Trigger phrase                |
+|--------------------------|----------------------------------------------|
+| `download_latest`        | "download the latest Percussion CMS release" |
+| `install_latest`         | "install the latest CMS release"             |
+| `dev_install_latest`     | "install CMS from my local build"            |
+| `install_latest_dts`     | "install the latest DTS release"             |
+| `dev_install_latest_dts` | "install DTS from my local build"            |
+| `start_local_cms`        | "start the local CMS"                        |
+| `start_local_dts`        | "start the local DTS"                        |
+| `api_list_sites`         | "list all sites"                             |
+| `api_list_folders`       | "list folders in MySite"                     |
+| `api_list_assets`        | "list assets"                                |
+| `api_list_pages`         | "list pages in MySite"                       |
 
 ---
 
@@ -300,4 +310,7 @@ Pages are returned as part of folder responses. Use `/pages/by-path/MySite/MyPag
 - **Local build JAR missing:** Run `./mvn-env.sh clean install` (or `./mvn-env.sh -P with-dts clean install` for DTS).
 - **Port conflict:** CMS defaults to 9992. Check `lsof` (Linux/macOS) or `netstat` (Windows) for other services.
 - **Windows symlinks fail:** Run PowerShell as Administrator so `New-Item -ItemType SymbolicLink` succeeds.
+
 ```
+```
+

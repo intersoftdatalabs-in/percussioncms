@@ -92,9 +92,9 @@ public class PSTrafficService implements IPSTrafficService {
   @Override
   public PSContentTraffic getContentTraffic(PSContentTrafficRequest request)
       throws PSTrafficServiceException, PSValidationException {
-    String path = request.getPath().orElse("");
-    String startDate = request.getStartDate().orElse("");
-    String endDate = request.getEndDate().orElse("");
+String path = request.getPath();
+      String startDate = request.getStartDate();
+      String endDate = request.getEndDate();
     String granularity = request.getGranularity().orElse("");
     List<String> dataReq = request.getTrafficRequested().orElse(Collections.emptyList());
 
@@ -129,7 +129,7 @@ public class PSTrafficService implements IPSTrafficService {
     List<Date> dateList = new ArrayList<>(range.getGranularityBreakdown());
     dateList.add(range.getEnd());
 
-Collection<Integer> pageIds = activityService.findPageIdsByPath(path);
+    Collection<Integer> pageIds = activityService.findPageIdsByPath(path);
 
     if (dataReq.contains(PSTrafficTypeEnum.LIVE_PAGES.toString())) {
       livePages.addAll(activityService.findPublishedItems(pageIds, dateList));
@@ -182,9 +182,9 @@ Collection<Integer> pageIds = activityService.findPageIdsByPath(path);
       throws PSTrafficServiceException,
           PSDataServiceException,
           IPSPathService.PSPathServiceException {
-    String path = request.getPath().orElse("");
-    String startDate = request.getStartDate().orElse("");
-    String endDate = request.getEndDate().orElse("");
+String path = request.getPath();
+      String startDate = request.getStartDate();
+      String endDate = request.getEndDate();
 
     PSDateRange range;
     try {

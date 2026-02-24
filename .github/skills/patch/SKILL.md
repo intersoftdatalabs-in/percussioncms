@@ -26,10 +26,10 @@ diff -u original_file modified_file > changes.patch
 
 For patching entire directory trees, use `-ruN`:
 
-| Flag | Purpose |
-|------|---------|
-| `-r` | Recurse into subdirectories |
-| `-u` | Unified format |
+| Flag |                         Purpose                          |
+|------|----------------------------------------------------------|
+| `-r` | Recurse into subdirectories                              |
+| `-u` | Unified format                                           |
 | `-N` | Treat absent files as empty (captures new/deleted files) |
 
 ```bash
@@ -174,20 +174,20 @@ patch --fuzz=3 < changes.patch
 
 ## 6. Common Options Reference
 
-| Option | Description |
-|--------|-------------|
-| `-u` | Unified diff format (for `diff`) |
-| `-r` | Recursive (for `diff`) |
-| `-N` | Treat absent files as empty (for `diff`) |
-| `-p<N>` | Strip `N` leading path components |
-| `-b` | Create a `.orig` backup of each patched file |
-| `--dry-run` | Test without modifying files |
-| `-R` | Reverse (unapply) a patch |
-| `--fuzz=<N>` | Allow `N` lines of fuzz when matching context |
-| `-d <dir>` | Change to `<dir>` before applying |
-| `--verbose` | Print detailed progress |
-| `-o <file>` | Write output to `<file>` instead of patching in place |
-| `-i <file>` | Read patch from `<file>` (alternative to stdin redirection) |
+|    Option    |                         Description                         |
+|--------------|-------------------------------------------------------------|
+| `-u`         | Unified diff format (for `diff`)                            |
+| `-r`         | Recursive (for `diff`)                                      |
+| `-N`         | Treat absent files as empty (for `diff`)                    |
+| `-p<N>`      | Strip `N` leading path components                           |
+| `-b`         | Create a `.orig` backup of each patched file                |
+| `--dry-run`  | Test without modifying files                                |
+| `-R`         | Reverse (unapply) a patch                                   |
+| `--fuzz=<N>` | Allow `N` lines of fuzz when matching context               |
+| `-d <dir>`   | Change to `<dir>` before applying                           |
+| `--verbose`  | Print detailed progress                                     |
+| `-o <file>`  | Write output to `<file>` instead of patching in place       |
+| `-i <file>`  | Read patch from `<file>` (alternative to stdin redirection) |
 
 ---
 
@@ -229,11 +229,12 @@ Follow this sequence for every patch operation:
 
 ## 9. Troubleshooting
 
-| Symptom | Likely Cause | Fix |
-|---------|-------------|-----|
-| `Hunk #N FAILED` | Target file has diverged from the patch context | Inspect `.rej`, resolve manually, or regenerate the patch |
-| `can't find file to patch` | Wrong working directory or path strip level | Use `-p0`, `-p1`, etc., or `-d <dir>` to set the correct base |
-| `Reversed (or previously applied) patch detected` | Patch was already applied | Confirm with `--dry-run`; use `-R` if you need to unapply |
-| `patch unexpectedly ends in middle of line` | Missing trailing newline in patch file | Ensure patch file ends with a newline character |
-| `Fuzz factor N` warning | Context lines shifted but hunk still matched | Verify the patched file manually; the match may be incorrect |
-| Permission denied | Insufficient write access to target file | Run with appropriate permissions or fix file ownership |
+|                      Symptom                      |                  Likely Cause                   |                              Fix                              |
+|---------------------------------------------------|-------------------------------------------------|---------------------------------------------------------------|
+| `Hunk #N FAILED`                                  | Target file has diverged from the patch context | Inspect `.rej`, resolve manually, or regenerate the patch     |
+| `can't find file to patch`                        | Wrong working directory or path strip level     | Use `-p0`, `-p1`, etc., or `-d <dir>` to set the correct base |
+| `Reversed (or previously applied) patch detected` | Patch was already applied                       | Confirm with `--dry-run`; use `-R` if you need to unapply     |
+| `patch unexpectedly ends in middle of line`       | Missing trailing newline in patch file          | Ensure patch file ends with a newline character               |
+| `Fuzz factor N` warning                           | Context lines shifted but hunk still matched    | Verify the patched file manually; the match may be incorrect  |
+| Permission denied                                 | Insufficient write access to target file        | Run with appropriate permissions or fix file ownership        |
+

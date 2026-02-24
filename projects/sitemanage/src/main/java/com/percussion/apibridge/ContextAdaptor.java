@@ -17,6 +17,7 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.rest.Guid;
 import com.percussion.rest.contexts.Context;
 import com.percussion.rest.contexts.IContextsAdaptor;
 import com.percussion.rest.errors.BackendException;
@@ -32,7 +33,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import com.percussion.rest.Guid;
 
 @PSSiteManageBean
 public class ContextAdaptor implements IContextsAdaptor {
@@ -104,16 +104,16 @@ public class ContextAdaptor implements IContextsAdaptor {
   @Override
   public Context createOrUpdateContext(URI baseURI, Context context) throws BackendException {
     try {
-        IPSPublishingContext ctx;
-        Guid idGuid = ApiUtils.orNull(context.getId());
-        String idStr = (idGuid == null) ? null : ApiUtils.orNull(idGuid.getStringValue());
-          if (idStr == null || StringUtils.isBlank(idStr)) {
-              ctx = siteManager.createContext();
-          } else {
-              var guid = new PSGuid(idStr);
-              ctx = siteManager.loadContext(guid);
-          }
-          return copyContext(ctx);
+      IPSPublishingContext ctx;
+      Guid idGuid = ApiUtils.orNull(context.getId());
+      String idStr = (idGuid == null) ? null : ApiUtils.orNull(idGuid.getStringValue());
+      if (idStr == null || StringUtils.isBlank(idStr)) {
+        ctx = siteManager.createContext();
+      } else {
+        var guid = new PSGuid(idStr);
+        ctx = siteManager.loadContext(guid);
+      }
+      return copyContext(ctx);
     } catch (PSNotFoundException e) {
       throw new BackendException(e);
     }
@@ -143,28 +143,28 @@ public class ContextAdaptor implements IContextsAdaptor {
     return ret;
   }
 
-    private IPSPublishingContext copyContext(Context context) {
-        var ret = new PSPublishingContext();
-          Guid idGuid = ApiUtils.orNull(context.getId());
-          if (idGuid != null) {
-              String idStr = ApiUtils.orNull(idGuid.getStringValue());
-              if (idStr != null) {
-                  var guid = new PSGuid(idStr);
-                  ((PSPublishingContext) ret).setGUID(guid);
-              }
-          }
-        ret.setName(ApiUtils.orNull(context.getName()));
-        ret.setDescription(ApiUtils.orNull(context.getDescription()));
-          Guid schemeId = null;
-          if (context.getDefaultScheme() != null) {
-              schemeId = ApiUtils.orNull(context.getDefaultScheme().flatMap(LocationScheme::getSchemeId));
-          }
-          if (schemeId != null) {
-              String schemeStr = ApiUtils.orNull(schemeId.getStringValue());
-              if (schemeStr != null) {
-                  ret.setDefaultSchemeId(new PSGuid(schemeStr));
-              }
-          }
-        return ret;
+  private IPSPublishingContext copyContext(Context context) {
+    var ret = new PSPublishingContext();
+    Guid idGuid = ApiUtils.orNull(context.getId());
+    if (idGuid != null) {
+      String idStr = ApiUtils.orNull(idGuid.getStringValue());
+      if (idStr != null) {
+        var guid = new PSGuid(idStr);
+        ((PSPublishingContext) ret).setGUID(guid);
+      }
     }
+    ret.setName(ApiUtils.orNull(context.getName()));
+    ret.setDescription(ApiUtils.orNull(context.getDescription()));
+    Guid schemeId = null;
+    if (context.getDefaultScheme() != null) {
+      schemeId = ApiUtils.orNull(context.getDefaultScheme().flatMap(LocationScheme::getSchemeId));
+    }
+    if (schemeId != null) {
+      String schemeStr = ApiUtils.orNull(schemeId.getStringValue());
+      if (schemeStr != null) {
+        ret.setDefaultSchemeId(new PSGuid(schemeStr));
+      }
+    }
+    return ret;
+  }
 }

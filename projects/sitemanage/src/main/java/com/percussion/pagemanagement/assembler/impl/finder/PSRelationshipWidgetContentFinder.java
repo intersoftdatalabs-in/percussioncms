@@ -153,9 +153,8 @@ public class PSRelationshipWidgetContentFinder extends PSWidgetContentFinder {
     public WidgetCriteria(PSWidgetInstance widget) throws PSNotFoundException {
       notNull(widget, "widget");
       var w = widget;
-      var ctType = w.getDefinition().getWidgetPrefs()
-          .map(prefs -> prefs.getContenttypeName())
-          .orElse(null);
+      var ctType =
+          w.getDefinition().getWidgetPrefs().map(prefs -> prefs.getContenttypeName()).orElse(null);
       try {
         contentTypeId =
             StringUtils.isEmpty(ctType)

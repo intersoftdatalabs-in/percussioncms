@@ -1,19 +1,3 @@
-/*
- * Copyright 1999-2025 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.percussion.taxonomy.repository;
 
 import com.percussion.security.error.PSExceptionUtils;
@@ -33,17 +17,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This DAO is used only to saving/updating the Node.java Domain Object
  *
  * @author rxengineer
  */
-public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
+@Repository
+@Transactional
+public class HibernateValueDAO implements ValueDAO {
 
   private static final Logger log = LogManager.getLogger(HibernateValueDAO.class);
+
+  @Autowired private SessionFactory sessionFactory;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,23 +47,21 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   public Value getValue(int id) {
-    Value value = null;
-    Session session = this.currentSession();
-    value = (Value) session.get(Value.class, new Integer(id));
-
-    return value;
+    Session session = sessionFactory.getCurrentSession();
+    return session.get(Value.class, id);
   }
 
   @SuppressWarnings("unchecked")
   public Collection<Value> getAllValues() {
-    Session session = this.currentSession();
-    return (Collection<Value>) session.createQuery("from Value val").list();
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Value>) (Collection<?>) session.createQuery("from Value val", Value.class).list();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   public void saveValue(Value value) {
-    this.getHibernateTemplate().saveOrUpdate(value);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(value);
   }
 
   @SuppressWarnings("unchecked")
@@ -85,11 +73,10 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
       String user_name) {
     Map<String, String> values = null;
     try {
+      Session session = sessionFactory.getCurrentSession();
       HibernateValueCallback valueSetter =
           new HibernateValueCallback(params, attributes, node, langID, user_name);
-
-      values = (Map<String, String>) this.getHibernateTemplate().execute(valueSetter);
-
+      values = (Map<String, String>) valueSetter.doInHibernate(session);
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -100,7 +87,8 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   public void removeValue(Value value) {
-    this.getHibernateTemplate().delete(value);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(value);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +100,7 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Private class to facilitate the complex value saving process
-  private class HibernateValueCallback implements HibernateCallback {
+  private class HibernateValueCallback {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -213,9 +201,9 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
 
             if (newNode) {
               for (Value v : forGarbage) {
-                session.delete(v);
+                session.remove(v);
               }
-              session.delete(node);
+              session.remove(node);
             }
 
           } else {
@@ -228,7 +216,7 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
             // domain objects...BAD
             node.setIsNodeSelectable(this.isSelectable(this.params));
 
-            session.saveOrUpdate(node);
+            session.merge(node);
           }
         }
       }
@@ -248,7 +236,7 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
 
         if (isNew) {
           // Update our Node before saving values linked to it
-          session.saveOrUpdate(node);
+          session.merge(node);
         }
         nodeInfo = new NodeInfo(node, isNew);
       }
@@ -336,19 +324,19 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
           value.setLang(
               (Language)
                   session
-                      .createQuery("select l from Language l where l.id = " + langID)
+                      .createQuery("select l from Language l where l.id = " + langID, Language.class)
                       .uniqueResult());
           value.setCreated_by_id(userName);
           value.setCreated_at(new Timestamp(System.currentTimeMillis()));
           value.setName(s);
-          session.saveOrUpdate(value);
+          session.merge(value);
 
           forGarbage.add(value);
         }
       }
       // remove existing values not in params
       for (Value v : currentValues.values()) {
-        session.delete(v);
+        session.remove(v);
       }
       return errors;
     }
@@ -388,7 +376,7 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
           value.setLang(
               (Language)
                   session
-                      .createQuery("select l from Language l where l.id = " + langID)
+                      .createQuery("select l from Language l where l.id = " + langID, Language.class)
                       .uniqueResult());
           value.setCreated_by_id(userName);
           value.setCreated_at(new Timestamp(System.currentTimeMillis()));
@@ -403,11 +391,11 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
       if (errors.isEmpty()) {
         if (newValue == null) {
           if (!new_value) {
-            session.delete(value);
+            session.remove(value);
           }
         } else {
           value.setName(newValue);
-          session.saveOrUpdate(value);
+          session.merge(value);
           forGarbage.add(value);
         }
       }
@@ -427,7 +415,8 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
                       + " and v.attribute.id = "
                       + attribute.getId()
                       + " and v.lang.id = "
-                      + langID)
+                      + langID,
+                  Value.class)
               .list();
 
       Map<String, Value> currentValues = new HashMap<String, Value>();

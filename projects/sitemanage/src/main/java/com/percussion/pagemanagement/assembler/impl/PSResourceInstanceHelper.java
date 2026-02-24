@@ -116,9 +116,9 @@ public class PSResourceInstanceHelper {
         var links = (List<?>) rvalue;
         // verify list elements are of expected type since Validate no longer provides the helper
         for (Object o : links) {
-            if (!(o instanceof PSResourceLinkAndLocation)) {
-                throw new IllegalArgumentException("Script returned invalid element: " + o);
-            }
+          if (!(o instanceof PSResourceLinkAndLocation)) {
+            throw new IllegalArgumentException("Script returned invalid element: " + o);
+          }
         }
         return (List<PSResourceLinkAndLocation>) links;
       } else if (rvalue instanceof PSResourceLinkAndLocation) {
@@ -173,11 +173,11 @@ public class PSResourceInstanceHelper {
   public String getBaseUrl(PSResourceInstance r) {
     var site = r.getSite();
     if (r.isCrossSite()) {
-        // unwrap optional base url, empty string if missing
-        return site.getBaseUrl().orElse("");
-      }
-      return getBaseUrlPath(r);
+      // unwrap optional base url, empty string if missing
+      return site.getBaseUrl().orElse("");
     }
+    return getBaseUrlPath(r);
+  }
 
   private PSSiteSummary resolveSite(PSResourceInstance r)
       throws DataServiceNotFoundException, PSValidationException {
@@ -187,9 +187,9 @@ public class PSResourceInstanceHelper {
     var site = r.getLinkContext().getSite();
     boolean itemIsResource = false;
     if (r.getItem() instanceof PSLinkableAsset asset) {
-        itemIsResource = asset.isResource();
+      itemIsResource = asset.isResource();
     } else if (r.getItem() instanceof com.percussion.share.data.PSDataItemSummary sum) {
-        itemIsResource = sum.isResource();
+      itemIsResource = sum.isResource();
     }
     if (!itemIsResource) {
       site = siteDataService.findByPath(r.getItem().getFolderPath());
@@ -260,21 +260,21 @@ public class PSResourceInstanceHelper {
   }
 
   private String getBaseUrlPath(PSSiteSummary site) {
-      var bu = site.getBaseUrl().orElse("");
-      try {
-          bu = new URL(bu).getPath();
-      } catch (MalformedURLException e) {
-          bu = "/";
-      }
-      return bu;
+    var bu = site.getBaseUrl().orElse("");
+    try {
+      bu = new URL(bu).getPath();
+    } catch (MalformedURLException e) {
+      bu = "/";
+    }
+    return bu;
   }
 
-public PSSiteSummary getSiteForPageId(String pageId)
+  public PSSiteSummary getSiteForPageId(String pageId)
       throws IPSDataService.DataServiceLoadException,
           DataServiceNotFoundException,
           PSValidationException {
-      var page = pageService.find(pageId);
-      return siteDataService.findByPath(page.getFolderPath());
+    var page = pageService.find(pageId);
+    return siteDataService.findByPath(page.getFolderPath());
   }
 
   public PSSiteSummary getSiteForTemplateId(String templateId) {

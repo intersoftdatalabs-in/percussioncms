@@ -89,8 +89,7 @@ public class PSContentActivityService implements IPSContentActivityService {
       String path = request.getPath().orElse(null);
       String durationType = request.getDurationType().orElse(null);
       String duration = request.getDuration().orElse(null);
-      return new PSContentActivityList(
-          getContentActivity(path, durationType, duration, true));
+      return new PSContentActivityList(getContentActivity(path, durationType, duration, true));
     } catch (PSValidationException
         | IPSActivityService.PSActivityServiceException
         | IPSPathService.PSPathServiceException e) {

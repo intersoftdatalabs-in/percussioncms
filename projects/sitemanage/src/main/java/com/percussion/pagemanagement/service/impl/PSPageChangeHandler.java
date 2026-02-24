@@ -164,8 +164,7 @@ public class PSPageChangeHandler implements IPSPageChangeListener {
     updateSummary(page);
 
     // send generic content-changed notification since specific page/template events were removed
-    var notifyEvent =
-        new PSNotificationEvent(EventType.CONTENT_CHANGED, page.getId());
+    var notifyEvent = new PSNotificationEvent(EventType.CONTENT_CHANGED, page.getId());
     var srv = PSNotificationServiceLocator.getNotificationService();
     srv.notifyEvent(notifyEvent);
   }

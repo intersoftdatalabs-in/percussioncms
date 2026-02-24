@@ -182,5 +182,5 @@ public class SiteManageAdaptorBase {
   }
 
   protected static final List<String> APPROVED_STATES =
-        new ArrayList<>(Arrays.asList(DefaultWorkflowStates.LIVE, DefaultWorkflowStates.PENDING));
+      new ArrayList<>(Arrays.asList(DefaultWorkflowStates.LIVE, DefaultWorkflowStates.PENDING));
 }

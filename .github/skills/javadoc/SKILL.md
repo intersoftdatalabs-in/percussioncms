@@ -8,6 +8,7 @@ description: Best practices and version-correct Javadoc comment generation
 Use this skill when generating or updating Javadoc comments.
 
 ## Steps
+
 1. Determine the project JDK version (pom.xml, toolchain, or build config).
 2. Use only the Javadoc syntax supported by that JDK version (see references).
 3. Write high-quality Javadoc:
@@ -22,7 +23,9 @@ Use this skill when generating or updating Javadoc comments.
 5. Keep comments concise, accurate, and consistent with the Java API specification guidance.
 
 ## References
+
 - [Javadoc spec summaries](./reference/javadoc-spec-summary.md)
 - [Java API writing specs](./reference/java-api-writing-specs.md)
 - [Javadoc tool comment style](./reference/javadoc-tool-comments.md)
 - [Javadoc tool architecture](./reference/javadoc-tool-architecture.md)
+

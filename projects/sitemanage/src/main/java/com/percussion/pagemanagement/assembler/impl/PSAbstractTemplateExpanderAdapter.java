@@ -139,10 +139,9 @@ public abstract class PSAbstractTemplateExpanderAdapter<CACHE> implements IPSTem
   }
 
   /**
-   * Parse the {@link IPSHtmlParameters#SYS_SITEID} parameter and convert it to a
-   * {@link IPSGuid}. This helper is internal to the adapter and deliberately
-   * not public to avoid conflicting with the interface default method which
-   * returns an {@code Optional<String>}.
+   * Parse the {@link IPSHtmlParameters#SYS_SITEID} parameter and convert it to a {@link IPSGuid}.
+   * This helper is internal to the adapter and deliberately not public to avoid conflicting with
+   * the interface default method which returns an {@code Optional<String>}.
    *
    * @param parameters the parameter map, never {@code null}
    * @return the site guid or {@code null} if the parameter was missing/blank

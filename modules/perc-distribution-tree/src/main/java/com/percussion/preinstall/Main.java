@@ -281,7 +281,7 @@ public class Main {
     }
   }
 
-    public static Integer execJar(
+  public static Integer execJar(
       Path jar, Path execPath, Path installDir, ResolvedDbConfig resolvedDbConfig)
       throws IOException, InterruptedException {
 
@@ -464,10 +464,11 @@ public class Main {
 
   private static ResolvedDbConfig resolveDbConfig(Map<String, String> cliOptions) {
     Map<String, String> environmentFileValues = new HashMap<>();
-    String envFilePath = firstNonBlank(
-        cliOptions.get("db.config.env.file"),
-        System.getenv("DB_CONFIG_ENV_FILE"),
-        System.getenv("PERC_DB_CONFIG_ENV_FILE"));
+    String envFilePath =
+        firstNonBlank(
+            cliOptions.get("db.config.env.file"),
+            System.getenv("DB_CONFIG_ENV_FILE"),
+            System.getenv("PERC_DB_CONFIG_ENV_FILE"));
 
     if (envFilePath != null) {
       environmentFileValues.putAll(loadEnvFile(envFilePath));
@@ -479,19 +480,24 @@ public class Main {
     }
     dbType = dbType.toLowerCase(Locale.ROOT);
 
-    String sslEnabled = normalizeBoolean(
-        getConfigValue("db.ssl.enabled", cliOptions, environmentFileValues, DB_SSL_ENABLED_DEFAULT),
-        "db.ssl.enabled");
-    String sslVerify = normalizeBoolean(
-        getConfigValue("db.ssl.verify", cliOptions, environmentFileValues, DB_SSL_VERIFY_DEFAULT),
-        "db.ssl.verify");
-    String sslAllowSelfSigned = normalizeBoolean(
-        getConfigValue(
-            "db.ssl.allowSelfSigned",
-            cliOptions,
-            environmentFileValues,
-            DB_SSL_ALLOW_SELF_SIGNED_DEFAULT),
-        "db.ssl.allowSelfSigned");
+    String sslEnabled =
+        normalizeBoolean(
+            getConfigValue(
+                "db.ssl.enabled", cliOptions, environmentFileValues, DB_SSL_ENABLED_DEFAULT),
+            "db.ssl.enabled");
+    String sslVerify =
+        normalizeBoolean(
+            getConfigValue(
+                "db.ssl.verify", cliOptions, environmentFileValues, DB_SSL_VERIFY_DEFAULT),
+            "db.ssl.verify");
+    String sslAllowSelfSigned =
+        normalizeBoolean(
+            getConfigValue(
+                "db.ssl.allowSelfSigned",
+                cliOptions,
+                environmentFileValues,
+                DB_SSL_ALLOW_SELF_SIGNED_DEFAULT),
+            "db.ssl.allowSelfSigned");
 
     String host = getConfigValue("db.host", cliOptions, environmentFileValues, null);
     String port = getConfigValue("db.port", cliOptions, environmentFileValues, null);
@@ -592,7 +598,8 @@ public class Main {
               + "&verifyServerCertificate="
               + sslVerify);
       systemProperties.put("perc.db.dts.jdbcDriver", "com.mysql.cj.jdbc.Driver");
-      systemProperties.put("perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
       systemProperties.put("perc.db.dts.schema", resolvedSchema);
     } else if (Objects.equals(dbType, "sqlserver")) {
       String resolvedSchema = firstNonBlank(schema, "DBO");
@@ -633,7 +640,8 @@ public class Main {
       systemProperties.put(
           "perc.db.dts.jdbcDriver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
       systemProperties.put(
-          "perc.db.dts.hibernateDialect", "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
+          "perc.db.dts.hibernateDialect",
+          "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
       systemProperties.put("perc.db.dts.schema", resolvedSchema);
     }
 

@@ -40,6 +40,8 @@ public interface IPSItemSummary {
         EXTERNAL_SECTION_FOLDER,
         ASSET,
         RESOURCE,
+        SYSTEM,           // added for system-specific summaries
+        LANDING_PAGE,     // used by path/item services for landing pages
         UNKNOWN
     }
 
@@ -51,6 +53,15 @@ public interface IPSItemSummary {
     String getId();
 
     String getName();
+
+    /**
+     * Convenience accessor for a user-visible label.  Defaults to {@link #getName()}.
+     *
+     * @return label, never {@code null}
+     */
+    default String getLabel() {
+        return getName();
+    }
 
     /**
      * Gets the item category.
@@ -65,6 +76,16 @@ public interface IPSItemSummary {
      * @return the type string, may be {@code null} for incomplete summaries.
      */
     String getType();
+
+    /**
+     * Returns an icon identifier associated with this item. Default implementation
+     * returns {@code null}.
+     *
+     * @return icon string or {@code null}
+     */
+    default String getIcon() {
+        return null;
+    }
 
     /**
      * All folder paths associated with the item. May be empty but never null.
@@ -95,6 +116,23 @@ public interface IPSItemSummary {
      */
     default boolean isPage() {
         return "percPage".equals(getType());
+    }
+
+    /**
+     * Convenience helper to identify a resource item. These are usually stored
+     * as binary or other non-page assets.  The enum covers the typical cases.
+     *
+     * @return {@code true} when the category is {@link Category#RESOURCE}.
+     */
+    default boolean isResource() {
+        return Category.RESOURCE == getCategory();
+    }
+
+    /**
+     * Indicates whether the item may be revisioned. Default is {@code false}.
+     */
+    default boolean isRevisionable() {
+        return false;
     }
     /**
      * Sets the item ID. Default implementation does nothing.
@@ -130,4 +168,21 @@ public interface IPSItemSummary {
      */
     default void setCategory(Category category) {
         // Default no-op implementation
-    }}
+    }
+    // Additional mutators required by services
+    default void setName(String name) {
+        // Default no-op implementation
+    }
+
+    default void setLabel(String label) {
+        // Default no-op implementation
+    }
+
+    default void setRevisionable(boolean revisionable) {
+        // Default no-op implementation
+    }
+
+    default void setIcon(String icon) {
+        // Default no-op implementation
+    }
+}

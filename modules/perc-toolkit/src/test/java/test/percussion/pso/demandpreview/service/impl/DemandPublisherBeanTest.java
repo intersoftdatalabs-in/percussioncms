@@ -19,6 +19,10 @@ package test.percussion.pso.demandpreview.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.demandpreview.service.impl.DemandPublisherBean;
 import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
@@ -31,52 +35,39 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.Sequence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+@ExtendWith(MockitoExtension.class)
 public class DemandPublisherBeanTest {
   private static final Logger log = LogManager.getLogger(DemandPublisherBeanTest.class);
 
-  Mockery context;
-  TestableDemandPublisherBean cut;
+  @Mock
   IPSRxPublisherService rxPubSvc;
+  TestableDemandPublisherBean cut;
 
   @BeforeEach
   public void setUp() throws Exception {
-    context = new Mockery();
     cut = new TestableDemandPublisherBean();
-    rxPubSvc = context.mock(IPSRxPublisherService.class);
     cut.setRxPubSvc(rxPubSvc);
   }
 
   @Test
   public final void testQueueDemandWork() {
-    final IPSEdition edition = context.mock(IPSEdition.class, "edition");
-    final IPSGuid content = context.mock(IPSGuid.class, "content");
-    final IPSGuid folder = context.mock(IPSGuid.class, "folder");
-    final IPSGuid editionId = context.mock(IPSGuid.class, "editionId");
+    final IPSEdition edition = mock(IPSEdition.class);
+    final IPSGuid content = mock(IPSGuid.class);
+    final IPSGuid folder = mock(IPSGuid.class);
+    final IPSGuid editionId = mock(IPSGuid.class);
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(edition).getGUID();
-              will(returnValue(editionId));
-              one(editionId).getUUID();
-              will(returnValue(12));
-              one(rxPubSvc).queueDemandWork(with(equal(12)), with(any(PSDemandWork.class)));
-              will(returnValue(42L));
-              one(rxPubSvc).getDemandRequestJob(42L);
-              will(returnValue(new Long(345L)));
-            }
-          });
+      when(edition.getGUID()).thenReturn(editionId);
+      when(editionId.getUUID()).thenReturn(12);
+      when(rxPubSvc.queueDemandWork(eq(12), any(PSDemandWork.class))).thenReturn(42L);
+      when(rxPubSvc.getDemandRequestJob(42L)).thenReturn(345L);
 
       long jobid = cut.queueDemandWork(edition, content, folder);
       assertEquals(42L, jobid);
-      context.assertIsSatisfied();
+      verify(rxPubSvc).queueDemandWork(eq(12), any(PSDemandWork.class));
     } catch (TimeoutException ex) {
       log.error("Timeout Exception " + ex, ex);
       fail("Exception");
@@ -88,46 +79,23 @@ public class DemandPublisherBeanTest {
   }
 
   @Test
-  public final void testWaitDemandWorkComplete() {
+  public final void testWaitDemandWorkComplete() throws TimeoutException {
     final State tState = State.COMPLETED;
     final State qState = State.QUEUEING;
-    final Sequence seq = context.sequence("twait");
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(rxPubSvc).getDemandWorkStatus(42L);
-              inSequence(seq);
-              will(returnValue(qState));
-              one(rxPubSvc).getDemandWorkStatus(42L);
-              inSequence(seq);
-              will(returnValue(tState));
-            }
-          });
 
-      State state = cut.waitDemandWorkComplete(42L);
-      assertTrue(state.isTerminal());
-      assertEquals(State.COMPLETED, state);
-      context.assertIsSatisfied();
+    when(rxPubSvc.getDemandWorkStatus(42L)).thenReturn(qState).thenReturn(tState);
 
-    } catch (TimeoutException ex) {
-      log.error("Timeout Exception " + ex, ex);
-      fail("Exception");
-    }
+    State state = cut.waitDemandWorkComplete(42L);
+    assertTrue(state.isTerminal());
+    assertEquals(State.COMPLETED, state);
   }
 
   @Test
-  public final void testWaitDemandWorkTimeout() {
+  public final void testWaitDemandWorkTimeout() throws TimeoutException {
     final State qState = State.QUEUEING;
     cut.setTimeout(3);
 
-    context.checking(
-        new Expectations() {
-          {
-            atLeast(2).of(rxPubSvc).getDemandWorkStatus(42L);
-            will(returnValue(qState));
-          }
-        });
+    when(rxPubSvc.getDemandWorkStatus(42L)).thenReturn(qState);
 
     try {
       cut.waitDemandWorkComplete(42L);
@@ -135,7 +103,6 @@ public class DemandPublisherBeanTest {
     } catch (TimeoutException ex) {
       log.info("Caught Expected Exception " + ex);
     }
-    context.assertIsSatisfied();
   }
 
   private class TestableDemandPublisherBean extends DemandPublisherBean {

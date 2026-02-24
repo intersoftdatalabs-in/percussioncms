@@ -71,7 +71,8 @@ public class PSAssetChangeListener implements IPSEditorChangeListener, IPSHandle
     }
 
     var contentId = changeEvent.getContentId();
-    var pageContentIds = new HashSet<Integer>();
+    // use the interface type so we can reassign from other implementations
+    Set<Integer> pageContentIds = new HashSet<>();
     var myGuid = PSGuidUtils.makeGuid(contentId, PSTypeEnum.LEGACY_CONTENT);
     var myGuidStr = idMapper.getString(myGuid);
 

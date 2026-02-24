@@ -22,7 +22,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.share.data.PSItemProperties;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import java.util.Optional;
+// Optional import removed
 import net.sf.oval.constraint.NotEmpty;
 
 /** This class contains post information for a blog. */
@@ -69,8 +69,8 @@ public class PSSiteBlogPosts extends PSAbstractDataObject {
   /**
    * @return the blog posts as Optional
    */
-  public Optional<List<PSItemProperties>> getPosts() {
-    return Optional.ofNullable(posts);
+  public List<PSItemProperties> getPosts() {
+    return posts;
   }
 
   /**

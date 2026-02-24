@@ -19,72 +19,54 @@ package com.percussion.taxonomy.repository;
 import com.percussion.taxonomy.domain.Taxonomy;
 import java.util.Collection;
 import java.util.List;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class HibernateTaxonomyDAO extends HibernateDaoSupport implements TaxonomyDAO {
+@Repository
+@Transactional
+public class HibernateTaxonomyDAO implements TaxonomyDAO {
+
+  @Autowired private SessionFactory sessionFactory;
 
   public Taxonomy getTaxonomy(int id) {
-    return (Taxonomy) getHibernateTemplate().get(Taxonomy.class, new Integer(id));
+    Session session = sessionFactory.getCurrentSession();
+    return session.get(Taxonomy.class, id);
   }
 
   public List<Taxonomy> getTaxonomy(String name) {
-    Session sess = this.currentSession();
+    Session session = sessionFactory.getCurrentSession();
     Query<Taxonomy> q =
-        sess.createQuery(
+        session.createQuery(
                 "select distinct t from Taxonomy t where lower(t.name) like :name", Taxonomy.class)
             .setParameter("name", name.toLowerCase());
     return q.list();
   }
 
   public List<Integer> getTaxonomyIdForName(String name) {
-
-    Session sess = this.currentSession();
-
-    Query query = sess.createQuery("select id from Taxonomy where name like :name");
-    query.setString("name", name);
-    @SuppressWarnings("unchecked")
-    List<Integer> taxIds = query.list();
-    return taxIds;
+    Session session = sessionFactory.getCurrentSession();
+    Query<Integer> query = session.createQuery("select id from Taxonomy where name like :name", Integer.class);
+    query.setParameter("name", name);
+    return query.list();
   }
 
+  @SuppressWarnings("unchecked")
   public Collection getAllTaxonomys() {
-    // Optional: Add order by to query
-    return (Collection) getHibernateTemplate().execute(new HibernateCallbackHandler());
+    Session session = sessionFactory.getCurrentSession();
+    Query<Taxonomy> query = session.createQuery("from Taxonomy tax order by lower(name) asc", Taxonomy.class);
+    return (Collection) (Collection<?>) query.list();
   }
 
   public void saveTaxonomy(Taxonomy taxonomy) {
-    getHibernateTemplate().saveOrUpdate(taxonomy);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(taxonomy);
   }
 
   public void removeTaxonomy(Taxonomy taxonomy) {
-    getHibernateTemplate().delete(taxonomy);
-  }
-
-  class HibernateCallbackHandler implements HibernateCallback {
-
-    private int taxonomy_id;
-
-    public HibernateCallbackHandler() {}
-
-    public HibernateCallbackHandler(int taxonomy_id) {
-      this.taxonomy_id = taxonomy_id;
-    }
-
-    public int getTaxonomy_id() {
-      return taxonomy_id;
-    }
-
-    public void setTaxonomy_id(int taxonomy_id) {
-      this.taxonomy_id = taxonomy_id;
-    }
-
-    public Object doInHibernate(Session session) throws HibernateException {
-      Query query = session.createQuery("from Taxonomy tax order by lower(name) asc");
-      return query.list();
-    }
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(taxonomy);
   }
 }

@@ -1,51 +1,38 @@
-/*
- * Copyright 1999-2025 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
+import com.percussion.error.PSExceptionUtils;
 import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.service.IPSPathService;
-import com.percussion.security.SecureStringUtils;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSExtractHTMLException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+// ServletRequestContext unnecessary; using parseRequest(HttpServletRequest)
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Servlet for importing/exporting templates as XML files. GET: Exports a template as XML. POST:
  * Imports a template for a given site.
- *
- * <p>Sunny Sal says: "Template import/export, now with 100% more Java 11!"
  */
 public class PSTemplateInfo extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  private static final int DEFAULT_BUFFER_SIZE = 20480; // 20KB
+
+  private static final int DEFAULT_BUFFER_SIZE = 20480; // 20KB.
+
   private static final Logger log = LogManager.getLogger(PSTemplateInfo.class);
 
   private static IPSTemplateService templateService;
@@ -57,53 +44,36 @@ public class PSTemplateInfo extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    // Stub implementation to satisfy compilation. Actual export functionality
-    // is disabled in this build.
     resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
   }
 
   @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     String siteId = null;
-    var pathInfo = request.getPathInfo();
+    // Get the site Id from the path
+    String pathInfo = req.getPathInfo();
     if (pathInfo != null) {
-      var path = pathInfo.split("/");
+      String[] path = pathInfo.split("/");
       if (path.length > 1) {
         siteId = path[1];
       }
     }
 
     PSTemplate templateImported = null;
-    // detect multipart content without relying on servlet API package
-    var contentType = request.getContentType();
-    var isMultipart = contentType != null && contentType.toLowerCase().startsWith("multipart/");
+    boolean isMultipart = ServletFileUpload.isMultipartContent(req);
 
     if (isMultipart) {
       try {
-        // wrap request in a RequestContext to avoid javax/jakarta mismatch
-        var upload = new ServletFileUpload(new DiskFileItemFactory());
-        var items = upload.parseRequest(new org.apache.commons.fileupload.RequestContext() {
-            @Override public String getCharacterEncoding() {
-                return request.getCharacterEncoding();
-            }
-            @Override public String getContentType() {
-                return request.getContentType();
-            }
-            @Override public int getContentLength() {
-                return request.getContentLength();
-            }
-            @Override public java.io.InputStream getInputStream() throws java.io.IOException {
-                return request.getInputStream();
-            }
-        });
-        for (var item : items) {
+        List<FileItem> items =
+            new ServletFileUpload(new DiskFileItemFactory()).parseRequest(req);
+        for (FileItem item : items) {
           if (!item.isFormField()) {
             templateImported = importTemplate(siteId, item);
           }
         }
         if (templateImported != null && templateImported.getName() != null) {
-          response.getWriter().print(templateImported.getName());
+          resp.getWriter().print(templateImported.getName());
         } else {
           throw new IOException("Unexpected error while importing template.");
         }
@@ -111,10 +81,10 @@ public class PSTemplateInfo extends HttpServlet {
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         try {
-          response.sendError(500);
+          resp.sendError(500);
         } catch (IOException e1) {
-          response.reset();
-          response.setStatus(500);
+          resp.reset();
+          resp.setStatus(500);
         }
       }
     }

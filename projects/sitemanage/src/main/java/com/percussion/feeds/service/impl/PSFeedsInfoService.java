@@ -138,7 +138,8 @@ public class PSFeedsInfoService implements IPSFeedsInfoService {
       return;
     }
     try {
-      var descriptors = createDescriptorsJson(site, feeds, server.getServerType().orElse(null), publishServer);
+      var descriptors =
+          createDescriptorsJson(site, feeds, server.getServerType().orElse(null), publishServer);
       log.info("Queuing {} feeds for site {}", feeds.size(), site.getName());
       queue.queueDescriptors(site.getName(), descriptors, server.getServerType().orElse(null));
       if (feeds.isEmpty()) {
@@ -282,7 +283,8 @@ public class PSFeedsInfoService implements IPSFeedsInfoService {
    */
   private static final int DELIVERY_CONTEXT = 10;
 
-  private void filterFeeds(Collection<PSFeedInfo> feeds, long serverId) throws PSPublisherException {
+  private void filterFeeds(Collection<PSFeedInfo> feeds, long serverId)
+      throws PSPublisherException {
     if (feeds.isEmpty()) {
       return;
     }

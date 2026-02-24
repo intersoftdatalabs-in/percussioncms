@@ -192,7 +192,7 @@ public class PSRegionTreeUtils {
    */
   private static void getWidgetRegionsFromChilds(Set<PSRegion> leafRegions, PSAbstractRegion node) {
     if (!(node instanceof PSRegion region)) {
-      return;  // Only process PSRegion instances
+      return; // Only process PSRegion instances
     }
     if (isWidgetRegion(region)) {
       leafRegions.add(region);

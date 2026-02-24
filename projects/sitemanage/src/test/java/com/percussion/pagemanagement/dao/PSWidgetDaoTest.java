@@ -56,7 +56,7 @@ public class PSWidgetDaoTest {
   @Test
   public void shouldNotSupportDelete() {
     org.junit.jupiter.api.Assertions.assertThrows(
-        UnsupportedOperationException.class, () -> widgetDao.delete("fail"));
+        UnsupportedOperationException.class, () -> widgetDao.remove("fail"));
   }
 
   @Test

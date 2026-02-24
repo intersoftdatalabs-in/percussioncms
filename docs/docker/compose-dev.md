@@ -223,7 +223,6 @@ This flow performs:
   ```bash
   ./mvn-env.sh -P with-dts,integration-test,docker-compose verify
   ```
-
 - Keep `PERC_INSTALL_MODE=install-if-missing` for speed, or use `install-always` if test isolation requires full reinstall.
 
 ### 3) "I fixed installer/deployment behavior and need full deploy"

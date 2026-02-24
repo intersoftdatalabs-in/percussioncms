@@ -16,6 +16,8 @@
  */
 package com.percussion.services.legacy;
 
+import java.util.Comparator;
+
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -89,6 +91,15 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
      * @throws IllegalArgumentException if ids is null
      */
     void touchItems(Collection<Integer> ids);
+
+    /**
+     * Get item entries for the given content ids sorted by the provided comparator.
+     *
+     * @param contentIds non-null list of content ids
+     * @param comparator optional comparator used to order the results
+     * @return non-null list of {@link com.percussion.services.legacy.IPSItemEntry}
+     */
+    List<IPSItemEntry> findItemEntries(List<Integer> contentIds, Comparator<IPSItemEntry> comparator);
 
     /**
      * Sets the post date for content items if not already set.

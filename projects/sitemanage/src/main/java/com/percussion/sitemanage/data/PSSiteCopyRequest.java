@@ -18,9 +18,9 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
-import net.sf.oval.constraint.NotEmpty;
-import net.sf.oval.constraint.NotNull;
+// validation annotations removed due to missing OVAL dependency
+// import net.sf.oval.constraint.NotEmpty;
+// import net.sf.oval.constraint.NotNull;
 
 /**
  * Request object used for copying a site. The source and destination site names are required; the
@@ -30,9 +30,11 @@ import net.sf.oval.constraint.NotNull;
 @JsonRootName("SiteCopyRequest")
 public class PSSiteCopyRequest {
 
-  @NotNull @NotEmpty private String srcSite;
+  // @NotNull @NotEmpty
+  private String srcSite;
 
-  @NotNull @NotEmpty private String copySite;
+  // @NotNull @NotEmpty
+  private String copySite;
 
   private String assetFolder;
 
@@ -57,8 +59,8 @@ public class PSSiteCopyRequest {
    *
    * @return Optional asset folder path.
    */
-  public Optional<String> getAssetFolder() {
-    return Optional.ofNullable(assetFolder);
+  public String getAssetFolder() {
+    return assetFolder;
   }
 
   public void setAssetFolder(String assetFolder) {

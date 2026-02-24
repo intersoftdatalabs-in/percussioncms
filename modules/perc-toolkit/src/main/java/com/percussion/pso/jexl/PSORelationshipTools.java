@@ -29,7 +29,7 @@ import com.percussion.extension.PSJexlUtilBase;
 import com.percussion.pso.relationships.IPSOParentFinder;
 import com.percussion.pso.relationships.PSOParentFinder;
 import com.percussion.pso.utils.SimplifyParameters;
-import com.percussion.security.error.PSExceptionUtils;
+
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.services.content.data.PSContentTypeSummary;
 import com.percussion.services.content.data.PSItemSummary;

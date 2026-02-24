@@ -83,7 +83,6 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
-import com.percussion.services.linkmanagement.data.PSManagedLink;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.memory.PSCacheAccessLocator;
 import com.percussion.services.pubserver.data.PSPubServer;
@@ -1294,8 +1293,7 @@ public class PSPageUtils extends PSJexlUtilBase {
 
     if (isBlank(name) && isBlank(desc)) return defaultTooltip;
 
-    if (isNotBlank(name) && isNotBlank(desc))
-      return name + ": " + desc;
+    if (isNotBlank(name) && isNotBlank(desc)) return name + ": " + desc;
 
     return isNotBlank(name) ? name : desc;
   }
@@ -2855,9 +2853,8 @@ public class PSPageUtils extends PSJexlUtilBase {
       serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.STAGING);
     } else {
       if (serverId != null && pubServer != null) {
-        var maybeServerName = pubServer.getProperty("publishServer")
-            .map(PSPubServerProperty::getValue)
-            .orElse(null);
+        var maybeServerName =
+            pubServer.getProperty("publishServer").map(PSPubServerProperty::getValue).orElse(null);
         if (maybeServerName != null) {
           serverBase = deliveryInfoService.findBaseByServerName(maybeServerName);
         } else {

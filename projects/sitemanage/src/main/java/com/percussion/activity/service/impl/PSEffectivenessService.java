@@ -64,7 +64,8 @@ public class PSEffectivenessService implements IPSEffectivenessService {
     var currRange = new PSDateRange(granularity, duration);
     var prevRange = new PSDateRange(currRange.getStart(), granularity, duration);
 
-    var usageEnum = request.getUsage().orElse(PSUsageEnum.unique_pageviews);
+    // usage is a plain enum in the request
+    var usageEnum = request.getUsage() != null ? request.getUsage() : PSUsageEnum.unique_pageviews;
     var resultKey =
         (usageEnum == PSUsageEnum.unique_pageviews)
             ? IPSAnalyticsProviderQueryService.FIELD_UNIQUE_PAGEVIEWS

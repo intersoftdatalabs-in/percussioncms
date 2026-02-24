@@ -156,7 +156,8 @@ public class PSLegacyLinkGenerator {
   @SuppressWarnings("deprecation")
   private void fillInlineLinkHelper(PSInlineRenderLink renLink, String targetId) {
     notNull(renLink.getResourceDefinition(), "The resource definition should be loaded by now.");
-      PSAssetResource resourceDef = (PSAssetResource) renLink.getResourceDefinition().orElse(null);
+    // getResourceDefinition() returns the object directly, not Optional
+    PSAssetResource resourceDef = (PSAssetResource) renLink.getResourceDefinition();
     renLink.setInlineType("rxhyperlink");
     Integer templateId = findLegacyTemplateIdForName(resourceDef.getLegacyTemplate());
     renLink.setLegacyDependentId(getContentId(targetId));
@@ -171,8 +172,9 @@ public class PSLegacyLinkGenerator {
 
   @SuppressWarnings("deprecation")
   private void fillInlineImageLink(PSInlineRenderLink renLink, PSInlineLinkRequest request) {
-      PSAssetResource resourceDef = (PSAssetResource) renLink.getResourceDefinition().orElse(null);
-    PSAssetResource thumbResourceDef = (PSAssetResource) renLink.getThumbResourceDefinition().orElse(null);
+    PSAssetResource resourceDef = (PSAssetResource) renLink.getResourceDefinition();
+    // thumb resource definition is stored as nullable object, not Optional
+    PSAssetResource thumbResourceDef = (PSAssetResource) renLink.getThumbResourceDefinition();
     renLink.setInlineType("rximage");
     renLink.setLegacyRxInlineSlot("104");
     Integer dependentId = getContentId(request.getTargetId());

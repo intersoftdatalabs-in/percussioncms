@@ -17,9 +17,9 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.rest.Guid;
 import com.percussion.rest.deliverytypes.DeliveryType;
 import com.percussion.rest.deliverytypes.IDeliveryTypeAdaptor;
-import com.percussion.rest.Guid;
 import com.percussion.rest.errors.BackendException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;

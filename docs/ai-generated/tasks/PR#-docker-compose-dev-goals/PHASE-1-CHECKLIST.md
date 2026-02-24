@@ -13,8 +13,8 @@ This phase does **not** implement full integration-test orchestration yet; it es
 
 - Container install root for both CMS and DTS: `/opt/Percussion`
 - On container startup, update install flow runs in order:
-   1. CMS update from `modules/perc-distribution-tree/target/perc-distribution-tree.jar`
-   2. DTS update from `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar`
+  1. CMS update from `modules/perc-distribution-tree/target/perc-distribution-tree.jar`
+  2. DTS update from `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar`
 - Update installers target the same install root (`/opt/Percussion`).
 
 ## Inputs confirmed from current build
@@ -34,34 +34,29 @@ This phase does **not** implement full integration-test orchestration yet; it es
    - Add health checks for all services
    - Use `depends_on` with health conditions for startup order
    - Mount required persistent writable paths from `/opt/Percussion`:
-      - `/opt/Percussion/ObjectStore`
-      - `/opt/Percussion/var`
-      - `/opt/Percussion/rxconfig`
-      - `/opt/Percussion/Deployment/Server/conf`
-      - `/opt/Percussion/jetty/base`
-
+     - `/opt/Percussion/ObjectStore`
+     - `/opt/Percussion/var`
+     - `/opt/Percussion/rxconfig`
+     - `/opt/Percussion/Deployment/Server/conf`
+     - `/opt/Percussion/jetty/base`
 2. `.env.compose.example`
    - Non-secret defaults only (ports, hostnames, database name/user)
    - Secret placeholders only (`MYSQL_ROOT_PASSWORD`, app DB password)
    - Include comments for required variables before `compose up`
-
 3. `docker/cms/Dockerfile`
    - Base image: JDK/JRE 21 compatible image
    - Copy CMS installer jar from build context artifact output
    - Perform unattended install/update into `/opt/Percussion`
    - Entrypoint starts both CMS and DTS processes in foreground mode
    - Add container healthcheck command aligned with CMS and DTS readiness endpoints
-
 4. `docker/entrypoint/install-update.sh`
    - Runs at container startup
    - Executes CMS installer/update JAR first, then DTS installer/update JAR
    - Targets `/opt/Percussion` for both operations
    - Is idempotent so restarts are safe
-
 5. `.dockerignore`
    - Exclude `.git`, `target/` noise, IDE files, and large irrelevant directories
    - Keep installer artifact paths included
-
 6. `docs/docker/compose-dev.md`
    - Quickstart and prerequisites
    - Environment variable setup
@@ -75,7 +70,6 @@ This phase does **not** implement full integration-test orchestration yet; it es
    - Add direct pointers to planned Maven lifecycle usage
    - Keep script-based workflow as fallback/reference
    - Include MySQL 8 default statement
-
 2. `docs/docker/compose-dev.md` (mount inventory section)
    - Explicitly document each persistent path, mount type, and purpose
    - Mark all listed paths as developer-writable
@@ -92,11 +86,9 @@ These are the exact files/areas to modify when wiring compose goals:
      - `pre-integration-test` => `docker compose up -d`
      - `post-integration-test` => `docker compose down -v` (default behavior)
      - optional `validate`/`verify` readiness wait hook
-
 2. `pom.xml` (root, existing profile coordination)
    - Keep compatibility with existing `integration-test` profile
    - Avoid changing default build behavior outside profile activation
-
 3. Future module POM (Phase 3)
    - `tests/integration-compose/pom.xml` with Failsafe (`*IT.java`)
 
@@ -136,3 +128,4 @@ These are the exact files/areas to modify when wiring compose goals:
 - Startup times may require generous healthcheck `start_period` and retry settings.
 - CMS/DTS readiness endpoints must be stable and unauthenticated for health checks.
 - MySQL initialization must match CMS/DTS expected schema/bootstrap behavior.
+

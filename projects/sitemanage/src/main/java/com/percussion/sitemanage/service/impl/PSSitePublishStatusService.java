@@ -328,7 +328,7 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public void purgeLog(PSSitePublishPurgeRequest purgeReq) throws PSDataServiceException {
     try {
-      for (var jobid : purgeReq.getJobids()) {
+      for (var jobid : purgeReq.getJobids().orElse(Collections.emptyList())) {
         log.debug("purging log for job {}", jobid);
         doPurge(jobid);
       }
@@ -575,7 +575,7 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
     job.setSiteName(getSiteName(status.getEditionId()));
     job.setStatus(getStateDescription(status.getState()));
     job.setIsStopping(
-        job.getStatus().equalsIgnoreCase(IPSPublisherJobStatus.State.CANCELLED.toString()));
+        job.getStatus().orElse("").equalsIgnoreCase(IPSPublisherJobStatus.State.CANCELLED.toString()));
     job.setPubServerId(getPubServerId(status.getEditionId()).longValue());
     return job;
   }

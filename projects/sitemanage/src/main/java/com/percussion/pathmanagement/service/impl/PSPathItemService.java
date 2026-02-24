@@ -236,7 +236,7 @@ public abstract class PSPathItemService implements IPSPathService {
     int stateId;
     try {
       workflowId = itemWorkflowService.getWorkflowId(workflowName);
-      var stateNameStr = stateName.orElse("");
+      var stateNameStr = stateName == null ? "" : stateName;
       stateId = itemWorkflowService.getStateId(workflowName, stateNameStr);
     } catch (PSItemWorkflowServiceException e) {
       throw new PSPathServiceException(e);

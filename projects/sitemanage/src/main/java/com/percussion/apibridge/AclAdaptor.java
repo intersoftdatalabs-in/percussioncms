@@ -25,14 +25,14 @@ import com.percussion.rest.acls.AclList;
 import com.percussion.rest.acls.IAclAdaptor;
 import com.percussion.rest.acls.TypedPrincipal;
 import com.percussion.rest.acls.UserAccessLevel;
+import com.percussion.security.PSSecurityException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSServiceSecurityException;
-import com.percussion.security.PSSecurityException;
-import com.percussion.utils.guid.IPSGuid;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.NotFoundException;
 import java.util.Collection;
 import java.util.List;
@@ -118,7 +118,8 @@ public class AclAdaptor implements IAclAdaptor {
   @Override
   public AclList loadAclsForObjects(GuidList objectGuids) {
     try {
-      return ApiUtils.convertAcls(aclService.loadAclsForObjects(ApiUtils.convertGuids(objectGuids)));
+      return ApiUtils.convertAcls(
+          aclService.loadAclsForObjects(ApiUtils.convertGuids(objectGuids)));
     } catch (PSServiceSecurityException e) {
       // wrap since interface doesn't allow checked exception
       throw new RuntimeException(e);
@@ -153,7 +154,10 @@ public class AclAdaptor implements IAclAdaptor {
 
   @Override
   public GuidList filterByCommunities(GuidList aclList, List<String> communityNames) {
-    if (aclList == null || aclList.isEmpty() || communityNames == null || communityNames.isEmpty()) {
+    if (aclList == null
+        || aclList.isEmpty()
+        || communityNames == null
+        || communityNames.isEmpty()) {
       return new GuidList();
     }
     // load the ACLs to map to object GUIDs

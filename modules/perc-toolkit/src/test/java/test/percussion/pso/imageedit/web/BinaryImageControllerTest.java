@@ -26,28 +26,29 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+@ExtendWith(MockitoExtension.class)
 public class BinaryImageControllerTest {
   private static final Logger log = LogManager.getLogger(BinaryImageControllerTest.class);
 
-  Mockery context;
   BinaryImageController cut;
+  @Mock
   ImageUrlBuilder urlBldr;
+  @Mock
   ImageCacheManager cacheMgr;
 
   @BeforeEach
-  public void setUp() throws Exception {
-    context = new Mockery();
+  public void setUp() {
     cut = new BinaryImageController();
-    urlBldr = context.mock(ImageUrlBuilder.class);
     cut.setUrlBuilder(urlBldr);
-    cacheMgr = context.mock(ImageCacheManager.class);
     cut.setCacheMgr(cacheMgr);
   }
 
@@ -58,7 +59,6 @@ public class BinaryImageControllerTest {
       request.setMethod("GET");
       request.setRequestURI("/xyz/img1234.jpg");
       String body = "The quick brown fox jumped over the lazy dog";
-      ByteArrayInputStream bis = new ByteArrayInputStream(body.getBytes());
 
       final ImageData data = new ImageData();
       data.setSize(body.length());
@@ -66,25 +66,19 @@ public class BinaryImageControllerTest {
       data.setBinary(body.getBytes());
       MockHttpServletResponse response = new MockHttpServletResponse();
 
-      context.checking(
-          new Expectations() {
-            {
-              one(urlBldr).extractKey("/xyz/img1234.jpg");
-              will(returnValue("1234"));
-              one(cacheMgr).hasImage("1234");
-              will(returnValue(true));
-              one(cacheMgr).getImage("1234");
-              will(returnValue(data));
-            }
-          });
+      when(urlBldr.extractKey("/xyz/img1234.jpg")).thenReturn("1234");
+      when(cacheMgr.hasImage("1234")).thenReturn(true);
+      when(cacheMgr.getImage("1234")).thenReturn(data);
 
       cut.handleRequest(request, response);
 
-      context.assertIsSatisfied();
       assertTrue(response.getContentLength() > 0);
       assertEquals(HttpServletResponse.SC_OK, response.getStatus());
       assertEquals("text/plain", response.getContentType());
 
+      verify(urlBldr).extractKey("/xyz/img1234.jpg");
+      verify(cacheMgr).hasImage("1234");
+      verify(cacheMgr).getImage("1234");
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("exception caught");
@@ -100,19 +94,13 @@ public class BinaryImageControllerTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(urlBldr).extractKey("/xyz/img1234.jpg");
-              will(returnValue("1234"));
-              one(cacheMgr).hasImage("1234");
-              will(returnValue(false));
-            }
-          });
+      when(urlBldr.extractKey("/xyz/img1234.jpg")).thenReturn("1234");
+      when(cacheMgr.hasImage("1234")).thenReturn(false);
 
       cut.handleRequest(request, response);
 
-      context.assertIsSatisfied();
+      verify(urlBldr).extractKey("/xyz/img1234.jpg");
+      verify(cacheMgr).hasImage("1234");
       assertEquals(HttpServletResponse.SC_NOT_FOUND, response.getStatus());
 
     } catch (Exception ex) {
@@ -122,7 +110,7 @@ public class BinaryImageControllerTest {
   }
 
   @Test
-  public final void testHandleRequestNoContent() {
+  public final void testHandleRequestNoContent() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setMethod("GET");
     request.setRequestURI("/xyz/img1234.jpg");
@@ -133,49 +121,29 @@ public class BinaryImageControllerTest {
 
     MockHttpServletResponse response = new MockHttpServletResponse();
 
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(urlBldr).extractKey("/xyz/img1234.jpg");
-              will(returnValue("1234"));
-              one(cacheMgr).hasImage("1234");
-              will(returnValue(true));
-              one(cacheMgr).getImage("1234");
-              will(returnValue(data));
-            }
-          });
+    when(urlBldr.extractKey("/xyz/img1234.jpg")).thenReturn("1234");
+    when(cacheMgr.hasImage("1234")).thenReturn(true);
+    when(cacheMgr.getImage("1234")).thenReturn(data);
 
-      cut.handleRequest(request, response);
+    cut.handleRequest(request, response);
 
-      context.assertIsSatisfied();
-      assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
-
-    } catch (Exception ex) {
-      log.error("Unexpected Exception " + ex, ex);
-      fail("exception caught");
-    }
+    assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+    verify(cacheMgr).getImage("1234");
   }
 
   @Test
-  public final void testHandleRequestNullRequest() {
+  public final void testHandleRequestNullRequest() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setMethod("GET");
 
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(urlBldr).extractKey(with(any(String.class)));
-              will(returnValue(null));
-            }
-          });
+      when(urlBldr.extractKey(anyString())).thenReturn(null);
 
       cut.handleRequest(request, response);
 
-      context.assertIsSatisfied();
+      verify(urlBldr).extractKey(anyString());
       assertEquals(HttpServletResponse.SC_BAD_REQUEST, response.getStatus());
 
     } catch (Exception ex) {

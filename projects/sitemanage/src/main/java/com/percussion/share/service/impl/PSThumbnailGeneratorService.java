@@ -109,8 +109,6 @@ public class PSThumbnailGeneratorService {
     doRun(templateId, PSThumbnailRunner.Function.GENERATE_TEMPLATE_THUMBNAIL, null, null);
   }
 
-
-
   private void doRun(
       String id, PSThumbnailRunner.Function function, PSPage page, PSTemplate template) {
     final Map<String, Object> requestInfoMap = PSRequestInfo.copyRequestInfoMap();

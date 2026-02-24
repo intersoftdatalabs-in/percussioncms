@@ -140,6 +140,17 @@ public final class PSNotificationEvent implements Serializable {
         RELATIONSHIP_CHANGED(false, "Relationship modification event"),
 
         /**
+         * A page load event for thumbnail handling. The target will be the page
+         * identifier.
+         */
+        PAGE_LOAD(false, "Page load event"),
+
+        /**
+         * Process complete after saving assets maintenance.
+         */
+        SAVE_ASSETS_PROCESS_COMPLETE(false, "Save assets maintenance complete"),
+
+        /**
          * A workflow state transition has occurred. The target object contains
          * workflow transition information.
          */

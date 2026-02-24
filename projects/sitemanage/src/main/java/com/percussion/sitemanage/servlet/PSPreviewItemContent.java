@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,10 +105,10 @@ public class PSPreviewItemContent extends HttpServlet {
   private HttpServletRequest getRequestFromUrl(String url, HttpServletRequest request)
       throws PSRequestParsingException {
     var mutableUrl = new PSMutableUrl(url);
-    var params = mutableUrl.getParamMap();
+Map<String, String> params = mutableUrl.getParamMap();
 
-    var params2 = new HashMap<String, String[]>();
-    for (var entry : params.entrySet()) {
+      var params2 = new HashMap<String, String[]>();
+      for (Map.Entry<String, String> entry : params.entrySet()) {
       params2.put(entry.getKey(), new String[] {entry.getValue()});
     }
 

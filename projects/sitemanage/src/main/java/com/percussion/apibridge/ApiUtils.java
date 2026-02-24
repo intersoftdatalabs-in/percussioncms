@@ -116,28 +116,24 @@ public class ApiUtils {
     return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue().orElse(null));
   }
 
-  /**
-   * Helper that returns the contained value or null.
-   */
+  /** Helper that returns the contained value or null. */
   public static <T> T orNull(Optional<T> opt) {
     return opt == null ? null : opt.orElse(null);
   }
 
-  /**
-   * Return an empty collection if the Optional is empty or null.
-   */
+  /** Return an empty collection if the Optional is empty or null. */
   public static <T> Collection<T> orEmpty(Optional<? extends Collection<T>> opt) {
     if (opt == null || opt.isEmpty()) {
-        return List.of();
+      return List.of();
     }
     return opt.get();
   }
 
   /**
-   * Generic unwrapping helper.  If the supplied object is an {@link Optional}
-   * it will return the contained value or null; otherwise the value is
-   * returned unchanged.  This allows callers to uniformly access getters which
-   * may or may not return Optionals without needing to know the return type.
+   * Generic unwrapping helper. If the supplied object is an {@link Optional} it will return the
+   * contained value or null; otherwise the value is returned unchanged. This allows callers to
+   * uniformly access getters which may or may not return Optionals without needing to know the
+   * return type.
    */
   @SuppressWarnings("unchecked")
   public static <T> T unwrap(Object o) {
@@ -146,7 +142,6 @@ public class ApiUtils {
     }
     return (T) o;
   }
-
 
   /***
    * Converts a PSCommunity to a Community for return to the REST API
@@ -163,12 +158,12 @@ public class ApiUtils {
     ArrayList<CommunityRole> roles = new ArrayList<>();
     // iterate role associations from PSCommunity
     for (IPSGuid roleGuid : c.getRoleAssociations()) {
-        CommunityRole assoc = new CommunityRole();
-        assoc.setCommunityGuid(optGuid);
-        assoc.setCommunityId(optGuid != null ? optGuid.getLongValue() : 0L);
-        assoc.setRoleId(roleGuid.longValue());
-        assoc.setRoleGuid(convertGuid(roleGuid));
-        roles.add(assoc);
+      CommunityRole assoc = new CommunityRole();
+      assoc.setCommunityGuid(optGuid);
+      assoc.setCommunityId(optGuid != null ? optGuid.getLongValue() : 0L);
+      assoc.setRoleId(roleGuid.longValue());
+      assoc.setRoleGuid(convertGuid(roleGuid));
+      roles.add(assoc);
     }
     ret.setRoleList(new CommunityRoleList(roles));
 
@@ -250,14 +245,13 @@ public class ApiUtils {
 
     ArrayList<PSCommunityRoleAssociation> ret = new ArrayList<>();
     if (roleList != null) {
-        for (CommunityRole r : roleList) {
-            PSCommunityRoleAssociation p_r =
-                new PSCommunityRoleAssociation(
-                    convertGuid(orNull(r.getCommunityGuid())),
-                    convertGuid(orNull(r.getRoleGuid())));
-            p_r.setRoleName(orNull(r.getRoleName()));
-            ret.add(p_r);
-        }
+      for (CommunityRole r : roleList) {
+        PSCommunityRoleAssociation p_r =
+            new PSCommunityRoleAssociation(
+                convertGuid(orNull(r.getCommunityGuid())), convertGuid(orNull(r.getRoleGuid())));
+        p_r.setRoleName(orNull(r.getRoleName()));
+        ret.add(p_r);
+      }
     }
     return ret;
   }
@@ -298,8 +292,8 @@ public class ApiUtils {
     var ret = new ObjectSummary();
     ret.setDescription(s.getDescription());
     if (s.getGUID() != null) {
-        ret.setGuid(convertGuid(s.getGUID()));
-        ret.setId(s.getGUID().longValue());
+      ret.setGuid(convertGuid(s.getGUID()));
+      ret.setId(s.getGUID().longValue());
     }
     ret.setLabel(s.getLabel());
     ret.setName(s.getName());
@@ -460,7 +454,7 @@ public class ApiUtils {
   public static Collection<PSAclEntryImpl> convertAclEntries(AclEntryList aclEntries) {
     HashSet<PSAclEntryImpl> ret = new HashSet<>();
     if (aclEntries == null) {
-        return ret;
+      return ret;
     }
 
     for (AclEntry entry : aclEntries) {
@@ -469,7 +463,8 @@ public class ApiUtils {
       p_entry.setId(entry.getId());
       p_entry.setName(orNull(entry.getName()));
       p_entry.setPrincipal(convertPrincipal(orNull(entry.getPrincipal())));
-      p_entry.setType(entry.getType().isPresent()
+      p_entry.setType(
+          entry.getType().isPresent()
               ? IPSTypedPrincipal.PrincipalTypes.valueOf(entry.getType().get().getName())
               : null);
       for (UserAccessLevel p : orEmpty(entry.getPermissions())) {
@@ -628,7 +623,8 @@ public class ApiUtils {
     return p;
   }
 
-  public static UserPreferenceList convertUserProperties(Collection<PSPersistentProperty> userProperties) {
+  public static UserPreferenceList convertUserProperties(
+      Collection<PSPersistentProperty> userProperties) {
     ArrayList<UserPreference> up = new ArrayList<>();
     for (PSPersistentProperty prop : userProperties) {
       up.add(ApiUtils.convertPSPersistentProperty(prop));

@@ -191,6 +191,30 @@ public interface IPSWorkflowService {
     List<PSWorkflow> findWorkflowsByName(String name);
 
     /**
+     * Get all available workflow actions for the supplied content items and context.
+     *<p>
+     * Historically callers invoked this via {@code PSWorkflowServiceImpl} directly; the
+     * interface was updated to expose the method so that Active Assembly and other UI
+     * modules can compile against the interface instead of casting.
+     *
+     * @param contentids list of content item GUIDs, never {@code null}
+     * @param assignmentTypes assignment type enums obtained from the system service,
+     *                        may be empty
+     * @param userName user performing the request, not {@code null}
+     * @param userRoles roles assigned to the user, not {@code null}
+     * @param locale user locale string, may be {@code null}
+     * @return list of {@link com.percussion.cx.objectstore.PSMenuAction} objects,
+     *         never {@code null}, may be empty
+     * @throws PSWorkflowException on service error
+     */
+    List<com.percussion.cx.objectstore.PSMenuAction> getAllWorkflowActions(
+        List<com.percussion.utils.guid.IPSGuid> contentids,
+        List<PSAssignmentTypeEnum> assignmentTypes,
+        String userName,
+        List<String> userRoles,
+        String locale) throws PSWorkflowException;
+
+    /**
      * Get a stream of workflows for efficient processing.
      *
      * @param name the name pattern to match workflows

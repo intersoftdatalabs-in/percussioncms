@@ -21,7 +21,6 @@ import static com.percussion.share.service.exception.PSParameterValidationUtils.
 import static com.percussion.webservices.PSWebserviceUtils.getStateById;
 import static com.percussion.webservices.PSWebserviceUtils.getWorkflow;
 import static java.util.Arrays.asList;
-import java.util.TreeMap;
 
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAsset;
@@ -126,6 +125,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.ArrayUtils;
@@ -1492,7 +1492,7 @@ public class PSItemService implements IPSItemService {
    * @see com.percussion.itemmanagement.service.IPSItemService#addUserItem(java.lang.String, int, com.percussion.itemmanagement.service.IPSItemService.PSUserItemTypeEnum)
    */
   public void addUserItem(String userName, int itemId, PSUserItemTypeEnum type)
-      throws IPSGenericDao.SaveException {
+        throws IPSGenericDao.SaveException {
     Validate.notEmpty(userName);
     PSUserItem userItem = userItemDao.find(userName, itemId);
     if (userItem == null) {
@@ -1500,7 +1500,11 @@ public class PSItemService implements IPSItemService {
       userItem.setUserName(userName);
       userItem.setItemId(itemId);
       userItem.setType(type.toString());
-      userItemDao.save(userItem);
+      try {
+          userItemDao.save(userItem);
+      } catch (PSDataServiceException e) {
+          throw new IPSGenericDao.SaveException("Failed to save user item", e);
+      }
     }
   }
 
@@ -1683,7 +1687,7 @@ public class PSItemService implements IPSItemService {
         changeEvent.setSiteId(site.getSiteId());
         changeService.contentChanged(changeEvent);
 
-      } catch (IPSGenericDao.SaveException e) {
+      } catch (PSDataServiceException e) {
         log.error(
             "Secure Key Rotation Failed to add page : {} to Incremental Queue. ERROR: {}",
             pageId,

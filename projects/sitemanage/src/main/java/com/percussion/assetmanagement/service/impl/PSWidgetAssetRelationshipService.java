@@ -204,7 +204,9 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
     rel.setProperty(PSRelationshipConfig.PDU_SLOTID, String.valueOf(awRel.getWidgetId()));
     rel.setProperty(PSRelationshipConfig.PDU_SORTRANK, String.valueOf(awRel.getAssetOrder()));
     String widgetName =
-        isBlank(awRel.getWidgetInstanceName().orElse("")) ? null : awRel.getWidgetInstanceName().orElse(null);
+        isBlank(awRel.getWidgetInstanceName().orElse(""))
+            ? null
+            : awRel.getWidgetInstanceName().orElse(null);
     rel.setProperty(PSRelationshipConfig.PDU_WIDGET_NAME, widgetName);
 
     systemWs.saveRelationships(Collections.singletonList(rel));
@@ -1151,7 +1153,7 @@ public class PSWidgetAssetRelationshipService implements IPSWidgetAssetRelations
 
     criteria.setOwnerId(id);
     criteria.setWidgetId(widget.getId());
-criteria.setWidgetName(widget.getName().orElse(null));
+    criteria.setWidgetName(widget.getName().orElse(null));
 
     // Check to see if widget has an existing asset
     if (rel != null) {

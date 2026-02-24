@@ -307,7 +307,8 @@ public class PSManagedLinkService implements IPSManagedLinkService {
                     entry.getString(PERC_IMAGEPATH_LINKID),
                     entry.get(PERC_IMAGEPATH));
               mLink =
-                  dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_IMAGEPATH_LINKID))).orElse(null);
+                  dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_IMAGEPATH_LINKID)))
+                      .orElse(null);
               newPath = renderHref(mLink, linkContext, isStaging);
               if (log.isDebugEnabled())
                 log.debug(
@@ -331,7 +332,9 @@ public class PSManagedLinkService implements IPSManagedLinkService {
                     "Getting updated path for File entry: {} with current path of {}",
                     entry.getString(PERC_FILEPATH_LINKID),
                     entry.get(PERC_FILEPATH));
-              mLink = dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_FILEPATH_LINKID))).orElse(null);
+              mLink =
+                  dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_FILEPATH_LINKID)))
+                      .orElse(null);
               newPath = renderHref(mLink, linkContext, isStaging);
               if (log.isDebugEnabled())
                 log.debug(
@@ -355,7 +358,9 @@ public class PSManagedLinkService implements IPSManagedLinkService {
                     "Getting updated path for Page entry: {} with current path of {}",
                     entry.getString(PERC_PAGEPATH_LINKID),
                     entry.get(PERC_PAGEPATH));
-              mLink = dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_PAGEPATH_LINKID))).orElse(null);
+              mLink =
+                  dao.findLinkByLinkId(Integer.parseInt(entry.getString(PERC_PAGEPATH_LINKID)))
+                      .orElse(null);
               newPath = renderHref(mLink, linkContext, isStaging);
               if (log.isDebugEnabled())
                 log.debug(
@@ -564,9 +569,13 @@ public class PSManagedLinkService implements IPSManagedLinkService {
     // handle a cloned asset
     Integer copiedAssetId = assetIdMap.get(link.getChildId());
     if (copiedAssetId != null) {
-      link.setChildId(copiedAssetId);
-      dao.saveLink(link);
-      return;
+        link.setChildId(copiedAssetId);
+        try {
+            dao.saveLink(link);
+        } catch (PSDataServiceException e) {
+            throw new IPSGenericDao.SaveException("Failed to save link", e);
+        }
+        return;
     }
 
     // handle a cloned page
@@ -588,7 +597,11 @@ public class PSManagedLinkService implements IPSManagedLinkService {
     }
     int childId = idMapper.getContentId(guid);
     link.setChildId(childId);
-    dao.saveLink(link);
+    try {
+        dao.saveLink(link);
+    } catch (PSDataServiceException e) {
+        throw new IPSGenericDao.SaveException("Failed to save link", e);
+    }
   }
 
   private String getRelativePath(String siteRoot, int contentId) {
@@ -1244,9 +1257,12 @@ public class PSManagedLinkService implements IPSManagedLinkService {
       rev = parentLoc.getRevision();
     }
 
-    PSManagedLink link = dao.createLink(cid, rev, dependentId, anchor);
-    dao.saveLink(link);
-
+      PSManagedLink link = dao.createLink(cid, rev, dependentId, anchor);
+      try {
+          dao.saveLink(link);
+      } catch (PSDataServiceException e) {
+          throw new IPSGenericDao.SaveException("Failed to save link", e);
+      }
     if (newIds != null) {
       newIds.add(link.getLinkId());
     }

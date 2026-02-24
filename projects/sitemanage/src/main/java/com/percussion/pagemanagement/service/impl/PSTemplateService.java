@@ -378,10 +378,7 @@ public class PSTemplateService implements IPSTemplateService {
 
   private Map<String, String> getWidgetIdsToNameMap(List<PSWidgetItem> list) {
     return list.stream()
-        .collect(
-            Collectors.toMap(
-                PSWidgetItem::getId,
-                w -> w.getName().orElse("")));
+        .collect(Collectors.toMap(PSWidgetItem::getId, w -> w.getName().orElse("")));
   }
 
   private void checkDuplicatedNames(PSRegionTree region) throws DataServiceSaveException {

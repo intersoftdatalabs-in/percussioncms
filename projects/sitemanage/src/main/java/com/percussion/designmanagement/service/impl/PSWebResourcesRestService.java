@@ -214,8 +214,7 @@ public class PSWebResourcesRestService {
       } catch (PSFileAlreadyExistsException e) {
         response = e.getMessage();
         return Response.ok().entity(response).build();
-      } catch (PSFileNameInUseByFolderException
-          | PSReservedFileNameException e) {
+      } catch (PSFileNameInUseByFolderException | PSReservedFileNameException e) {
         response = e.getMessage();
         return Response.status(Status.CONFLICT).entity(response).build();
       } catch (PSFileOperationException e) {

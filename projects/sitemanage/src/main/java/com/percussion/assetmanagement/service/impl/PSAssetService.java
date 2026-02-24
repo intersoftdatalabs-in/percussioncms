@@ -17,8 +17,6 @@ import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.apibridge.ApiUtils;
-import java.util.Optional;
-
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAbstractAssetRequest;
 import com.percussion.assetmanagement.data.PSAbstractAssetRequest.AssetType;
@@ -120,6 +118,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
@@ -934,11 +933,13 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     }
 
     // Set preferred height and widths
-    int prefHt = prefs == null || prefs.getPreferredEditorHeight() == null
+    int prefHt =
+        prefs == null || prefs.getPreferredEditorHeight() == null
             ? PSContentEditCriteria.DEFAULT_PREFERRED_EDITOR_HEIGHT
             : prefs.getPreferredEditorHeight().intValue();
 
-    int prefWd = prefs == null || prefs.getPreferredEditorWidth() == null
+    int prefWd =
+        prefs == null || prefs.getPreferredEditorWidth() == null
             ? PSContentEditCriteria.DEFAULT_PREFERRED_EDITOR_WIDTH
             : prefs.getPreferredEditorWidth().intValue();
     ceCrit.setPreferredEditorHeight(prefHt);
@@ -1037,7 +1038,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       throws PSDataServiceException, PSItemWorkflowServiceException {
     rejectIfNull("getAssetEditor", "widgetId", widgetId);
     PSWidgetSummary widget = widgetService.find(widgetId);
-    String parentFolderPath = assetUploadFolderPathMap.getFolderPathForType(ApiUtils.orNull(widget.getType()));
+    String parentFolderPath =
+        assetUploadFolderPathMap.getFolderPathForType(widget.getType());
     return getAssetEditor(parentFolderPath, widget);
   }
 
@@ -1072,7 +1074,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     createSharedAsset = prefs == null ? false : prefs.getCreateSharedAsset();
     if (isNotEmpty(ctName) && (createSharedAsset)) {
       assetEditor.setTitle(prefs == null ? null : prefs.getTitle());
-      assetEditor.setIcon(ApiUtils.orNull(widget.getIcon()));
+      assetEditor.setIcon(widget.getIcon());
       if (isEmpty(parentFolderPath)) isLocalContent = true;
       assetEditor.setWorkflowId(getWorkflowId(ctName, true, parentFolderPath, isLocalContent));
       assetEditor.setUrl(getUrl(null, ctName, getEditView(ctName), false));
@@ -1102,7 +1104,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
           wc.setContentTypeName(ctName);
           wc.setWidgetId(widgetDef.getId());
           wc.setWidgetLabel(prefs == null ? null : prefs.getTitle());
-          wc.setIcon(ApiUtils.orNull(widget.getIcon()));
+          wc.setIcon(widget.getIcon());
           results.add(wc);
         } catch (PSInvalidContentTypeException e) {
           log.warn(
@@ -1327,7 +1329,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
         List<PSWidgetSummary> widgetList = widgetService.findAll();
         if (widgetList != null) {
           for (PSWidgetSummary widgetSummary : widgetList) {
-            var widgetName = widgetSummary.getName().orElse("");
+            var widgetName = widgetSummary.getName();
             if (widgetSummary.getId().equalsIgnoreCase(assetType)
                 || widgetName.equalsIgnoreCase(assetType)) {
               w = new PSWidgetItem();
