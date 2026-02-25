@@ -25,4 +25,5 @@ export { WelcomeWidget, type WelcomeWidgetProps } from "./WelcomeWidget";
 export { WorkflowStatusWidget, type WorkflowStatusWidgetProps } from "./WorkflowStatusWidget";
 export { ActivityWidget, type ActivityWidgetProps } from "./ActivityWidget";
 export { ProcessMonitorWidget, type ProcessMonitorWidgetProps } from "./ProcessMonitorWidget";
+export { EffectivenessWidget, type EffectivenessWidgetProps } from "./EffectivenessWidget";
 export { styles } from "./dashboard.styles";
