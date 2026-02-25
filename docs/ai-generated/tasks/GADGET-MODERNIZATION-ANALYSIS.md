@@ -1,7 +1,7 @@
 # Gadget Modernization Analysis & Mapping
 
-**Date:** February 25, 2026  
-**Source:** GadgetRegistry.xml + Legacy Package Definitions  
+**Date:** February 25, 2026
+**Source:** GadgetRegistry.xml + Legacy Package Definitions
 **Status:** Phase 1 mostly complete; Phase 1d planning in progress
 
 ---
@@ -38,18 +38,18 @@ Gadgets converted:
 ### Phase 1c - COMPLETE ✅ (Configuration Management)
 Infrastructure for managing widget configs:
 - ✅ **useDashboardConfig Hook** → Configuration management
-  - REST Endpoints: 
+  - REST Endpoints:
     - `GET /services/dashboardmanagement/dashboard/{userId}`
     - `PUT /services/dashboardmanagement/dashboard/{userId}`
   - Features: CRUD operations on widget configurations
 
 ---
 
-## Phase 1d - PENDING (Advanced Widgets) 
+## Phase 1d - PENDING (Advanced Widgets)
 
 ### High Priority
 
-#### 1. **Traffic Widget** 
+#### 1. **Traffic Widget**
 - File: `perc_traffic_gadget.xml`
 - baseuri: `/cm/gadgets/repository/perc_traffic_gadget`
 - REST Endpoint: `/services/dashboard/traffic` (inferred)
@@ -178,23 +178,26 @@ Infrastructure for managing widget configs:
 
 ---
 
-## REST Endpoint Mapping (Inferred)
+## REST Endpoint Mapping (Verified)
 
-### Confirmed (Currently Used)
+### Confirmed & Verified ✅
 | Widget | Endpoint | Method | Purpose |
 |--------|----------|--------|---------|
-| Activity | `/services/activity/contentactivity` | GET | Recent activity timeline |
+| Activity | `/services/activity/contentactivity` | POST | Recent activity timeline |
 | Workflow | `/services/dashboardmanagement/gadget/workflow-status` | GET | Workflow statuses |
 | Dashboard Config | `/services/dashboardmanagement/dashboard/{userId}` | GET/PUT | Load/save user preferences |
-| Site Choices | `/services/sitemanage/site/choices` | GET | List available sites |
+| Effectiveness | `/services/activity/effectiveness` | POST | Performance metrics |
+| Traffic | `/services/activity/contenttraffic` | POST | Traffic metrics |
+| Traffic Details | `/services/activity/trafficdetails` | POST | Detailed traffic data |
+| Process Monitor (All) | `/services/monitor/all` | GET | All system monitors |
+| Process Monitor (List) | `/services/monitor/list` | GET | List of monitor designators |
+| Process Monitor (Single) | `/services/monitor/{monitorDesignator}` | GET | Single monitor status |
+| Gadget Registry | `/services/gadget/` | GET/POST/DELETE | Gadget CRUD operations |
 
-### Inferred (Need Verification)
+### Inferred (Not Yet Verified)
 | Widget | Endpoint | Method | Purpose |
 |--------|----------|--------|---------|
-| Traffic | `/services/dashboard/traffic` | GET | Traffic metrics |
-| Process Monitor | `/services/processor/status` | GET | Job queue status |
 | Reports | `/services/reports/list` | GET | Available reports list |
-| Effectiveness | `/services/effectiveness/summary` | GET | Performance metrics |
 | Assets Status | `/services/asset/status` | GET | Asset workflow status |
 | SEO Audit | `/services/seo/audit` | GET | SEO metrics |
 
