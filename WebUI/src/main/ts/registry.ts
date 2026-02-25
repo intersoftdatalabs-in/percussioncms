@@ -25,7 +25,7 @@
 
 import type { ComponentType } from "react";
 import { HelloWorld } from "./components/HelloWorld";
-import { Dashboard, WorkflowStatusWidget, ActivityWidget } from "./dashboard";
+import { Dashboard, WorkflowStatusWidget, ActivityWidget, ProcessMonitorWidget } from "./dashboard";
 
 /** Map of component names to their React component types. */
 export const componentRegistry = new Map<string, ComponentType<any>>();
@@ -35,3 +35,4 @@ componentRegistry.set("HelloWorld", HelloWorld);
 componentRegistry.set("Dashboard", Dashboard);
 componentRegistry.set("WorkflowStatusWidget", WorkflowStatusWidget);
 componentRegistry.set("ActivityWidget", ActivityWidget);
+componentRegistry.set("ProcessMonitorWidget", ProcessMonitorWidget);
