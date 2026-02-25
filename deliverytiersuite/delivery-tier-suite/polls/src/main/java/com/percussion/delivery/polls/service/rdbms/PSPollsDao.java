@@ -20,13 +20,21 @@ package com.percussion.delivery.polls.service.rdbms;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 import com.percussion.delivery.polls.services.IPSPollsDao;
+import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 // REFACTORED: CP-JAVA11
 @Transactional
-public class PSPollsDao extends HibernateDaoSupport implements IPSPollsDao {
+public class PSPollsDao implements IPSPollsDao {
+
+  /** Transaction-scoped EntityManager proxy (typically from SharedEntityManagerBean). */
+  private EntityManager entityManager;
+
+  /** Setter-injected from Spring XML. */
+  public void setEntityManager(EntityManager entityManager) {
+    this.entityManager = entityManager;
+  }
 
   @Override
   public IPSPoll find(String pollName) {
@@ -87,6 +95,9 @@ public class PSPollsDao extends HibernateDaoSupport implements IPSPollsDao {
   }
 
   private Session getSession() {
-    return getSessionFactory().getCurrentSession();
+    if (entityManager == null) {
+      throw new IllegalStateException("EntityManager has not been injected");
+    }
+    return entityManager.unwrap(Session.class);
   }
 }
