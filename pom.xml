@@ -53,7 +53,9 @@
         <module>PCM-PkgMgtUI</module>
         <module>WebUI</module>
         <module>modules/perc-thumbnail</module>
+        <!-- Shindig Dashboard Needs To Be Replaced
         <module>modules/shindig-uber</module>
+        -->
         <module>projects/sitemanage</module>
         <module>modules/perc-checkboxtree</module>
         <!-- <module>modules/DesktopContentExplorer</module> -->
@@ -1951,6 +1953,11 @@
                         <includes>
                             <include>**/*Test.java</include>
                         </includes>
+                        <!-- Needed for Mockito on Java 21+ -->
+                        <argLine>
+                            -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                            -Xshare:off
+                        </argLine>
                     </configuration>
                     <dependencies/>
                 </plugin>
@@ -2693,6 +2700,11 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
+                    <!-- Needed for Mockito on Java 21+ -->
+                    <argLine>
+                        -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                        -Xshare:off
+                    </argLine>
                 </configuration>
             </plugin>
             <!-- Modern Failsafe plugin for JUnit5 -->
