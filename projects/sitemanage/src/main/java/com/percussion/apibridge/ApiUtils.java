@@ -89,8 +89,8 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 public class ApiUtils {
 
@@ -113,7 +113,34 @@ public class ApiUtils {
   }
 
   public static IPSGuid convertGuid(Guid guid) {
-    return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue());
+    return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue().orElse(null));
+  }
+
+  /** Helper that returns the contained value or null. */
+  public static <T> T orNull(Optional<T> opt) {
+    return opt == null ? null : opt.orElse(null);
+  }
+
+  /** Return an empty collection if the Optional is empty or null. */
+  public static <T> Collection<T> orEmpty(Optional<? extends Collection<T>> opt) {
+    if (opt == null || opt.isEmpty()) {
+      return List.of();
+    }
+    return opt.get();
+  }
+
+  /**
+   * Generic unwrapping helper. If the supplied object is an {@link Optional} it will return the
+   * contained value or null; otherwise the value is returned unchanged. This allows callers to
+   * uniformly access getters which may or may not return Optionals without needing to know the
+   * return type.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T unwrap(Object o) {
+    if (o instanceof Optional) {
+      return ((Optional<T>) o).orElse(null);
+    }
+    return (T) o;
   }
 
   /***
@@ -125,13 +152,15 @@ public class ApiUtils {
     Community ret =
         new Community(
             c.getId(), convertGuid(c.getGUID()), c.getName(), c.getDescription(), c.getLabel());
+    // unwrap Optional GUID for convenience
+    var optGuid = ret.getGuid().orElse(null);
 
     ArrayList<CommunityRole> roles = new ArrayList<>();
-    for (IPSGuid ipsGuid : c.getRoleAssociations()) {
+    // iterate role associations from PSCommunity
+    for (IPSGuid roleGuid : c.getRoleAssociations()) {
       CommunityRole assoc = new CommunityRole();
-      IPSGuid roleGuid = ipsGuid;
-      assoc.setCommunityGuid(ret.getGuid());
-      assoc.setCommunityid(ret.getGuid().getLongValue());
+      assoc.setCommunityGuid(optGuid);
+      assoc.setCommunityId(optGuid != null ? optGuid.getLongValue() : 0L);
       assoc.setRoleId(roleGuid.longValue());
       assoc.setRoleGuid(convertGuid(roleGuid));
       roles.add(assoc);
@@ -195,15 +224,12 @@ public class ApiUtils {
   public static PSCommunity convertCommunity(Community c) {
     PSCommunity p = new PSCommunity();
 
-    p.setDescription(c.getDescription());
-    p.setName(c.getName());
+    p.setDescription(orNull(c.getDescription()));
+    p.setName(orNull(c.getName()));
     p = (PSCommunity) p.tuneClone(c.getId());
 
-    if (c.getRoleList() != null) {
-
-      for (CommunityRole cr : c.getRoleList()) {
-        p.addRoleAssociation(convertGuid(cr.getRoleGuid()));
-      }
+    for (CommunityRole cr : orEmpty(c.getRoleList())) {
+      p.addRoleAssociation(convertGuid(orNull(cr.getRoleGuid())));
     }
 
     return p;
@@ -218,13 +244,14 @@ public class ApiUtils {
       CommunityRoleList roleList) {
 
     ArrayList<PSCommunityRoleAssociation> ret = new ArrayList<>();
-
-    for (CommunityRole r : roleList) {
-      PSCommunityRoleAssociation p_r =
-          new PSCommunityRoleAssociation(
-              convertGuid(r.getCommunityGuid()), convertGuid(r.getRoleGuid()));
-      p_r.setRoleName(r.getRoleName());
-      ret.add(p_r);
+    if (roleList != null) {
+      for (CommunityRole r : roleList) {
+        PSCommunityRoleAssociation p_r =
+            new PSCommunityRoleAssociation(
+                convertGuid(orNull(r.getCommunityGuid())), convertGuid(orNull(r.getRoleGuid())));
+        p_r.setRoleName(orNull(r.getRoleName()));
+        ret.add(p_r);
+      }
     }
     return ret;
   }
@@ -263,13 +290,15 @@ public class ApiUtils {
 
   public static ObjectSummary convertPSObjectSummary(PSObjectSummary s) {
     var ret = new ObjectSummary();
-    ret.setDescripion(s.getDescription());
-    ret.setGuid(convertGuid(s.getGUID()));
-    ret.setId(s.getId());
+    ret.setDescription(s.getDescription());
+    if (s.getGUID() != null) {
+      ret.setGuid(convertGuid(s.getGUID()));
+      ret.setId(s.getGUID().longValue());
+    }
     ret.setLabel(s.getLabel());
     ret.setName(s.getName());
-    ret.setType(ObjectTypeEnum.valueOf(s.getType()));
-    ret.setObjectLocked(s.isObjectLocked());
+    ret.setType(s.getType() == null ? null : ObjectTypeEnum.valueOf(s.getType()));
+    ret.setObjectLocked(s.isLocked());
     ret.setLockSummary(convertPSObjectLockSummary(s.getLocked()));
     ret.setPermissions(convertPSUserAccessLevel(s.getPermissions()));
     return ret;
@@ -389,9 +418,9 @@ public class ApiUtils {
   public static PSRole convertRole(Role role) {
     PSRole ret = new PSRole();
 
-    ret.setDescription(role.getDescription());
-    ret.setHomepage(role.getHomePage());
-    ret.setName(role.getName());
+    ret.setDescription(orNull(role.getDescription()));
+    ret.setHomepage(orNull(role.getHomePage()));
+    ret.setName(orNull(role.getName()));
     ret.setUsers(role.getUsers());
 
     return ret;
@@ -407,12 +436,12 @@ public class ApiUtils {
     PSAclImpl p_acl = new PSAclImpl();
 
     p_acl.setId(acl.getId());
-    p_acl.setDescription(acl.getDescription());
-    p_acl.setName(acl.getName());
-    p_acl.setGUID(convertGuid(acl.getGuid()));
+    p_acl.setDescription(orNull(acl.getDescription()));
+    p_acl.setName(orNull(acl.getName()));
+    p_acl.setGUID(convertGuid(orNull(acl.getGuid())));
     p_acl.setObjectId(acl.getObjectId());
     p_acl.setObjectType(acl.getObjectType());
-    p_acl.setEntries(convertAclEntries(acl.getAclEntries()));
+    p_acl.setEntries(convertAclEntries(orNull(acl.getAclEntries())));
 
     return p_acl;
   }
@@ -423,17 +452,22 @@ public class ApiUtils {
    * @return
    */
   public static Collection<PSAclEntryImpl> convertAclEntries(AclEntryList aclEntries) {
-
     HashSet<PSAclEntryImpl> ret = new HashSet<>();
+    if (aclEntries == null) {
+      return ret;
+    }
 
     for (AclEntry entry : aclEntries) {
       PSAclEntryImpl p_entry = new PSAclEntryImpl();
 
       p_entry.setId(entry.getId());
-      p_entry.setName(entry.getName());
-      p_entry.setPrincipal(convertPrincipal(entry.getPrincipal()));
-      p_entry.setType(IPSTypedPrincipal.PrincipalTypes.valueOf(entry.getType().getName()));
-      for (UserAccessLevel p : entry.getPermissions()) {
+      p_entry.setName(orNull(entry.getName()));
+      p_entry.setPrincipal(convertPrincipal(orNull(entry.getPrincipal())));
+      p_entry.setType(
+          entry.getType().isPresent()
+              ? IPSTypedPrincipal.PrincipalTypes.valueOf(entry.getType().get().getName())
+              : null);
+      for (UserAccessLevel p : orEmpty(entry.getPermissions())) {
         p_entry.addPermission(convertPermissions(p));
       }
       p_entry.setAclId(entry.getAclId());
@@ -447,7 +481,7 @@ public class ApiUtils {
   public static PSAccessLevelImpl convertPermissions(UserAccessLevel p) {
     PSAccessLevelImpl p_a = new PSAccessLevelImpl();
 
-    p_a.setPermission(PSPermissions.valueOf(p.getPermission().name()));
+    p_a.setPermission(PSPermissions.valueOf(orNull(p.getPermission()).name()));
     p_a.setId(p.getId());
     return p_a;
   }
@@ -482,7 +516,7 @@ public class ApiUtils {
       ret.setName(p_acl.getName());
       ret.setGuid(convertGuid(p_acl.getGUID()));
       ret.setId(p_acl.getId());
-      ret.setObectGuid(convertGuid(p_acl.getObjectGuid()));
+      ret.setObjectGuid(convertGuid(p_acl.getObjectGuid()));
       ret.setObjectId(p_acl.getObjectId());
       ret.setAclEntries(convertAclEntries(p_acl.getEntries()));
     }
@@ -542,11 +576,11 @@ public class ApiUtils {
       var p_a = new PSAclImpl();
       p_a.setObjectType(a.getObjectType());
       p_a.setObjectId(a.getObjectId());
-      p_a.setGUID(convertGuid(a.getGuid()));
-      p_a.setName(a.getName());
+      p_a.setGUID(convertGuid(orNull(a.getGuid())));
+      p_a.setName(orNull(a.getName()));
       p_a.setId(a.getId());
-      p_a.setEntries(convertAclEntries(a.getAclEntries()));
-      p_a.setDescription(a.getDescription());
+      p_a.setEntries(convertAclEntries(orNull(a.getAclEntries())));
+      p_a.setDescription(orNull(a.getDescription()));
       p_acls.add(p_a);
     }
     return p_acls;
@@ -589,12 +623,10 @@ public class ApiUtils {
     return p;
   }
 
-  public static UserPreferenceList convertUserProperties(Collection userProperties) {
-
-    Iterator<PSPersistentProperty> properties = userProperties.iterator();
+  public static UserPreferenceList convertUserProperties(
+      Collection<PSPersistentProperty> userProperties) {
     ArrayList<UserPreference> up = new ArrayList<>();
-    while (properties.hasNext()) {
-      PSPersistentProperty prop = properties.next();
+    for (PSPersistentProperty prop : userProperties) {
       up.add(ApiUtils.convertPSPersistentProperty(prop));
     }
     return new UserPreferenceList(up);
@@ -723,22 +755,22 @@ public class ApiUtils {
 
     for (PSSiteSummary s : list) {
       Site newSite = new Site();
-      newSite.setBaseUrl(s.getBaseUrl());
+      newSite.setBaseUrl(orNull(s.getBaseUrl()));
       newSite.setCanonical(s.isCanonical());
       newSite.setCanonicalDist(s.getCanonicalDist());
       newSite.setCanonicalReplace(s.isCanonicalReplace());
       newSite.setDefaultDocument(s.getDefaultDocument());
-      newSite.setDefaultFileExtention(s.getDefaultFileExtention());
-      newSite.setDescription(s.getDescription());
-      newSite.setGuid(convertGuid(new PSGuid(s.getGuid())));
+      newSite.setDefaultFileExtention(orNull(s.getDefaultFileExtention()));
+      newSite.setDescription(orNull(s.getDescription()));
+      newSite.setGuid(convertGuid(new PSGuid(orNull(s.getGuid()))));
       newSite.setName(s.getName());
       newSite.setOverrideSystemFoundation(s.getOverrideSystemFoundation());
       newSite.setOverrideSystemJQuery(s.getOverrideSystemJQuery());
       newSite.setOverrideSystemJQueryUI(s.getOverrideSystemJQueryUI());
       newSite.setPageBasedSite(s.isCM1Site());
-      newSite.setSiteAdditionalHeadContent(s.getSiteAdditionalHeadContent());
-      newSite.setSiteAfterBodyOpenContent(s.getSiteAfterBodyOpenContent());
-      newSite.setSiteBeforeBodyCloseContent(s.getSiteBeforeBodyCloseContent());
+      newSite.setSiteAdditionalHeadContent(orNull(s.getSiteAdditionalHeadContent()));
+      newSite.setSiteAfterBodyOpenContent(orNull(s.getSiteAfterBodyOpenContent()));
+      newSite.setSiteBeforeBodyCloseContent(orNull(s.getSiteBeforeBodyCloseContent()));
       newSite.setSiteProtocol(s.getSiteProtocol());
 
       ret.add(newSite);

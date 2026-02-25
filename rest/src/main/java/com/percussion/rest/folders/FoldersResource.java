@@ -368,7 +368,9 @@ public class FoldersResource {
   public Status moveFolderItem(MoveFolderItem moveRequest) {
     try {
       folderAdaptor.moveFolderItem(
-            uriInfo.getBaseUri(), moveRequest.getItemPath().orElse(null), moveRequest.getTargetFolderPath().orElse(null));
+          uriInfo.getBaseUri(),
+          moveRequest.getItemPath().orElse(null),
+          moveRequest.getTargetFolderPath().orElse(null));
       return new Status("Moved OK");
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -402,7 +404,9 @@ public class FoldersResource {
   public Status moveFolder(MoveFolderItem moveRequest) {
     try {
       folderAdaptor.moveFolderItem(
-            uriInfo.getBaseUri(), moveRequest.getItemPath().orElse(null), moveRequest.getTargetFolderPath().orElse(null));
+          uriInfo.getBaseUri(),
+          moveRequest.getItemPath().orElse(null),
+          moveRequest.getTargetFolderPath().orElse(null));
       return new Status("Moved OK");
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -437,7 +441,9 @@ public class FoldersResource {
   public Status copyFolderItem(CopyFolderItemRequest request) {
     try {
       folderAdaptor.copyFolderItem(
-            uriInfo.getBaseUri(), request.getItemPath().orElse(null), request.getTargetFolderPath().orElse(null));
+          uriInfo.getBaseUri(),
+          request.getItemPath().orElse(null),
+          request.getTargetFolderPath().orElse(null));
       return new Status(200, "Copied OK");
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -471,7 +477,9 @@ public class FoldersResource {
   public Status copyFolder(CopyFolderItemRequest request) {
     try {
       folderAdaptor.copyFolder(
-            uriInfo.getBaseUri(), request.getItemPath().orElse(null), request.getTargetFolderPath().orElse(null));
+          uriInfo.getBaseUri(),
+          request.getItemPath().orElse(null),
+          request.getTargetFolderPath().orElse(null));
       return new Status(200, "Copied OK");
     } catch (NotFoundException nfe) {
       return new Status(404, "Not Found");

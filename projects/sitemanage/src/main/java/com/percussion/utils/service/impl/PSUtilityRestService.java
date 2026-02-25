@@ -127,9 +127,9 @@ public class PSUtilityRestService {
   public PSNoContent log(PSLogData logData) {
     Validate.notNull(logData, "logData must not be null for log method");
     service.log(
-        logData.getType().orElse("info"),
-        logData.getCategory().orElse("General"),
-        logData.getMessage().orElse(""));
+        logData.getType() != null ? logData.getType() : "info",
+        logData.getCategory() != null ? logData.getCategory() : "General",
+        logData.getMessage() != null ? logData.getMessage() : "");
     return new PSNoContent("Logged the message.");
   }
 

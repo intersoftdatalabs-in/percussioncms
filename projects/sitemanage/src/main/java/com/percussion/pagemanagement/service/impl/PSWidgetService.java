@@ -148,20 +148,18 @@ public class PSWidgetService implements IPSWidgetService {
 
   // TODO: A PSWidgetDefinition should be a subclass of PSWidgetSummary
   private void convertFullToSummary(PSWidgetDefinition full, PSWidgetSummary summary) {
-    if (full.getWidgetPrefs() != null) {
+    full.getWidgetPrefs().ifPresentOrElse(prefs -> {
       summary.setId(full.getId());
-      summary.setLabel(full.getWidgetPrefs().getTitle());
-      summary.setName(full.getWidgetPrefs().getContenttypeName());
-      summary.setIcon(full.getWidgetPrefs().getThumbnail());
+      summary.setLabel(prefs.getTitle());
+      summary.setName(prefs.getContenttypeName());
+      summary.setIcon(prefs.getThumbnail());
       summary.setHasUserPrefs(!full.getUserPref().isEmpty());
       summary.setHasCssPrefs(!full.getCssPref().isEmpty());
-      summary.setType(getWidgetType(full.getWidgetPrefs().getTitle()));
-      summary.setCategory(full.getWidgetPrefs().getCategory());
-      summary.setDescription(full.getWidgetPrefs().getDescription());
-      summary.setResponsive(full.getWidgetPrefs().isResponsive());
-    } else {
-      log.error("Widget definition does not have user prefs, definitionId: " + full.getId());
-    }
+      summary.setType(getWidgetType(prefs.getTitle()));
+      summary.setCategory(prefs.getCategory());
+      summary.setDescription(prefs.getDescription());
+      summary.setResponsive(prefs.isResponsive());
+    }, () -> log.error("Widget definition does not have user prefs, definitionId: " + full.getId()));
   }
 
   private PSWidgetSummary createWidgetSummary() {
@@ -315,9 +313,12 @@ public class PSWidgetService implements IPSWidgetService {
       else if (s2 == null) return 1;
 
       if (s1.getLabel() == null && s2.getLabel() == null) return 0;
-      else if (s1.getLabel() != null && s2.getLabel() != null)
-        return s1.getLabel().compareTo(s2.getLabel());
-      else if (s1.getLabel() != null) return 1;
+        if (s1.getLabel() != null && s2.getLabel() != null) {
+            String l1 = s1.getLabel();
+            String l2 = s2.getLabel();
+            return l1.compareTo(l2);
+        }
+        if (s1.getLabel() != null) return 1;
       else return -1;
     }
   }

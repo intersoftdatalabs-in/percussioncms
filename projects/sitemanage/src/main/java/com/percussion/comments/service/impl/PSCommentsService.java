@@ -291,7 +291,6 @@ public class PSCommentsService implements IPSCommentsService {
     }
   }
 
-  @Override
   @PUT
   @Path("/defaultModerationState")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -319,7 +318,6 @@ public class PSCommentsService implements IPSCommentsService {
     }
   }
 
-  @Override
   @GET
   @Path("/defaultModerationState/{site}")
   @Produces(MediaType.TEXT_PLAIN)

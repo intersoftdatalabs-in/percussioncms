@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.linkmanagement.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.services.assembly.impl.PSReplacementFilter;
 import org.junit.jupiter.api.Test;

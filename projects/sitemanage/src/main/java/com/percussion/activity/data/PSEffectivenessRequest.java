@@ -20,7 +20,6 @@ package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.activity.service.IPSContentActivityService.PSUsageEnum;
-import java.util.Optional;
 
 /**
  * A request object used for getting the effectiveness data from the rest service. Extends the
@@ -35,8 +34,8 @@ public class PSEffectivenessRequest extends PSContentActivityRequest {
   /**
    * @return the usage metric to use when calculating effectiveness.
    */
-  public Optional<PSUsageEnum> getUsage() {
-    return Optional.ofNullable(usage);
+  public PSUsageEnum getUsage() {
+    return usage;
   }
 
   /**

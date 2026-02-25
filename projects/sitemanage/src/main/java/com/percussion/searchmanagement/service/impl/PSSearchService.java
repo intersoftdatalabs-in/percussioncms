@@ -216,8 +216,9 @@ public class PSSearchService implements IPSSearchService {
     if (criteria.getFormatId() == null) {
       throw new IllegalArgumentException("format Id cannot be blank.");
     }
-    var finalContentIdList =
-        ipsPageDaoHelper.getContentIdsForFetchingByStatus(criteria, contentIdList);
+    // ensure we have a List since helper may return a generic Collection
+    List<Integer> finalContentIdList =
+        new ArrayList<>(ipsPageDaoHelper.getContentIdsForFetchingByStatus(criteria, contentIdList));
     var allItemEntries = getSortedEntries(criteria, finalContentIdList);
     return formatResults(criteria, allItemEntries);
   }
@@ -316,7 +317,18 @@ public class PSSearchService implements IPSSearchService {
     if (criteria.getSortColumn() != null && criteria.getSortOrder() != null) {
       compare = new CompareItemEntry(criteria.getSortColumn(), criteria.getSortOrder());
     }
-    return cmsObjectMgr.findItemEntries(contentIdList, compare);
+    // Use reflection to avoid compile‑time dependency on methods not present
+    // in the published IPSCmsObjectMgr interface version that sitemanage
+    // currently depends on.  The implementation (PSCmsObjectMgr) does provide
+    // the method.
+    try {
+        var method = cmsObjectMgr.getClass().getMethod("findItemEntries", List.class, Comparator.class);
+        @SuppressWarnings("unchecked")
+        List<IPSItemEntry> result = (List<IPSItemEntry>) method.invoke(cmsObjectMgr, contentIdList, compare);
+        return result;
+    } catch (ReflectiveOperationException e) {
+        throw new RuntimeException("Failed to invoke findItemEntries via reflection", e);
+    }
   }
 
   private class CompareItemEntry implements Comparator<IPSItemEntry> {
@@ -437,6 +449,7 @@ public class PSSearchService implements IPSSearchService {
   private IPSItemWorkflowService itemWorkflowService;
   private IPSListViewHelper listViewHelper;
   private static IPSUiService uiService;
+  // reference via interface, which contains findItemEntries
   private static IPSCmsObjectMgr cmsObjectMgr = PSCmsObjectMgrLocator.getObjectManager();
   private IPSWorkflowService workflowService;
   private IPSRecycleService recycleService;

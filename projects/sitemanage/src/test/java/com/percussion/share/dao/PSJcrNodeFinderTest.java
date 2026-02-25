@@ -17,7 +17,7 @@
  */
 package com.percussion.share.dao;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.services.contentmgr.IPSContentMgr;
 import java.util.Map;

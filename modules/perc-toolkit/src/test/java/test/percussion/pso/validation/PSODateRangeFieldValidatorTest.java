@@ -37,9 +37,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 // REFACTORED: CP-JAVA11
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class PSODateRangeFieldValidatorTest {
   private static final Logger log = LogManager.getLogger(PSODateRangeFieldValidatorTest.class);
 

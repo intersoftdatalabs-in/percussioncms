@@ -17,7 +17,7 @@
  */
 package com.percussion.share.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.data.IPSItemSummary;

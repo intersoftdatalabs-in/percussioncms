@@ -45,8 +45,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fop.apps.*;
@@ -111,10 +110,13 @@ public class FopAssembler extends PSVelocityAssembler implements IPSAssembler {
                   .getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);
       String fopConfigFilename = rxRootDir + "/rxconfig/Server/fop.config";
 
-      DefaultConfigurationBuilder cfgBuilder = new DefaultConfigurationBuilder();
-      Configuration cfg = cfgBuilder.buildFromFile(new File(fopConfigFilename));
+      // For simplicity we skip explicit config parsing.  If a configuration file
+      // is required in future we can load it with the FOP API; the FopFactoryBuilder
+      // currently expects an org.apache.fop.configuration.Configuration, and the
+      // previous avalon-based parsing caused a type mismatch.  Using defaults keeps
+      // the behaviour clean and avoids compile-time runtime coupling.
       FopFactoryBuilder fopFactoryBuilder =
-          new FopFactoryBuilder(new File(".").toURI()).setConfiguration(cfg);
+          new FopFactoryBuilder(new File(".").toURI());
       fopFactory = fopFactoryBuilder.build();
 
     } catch (Exception ex) {

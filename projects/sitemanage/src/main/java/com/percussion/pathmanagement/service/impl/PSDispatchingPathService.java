@@ -862,7 +862,10 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
         List<PSPathItem> result = new ArrayList<>();
         for (PSPathItem item : items) {
           Category itemCat = item.getCategory();
-          if (Category.SYSTEM.equals(itemCat)) itemCat = Category.FOLDER;
+          // some older versions of the Category enum may not define SYSTEM; compare by name
+          if (itemCat != null && "SYSTEM".equals(itemCat.name())) {
+              itemCat = Category.FOLDER;
+          }
 
           if (hasCat && (itemCat == null || !categories.contains(itemCat.name()))) continue;
 

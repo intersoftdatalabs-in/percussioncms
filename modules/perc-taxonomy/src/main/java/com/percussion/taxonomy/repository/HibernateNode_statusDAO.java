@@ -19,24 +19,36 @@ package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Node_status;
 import java.util.Collection;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class HibernateNode_statusDAO extends HibernateDaoSupport implements Node_statusDAO {
+@Repository
+@Transactional
+public class HibernateNode_statusDAO implements Node_statusDAO {
+
+  @Autowired private SessionFactory sessionFactory;
 
   public Node_status getNode_status(int id) {
-    return (Node_status) getHibernateTemplate().get(Node_status.class, new Integer(id));
+    Session session = sessionFactory.getCurrentSession();
+    return session.get(Node_status.class, id);
   }
 
-  public Collection getAllNode_statuss() {
-    // Optional: Add order by to query
-    return getHibernateTemplate().find("from Node_status nod");
+  @SuppressWarnings("unchecked")
+  public Collection<Node_status> getAllNode_statuss() {
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Node_status>) (Collection<?>) session.createQuery("from Node_status nod", Node_status.class).list();
   }
 
   public void saveNode_status(Node_status node_status) {
-    getHibernateTemplate().saveOrUpdate(node_status);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(node_status);
   }
 
   public void removeNode_status(Node_status node_status) {
-    getHibernateTemplate().delete(node_status);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(node_status);
   }
 }

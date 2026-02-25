@@ -152,7 +152,7 @@ public class PSLogger {
       ensureLog4jConfiguration(ms_absoluteLogFilePath);
     }
 
-Collection<Object> logList = getLogList("warn");
+    Collection<Object> logList = getLogList("warn");
 
     if (ms_Logger != null) {
       if (logList != null && logList.size() > 0) {
@@ -192,7 +192,7 @@ Collection<Object> logList = getLogList("warn");
       ensureLog4jConfiguration(ms_absoluteLogFilePath);
     }
 
-Collection<Object> logList = getLogList("error");
+    Collection<Object> logList = getLogList("error");
 
     if (ms_Logger != null) {
       if (logList != null && logList.size() > 0) {
@@ -292,7 +292,7 @@ Collection<Object> logList = getLogList("error");
    * stores the log strings, grouped by a log level, to be logged later to log file, never <code>
    * null</code>.
    */
-  private static Map<String,Collection<Object>> ms_mapLevel2LogList = new HashMap<>();
+  private static Map<String, Collection<Object>> ms_mapLevel2LogList = new HashMap<>();
 
   static {
     ms_mapLevel2LogList.put("trace", new ArrayList<>());

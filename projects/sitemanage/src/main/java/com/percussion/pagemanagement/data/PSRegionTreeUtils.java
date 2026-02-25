@@ -68,9 +68,9 @@ public class PSRegionTreeUtils {
     var it = new PSRegionNodeWrapperIterator(rootNode);
     while (it.hasNext()) {
       var nw = it.next();
-      if (nw.type == Type.START) {
+      if (nw.type == PSRegionNodeWrapper.Type.START) {
         nw.node.accept(visitor.getStartRegionNodeVisitor());
-      } else if (nw.type == Type.END) {
+      } else if (nw.type == PSRegionNodeWrapper.Type.END) {
         nw.node.accept(visitor.getEndRegionNodeVisitor());
       } else {
         isTrue(false);
@@ -93,7 +93,7 @@ public class PSRegionTreeUtils {
     var regions = new ArrayList<PSRegion>();
     while (it.hasNext()) {
       var nw = it.next();
-      if (nw.node instanceof PSRegion && nw.type == Type.START) {
+      if (nw.node instanceof PSRegion && nw.type == PSRegionNodeWrapper.Type.START) {
         regions.add((PSRegion) nw.node);
       }
     }
@@ -190,14 +190,17 @@ public class PSRegionTreeUtils {
    *     null}.
    * @param node {@link PSRegion} representing the current node.
    */
-  private static void getWidgetRegionsFromChilds(Set<PSRegion> leafRegions, PSRegion node) {
-    if (isWidgetRegion(node)) {
-      leafRegions.add(node);
+  private static void getWidgetRegionsFromChilds(Set<PSRegion> leafRegions, PSAbstractRegion node) {
+    if (!(node instanceof PSRegion region)) {
+      return; // Only process PSRegion instances
+    }
+    if (isWidgetRegion(region)) {
+      leafRegions.add(region);
       return;
     }
-    var nodes = getChildRegions(node);
-    for (var region : nodes) {
-      getWidgetRegionsFromChilds(leafRegions, region);
+    var nodes = getChildRegions(region);
+    for (var child : nodes) {
+      getWidgetRegionsFromChilds(leafRegions, child);
     }
   }
 
@@ -249,7 +252,7 @@ public class PSRegionTreeUtils {
 
     public PSRegionNodeWrapperIterator(PSRegionNode rootNode) {
       super();
-      nodeStack.push(new PSRegionNodeWrapper(rootNode, Type.START));
+      nodeStack.push(new PSRegionNodeWrapper(rootNode, PSRegionNodeWrapper.Type.START));
     }
 
     @Override
@@ -261,15 +264,15 @@ public class PSRegionTreeUtils {
     public PSRegionNodeWrapper next() {
       var nodeWrapper = nodeStack.pop();
       var node = nodeWrapper.node;
-      if (nodeWrapper.type == Type.START) {
-        nodeStack.push(new PSRegionNodeWrapper(nodeWrapper.node, Type.END));
+      if (nodeWrapper.type == PSRegionNodeWrapper.Type.START) {
+        nodeStack.push(new PSRegionNodeWrapper(nodeWrapper.node, PSRegionNodeWrapper.Type.END));
         if (node instanceof PSAbstractRegion) {
           var r = (PSAbstractRegion) node;
           if (r.getChildren() != null && !r.getChildren().isEmpty()) {
             var children = new ArrayList<>(r.getChildren());
             Collections.reverse(children);
             for (var child : children) {
-              nodeStack.push(new PSRegionNodeWrapper(child, Type.START));
+              nodeStack.push(new PSRegionNodeWrapper(child, PSRegionNodeWrapper.Type.START));
             }
           }
         }

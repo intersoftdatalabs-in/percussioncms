@@ -16,7 +16,7 @@
  */
 package com.percussion.widgetbuilder.utils;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData.FieldType;

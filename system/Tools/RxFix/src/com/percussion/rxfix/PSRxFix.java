@@ -38,16 +38,6 @@ import java.util.stream.Collectors;
  * consider its position in the overall list. Each module implements
  * {@link IPSFix}.
  *
- * <p>This class has been modernized to use Java 11 features including:
- * <ul>
- * <li>var keyword for local variable type inference</li>
- * <li>Enhanced generics and type safety</li>
- * <li>Stream API for collection operations</li>
- * <li>Optional for null safety</li>
- * </ul>
- *
- * @author Sunny Sal the Senior Java Developer
- * @since Java 11
  */
 public class PSRxFix
 {
@@ -157,10 +147,10 @@ public class PSRxFix
    private final List<Class<? extends IPSFix>> fixes = Arrays.asList(
       PSFixNextNumberTable.class,
       PSFixContentStatusHistory.class,
-      //PSFixContentStatusHistoryWFInfo.class, 
-      PSFixOrphanedSlots.class, 
+      //PSFixContentStatusHistoryWFInfo.class,
+      PSFixOrphanedSlots.class,
       PSFixBrokenRelationships.class,
-      // PSFixOrphanedData.class, omitted since the data is missing 
+      // PSFixOrphanedData.class, omitted since the data is missing
       PSFixInvalidFolders.class,
       PSFixOrphanedFolders.class,
       PSFixInvalidFolderRelationships.class,
@@ -241,7 +231,7 @@ public class PSRxFix
    public void setPreviewDone(boolean previewDone) {
       this.previewDone = previewDone;
    }
-   
+
    /**
     * Gets all entries, which include result data.
     *
@@ -250,7 +240,7 @@ public class PSRxFix
    public List<Entry> getEntries() {
       return Optional.ofNullable(entries).orElse(List.of());
    }
-   
+
    /**
     * Gets only those entries that were actually run.
     * Uses Java 11 stream operations for filtering.
@@ -289,7 +279,7 @@ public class PSRxFix
       if (fixDone) {
          return "admin-rxfix";
       }
-      
+
       try {
          doFix(false);
       } catch (Exception e) {
@@ -298,7 +288,7 @@ public class PSRxFix
       }
       return "admin-rxfix-preview";
    }
-   
+
    /**
     * Gets the UI label for next action.
     *
@@ -335,7 +325,7 @@ public class PSRxFix
 
    /**
     * Startup and do one or more fixes with optional startup process manager.
-    * Uses Java 11 var keyword and enhanced exception handling.
+
     *
     * @param preview Run the fixups in preview mode
     * @param startupProcessManager Optional startup process manager
@@ -386,10 +376,10 @@ public class PSRxFix
       this.previewDone = preview;
       this.fixDone = !preview;
    }
-   
+
    /**
     * Get the help file name for the RxFix page.
-    * 
+    *
     * @return the help file name, never {@code null} or empty
     */
    public String getHelpFile() {

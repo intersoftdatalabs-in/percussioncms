@@ -40,8 +40,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.*;
-import org.apache.commons.lang.CharEncoding;
-import org.apache.commons.lang.StringUtils;
+// removed legacy lang imports to avoid duplicate types
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;

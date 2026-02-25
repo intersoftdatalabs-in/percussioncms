@@ -192,6 +192,18 @@ Key store password properties can be encrypted in your setting.xml by following 
 
 Before you start working on a bug or feature, discuss the issue in GitHub Issues or on the percussion community.  This is just to make sure you don't duplicate efforts or waste your valuable time on something that is already underway by someone else.
 
+Before running any `gh issue ...` or `gh pr ...` command, verify your GitHub target is the Intersoft fork:
+
+```bash
+./scripts/gh-preflight.sh
+```
+
+If your local defaults are wrong, auto-fix them with:
+
+```bash
+./scripts/gh-preflight.sh --fix
+```
+
 When starting work, create a new feature branch.
 
 **Before committing**

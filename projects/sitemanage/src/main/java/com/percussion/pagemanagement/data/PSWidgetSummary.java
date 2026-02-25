@@ -19,7 +19,6 @@ package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Widget summary information. Sunny Sal says: "Summaries—because even widgets need a LinkedIn
@@ -49,32 +48,32 @@ public class PSWidgetSummary extends PSAbstractPersistantObject {
     this.id = id;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  public String getLabel() {
+    return label;
   }
 
   public void setLabel(String label) {
     this.label = label;
   }
 
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   public void setType(String type) {
     this.type = type;
   }
 
-  public Optional<String> getIcon() {
-    return Optional.ofNullable(icon);
+  public String getIcon() {
+    return icon;
   }
 
   public void setIcon(String icon) {
@@ -97,16 +96,16 @@ public class PSWidgetSummary extends PSAbstractPersistantObject {
     this.hasUserPrefs = hasUserPrefs;
   }
 
-  public Optional<String> getCategory() {
-    return Optional.ofNullable(category);
+  public String getCategory() {
+    return category;
   }
 
   public void setCategory(String category) {
     this.category = category;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {

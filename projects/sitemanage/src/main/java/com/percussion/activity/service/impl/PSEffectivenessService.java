@@ -58,14 +58,16 @@ public class PSEffectivenessService implements IPSEffectivenessService {
     notNull(activity, "activity must not be null");
 
     var effectivenessList = new ArrayList<PSEffectiveness>();
-    var durationType = PSDurationTypeEnum.valueOf(request.getDurationType());
-    var duration = Integer.parseInt(request.getDuration());
+    var durationType = PSDurationTypeEnum.valueOf(request.getDurationType().orElse(""));
+    var duration = Integer.parseInt(request.getDuration().orElse("0"));
     var granularity = getGranularity(durationType);
     var currRange = new PSDateRange(granularity, duration);
     var prevRange = new PSDateRange(currRange.getStart(), granularity, duration);
 
+    // usage is a plain enum in the request
+    var usageEnum = request.getUsage() != null ? request.getUsage() : PSUsageEnum.unique_pageviews;
     var resultKey =
-        (request.getUsage() == PSUsageEnum.unique_pageviews)
+        (usageEnum == PSUsageEnum.unique_pageviews)
             ? IPSAnalyticsProviderQueryService.FIELD_UNIQUE_PAGEVIEWS
             : IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS;
 

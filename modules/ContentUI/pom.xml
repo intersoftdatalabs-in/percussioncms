@@ -32,6 +32,21 @@
             <artifactId>perc-i18n</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>extensions-main</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-server-ui-cmp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Apache Commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -34,13 +34,13 @@ import org.junit.jupiter.api.io.TempDir;
  */
 public class TestExecSQLRemoveDupes {
 
-    // derby configuration used throughout the tests
-    private static String repoRoot;
-    private static String oldRepoRoot;
-    private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
-    private static final String connectionURL = "jdbc:derby:;create=true";
+  // derby configuration used throughout the tests
+  private static String repoRoot;
+  private static String oldRepoRoot;
+  private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+  private static final String connectionURL = "jdbc:derby:;create=true";
 
-    @TempDir public static Path temporaryFolder;
+  @TempDir public static Path temporaryFolder;
 
   @BeforeAll
   public static void setup() throws Exception {

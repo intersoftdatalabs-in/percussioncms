@@ -17,7 +17,7 @@
 
 package com.percussion.assetmanagement.forms.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.percussion.test.TestAssertions.*;
 
 import org.junit.jupiter.api.Test;
 

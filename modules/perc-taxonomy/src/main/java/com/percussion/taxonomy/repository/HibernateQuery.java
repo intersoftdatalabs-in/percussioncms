@@ -18,16 +18,15 @@
 package com.percussion.taxonomy.repository;
 
 import java.util.HashMap;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.HibernateCallback;
 
 /**
- * You can pass in a simple Query, or you can pass one in with substitutions defined, and then
- * supply a map of substitution values to be inserted on execute
+ * Helper class to execute a query with optional parameter substitutions without requiring
+ * HibernateCallback.You can pass in a simple Query, or you can pass one in with substitutions
+ * defined, and then supply a map of substitution values to be inserted on execute
  */
-public class HibernateQuery implements HibernateCallback {
+public class HibernateQuery {
 
   private String query;
   private HashMap<String, String> substitutions;
@@ -42,11 +41,11 @@ public class HibernateQuery implements HibernateCallback {
     this.substitutions = substitutions;
   }
 
-  public Object doInHibernate(Session session) throws HibernateException {
-    Query q = session.createQuery(query);
+  public Object execute(Session session) {
+    Query<?> q = session.createQuery(query);
     if (substitutions != null) {
       for (String name : substitutions.keySet()) {
-        q.setText(name, substitutions.get(name));
+        q.setParameter(name, substitutions.get(name));
       }
     }
     return q.list();

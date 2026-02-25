@@ -21,7 +21,9 @@ import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.get
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.sitemanage.data.PSPageContent;
+import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
+import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.theme.IPSFileDownloader;
 import com.percussion.sitemanage.importer.theme.PSFileDownloader;
@@ -71,13 +73,16 @@ public class PSImportThemeHelper extends PSImportHelper {
     if (context.isCanceled()) {
       return;
     }
+    // unwrap frequently-used optionals
+    PSSite site = context.getSite().orElseThrow(() -> new IllegalStateException("Site required"));
+    PSThemeSummary themeSummary = context.getThemeSummary().orElse(null);
+
     var summaryService =
         (IPSSiteImportSummaryService)
             getWebApplicationContext().getBean("siteImportSummaryService");
     context.setSummaryService(summaryService);
-
-    var linkPaths = new HashMap<String, String>();
-    var scriptPaths = new HashMap<String, String>();
+    Map<String, String> linkPaths = new HashMap<>();
+    Map<String, String> scriptPaths = new HashMap<>();
     var resources = new HashMap<String, String>();
     var assets = new HashMap<String, String>();
     var summaryStats =
@@ -88,20 +93,20 @@ public class PSImportThemeHelper extends PSImportHelper {
     try {
       var sourceDoc = pageContent.getSourceDocument();
       String baseUrl = null;
-      var statusMessagePrefix = context.getStatusMessagePrefix();
-      if (statusMessagePrefix != null && statusMessagePrefix.contains("template")) {
-        baseUrl = getBaseUrl(context, sourceDoc);
-      } else {
-        baseUrl = context.getSite().getBaseUrl();
-      }
-      if (baseUrl.equals("")) {
-        baseUrl = context.getSiteUrl();
-      }
+        var statusMessagePrefix = context.getStatusMessagePrefix().orElse("");
+        if (statusMessagePrefix.contains("template")) {
+          baseUrl = getBaseUrl(context, sourceDoc);
+        } else {
+          baseUrl = site.getBaseUrl().orElse("");
+        }
+        if (baseUrl.equals("")) {
+          baseUrl = context.getSiteUrl().orElse("");
+        }
 
-      var siteName = context.getSite().getName();
-      var themeRootDirectory =
-          themeService.getThemeRootDirectory(context.getThemeSummary().getName());
-      var themeRootUrl = themeService.getThemeRootUrl(context.getThemeSummary().getName());
+      var siteName = site.getName();
+      String themeRootDirectory =
+          themeService.getThemeRootDirectory(themeSummary != null ? themeSummary.getName() : "");
+      String themeRootUrl = themeService.getThemeRootUrl(themeSummary != null ? themeSummary.getName() : "");
 
       headerImporter =
           new PSHTMLHeaderImporter(
@@ -115,7 +120,7 @@ public class PSImportThemeHelper extends PSImportHelper {
 
       resources.putAll(headerImporter.processInlineStyles());
       assets.putAll(headerImporter.processHeaderAndBodyImages());
-      assets.putAll(headerImporter.processFlashFiles(context.getSite().getName()));
+      assets.putAll(headerImporter.processFlashFiles(site.getName()));
       resources.putAll(headerImporter.processCssFiles(linkPaths));
 
       fileDownloader.downloadFiles(resources, context, false);
@@ -130,14 +135,15 @@ public class PSImportThemeHelper extends PSImportHelper {
         summaryStats.put(
             IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.STYLESHEETS, linksCount);
         summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.FILES, assetsCount);
-        if (context.getSite() != null && context.getSite().getSiteId() != null)
+        if (site.getSiteId().isPresent())
           context
               .getSummaryService()
-              .update(context.getSite().getSiteId().intValue(), summaryStats);
+              .get()
+              .update(site.getSiteId().get().intValue(), summaryStats);
         else context.setSummaryStats(summaryStats);
       }
     } catch (Exception e) {
-      var msg = "Failed to process jsoup document from url: " + context.getSiteUrl();
+      var msg = "Failed to process jsoup document from url: " + context.getSiteUrl().orElse("");
       log.warn(msg, e);
     }
     endTimer();
@@ -172,7 +178,7 @@ public class PSImportThemeHelper extends PSImportHelper {
       }
       return baseUrl;
     } else {
-      return context.getSiteUrl();
+      return context.getSiteUrl().orElse("");
     }
   }
 

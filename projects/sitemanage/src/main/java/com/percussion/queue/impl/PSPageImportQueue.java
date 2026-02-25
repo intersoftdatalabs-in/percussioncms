@@ -101,7 +101,7 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
 
   @Override
   public void addCatalogedPageIds(PSSite site, String userAgent, List<Integer> ids) {
-    var sq = getSiteQueue(site.getSiteId());
+    var sq = getSiteQueue(site.getSiteId().orElse(null));
     if (sq.getUserAgent() == null) {
       sq.setSite(site);
       sq.setUserAgent(userAgent);
@@ -120,6 +120,10 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
     if (site == null) {
       return;
     }
+    // siteMgr returns an IPSSite (interface) whose getSiteId() returns a Long,
+    // not an Optional.  We were mistakenly calling orElse() on the result which
+    // caused a compilation error because Long does not have that method.
+    // Simply pass the raw value (which may be null) to getSiteQueue().
     var sq = getSiteQueue(site.getSiteId());
     var id = idMapper.getContentId(pageId);
     sq.removeImportedId(id);
@@ -269,7 +273,7 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
     var pageId = idMapper.getString(new PSLegacyGuid(id, -1));
     var siteImportContext = new PSSiteImportCtx();
     siteImportContext.setCanceled(this.importContext.isCanceled());
-    siteImportContext.setImportConfiguration(this.importContext.getImportConfiguration());
+    siteImportContext.setImportConfiguration(this.importContext.getImportConfiguration().orElse(null));
     importService.importCatalogedPage(site, pageId, userAgent, siteImportContext);
   }
 
@@ -348,13 +352,13 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
   }
 
   private PSSiteQueue getSiteQueue(PSSiteImportCtx context) {
-    var siteId = context.getSite().getSiteId();
+    var siteId = context.getSite().flatMap(PSSite::getSiteId).orElse(null);
     var siteQueue = siteCache.get(siteId);
     if (siteQueue == null) {
       synchronized (siteQueueLock) {
         if (siteCache.get(siteId) == null) {
           siteQueue = createSiteQueue(context);
-          importContext.setImportConfiguration(context.getImportConfiguration());
+          importContext.setImportConfiguration(context.getImportConfiguration().orElse(null));
           siteQueue.setMaxImportCount(getMaxImportPage());
           siteCache.put(siteId, siteQueue);
         }
@@ -392,7 +396,7 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
   }
 
   private PSSiteQueue createSiteQueue(PSSiteImportCtx context) {
-    var siteId = context.getSite().getSiteId();
+    var siteId = context.getSite().flatMap(PSSite::getSiteId).orElse(null);
     return getSiteQueue(siteId);
   }
 

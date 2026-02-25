@@ -476,7 +476,7 @@ public class PSSitePublishService implements IPSSitePublishService {
       List<String> notAllowedServers, List<String> siteNames, PubType type)
       throws PSNotFoundException {
     for (PSSiteSummary site : siteDao.findAllSummaries()) {
-      PSGuid siteGuid = new PSGuid(PSTypeEnum.SITE, site.getSiteId());
+      PSGuid siteGuid = new PSGuid(PSTypeEnum.SITE, site.getSiteId().orElse(0L));
       PSPubServer pubServer =
           type.equals(PubType.STAGE_NOW) || type.equals(PubType.REMOVE_FROM_STAGING_NOW)
               ? pubServerService.getStagingPubServer(siteGuid)
@@ -506,7 +506,7 @@ public class PSSitePublishService implements IPSSitePublishService {
       PubType type)
       throws IPSPubServerService.PSPubServerServiceException, PSNotFoundException {
     for (PSSiteSummary site : siteDao.findAllSummaries()) {
-      PSGuid siteGuid = new PSGuid(PSTypeEnum.SITE, site.getSiteId());
+      PSGuid siteGuid = new PSGuid(PSTypeEnum.SITE, site.getSiteId().orElse(0L));
       PSPubServer pubServer =
           type.equals(PubType.STAGE_NOW) || type.equals(PubType.REMOVE_FROM_STAGING_NOW)
               ? pubServerService.getStagingPubServer(siteGuid)
@@ -721,7 +721,7 @@ public class PSSitePublishService implements IPSSitePublishService {
     } else if (sum.isResource()) {
       List<PSSiteSummary> sites = siteDao.findAllSummaries();
       for (PSSiteSummary siteSum : sites) {
-        PSGuid siteGuid = new PSGuid(PSTypeEnum.SITE, siteSum.getSiteId());
+        PSGuid siteGuid = new PSGuid(PSTypeEnum.SITE, siteSum.getSiteId().orElse(0L));
         if (pubServerService.getStagingPubServer(siteGuid) != null) {
           result = true;
           break;

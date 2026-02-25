@@ -75,4 +75,29 @@ public interface IPSGenericDao<T, PK extends Serializable> {
      * @throws PSDataServiceException if removal fails
      */
     void remove(PK id) throws PSDataServiceException;
+
+    /*
+     * Compatibility nested exceptions used by older code in sitemanage and other
+     * modules.  The interface formerly declared these as public static inner
+     * classes.  We keep them here as thin wrappers around
+     * {@link PSDataServiceException} to avoid a massive refactor.  New code should
+     * throw or catch {@code PSDataServiceException} directly.
+     */
+    @Deprecated
+    class LoadException extends PSDataServiceException {
+        public LoadException(String msg) { super(msg); }
+        public LoadException(String msg, Throwable cause) { super(msg, cause); }
+    }
+
+    @Deprecated
+    class SaveException extends PSDataServiceException {
+        public SaveException(String msg) { super(msg); }
+        public SaveException(String msg, Throwable cause) { super(msg, cause); }
+    }
+
+    @Deprecated
+    class DeleteException extends PSDataServiceException {
+        public DeleteException(String msg) { super(msg); }
+        public DeleteException(String msg, Throwable cause) { super(msg, cause); }
+    }
 }

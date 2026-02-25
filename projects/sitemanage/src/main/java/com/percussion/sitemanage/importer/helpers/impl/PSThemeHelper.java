@@ -73,7 +73,7 @@ public class PSThemeHelper extends PSImportHelper {
     logger = context.getLogger();
     PSThemeSummary newThemeSummary = null;
     try {
-      var newSiteName = processName(context.getSite().getName());
+      var newSiteName = processName(context.getSite().map(s -> s.getName()).orElse(""));
       newThemeSummary = themeService.createFromDefault(newSiteName);
       logger.appendLogMessage(
           PSLogEntryType.STATUS,
@@ -98,12 +98,10 @@ public class PSThemeHelper extends PSImportHelper {
 
   @Override
   public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
-    var newThemeSummary = context.getThemeSummary();
-    if (newThemeSummary != null) {
-      deleteTheme(newThemeSummary.getName());
-    }
+      // if we created a theme we need to delete it
+      context.getThemeSummary()
+          .ifPresent(ts -> deleteTheme(ts.getName()));
   }
-
   /**
    * Renames the two basic files from the new theme: theme.css, theme.png into the corresponding
    * name created from site name.

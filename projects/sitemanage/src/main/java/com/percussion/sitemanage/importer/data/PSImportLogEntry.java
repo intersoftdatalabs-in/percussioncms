@@ -20,7 +20,7 @@ package com.percussion.sitemanage.importer.data;
 import com.percussion.share.data.PSAbstractDataObject;
 import jakarta.persistence.*;
 import java.util.Date;
-import java.util.Optional;
+// Optional import removed
 import org.apache.commons.lang3.Validate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -156,8 +156,8 @@ public class PSImportLogEntry extends PSAbstractDataObject {
    *
    * @return Optional category.
    */
-  public Optional<String> getCategory() {
-    return Optional.ofNullable(category);
+  public String getCategory() {
+    return category;
   }
 
   /**
@@ -165,7 +165,7 @@ public class PSImportLogEntry extends PSAbstractDataObject {
    *
    * @return Optional description.
    */
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 }

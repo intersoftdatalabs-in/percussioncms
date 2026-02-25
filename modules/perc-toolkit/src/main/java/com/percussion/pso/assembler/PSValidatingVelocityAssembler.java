@@ -18,6 +18,7 @@ package com.percussion.pso.assembler;
 
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
+import com.percussion.extension.PSExtensionDef;
 import com.percussion.services.assembly.IPSAssembler;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
@@ -61,7 +62,14 @@ public class PSValidatingVelocityAssembler extends PSVelocityAssembler implement
    */
   @Override
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {
-    m_def = arg0.clone();
+    // previous versions cloned the definition; the interface no longer
+    // exposes clone(), so cast to the concrete type if possible.  We keep a
+    // separate copy so merge() cannot mutate the original definition.
+    if (arg0 instanceof PSExtensionDef) {
+      m_def = ((PSExtensionDef) arg0).clone();
+    } else {
+      m_def = arg0;
+    }
     super.init(arg0, arg1);
   }
 }

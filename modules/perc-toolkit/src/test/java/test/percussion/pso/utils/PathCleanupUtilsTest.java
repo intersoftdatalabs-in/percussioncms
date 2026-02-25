@@ -21,14 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.percussion.pso.utils.PathCleanupUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PathCleanupUtilsTest {
   private static final Logger log = LogManager.getLogger(PathCleanupUtilsTest.class);
 
-  Mockery context;
 
   @BeforeEach
   public void setUp() {}

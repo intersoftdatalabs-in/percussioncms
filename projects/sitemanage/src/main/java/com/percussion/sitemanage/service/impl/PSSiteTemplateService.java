@@ -412,7 +412,7 @@ public class PSSiteTemplateService implements IPSSiteTemplateService {
       PSSiteImportCtx importContext = templateImportService.importSiteFromUrl(site, userAgent);
 
       // Load created template to return it.
-      PSTemplateSummary newTemplate = findTemplateById(importContext.getTemplateId());
+        PSTemplateSummary newTemplate = findTemplateById(importContext.getTemplateId().orElse(null));
       if (newTemplate == null) {
         throw new WebApplicationException(
             "There was an unexpected error creating the new template.");
@@ -556,7 +556,7 @@ public class PSSiteTemplateService implements IPSSiteTemplateService {
       Object jobResult = asyncJobService.getJobResult(jobId);
       if (jobResult != null) {
         PSSiteImportCtx importContext = (PSSiteImportCtx) jobResult;
-        return findTemplateById(importContext.getTemplateId());
+          return findTemplateById(importContext.getTemplateId().orElse(null));
       }
     }
     return null;

@@ -58,6 +58,8 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.publisher.impl.PSPublisherService;
+import com.percussion.services.publisher.IPSPubItemStatus;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.notification.IPSNotificationListener;
@@ -256,7 +258,10 @@ public class PSFolderHelper implements IPSFolderHelper {
     var pageNode = getPageNode(item);
 
     var itemId = new PSLegacyGuid(compSum.getHeadLocator());
-    var pubStatus = pubService.findLastPublishedItemStatus(itemId);
+    // the version of IPSPublisherService on the classpath may not yet expose
+    // this utility method, so cast to the concrete implementation which does
+    // provide it.
+    var pubStatus = ((PSPublisherService) pubService).findLastPublishedItemStatus(itemId);
     var publishDate = PSDateUtils.getDateToString(pubStatus == null ? null : pubStatus.getDate());
 
     var userName = compSum.getContentLastModifier();

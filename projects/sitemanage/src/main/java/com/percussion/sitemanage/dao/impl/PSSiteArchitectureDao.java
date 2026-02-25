@@ -24,6 +24,7 @@ import com.percussion.sitemanage.data.PSSiteArchitecture;
 import com.percussion.sitemanage.data.PSSiteSection;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.publishing.IPSPublishingWs;
+import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -74,7 +75,7 @@ public class PSSiteArchitectureDao implements IPSSiteArchitectureDao {
     } catch (PSErrorException
         | IPSDataService.DataServiceNotFoundException
         | IPSDataService.DataServiceLoadException e) {
-      throw new LoadException(e);
+      throw new LoadException("Failed to create site architecture", e);
     }
   }
 
@@ -103,27 +104,43 @@ public class PSSiteArchitectureDao implements IPSSiteArchitectureDao {
   }
 
   @Override
-  public List<PSSiteArchitecture> findAll()
-      throws com.percussion.share.dao.IPSGenericDao.LoadException {
+  public List<PSSiteArchitecture> findAll() throws PSDataServiceException {
     // Not implemented yet
     return List.of();
   }
 
-  @Override
+  // keep a legacy delete method for backward compatibility
   public void delete(String id) throws com.percussion.share.dao.IPSGenericDao.DeleteException {
-    // Not implemented yet
+    // delegate to remove for interface compliance
+    try {
+      remove(id);
+    } catch (PSDataServiceException e) {
+      throw new com.percussion.share.dao.IPSGenericDao.DeleteException("delete failed", e);
+    }
   }
 
   @Override
-  public PSSiteArchitecture save(PSSiteArchitecture object)
-      throws com.percussion.share.dao.IPSGenericDao.SaveException {
+  public void remove(PSSiteArchitecture object) throws PSDataServiceException {
+    if (object == null) {
+      throw new IllegalArgumentException("object must not be null");
+    }
+    remove(object.getName());
+  }
+
+  @Override
+  public void remove(String id) throws PSDataServiceException {
+    // not implemented yet, same semantics as old delete
+    throw new UnsupportedOperationException("remove not implemented");
+  }
+
+  @Override
+  public PSSiteArchitecture save(PSSiteArchitecture object) throws PSDataServiceException {
     // Not implemented yet
     return null;
   }
 
   @Override
-  public List<PSSiteSection> getSections(String id)
-      throws com.percussion.share.dao.IPSGenericDao.LoadException {
+  public List<PSSiteSection> getSections(String id) throws com.percussion.share.dao.IPSGenericDao.LoadException {
     // Not implemented yet
     return List.of();
   }

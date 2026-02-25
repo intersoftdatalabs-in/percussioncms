@@ -68,7 +68,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes","unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSXmlSerializationHelper {
   /** Static for logging */
   private static final Logger log = LogManager.getLogger(PSXmlSerializationHelper.class);
