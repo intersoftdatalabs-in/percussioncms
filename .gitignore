@@ -151,3 +151,7 @@ fabric.properties
 /modules/redirect-tool/redirects.json
 /cui/package-lock.json
 /modules/tlsutils/truststore.jks
+
+docker/dev-data
+docker/logs
+
