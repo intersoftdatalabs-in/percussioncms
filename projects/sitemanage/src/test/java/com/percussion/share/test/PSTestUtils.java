@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.test;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static com.percussion.test.TestAssertions.*;
 
 import java.io.IOException;
 import java.io.InputStream;

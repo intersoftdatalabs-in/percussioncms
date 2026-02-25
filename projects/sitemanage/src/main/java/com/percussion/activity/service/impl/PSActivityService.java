@@ -387,7 +387,7 @@ public class PSActivityService implements IPSActivityService {
     return result;
   }
 
-  @Override
+  // not part of the public interface
   public List<String> getResourceAssets() throws PSDataServiceException {
     return resDao.findAll().stream()
         .flatMap(resGrp -> resGrp.getAssetResources().stream())
@@ -396,7 +396,7 @@ public class PSActivityService implements IPSActivityService {
         .collect(Collectors.toList());
   }
 
-  @Override
+  // not part of the public interface
   public List<String> getNonResourceAssets(Collection<String> resAssets) {
     notNull(resAssets);
     var result = new ArrayList<>(asList(itemDefMgr.getContentTypeNames(-1)));

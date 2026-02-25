@@ -16,6 +16,8 @@
  */
 package com.percussion.services.legacy;
 
+import java.util.Comparator;
+
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -23,8 +25,10 @@ import com.percussion.design.objectstore.PSConfig;
 import com.percussion.design.objectstore.PSRole;
 import com.percussion.i18n.PSLocale;
 import com.percussion.server.PSPersistentPropertyMeta;
+import com.percussion.server.PSPersistentProperty;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.data.IPSIdentifiableItem;
+import com.percussion.services.menus.PSActionMenu;
 import com.percussion.services.relationship.data.PSRelationshipConfigName;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
@@ -87,6 +91,15 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
      * @throws IllegalArgumentException if ids is null
      */
     void touchItems(Collection<Integer> ids);
+
+    /**
+     * Get item entries for the given content ids sorted by the provided comparator.
+     *
+     * @param contentIds non-null list of content ids
+     * @param comparator optional comparator used to order the results
+     * @return non-null list of {@link com.percussion.services.legacy.IPSItemEntry}
+     */
+    List<IPSItemEntry> findItemEntries(List<Integer> contentIds, Comparator<IPSItemEntry> comparator);
 
     /**
      * Sets the post date for content items if not already set.
@@ -197,7 +210,9 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
 
     /**
      * Retrieve all available action menus.  This method was added to support
-     * the legacy helpers used by sitemanage module.
+     * the legacy helpers used by sitemanage module.  The menus are represented by
+     * {@link com.percussion.services.menus.PSActionMenu}, which lives in the
+     * <code>services</code> package rather than the old cms.objectstore namespace.
      *
      * @return never {@code null}
      */
@@ -417,4 +432,64 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
      * @throws IllegalArgumentException if metaList is null
      */
     void deleteAllPersistentMeta(List<PSPersistentPropertyMeta> metaList);
+
+    /**
+     * Finds persistent properties by user name.
+     *
+     * @param userName the username to search for, not null
+     * @return List of persistent properties for the user, never null (may be empty)
+     */
+    List<PSPersistentProperty> findPersistentPropertiesByName(String userName);
+
+    /**
+     * Saves a single persistent property metadata object.
+     *
+     * @param meta the metadata to save, not null
+     * @return the saved metadata object
+     * @throws IllegalArgumentException if meta is null
+     */
+    PSPersistentPropertyMeta savePersistentPropertyMeta(PSPersistentPropertyMeta meta);
+
+    /**
+     * Saves a single persistent property object.
+     *
+     * @param property the property to save, not null
+     * @throws IllegalArgumentException if property is null
+     */
+    void savePersistentProperty(PSPersistentProperty property);
+
+    /**
+     * Deletes a single persistent property.
+     *
+     * @param property the property to delete, not null
+     * @throws IllegalArgumentException if property is null
+     */
+    void deletePersistentProperty(PSPersistentProperty property);
+
+    /**
+     * Changes the workflow for a single item.
+     *
+     * @param itemId the item's content ID, not null
+     * @param workflowId the workflow ID to assign, not null
+     * @param stateNames list of workflow state names, may be null or empty
+     * @throws PSORMException if an ORM error occurs
+     */
+    void changeWorkflowForItem(int itemId, int workflowId, List<String> stateNames) throws PSORMException;
+
+    /**
+     * Convenience method to update workflow for a batch of items. Delegates to
+     * {@link #changeWorkflowForItem(int, int, List)} for each id.
+     *
+     * @param itemIds collection of item IDs, never {@code null}
+     * @param workflowId the workflow id
+     * @param stateNames names of valid states, may be {@code null}
+     * @throws PSORMException if any underlying operation fails
+     */
+    default void changeWorkflowForItems(Collection<Integer> itemIds, int workflowId, List<String> stateNames) throws PSORMException {
+        if (itemIds != null) {
+            for (Integer id : itemIds) {
+                changeWorkflowForItem(id, workflowId, stateNames);
+            }
+        }
+    }
 }

@@ -24,7 +24,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+// Optional import removed, getters now return raw values
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
@@ -88,8 +88,8 @@ public class PSWidgetProperties {
       this.name = name;
     }
 
-    public Optional<String> getValue() {
-      return Optional.ofNullable(value);
+public String getValue() {
+        return value;
     }
 
     public void setValue(String value) {

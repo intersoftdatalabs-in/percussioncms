@@ -43,10 +43,12 @@ public interface IPSRemoteRequester {
    * @throws IOException If any problems occur while communicating with the server.
    * @throws SAXException If the returned data is not parsable as an xml document.
    */
-  public Document getDocument(String resource, Map<String, ?> params) throws IOException, SAXException;
+  public Document getDocument(String resource, Map<String, ?> params)
+      throws IOException, SAXException;
 
   /** Equivalent to calling {@link #getDocument(String,Map,boolean) getDocument}. */
-  public Document sendUpdate(String resource, Map<String, ?> params) throws IOException, SAXException;
+  public Document sendUpdate(String resource, Map<String, ?> params)
+      throws IOException, SAXException;
 
   /**
    * Just like {@link #getDocument(String,Map,boolean) getDocument}, except it sends a document.

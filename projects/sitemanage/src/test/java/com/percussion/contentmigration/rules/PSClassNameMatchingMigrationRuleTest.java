@@ -17,7 +17,7 @@
  */
 package com.percussion.contentmigration.rules;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.test.PSTestUtils;
 import org.jsoup.Jsoup;

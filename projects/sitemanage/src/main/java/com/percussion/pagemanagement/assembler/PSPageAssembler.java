@@ -53,7 +53,12 @@ public class PSPageAssembler extends PSVelocityAssembler {
    * @param assemblyItem the item used to retrieve the template.
    * @return the template source, not blank.
    */
-  @Override
+  /**
+   * Gets the template source (or content) from the specified item.
+   *
+   * @param assemblyItem the item used to retrieve the template.
+   * @return the template source, not blank.
+   */
   protected String getTemplateSource(IPSAssemblyItem assemblyItem) {
     final var template = assemblyItem.getTemplate();
     return template.getTemplate();
@@ -63,7 +68,6 @@ public class PSPageAssembler extends PSVelocityAssembler {
    * This calls {@link PSPageAssemblyContextFactory#createContext(IPSAssemblyItem, TemplateAndPage,
    * boolean) PSPageAssemblyContextFactory.createContext(IPSAssemblyItem, TemplateAndPage, true)}
    */
-  @Override
   protected PSPageAssemblyContext createContext(
       IPSAssemblyItem assemblyItem, TemplateAndPage templateAndPage) throws Exception {
     return getPageAssemblyContextFactory().createContext(assemblyItem, templateAndPage, true);

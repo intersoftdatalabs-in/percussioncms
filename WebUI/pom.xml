@@ -125,93 +125,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>shindig-uber</artifactId>
-            <version>${project.parent.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>rome</groupId>
-                    <artifactId>modules</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>rome</groupId>
-                    <artifactId>rome</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.oauth.core</groupId>
-                    <artifactId>oauth</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.collections</groupId>
-                    <artifactId>google-collections</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>de.odysseus.juel</groupId>
-                    <artifactId>juel-impl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.oauth.core</groupId>
-                    <artifactId>oauth</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.collections</groupId>
-                    <artifactId>google-collections</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.googlecode.json-simple</groupId>
-                    <artifactId>json-simple</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.collections</groupId>
-                    <artifactId>google-collections</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.inject</groupId>
-                    <artifactId>guice</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.inject.extensions</groupId>
-                    <artifactId>guice-multibindings</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.inject.extensions</groupId>
-                    <artifactId>guice-jmx</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.json</groupId>
-                    <artifactId>json</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.shindig</groupId>
-                    <artifactId>shindig-common</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.shindig</groupId>
-                    <artifactId>shindig-gadgets</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.shindig</groupId>
-                    <artifactId>shindig-features</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.shindig</groupId>
-                    <artifactId>shindig-gadgets</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.shindig</groupId>
-                    <artifactId>shindig-social-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.jsecurity</groupId>
             <artifactId>jsecurity</artifactId>
             <version>0.9.0</version>
@@ -409,6 +322,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc11</artifactId>
             <scope>provided</scope>
@@ -522,10 +440,6 @@
             <groupId>net.sourceforge.owlapi</groupId>
             <artifactId>owlapi-distribution</artifactId>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-langdetect</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>

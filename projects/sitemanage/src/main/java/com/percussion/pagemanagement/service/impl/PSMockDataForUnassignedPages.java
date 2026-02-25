@@ -120,10 +120,10 @@ public class PSMockDataForUnassignedPages {
   private List<PSPair<Integer, ItemStatus>> createItemList() {
     var result = new ArrayList<PSPair<Integer, ItemStatus>>();
     for (int i = 0; i < totalCount; i++) {
-      var status = ItemStatus.Cataloged;
+      var status = ItemStatus.CATALOGED;
       if (importedCount > 0) {
-        if (i < importedCount) status = ItemStatus.Imported;
-        else if (i == importedCount) status = ItemStatus.Importing;
+        if (i < importedCount) status = ItemStatus.IMPORTED;
+        else if (i == importedCount) status = ItemStatus.IMPORTING;
       }
       var item = new PSPair<>(i, status);
       result.add(item);

@@ -24,7 +24,6 @@ import com.percussion.utils.request.PSRequestInfo;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -33,7 +32,6 @@ import org.junit.jupiter.api.TestMethodOrder;
  *
  * @author dougrand
  */
-
 @TestMethodOrder(MethodName.class)
 public class PSRequestInfoTest {
 

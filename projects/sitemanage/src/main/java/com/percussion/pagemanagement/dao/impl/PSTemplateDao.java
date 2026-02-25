@@ -150,13 +150,30 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
     m_imgFileExts.add(".png");
   }
 
-  @Override
+  // preserved for backward compatibility with older callers
   public void delete(String id) throws PSDataServiceException {
+    // make sure it exists so callers see the same behavior as before
     var template = find(id);
-    contentItemDao.delete(id);
-    var notifyEvent = new PSNotificationEvent(EventType.TEMPLATE_DELETE, id);
+    if (template == null) {
+      throw new PSDataServiceException("Template not found: " + id);
+    }
+    contentItemDao.remove(id);
+    var notifyEvent = new PSNotificationEvent(EventType.TEMPLATE_CHANGED, id);
     var srv = PSNotificationServiceLocator.getNotificationService();
     srv.notifyEvent(notifyEvent);
+  }
+
+  @Override
+  public void remove(String id) throws PSDataServiceException {
+    delete(id);
+  }
+
+  @Override
+  public void remove(PSTemplate template) throws PSDataServiceException {
+    if (template == null) {
+      throw new IllegalArgumentException("template may not be null");
+    }
+    delete(template.getId());
   }
 
   @Override
@@ -350,7 +367,7 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
     }
 
     contentItem = contentItemDao.save(contentItem);
-    var notifyEvent = new PSNotificationEvent(EventType.TEMPLATE_SAVED, contentItem.getId());
+    var notifyEvent = new PSNotificationEvent(EventType.TEMPLATE_CHANGED, contentItem.getId());
     var srv = PSNotificationServiceLocator.getNotificationService();
     srv.notifyEvent(notifyEvent);
     return find(contentItem.getId());
@@ -824,7 +841,7 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
         if (imgPath == null) {
           imgPath = getImgPath(TPL_IMAGES_DIR + '/' + ANY_SITE + '/' + sumName);
           PSNotificationEvent notifyEvent =
-              new PSNotificationEvent(EventType.TEMPLATE_SAVED, summary.getId());
+              new PSNotificationEvent(EventType.TEMPLATE_CHANGED, summary.getId());
           IPSNotificationService srv = PSNotificationServiceLocator.getNotificationService();
           srv.notifyEvent(notifyEvent);
         }
@@ -835,7 +852,7 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
             getThumbImgPath(Collections.singletonList(summary.getSourceTemplateName()));
         imgPath = imgs.get(0);
         PSNotificationEvent notifyEvent =
-            new PSNotificationEvent(EventType.TEMPLATE_LOAD, summary.getId());
+            new PSNotificationEvent(EventType.TEMPLATE_CHANGED, summary.getId());
         IPSNotificationService srv = PSNotificationServiceLocator.getNotificationService();
         srv.notifyEvent(notifyEvent);
       }

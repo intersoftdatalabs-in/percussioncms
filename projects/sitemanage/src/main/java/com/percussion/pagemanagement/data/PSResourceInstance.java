@@ -153,7 +153,7 @@ public class PSResourceInstance {
 
   public void setSite(PSSiteSummary site) {
     try {
-      var url = site.getBaseUrl();
+      var url = site.getBaseUrl().orElse("/");
       url = removeEnd(url, "/") + "/";
       baseUrl = new URL(url);
     } catch (MalformedURLException e) {

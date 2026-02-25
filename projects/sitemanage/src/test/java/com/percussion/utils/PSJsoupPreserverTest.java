@@ -17,7 +17,7 @@
 
 package com.percussion.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;

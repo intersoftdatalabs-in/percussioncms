@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.maintenance.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.maintenance.service.impl.PSMaintenanceManager;
 import org.junit.jupiter.api.Test;

@@ -17,7 +17,7 @@
  */
 package com.percussion.share.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.service.impl.PSXmlDataHandler;
 import com.percussion.share.service.impl.jaxb.Property;
@@ -49,13 +49,13 @@ public class PSXmlDataHandlerTest {
 
     Response response = handler.getData(properties);
     List<Result> results = response.getResult();
-    assertEquals(1, results.size());
+    assertEquals(1L, results.size());
     Result result = results.get(0);
     List<Property> props = result.getProperty();
-    assertEquals(2, props.size());
+    assertEquals(2L, props.size());
     assertNull(props.get(0).getPvalues());
     Pvalues pvals = props.get(1).getPvalues();
-    assertEquals(3, pvals.getPvalue().size());
+    assertEquals(3L, pvals.getPvalue().size());
 
     properties.put("property1", "value2");
     assertNull(handler.getData(properties));

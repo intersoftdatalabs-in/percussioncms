@@ -16,11 +16,12 @@
  */
 package com.percussion.extensions.general;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 /** Unit test for the <code>PSParamStringListToMultiParams</code> exit. */
 public class PSParamStringListToMultiParamsTest {

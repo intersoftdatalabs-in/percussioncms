@@ -20,12 +20,10 @@ import com.percussion.server.IPSRequestContext;
 import java.sql.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Tag;
 
 /**
  * PSSendNotificationsTest is a test class for the method PSExitNotifyAssignees.sendNotifications.
  */
-
 public class PSSendNotificationsTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSSendNotificationsTest.class);

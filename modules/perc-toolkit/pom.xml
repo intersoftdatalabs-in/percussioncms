@@ -81,6 +81,7 @@
             <version>8.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <!--
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>sitemanage</artifactId>
@@ -105,9 +106,16 @@
             <version>8.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -137,6 +145,26 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- added for toolkit compile: dom4j used extensively throughout the module -->
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <!-- version managed by parent pom -->
+            <scope>compile</scope>
+        </dependency>
+        <!-- spring web provides multipart support (CommonsMultipartResolver lives here) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- extension classes like PSFileInfo come from extensions-main module -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>extensions-main</artifactId>
+            <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -218,6 +246,13 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- include JUnit 4 for legacy tests that still extend TestCase or use JUnit4 annotations -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

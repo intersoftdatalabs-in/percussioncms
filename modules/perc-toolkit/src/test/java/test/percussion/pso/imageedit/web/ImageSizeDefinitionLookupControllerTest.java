@@ -26,35 +26,36 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.dom.Document;
 
+@ExtendWith(MockitoExtension.class)
 public class ImageSizeDefinitionLookupControllerTest {
   private static final Logger log =
       LogManager.getLogger(ImageSizeDefinitionLookupControllerTest.class);
 
   private ImageSizeDefinitionLookupController cut;
 
-  private Mockery context;
+  @Mock
   private ImageSizeDefinitionManager defmgr;
 
   @BeforeEach
-  public void setUp() throws Exception {
-    context = new Mockery();
+  public void setUp() {
     cut = new ImageSizeDefinitionLookupController();
-    defmgr = context.mock(ImageSizeDefinitionManager.class);
     cut.setDefmgr(defmgr);
     cut.setResultKey("result");
   }
 
   @Test
-  public final void testHandleRequestInternalHttpServletRequestHttpServletResponse() {
+  public final void testHandleRequestInternalHttpServletRequestHttpServletResponse() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setMethod("GET");
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -74,14 +75,7 @@ public class ImageSizeDefinitionLookupControllerTest {
           }
         };
 
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(defmgr).getAllImageSizes();
-              will(returnValue(Arrays.asList(new ImageSizeDefinition[] {sizea, sizeb})));
-            }
-          });
+    when(defmgr.getAllImageSizes()).thenReturn(Arrays.asList(new ImageSizeDefinition[] {sizea, sizeb}));
 
       ModelAndView mav = cut.handleRequest(request, response);
 
@@ -99,9 +93,6 @@ public class ImageSizeDefinitionLookupControllerTest {
       String value = walker.getElementData();
       assertEquals("a", value);
 
-    } catch (Exception ex) {
-      log.error("Unexpected Exception " + ex, ex);
-      fail("Exception Caught");
-    }
+    // no exception expected
   }
 }

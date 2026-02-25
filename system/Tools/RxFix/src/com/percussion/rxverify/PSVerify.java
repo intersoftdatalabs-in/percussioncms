@@ -44,17 +44,7 @@ import org.apache.logging.log4j.Logger;
  * materials against a candidate installation and generate for each component a
  * reported state of installed, partially installed or uninstalled.
  *
- * <p>This class has been modernized to use Java 11 features including:
- * <ul>
- * <li>var keyword for local variable type inference</li>
- * <li>Set.of() for immutable collections</li>
- * <li>Stream API for collection operations</li>
- * <li>Optional for null safety</li>
- * </ul>
- *
  * @author dougrand
- * @author Sunny Sal the Senior Java Developer (Java 11 modernization)
- * @since Java 11
  */
 public class PSVerify
 {
@@ -135,7 +125,7 @@ public class PSVerify
 
    /**
     * Runs the verification process, generating or consuming a descriptor file.
-    * Uses Java 11 var keyword and enhanced exception handling.
+
     *
     * @throws Exception if there are problems performing generation, verification,
     *                   or performing IO on the bill of materials file
@@ -157,7 +147,7 @@ public class PSVerify
       if (!rxRoot.exists() || !rxRoot.isDirectory()) {
          throw new IllegalArgumentException("Rhythmyx root directory does not exist: " + rxRootPath);
       }
-      
+
       var bomFilePath = getArgumentValue("bomfile", "installation.bom");
       var bomFile = new File(bomFilePath);
 
@@ -209,7 +199,6 @@ public class PSVerify
 
    /**
     * Generates a bill of materials for the specified Rhythmyx installation.
-    * Uses Java 11 var keyword and stream operations.
     *
     * @param rxRoot the Rhythmyx installation root directory
     * @param bomFile the bill of materials file to generate
@@ -241,7 +230,6 @@ public class PSVerify
 
    /**
     * Verifies an installation against an existing bill of materials.
-    * Uses Java 11 var keyword and enhanced exception handling.
     *
     * @param rxRoot the Rhythmyx installation root directory
     * @param bomFile the bill of materials file to verify against
@@ -276,7 +264,6 @@ public class PSVerify
 
    /**
     * Prints usage information for the program.
-    * Uses string concatenation instead of text blocks for Java 11 compatibility.
     */
    private void printUsage() {
       var usage = "Usage: PSVerify [options]\n" +
@@ -305,7 +292,7 @@ public class PSVerify
 
    /**
     * Checks if the given answer is a positive response.
-    * Uses Java 11 Set operations for efficient lookup.
+    *
     *
     * @param answer the user's answer
     * @return true if the answer is positive, false otherwise
@@ -320,7 +307,7 @@ public class PSVerify
 
    /**
     * Checks if the given answer is a negative response.
-    * Uses Java 11 Set operations for efficient lookup.
+    *
     *
     * @param answer the user's answer
     * @return true if the answer is negative, false otherwise

@@ -333,6 +333,7 @@ public class PSPageAssemblyContextFactory {
    * @param mr never <code>null</code>.
    * @return never <code>null</code>.
    */
+  @SuppressWarnings("deprecation")
   protected List<PSRegionResult> assembleRegionOverride(
       IPSAssemblyItem assemblyItem, PSPageAssemblyContext context, PSMergedRegion mr)
       throws IPSTemplateService.PSTemplateException, PSAssemblyException {
@@ -365,7 +366,8 @@ public class PSPageAssemblyContextFactory {
           mr.getRegionId(),
           PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new PSAssemblyException(PSAssemblyException.PAGE_FAILED_TO_ASSEMBLE_REGION, e);
+      // use general error code since specific constant was removed during refactor
+      throw new PSAssemblyException(PSAssemblyException.UNEXPECTED_ASSEMBLY_ERROR, e);
     } finally {
       log.debug("Finished assembling region");
     }
@@ -403,6 +405,7 @@ public class PSPageAssemblyContextFactory {
     return regionResults;
   }
 
+  @SuppressWarnings("deprecation")
   protected List<String> assembleResultsToString(List<IPSAssemblyResult> assemblyResults)
       throws PSAssemblyException {
     notNull(assemblyResults, "assemblyResults");
@@ -539,13 +542,13 @@ public class PSPageAssemblyContextFactory {
     }
     IPSAssemblyTemplate tmpl = (IPSAssemblyTemplate) widgetBaseTmpl.clone();
 
-    String templateContent = widget.getContent() == null ? "" : widget.getContent().getValue();
+    String templateContent = widget.getContent().map(wc -> wc.getValue()).orElse("");
 
     if (isBlank(templateContent)) {
       log.error("Widget definition does not have template code. WidgetId: {} ", widget.getId());
     }
 
-    String templateCode = widget.getCode() == null ? ";" : widget.getCode().getValue();
+    String templateCode = widget.getCode().map(wc -> wc.getValue()).orElse(";");
 
     log.debug("Template Code: {} ", templateCode);
 

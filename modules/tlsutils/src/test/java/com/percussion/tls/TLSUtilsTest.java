@@ -47,8 +47,7 @@ public class TLSUtilsTest {
         result.startsWith("-----BEGIN CERTIFICATE-----"),
         "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        result.endsWith("-----END CERTIFICATE-----"),
-        "Result should end with END CERTIFICATE");
+        result.endsWith("-----END CERTIFICATE-----"), "Result should end with END CERTIFICATE");
     assertTrue(
         result.contains("dGVzdCBjZXJ0aWZpY2F0ZSBkYXRh"),
         "Result should contain base64 encoded data"); // base64 of "test certificate data"
@@ -63,8 +62,7 @@ public class TLSUtilsTest {
         .thenThrow(new CertificateEncodingException("Encoding failed"));
 
     // Then - exception should be thrown
-    assertThrows(CertificateEncodingException.class,
-        () -> TLSUtils.convertToPem(mockCertificate));
+    assertThrows(CertificateEncodingException.class, () -> TLSUtils.convertToPem(mockCertificate));
   }
 
   @Test
@@ -82,8 +80,7 @@ public class TLSUtilsTest {
         result.startsWith("-----BEGIN CERTIFICATE-----"),
         "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        result.endsWith("-----END CERTIFICATE-----"),
-        "Result should end with END CERTIFICATE");
+        result.endsWith("-----END CERTIFICATE-----"), "Result should end with END CERTIFICATE");
 
     verify(mockCertificate).getEncoded();
   }
@@ -106,8 +103,7 @@ public class TLSUtilsTest {
         result.startsWith("-----BEGIN CERTIFICATE-----"),
         "Result should start with BEGIN CERTIFICATE");
     assertTrue(
-        result.endsWith("-----END CERTIFICATE-----"),
-        "Result should end with END CERTIFICATE");
+        result.endsWith("-----END CERTIFICATE-----"), "Result should end with END CERTIFICATE");
     assertTrue(result.split("\n").length > 3, "Result should contain multiple lines");
 
     verify(mockCertificate).getEncoded();

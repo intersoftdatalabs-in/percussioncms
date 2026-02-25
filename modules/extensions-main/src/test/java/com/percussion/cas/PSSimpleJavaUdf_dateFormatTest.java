@@ -16,13 +16,14 @@
  */
 package com.percussion.cas;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.extensions.general.PSSimpleJavaUdfBaseTest;
 import com.percussion.extensions.general.PSSimpleJavaUdf_dateFormat;
 import com.percussion.extensions.general.PSSimpleJavaUdf_dateFormatEx;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests both versions: {@link PSSimpleJavaUdf_dateFormat} and {@link PSSimpleJavaUdf_dateFormatEx}.

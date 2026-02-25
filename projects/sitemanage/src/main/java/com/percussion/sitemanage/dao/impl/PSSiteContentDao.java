@@ -178,7 +178,7 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
       page.setTitle(site.getHomePageTitle());
       page.setTemplateId(templateSummary.getId());
       page.setLinkTitle(site.getHomePageTitle());
-      pageDaoHelper.setWorkflowAccordingtoParentFolder(page);
+      pageDaoHelper.setWorkflowAccordingToParentFolder(page);
       var pageId = pageDao.save(page).getId();
       var pageGuid = idMapper.getGuid(pageId);
       var status = contentWs.prepareForEdit(navtreeId);

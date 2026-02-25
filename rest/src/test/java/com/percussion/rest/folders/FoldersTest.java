@@ -37,60 +37,60 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class FoldersTest {
 
-    @Mock
-    IFolderAdaptor adaptor;
+  @Mock IFolderAdaptor adaptor;
 
-    @Mock
-    UriInfo uriInfo;
+  @Mock UriInfo uriInfo;
 
-    @InjectMocks
-    FoldersResource resource;
+  @InjectMocks FoldersResource resource;
 
-    @BeforeEach
-    void init() {
-        when(uriInfo.getBaseUri()).thenReturn(UriBuilder.fromUri("http://localhost/api").build());
-        resource.setUriInfo(uriInfo);
-    }
+  @BeforeEach
+  void init() {
+    when(uriInfo.getBaseUri()).thenReturn(UriBuilder.fromUri("http://localhost/api").build());
+    resource.setUriInfo(uriInfo);
+  }
 
-    @Test
-    void moveFolderItem_callsAdaptor() throws Exception {
-        MoveFolderItem req = new MoveFolderItem("/a/b", "/a/c");
-        Status result = resource.moveFolderItem(req);
-        assertEquals("Moved OK", result.getMessage().orElse(null));
-        verify(adaptor).moveFolderItem(uriInfo.getBaseUri(), "/a/b", "/a/c");
-    }
+  @Test
+  void moveFolderItem_callsAdaptor() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/a/b", "/a/c");
+    Status result = resource.moveFolderItem(req);
+    assertEquals("Moved OK", result.getMessage().orElse(null));
+    verify(adaptor).moveFolderItem(uriInfo.getBaseUri(), "/a/b", "/a/c");
+  }
 
-    @Test
-    void moveFolderItem_propagatesBackendException() throws Exception {
-        MoveFolderItem req = new MoveFolderItem("/x", "/y");
-        doThrow(new BackendException("boom", new Exception("cause"))).when(adaptor).moveFolderItem(any(), anyString(), anyString());
-        assertThrows(WebApplicationException.class, () -> resource.moveFolderItem(req));
-    }
+  @Test
+  void moveFolderItem_propagatesBackendException() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/x", "/y");
+    doThrow(new BackendException("boom", new Exception("cause")))
+        .when(adaptor)
+        .moveFolderItem(any(), anyString(), anyString());
+    assertThrows(WebApplicationException.class, () -> resource.moveFolderItem(req));
+  }
 
-    @Test
-    void moveFolder_callsAdaptor() throws Exception {
-        MoveFolderItem req = new MoveFolderItem("/a/b", "/a/c");
-        Status result = resource.moveFolder(req);
-        assertEquals("Moved OK", result.getMessage().orElse(null));
-        verify(adaptor).moveFolderItem(uriInfo.getBaseUri(), "/a/b", "/a/c");
-    }
+  @Test
+  void moveFolder_callsAdaptor() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/a/b", "/a/c");
+    Status result = resource.moveFolder(req);
+    assertEquals("Moved OK", result.getMessage().orElse(null));
+    verify(adaptor).moveFolderItem(uriInfo.getBaseUri(), "/a/b", "/a/c");
+  }
 
-    @Test
-    void renameFolder_validatesAndReturnsFolder() throws Exception {
-        Folder f = new Folder();
-        f.setPath("folder");
-        f.setSiteName("site");
-        f.setName("newname");
-        when(adaptor.renameFolder(eq(uriInfo.getBaseUri()), eq("site"), eq(""), eq("folder"), eq("newname")))
-            .thenReturn(f);
-        Folder returned = resource.renameFolder("site/folder", "newname");
-        assertSame(f, returned);
-    }
+  @Test
+  void renameFolder_validatesAndReturnsFolder() throws Exception {
+    Folder f = new Folder();
+    f.setPath("folder");
+    f.setSiteName("site");
+    f.setName("newname");
+    when(adaptor.renameFolder(
+            eq(uriInfo.getBaseUri()), eq("site"), eq(""), eq("folder"), eq("newname")))
+        .thenReturn(f);
+    Folder returned = resource.renameFolder("site/folder", "newname");
+    assertSame(f, returned);
+  }
 
-    @Test
-    void renameFolder_backendExceptionWrapped() throws Exception {
-        when(adaptor.renameFolder(any(), anyString(), anyString(), anyString(), anyString()))
-            .thenThrow(new BackendException("fail", new Exception("cause")));
-        assertThrows(WebApplicationException.class, () -> resource.renameFolder("s/f", "n"));
-    }
+  @Test
+  void renameFolder_backendExceptionWrapped() throws Exception {
+    when(adaptor.renameFolder(any(), anyString(), anyString(), anyString(), anyString()))
+        .thenThrow(new BackendException("fail", new Exception("cause")));
+    assertThrows(WebApplicationException.class, () -> resource.renameFolder("s/f", "n"));
+  }
 }

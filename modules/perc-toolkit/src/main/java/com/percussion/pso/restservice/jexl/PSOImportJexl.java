@@ -45,29 +45,23 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.sax.SAXSource;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ccil.cowan.tagsoup.Parser;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 import org.dom4j.XPath;
-import org.dom4j.io.DocumentResult;
 import org.dom4j.io.SAXReader;
 import org.jsoup.Jsoup;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.XMLReader;
+import org.jsoup.helper.W3CDom;
+import java.io.InputStream;
+import java.io.StringReader;
+
 
 /** */
 public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
@@ -92,23 +86,24 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
       description =
           "Gets html posted to the template and converts it to tidied xml compliant output ",
       params = {})
-  public Document getPostBodyAsDom()
-      throws SAXNotRecognizedException,
-          SAXNotSupportedException,
-          TransformerFactoryConfigurationError,
-          TransformerException,
-          IOException {
+  public Document getPostBodyAsDom() throws IOException {
     PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
     HttpServletRequest sreq = req.getServletRequest();
+    return parseHtmlToDom(sreq.getInputStream());
+  }
 
-    XMLReader reader = new Parser();
-    reader.setFeature(Parser.namespacesFeature, true);
-    reader.setFeature(Parser.namespacePrefixesFeature, true);
-
-    Transformer transformer = TransformerFactory.newInstance().newTransformer();
-    DocumentResult dr = new DocumentResult();
-    transformer.transform(new SAXSource(reader, new InputSource(sreq.getInputStream())), dr);
-    return dr.getDocument();
+  /**
+   * Convert an InputStream containing HTML into a dom4j Document using jsoup.
+   * This replaces the legacy TagSoup-based cleaning logic.
+   *
+   * @param in html input stream (UTF-8 assumed)
+   * @return a dom4j Document
+   * @throws IOException if the stream cannot be read
+   */
+  private Document parseHtmlToDom(InputStream in) throws IOException {
+    org.jsoup.nodes.Document jdoc = Jsoup.parse(in, "UTF-8", "");
+    org.w3c.dom.Document w3c = new W3CDom().fromJsoup(jdoc);
+    return new org.dom4j.io.DOMReader().read(w3c);
   }
 
   /**
@@ -139,17 +134,9 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
 
     try {
       int iGetResultCode = client.executeMethod(get);
-      InputStream responseBody = get.getResponseBodyAsStream();
-
-      XMLReader reader = new Parser();
-      reader.setFeature(Parser.namespacesFeature, true);
-      reader.setFeature(Parser.namespacePrefixesFeature, true);
-
-      Transformer transformer = TransformerFactory.newInstance().newTransformer();
-      DocumentResult dr = new DocumentResult();
-      transformer.transform(new SAXSource(reader, new InputSource(responseBody)), dr);
-      doc = dr.getDocument();
-
+      try (InputStream responseBody = get.getResponseBodyAsStream()) {
+        doc = parseHtmlToDom(responseBody);
+      }
     } catch (Exception ex) {
       log.error(ex.getMessage());
       log.debug(ex.getMessage(), ex);
@@ -253,17 +240,9 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
       int code = client.executeMethod(get);
 
       if (code != HttpStatus.SC_NOT_MODIFIED) {
-        InputStream responseBody = get.getResponseBodyAsStream();
-
-        XMLReader reader = new Parser();
-        reader.setFeature(Parser.namespacesFeature, true);
-        reader.setFeature(Parser.namespacePrefixesFeature, true);
-
-        Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        DocumentResult dr = new DocumentResult();
-        transformer.transform(new SAXSource(reader, new InputSource(responseBody)), dr);
-        doc = dr.getDocument();
-
+        try (InputStream responseBody = get.getResponseBodyAsStream()) {
+          doc = parseHtmlToDom(responseBody);
+        }
         ret = new HttpDOMResponse(doc, get.getResponseHeaders());
         ret.setExistingItem(item);
       }

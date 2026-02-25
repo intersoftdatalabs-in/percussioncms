@@ -52,16 +52,16 @@ public class PSTemplateExtractorHelper extends PSGenericMetadataExtractorHelper 
   @Override
   protected IPSHtmlMetadata getTargetItem(PSSiteImportCtx context) throws PSDataServiceException {
     // Load site's home page template
-    return templateService.load(context.getTemplateId());
+    String tmplId = context.getTemplateId().orElse("");
+    return templateService.load(tmplId);
   }
 
   @Override
   protected void addHtmlWidgetToTemplate(PSSiteImportCtx context) throws PSDataServiceException {
     // Load site's home page template
-    var template = templateService.load(context.getTemplateId());
-
+      var template = templateService.load(context.getTemplateId().orElse(""));
     // Set Theme
-    template.setTheme(context.getThemeSummary().getName());
+template.setTheme(context.getThemeSummary().map(ts -> ts.getName()).orElse(""));
 
     // Create Raw HTML widget and add the widget to the template
     var rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");

@@ -32,6 +32,7 @@ import com.percussion.pagemanagement.service.impl.PSPageManagementUtils;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
@@ -82,7 +83,7 @@ public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHel
   @Override
   protected void addHtmlWidgetToTemplate(PSSiteImportCtx context)
       throws PSDataServiceException, PSSiteImportException {
-    var template = unassignedTemplateCache.get(context.getSite().getName());
+    var template = unassignedTemplateCache.get(context.getSite().map(s -> s.getName()).orElse(""));
 
     if (template == null) {
       if (unassignedTemplateCache.size() > 5) {
@@ -92,10 +93,11 @@ public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHel
       // Load site's home page template
       template =
           templateService.load(
-              catalogService.getCatalogTemplateIdBySite(context.getSite().getName()));
+              catalogService.getCatalogTemplateIdBySite(context.getSite().map(s -> s.getName()).orElse("")));
+
       // Set Theme (Only first time)
       if (isBlank(template.getTheme())) {
-        template.setTheme(context.getThemeSummary().getName());
+        template.setTheme(context.getThemeSummary().map(ts -> ts.getName()).orElse(""));
       }
 
       // Add the widget only if it is not already created
@@ -121,7 +123,7 @@ public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHel
                 EXTRACT_METADATA,
                 "Metadata was successfully saved to the Unassigned template.");
       }
-      unassignedTemplateCache.put(context.getSite().getName(), template);
+        unassignedTemplateCache.put(context.getSite().map(PSSite::getName).orElse(""), template);
     }
   }
 
@@ -130,7 +132,7 @@ public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHel
       throws IPSDataService.DataServiceLoadException,
           PSValidationException,
           IPSDataService.DataServiceNotFoundException {
-    return pageService.find(context.getCatalogedPageId());
+    return pageService.find(context.getCatalogedPageId().orElse(null));
   }
 
   @Override

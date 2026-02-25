@@ -50,7 +50,7 @@ public class PSEffectivenessDataHandler extends PSXmlDataHandler
     props.put("duration", request.getDuration().orElse(null));
     props.put("durationType", request.getDurationType().orElse(null));
     props.put("path", request.getPath().orElse(null));
-    props.put("usage", request.getUsage().map(Enum::name).orElse(null));
+      props.put("usage", request.getUsage() == null ? null : request.getUsage().name());
     props.put("threshold", String.valueOf(request.getThreshold()));
 
     Response response = getData(props);

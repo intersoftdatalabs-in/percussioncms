@@ -61,57 +61,46 @@ public class PSLinkableAsset implements IPSLinkableContentItem {
     asset.setCategory(cat);
   }
 
-  @Override
   public String getIcon() {
     return asset.getIcon();
   }
 
-  @Override
   public String getId() {
     return asset.getId();
   }
 
-  @Override
   public String getName() {
     return asset.getName();
   }
 
-  @Override
   public String getType() {
     return asset.getType();
   }
 
-  @Override
   public int hashCode() {
     return asset.hashCode();
   }
 
-  @Override
   public void setFields(Map<String, Object> fields) {
     asset.setFields(fields);
   }
 
-  @Override
   public void setFolderPaths(List<String> paths) {
     asset.setFolderPaths(paths);
   }
 
-  @Override
   public void setIcon(String icon) {
     asset.setIcon(icon);
   }
 
-  @Override
   public void setId(String id) {
     asset.setId(id);
   }
 
-  @Override
   public void setName(String name) {
     asset.setName(name);
   }
 
-  @Override
   public void setType(String type) {
     asset.setType(type);
   }
@@ -129,22 +118,18 @@ public class PSLinkableAsset implements IPSLinkableContentItem {
     this.folderPath = folderPath;
   }
 
-  @Override
   public String getLabel() {
     return asset.getLabel();
   }
 
-  @Override
   public void setLabel(String label) {
     asset.setLabel(label);
   }
 
-  @Override
   public boolean isRevisionable() {
     return asset.isRevisionable();
   }
 
-  @Override
   public void setRevisionable(boolean revisionable) {
     asset.setRevisionable(revisionable);
   }
@@ -156,5 +141,10 @@ public class PSLinkableAsset implements IPSLinkableContentItem {
 
   public boolean isResource() {
     return asset.isResource();
+  }
+
+  @Override
+  public List<String> getTags() {
+    return asset.getTags();
   }
 }

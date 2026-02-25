@@ -58,7 +58,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +114,12 @@ public class PSResourceInstanceHelper {
       var rvalue = jexlEvaluator.evaluate(jexlScript);
       if (rvalue instanceof List) {
         var links = (List<?>) rvalue;
-        Validate.allElementsOfType(links, PSResourceLinkAndLocation.class);
+        // verify list elements are of expected type since Validate no longer provides the helper
+        for (Object o : links) {
+          if (!(o instanceof PSResourceLinkAndLocation)) {
+            throw new IllegalArgumentException("Script returned invalid element: " + o);
+          }
+        }
         return (List<PSResourceLinkAndLocation>) links;
       } else if (rvalue instanceof PSResourceLinkAndLocation) {
         var links = new ArrayList<PSResourceLinkAndLocation>();
@@ -169,7 +173,8 @@ public class PSResourceInstanceHelper {
   public String getBaseUrl(PSResourceInstance r) {
     var site = r.getSite();
     if (r.isCrossSite()) {
-      return site.getBaseUrl();
+      // unwrap optional base url, empty string if missing
+      return site.getBaseUrl().orElse("");
     }
     return getBaseUrlPath(r);
   }
@@ -180,7 +185,13 @@ public class PSResourceInstanceHelper {
       return r.getSite();
     }
     var site = r.getLinkContext().getSite();
-    if (!r.getItem().isResource()) {
+    boolean itemIsResource = false;
+    if (r.getItem() instanceof PSLinkableAsset asset) {
+      itemIsResource = asset.isResource();
+    } else if (r.getItem() instanceof com.percussion.share.data.PSDataItemSummary sum) {
+      itemIsResource = sum.isResource();
+    }
+    if (!itemIsResource) {
       site = siteDataService.findByPath(r.getItem().getFolderPath());
     }
     notNull(site, "Either the link context or the item needs to belong to a site");
@@ -249,7 +260,7 @@ public class PSResourceInstanceHelper {
   }
 
   private String getBaseUrlPath(PSSiteSummary site) {
-    var bu = site.getBaseUrl();
+    var bu = site.getBaseUrl().orElse("");
     try {
       bu = new URL(bu).getPath();
     } catch (MalformedURLException e) {

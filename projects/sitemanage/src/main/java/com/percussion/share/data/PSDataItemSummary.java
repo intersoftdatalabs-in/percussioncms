@@ -28,6 +28,7 @@ import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlSeeAlso;
+import java.util.Collections;
 import java.util.List;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
@@ -67,8 +68,8 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
   private String label;
 
   /**
-   * All tags associated with the item.  Historically this was called
-   * "folderPaths" and we keep the same backing field for compatibility.
+   * All tags associated with the item. Historically this was called "folderPaths" and we keep the
+   * same backing field for compatibility.
    */
   private List<String> tags;
 
@@ -133,6 +134,7 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
    *
    * @return true if this is a folder; otherwise false.
    */
+  @Override
   public boolean isFolder() {
     return "Folder".equals(type) || "FSFolder".equals(type);
   }
@@ -195,9 +197,7 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
     return tags == null ? Collections.emptyList() : tags;
   }
 
-  /**
-   * Helper used by JAXB & legacy code that previously relied on folderPaths.
-   */
+  /** Helper used by JAXB & legacy code that previously relied on folderPaths. */
   public void setTags(List<String> tags) {
     this.tags = tags;
   }

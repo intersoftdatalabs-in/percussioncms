@@ -17,7 +17,7 @@
  */
 package com.percussion.pagemanagement.dao;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.pagemanagement.dao.impl.PSResourceDefinitionGroupDao;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup;
@@ -39,13 +39,13 @@ public class PSResourceDefinitionGroupDaoTest {
   }
 
   @Test
-  public void shouldFindGroup() {
+  public void shouldFindGroup() throws Exception {
     var widget = dao.find("percSystem");
     assertResourceGroup(widget);
   }
 
   @Test
-  public void shouldFindResource() {
+  public void shouldFindResource() throws Exception {
     var resource = dao.findResource("percSystem.page");
     assertNotNull(resource);
 
@@ -54,41 +54,41 @@ public class PSResourceDefinitionGroupDaoTest {
   }
 
   @Test
-  public void shouldFindAllResources() {
+  public void shouldFindAllResources() throws Exception {
     var resources = dao.findAllResources();
-    assertEquals(7, resources.size());
+    assertEquals(7L, resources.size());
   }
 
   @Test
-  public void shouldFindDeps() {
+  public void shouldFindDeps() throws Exception {
     var resource = dao.findResource("percSystem.blah_css");
     assertTrue(resource.getDependencies().size() > 0);
   }
 
   @Test
-  public void shouldFindAssetResourceForContentType() {
+  public void shouldFindAssetResourceForContentType() throws Exception {
     assertNotNull(dao.findAssetResourceForType("percPage"));
   }
 
   @Test
-  public void shouldFindAllGroups() {
+  public void shouldFindAllGroups() throws Exception {
     var widgets = dao.findAll();
-    assertEquals(1, widgets.size());
+    assertEquals(1L, widgets.size());
   }
 
   @Test
-  public void shouldPoll() {
+  public void shouldPoll() throws Exception {
     dao.poll();
     dao.poll();
   }
 
   @Test
-  public void shouldNotSupportDelete() {
+  public void shouldNotSupportDelete() throws Exception {
     assertThrows(UnsupportedOperationException.class, () -> dao.delete("fail"));
   }
 
   @Test
-  public void shouldNotSupportSave() {
+  public void shouldNotSupportSave() throws Exception {
     assertThrows(
         UnsupportedOperationException.class, () -> dao.save(new PSResourceDefinitionGroup()));
   }

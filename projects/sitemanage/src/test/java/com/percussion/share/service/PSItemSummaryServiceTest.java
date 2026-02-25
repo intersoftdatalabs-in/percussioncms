@@ -17,7 +17,7 @@
  */
 package com.percussion.share.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.share.dao.impl.PSItemSummaryService;

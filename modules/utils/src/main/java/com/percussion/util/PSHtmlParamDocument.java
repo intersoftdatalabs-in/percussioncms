@@ -242,12 +242,12 @@ public class PSHtmlParamDocument {
    *
    * @return map of parameters, never <code>null</code> may be empty.
    */
-  public Map<String,Object> getParams() {
+  public Map<String, Object> getParams() {
     return m_params;
   }
 
   /** Map of all parameter name-value pairs, never <code>null</code>. */
-  Map<String,Object> m_params = new HashMap<>();
+  Map<String, Object> m_params = new HashMap<>();
 
   /**
    * main method for testing
@@ -262,7 +262,7 @@ public class PSHtmlParamDocument {
     log.info("Test Case1: single values parameters");
     log.info(htmlDoc.getXmlString());
 
-    Map<String,Object> params = new HashMap<>();
+    Map<String, Object> params = new HashMap<>();
     params.put("testParam1", "testParamValue1");
     params.put("testParam2", "testParamValue2");
     List<String> values = new ArrayList<>();

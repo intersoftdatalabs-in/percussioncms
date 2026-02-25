@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.percussion.delivery.polls.service;
 
 import com.percussion.delivery.polls.services.impl.PSPollsService;
 import com.percussion.delivery.utils.PSVersionHelper;
-import com.percussion.delivery.utils.spring.PSConfigurableApplicationContext;
+import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -32,12 +32,14 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
-import org.junit.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author natechadwick
@@ -83,14 +85,14 @@ public class PSPollsRestServiceTest extends JerseyTest {
     Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
     Response response = invocationBuilder.get();
 
-    Assert.assertNotNull(response);
-    Assert.assertEquals(200, response.getStatus());
-    Assert.assertEquals(testGetVersion(), response.getEntity());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    assertEquals(testGetVersion(), response.getEntity());
   }
 
   private String testGetVersion() {
     String version = PSVersionHelper.getVersion(this.getClass());
-    Assert.assertNotNull(version);
+    assertNotNull(version);
     System.out.print(version);
     return version;
   }

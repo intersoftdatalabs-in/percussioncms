@@ -73,7 +73,7 @@ public class ImagePersistenceManagerImplTest {
   }
 
   @Test
-  public void testCreateImage() {
+  public void testCreateImage() throws Exception {
     log.debug("testing create image");
     var master = new MasterImageMetaData();
     var item = Mockito.mock(PSCoreItem.class);
@@ -94,7 +94,7 @@ public class ImagePersistenceManagerImplTest {
   }
 
   @Test
-  public void testValidateSystemTitleUnique() {
+  public void testValidateSystemTitleUnique() throws Exception {
     var folderGuid = Mockito.mock(IPSGuid.class);
     var sum1 = new PSItemSummary();
     sum1.setName("item1");
@@ -107,7 +107,7 @@ public class ImagePersistenceManagerImplTest {
   }
 
   @Test
-  public void testOpenImage() {
+  public void testOpenImage() throws Exception {
     var item = Mockito.mock(PSCoreItem.class);
     var ilist = Collections.singletonList(item);
     var itemGuid = Mockito.mock(IPSGuid.class);
@@ -126,7 +126,7 @@ public class ImagePersistenceManagerImplTest {
   }
 
   @Test
-  public void testUpdateImage() {
+  public void testUpdateImage() throws Exception {
     var master = new MasterImageMetaData();
     var item = Mockito.mock(PSCoreItem.class);
     var ilist = Collections.singletonList(item);

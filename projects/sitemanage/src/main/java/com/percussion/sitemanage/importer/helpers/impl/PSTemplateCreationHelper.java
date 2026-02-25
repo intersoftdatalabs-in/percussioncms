@@ -82,12 +82,15 @@ public class PSTemplateCreationHelper extends PSImportHelper {
   public void process(PSPageContent pageContent, PSSiteImportCtx context)
       throws PSTemplateImportException, IPSPageService.PSPageException {
     startTimer();
+    // caller should always provide a site; unwrap once
+    var site = context.getSite().orElseThrow(() -> new IllegalStateException("Site must be provided in context"));
+
     // Initial names, using site-wide naming conventions.
     var pageName = PSPageManagementUtils.PAGE_NAME;
     var templateName = PSPageManagementUtils.TEMPLATE_NAME;
 
     // If possible, extract name from URL to use for page and template, instead.
-    var extractedName = extractPageNameFromUrl(context.getSiteUrl());
+    var extractedName = extractPageNameFromUrl(context.getSiteUrl().orElse(""));
     if (!StringUtils.isEmpty(extractedName)) {
       pageName = extractedName;
       templateName = extractedName;
@@ -102,10 +105,10 @@ public class PSTemplateCreationHelper extends PSImportHelper {
     }
 
     // Generate names to avoid collision with existing pages and templates.
-    pageName = pageService.generateNewPageName(pageName, context.getSite().getFolderPath());
+    pageName = pageService.generateNewPageName(pageName, site.getFolderPath());
     templateName =
         siteTemplateService.generateNewTemplateName(
-            PSPageManagementUtils.TEMPLATE_NAME, context.getSite().getId());
+            PSPageManagementUtils.TEMPLATE_NAME, site.getId());
 
     try {
       // TODO Replace plain template with new perc.base.empty that will be later added to base
@@ -116,7 +119,7 @@ public class PSTemplateCreationHelper extends PSImportHelper {
           templateService.createNewTemplate(
               IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME,
               templateName,
-              context.getSite().getId());
+              site.getId());
       context
           .getLogger()
           .appendLogMessage(
@@ -126,7 +129,7 @@ public class PSTemplateCreationHelper extends PSImportHelper {
 
       // Create page
       context.setPageName(pageName);
-      var newPage = createNewPage(pageName, newTemplate.getId(), context.getSite().getFolderPath());
+      var newPage = createNewPage(pageName, newTemplate.getId(), site.getFolderPath());
       context
           .getLogger()
           .appendLogMessage(
@@ -148,33 +151,41 @@ public class PSTemplateCreationHelper extends PSImportHelper {
   @Override
   public void rollback(PSPageContent pageContent, PSSiteImportCtx context)
       throws PSDataServiceException {
-    if (context.getSite() == null) {
-      return;
-    }
+    // Only act if a site was stored in the context
+    context.getSite().ifPresent(site -> {
+      // Delete page if it was created
+      context.getPageName()
+          .filter(StringUtils::isNotEmpty)
+          .ifPresent(pageName -> {
+            try {
+              var page = pageService.findPage(pageName, site.getFolderPath());
+              if (page != null) {
+                pageService.delete(page.getId());
+              }
+            } catch (PSDataServiceException e) {
+              // LOG and ignore rollback failures
+              log.warn("Failed to delete imported page during rollback: {}", e.getMessage());
+            }
+          });
 
-    // Delete page if it was created
-    if (StringUtils.isNotEmpty(context.getPageName())) {
-      var page = pageService.findPage(context.getPageName(), context.getSite().getFolderPath());
-      if (page != null) {
-        pageService.delete(page.getId());
-      }
-    }
-
-    // Delete template if it was created
-    if (StringUtils.isNotEmpty(context.getTemplateName())) {
-      var siteTemplates = siteTemplateService.findTemplatesBySite(context.getSite().getId());
-      for (var template : siteTemplates) {
-        if (template.getName().equals(context.getTemplateName())) {
-          try {
-            templateService.delete(template.getId());
-          } catch (PSNotFoundException e) {
-            log.warn(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-          }
-          break;
-        }
-      }
-    }
+      // Delete template if it was created
+      context.getTemplateName()
+          .filter(StringUtils::isNotEmpty)
+          .ifPresent(templateName -> {
+            var siteTemplates = siteTemplateService.findTemplatesBySite(site.getId());
+            for (var template : siteTemplates) {
+              if (template.getName().equals(templateName)) {
+                try {
+                  templateService.delete(template.getId());
+                } catch (PSNotFoundException | PSDataServiceException e) {
+                  log.warn(PSExceptionUtils.getMessageForLog(e));
+                  log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+                }
+                break;
+              }
+            }
+          });
+    });
   }
 
   /**

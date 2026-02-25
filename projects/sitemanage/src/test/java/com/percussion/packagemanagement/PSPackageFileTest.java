@@ -17,8 +17,8 @@
  */
 package com.percussion.packagemanagement;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.percussion.test.TestAssertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.packagemanagement.PSPackageFileEntry.PackageFileStatus;
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class PSPackageFileTest {
 
     var entries = pkgFile.getEntries();
     assertNotNull(entries);
-    assertEquals(3, entries.size());
+    assertEquals(3L, entries.size());
     var iterator = entries.iterator();
 
     var entry = iterator.next();

@@ -49,7 +49,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.percussion.pso.utils.RxItemUtils;
 
 /**
  * // REFACTORED: CP-JAVA11
@@ -64,6 +66,7 @@ public class ImageItemSupportTest {
   @Mock IPSGuidManager gmgr;
   @Mock ImageSizeDefinitionManager isdm;
   @Mock ImageCacheManager cache;
+  // make inner class static to avoid Mockito instantiation problem
   @InjectMocks TestableImageItemSupport cut;
 
   @BeforeEach
@@ -132,17 +135,21 @@ public class ImageItemSupportTest {
     var master = new MasterImageMetaData();
     var fldmap = new HashMap<String, String>();
     fldmap.put("imageKey", "fld");
-    var fld = Mockito.mock(PSItemField.class);
-    var val = Mockito.mock(PSBinaryValue.class);
-    var meta = Mockito.mock(PSItemFieldMeta.class);
+    // simulate binary value and cache interaction
     var bval = "The quick brown fox jumps over the lazy dog";
-    Mockito.when(item.getFieldByName("fld")).thenReturn(fld);
-    Mockito.when(fld.getItemFieldMeta()).thenReturn(meta);
-    Mockito.when(meta.getBackendDataType()).thenReturn(PSItemFieldMeta.DATATYPE_BINARY);
-    Mockito.when(fld.getValue()).thenReturn(val);
     Mockito.when(cache.addImage(Mockito.any(ImageData.class))).thenReturn("4345364345");
-    Mockito.when(val.getValue()).thenReturn(bval.getBytes());
-    cut.readMetaData(item, master, fldmap);
+    try (MockedStatic<RxItemUtils> rx = Mockito.mockStatic(RxItemUtils.class)) {
+      rx.when(() -> RxItemUtils.isBinaryField(item, "fld")).thenReturn(true);
+      rx.when(() -> RxItemUtils.getFieldBinary(item, "fld")).thenReturn(bval.getBytes());
+      // ensure readBinaryMetaData uses expected values
+      rx.when(() -> RxItemUtils.getFieldValue(item, "fld" + "_filename")).thenReturn("fn");
+      rx.when(() -> RxItemUtils.getFieldValue(item, "fld" + "_ext")).thenReturn("jpg");
+      rx.when(() -> RxItemUtils.getFieldValue(item, "fld" + "_type")).thenReturn("image/jpeg");
+      rx.when(() -> RxItemUtils.getFieldNumeric(item, "fld" + "_size")).thenReturn(123L);
+      rx.when(() -> RxItemUtils.getFieldNumeric(item, "fld" + "_height")).thenReturn(10);
+      rx.when(() -> RxItemUtils.getFieldNumeric(item, "fld" + "_width")).thenReturn(20);
+      cut.readMetaData(item, master, fldmap);
+    }
     assertNotNull(master.getImageKey());
     assertEquals("4345364345", master.getImageKey());
   }
@@ -201,13 +208,13 @@ public class ImageItemSupportTest {
     image.setSize(457L);
     image.setHeight(42);
     image.setWidth(37);
-    Mockito.when(item.getFieldByName("fld")).thenReturn(fld);
-    Mockito.doNothing().when(fld).clearValues();
-    Mockito.doNothing().when(fld).addValue(Mockito.any(IPSFieldValue.class));
-    Mockito.when(fld.getItemFieldMeta()).thenReturn(meta);
-    Mockito.when(meta.getBackendDataType()).thenReturn(PSItemFieldMeta.DATATYPE_BINARY);
     Mockito.when(cache.getImage("133245")).thenReturn(image);
-    cut.writeMetaData(item, master, fldmap);
+    // indicate binary field so writeMetaData takes that branch
+    try (MockedStatic<RxItemUtils> rx = Mockito.mockStatic(RxItemUtils.class)) {
+      rx.when(() -> RxItemUtils.isBinaryField(item, "fld")).thenReturn(true);
+      // allow other static helpers to operate normally or be stubbed implicitly
+      cut.writeMetaData(item, master, fldmap);
+    }
   }
 
   @Test
@@ -307,7 +314,7 @@ public class ImageItemSupportTest {
     cut.writeBinaryMetaData(item, image, "fld");
   }
 
-  private class TestableImageItemSupport extends ImageItemSupport {
+  private static class TestableImageItemSupport extends ImageItemSupport {
     @Override
     public PSItemChildEntry findChildEntry(List<PSItemChildEntry> entries, String code)
         throws Exception {

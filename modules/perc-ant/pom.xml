@@ -214,7 +214,6 @@
             <artifactId>perc-legacy</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <!-- JUnit 5 (module) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

@@ -399,15 +399,19 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
 
     boolean isAdmin = false;
     boolean isInternalUser = false;
-    IPSWorkflowAppsContext wac;
     String sAdminName;
 
     if (userName.equals(IPSConstants.INTERNAL_USER_NAME)) {
       isInternalUser = true;
       sAdminName = userName;
     } else {
-      wac = cms.loadWorkflowAppContext(nWorkFlowAppID);
-      sAdminName = wac.getWorkFlowAdministrator();
+      Optional<IPSWorkflowAppsContext> wacOpt = cms.loadWorkflowAppContext(nWorkFlowAppID);
+      if (wacOpt.isPresent()) {
+          IPSWorkflowAppsContext wac = wacOpt.get();
+          sAdminName = wac.getWorkFlowAdministrator();
+      } else {
+          sAdminName = ""; // treat as no administrator defined
+      }
     }
 
     if (isInternalUser || PSWorkFlowUtils.isAdmin(sAdminName, userName, roleNameList)) {
@@ -547,8 +551,18 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       }
     }
 
+    // determine language for error messages
+    String lang =
+        (String) localParams.m_request.getSessionPrivateObject(
+            PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG);
+    if (lang == null) lang = PSI18nUtils.DEFAULT_LANG;
+
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    IPSWorkflowAppsContext wcxt = cms.loadWorkflowAppContext(localParams.m_workflowAppID);
+    Optional<IPSWorkflowAppsContext> wcxtOpt = cms.loadWorkflowAppContext(localParams.m_workflowAppID);
+    if (wcxtOpt.isEmpty()) {
+        throw new PSEntryNotFoundException("Workflow application not found");
+    }
+    IPSWorkflowAppsContext wcxt = wcxtOpt.get();
 
     // build list of roles that can access the doc in the initial state
     List<String> stateRoleList = new ArrayList<>();

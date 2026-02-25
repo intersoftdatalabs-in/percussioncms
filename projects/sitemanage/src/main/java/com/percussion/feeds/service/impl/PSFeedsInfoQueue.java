@@ -170,7 +170,9 @@ public class PSFeedsInfoQueue implements InitializingBean {
     private boolean sendDescriptors(PSDeliveryInfo serviceInfo, String site, String descriptors) {
       var server =
           deliveryInfoService.findByService(
-              PSDeliveryInfo.SERVICE_FEEDS, serviceInfo.getServerType(), serviceInfo.getAdminUrl());
+              PSDeliveryInfo.SERVICE_FEEDS,
+              serviceInfo.getServerType(),
+              serviceInfo.getAdminUrl().orElse(null));
       var deliveryClient = new PSDeliveryClient();
       try {
         var successCodes = Set.of(204);

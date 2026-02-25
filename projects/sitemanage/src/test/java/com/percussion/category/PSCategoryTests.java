@@ -18,7 +18,7 @@
 
 package com.percussion.category;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;

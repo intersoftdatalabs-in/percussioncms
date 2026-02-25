@@ -37,6 +37,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import java.util.Optional;
 
 /**
  * This exit is used to enforce workflow security when we are in active assembly. This exit
@@ -208,10 +209,16 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
         (String) localParams.m_request.getSessionPrivateObject(IPSHtmlParameters.SYS_COMMUNITY);
     if (usercomm != null) userCommunityID = Integer.parseInt(usercomm);
 
-    IPSWorkflowAppsContext wac;
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    wac = cms.loadWorkflowAppContext(nWorkFlowAppID);
-    String sAdminName = wac.getWorkFlowAdministrator();
+    Optional<IPSWorkflowAppsContext> wacOpt = cms.loadWorkflowAppContext(nWorkFlowAppID);
+    String sAdminName;
+    if (wacOpt.isPresent()) {
+        IPSWorkflowAppsContext wac = wacOpt.get();
+        sAdminName = wac.getWorkFlowAdministrator();
+    } else {
+        // no workflow application context available, treat as no admin
+        sAdminName = "";
+    }
 
     // if the login community and user community are different from return
     // false

@@ -17,6 +17,7 @@
 package test.percussion.pso.imageedit.web;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.imageedit.data.ImageSizeDefinition;
 import com.percussion.pso.imageedit.data.MasterImageMetaData;

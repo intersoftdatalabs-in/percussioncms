@@ -25,8 +25,8 @@ import java.io.PrintStream;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -104,7 +104,8 @@ public class WrappedTrustManagerTest {
 
     // When/Then - Should throw RuntimeException due to keystore issues
     // Note: This test may need adjustment based on actual KeyStore behavior
-    assertThrows(RuntimeException.class,
+    assertThrows(
+        RuntimeException.class,
         () -> wrappedTrustManager.addKeyStore(keystoreName, corruptedKeyStore));
   }
 

@@ -187,7 +187,7 @@ public class PSSiteGenerator extends PSGenerator<PSSiteRestClient> {
     var sectionNode = sectionClient.loadTree(siteName);
 
     if (sectionNode != null) {
-      var parentId = StringUtils.EMPTY;
+      var parentId = "";
 
       // Check if the target section is the home
       if (parentPath.endsWith(targetSection)) {
@@ -197,7 +197,7 @@ public class PSSiteGenerator extends PSGenerator<PSSiteRestClient> {
       if (StringUtils.isBlank(parentId)) {
         List<PSSectionNode> childNodes = sectionNode.getChildNodes();
         for (var childNode : childNodes) {
-          if (childNode.getFolderPath().endsWith(targetSection)) {
+          if (childNode.getFolderPath().orElse("").endsWith(targetSection)) {
             parentId = childNode.getId();
             break;
           }

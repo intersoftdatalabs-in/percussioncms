@@ -17,7 +17,6 @@
  */
 package com.percussion.sitemanage.importer.helpers.impl;
 
-import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.share.IPSSitemanageConstants;
@@ -69,7 +68,7 @@ public class PSSiteCreationHelper extends PSImportHelper {
         .getLogger()
         .appendLogMessage(PSLogEntryType.STATUS, "Create Site", "The site creation has started.");
 
-    var newSite = context.getSite();
+    var newSite = context.getSite().orElseThrow(() -> new IllegalStateException("Site must be provided in context"));
 
     // Set plain template as base template
     newSite.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
@@ -92,7 +91,8 @@ public class PSSiteCreationHelper extends PSImportHelper {
 
     try {
       // Save and create related elements
-      context.setSite(siteDao.save(newSite));
+      var savedSite = siteDao.save(newSite);
+      context.setSite(savedSite);
       context
           .getLogger()
           .appendLogMessage(
@@ -100,31 +100,44 @@ public class PSSiteCreationHelper extends PSImportHelper {
 
       // Set the template id on the context
       var homePage =
-          pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, context.getSite().getFolderPath());
+          pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, savedSite.getFolderPath());
       if (homePage != null) {
         context.setTemplateId(homePage.getTemplateId());
         context.setPageName(PSSiteContentDao.HOME_PAGE_NAME);
       }
 
       // Create site import summary entry
-      context.getSummaryService().create(context.getSite().getSiteId().intValue());
+      long siteId = savedSite.getSiteId().orElseThrow();
+      context.getSummaryService().ifPresent(svc -> {
+          try {
+              svc.create((int) siteId);
+          } catch (com.percussion.share.dao.IPSGenericDao.SaveException e) {
+              throw new RuntimeException(e);
+          }
+      });
 
       // Update the template and page count
       var summaryStats =
           new HashMap<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer>();
-      if (context.getSummaryStats() != null) {
-        summaryStats.putAll(context.getSummaryStats());
+      if (context.getSummaryStats().isPresent()) {
+        summaryStats.putAll(context.getSummaryStats().get());
         context.setSummaryStats(null);
       }
       summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.TEMPLATES, 1);
       summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.PAGES, 1);
-      context.getSummaryService().update(context.getSite().getSiteId().intValue(), summaryStats);
+      context.getSummaryService().ifPresent(svc -> {
+          try {
+              svc.update((int) siteId, summaryStats);
+          } catch (com.percussion.share.dao.IPSGenericDao.SaveException e) {
+              throw new RuntimeException(e);
+          }
+      });
 
     } catch (RuntimeException | PSDataServiceException e) {
       // Errors in mandatory helpers are not logged in siteImportLogger,
       // because that log is discarded. Log the error in the server log.
       var message = "There was an unexpected error creating the new site.";
-      log.error(message + ". Caused by: " + e.getMessage() + ExceptionUtils.getFullStackTrace(e));
+      log.error(message + ". Caused by: " + e.getMessage() + ExceptionUtils.getStackTrace(e));
       throw new PSSiteImportException(message, e);
     }
     endTimer();
@@ -133,10 +146,13 @@ public class PSSiteCreationHelper extends PSImportHelper {
   @Override
   @SuppressWarnings("unused")
   public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
-    notNull(context.getSite());
+    var optSite = context.getSite();
+    if (optSite.isEmpty()) {
+      return; // nothing to roll back
+    }
     try {
       // Delete site and related content
-      siteDao.delete(context.getSite().getId());
+      siteDao.remove(optSite.get().getId());
     } catch (PSDataServiceException e) {
       context
           .getLogger()
