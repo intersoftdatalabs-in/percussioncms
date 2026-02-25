@@ -86,9 +86,18 @@ public class PSWidgetDao
     throw new UnsupportedOperationException("save is not yet supported");
   }
 
-  @Override
   public void delete(String id) throws com.percussion.share.dao.IPSGenericDao.DeleteException {
     throw new UnsupportedOperationException("delete is not yet supported");
+  }
+
+  @Override
+  public void remove(PSWidgetDefinition object) throws PSDataServiceException {
+    if (object != null) remove(object.getId());
+  }
+
+  @Override
+  public void remove(String id) throws PSDataServiceException {
+    delete(id);
   }
 
   @Override

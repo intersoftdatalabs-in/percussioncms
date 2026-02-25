@@ -582,11 +582,13 @@ public class PSSiteConfigUtils {
    */
   public static void updateSiteConfiguration(IPSSite site, PSSiteProperties props)
       throws IOException {
-    if (!site.getName().equals(props.getName())) {
+    String originalName = site.getName();
+    String newName = props.getName().orElse(null);
+    if (!originalName.equals(newName)) {
       if (site.isSecure()) {
-        renameOrCreateSecureSiteConfiguration(site.getName(), props.getName());
+        renameOrCreateSecureSiteConfiguration(originalName, newName);
       } else {
-        removeSiteConfigurationAndTouchedFile(site.getName());
+        removeSiteConfigurationAndTouchedFile(originalName);
       }
     } else {
       if (changeToSecureSite(site, props)) {
@@ -730,8 +732,9 @@ public class PSSiteConfigUtils {
     if (sectionNode.isRequiresLogin()) {
       String folderPath =
           splitByWholeSeparator(
-              sectionNode.getFolderPath(), SITE_ROOT + "/" + xmlData.getSitename())[0];
-      xmlData.addSecureOrMemberSection(folderPath + "/", sectionNode.getAllowAccessTo());
+sectionNode.getFolderPath().orElse(""),
+            SITE_ROOT + "/" + xmlData.getSitename())[0];
+        xmlData.addSecureOrMemberSection(folderPath + "/", sectionNode.getAllowAccessTo().orElse(null));
 
       // cut the tree as soon as we hit the first secure node
       return;

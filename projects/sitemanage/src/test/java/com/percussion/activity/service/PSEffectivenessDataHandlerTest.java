@@ -16,7 +16,7 @@
  */
 package com.percussion.activity.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.activity.data.PSContentActivity;
 import com.percussion.activity.data.PSEffectivenessRequest;
@@ -42,10 +42,10 @@ class PSEffectivenessDataHandlerTest {
 
     var emptyList = new ArrayList<PSContentActivity>();
     var eList = handler.getEffectiveness(request, emptyList);
-    assertEquals(2, eList.size());
+    assertEquals(2L, eList.size());
 
     request.setPath("/Sites/MySite.com");
     eList = handler.getEffectiveness(request, emptyList);
-    assertEquals(4, eList.size());
+    assertEquals(4L, eList.size());
   }
 }

@@ -319,7 +319,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     if (pageTemplate.getType() != null && pageTemplate.getType().equals(UNASSIGNED.toString())) {
       var pageQueue = getPageImportQueue();
       var siteSummary = siteDao.findByPath(pagePath);
-      pageQueue.dirtySiteQueue(siteSummary.getSiteId());
+      pageQueue.dirtySiteQueue(siteSummary.getSiteId().orElse(null));
     }
     return pagePath;
   }
@@ -461,10 +461,13 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     }
     compare = new CompareItemEntry(sortingColumn, sortingOrder);
 
-    // Get all the pages (sorted) using the template from the object cache.
     IPSCmsObjectMgr cmsObjectMgr = PSCmsObjectMgrLocator.getObjectManager();
-    List<IPSItemEntry> allPageEntries = cmsObjectMgr.findItemEntries(pageIds, compare);
-
+    List<IPSItemEntry> allPageEntries = new ArrayList<>();
+    for (Integer pid : pageIds) {
+      IPSItemEntry entry = cmsObjectMgr.findItemEntry(pid);
+      if (entry != null) allPageEntries.add(entry);
+    }
+    allPageEntries.sort(compare);
     PSPagedObjectList<IPSItemEntry> pageGroup;
     Integer itemStartIndex = null;
     if (pageId != null) {
@@ -745,7 +748,8 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     int stateId = -1;
     try {
       workflowId = itemWorkflowService.getWorkflowId(request.getWorkflow());
-      stateId = itemWorkflowService.getStateId(request.getWorkflow(), request.getState());
+      stateId =
+          itemWorkflowService.getStateId(request.getWorkflow(), request.getState());
     } catch (PSItemWorkflowServiceException | PSValidationException e) {
       throw new PSPageException(e);
     }
@@ -1090,7 +1094,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
         log.warn("Unable to locate Site: {}", siteName);
         return new PSUnassignedResults();
       }
-      PSSiteQueue siteQueue = getPageImportQueue().getPageIds(site.getSiteId());
+      PSSiteQueue siteQueue = getPageImportQueue().getPageIds(site.getSiteId().orElse(null));
 
       List<Integer> catalogedIds = siteQueue.getCatalogedIds();
       List<Integer> importedIds = siteQueue.getImportedIds();
@@ -1227,11 +1231,11 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
    * @return {@link ItemStatus} the item status for the item. Never <code>null</code>, or empty.
    */
   private ItemStatus getItemStatus(Integer id, List<Integer> importingIds, boolean isImported) {
-    ItemStatus currentStatus = ItemStatus.Cataloged;
+    ItemStatus currentStatus = ItemStatus.CATALOGED;
 
-    if (!importingIds.isEmpty() && importingIds.contains(id)) return ItemStatus.Importing;
+    if (!importingIds.isEmpty() && importingIds.contains(id)) return ItemStatus.IMPORTING;
 
-    if (isImported) return ItemStatus.Imported;
+    if (isImported) return ItemStatus.IMPORTED;
 
     return currentStatus;
   }

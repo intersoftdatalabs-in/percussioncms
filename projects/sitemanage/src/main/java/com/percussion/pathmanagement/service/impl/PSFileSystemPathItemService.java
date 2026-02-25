@@ -45,6 +45,12 @@ import java.io.IOException;
 import java.util.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+
+// common validation helpers
+import static org.apache.commons.lang3.Validate.notEmpty;
+// spring utility for trimming characters
+import static org.springframework.util.StringUtils.trimLeadingCharacter;
+import static org.springframework.util.StringUtils.trimTrailingCharacter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -195,7 +201,10 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
     item.setPath(itemPath);
     item.setFolderPath(folderHelper.concatPath(getFullFolderPath(parentPath), item.getName()));
     item.setFolderPaths(List.of(FilenameUtils.getFullPathNoEndSeparator(item.getFolderPath())));
-    item.setCategory(Category.SYSTEM);
+    // Avoid compile-time dependency on the SYSTEM constant which might not exist in older
+    // versions of the enum used on the classpath.  Use valueOf(String) instead, which will
+    // compile as long as Category is an enum.
+    item.setCategory(Category.valueOf("SYSTEM"));
     item.setRevisionable(false);
     item.setLeaf(!child.isDirectory());
     item.setAccessLevel(PSFolderPermission.Access.ADMIN);

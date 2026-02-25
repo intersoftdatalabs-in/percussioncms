@@ -23,13 +23,11 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Tag;
 
 /**
  * The PSProcessTransitionTest class is a test class for the method processTransition. See {@link
  * #HelpMessage} for command line options.
  */
-
 public class PSProcessTransitionTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSProcessTransitionTest.class);

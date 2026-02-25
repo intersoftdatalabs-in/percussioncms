@@ -27,7 +27,7 @@ import java.io.File;
 import java.util.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -70,7 +70,7 @@ public class TaxonomyFieldVisibility implements IPSFieldVisibilityRule {
 
     // get similar ID for our main query
     Query query = session.createQuery(SQL_STRING);
-    query.setInteger("taxonomy_id", taxonomy_id);
+    query.setParameter("taxonomy_id", taxonomy_id);
 
     // add them
     Collection<Long> visible_to_community_ids = (Collection<Long>) query.list();

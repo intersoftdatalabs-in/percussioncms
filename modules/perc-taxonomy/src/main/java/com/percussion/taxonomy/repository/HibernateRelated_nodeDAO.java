@@ -19,34 +19,37 @@ package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Related_node;
 import java.util.Collection;
-import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class HibernateRelated_nodeDAO extends HibernateDaoSupport implements Related_nodeDAO {
+@Repository
+@Transactional
+public class HibernateRelated_nodeDAO implements Related_nodeDAO {
+
+  @Autowired private SessionFactory sessionFactory;
 
   public Related_node getRelated_node(int id) {
-    return (Related_node) getHibernateTemplate().get(Related_node.class, new Integer(id));
+    Session session = sessionFactory.getCurrentSession();
+    return session.get(Related_node.class, id);
   }
 
+  @SuppressWarnings("unchecked")
   public Collection getAllRelated_nodes() {
-    // Optional: Add order by to query
     String queryString = "from Related_node rn left join fetch rn.relationship";
-    return (Collection)
-        getHibernateTemplate()
-            .execute(
-                (HibernateCallback)
-                    session -> {
-                      Query query = session.createQuery(queryString);
-                      return query.list();
-                    });
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection) (Collection<?>) session.createQuery(queryString, Related_node.class).list();
   }
 
   public void saveRelated_node(Related_node related_node) {
-    getHibernateTemplate().saveOrUpdate(related_node);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(related_node);
   }
 
   public void removeRelated_node(Related_node related_node) {
-    getHibernateTemplate().delete(related_node);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(related_node);
   }
 }

@@ -18,7 +18,7 @@
 package com.percussion.sitemanage.data;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.data.PSDataObjectTestCase;
 import com.percussion.share.test.PSDataObjectTestUtils;

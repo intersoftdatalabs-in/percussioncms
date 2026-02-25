@@ -21,10 +21,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Tag;
 
 /** The PSTransitionsContextTest class is a test class for the class PSTransitionsContext. */
-
 public class PSTransitionsContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSTransitionsContextTest.class);

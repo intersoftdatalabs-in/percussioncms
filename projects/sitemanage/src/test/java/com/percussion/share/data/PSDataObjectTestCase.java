@@ -18,7 +18,7 @@
 package com.percussion.share.data;
 
 import static com.percussion.share.test.PSDataObjectTestUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.test.PSDataObjectTestUtils;
 import org.junit.jupiter.api.BeforeEach;

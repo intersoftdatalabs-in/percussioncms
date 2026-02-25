@@ -19,7 +19,6 @@ package com.percussion.utils.data;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Response wrapper for private key names. Immutable, Java 11 style.
@@ -55,12 +54,4 @@ public final class PSPrivateKeysResponse {
     return keyNames;
   }
 
-  /**
-   * Gets the key names as an Optional (empty if none).
-   *
-   * @return Optional of key names list
-   */
-  public Optional<List<String>> getKeyNamesOptional() {
-    return keyNames.isEmpty() ? Optional.empty() : Optional.of(keyNames);
-  }
 }

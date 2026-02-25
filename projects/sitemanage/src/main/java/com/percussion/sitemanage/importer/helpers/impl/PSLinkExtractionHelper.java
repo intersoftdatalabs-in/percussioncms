@@ -40,6 +40,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.dao.IPSiteDao;
 import com.percussion.sitemanage.data.PSPageContent;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
+import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.IPSConnectivity;
@@ -150,15 +151,15 @@ public class PSLinkExtractionHelper extends PSImportHelper {
 
     var themeRootDirectory = getThemeRootDirectory(context);
     var themeRootUrl = getThemeRootUrl(context);
-    var siteName = context.getSite().getName();
+    var site = context.getSite().orElseThrow(() -> new IllegalStateException("Site required"));
+    var siteName = site.getName();
     var siteQueue = getSiteQueue(context);
     final var links =
         PSLinkExtractor.getLinksForDocument(
             pageContent.getSourceDocument(),
             log,
             siteQueue,
-            context.getSite().getBaseUrl(),
-            context.getImportConfiguration());
+            site.getBaseUrl().orElse(""));
     final var imageLinks =
         PSLinkExtractor.getImagesForDocument(pageContent.getSourceDocument(), log);
 
@@ -182,7 +183,7 @@ public class PSLinkExtractionHelper extends PSImportHelper {
                   link.getPageName());
           siteQueue.setProcessedLink(resolvedUrlTarget, linkForCache);
 
-          var conn = getConnectivity(link.getAbsoluteLink(), false, true, context.getUserAgent());
+          var conn = getConnectivity(link.getAbsoluteLink(), false, true, context.getUserAgent().orElse(""));
           var ret = new PSHtmlRetriever(conn);
           var doc = ret.getHtmlDocument();
           if (doc != null) {
@@ -194,7 +195,7 @@ public class PSLinkExtractionHelper extends PSImportHelper {
             var pathToTargetItem = getPathForTargetItem(siteName, link);
             link.getElement().attr(HREF, pathToTargetItem);
             link.getElement().attr(PERC_MANAGED_ATTR, "true");
-            if (link.getAbsoluteLink().startsWith(context.getSiteUrl())) {
+            if (link.getAbsoluteLink().startsWith(context.getSiteUrl().orElse(""))) {
               catalogPage(context, log, link, conn.getResponseStatusCode(), resolvedUrlTarget);
               catalogedCount++;
             }
@@ -232,22 +233,24 @@ public class PSLinkExtractionHelper extends PSImportHelper {
       summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.PAGES, catalogedCount);
       summaryStats.put(
           IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.INTERNALLINKS, links.size());
-      if (context.getSummaryService() != null && context.getSite().getSiteId() != null)
-        context.getSummaryService().update(context.getSite().getSiteId().intValue(), summaryStats);
+      if (context.getSummaryService().isPresent() && site.getSiteId().isPresent())
+        context.getSummaryService().get().update(site.getSiteId().get().intValue(), summaryStats);
     }
     log.appendLogMessage(
         PSLogEntryType.STATUS,
         "Link Extractor",
-        "Finished cataloging links for Site: " + context.getSite().getName());
+        "Finished cataloging links for Site: " + siteName);
     endTimer();
   }
 
   protected String getThemeRootUrl(final PSSiteImportCtx context) {
-    return themeService.getThemeRootUrl(context.getThemeSummary().getName());
+    return themeService.getThemeRootUrl(
+        context.getThemeSummary().map(ts -> ts.getName()).orElse(""));
   }
 
   protected String getThemeRootDirectory(final PSSiteImportCtx context) {
-    return themeService.getThemeRootDirectory(context.getThemeSummary().getName());
+    return themeService.getThemeRootDirectory(
+        context.getThemeSummary().map(ts -> ts.getName()).orElse(""));
   }
 
   protected PSURLConverter getURLConverter(
@@ -257,7 +260,7 @@ public class PSLinkExtractionHelper extends PSImportHelper {
       String themeRootUrl,
       String siteName) {
     return new PSURLConverter(
-        context.getSiteUrl(), siteName, themeRootDirectory, themeRootUrl, log);
+        context.getSiteUrl().orElse(""), siteName, themeRootDirectory, themeRootUrl, log);
   }
 
   protected String getCmsFolderPathForImageAssetsSiteName(
@@ -305,6 +308,9 @@ public class PSLinkExtractionHelper extends PSImportHelper {
       PSLink link,
       int responseStatusCode,
       String resolvedUrlTarget) {
+    // unwrap site context for reuse
+    PSSite site = context.getSite().orElseThrow(() -> new IllegalStateException("Site required"));
+    String siteName = site.getName();
     boolean isCataloged = false;
     if (responseStatusCode == IPSHttpErrors.HTTP_OK) {
       try {
@@ -325,7 +331,7 @@ public class PSLinkExtractionHelper extends PSImportHelper {
 
         var page =
             pageCatalogService.addCatalogPage(
-                context.getSite().getName(),
+                siteName,
                 link.getPageName(),
                 link.getLinkText(),
                 linkPathWithoutAnchor,
@@ -338,7 +344,7 @@ public class PSLinkExtractionHelper extends PSImportHelper {
           var id = ((PSLegacyGuid) getIdMapper().getGuid(page.getId())).getContentId();
           getImportQueue()
               .addCatalogedPageIds(
-                  context.getSite(), context.getUserAgent(), Collections.singletonList(id));
+                    site, context.getUserAgent().orElse(null), Collections.singletonList(id));
         }
       } catch (Exception e) {
         log.appendLogMessage(
@@ -360,10 +366,10 @@ public class PSLinkExtractionHelper extends PSImportHelper {
   protected void evaluateForIndexPage(final PSSiteImportCtx context, String linkPathWithoutAnchor)
       throws Exception {
     if (pageCatalogService.pageWithFolderPathExists(
-        pageCatalogService.getFullFolderPath(linkPathWithoutAnchor, context.getSite()))) {
+        pageCatalogService.getFullFolderPath(linkPathWithoutAnchor, (PSSiteSummary) context.getSite().orElseThrow()))) {
       var pageForMove =
           pageDao.findPageByPath(
-              pageCatalogService.getFullFolderPath(linkPathWithoutAnchor, context.getSite()));
+              pageCatalogService.getFullFolderPath(linkPathWithoutAnchor, (PSSiteSummary) context.getSite().orElseThrow()));
       itemWorkflowService.checkOut(pageForMove.getId());
       var folderForMove = concatPath(pageForMove.getFolderPath(), pageForMove.getName());
       pageForMove.setName("index-" + pageForMove.getName());

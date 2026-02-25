@@ -180,7 +180,7 @@ public class PSResourceTemplateExpander
     var locator = getGuidManager().makeLocator(contentId);
     var contentTypeId = getItemDefManager().getItemContentType(locator);
     String name = null;
-    if (contentTypeId != null && contentTypeId != -1) {
+    if (contentTypeId != -1) {
       try {
         name = getItemDefManager().contentTypeIdToName(contentTypeId);
       } catch (PSInvalidContentTypeException e) {

@@ -55,7 +55,8 @@ import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
 import java.util.*;
-import org.apache.commons.text.StringEscapeUtils;
+import com.percussion.sitemanage.data.PSSite;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Element;
@@ -102,7 +103,8 @@ class PageSaveRunner implements Runnable {
 
   @Override
   public void run() {
-    var siteId = context.getSite().getSiteId();
+      long siteId = context.getSite().flatMap(s -> s.getSiteId())
+            .orElseThrow(() -> new IllegalStateException("Site ID required"));
     var id = ((PSLegacyGuid) idMapper.getGuid(targetPage.getId())).getContentId();
 
     try {
@@ -231,7 +233,7 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
       setDescriptionOnPage(pageContent, context);
     }
 
-    var template = templateService.load(context.getTemplateId());
+    var template = templateService.load(context.getTemplateId().orElse(null));
     var widgets = template.getWidgets();
     if (widgets == null || widgets.isEmpty()) {
       context
@@ -324,7 +326,7 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
       throws PSSiteImportException {
     final String STATUS_MESSAGE = "changing page information";
     if (pageImport) {
-      if (context.isCanceled() || context.getCatalogedPageId() == null) {
+      if (context.isCanceled() || context.getCatalogedPageId().isEmpty()) {
         return;
       }
       context
@@ -336,14 +338,14 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
                   + context.getPageName()
                   + " to the actual location");
       try {
-        pageCatalogService.createImportedPage(context.getCatalogedPageId());
+        pageCatalogService.createImportedPage(context.getCatalogedPageId().orElse(null));
         context
             .getLogger()
             .appendLogMessage(
                 PSLogEntryType.STATUS,
                 STATUS_MESSAGE,
                 "Successfully moved imported page "
-                    + context.getPageName()
+                    + context.getPageName().orElse("")
                     + " to the actual location");
       } catch (Exception e) {
         var errorMsg =
@@ -378,17 +380,17 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
             widget.getDefinitionId(),
             asset.getId(),
             1,
-            widget.getName());
+            widget.getName().orElse(""));
     assetService.createAssetWidgetRelationship(awRel);
     relationships.add(awRel);
     return relationships;
   }
 
   private PSPage getTargetPage(PSSiteImportCtx context) throws PSDataServiceException {
-    if (isBlank(context.getCatalogedPageId())) {
-      return pageService.findPage(context.getPageName(), context.getSite().getFolderPath());
+    if (isBlank(context.getCatalogedPageId().orElse(""))) {
+      return pageService.findPage(context.getPageName().orElse(""), context.getSite().orElseThrow().getFolderPath());
     }
-    return pageService.find(context.getCatalogedPageId());
+    return pageService.find(context.getCatalogedPageId().orElse(null));
   }
 
   @Override
@@ -487,16 +489,16 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
   @Override
   protected void addHtmlWidgetToTemplate(PSSiteImportCtx context)
       throws PSDataServiceException, PSSiteImportException {
-    var template = unassignedTemplateCache.get(context.getSite().getSiteId());
+      var template = unassignedTemplateCache.get(context.getSite().flatMap(PSSite::getSiteId).orElse(null));
     if (template == null) {
       if (unassignedTemplateCache.size() > 5) {
         unassignedTemplateCache.clear();
       }
       template =
           templateService.load(
-              this.getPageCatalogService().getCatalogTemplateIdBySite(context.getSite().getName()));
+                this.getPageCatalogService().getCatalogTemplateIdBySite(context.getSite().map(PSSite::getName).orElse("")));
       if (isBlank(template.getTheme())) {
-        template.setTheme(context.getThemeSummary().getName());
+        template.setTheme(context.getThemeSummary().map(ts -> ts.getName()).orElse(""));
       }
       if (isEmpty(template.getWidgets())) {
         var rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");
@@ -515,7 +517,7 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
                 EXTRACT_METADATA,
                 "Metadata was successfully saved to the Unassigned template.");
       }
-      unassignedTemplateCache.put(context.getSite().getSiteId(), template);
+      unassignedTemplateCache.put(context.getSite().flatMap(s -> s.getSiteId()).orElse(null), template);
     }
   }
 

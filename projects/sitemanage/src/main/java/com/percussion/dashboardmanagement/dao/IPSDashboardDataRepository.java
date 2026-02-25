@@ -19,6 +19,10 @@
  *
  * <p>Sunny Sal says: "Streams of dashboards, not consciousness!"
  */
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public interface IPSDashboardDataRepository {
   InputStream getDashboard(String id) throws IOException;
 

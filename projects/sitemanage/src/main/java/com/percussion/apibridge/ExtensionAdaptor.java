@@ -55,8 +55,8 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       ret.setVersion(def.getVersion());
 
       // Copy interfaces
-      var interfaces = new ArrayList<>();
-      def.getInterfaces().forEachRemaining(interfaces::add);
+      var interfaces = new ArrayList<String>();
+      def.getInterfaces().forEachRemaining(o -> interfaces.add((String) o));
       ret.setSupportedInterfaces(interfaces);
 
       // Init params
@@ -94,7 +94,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
 
       // Required applications
       var apps = new ArrayList<String>();
-      def.getRequiredApplications().forEachRemaining(app -> apps.add((String) app));
+      def.getRequiredApplications().forEachRemaining(app -> apps.add(app.toString()));
       ret.setRequiredApplications(apps);
 
       // Resource locations
@@ -133,10 +133,10 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     try {
       var it =
           extensionService.getExtensionNames(
-              filter.getHandlerNamePattern(),
-              filter.getContext(),
-              filter.getInterfacePattern(),
-              filter.getExtensionNamePattern());
+              ApiUtils.orNull(filter.getHandlerNamePattern()),
+              ApiUtils.orNull(filter.getContext()),
+              ApiUtils.orNull(filter.getInterfacePattern()),
+              ApiUtils.orNull(filter.getExtensionNamePattern()));
       while (it.hasNext()) {
         var ref = (PSExtensionRef) it.next();
         response.add(copyExtensionRef(ref));

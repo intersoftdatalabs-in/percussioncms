@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;

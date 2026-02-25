@@ -18,6 +18,7 @@ package com.percussion.content.ui.aa;
 
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.error.PSException;
+import java.util.Optional;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
@@ -198,13 +199,20 @@ public final class PSAAUtils {
 
     if (!StringUtils.isBlank(relationshipId)) {
       int relid = Integer.parseInt(relationshipId);
-      final PSRelationship rel = relsvc.loadRelationship(relid);
-      sortrank = rel.getProperty(IPSHtmlParameters.SYS_SORTRANK);
+      // loadRelationship now returns Optional<PSRelationship> for null safety
+      Optional<PSRelationship> optRel = relsvc.loadRelationship(relid);
+      if (optRel.isPresent()) {
+        PSRelationship rel = optRel.get();
+        sortrank = rel.getProperty(IPSHtmlParameters.SYS_SORTRANK);
 
-      if (StringUtils.isBlank(sortrank)) {
-        sortrank = "0";
+        if (StringUtils.isBlank(sortrank)) {
+          sortrank = "0";
+        } else {
+          sortrank = sortrank.trim();
+        }
       } else {
-        sortrank = sortrank.trim();
+        // relationship not found, default to 0
+        sortrank = "0";
       }
     }
 

@@ -55,7 +55,7 @@ public class PSFileDownloader implements IPSFileDownloader {
   @Override
   public List<PSPair<Boolean, String>> downloadFiles(
       Map<String, String> urlToPathMap, PSSiteImportCtx context, boolean createAsset) {
-    var downloaded = new ArrayList<PSPair<Boolean, String>>();
+    List<PSPair<Boolean, String>> downloaded = new ArrayList<>();
     if (!urlToPathMap.isEmpty()) {
       notNull(urlToPathMap);
 

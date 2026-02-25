@@ -467,7 +467,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     } else if (filename.contains(".")) sb.append(filename, 0, filename.lastIndexOf('.'));
     else sb.append(filename);
 
-    String defaultFileExtension = site.getDefaultFileExtention();
+    String defaultFileExtension = site.getDefaultFileExtention().orElse("");
     if (StringUtils.isNotEmpty(defaultFileExtension)) {
       sb.append(".");
       sb.append(defaultFileExtension);
@@ -1314,8 +1314,8 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     map.put(NAVON_FIELD_DISPLAYTITLE, req.getTitle());
     map.put(NAVON_FIELD_TARGET, tgt);
     map.put(NAVON_FIELD_REQUIRESLOGIN, Boolean.toString(req.isRequiresLogin()));
-    map.put(NAVON_FIELD_ALLOWACCESSTO, req.getAllowAccessTo());
-    map.put(NAVON_FIELD_CSSCLASSNAMES, req.getCssClassNames());
+    map.put(NAVON_FIELD_ALLOWACCESSTO, req.getAllowAccessTo().orElse(""));
+    map.put(NAVON_FIELD_CSSCLASSNAMES, req.getCssClassNames().orElse(""));
 
     navSrv.setNavonProperties(navonId, map);
 
@@ -1405,7 +1405,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
    */
   private void unsecureNode(PSSectionNode sectionTree) {
     // check first if the update is needed
-    if (!sectionTree.isRequiresLogin() && StringUtils.isBlank(sectionTree.getAllowAccessTo())) {
+    if (!sectionTree.isRequiresLogin() && StringUtils.isBlank(sectionTree.getAllowAccessTo().orElse(""))) {
       return;
     }
 
@@ -1517,7 +1517,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
                   null,
                   true,
                   true,
-                  section.getDisplayTitlePath());
+                  section.getDisplayTitlePath().orElse(""));
         } catch (Exception e) {
           log.error(
               "Error loading section with id: {} Error: {}",
@@ -1678,16 +1678,16 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     node.setTitle(section.getTitle());
     node.setSectionType(section.getSectionType());
     node.setRequiresLogin(section.isRequiresLogin());
-    node.setAllowAccessTo(section.getAllowAccessTo());
+    node.setAllowAccessTo(section.getAllowAccessTo().orElse(""));
     node.setFolderPath(section.getFolderPath());
     List<PSSectionNode> childNodes = new ArrayList<>();
     if (section.getSectionType() == PSSectionTypeEnum.section) {
       IPSGuid sectionGuid = idMapper.getGuid(section.getId());
-      String displayPath = section.getDisplayTitlePath();
-      if (StringUtils.isEmpty(displayPath)) {
-        displayPath = buildDisplayTitlePath(sectionGuid);
-      }
-
+        // display title path is optional, fall back to generated path when empty
+        String displayPath = section.getDisplayTitlePath().orElse("");
+        if (StringUtils.isEmpty(displayPath)) {
+            displayPath = buildDisplayTitlePath(sectionGuid);
+        }
       for (String id : section.getChildIds()) {
         try {
           PSSiteSection cSection =
@@ -1834,7 +1834,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     page.setTemplateId(req.getTemplateId());
     page.setLinkTitle(req.getPageLinkTitle());
 
-    pageDaoHelper.setWorkflowAccordingtoParentFolder(page);
+pageDaoHelper.setWorkflowAccordingToParentFolder(page);
 
     page = pageDao.save(page);
     IPSGuid pageId = idMapper.getGuid(page.getId());
@@ -2072,7 +2072,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
 
       // check to see if landing page is checked out to another user
       IPSGuid navonId = idMapper.getGuid(req.getId());
-      PSLegacyGuid landingPageId = (PSLegacyGuid) navSrv.getLandingPageFromNavon(navonId);
+      PSLegacyGuid landingPageId = (PSLegacyGuid) navSrv.getLandingPageFromNavnode(navonId);
 
       if (landingPageId == null) {
         log.warn(

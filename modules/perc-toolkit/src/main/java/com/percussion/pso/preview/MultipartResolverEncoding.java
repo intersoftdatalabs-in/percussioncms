@@ -20,8 +20,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 /**
  * A multipart resolver that fixes up the encoding. The Content Explorer Applet emits non-standard
@@ -30,22 +32,62 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
  *
  * @author DavidBenua
  */
-public class MultipartResolverEncoding extends CommonsMultipartResolver
-    implements MultipartResolver {
+public class MultipartResolverEncoding extends StandardServletMultipartResolver {
 
   private static final Logger log = LogManager.getLogger(MultipartResolverEncoding.class);
 
   /**
-   * @see CommonsMultipartResolver#determineEncoding(HttpServletRequest)
+   * Determine the cleaned character encoding for the supplied request.  The
+   * Content Explorer applet sometimes sends headers like
+   * "text/plain; charset=UTF-8; some-bogus" which confuse the standard
+   * resolver.  Our strategy is to strip off any portion after the first
+   * semicolon.  This helper is public primarily to support unit testing; the
+   * behaviour is kept in sync with {@link #resolveMultipart(HttpServletRequest)}.
+   *
+   * @param request the servlet request, never <code>null</code>
+   * @return the sanitized encoding or <code>null</code> if none
+   */
+  public String determineEncoding(HttpServletRequest request) {
+    if (request == null) {
+      throw new IllegalArgumentException("request may not be null");
+    }
+    String enc = request.getCharacterEncoding();
+    if (enc != null && enc.contains(";")) {
+      return StringUtils.substringBefore(enc, ";");
+    }
+    return enc;
+  }
+
+  /**
+   * Override resolveMultipart so we can clean up any malformed charset values
+   * sent by the Content Explorer applet. The standard resolver does not expose
+   * determineEncoding, so we wrap the request and sanitize the values before
+   * delegating.
    */
   @Override
-  protected String determineEncoding(HttpServletRequest request) {
-    String encoding = super.determineEncoding(request);
+  public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request)
+      throws MultipartException {
+    HttpServletRequestWrapper cleaned =
+        new HttpServletRequestWrapper(request) {
+          @Override
+          public String getCharacterEncoding() {
+            return determineEncoding(this);
+          }
 
-    if (encoding.contains(";")) {
-      encoding = StringUtils.substringBefore(encoding, ";");
-      log.debug("fixed up encoding {]", encoding);
-    }
-    return encoding;
+          @Override
+          public String getContentType() {
+            String type = super.getContentType();
+            if (type != null && type.contains(";")) {
+              return StringUtils.substringBefore(type, ";");
+            }
+            return type;
+          }
+        };
+    return super.resolveMultipart(cleaned);
+  }
+
+  @Override
+  public void cleanupMultipart(MultipartHttpServletRequest request) {
+    super.cleanupMultipart(request);
   }
 }

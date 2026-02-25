@@ -339,7 +339,8 @@ public class PSPageCatalogService implements IPSPageCatalogService {
   public String getCatalogTemplateId(PSSiteSummary site)
       throws PSDataServiceException, PSSiteImportException {
     var siteId = site.getId();
-    var templateId = siteCache.getSiteTemplateId(site.getSiteId());
+    Long sid = site.getSiteId().orElse(null);
+    var templateId = siteCache.getSiteTemplateId(sid);
     if (templateId == null) {
       var templates =
           siteTemplateService.findTypedTemplatesBySite(siteId, PSTemplateTypeEnum.UNASSIGNED);
@@ -361,7 +362,7 @@ public class PSPageCatalogService implements IPSPageCatalogService {
         templateId = templateSummary.getId();
         setSiteThemeInTemplate(templateId, site);
       }
-      siteCache.setSiteTemplateid(site.getSiteId(), templateId);
+      siteCache.setSiteTemplateid(sid, templateId);
     }
     return templateId;
   }
@@ -422,7 +423,8 @@ public class PSPageCatalogService implements IPSPageCatalogService {
    * @return The new value.
    */
   private int incrementCatalogCount(PSSiteSummary site) {
-    var count = siteCache.getCatalogCount(site.getSiteId());
+    Long sid2 = site.getSiteId().orElse(null);
+    var count = siteCache.getCatalogCount(sid2);
     if (count == null) {
       throw new IllegalStateException(
           "catalogCount for site has not been initialized: " + site.getName());
@@ -451,11 +453,12 @@ public class PSPageCatalogService implements IPSPageCatalogService {
    * @return The count.
    */
   private int getCatalogCount(PSSiteSummary site) throws Exception {
-    var count = siteCache.getCatalogCount(site.getSiteId());
+    Long sid3 = site.getSiteId().orElse(null);
+    var count = siteCache.getCatalogCount(sid3);
     if (count == null) {
       int catCount = findCatalogPages(site.getName()).size();
       count = new AtomicInteger(catCount);
-      siteCache.setCatalogCount(site.getSiteId(), count);
+      siteCache.setCatalogCount(sid3, count);
     }
     return count.get();
   }

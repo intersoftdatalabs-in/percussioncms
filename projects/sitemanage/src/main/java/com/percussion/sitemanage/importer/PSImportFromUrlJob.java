@@ -30,6 +30,7 @@ import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,7 +71,10 @@ public class PSImportFromUrlJob extends PSAsyncJob {
   private void importFromUrl() {
     var logger = importContext.getLogger();
     logger.appendLogMessage(
-        PSLogEntryType.STATUS, "Import", "Importing from " + importContext.getSiteUrl());
+        PSLogEntryType.STATUS,
+        "Import",
+        "Importing from " + importContext.getSiteUrl().orElse(""));
+
 
     // Handle case where called within a unit test
     if (!PSSearchIndexEventQueue.isInitialized()) {
@@ -81,9 +85,13 @@ public class PSImportFromUrlJob extends PSAsyncJob {
 
     try {
       // Get the final URL (after redirections) and use it as base URL
+      // the context getters return Optionals; unwrap safely with defaults
       importContext.setSiteUrl(
           PSSiteImporter.getRedirectedUrl(
-              importContext.getSiteUrl(), importContext.getLogger(), importContext.getUserAgent()));
+              importContext.getSiteUrl().orElse(""),
+              importContext.getLogger(),
+              importContext.getUserAgent().orElse("")));
+
 
       // Import page content from URL
       var importedPageContent = PSSiteImporter.getPageContentFromSite(importContext);
@@ -96,7 +104,8 @@ public class PSImportFromUrlJob extends PSAsyncJob {
         try {
           executedHelpers.add(mandatoryHelper);
           setStatusMessage(
-              mandatoryHelper.getStatusMessage(importContext.getStatusMessagePrefix()));
+              mandatoryHelper.getStatusMessage(importContext.getStatusMessagePrefix().orElse("")));
+
           mandatoryHelper.process(importedPageContent, importContext);
           setStatus(getImportProgress());
         } catch (PSSiteImportException e) {
@@ -118,7 +127,8 @@ public class PSImportFromUrlJob extends PSAsyncJob {
       // Run optional helpers
       for (var optionalHelper : optionalHelpers) {
         executedHelpers.add(optionalHelper);
-        setStatusMessage(optionalHelper.getStatusMessage(importContext.getStatusMessagePrefix()));
+        setStatusMessage(optionalHelper.getStatusMessage(importContext.getStatusMessagePrefix().orElse("")));
+
         optionalHelper.process(importedPageContent, importContext);
         setStatus(getImportProgress());
       }
@@ -137,13 +147,23 @@ public class PSImportFromUrlJob extends PSAsyncJob {
       setCompleted();
 
       // If import was done successfully, use the IPSImportLogDao to persist the log w/template id
-      var templateId = importContext.getTemplateId();
-      if (logger != null && templateId != null) {
+      // templateId is Optional, unwrap safely
+      Optional<String> templateIdOpt = importContext.getTemplateId();
+      if (logger != null && templateIdOpt.isPresent()) {
+          String templateId = templateIdOpt.get();
+        // avoid dereferencing Optional by unwrapping values with defaults
+        String siteId = importContext.getSite()
+            .map(s -> s.getSiteId().toString())
+            .orElse("");
+        String folderPath = importContext.getSite()
+            .map(s -> s.getFolderPath())
+            .orElse("");
+        String pageName = importContext.getPageName().orElse("");
         saveImportLog(
             templateId,
             logger,
-            importContext.getSite().getSiteId().toString(),
-            importContext.getSite().getFolderPath() + "/" + importContext.getPageName());
+            siteId,
+            folderPath + "/" + pageName);
       }
     }
   }

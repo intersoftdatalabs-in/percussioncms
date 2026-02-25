@@ -19,7 +19,6 @@ package com.percussion.utils.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * REST data class for logging information on the server. Immutable, Java 11 style.
@@ -57,8 +56,8 @@ public final class PSLogData {
    *
    * @return an Optional containing the log type if present
    */
-  public Optional<String> getType() {
-    return Optional.ofNullable(type);
+  public String getType() {
+    return type;
   }
 
   /**
@@ -66,8 +65,8 @@ public final class PSLogData {
    *
    * @return an Optional containing the log category if present
    */
-  public Optional<String> getCategory() {
-    return Optional.ofNullable(category);
+  public String getCategory() {
+    return category;
   }
 
   /**
@@ -75,7 +74,7 @@ public final class PSLogData {
    *
    * @return an Optional containing the log message if present
    */
-  public Optional<String> getMessage() {
-    return Optional.ofNullable(message);
+  public String getMessage() {
+    return message;
   }
 }

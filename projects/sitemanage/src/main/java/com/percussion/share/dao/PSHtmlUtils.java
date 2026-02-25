@@ -34,10 +34,11 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import se.fishtank.css.selectors.NodeSelectorException;
-import se.fishtank.css.selectors.dom.DOMNodeSelector;
 
 /**
  * Utility class to apply tidy to HTML and/or extract content from HTML string.
@@ -223,10 +224,19 @@ public class PSHtmlUtils {
   private static String extractHtmlOnly(
       String cssSelector, Document sourceDoc, String filename, boolean outerHTML) {
     try {
-      var selector = new DOMNodeSelector(sourceDoc);
-      var nodes = selector.querySelectorAll(cssSelector);
-      return convertNodesToString(nodes, outerHTML);
-    } catch (NodeSelectorException e) {
+      // convert the tidied W3C document back to a string for jsoup parsing
+      String html = PSXmlDocumentBuilder.toString(sourceDoc, XML_TO_STRING_FLAGS);
+      org.jsoup.nodes.Document jsDoc = Jsoup.parse(html);
+      Elements elems = jsDoc.select(cssSelector);
+
+      StringBuilder out = new StringBuilder();
+      for (Element el : elems) {
+        String s = outerHTML ? el.outerHtml() : el.html();
+        if (out.length() > 0) out.append('\n');
+        out.append(s);
+      }
+      return out.toString();
+    } catch (Exception e) {
       String msg;
       if (StringUtils.isBlank(filename))
         msg = "Failed to extract HTML with CSS Selector, \"" + cssSelector + "\".";

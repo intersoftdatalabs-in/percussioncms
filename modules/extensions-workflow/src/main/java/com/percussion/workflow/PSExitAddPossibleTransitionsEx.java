@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -723,10 +724,12 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     String buttonName = null; // the internal name of the button
 
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    IPSStatesContext stateContext =
-        cms.loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID());
+    boolean isPublic = cms
+        .loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID())
+        .map(IPSStatesContext::getIsValid)
+        .orElse(false);
 
-    elemParent.setAttribute("isPublic", stateContext.getIsValid() ? "y" : "n");
+    elemParent.setAttribute("isPublic", isPublic ? "y" : "n");
 
     // force check in button
     if (bCheckedOut
@@ -741,7 +744,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       buttonName = CHECKIN_BUTTON_NAME;
     } else {
       /** Only add the check-out action if the current content item is not in a public state. */
-      if (!stateContext.getIsValid()) {
+      if (!isPublic) {
         triggerValue = PSWorkFlowUtils.properties.getProperty(PSWorkFlowUtils.TRIGGER_CHECK_OUT);
         buttonLabel = CHECKOUT_BUTTON_LABEL;
         buttonName = CHECKOUT_BUTTON_NAME;

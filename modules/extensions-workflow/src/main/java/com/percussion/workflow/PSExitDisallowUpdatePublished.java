@@ -31,6 +31,7 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.Iterator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -138,14 +139,18 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
       int nWorkFlowAppID = csc.getWorkflowID();
       int nStateID = csc.getContentStateID();
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      IPSStatesContext sc = cms.loadWorkflowState(nWorkFlowAppID, nStateID);
+      Optional<? extends IPSStatesContext> scOpt =
+          cms.loadWorkflowState(nWorkFlowAppID, nStateID);
 
-      if (sc == null) {
+      if (scOpt.isEmpty()) {
         ms_log.error("Failure loading state information");
-      } else if (true == sc.getIsValid()) {
-        String key = Integer.toString(IPSExtensionErrors.PUBDOC_UPDATE_ERROR);
-        String msg = PSI18nUtils.getString(key, lang);
-        throw new PSExtensionProcessingException(lang, ms_exitName, new Exception(msg));
+      } else {
+        IPSStatesContext sc = scOpt.get();
+        if (sc.getIsValid()) {
+          String key = Integer.toString(IPSExtensionErrors.PUBDOC_UPDATE_ERROR);
+          String msg = PSI18nUtils.getString(key, lang);
+          throw new PSExtensionProcessingException(lang, ms_exitName, new Exception(msg));
+        }
       }
     } catch (PSEntryNotFoundException e) {
       // no entry for this content so proceed with peace!

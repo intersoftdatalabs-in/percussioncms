@@ -179,7 +179,8 @@ public class TestPSHtmlCleanerProperties {
   @Test
   public void testTableAttributes() {
     String input =
-        "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\" role=\"grid\" summary=\"Data table\" width=\"100%\" align=\"center\" height=\"200\">"
+        "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\" role=\"grid\" summary=\"Data"
+            + " table\" width=\"100%\" align=\"center\" height=\"200\">"
             + "<tr><td>Cell</td></tr></table>";
     String result = cleanseFragment(input);
     assertTrue(result.contains("border=\"1\""), "border should be preserved on table");
@@ -195,7 +196,8 @@ public class TestPSHtmlCleanerProperties {
   @Test
   public void testTdAttributes() {
     String input =
-        "<table><tr><td colspan=\"2\" rowspan=\"1\" height=\"50\" align=\"center\" valign=\"top\" bgcolor=\"#ff0000\">Cell</td></tr></table>";
+        "<table><tr><td colspan=\"2\" rowspan=\"1\" height=\"50\" align=\"center\" valign=\"top\""
+            + " bgcolor=\"#ff0000\">Cell</td></tr></table>";
     String result = cleanseFragment(input);
     assertTrue(result.contains("colspan=\"2\""), "colspan should be preserved on td");
     assertTrue(result.contains("rowspan=\"1\""), "rowspan should be preserved on td");
@@ -208,7 +210,8 @@ public class TestPSHtmlCleanerProperties {
   @Test
   public void testThAttributes() {
     String input =
-        "<table><tr><th scope=\"col\" colspan=\"2\" height=\"40\" align=\"left\" valign=\"middle\" bgcolor=\"#cccccc\">Header</th></tr></table>";
+        "<table><tr><th scope=\"col\" colspan=\"2\" height=\"40\" align=\"left\" valign=\"middle\""
+            + " bgcolor=\"#cccccc\">Header</th></tr></table>";
     String result = cleanseFragment(input);
     assertTrue(result.contains("scope=\"col\""), "scope should be preserved on th");
     assertTrue(result.contains("colspan=\"2\""), "colspan should be preserved on th");
@@ -221,7 +224,8 @@ public class TestPSHtmlCleanerProperties {
   @Test
   public void testTrAttributes() {
     String input =
-        "<table><tr align=\"center\" valign=\"top\" height=\"30\" bgcolor=\"#eeeeee\"><td>Cell</td></tr></table>";
+        "<table><tr align=\"center\" valign=\"top\" height=\"30\""
+            + " bgcolor=\"#eeeeee\"><td>Cell</td></tr></table>";
     String result = cleanseFragment(input);
     assertTrue(result.contains("align=\"center\""), "align should be preserved on tr");
     assertTrue(result.contains("valign=\"top\""), "valign should be preserved on tr");
@@ -277,7 +281,8 @@ public class TestPSHtmlCleanerProperties {
   @Test
   public void testVideoPlaysinline() {
     String input =
-        "<video src=\"video.mp4\" controls=\"controls\" playsinline=\"playsinline\" width=\"640\" height=\"480\"></video>";
+        "<video src=\"video.mp4\" controls=\"controls\" playsinline=\"playsinline\" width=\"640\""
+            + " height=\"480\"></video>";
     String result = cleanseFragment(input);
     assertTrue(result.contains("playsinline"), "playsinline should be preserved on video");
     assertTrue(result.contains("controls"), "controls should be preserved on video");
@@ -288,7 +293,9 @@ public class TestPSHtmlCleanerProperties {
   @Test
   public void testSvgAttributes() {
     String input =
-        "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\" width=\"100\" height=\"100\" fill=\"none\" stroke=\"black\" preserveAspectRatio=\"xMidYMid meet\"></svg>";
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\" width=\"100\""
+            + " height=\"100\" fill=\"none\" stroke=\"black\" preserveAspectRatio=\"xMidYMid"
+            + " meet\"></svg>";
     String result = cleanseFragment(input);
     assertTrue(
         result.contains("xmlns=\"http://www.w3.org/2000/svg\""),
@@ -307,18 +314,14 @@ public class TestPSHtmlCleanerProperties {
   public void testComplexTableWithRoles() {
     // Simulates a TinyMCE rich text table with role, scope, and formatting attributes
     String input =
-        "<table role=\"presentation\" border=\"1\" cellpadding=\"5\" cellspacing=\"0\" width=\"100%\">"
-            + "<caption align=\"top\">Monthly Report</caption>"
-            + "<thead align=\"center\" valign=\"middle\">"
-            + "<tr bgcolor=\"#f0f0f0\"><th scope=\"col\" align=\"left\">Month</th><th scope=\"col\" align=\"right\">Revenue</th></tr>"
-            + "</thead>"
-            + "<tbody>"
-            + "<tr><td align=\"left\" valign=\"top\" height=\"30\">January</td><td align=\"right\" bgcolor=\"#e0ffe0\">$1,000</td></tr>"
-            + "</tbody>"
-            + "<tfoot align=\"center\">"
-            + "<tr><td colspan=\"2\" align=\"center\"><strong>Total: $1,000</strong></td></tr>"
-            + "</tfoot>"
-            + "</table>";
+        "<table role=\"presentation\" border=\"1\" cellpadding=\"5\" cellspacing=\"0\""
+            + " width=\"100%\"><caption align=\"top\">Monthly Report</caption><thead"
+            + " align=\"center\" valign=\"middle\"><tr bgcolor=\"#f0f0f0\"><th scope=\"col\""
+            + " align=\"left\">Month</th><th scope=\"col\" align=\"right\">Revenue</th></tr>"
+            + "</thead><tbody><tr><td align=\"left\" valign=\"top\" height=\"30\">January</td><td"
+            + " align=\"right\" bgcolor=\"#e0ffe0\">$1,000</td></tr></tbody><tfoot"
+            + " align=\"center\"><tr><td colspan=\"2\" align=\"center\"><strong>Total:"
+            + " $1,000</strong></td></tr></tfoot></table>";
     String result = cleanseFragment(input);
 
     // Table-level

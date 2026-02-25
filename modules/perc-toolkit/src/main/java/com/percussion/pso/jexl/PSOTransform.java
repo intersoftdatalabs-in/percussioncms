@@ -22,7 +22,7 @@ import com.percussion.extension.IPSJexlExpression;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;
-import com.percussion.xmldom.PSStylesheetCacheManager;
+import com.percussion.xml.PSStylesheetCacheManager;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;

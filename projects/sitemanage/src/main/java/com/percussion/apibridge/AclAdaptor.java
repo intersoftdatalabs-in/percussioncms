@@ -25,13 +25,16 @@ import com.percussion.rest.acls.AclList;
 import com.percussion.rest.acls.IAclAdaptor;
 import com.percussion.rest.acls.TypedPrincipal;
 import com.percussion.rest.acls.UserAccessLevel;
+import com.percussion.security.PSSecurityException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.NotFoundException;
+import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -72,7 +75,15 @@ public class AclAdaptor implements IAclAdaptor {
     }
     try {
       if (g != null) {
-        acl = aclService.loadAcl(ApiUtils.convertGuid(g));
+        // IPSAclService no longer exposes a single-load method; use loadAcls and
+        // take the first result (or null if list empty).
+        var guid = ApiUtils.convertGuid(g);
+        try {
+          var acls = aclService.loadAcls(List.of(guid));
+          acl = acls.isEmpty() ? null : acls.get(0);
+        } catch (PSServiceSecurityException e) {
+          throw new RuntimeException(e);
+        }
       }
     } catch (PSSecurityException e) {
       log.error("Error loading acl {}", aclGuid, e);
@@ -98,23 +109,36 @@ public class AclAdaptor implements IAclAdaptor {
 
   @Override
   public Acl loadAcl(Guid aclGuid) throws PSServiceSecurityException {
-    return ApiUtils.convertAcl((PSAclImpl) aclService.loadAcl(ApiUtils.convertGuid(aclGuid)));
+    // IPSAclService no longer exposes a single-load method; delegate to loadAcls
+    List<IPSAcl> list = aclService.loadAcls(List.of(ApiUtils.convertGuid(aclGuid)));
+    IPSAcl acl = list.isEmpty() ? null : list.get(0);
+    return ApiUtils.convertAcl((PSAclImpl) acl);
   }
 
   @Override
   public AclList loadAclsForObjects(GuidList objectGuids) {
-    return ApiUtils.convertAcls(aclService.loadAclsForObjects(ApiUtils.convertGuids(objectGuids)));
+    try {
+      return ApiUtils.convertAcls(
+          aclService.loadAclsForObjects(ApiUtils.convertGuids(objectGuids)));
+    } catch (PSServiceSecurityException e) {
+      // wrap since interface doesn't allow checked exception
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public Acl loadAclForObject(Guid objectGuid) {
-    var ret =
-        ApiUtils.convertAcl(
-            (PSAclImpl) aclService.loadAclForObject(ApiUtils.convertGuid(objectGuid)));
-    if (ret != null) {
-      return ret;
-    } else {
-      throw new NotFoundException();
+    try {
+      var ret =
+          ApiUtils.convertAcl(
+              (PSAclImpl) aclService.loadAclForObject(ApiUtils.convertGuid(objectGuid)));
+      if (ret != null) {
+        return ret;
+      } else {
+        throw new NotFoundException();
+      }
+    } catch (PSServiceSecurityException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -130,8 +154,31 @@ public class AclAdaptor implements IAclAdaptor {
 
   @Override
   public GuidList filterByCommunities(GuidList aclList, List<String> communityNames) {
-    return ApiUtils.convertGuids(
-        aclService.filterByCommunities(ApiUtils.convertGuids(aclList), communityNames));
+    if (aclList == null
+        || aclList.isEmpty()
+        || communityNames == null
+        || communityNames.isEmpty()) {
+      return new GuidList();
+    }
+    // load the ACLs to map to object GUIDs
+    List<IPSGuid> aclGuids = ApiUtils.convertGuids(aclList);
+    List<IPSAcl> acls;
+    try {
+      acls = aclService.loadAcls(aclGuids);
+    } catch (PSServiceSecurityException e) {
+      throw new RuntimeException(e);
+    }
+    // compute object GUIDs visible to communities
+    Collection<IPSGuid> visibleObjects =
+        aclService.findObjectsVisibleToCommunities(communityNames, null);
+    // filter original ACL GUIDs based on object membership
+    GuidList result = new GuidList();
+    for (IPSAcl acl : acls) {
+      if (acl != null && visibleObjects.contains(acl.getObjectGuid())) {
+        result.add(ApiUtils.convertGuid(acl.getGUID()));
+      }
+    }
+    return result;
   }
 
   @Override

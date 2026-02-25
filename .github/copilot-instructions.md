@@ -122,3 +122,4 @@ Always use the #codebase context when resolving missing interfaces or classes.
 - Prefer the jakarta namespace over javax when available; migrate to the jakarta namespace on this branch as needed for JDK 21 compatibility.
 - Add all AI-generated plans, tasks, and issues to the `/docs/ai-generated/tasks/` folder for future reference.
 - Organize AI-generated documentation by task using the pattern: `/docs/ai-generated/tasks/PR#-TaskName/` (e.g., `/docs/ai-generated/tasks/#524-v8.1.6-release-notes/`)
+

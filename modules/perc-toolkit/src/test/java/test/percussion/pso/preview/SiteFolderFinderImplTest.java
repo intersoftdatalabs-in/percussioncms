@@ -45,54 +45,46 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 
 /**
  * @author DavidBenua
  */
+@ExtendWith(MockitoExtension.class)
 public class SiteFolderFinderImplTest {
   private static final Logger log = LogManager.getLogger(SiteFolderFinderImplTest.class);
 
-  Mockery context;
   SiteFolderFinderImpl cut;
 
   PSLocator loc;
+  @Mock
   IPSGuidManager gmgr;
+  @Mock
   IPSContentWs cws;
+  @Mock
   IPSSiteManager siteMgr;
+  @Mock
   IPSSecurityWs secws;
+  @Mock
   SiteLoader siteLoader;
+  @Mock
   PSOObjectFinder finder;
 
   /**
    * @throws Exception
    */
   @BeforeEach
-  public void setUp() throws Exception {
-    context =
-        new Mockery() {
-          {
-            setImposteriser(ClassImposteriser.INSTANCE);
-          }
-        };
+  public void setUp() {
     cut = new SiteFolderFinderImpl();
-    gmgr = context.mock(IPSGuidManager.class);
     SiteFolderFinderImpl.setGmgr(gmgr);
-    cws = context.mock(IPSContentWs.class);
     SiteFolderFinderImpl.setCws(cws);
-    siteMgr = context.mock(IPSSiteManager.class);
-
-    siteLoader = context.mock(SiteLoader.class);
     cut.setSiteLoader(siteLoader);
-
-    secws = context.mock(IPSSecurityWs.class);
     SiteFolderFinderImpl.setSecws(secws);
-
-    finder = context.mock(PSOObjectFinder.class);
     SiteFolderFinderImpl.setFinder(finder);
   }
 
@@ -102,40 +94,27 @@ public class SiteFolderFinderImplTest {
   @Test
   public final void testFindSiteFolderLocationsWithFolderId() {
     log.debug("testing site folder previews");
-    final PSFolder myFolder = context.mock(PSFolder.class, "myFolder");
+    final PSFolder myFolder = mock(PSFolder.class);
 
-    final IPSGuid folderGuid = context.mock(IPSGuid.class, "folderGuid");
-    final IPSSite mySite = context.mock(IPSSite.class, "mySite");
+    final IPSGuid folderGuid = mock(IPSGuid.class);
+    final IPSSite mySite = mock(IPSSite.class);
 
     final PSLocator folderLoc = new PSLocator(2);
-    final Node myNode = context.mock(Node.class);
-    final Property myProperty = context.mock(Property.class);
+    final Node myNode = mock(Node.class);
+    final Property myProperty = mock(Property.class);
 
-    final PSComponentSummary summary = context.mock(PSComponentSummary.class);
+    final PSComponentSummary summary = mock(PSComponentSummary.class);
 
     cut.setTestCommunityVisibility(false);
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              atLeast(1).of(gmgr).makeGuid(with(any(PSLocator.class)));
-              will(returnValue(folderGuid));
-
-              one(cws).findFolderPaths(with(any(IPSGuid.class)));
-              will(returnValue(new String[] {"//Sites/foo/bar/baz"}));
-              one(finder).getComponentSummaryById("2");
-              will(returnValue(summary));
-              one(summary).getName();
-              will(returnValue("foo"));
-              one(siteLoader).findAllSites();
-              will(returnValue(Arrays.asList(new IPSSite[] {mySite})));
-              atLeast(1).of(mySite).getFolderRoot();
-              will(returnValue("//Sites/foo"));
-              atLeast(1).of(mySite).getName();
-              will(returnValue("foo"));
-            }
-          });
+      when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
+      when(cws.findFolderPaths(any(IPSGuid.class))).thenReturn(new String[] {"//Sites/foo/bar/baz"});
+      when(finder.getComponentSummaryById("2")).thenReturn(summary);
+      when(summary.getName()).thenReturn("foo");
+      when(siteLoader.findAllSites()).thenReturn(Arrays.asList(new IPSSite[] {mySite}));
+      when(mySite.getFolderRoot()).thenReturn("//Sites/foo");
+      when(mySite.getName()).thenReturn("foo");
 
       List<SiteFolderLocation> locs = cut.findSiteFolderLocations("1", "2", null);
 
@@ -144,7 +123,7 @@ public class SiteFolderFinderImplTest {
 
       SiteFolderLocation rloc = locs.get(0);
       assertEquals("//Sites/foo/bar/baz/foo", rloc.getFolderPath());
-      context.assertIsSatisfied();
+      verify(gmgr, atLeast(1)).makeGuid(any(PSLocator.class));
 
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
@@ -157,35 +136,23 @@ public class SiteFolderFinderImplTest {
   @Test
   public final void testFindSiteFolderLocationsNoFolderId() {
     log.debug("testing site previews no folder id");
-    final PSFolder myFolder = context.mock(PSFolder.class, "myFolder");
+    final PSFolder myFolder = mock(PSFolder.class);
 
     final PSLocator myFolderLoc = new PSLocator(2, 0);
 
-    final IPSGuid folderGuid = context.mock(IPSGuid.class, "folderGuid");
-    final IPSSite mySite = context.mock(IPSSite.class, "mySite");
+    final IPSGuid folderGuid = mock(IPSGuid.class);
+    final IPSSite mySite = mock(IPSSite.class);
 
     cut.setTestCommunityVisibility(false);
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(gmgr).makeGuid(with(any(PSLocator.class)));
-              will(returnValue(folderGuid));
-              one(cws).findFolderPaths(with(any(IPSGuid.class)));
-              will(returnValue(new String[] {"//Sites/foo/bar/baz"}));
-              one(siteLoader).findAllSites();
-              will(returnValue(Arrays.asList(new IPSSite[] {mySite})));
-              atLeast(1).of(mySite).getFolderRoot();
-              will(returnValue("//Sites/foo"));
-              atLeast(1).of(mySite).getName();
-              will(returnValue("foo"));
-              one(gmgr).makeLocator(folderGuid);
-              will(returnValue(myFolderLoc));
-              one(cws).findPathIds("//Sites/foo/bar/baz");
-              will(returnValue(Arrays.asList(new IPSGuid[] {folderGuid})));
-            }
-          });
+      when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
+      when(cws.findFolderPaths(any(IPSGuid.class))).thenReturn(new String[] {"//Sites/foo/bar/baz"});
+      when(siteLoader.findAllSites()).thenReturn(Arrays.asList(new IPSSite[] {mySite}));
+      when(mySite.getFolderRoot()).thenReturn("//Sites/foo");
+      when(mySite.getName()).thenReturn("foo");
+      when(gmgr.makeLocator(folderGuid)).thenReturn(myFolderLoc);
+      when(cws.findPathIds("//Sites/foo/bar/baz")).thenReturn(Arrays.asList(new IPSGuid[] {folderGuid}));
 
       List<SiteFolderLocation> locs = cut.findSiteFolderLocations("1", null, null);
 
@@ -195,7 +162,7 @@ public class SiteFolderFinderImplTest {
       SiteFolderLocation rloc = locs.get(0);
       assertEquals("//Sites/foo/bar/baz", rloc.getFolderPath());
 
-      context.assertIsSatisfied();
+      verify(gmgr).makeGuid(any(PSLocator.class));
 
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
@@ -212,44 +179,30 @@ public class SiteFolderFinderImplTest {
   @Test
   public final void testFindSiteFolderLocationsCommunityFiltering() {
     log.debug("testing site folder with community filtering");
-    final PSFolder myFolder = context.mock(PSFolder.class, "myFolder");
+    final PSFolder myFolder = mock(PSFolder.class);
 
-    final IPSGuid folderGuid = context.mock(IPSGuid.class, "folderGuid");
-    final IPSSite mySite = context.mock(IPSSite.class, "mySite");
+    final IPSGuid folderGuid = mock(IPSGuid.class);
+    final IPSSite mySite = mock(IPSSite.class);
 
     final PSLocator folderLoc = new PSLocator(2);
-    final Node myNode = context.mock(Node.class);
-    final Property myProperty = context.mock(Property.class);
+    final Node myNode = mock(Node.class);
+    final Property myProperty = mock(Property.class);
 
-    final PSComponentSummary summary = context.mock(PSComponentSummary.class);
+    final PSComponentSummary summary = mock(PSComponentSummary.class);
 
     cut.setTestCommunityVisibility(true);
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              atLeast(1).of(gmgr).makeGuid(with(any(PSLocator.class)));
-              will(returnValue(folderGuid));
-
-              one(cws).findFolderPaths(with(any(IPSGuid.class)));
-              will(returnValue(new String[] {"//Sites/foo/bar/baz"}));
-              atLeast(1).of(finder).getComponentSummaryById("2");
-              will(returnValue(summary));
-              one(summary).getName();
-              will(returnValue("foo"));
-              one(siteLoader).findAllSites();
-              will(returnValue(Arrays.asList(new IPSSite[] {mySite})));
-              atLeast(1).of(mySite).getFolderRoot();
-              will(returnValue("//Sites/foo"));
-              atLeast(1).of(mySite).getName();
-              will(returnValue("foo"));
-              atLeast(1).of(mySite).getGUID();
-              will(returnValue(new PSLegacyGuid(300, 1)));
-              one(secws).filterByRuntimeVisibility(with(any(List.class)));
-              will(returnValue(Collections.singletonList(new PSLegacyGuid(300, 1))));
-            }
-          });
+      when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
+      when(cws.findFolderPaths(any(IPSGuid.class))).thenReturn(new String[] {"//Sites/foo/bar/baz"});
+      when(finder.getComponentSummaryById("2")).thenReturn(summary);
+      when(summary.getName()).thenReturn("foo");
+      when(siteLoader.findAllSites()).thenReturn(Arrays.asList(new IPSSite[] {mySite}));
+      when(mySite.getFolderRoot()).thenReturn("//Sites/foo");
+      when(mySite.getName()).thenReturn("foo");
+      when(mySite.getGUID()).thenReturn(new PSLegacyGuid(300, 1));
+      when(secws.filterByRuntimeVisibility(any(List.class)))
+          .thenReturn(Collections.singletonList(new PSLegacyGuid(300, 1)));
 
       List<SiteFolderLocation> locs = cut.findSiteFolderLocations("1", "2", null);
 
@@ -258,8 +211,8 @@ public class SiteFolderFinderImplTest {
 
       SiteFolderLocation rloc = locs.get(0);
       assertEquals("//Sites/foo/bar/baz/foo", rloc.getFolderPath());
-      context.assertIsSatisfied();
-
+      verify(gmgr).makeGuid(any(PSLocator.class));
+      verify(secws).filterByRuntimeVisibility(any(List.class));
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("Exception caught");

@@ -18,9 +18,10 @@
 package test.percussion.pso.demandpreview.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.demandpreview.exception.SiteLookUpException;
 import com.percussion.pso.demandpreview.service.SiteEditionConfig;
@@ -41,35 +42,30 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@ExtendWith(MockitoExtension.class)
 public class SiteTemplateLookUpServiceImplTest {
   private static final Logger log = LogManager.getLogger(SiteTemplateLookUpServiceImplTest.class);
 
-  Mockery context;
-  TestLookUpService lookUp;
-
+  @Mock
   IPSSiteManager siteManager;
+  @Mock
   IPSPublisherService publisherService;
+  @Mock
   IPSAssemblyService asm;
+  @Mock
   SiteEditionLookUpService siteEditionLookUpService;
-
+  @Mock
   IPSGuidManager guidManager;
+
+  TestLookUpService lookUp;
 
   @BeforeEach
   public void setUp() throws Exception {
-    context = new Mockery();
     lookUp = new TestLookUpService();
-    siteManager = context.mock(IPSSiteManager.class, "siteManager");
-    publisherService = context.mock(IPSPublisherService.class, "publisherService");
-    siteEditionLookUpService =
-        context.mock(SiteEditionLookUpService.class, "siteEditionLookupService");
-    guidManager = context.mock(IPSGuidManager.class, "guidManager");
-    asm = context.mock(IPSAssemblyService.class, "asm");
     lookUp.setSiteManager(siteManager);
     lookUp.setPubisherService(publisherService);
     lookUp.setGuidManager(guidManager);
@@ -91,38 +87,24 @@ public class SiteTemplateLookUpServiceImplTest {
 
     final String siteId = "234";
     final SiteEditionHolder stHolder = new SiteEditionHolder();
-    final IPSSite site = context.mock(IPSSite.class, "site");
-    final IPSSite pSite = context.mock(IPSSite.class, "pSite");
-    final IPSEdition edition = context.mock(IPSEdition.class, "edition");
-    final IPSGuid siteGuid = context.mock(IPSGuid.class, "siteGuid");
-    final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class, "template");
+    final IPSSite site = mock(IPSSite.class);
+    final IPSSite pSite = mock(IPSSite.class);
+    final IPSEdition edition = mock(IPSEdition.class);
+    final IPSGuid siteGuid = mock(IPSGuid.class);
+    final IPSAssemblyTemplate template = mock(IPSAssemblyTemplate.class);
     stHolder.setSite(pSite);
     stHolder.setEdition(edition);
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(guidManager).makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE);
-              will(returnValue(siteGuid));
-              one(siteManager).loadSite(siteGuid);
-              will(returnValue(site));
-              atLeast(1).of(site).getName();
-              will(returnValue("psoSite"));
-              one(publisherService).findEditionByName("psoEdition");
-              will(returnValue(edition));
-              one(siteManager).loadSite("psoSite");
-              will(returnValue(pSite));
-            }
-          });
-    } catch (SiteLookUpException | PSNotFoundException ex) {
-      log.error("Error looking up site info", ex);
-      fail("Exception");
-    }
+
+    when(guidManager.makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE)).thenReturn(siteGuid);
+    when(siteManager.loadSite(siteGuid)).thenReturn(site);
+    when(site.getName()).thenReturn("psoSite");
+    when(publisherService.findEditionByName("psoEdition")).thenReturn(edition);
+    when(siteManager.loadSite("psoSite")).thenReturn(pSite);
 
     SiteEditionHolder holder = lookUp.LookUpSiteEdition(siteId);
     assertNotNull(holder);
     assertSame(holder.getClass(), stHolder.getClass());
-    context.assertIsSatisfied();
+    verify(guidManager).makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE);
   }
 
   @Test
@@ -136,28 +118,23 @@ public class SiteTemplateLookUpServiceImplTest {
 
     final String siteId = "234";
     final SiteEditionHolder stHolder = new SiteEditionHolder();
-    final IPSSite site = context.mock(IPSSite.class, "site");
-    final IPSSite pSite = context.mock(IPSSite.class, "pSite");
-    final IPSEdition edition = context.mock(IPSEdition.class, "edition");
-    final IPSGuid siteGuid = context.mock(IPSGuid.class, "siteGuid");
+    final IPSSite site = mock(IPSSite.class);
+    final IPSSite pSite = mock(IPSSite.class);
+    final IPSEdition edition = mock(IPSEdition.class);
+    final IPSGuid siteGuid = mock(IPSGuid.class);
     stHolder.setSite(pSite);
     stHolder.setEdition(edition);
+
+    when(guidManager.makeGuid(142, PSTypeEnum.SITE)).thenReturn(siteGuid);
+    when(siteManager.loadSite(siteGuid)).thenThrow(new PSNotFoundException("Site Not Found"));
+
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(guidManager).makeGuid(142, PSTypeEnum.SITE);
-              will(returnValue(siteGuid));
-              one(siteManager).loadSite(siteGuid);
-              will(throwException(new PSNotFoundException("Site Not Found")));
-            }
-          });
       lookUp.LookUpSiteEdition("142");
-      Assertions.fail("Test with wrong site name failed");
-    } catch (SiteLookUpException | PSNotFoundException ex) {
+      fail("Test with wrong site name failed");
+    } catch (PSNotFoundException | SiteLookUpException ex) {
       log.info("Got expected exception {}", ex.getMessage());
     }
-    context.assertIsSatisfied();
+    verify(guidManager).makeGuid(142, PSTypeEnum.SITE);
   }
 
   @Test
@@ -171,31 +148,24 @@ public class SiteTemplateLookUpServiceImplTest {
 
     final String siteId = "234";
     final SiteEditionHolder stHolder = new SiteEditionHolder();
-    final IPSSite site = context.mock(IPSSite.class, "site");
-    final IPSSite pSite = context.mock(IPSSite.class, "pSite");
-    final IPSEdition edition = context.mock(IPSEdition.class, "edition");
-    final IPSGuid siteGuid = context.mock(IPSGuid.class, "siteGuid");
+    final IPSSite site = mock(IPSSite.class);
+    final IPSSite pSite = mock(IPSSite.class);
+    final IPSEdition edition = mock(IPSEdition.class);
+    final IPSGuid siteGuid = mock(IPSGuid.class);
     stHolder.setSite(pSite);
     stHolder.setEdition(edition);
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(guidManager).makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE);
-              will(returnValue(siteGuid));
-              one(siteManager).loadSite(siteGuid);
-              will(returnValue(site));
-              atLeast(1).of(site).getName();
-              will(returnValue("siteName"));
-            }
-          });
 
+    when(guidManager.makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE)).thenReturn(siteGuid);
+    when(siteManager.loadSite(siteGuid)).thenReturn(site);
+    when(site.getName()).thenReturn("siteName");
+
+    try {
       lookUp.LookUpSiteEdition(siteId);
       fail("Test with empty site name failed");
     } catch (PSNotFoundException | SiteLookUpException ex) {
       log.error("Error looking up site info", ex);
     }
-    context.assertIsSatisfied();
+    verify(guidManager).makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE);
   }
 
   @Test
@@ -209,32 +179,24 @@ public class SiteTemplateLookUpServiceImplTest {
 
     final String siteId = "234";
     final SiteEditionHolder stHolder = new SiteEditionHolder();
-    final IPSSite site = context.mock(IPSSite.class, "site");
-    final IPSSite pSite = context.mock(IPSSite.class, "pSite");
-    final IPSEdition edition = context.mock(IPSEdition.class, "edition");
-    final IPSGuid siteGuid = context.mock(IPSGuid.class, "siteGuid");
+    final IPSSite site = mock(IPSSite.class);
+    final IPSSite pSite = mock(IPSSite.class);
+    final IPSEdition edition = mock(IPSEdition.class);
+    final IPSGuid siteGuid = mock(IPSGuid.class);
     stHolder.setSite(pSite);
     stHolder.setEdition(edition);
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(guidManager).makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE);
-              will(returnValue(siteGuid));
-              one(siteManager).loadSite(siteGuid);
-              will(returnValue(site));
-              atLeast(1).of(site).getName();
-              will(returnValue("siteName"));
-            }
-          });
 
+    when(guidManager.makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE)).thenReturn(siteGuid);
+    when(siteManager.loadSite(siteGuid)).thenReturn(site);
+    when(site.getName()).thenReturn("siteName");
+
+    try {
       lookUp.LookUpSiteEdition(siteId);
       fail("Test with empty edition Name failed");
     } catch (PSNotFoundException | SiteLookUpException ex) {
       log.error("Error looking up site info", ex);
     }
-
-    context.assertIsSatisfied();
+    verify(guidManager).makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE);
   }
 
   private class TestLookUpService extends SiteEditionLookUpServiceImpl {

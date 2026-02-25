@@ -16,7 +16,7 @@
  */
 package com.percussion.user.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.percussion.test.TestAssertions.*;
 
 import com.github.javafaker.Faker;
 import com.percussion.security.PSEncryptionException;

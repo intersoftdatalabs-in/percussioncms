@@ -19,7 +19,7 @@ package com.percussion.pathmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
+// import java.util.Optional; // removed when migrating getter to nullable return
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
@@ -79,13 +79,14 @@ public class PSItemByWfStateRequest {
   }
 
   /**
-   * Gets the workflow state for which the items will be requested. May be null or empty to indicate
-   * all states.
+   * Gets the workflow state for which the items will be requested. May be null or
+   * empty to indicate all states.
    *
-   * @return the workflow state as Optional
+   * @return the workflow state, or <code>null</code> if no specific state is
+   *     requested
    */
-  public Optional<String> getState() {
-    return Optional.ofNullable(state).filter(s -> !s.isEmpty());
+  public String getState() {
+    return (state == null || state.isEmpty()) ? null : state;
   }
 
   /**

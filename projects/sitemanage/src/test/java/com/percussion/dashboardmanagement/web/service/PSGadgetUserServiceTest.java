@@ -16,8 +16,8 @@
  */
 package com.percussion.dashboardmanagement.web.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.percussion.test.TestAssertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.share.test.PSDataServiceRestClient;
@@ -48,7 +48,7 @@ public class PSGadgetUserServiceTest
     //        g2.setName("Gadget2");
     //        restClient.save("alex", g1);
     //        restClient.save("alex", g2);
-    //        assertEquals(2, gadgets.size());
+    //        assertEquals(2L, gadgets.size());
   }
 
   @Test
@@ -63,7 +63,7 @@ public class PSGadgetUserServiceTest
   @Test
   public void testDelete() throws Exception {
     // testDeleteGadgetFromUser
-    assertEquals(1, 1);
+    assertEquals(1L, 1);
     //        List<PSGadget> gadgets = restClient.findAll("alex");
     //        int sizeBeforeDelete = gadgets.size();
     //    	PSGadget gadgetToDelete = gadgets.get(0);
@@ -71,7 +71,7 @@ public class PSGadgetUserServiceTest
     //        gadgets = restClient.findAll("alex");
     //        int sizeAfterDelete = gadgets.size();
     //        int differenceInSize = sizeBeforeDelete - sizeAfterDelete;
-    //        assertEquals(1, differenceInSize);
+    //        assertEquals(1L, differenceInSize);
   }
 
   //    @Test

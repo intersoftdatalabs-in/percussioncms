@@ -32,41 +32,34 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class ActiveAssemblyUrlBuilderTest {
   private static final Logger log = LogManager.getLogger(ActiveAssemblyUrlBuilderTest.class);
 
-  Mockery context;
   ActiveAssemblyUrlBuilder cut;
 
   @BeforeEach
-  public void setUp() throws Exception {
-    context = new Mockery();
+  public void setUp() {
     cut = new ActiveAssemblyUrlBuilder();
   }
 
   @Test
   public final void testBuildUrl() {
-    final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class);
+    final IPSAssemblyTemplate template = mock(IPSAssemblyTemplate.class);
     final Map<String, Object> urlParams = new HashMap<String, Object>();
 
     urlParams.put(IPSHtmlParameters.SYS_CONTENTID, "1");
     urlParams.put(IPSHtmlParameters.SYS_REVISION, "1");
 
     try {
-      context.checking(
-          new Expectations() {
-            {
-              one(template).getGUID();
-              will(returnValue(new PSLegacyGuid(100, 1)));
-              one(template).getAssemblyUrl();
-              will(returnValue("../assembler/render"));
-            }
-          });
+      when(template.getGUID()).thenReturn(new PSLegacyGuid(100, 1));
+      when(template.getAssemblyUrl()).thenReturn("../assembler/render");
 
       cut.setDefaultLocationUrl("//default/location");
       cut.setMultipleLocationUrl("//multiple/location");
@@ -79,24 +72,14 @@ public class ActiveAssemblyUrlBuilderTest {
       assertTrue(result.contains("sys_contentid=1"));
       assertTrue(result.contains("sys_variantid=100"));
 
-      context.assertIsSatisfied();
-
-      context.checking(
-          new Expectations() {
-            {
-              one(template).getGUID();
-              will(returnValue(new PSLegacyGuid(100, 1)));
-              one(template).getAssemblyUrl();
-              will(returnValue("../assembler/render"));
-            }
-          });
+      verify(template, atLeastOnce()).getGUID();
 
       result = cut.buildUrl(template, urlParams, null, true);
       assertNotNull(result);
       log.info("result is " + result);
 
       assertTrue(result.startsWith("//multiple/location"));
-      context.assertIsSatisfied();
+      verify(template, atLeast(2)).getGUID();
 
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);

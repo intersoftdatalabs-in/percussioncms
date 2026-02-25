@@ -111,12 +111,31 @@ public class PSSiteDao implements IPSiteDao {
     return sites;
   }
 
+  // legacy delete method retained for compatibility
   @Transactional
   public void delete(String id) throws DeleteException {
     try {
       deleteSite(id);
     } catch (Exception e) {
-      throw new DeleteException(e);
+      throw new DeleteException("Error deleting site", e);
+    }
+  }
+
+  @Override
+  public void remove(PSSite object) throws PSDataServiceException {
+    if (object == null) {
+      throw new IllegalArgumentException("object must not be null");
+    }
+    remove(object.getName());
+  }
+
+  @Override
+  public void remove(String id) throws PSDataServiceException {
+    // delegate to existing delete method which throws DeleteException
+    try {
+      delete(id);
+    } catch (DeleteException e) {
+      throw e; // DeleteException is a PSDataServiceException subclass
     }
   }
 
@@ -138,7 +157,7 @@ public class PSSiteDao implements IPSiteDao {
     } catch (PSNavException e) {
       if (e.getErrorCode() == IPSNavigationErrors.NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH) {
         var ex =
-            new PSException(IPSSiteManageErrors.SITEMANAGE_SERVICE_DELETING_BAD_SITE_RECORD, name);
+            new PSException(IPSSiteManageErrors.SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD, name);
         log.warn(PSExceptionUtils.getMessageForLog(ex));
         log.debug(ex);
         this.delete(sum.getId());
@@ -146,7 +165,7 @@ public class PSSiteDao implements IPSiteDao {
         throw e;
       }
     } catch (Exception e) {
-      throw new LoadException(e);
+      throw new LoadException("Error loading site", e);
     }
     return null;
   }
@@ -220,7 +239,7 @@ public class PSSiteDao implements IPSiteDao {
     if (orig != null) {
       var copy = new PSSite();
       copy.setBaseTemplateName(orig.getBaseTemplateName());
-      copy.setDescription(orig.getDescription());
+      copy.setDescription(orig.getDescription().orElse(null));
       copy.setHomePageTitle(orig.getHomePageTitle());
       copy.setName(newName);
       copy.setNavigationTitle(orig.getNavigationTitle());
@@ -266,8 +285,8 @@ public class PSSiteDao implements IPSiteDao {
     notNull(site, "site may not be null");
     var s = new PSSite();
     PSItemSummaryUtils.copyProperties(site, s);
-    s.setSiteId(site.getSiteId());
-    s.setDefaultFileExtention(site.getDefaultFileExtention());
+    s.setSiteId(site.getSiteId().orElse(null));
+    s.setDefaultFileExtention(site.getDefaultFileExtention().orElse(null));
     s.setCanonical(site.isCanonical());
     s.setCanonicalDist(site.getCanonicalDist());
     s.setCanonicalReplace(site.isCanonicalReplace());
@@ -283,7 +302,7 @@ public class PSSiteDao implements IPSiteDao {
     } else {
       log.error("No homepage for site: {}", site.getName());
     }
-    s.setDescription(site.getDescription());
+    s.setDescription(site.getDescription().orElse(null));
     s.setNavigationTitle(navTitle);
     siteContentDao.loadTemplateInfo(s);
     return s;

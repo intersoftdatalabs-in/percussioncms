@@ -40,13 +40,13 @@ public class PSBlogYear {
     this.yearCount = 0;
 
     var cal = Calendar.getInstance();
-    var currentYear = cal.get(Calendar.YEAR);
+    int currentYear = cal.get(Calendar.YEAR);
     var currentMonth = cal.get(Calendar.MONTH);
 
     var emptyMonths = new ArrayList<PSBlogMonth>();
     var localeMonths = new DateFormatSymbols(Locale.getDefault()).getMonths();
     var indexMonth = localeMonths.length - 2;
-    if (currentYear.equals(year)) {
+    if (year != null && currentYear == year) {
       indexMonth = currentMonth;
     }
 

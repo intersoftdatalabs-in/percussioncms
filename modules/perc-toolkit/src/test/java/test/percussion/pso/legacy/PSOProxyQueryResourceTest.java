@@ -16,8 +16,9 @@
  */
 package test.percussion.pso.legacy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.extension.IPSExtensionDef;
@@ -26,32 +27,33 @@ import com.percussion.server.IPSRequestContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 import org.w3c.dom.Document;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class PSOProxyQueryResourceTest {
-  Mockery context = new JUnit4Mockery();
+  // Mockito will manage mocks
   PSOProxyQueryResource proxy = new PSOProxyQueryResource();
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     proxy.init(makeExtensionDef("url"), null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  @Disabled
-  // TODO: Fix Me
+  @Disabled("TODO: Fix Me")
+  @Test
   public void shouldFailIfUrlIsNotProvided() throws Exception {
     IPSRequestContext request = makeRequest(makeRequestParams(null, null, null));
-    proxy.processResultDocument(new Object[] {}, request, null);
+    assertThrows(IllegalArgumentException.class,
+        () -> proxy.processResultDocument(new Object[] {}, request, null));
   }
 
   @Test
@@ -86,31 +88,17 @@ public class PSOProxyQueryResourceTest {
   }
 
   public IPSExtensionDef makeExtensionDef(final String... names) {
-    final IPSExtensionDef extensionDef = context.mock(IPSExtensionDef.class);
-    context.checking(
-        new Expectations() {
-          {
-            one(extensionDef).getRuntimeParameterNames();
-            will(returnIterator(names));
-          }
-        });
+    IPSExtensionDef extensionDef = mock(IPSExtensionDef.class);
+    when(extensionDef.getRuntimeParameterNames()).thenReturn(java.util.Arrays.asList(names).iterator());
     return extensionDef;
   }
 
   public IPSRequestContext makeRequest(final Map<String, String> parameters) {
-    final IPSRequestContext request = context.mock(IPSRequestContext.class);
-    context.checking(
-        new Expectations() {
-          {
-            for (Entry<String, String> entry : parameters.entrySet()) {
-              atMost(1).of(request).getParameter(entry.getKey());
-              will(returnValue(entry.getValue()));
-            }
-
-            one(request).getParametersIterator();
-            will(returnValue(parameters.entrySet().iterator()));
-          }
-        });
+    IPSRequestContext request = mock(IPSRequestContext.class);
+    for (Entry<String, String> entry : parameters.entrySet()) {
+      when(request.getParameter(entry.getKey())).thenReturn(entry.getValue());
+    }
+    when(request.getParametersIterator()).thenReturn((java.util.Iterator) parameters.entrySet().iterator());
     return request;
   }
 
@@ -123,18 +111,12 @@ public class PSOProxyQueryResourceTest {
   }
 
   public Object[] makeParams(final String... params) throws Exception {
-    final Object[] rvalue = new Object[params.length];
-    context.checking(
-        new Expectations() {
-          {
-            for (int i = 0; i < params.length; i++) {
-              IPSReplacementValue irv = context.mock(IPSReplacementValue.class);
-              one(irv).getValueText();
-              will(returnValue(params[i]));
-              rvalue[i] = irv;
-            }
-          }
-        });
+    Object[] rvalue = new Object[params.length];
+    for (int i = 0; i < params.length; i++) {
+      IPSReplacementValue irv = mock(IPSReplacementValue.class);
+      when(irv.getValueText()).thenReturn(params[i]);
+      rvalue[i] = irv;
+    }
     return rvalue;
   }
 }

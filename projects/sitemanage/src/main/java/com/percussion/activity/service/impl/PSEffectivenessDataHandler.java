@@ -47,10 +47,10 @@ public class PSEffectivenessDataHandler extends PSXmlDataHandler
 
     var eList = new ArrayList<PSEffectiveness>();
     Map<String, Object> props = new HashMap<>();
-    props.put("duration", request.getDuration());
-    props.put("durationType", request.getDurationType());
-    props.put("path", request.getPath());
-    props.put("usage", request.getUsage().name());
+    props.put("duration", request.getDuration().orElse(null));
+    props.put("durationType", request.getDurationType().orElse(null));
+    props.put("path", request.getPath().orElse(null));
+      props.put("usage", request.getUsage() == null ? null : request.getUsage().name());
     props.put("threshold", String.valueOf(request.getThreshold()));
 
     Response response = getData(props);

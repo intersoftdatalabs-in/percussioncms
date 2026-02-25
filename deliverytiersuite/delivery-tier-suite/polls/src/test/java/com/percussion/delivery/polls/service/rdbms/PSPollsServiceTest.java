@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,41 @@ package com.percussion.delivery.polls.service.rdbms;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 import com.percussion.delivery.polls.services.IPSPollsService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.FlushMode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSPollsServiceTest {
+  private static final Logger log = LogManager.getLogger(PSPollsServiceTest.class);
   @Autowired private IPSPollsService pollsService;
-  @Autowired private SessionFactory sessionFactory;
+  @Autowired
+  @Qualifier("pollsEntityManager")
+  private EntityManager entityManager;
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
+  @BeforeEach
+  public void setUp() {
     Session session = getSession();
     try {
       CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -58,28 +66,28 @@ public class PSPollsServiceTest {
     }
   }
 
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @AfterEach
+  public void tearDown() {
+    // no-op
   }
 
   private Session getSession() {
-
-    return sessionFactory.getCurrentSession();
+    return entityManager.unwrap(Session.class);
   }
 
   @Test
-  public void testSave() throws Exception {
-    sessionFactory.getCurrentSession().setFlushMode(FlushMode.COMMIT);
-    Map<String, Boolean> answers = new HashMap<String, Boolean>();
+  public void testSave() {
+    entityManager.setFlushMode(FlushModeType.COMMIT);
+
+    Map<String, Boolean> answers = new HashMap<>();
     answers.put("Answer1", true);
     answers.put("Answer2", false);
     answers.put("Answer3", false);
     pollsService.savePoll("TestPoll", "TestQuestion", answers);
     try {
-      sessionFactory.getCurrentSession().flush();
+      entityManager.flush();
     } catch (Exception e) {
-
+      log.warn("EntityManager flush failed during testSave; test may still pass if data was written", e);
     }
     IPSPoll poll = pollsService.findPollByQuestion("TestQuestion");
     assertNotNull(poll);

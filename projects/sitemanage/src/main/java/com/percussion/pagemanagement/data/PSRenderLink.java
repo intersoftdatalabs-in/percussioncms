@@ -22,7 +22,7 @@ import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDe
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.Objects;
-import java.util.Optional;
+// removed Optional import: getter now returns nullable value
 
 /**
  * Represents a rendered link.
@@ -47,8 +47,8 @@ public class PSRenderLink {
   }
 
   @XmlTransient
-  public Optional<PSResourceDefinition> getResourceDefinition() {
-    return Optional.ofNullable(resourceDefinition);
+  public PSResourceDefinition getResourceDefinition() {
+    return resourceDefinition;
   }
 
   public void setResourceDefinition(PSResourceDefinition resourceDefinition) {

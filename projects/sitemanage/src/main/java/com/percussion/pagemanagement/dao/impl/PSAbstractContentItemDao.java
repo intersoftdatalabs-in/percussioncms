@@ -68,10 +68,21 @@ public abstract class PSAbstractContentItemDao<T extends IPSItemSummary>
     return contentItemDao;
   }
 
-  @Override
   public void delete(String id) throws PSDataServiceException {
     find(id);
-    contentItemDao.delete(id);
+    contentItemDao.remove(id);
+  }
+
+  @Override
+  public void remove(String id) throws PSDataServiceException {
+    delete(id);
+  }
+
+  @Override
+  public void remove(T object) throws PSDataServiceException {
+    if (object != null) {
+      remove(object.getId());
+    }
   }
 
   @Override

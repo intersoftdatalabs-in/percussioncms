@@ -299,8 +299,10 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     if (sum == null) throw new DataServiceLoadException("Could not find site for id: " + id);
     if (includePubInfo) {
       try {
+        long siteId = sum.getSiteId().orElseThrow(
+            () -> new DataServiceLoadException("Site id is missing for summary"));
         sum.setPubInfo(
-            getPubServerService().getS3PubInfo(new PSGuid(PSTypeEnum.SITE, sum.getSiteId())));
+            getPubServerService().getS3PubInfo(new PSGuid(PSTypeEnum.SITE, siteId)));
       } catch (Exception e) {
         throw new DataServiceLoadException(e);
       }
@@ -338,7 +340,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     updatePropsFromSite(site, props);
     // Get the site's class names using PSSiteSection object
     PSSiteSection siteSection = sectionService.loadRoot(site.getName());
-    props.setCssClassNames(siteSection.getCssClassNames());
+props.setCssClassNames(siteSection.getCssClassNames().orElse(""));
 
     return props;
   }
@@ -429,8 +431,8 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
       throws PSDataServiceException, PSNotFoundException {
     notNull(props, "Properties cannot be null");
     IPSSite site = siteMgr.loadSiteModifiable(idMapper.getGuid(props.getId()));
-    String newSiteName = props.getName();
     String oldSiteName = site.getName();
+    String newSiteName = props.getName().orElse(oldSiteName);
     PSSiteCopyUtils.throwCopySiteMessageForUpdateError(
         site.getName(), newSiteName, "updateSiteProperties");
     validateSiteProperties(site, props);
@@ -450,15 +452,14 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     IPSGuid treeId = navService.findNavigationIdFromFolder(site.getFolderRoot());
     section.setId(idMapper.getString(treeId));
     section.setFolderName(newSiteName);
-    section.setTitle(props.getHomePageLinkText());
-    section.setFolderPermission(props.getFolderPermission());
+    section.setTitle(props.getHomePageLinkText().orElse(null));
+    section.setFolderPermission(props.getFolderPermission().orElse(null));
     section.setSiteRootSection(true);
-    section.setCssClassNames(props.getCssClassNames());
+section.setCssClassNames(props.getCssClassNames().orElse(""));
 
     updateSiteFromProps(site, props);
 
-    boolean pubServersChanged = siteDao.updateSite(site, newSiteName, props.getDescription());
-    props.setPubServersChanged(pubServersChanged);
+      boolean pubServersChanged = siteDao.updateSite(site, newSiteName, props.getDescription().orElse(""));
 
     sectionService.update(section);
 
@@ -504,24 +505,24 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
   }
 
   private void updateSiteFromProps(IPSSite site, PSSiteProperties props) {
-    site.setLoginPage(props.getLoginPage());
-    site.setRegistrationPage(props.getRegistrationPage());
-    site.setRegistrationConfirmationPage(props.getRegistrationConfirmationPage());
-    site.setResetPage(props.getResetPage());
-    site.setResetRequestPasswordPage(props.getResetRequestPasswordPage());
+    site.setLoginPage(props.getLoginPage().orElse(null));
+    site.setRegistrationPage(props.getRegistrationPage().orElse(null));
+    site.setRegistrationConfirmationPage(props.getRegistrationConfirmationPage().orElse(null));
+    site.setResetPage(props.getResetPage().orElse(null));
+    site.setResetRequestPasswordPage(props.getResetRequestPasswordPage().orElse(null));
     site.setSecure(props.isSecure());
-    site.setDefaultFileExtension(props.getDefaultFileExtention());
+    site.setDefaultFileExtension(props.getDefaultFileExtention().orElse(null));
     site.setCanonical(props.isCanonical());
-    site.setSiteProtocol(props.getSiteProtocol());
-    site.setDefaultDocument(props.getDefaultDocument());
-    site.setCanonicalDist(props.getCanonicalDist());
+    site.setSiteProtocol(props.getSiteProtocol().orElse(null));
+    site.setDefaultDocument(props.getDefaultDocument().orElse(null));
+    site.setCanonicalDist(props.getCanonicalDist().orElse(null));
     site.setCanonicalReplace(props.isCanonicalReplace());
     site.setOverrideSystemJQuery(props.isOverrideSystemJQuery());
     site.setOverrideSystemJQueryUI(props.isOverrideSystemJQueryUI());
     site.setOverrideSystemFoundation(props.isOverrideSystemFoundation());
-    site.setSiteAdditionalHeadContent(props.getSiteAdditionalHeadContent());
-    site.setSiteAfterBodyOpenContent(props.getSiteAfterBodyOpenContent());
-    site.setSiteBeforeBodyCloseContent(props.getSiteBeforeBodyCloseContent());
+    site.setSiteAdditionalHeadContent(props.getSiteAdditionalHeadContent().orElse(null));
+    site.setSiteAfterBodyOpenContent(props.getSiteAfterBodyOpenContent().orElse(null));
+    site.setSiteBeforeBodyCloseContent(props.getSiteBeforeBodyCloseContent().orElse(null));
     site.setMobilePreviewEnabled(props.isMobilePreviewEnabled());
     site.setGenerateSitemap(props.isGenerateSiteMap());
     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -537,7 +538,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
   }
 
   private void updatePSRecentEntries(IPSSite site, PSSiteProperties props) {
-    recentService.updateSiteNameRecent(site.getName(), props.getName());
+    recentService.updateSiteNameRecent(site.getName(), props.getName().orElse(""));
   }
 
   /**
@@ -552,7 +553,11 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
       Collection<PSAsset> autoListAssets = findAutoListWidgets();
 
       for (PSAsset asset : autoListAssets) {
-        updateSiteListAsset(asset, props.getName(), site.getName(), new HashMap<>());
+        /* props.getName() returns Optional<String> */
+        updateSiteListAsset(asset,
+            props.getName().orElse(site.getName()),
+            site.getName(),
+            new HashMap<>());
       }
     }
   }
@@ -634,7 +639,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     PSSite site = siteDao.find(sitename);
     List<Integer> importingPages = null;
     if (site != null) {
-      importingPages = pageImportQueue.getImportingPageIds(site.getSiteId());
+      importingPages = pageImportQueue.getImportingPageIds(site.getSiteId().orElse(null));
     }
     return (site != null && !importingPages.isEmpty())
         ? Boolean.TRUE.toString()
@@ -649,12 +654,12 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
    */
   private void validateSiteProperties(IPSSite site, PSSiteProperties props)
       throws PSValidationException {
-    notNull(props.getName(), "Name cannot be null.");
-    notEmpty(props.getName(), "Name cannot be empty.");
-    notNull(props.getHomePageLinkText(), "Home page link text cannot be null.");
-    notEmpty(props.getHomePageLinkText(), "Home page link text cannot be empty.");
+notNull(props.getName().orElse(null), "Name cannot be null.");
+      notEmpty(props.getName().orElse(""), "Name cannot be empty.");
+      notNull(props.getHomePageLinkText().orElse(null), "Home page link text cannot be null.");
+      notEmpty(props.getHomePageLinkText().orElse(""), "Home page link text cannot be empty.");
 
-    String name = props.getName();
+    String name = props.getName().orElse("");
     String tgtFolderRoot = "//Sites/" + name;
     if (tgtFolderRoot.equalsIgnoreCase(site.getFolderRoot())) {
       return;
@@ -689,12 +694,12 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
    */
   private void validateSitePublishProperties(PSSitePublishProperties publishProperties) {
     notNull(publishProperties.getSiteName(), "Name cannot be null.");
-    notEmpty(publishProperties.getSiteName(), "Name cannot be empty.");
+    notEmpty(publishProperties.getSiteName().orElse(""), "Name cannot be empty.");
     if (!publishProperties.getPublishType().equals(PublishType.filesystem)) {
       notNull(publishProperties.getFtpServerName(), "Ftp Server name cannot be null.");
-      notEmpty(publishProperties.getFtpServerName(), "Ftp Server name cannot be empty.");
+      notEmpty(publishProperties.getFtpServerName().orElse(""), "Ftp Server name cannot be empty.");
       notNull(publishProperties.getFtpUserName(), "Ftp user name cannot be null.");
-      notEmpty(publishProperties.getFtpUserName(), "Ftp user name cannot be empty.");
+      notEmpty(publishProperties.getFtpUserName().orElse(""), "Ftp user name cannot be empty.");
     }
   }
 
@@ -720,11 +725,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
 
     // Filter out sites that are currently getting copied
     var entries = getCopySiteInfo().getEntries();
-    String newSiteName = null;
-    if (!entries.isEmpty()) {
-      newSiteName = entries.get("Target");
-    }
-
+      final String newSiteName = entries.isEmpty() ? null : entries.get("Target");
     // Java 11 Streams for filtering and mapping
     sums.stream()
         .filter(site -> !StringUtils.equals(site.getName(), newSiteName))
@@ -735,7 +736,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
                 try {
                   site.setPubInfo(
                       getPubServerService()
-                          .getS3PubInfo(new PSGuid(PSTypeEnum.SITE, site.getSiteId())));
+                          .getS3PubInfo(new PSGuid(PSTypeEnum.SITE, site.getSiteId().orElse(0L))));
                 } catch (Exception e) {
                   log.error(
                       "Error adding the publishing info to the site. Error:{}",
@@ -900,7 +901,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     String userAgent = request.getHeader("User-Agent");
 
     PSSiteImportCtx importContext = siteImportService.importSiteFromUrl(site, userAgent);
-    return importContext.getSite();
+    return importContext.getSite().orElse(null);
   }
 
   public Long createSiteFromUrlAsync(HttpServletRequest request, PSSiteImportConfiguration config)
@@ -914,7 +915,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     // Create and setup import context
     PSSiteImportCtx importContext = new PSSiteImportCtx();
     importContext.setSite(site);
-    importContext.setSiteUrl(site.getBaseUrl());
+    importContext.setSiteUrl(site.getBaseUrl().orElse(null));
     importContext.setStatusMessagePrefix(IMPORT_STATUS_MESSAGE_PREFIX);
     importContext.setUserAgent(userAgent);
     importContext.setImportConfiguration(config);
@@ -932,7 +933,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
       Object jobResult = asyncJobService.getJobResult(jobId);
       if (jobResult != null) {
         PSSiteImportCtx importContext = (PSSiteImportCtx) jobResult;
-        return importContext.getSite();
+        return importContext.getSite().orElse(null);
       }
     }
     return null;
@@ -1156,7 +1157,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         PSSiteSummary site = siteDao.findSummary(newName);
         if (site != null) {
           try {
-            siteDao.delete(newName);
+            siteDao.remove(newName);
           } catch (DeleteException | IPSGenericDao.LoadException e1) {
             log.error(
                 "Cannot delete all site resources for site {} Error:  {}",
@@ -1222,7 +1223,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
 
     PSSiteStatisticsSummary siteStatSummary = new PSSiteStatisticsSummary();
     siteStatSummary.setName(site.getName());
-    siteStatSummary.setSiteId(site.getSiteId());
+    siteStatSummary.setSiteId(site.getSiteId().orElse(0L));
 
     // Set site stats
     siteStatSummary.setStatistics(getSiteStats(site));
@@ -1258,8 +1259,12 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         // loadSiteConfig already logs the error we just continue here if it is null.
         continue;
       }
-      PSSiteInfo siteInfo = saasSiteConfig.getSiteConfig().getSiteInfo();
-      String siteName = siteInfo.getSiteName();
+      var maybeCfg = saasSiteConfig.getSiteConfig();
+      if (maybeCfg.isEmpty()) {
+        continue;
+      }
+      PSSiteInfo siteInfo = maybeCfg.get().getSiteInfo().orElse(null);
+      String siteName = siteInfo.getSiteName().orElse("");
       boolean add = filterUsedSites ? (siteNames.contains(siteName) ? false : true) : true;
       if (add && !resultMap.containsKey(siteName)) {
         if (!isValidSiteName(siteName)) {
@@ -1341,7 +1346,8 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
   private PSSiteStatistics getSiteStats(PSSiteSummary site) {
     PSSiteStatistics statistics = new PSSiteStatistics();
     try {
-      PSSiteImportSummary impSummary = summaryService.find(site.getSiteId().intValue());
+      long siteId = site.getSiteId().orElse(0L);
+      PSSiteImportSummary impSummary = summaryService.find((int) siteId);
       if (impSummary != null) {
         statistics.setPages(impSummary.getPages());
         statistics.setTemplates(impSummary.getTemplates());

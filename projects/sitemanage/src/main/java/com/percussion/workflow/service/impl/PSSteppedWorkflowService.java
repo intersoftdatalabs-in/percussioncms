@@ -87,6 +87,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -225,7 +226,7 @@ public class PSSteppedWorkflowService
    * @see com.percussion.workflow.service.IPSSteppedWorkflowService#getDefaultWorkflowMetadata()
    */
   public PSEnumVals getDefaultWorkflowMetadata() {
-    PSWorkflow workflow = workflowService.getDefaultWorkflow();
+    PSWorkflow workflow = workflowService.loadWorkflow(workflowService.getDefaultWorkflowId());
     PSEnumVals workflowList = new PSEnumVals();
     workflowList.addEntry(workflow.getLabel(), String.valueOf(workflow.getGUID().longValue()));
     return workflowList;
@@ -472,7 +473,8 @@ public class PSSteppedWorkflowService
       // Check whether there are any items in this workflow
       Collection<Integer> cids = null;
       try {
-        cids = cmsObjectMgr.findContentIdsByWorkflow(workflow.getGUID().getUUID());
+        cids = cmsObjectMgr.findContentIdsByWorkflow(workflow.getGUID().getUUID())
+                  .collect(Collectors.toList());
       } catch (Exception e) {
         log.debug("Failed to find the items by workflow while deleting the workflow:", e);
         throw new PSWorkflowEditorServiceException(
@@ -807,7 +809,8 @@ public class PSSteppedWorkflowService
       try {
         cids =
             cmsObjectMgr.findContentIdsByWorkflowStatus(
-                workflow.getGUID().getUUID(), currentState.getGUID().getUUID());
+                workflow.getGUID().getUUID(), currentState.getGUID().getUUID())
+                .collect(Collectors.toList());
       } catch (Exception e) {
         log.error(
             "Failed to find the items by workflow and state while deleteing the step, Error: {}",
