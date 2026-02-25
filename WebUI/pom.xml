@@ -9,11 +9,6 @@
     </parent>
     <artifactId>perc-web-ui</artifactId>
     <packaging>war</packaging>
-    <properties>
-        <closure.level>WHITESPACE_ONLY</closure.level>
-        <!-- Set to true to skip minification -->
-        <skip.minify>false</skip.minify>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -808,136 +803,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.samaxes.maven</groupId>
-                <artifactId>minify-maven-plugin</artifactId>
-                <version>1.7.6</version>
-                <executions>
-                    <execution>
-                        <id>min-common</id>
-                        <goals>
-                            <goal>minify</goal>
-                        </goals>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <yuiDisableOptimizations>${skip.minify}</yuiDisableOptimizations>
-                            <yuiNoMunge>${skip.minify}</yuiNoMunge>
-                            <yuiPreserveSemicolons>true</yuiPreserveSemicolons>
-                            <skipMerge>false</skipMerge>
-                            <skipMinify>${skip.minify}</skipMinify>
-                            <closureCompilationLevel>${closure.level}</closureCompilationLevel>
-                            <closureCreateSourceMap>false</closureCreateSourceMap>
-                            <closureAngularPass>false</closureAngularPass>
-                            <closureLanguageOut>ECMASCRIPT6</closureLanguageOut>
-                            <verbose>true</verbose>
-                            <closureWarningLevels>
-                                <nonStandardJsDocs>OFF</nonStandardJsDocs>
-                            </closureWarningLevels>
-                            <charset>UTF-8</charset>
-                            <jsSourceDir>.</jsSourceDir>
-                            <cssSourceDir>.</cssSourceDir>
-                            <jsEngine>CLOSURE</jsEngine>
-                            <nosuffix>false</nosuffix>
-                            <webappSourceDir>${project.basedir}/war</webappSourceDir>
-                            <webappSourceDir>${project.basedir}/war</webappSourceDir>
-                            <webappTargetDir>${project.build.directory}/minify-common</webappTargetDir>
-                            <bundleConfiguration>${project.basedir}/src/main/resources/minify/common-bundles.json</bundleConfiguration>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>min-common-minuet</id>
-                        <goals>
-                            <goal>minify</goal>
-                        </goals>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <yuiDisableOptimizations>${skip.minify}</yuiDisableOptimizations>
-                            <yuiNoMunge>${skip.minify}</yuiNoMunge>
-                            <yuiPreserveSemicolons>true</yuiPreserveSemicolons>
-                            <skipMerge>false</skipMerge>
-                            <skipMinify>${skip.minify}</skipMinify>
-                            <closureCompilationLevel>${closure.level}</closureCompilationLevel>
-                            <closureCreateSourceMap>false</closureCreateSourceMap>
-                            <closureAngularPass>false</closureAngularPass>
-                            <closureLanguageOut>ECMASCRIPT6</closureLanguageOut>
-                            <verbose>true</verbose>
-                            <closureWarningLevels>
-                                <nonStandardJsDocs>OFF</nonStandardJsDocs>
-                            </closureWarningLevels>
-                            <charset>UTF-8</charset>
-                            <jsSourceDir>.</jsSourceDir>
-                            <cssSourceDir>.</cssSourceDir>
-                            <jsEngine>CLOSURE</jsEngine>
-                            <nosuffix>false</nosuffix>
-                            <webappSourceDir>${project.basedir}/war</webappSourceDir>
-                            <webappTargetDir>${project.build.directory}/minify-common</webappTargetDir>
-                            <bundleConfiguration>${project.basedir}/src/main/resources/minify/common-minuet-bundles.json</bundleConfiguration>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>min-package</id>
-                        <goals>
-                            <goal>minify</goal>
-                        </goals>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <verbose>true</verbose>
-                            <disableOptimizations>true</disableOptimizations>
-                            <yuiDisableOptimizations>${skip.minify}</yuiDisableOptimizations>
-                            <yuiNoMunge>${skip.minify}</yuiNoMunge>
-                            <yuiPreserveSemicolons>true</yuiPreserveSemicolons>
-                            <skipMerge>false</skipMerge>
-                            <skipMinify>${skip.minify}</skipMinify>
-                            <closureCompilationLevel>${closure.level}</closureCompilationLevel>
-                            <closureCreateSourceMap>false</closureCreateSourceMap>
-                            <closureAngularPass>false</closureAngularPass>
-                            <closureLanguageOut>ECMASCRIPT6</closureLanguageOut>
-                            <verbose>true</verbose>
-                            <closureWarningLevels>
-                                <nonStandardJsDocs>OFF</nonStandardJsDocs>
-                            </closureWarningLevels>
-                            <charset>UTF-8</charset>
-                            <jsSourceDir>.</jsSourceDir>
-                            <cssSourceDir>.</cssSourceDir>
-                            <jsEngine>CLOSURE</jsEngine>
-                            <nosuffix>false</nosuffix>
-                            <webappSourceDir>${project.basedir}/war</webappSourceDir>
-                            <webappTargetDir>${project.build.directory}/${project.build.finalName}/cm</webappTargetDir>
-                            <bundleConfiguration>${project.basedir}/src/main/resources/minify/static-bundles.json</bundleConfiguration>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>common-ui</id>
-                        <goals>
-                            <goal>minify</goal>
-                        </goals>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <verbose>true</verbose>
-                            <yuiDisableOptimizations>true</yuiDisableOptimizations>
-                            <yuiPreserveSemicolons>true</yuiPreserveSemicolons>
-                            <skipMinify>${skip.minify}</skipMinify>
-                            <skipMerge>false</skipMerge>
-                            <closureCompilationLevel>${closure.level}</closureCompilationLevel>
-                            <closureCreateSourceMap>false</closureCreateSourceMap>
-                            <closureLanguageIn>ECMASCRIPT5</closureLanguageIn>
-                            <closureLanguageOut>ECMASCRIPT5</closureLanguageOut>
-                            <verbose>true</verbose>
-                            <closureWarningLevels>
-                                <nonStandardJsDocs>OFF</nonStandardJsDocs>
-                            </closureWarningLevels>
-                            <charset>UTF-8</charset>
-                            <jsSourceDir>.</jsSourceDir>
-                            <cssSourceDir>.</cssSourceDir>
-                            <jsEngine>CLOSURE</jsEngine>
-                            <nosuffix>true</nosuffix>
-                            <webappSourceDir>${project.basedir}/war</webappSourceDir>
-                            <webappTargetDir>${project.build.directory}/${project.build.finalName}/cm/common/js</webappTargetDir>
-                            <bundleConfiguration>${project.basedir}/src/main/resources/minify/common-ui-bundle.json</bundleConfiguration>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <configuration>
@@ -989,10 +854,7 @@
                 </property>
             </activation>
             <properties>
-                <closure.level>WHITESPACE_ONLY</closure.level>
                 <install.dir>C:\DevEnv\Installs\cm1\dev</install.dir>
-                <!-- Set to true to skip minification -->
-                <skip.minify>false</skip.minify>
             </properties>
             <build>
                 <plugins>
