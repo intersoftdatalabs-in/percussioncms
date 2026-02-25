@@ -25,7 +25,7 @@
 
 import type { ComponentType } from "react";
 import { HelloWorld } from "./components/HelloWorld";
-import { Dashboard } from "./dashboard";
+import { Dashboard, WorkflowStatusWidget, ActivityWidget } from "./dashboard";
 
 /** Map of component names to their React component types. */
 export const componentRegistry = new Map<string, ComponentType<any>>();
@@ -33,3 +33,5 @@ export const componentRegistry = new Map<string, ComponentType<any>>();
 // Register components available to the bridge
 componentRegistry.set("HelloWorld", HelloWorld);
 componentRegistry.set("Dashboard", Dashboard);
+componentRegistry.set("WorkflowStatusWidget", WorkflowStatusWidget);
+componentRegistry.set("ActivityWidget", ActivityWidget);

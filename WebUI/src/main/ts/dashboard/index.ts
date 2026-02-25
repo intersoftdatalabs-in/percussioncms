@@ -22,4 +22,6 @@
 export { Dashboard, type DashboardProps } from "./Dashboard";
 export { DashboardLayout, type DashboardLayoutProps, type DashboardWidget } from "./DashboardLayout";
 export { WelcomeWidget, type WelcomeWidgetProps } from "./WelcomeWidget";
+export { WorkflowStatusWidget, type WorkflowStatusWidgetProps } from "./WorkflowStatusWidget";
+export { ActivityWidget, type ActivityWidgetProps } from "./ActivityWidget";
 export { styles } from "./dashboard.styles";
