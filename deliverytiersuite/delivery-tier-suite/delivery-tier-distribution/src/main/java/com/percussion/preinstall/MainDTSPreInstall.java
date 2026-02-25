@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -36,6 +40,10 @@ public class MainDTSPreInstall {
   private static final String INSTALL_TEMPDIR = "percDTSInstallTmp_";
   private static final String PERC_ANT_JAR = "perc-ant";
   private static final String ANT_INSTALL = "installDts.xml";
+  private static final String DB_TYPE_DEFAULT = "derby";
+  private static final String DB_SSL_ENABLED_DEFAULT = "true";
+  private static final String DB_SSL_VERIFY_DEFAULT = "true";
+  private static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
 
   /**
    * Find a jar by path pattern to avoid hard coding / forcing version.
@@ -91,13 +99,15 @@ public class MainDTSPreInstall {
       System.out.println("java.executable=" + javabin);
       System.out.println("perc.version=" + percVersion);
 
-      if (args.length < 1) {
+      ParsedArgs parsedArgs = parseArgs(args);
+      if (parsedArgs.installPath() == null) {
         System.out.println("Must specify installation or upgrade folder");
         System.exit(0);
       }
 
-      System.out.println("Installation folder =" + args[0]);
-      var installPath = Paths.get(args[0]);
+      System.out.println("Installation folder =" + parsedArgs.installPath());
+      var installPath = parsedArgs.installPath();
+      ResolvedDbConfig resolvedDbConfig = resolveDbConfig(parsedArgs.options());
       var isProduction = System.getProperty("install.prod.dts");
       System.out.println(
           "====Will remove below code if value of is Production comes fine"
@@ -156,7 +166,7 @@ public class MainDTSPreInstall {
       var installAntJarPath =
           execPath.resolve(getVersionLessJarFilePath(execPath, PERC_ANT_JAR + "-*.jar"));
 
-      exitCode = execJar(installAntJarPath, execPath, installPath, isProduction);
+      exitCode = execJar(installAntJarPath, execPath, installPath, isProduction, resolvedDbConfig);
 
     } catch (Exception e) {
       System.out.println(
@@ -205,7 +215,12 @@ public class MainDTSPreInstall {
     }
   }
 
-  public static int execJar(Path jar, Path execPath, Path installDir, String isProduction)
+    public static int execJar(
+      Path jar,
+      Path execPath,
+      Path installDir,
+      String isProduction,
+      ResolvedDbConfig resolvedDbConfig)
       throws IOException, InterruptedException {
 
     var dir = installDir.toAbsolutePath().toString();
@@ -223,21 +238,294 @@ public class MainDTSPreInstall {
     System.out.println("Install Dir:" + dir);
     System.out.println("Java Executable:" + javabin);
 
-    var builder =
-        new ProcessBuilder(
-                javabin,
-                "-Dinstall.prod.dts=" + isProduction,
-                "-Dfile.encoding=UTF8",
-                "-Dsun.jnu.encoding=UTF8",
-                "-Dinstall.dir=" + dir,
-                "-Drxdeploydir=" + dir,
-                "-jar",
-                jar.toAbsolutePath().toString(),
-                "-f",
-                ANT_INSTALL)
-            .directory(execPath.toFile());
+    List<String> command = new ArrayList<>();
+    command.add(javabin);
+    command.add("-Dinstall.prod.dts=" + isProduction);
+    command.add("-Dfile.encoding=UTF8");
+    command.add("-Dsun.jnu.encoding=UTF8");
+    command.add("-Dinstall.dir=" + dir);
+    command.add("-Drxdeploydir=" + dir);
+    for (Map.Entry<String, String> entry : resolvedDbConfig.systemProperties().entrySet()) {
+      command.add("-D" + entry.getKey() + "=" + entry.getValue());
+    }
+    command.add("-jar");
+    command.add(jar.toAbsolutePath().toString());
+    command.add("-f");
+    command.add(ANT_INSTALL);
+
+    var builder = new ProcessBuilder(command).directory(execPath.toFile());
     var process = builder.inheritIO().start();
     process.waitFor();
     return process.exitValue();
   }
+
+  private static ParsedArgs parseArgs(String[] args) {
+    Path installPath = null;
+    Map<String, String> options = new HashMap<>();
+
+    int index = 0;
+    while (index < args.length) {
+      String argument = args[index];
+      if (!argument.startsWith("--")) {
+        if (installPath == null) {
+          installPath = Paths.get(argument);
+        }
+        index++;
+        continue;
+      }
+
+      String option = argument.substring(2);
+      String key;
+      String value;
+      int equalsPosition = option.indexOf('=');
+      if (equalsPosition > -1) {
+        key = option.substring(0, equalsPosition).trim();
+        value = option.substring(equalsPosition + 1).trim();
+      } else {
+        key = option.trim();
+        if (index + 1 < args.length && !args[index + 1].startsWith("--")) {
+          value = args[index + 1].trim();
+          index++;
+        } else {
+          value = "true";
+        }
+      }
+      if (!key.isEmpty()) {
+        options.put(key, value);
+      }
+      index++;
+    }
+
+    return new ParsedArgs(installPath, options);
+  }
+
+  private static ResolvedDbConfig resolveDbConfig(Map<String, String> cliOptions) {
+    Map<String, String> envFileValues = new HashMap<>();
+    String envFilePath = firstNonBlank(
+        cliOptions.get("db.config.env.file"),
+        System.getenv("DB_CONFIG_ENV_FILE"),
+        System.getenv("PERC_DB_CONFIG_ENV_FILE"));
+    if (envFilePath != null) {
+      envFileValues.putAll(loadEnvFile(envFilePath));
+    }
+
+    String dbType = getConfigValue("db.type", cliOptions, envFileValues, DB_TYPE_DEFAULT);
+    String sslEnabled =
+        normalizeBoolean(
+            getConfigValue("db.ssl.enabled", cliOptions, envFileValues, DB_SSL_ENABLED_DEFAULT),
+            "db.ssl.enabled");
+    String sslVerify =
+        normalizeBoolean(
+            getConfigValue("db.ssl.verify", cliOptions, envFileValues, DB_SSL_VERIFY_DEFAULT),
+            "db.ssl.verify");
+    String sslAllowSelfSigned =
+        normalizeBoolean(
+            getConfigValue(
+                "db.ssl.allowSelfSigned",
+                cliOptions,
+                envFileValues,
+                DB_SSL_ALLOW_SELF_SIGNED_DEFAULT),
+            "db.ssl.allowSelfSigned");
+
+    Map<String, String> systemProperties = new HashMap<>();
+    systemProperties.put("perc.db.type", dbType.toLowerCase(Locale.ROOT));
+    systemProperties.put("perc.db.ssl.enabled", sslEnabled);
+    systemProperties.put("perc.db.ssl.verify", sslVerify);
+    systemProperties.put("perc.db.ssl.allowSelfSigned", sslAllowSelfSigned);
+
+    setIfPresent(
+        systemProperties,
+        "perc.db.host",
+        getConfigValue("db.host", cliOptions, envFileValues, null));
+    setIfPresent(
+        systemProperties,
+        "perc.db.port",
+        getConfigValue("db.port", cliOptions, envFileValues, null));
+    setIfPresent(
+        systemProperties,
+        "perc.db.name",
+        getConfigValue("db.name", cliOptions, envFileValues, null));
+    setIfPresent(
+        systemProperties,
+        "perc.db.schema",
+        getConfigValue("db.schema", cliOptions, envFileValues, null));
+    setIfPresent(
+        systemProperties,
+        "perc.db.user",
+        getConfigValue("db.user", cliOptions, envFileValues, null));
+    setIfPresent(
+        systemProperties,
+        "perc.db.password",
+        getConfigValue("db.password", cliOptions, envFileValues, null));
+    setIfPresent(
+        systemProperties,
+        "perc.db.ssl.trustStorePath",
+        getConfigValue("db.ssl.trustStorePath", cliOptions, envFileValues, null));
+    setIfPresent(
+        systemProperties,
+        "perc.db.ssl.trustStorePassword",
+        getConfigValue("db.ssl.trustStorePassword", cliOptions, envFileValues, null));
+
+    String dbTypeNormalized = dbType.toLowerCase(Locale.ROOT);
+    String host = systemProperties.get("perc.db.host");
+    String port = systemProperties.get("perc.db.port");
+    String name = systemProperties.get("perc.db.name");
+    String user = systemProperties.get("perc.db.user");
+    String password = systemProperties.get("perc.db.password");
+    String schema = systemProperties.get("perc.db.schema");
+
+    if (!"derby".equals(dbTypeNormalized)) {
+      List<String> missing = new ArrayList<>();
+      if (isBlank(host)) {
+        missing.add("db.host");
+      }
+      if (isBlank(port)) {
+        missing.add("db.port");
+      }
+      if (isBlank(name)) {
+        missing.add("db.name");
+      }
+      if (isBlank(user)) {
+        missing.add("db.user");
+      }
+      if (isBlank(password)) {
+        missing.add("db.password");
+      }
+      if (!missing.isEmpty()) {
+        throw new IllegalArgumentException(
+            "Missing required database parameters for db.type="
+                + dbTypeNormalized
+                + ": "
+                + String.join(", ", missing));
+      }
+    }
+
+    if ("mysql".equals(dbTypeNormalized)) {
+      String dtsJdbcUrl =
+          "jdbc:mysql://"
+              + host
+              + ":"
+              + port
+              + "/"
+              + name
+              + "?useUnicode=yes&characterEncoding=UTF-8"
+              + "&useSSL="
+              + sslEnabled
+              + "&requireSSL="
+              + sslEnabled
+              + "&verifyServerCertificate="
+              + sslVerify;
+      systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
+      systemProperties.put("perc.db.dts.jdbcDriver", "com.mysql.cj.jdbc.Driver");
+      systemProperties.put("perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
+      systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, ""));
+    } else if ("sqlserver".equals(dbTypeNormalized)) {
+      String trustServerCertificate =
+          ("true".equals(sslAllowSelfSigned) || "false".equals(sslVerify)) ? "true" : "false";
+      String dtsJdbcUrl =
+          "jdbc:sqlserver://"
+              + host
+              + ":"
+              + port
+              + ";databaseName="
+              + name
+              + ";encrypt="
+              + sslEnabled
+              + ";trustServerCertificate="
+              + trustServerCertificate;
+      systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
+      systemProperties.put("perc.db.dts.jdbcDriver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+      systemProperties.put("perc.db.dts.hibernateDialect", "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
+      systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "DBO"));
+    }
+
+    return new ResolvedDbConfig(systemProperties);
+  }
+
+  private static Map<String, String> loadEnvFile(String envFilePath) {
+    Map<String, String> values = new HashMap<>();
+    Path path = Paths.get(envFilePath);
+    if (!Files.exists(path)) {
+      throw new IllegalArgumentException("db.config.env.file not found: " + envFilePath);
+    }
+    try {
+      for (String line : Files.readAllLines(path)) {
+        if (line == null) {
+          continue;
+        }
+        String trimmed = line.trim();
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+          continue;
+        }
+        int separator = trimmed.indexOf('=');
+        if (separator <= 0) {
+          continue;
+        }
+        values.put(trimmed.substring(0, separator).trim(), trimmed.substring(separator + 1).trim());
+      }
+      return values;
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Unable to read db.config.env.file: " + envFilePath, e);
+    }
+  }
+
+  private static String getConfigValue(
+      String logicalKey,
+      Map<String, String> cliOptions,
+      Map<String, String> envFileValues,
+      String defaultValue) {
+    String envStyle = logicalToEnvStyle(logicalKey);
+    String percEnvStyle = "PERC_" + envStyle;
+    return firstNonBlank(
+        cliOptions.get(logicalKey),
+        cliOptions.get(envStyle),
+        cliOptions.get(percEnvStyle),
+        envFileValues.get(logicalKey),
+        envFileValues.get(envStyle),
+        envFileValues.get(percEnvStyle),
+        System.getenv(logicalKey),
+        System.getenv(envStyle),
+        System.getenv(percEnvStyle),
+        defaultValue);
+  }
+
+  private static String logicalToEnvStyle(String logicalKey) {
+    return logicalKey.toUpperCase(Locale.ROOT).replace('.', '_');
+  }
+
+  private static String normalizeBoolean(String value, String key) {
+    if (isBlank(value)) {
+      throw new IllegalArgumentException("Missing required boolean value for " + key);
+    }
+    if ("true".equalsIgnoreCase(value)) {
+      return "true";
+    }
+    if ("false".equalsIgnoreCase(value)) {
+      return "false";
+    }
+    throw new IllegalArgumentException("Invalid boolean value for " + key + ": " + value);
+  }
+
+  private static boolean isBlank(String value) {
+    return value == null || value.trim().isEmpty();
+  }
+
+  private static String firstNonBlank(String... values) {
+    for (String value : values) {
+      if (!isBlank(value)) {
+        return value.trim();
+      }
+    }
+    return null;
+  }
+
+  private static void setIfPresent(Map<String, String> target, String key, String value) {
+    if (!isBlank(value)) {
+      target.put(key, value.trim());
+    }
+  }
+
+  private record ParsedArgs(Path installPath, Map<String, String> options) {}
+
+  private record ResolvedDbConfig(Map<String, String> systemProperties) {}
 }

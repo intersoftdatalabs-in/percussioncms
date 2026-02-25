@@ -40,6 +40,7 @@ import com.percussion.share.service.IPSDataService.DataServiceLoadException;
 import com.percussion.share.service.IPSDataService.DataServiceNotFoundException;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSItemSummaryFactoryService;
+import com.percussion.share.service.IPSCatalogFactoryService;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTypeEnum;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.thread.PSThreadUtils;
@@ -205,6 +206,15 @@ public class PSItemSummaryService
     return navType;
   }
 
+  // override the generic factory method required by IPSCatalogFactoryService
+  @Override
+  public <F extends IPSItemSummary> List<F> findAll(
+      IPSCatalogFactoryService.IPSCatalogItemFactory<F, String> factory)
+      throws DataServiceLoadException, DataServiceNotFoundException {
+    // simple no-op implementation; clients can provide a factory and handle empty list
+    return new ArrayList<>();
+  }
+
   protected <F extends IPSItemSummary> void convert(
       PSItemSummary itemSummary,
       F dataItemSummary,
@@ -268,7 +278,9 @@ public class PSItemSummaryService
     for (var sum : sums) {
       PSThreadUtils.checkForInterrupt();
       var type = sum.getContentTypeId();
-      if (navonCType.contains(type) || navtreeCType.contains(type)) {
+      // type is an int while collections hold Long, convert before checking
+      long typeLong = type;
+      if (navonCType.contains(typeLong) || navtreeCType.contains(typeLong)) {
         navItem = sum;
         break;
       }

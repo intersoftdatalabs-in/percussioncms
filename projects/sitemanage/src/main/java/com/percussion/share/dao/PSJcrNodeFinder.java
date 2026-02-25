@@ -226,24 +226,24 @@ public class PSJcrNodeFinder {
   private static final Logger log = LogManager.getLogger(PSJcrNodeFinder.class);
 
   /**
-   * Checked exception thrown by {@link PSJcrNodeFinder} when queries fail or
-   * return unexpected results.  Originally defined as a nested class in the
-   * 8.1.x branch; preserved here to satisfy callers.
+   * Checked exception thrown by {@link PSJcrNodeFinder} when queries fail or return unexpected
+   * results. Originally defined as a nested class in the 8.1.x branch; preserved here to satisfy
+   * callers.
    */
   public static class PSJcrNodeFinderException extends RuntimeException {
 
-      private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-      public PSJcrNodeFinderException(String message) {
-          super(message);
-      }
+    public PSJcrNodeFinderException(String message) {
+      super(message);
+    }
 
-      public PSJcrNodeFinderException(String message, Throwable cause) {
-          super(message, cause);
-      }
+    public PSJcrNodeFinderException(String message, Throwable cause) {
+      super(message, cause);
+    }
 
-      public PSJcrNodeFinderException(Throwable cause) {
-          super(cause);
-      }
+    public PSJcrNodeFinderException(Throwable cause) {
+      super(cause);
+    }
   }
 }

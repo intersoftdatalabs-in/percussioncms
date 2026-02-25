@@ -324,6 +324,115 @@
 
 	<target name="repository_properties">
 		<if>
+			<istrue value="${do.install}" />
+			<then>
+				<echo>Applying fresh-install database configuration...</echo>
+
+				<property name="perc.db.type" value="derby" />
+				<property name="perc.db.ssl.enabled" value="true" />
+				<property name="perc.db.ssl.verify" value="true" />
+				<property name="perc.db.ssl.allowSelfSigned" value="false" />
+
+				<if>
+					<and>
+						<not>
+							<equals arg1="${perc.db.type}" arg2="derby"
+								casesensitive="false" />
+						</not>
+						<or>
+							<not>
+								<isset property="perc.db.cms.backend" />
+							</not>
+							<not>
+								<isset property="perc.db.cms.driverName" />
+							</not>
+							<not>
+								<isset property="perc.db.cms.driverClass" />
+							</not>
+							<not>
+								<isset property="perc.db.cms.server" />
+							</not>
+							<not>
+								<isset property="perc.db.user" />
+							</not>
+							<not>
+								<isset property="perc.db.password" />
+							</not>
+						</or>
+					</and>
+					<then>
+						<fail
+							message="Missing required DB settings for perc.db.type=${perc.db.type}. Required properties: perc.db.cms.backend, perc.db.cms.driverName, perc.db.cms.driverClass, perc.db.cms.server, perc.db.user, perc.db.password" />
+					</then>
+				</if>
+
+				<if>
+					<equals arg1="${perc.db.type}" arg2="mysql"
+						casesensitive="false" />
+					<then>
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
+							<entry key="DB_BACKEND" value="${perc.db.cms.backend}" />
+							<entry key="DB_DRIVER_NAME"
+								value="${perc.db.cms.driverName}" />
+							<entry key="DB_DRIVER_CLASS_NAME"
+								value="${perc.db.cms.driverClass}" />
+							<entry key="DB_SERVER" value="${perc.db.cms.server}" />
+							<entry key="DB_NAME" value="${perc.db.cms.name}" />
+							<entry key="DB_SCHEMA" value="${perc.db.cms.schema}" />
+							<entry key="UID" value="${perc.db.user}" />
+							<entry key="PWD" value="${perc.db.password}" />
+							<entry key="PWD_ENCRYPTED" value="N" />
+							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
+							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
+						</propertyfile>
+					</then>
+				</if>
+
+				<if>
+					<equals arg1="${perc.db.type}" arg2="sqlserver"
+						casesensitive="false" />
+					<then>
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
+							<entry key="DB_BACKEND" value="${perc.db.cms.backend}" />
+							<entry key="DB_DRIVER_NAME"
+								value="${perc.db.cms.driverName}" />
+							<entry key="DB_DRIVER_CLASS_NAME"
+								value="${perc.db.cms.driverClass}" />
+							<entry key="DB_SERVER" value="${perc.db.cms.server}" />
+							<entry key="DB_NAME" value="${perc.db.cms.name}" />
+							<entry key="DB_SCHEMA" value="${perc.db.cms.schema}" />
+							<entry key="UID" value="${perc.db.user}" />
+							<entry key="PWD" value="${perc.db.password}" />
+							<entry key="PWD_ENCRYPTED" value="N" />
+							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
+							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
+						</propertyfile>
+					</then>
+				</if>
+
+				<if>
+					<equals arg1="${perc.db.type}" arg2="derby"
+						casesensitive="false" />
+					<then>
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
+							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
+							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
+						</propertyfile>
+					</then>
+				</if>
+			</then>
+		</if>
+
+		<if>
 			<isset property="PWD" />
 			<then>
 				<echo>Setting repository password</echo>

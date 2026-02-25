@@ -66,6 +66,7 @@ import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.content.data.PSItemStatus;
+import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -74,6 +75,7 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.data.IPSItemSummary;
+import com.percussion.share.data.PSDataItemSummary;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
@@ -88,8 +90,8 @@ import com.percussion.sitemanage.data.PSSiteSection.PSSectionTypeEnum;
 import com.percussion.sitemanage.data.PSSiteSectionProperties;
 import com.percussion.sitemanage.service.IPSSiteDataService;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
-import com.percussion.user.service.IPSUserService;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -99,6 +101,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -291,12 +294,14 @@ public class FolderAdaptor implements IFolderAdaptor {
     if (StringUtils.isEmpty(path) && StringUtils.isEmpty(folderName)) {
       isSiteRoot = true;
     }
-    folder.setId(folderSummary.getId());
+    // convert summary guid to string id
+    String summaryId = String.valueOf(((PSItemSummary) folderSummary).getGUID().getUUID());
+    folder.setId(summaryId);
 
     // Folder properties for workflow
     PSFolderProperties folderProperties = null;
     try {
-      folderProperties = folderHelper.findFolderProperties(folderSummary.getId());
+      folderProperties = folderHelper.findFolderProperties(summaryId);
     } catch (PSValidationException e) {
       throw new BackendException(e);
     }
@@ -332,8 +337,10 @@ public class FolderAdaptor implements IFolderAdaptor {
       throw new BackendException(e);
     }
 
-    if (StringUtils.startsWith(folder.getName(), EXTERNAL_SECTION_NAME_PREFIX)) {
-      folder.setName(StringUtils.substringAfter(folder.getName(), EXTERNAL_SECTION_NAME_PREFIX));
+    String folderNameStr = ApiUtils.orNull(folder.getName());
+    if (folderNameStr != null
+        && StringUtils.startsWith(folderNameStr, EXTERNAL_SECTION_NAME_PREFIX)) {
+      folder.setName(StringUtils.substringAfter(folderNameStr, EXTERNAL_SECTION_NAME_PREFIX));
     }
 
     folder.setRecentUsers(new ArrayList<>());
@@ -357,8 +364,8 @@ public class FolderAdaptor implements IFolderAdaptor {
 
     List<String> existingFolders = new ArrayList<>();
     if (folder.getSubsections() != null) {
-      for (SectionLinkRef section : folder.getSubsections()) {
-        existingFolders.add(section.getName());
+      for (SectionLinkRef section : ApiUtils.orEmpty(folder.getSubsections())) {
+        existingFolders.add(ApiUtils.orNull(section.getName()));
       }
     }
     folder.setPages(folderPages);
@@ -444,7 +451,7 @@ public class FolderAdaptor implements IFolderAdaptor {
 
       SectionInfo sectionInfo = new SectionInfo();
       folder.setSectionInfo(sectionInfo);
-      sectionInfo.setNavClass(section.getCssClassNames());
+      sectionInfo.setNavClass(ApiUtils.orNull(section.getCssClassNames()));
       sectionInfo.setTargetWindow(section.getTarget().name());
       sectionInfo.setDisplayTitle(section.getTitle());
 
@@ -496,7 +503,7 @@ public class FolderAdaptor implements IFolderAdaptor {
         }
       } else if (sectionType == PSSectionTypeEnum.externallink) {
         sectionInfo.setType(sectionType.name());
-        sectionInfo.setExternalLinkUrl(section.getExternalLinkUrl());
+        sectionInfo.setExternalLinkUrl(ApiUtils.orNull(section.getExternalLinkUrl()));
       }
     }
   }
@@ -510,7 +517,7 @@ public class FolderAdaptor implements IFolderAdaptor {
   private int workflowIdByName(String wfName) {
     IPSWorkflowService srv = PSWorkflowServiceLocator.getWorkflowService();
     List<PSObjectSummary> summary = srv.findWorkflowSummariesByName(wfName);
-    return (summary == null) ? -1 : (int) (summary.get(0).getId());
+    return (summary == null || summary.isEmpty()) ? -1 : summary.get(0).getGUID().getUUID();
   }
 
   @Override
@@ -518,33 +525,38 @@ public class FolderAdaptor implements IFolderAdaptor {
     try {
       checkAPIPermission();
 
-      String baseName = folder.getName();
-      String baseSite = folder.getSiteName();
-      String basePath = folder.getPath();
-
+      String baseName = ApiUtils.orNull(folder.getName());
+      String baseSite = ApiUtils.orNull(folder.getSiteName());
+      String basePath = ApiUtils.orNull(folder.getPath());
       Folder existingFolder = null;
       boolean newFolder = false;
       boolean byId =
-          StringUtils.isNotEmpty(folder.getId())
-              && folder.getSiteName() == null
-              && folder.getPath() == null
-              && folder.getName() == null;
+          StringUtils.isNotEmpty(ApiUtils.orNull(folder.getId()))
+              && ApiUtils.orNull(folder.getSiteName()) == null
+              && ApiUtils.orNull(folder.getPath()) == null
+              && ApiUtils.orNull(folder.getName()) == null;
       try {
         if (byId) {
 
-          existingFolder = getFolder(baseUri, folder.getId());
+          existingFolder = getFolder(baseUri, ApiUtils.orNull(folder.getId()));
         } else {
           existingFolder =
-              getFolder(baseUri, folder.getSiteName(), folder.getPath(), folder.getName());
+              getFolder(
+                  baseUri,
+                  ApiUtils.orNull(folder.getSiteName()),
+                  ApiUtils.orNull(folder.getPath()),
+                  ApiUtils.orNull(folder.getName()));
         }
       } catch (FolderNotFoundException | BackendException e) {
         newFolder = true;
-        if (StringUtils.isEmpty(folder.getPath()) && StringUtils.isEmpty(folder.getName()))
+        if (StringUtils.isEmpty(ApiUtils.orNull(folder.getPath()))
+            && StringUtils.isEmpty(ApiUtils.orNull(folder.getName())))
           throw new BackendException(
-              "Trying to create site root folder.  Create site first : " + folder.getSiteName());
+              "Trying to create site root folder.  Create site first : "
+                  + ApiUtils.orNull(folder.getSiteName()));
       }
 
-      if (!byId && existingFolder == null && folder.getId() != null) {
+      if (!byId && existingFolder == null && ApiUtils.orNull(folder.getId()) != null) {
         // If id is passed into update and it looks as if the item does not
         // already exist, we are probably trying to update a purged item, or
         // the id is from a different item.
@@ -552,14 +564,14 @@ public class FolderAdaptor implements IFolderAdaptor {
       }
 
       if (existingFolder != null
-          && folder.getId() != null
-          && existingFolder.getId() != null
-          && !existingFolder.getId().equals(folder.getId()))
+          && ApiUtils.orNull(folder.getId()) != null
+          && ApiUtils.orNull(existingFolder.getId()) != null
+          && !ApiUtils.orNull(existingFolder.getId()).equals(ApiUtils.orNull(folder.getId())))
         throw new BackendException(
             "Id "
-                + folder.getId()
+                + ApiUtils.orNull(folder.getId())
                 + " passed into update but Id does not match item referenced by site and path "
-                + existingFolder.getId());
+                + ApiUtils.orNull(existingFolder.getId()));
 
       if (newFolder) {
         String folderId = createNewFolder(baseUri, folder);
@@ -568,7 +580,7 @@ public class FolderAdaptor implements IFolderAdaptor {
       } else {
         folder = modifyExistingFolder(baseUri, existingFolder, folder);
       }
-      if (folder.getName().equalsIgnoreCase("")) {
+      if (ApiUtils.orNull(folder.getName()).equalsIgnoreCase("")) {
         folder.setName(baseName);
         folder.setSiteName(baseSite);
         folder.setPath(basePath);
@@ -583,23 +595,22 @@ public class FolderAdaptor implements IFolderAdaptor {
   private Folder modifyExistingFolder(URI baseUri, Folder existingFolder, Folder folder)
       throws IPSPathService.PSPathServiceException, PSDataServiceException, BackendException {
 
-    String realName = folder.getName();
-    if (existingFolder.getSectionInfo() != null
-        && existingFolder.getSectionInfo().getType() != null
-        && existingFolder
-            .getSectionInfo()
-            .getType()
-            .equalsIgnoreCase(PSSectionTypeEnum.externallink.name())) {
-      realName = EXTERNAL_SECTION_NAME_PREFIX + realName;
+    String realName = ApiUtils.orNull(folder.getName());
+    SectionInfo existingSec = existingFolder.getSectionInfo().orElse(null);
+    if (existingSec != null) {
+      Optional<String> existingType = existingSec.getType();
+      if (existingType.isPresent()
+          && existingType.get().equalsIgnoreCase(PSSectionTypeEnum.externallink.name())) {
+        realName = EXTERNAL_SECTION_NAME_PREFIX + realName;
+      }
     }
-
     PSPathItem pathItem = null;
     String fullPath = null;
     String pathUtilsPath = null;
     UrlParts folderSections = null;
 
     try {
-      PSLocator loc = idMapper.getLocator(existingFolder.getId());
+      PSLocator loc = idMapper.getLocator(ApiUtils.orNull(existingFolder.getId()));
       loc.setRevision(-1);
       pathItem = folderHelper.findItemById(idMapper.getString(loc));
     } catch (IPSDataService.DataServiceLoadException
@@ -626,20 +637,22 @@ public class FolderAdaptor implements IFolderAdaptor {
     updateFolderProperties(folder, pathItem.getId(), existingFolder);
 
     // Skip the section stuff for Asset folders.
-    if (!folder.getSiteName().equals("Assets")) {
-      if (folder.getSectionInfo() != null && existingFolder.getSectionInfo() == null) {
+    if (!"Assets".equals(ApiUtils.orNull(folder.getSiteName()))) {
+      Optional<SectionInfo> reqSectionOpt = folder.getSectionInfo();
+      Optional<SectionInfo> currSectionOpt = existingFolder.getSectionInfo();
+      if (reqSectionOpt.isPresent() && currSectionOpt.isEmpty()) {
         convertFolderToSection(
             folderSections.getUrl(),
-            folder.getName(),
-            folder.getSiteName(),
-            folder.getSectionInfo());
+            ApiUtils.orNull(folder.getName()),
+            ApiUtils.orNull(folder.getSiteName()),
+            reqSectionOpt.get());
       }
 
       updateLandingPage(folder, existingFolder, folderSections.getUrl());
 
       updateSectionInfo(folder, folderSections.getUrl(), existingFolder);
 
-      reorderSiteSection(baseUri, existingFolder.getId(), folder, existingFolder);
+      reorderSiteSection(baseUri, ApiUtils.orNull(existingFolder.getId()), folder, existingFolder);
     }
 
     return existingFolder;
@@ -672,23 +685,23 @@ public class FolderAdaptor implements IFolderAdaptor {
 
   private void updateLandingPage(Folder folder, Folder existingFolder, String folderPath)
       throws IPSPathService.PSPathServiceException, PSDataServiceException, BackendException {
-    SectionInfo reqSectionInfo = folder.getSectionInfo();
-    SectionInfo currSectionInfo = existingFolder.getSectionInfo();
+    SectionInfo reqSectionInfo = folder.getSectionInfo().orElse(null);
+    SectionInfo currSectionInfo = existingFolder.getSectionInfo().orElse(null);
 
-    if (reqSectionInfo != null
-        && currSectionInfo != null
-        && reqSectionInfo.getLandingPage() != null
-        && reqSectionInfo.getLandingPage().getName() != null) {
-      String reqName = reqSectionInfo.getLandingPage().getName();
-      String existingName = null;
-      if (existingFolder.getSectionInfo().getLandingPage() != null)
-        existingName = existingFolder.getSectionInfo().getLandingPage().getName();
+    if (reqSectionInfo != null && currSectionInfo != null) {
+      LinkRef reqLanding = reqSectionInfo.getLandingPage().orElse(null);
+      LinkRef existingLanding =
+          existingFolder.getSectionInfo().flatMap(SectionInfo::getLandingPage).orElse(null);
 
-      if (!reqName.equals(existingName)) {
+      String reqName = ApiUtils.orNull(reqLanding == null ? null : reqLanding.getName());
+      String existingName =
+          ApiUtils.orNull(existingLanding == null ? null : existingLanding.getName());
+
+      if (reqName != null && !reqName.equals(existingName)) {
         // get child folders
         boolean foundPage = false;
-        for (LinkRef page : existingFolder.getPages()) {
-          if (page.getName().equals(reqName)) {
+        for (LinkRef page : ApiUtils.orEmpty(existingFolder.getPages())) {
+          if (reqName.equals(ApiUtils.orNull(page.getName()))) {
             foundPage = true;
             break;
           }
@@ -699,14 +712,11 @@ public class FolderAdaptor implements IFolderAdaptor {
         PSItemStatus navonStatus = prepareForEdit(sectionId, false);
 
         if (foundPage) {
-
           PSPathItem pathItem =
               pathService.find(StringUtils.substring(folderPath + "/" + reqName, 1));
           navSrv.addLandingPageToNavnode(
               idMapper.getGuid(pathItem.getId()), sectionId, asmBridge.getDispatchTemplate());
-
         } else {
-
           IPSGuid landingPageId = navSrv.getLandingPageFromNavnode(sectionId);
           PSItemStatus itemStatus = prepareForEdit(landingPageId, true);
           PSPage landingPage = pageDao.find(idMapper.getString(landingPageId));
@@ -729,32 +739,33 @@ public class FolderAdaptor implements IFolderAdaptor {
 
       PSSiteSection currentSection = sectionService.load(idMapper.getString(id));
 
-      PSFolderProperties folderProps = folderHelper.findFolderProperties(existingFolder.getId());
+      PSFolderProperties folderProps =
+          folderHelper.findFolderProperties(ApiUtils.orNull(existingFolder.getId()));
 
       if (currentSection.getSectionType() == PSSectionTypeEnum.section) {
         PSSiteSectionProperties req = new PSSiteSectionProperties();
 
         req.setId(normId);
-        req.setAllowAccessTo(currentSection.getAllowAccessTo());
-        req.setCssClassNames(currentSection.getCssClassNames());
+        req.setAllowAccessTo(ApiUtils.orNull(currentSection.getAllowAccessTo()));
+        req.setCssClassNames(ApiUtils.orNull(currentSection.getCssClassNames()));
         req.setFolderName(folderProps.getName());
         req.setFolderPermission(folderProps.getPermission());
         req.setRequiresLogin(currentSection.isRequiresLogin());
         req.setTarget(currentSection.getTarget());
         req.setTitle(currentSection.getTitle());
 
-        SectionInfo toSection = folder.getSectionInfo();
+        SectionInfo toSection = folder.getSectionInfo().orElse(null);
         if (toSection != null) {
-          if (toSection.getDisplayTitle() != null) {
-            req.setTitle(toSection.getDisplayTitle());
+          if (toSection.getDisplayTitle().isPresent()) {
+            req.setTitle(toSection.getDisplayTitle().get());
           }
 
-          if (toSection.getNavClass() != null) {
-            req.setCssClassNames(toSection.getNavClass());
+          if (toSection.getNavClass().isPresent()) {
+            req.setCssClassNames(toSection.getNavClass().get());
           }
 
-          if (toSection.getTargetWindow() != null) {
-            req.setTarget(PSSectionTargetEnum.valueOf(toSection.getTargetWindow()));
+          if (toSection.getTargetWindow().isPresent()) {
+            req.setTarget(PSSectionTargetEnum.valueOf(toSection.getTargetWindow().get()));
           }
         }
         // update landing page
@@ -763,8 +774,8 @@ public class FolderAdaptor implements IFolderAdaptor {
         sectionService.update(req);
       } else if (currentSection.getSectionType() == PSSectionTypeEnum.externallink) {
         PSCreateExternalLinkSection req = new PSCreateExternalLinkSection();
-        req.setCssClassNames(currentSection.getCssClassNames());
-        req.setExternalUrl(currentSection.getExternalLinkUrl());
+        req.setCssClassNames(ApiUtils.orNull(currentSection.getCssClassNames()));
+        req.setExternalUrl(ApiUtils.orNull(currentSection.getExternalLinkUrl()));
         req.setFolderPath(currentSection.getFolderPath());
         req.setLinkTitle(currentSection.getTitle());
         req.setSectionType(PSSectionTypeEnum.externallink);
@@ -774,18 +785,20 @@ public class FolderAdaptor implements IFolderAdaptor {
                 : currentSection.getTarget();
         req.setTarget(target);
 
-        SectionInfo toSection = folder.getSectionInfo();
+        SectionInfo toSection = folder.getSectionInfo().orElse(null);
         if (toSection != null) {
-          if (toSection.getDisplayTitle() != null) req.setLinkTitle(toSection.getDisplayTitle());
+          if (toSection.getDisplayTitle().isPresent())
+            req.setLinkTitle(toSection.getDisplayTitle().get());
 
-          if (toSection.getNavClass() != null) req.setCssClassNames(toSection.getNavClass());
+          if (toSection.getNavClass().isPresent())
+            req.setCssClassNames(toSection.getNavClass().get());
 
-          if (toSection.getTargetWindow() != null) {
-            req.setTarget(PSSectionTargetEnum.valueOf(toSection.getTargetWindow()));
+          if (toSection.getTargetWindow().isPresent()) {
+            req.setTarget(PSSectionTargetEnum.valueOf(toSection.getTargetWindow().get()));
           }
 
-          if (toSection.getExternalLinkUrl() != null) {
-            req.setExternalUrl(toSection.getExternalLinkUrl());
+          if (toSection.getExternalLinkUrl().isPresent()) {
+            req.setExternalUrl(toSection.getExternalLinkUrl().get());
           }
         }
 
@@ -802,19 +815,24 @@ public class FolderAdaptor implements IFolderAdaptor {
     String parentFolderPath = StringUtils.substringBeforeLast(folderPath, "/" + folderName);
 
     String name = "index.html";
-    if (sectionInfo.getLandingPage() != null && sectionInfo.getLandingPage().getName() != null)
-      name = sectionInfo.getLandingPage().getName();
-
+    Optional<LinkRef> landOpt = sectionInfo.getLandingPage();
+    // compute landing name and if available override default
+    String landingName = landOpt.flatMap(LinkRef::getName).orElse(null);
+    if (landingName != null) {
+      name = landingName;
+    }
     // CMS-3210 - NC
     boolean exists = checkIfPageExists(folderPath + "/" + name);
 
-    String templateId = getTemplateIdForName(sectionInfo.getTemplateName(), siteName);
+    String templateId =
+        getTemplateIdForName(ApiUtils.orNull(sectionInfo.getTemplateName()), siteName);
 
     if (!exists) {
       PSPage page = new PSPage();
       page.setFolderPath("/" + folderPath);
 
-      String title = StringUtils.defaultString(sectionInfo.getDisplayTitle(), folderName);
+      String title =
+          StringUtils.defaultString(ApiUtils.orNull(sectionInfo.getDisplayTitle()), folderName);
 
       page.setName(name);
       page.setTitle(title);
@@ -867,13 +885,15 @@ public class FolderAdaptor implements IFolderAdaptor {
     List<String> requestedSubSections = new ArrayList<>();
 
     if (folder.getSubsections() != null) {
-      if (folder.getSectionInfo() == null && existingFolder.getSectionInfo() == null)
+      if (folder.getSectionInfo().isEmpty() && existingFolder.getSectionInfo().isEmpty())
         throw new BackendException("non-section folders cannot have subsections");
       String nameCheck = null;
-      for (SectionLinkRef subsection : folder.getSubsections()) {
+      for (SectionLinkRef subsection : ApiUtils.orEmpty(folder.getSubsections())) {
+        String secName = ApiUtils.orNull(subsection.getName());
+        String secHref = ApiUtils.orNull(subsection.getHref());
         if (subsection.getType().equals(PSSectionTypeEnum.sectionlink.name()))
-          nameCheck = subsection.getName() + "-" + subsection.getHref();
-        else nameCheck = subsection.getName();
+          nameCheck = secName + "-" + secHref;
+        else nameCheck = secName;
 
         if (requestedSubSections.contains(nameCheck))
           throw new BackendException(
@@ -885,10 +905,12 @@ public class FolderAdaptor implements IFolderAdaptor {
 
       if (existingFolder.getSubsections() != null) {
 
-        for (SectionLinkRef subsection : existingFolder.getSubsections()) {
+        for (SectionLinkRef subsection : ApiUtils.orEmpty(existingFolder.getSubsections())) {
+          String secName = ApiUtils.orNull(subsection.getName());
+          String secHref = ApiUtils.orNull(subsection.getHref());
           if (subsection.getType().equals(PSSectionTypeEnum.sectionlink.name()))
-            nameCheck = subsection.getName() + "-" + subsection.getHref();
-          else nameCheck = subsection.getName();
+            nameCheck = secName + "-" + secHref;
+          else nameCheck = secName;
 
           existingSubSections.add(nameCheck);
         }
@@ -898,17 +920,19 @@ public class FolderAdaptor implements IFolderAdaptor {
           CollectionUtils.subtract(requestedSubSections, existingSubSections);
 
       for (String createName : subSectionsToCreate) {
-        for (SectionLinkRef subsection : folder.getSubsections()) {
-          if (subsection.getName().equals(createName)
+        for (SectionLinkRef subsection : ApiUtils.orEmpty(folder.getSubsections())) {
+          String nameVal = ApiUtils.orNull(subsection.getName());
+          String hrefVal = ApiUtils.orNull(subsection.getHref());
+          if (nameVal.equals(createName)
               || (subsection.getType().equals(PSSectionTypeEnum.sectionlink.name())
-                  && createName.equals(subsection.getName() + "-" + subsection.getHref()))) {
+                  && createName.equals(nameVal + "-" + hrefVal))) {
             createSubSection(
                 baseUri,
                 existingFolder,
                 folder,
-                subsection.getName(),
-                subsection.getType(),
-                subsection.getHref());
+                nameVal,
+                ApiUtils.orNull(subsection.getType()),
+                hrefVal);
           }
         }
       }
@@ -925,13 +949,19 @@ public class FolderAdaptor implements IFolderAdaptor {
   private String createNewFolder(URI baseUri, Folder folder)
       throws PSDataServiceException, IPSPathService.PSPathServiceException, BackendException {
 
-    UrlParts fullUrl = new UrlParts(folder.getSiteName(), folder.getPath(), folder.getName());
-    UrlParts parentUrl = new UrlParts(folder.getSiteName(), folder.getPath(), "");
+    UrlParts fullUrl =
+        new UrlParts(
+            ApiUtils.orNull(folder.getSiteName()),
+            ApiUtils.orNull(folder.getPath()),
+            ApiUtils.orNull(folder.getName()));
+    UrlParts parentUrl =
+        new UrlParts(ApiUtils.orNull(folder.getSiteName()), ApiUtils.orNull(folder.getPath()), "");
 
     PSPathItem newFolder = null;
 
     // Create a folder with a section.
-    if (!folder.getSiteName().equals("Assets") && folder.getSectionInfo() != null) {
+    if (!ApiUtils.orNull(folder.getSiteName()).equals("Assets")
+        && folder.getSectionInfo().isPresent()) {
       newFolder = createNewSection(folder, parentUrl);
     } else
     // Create a regular folder
@@ -947,7 +977,8 @@ public class FolderAdaptor implements IFolderAdaptor {
     updateFolderProperties(folder, newFolder.getId(), null);
 
     // create subsections
-    if (!folder.getSiteName().equals("Assets")) createSubSections(baseUri, folder, folder);
+    if (!ApiUtils.orNull(folder.getSiteName()).equals("Assets"))
+      createSubSections(baseUri, folder, folder);
 
     return newFolder.getId();
   }
@@ -968,13 +999,18 @@ public class FolderAdaptor implements IFolderAdaptor {
       throws BackendException, PSDataServiceException, IPSPathService.PSPathServiceException {
 
     if (folder.getSubsections() != null) {
-      if (folder.getSectionInfo() == null)
+      if (folder.getSectionInfo().isEmpty())
         throw new BackendException("non-section folders cannot have subsections");
 
-      for (SectionLinkRef subSection : folder.getSubsections()) {
-        String name = subSection.getName();
+      for (SectionLinkRef subSection : ApiUtils.orEmpty(folder.getSubsections())) {
+        String name = ApiUtils.orNull(subSection.getName());
         createSubSection(
-            baseUri, existingFolder, folder, name, subSection.getType(), subSection.getHref());
+            baseUri,
+            existingFolder,
+            folder,
+            name,
+            ApiUtils.orNull(subSection.getType()),
+            ApiUtils.orNull(subSection.getHref()));
       }
     }
   }
@@ -994,12 +1030,20 @@ public class FolderAdaptor implements IFolderAdaptor {
 
     if (!type.equalsIgnoreCase(PSSectionTypeEnum.sectionlink.name())) {
       Folder subFolder = new Folder();
-      subFolder.setSiteName(folder.getSiteName());
-      subFolder.setPath(folder.getPath() + "/" + folder.getName());
+      subFolder.setSiteName(ApiUtils.orNull(folder.getSiteName()));
+      subFolder.setPath(
+          ApiUtils.orNull(folder.getPath()) + "/" + ApiUtils.orNull(folder.getName()));
       subFolder.setName(name);
 
-      if (folder.getWorkflow() != null) subFolder.setWorkflow(folder.getWorkflow());
-      else subFolder.setWorkflow(existingFolder.getWorkflow());
+      String wf = ApiUtils.orNull(folder.getWorkflow());
+      if (wf != null) {
+        subFolder.setWorkflow(wf);
+      } else if (existingFolder != null) {
+        wf = ApiUtils.orNull(existingFolder.getWorkflow());
+        if (wf != null) {
+          subFolder.setWorkflow(wf);
+        }
+      }
 
       SectionInfo subSectionInfo = new SectionInfo();
       subFolder.setSectionInfo(subSectionInfo);
@@ -1009,11 +1053,11 @@ public class FolderAdaptor implements IFolderAdaptor {
         subSectionInfo.setExternalLinkUrl(extUrl);
       subSectionInfo.setDisplayTitle(name);
       String templateName = null;
-      if (folder.getSectionInfo() != null && folder.getSectionInfo().getTemplateName() != null)
-        templateName = folder.getSectionInfo().getTemplateName();
-      else if (existingFolder.getSectionInfo() != null
-          && existingFolder.getSectionInfo().getTemplateName() != null)
-        templateName = existingFolder.getSectionInfo().getTemplateName();
+      Optional<SectionInfo> folderSection = folder.getSectionInfo();
+      if (folderSection.flatMap(SectionInfo::getTemplateName).isPresent())
+        templateName = folderSection.flatMap(SectionInfo::getTemplateName).get();
+      else if (existingFolder.getSectionInfo().flatMap(SectionInfo::getTemplateName).isPresent())
+        templateName = existingFolder.getSectionInfo().flatMap(SectionInfo::getTemplateName).get();
 
       subSectionInfo.setTemplateName(templateName);
 
@@ -1027,7 +1071,11 @@ public class FolderAdaptor implements IFolderAdaptor {
       if (toGuid == null)
         throw new BackendException(
             "Cannot create section link to section that does not yet exist " + path);
-      UrlParts fromFolder = new UrlParts(folder.getSiteName(), folder.getPath(), folder.getName());
+      UrlParts fromFolder =
+          new UrlParts(
+              ApiUtils.orNull(folder.getSiteName()),
+              ApiUtils.orNull(folder.getPath()),
+              ApiUtils.orNull(folder.getName()));
       String fromGuid = getNavGuidByPath(fromFolder.getUrl());
       sectionService.createSectionLink(toGuid, fromGuid);
     }
@@ -1064,54 +1112,57 @@ public class FolderAdaptor implements IFolderAdaptor {
           "can only create section folders that are child folders of other sections.");
     }
 
-    SectionInfo section = folder.getSectionInfo();
+    SectionInfo section = folder.getSectionInfo().orElse(null);
     PSSiteSection newSection = null;
-    if (section.getType() != null
-        && section.getType().equalsIgnoreCase(PSSectionTypeEnum.externallink.name())) {
+    String sectionType = section == null ? null : ApiUtils.orNull(section.getType());
+    if (sectionType != null
+        && sectionType.equalsIgnoreCase(PSSectionTypeEnum.externallink.name())) {
       PSCreateExternalLinkSection req = new PSCreateExternalLinkSection();
-      req.setCssClassNames(section.getNavClass());
-      req.setExternalUrl(section.getExternalLinkUrl());
+      req.setCssClassNames(section == null ? null : ApiUtils.orNull(section.getNavClass()));
+      req.setExternalUrl(section == null ? null : ApiUtils.orNull(section.getExternalLinkUrl()));
       req.setFolderPath(parentFolderUrl);
-      req.setLinkTitle(section.getDisplayTitle());
+      req.setLinkTitle(section == null ? null : ApiUtils.orNull(section.getDisplayTitle()));
       req.setSectionType(PSSectionTypeEnum.externallink);
+      String targetWindow = section == null ? null : ApiUtils.orNull(section.getTargetWindow());
       PSSectionTargetEnum target =
-          (section.getTargetWindow() == null)
+          (targetWindow == null)
               ? PSSectionTargetEnum._self
-              : PSSectionTargetEnum.valueOf(section.getTargetWindow());
+              : PSSectionTargetEnum.valueOf(targetWindow);
       req.setTarget(target);
       newSection = sectionService.createExternalLinkSection(req);
 
-    } else if (section.getType() == null
-        || section.getType().equalsIgnoreCase(PSSectionTypeEnum.section.name())) {
+    } else if (sectionType == null
+        || sectionType.equalsIgnoreCase(PSSectionTypeEnum.section.name())) {
       PSCreateSiteSection request = new PSCreateSiteSection();
       request.setCopyTemplates(false);
 
       request.setFolderPath(parentFolderUrl);
 
       // get specified landing page name or use index if does not exist.
-      if (section.getLandingPage() != null && section.getLandingPage().getName() != null) {
-        request.setPageName(section.getLandingPage().getName());
+      if (section != null && section.getLandingPage().flatMap(LinkRef::getName).isPresent()) {
+        request.setPageName(section.getLandingPage().flatMap(LinkRef::getName).orElse(null));
       } else {
         request.setPageName("index.html");
       }
-      String displayTitle = section.getDisplayTitle();
+      String displayTitle = section == null ? null : ApiUtils.orNull(section.getDisplayTitle());
       if (displayTitle == null) {
-        displayTitle = folder.getName();
+        displayTitle = ApiUtils.orNull(folder.getName());
       }
 
       request.setPageLinkTitle(displayTitle);
       request.setPageTitle(displayTitle);
-      request.setPageUrlIdentifier(folder.getName());
+      request.setPageUrlIdentifier(ApiUtils.orNull(folder.getName()));
       request.setSectionType(PSSectionTypeEnum.section);
       IPSGuid template = null;
 
-      if (section.getTemplateName() == null) {
+      if (section == null || section.getTemplateName().orElse(null) == null) {
         throw new BackendException("templateName is required for section");
       }
       try {
         template =
             templateService.findUserTemplateIdByName(
-                section.getTemplateName(), folder.getSiteName());
+                section == null ? null : section.getTemplateName().orElse(null),
+                ApiUtils.orNull(folder.getSiteName()));
       } catch (PSParametersValidationException | IPSDataService.DataServiceLoadException e) {
         throw new BackendException("Cannot find template " + section.getTemplateName());
       }
@@ -1127,7 +1178,7 @@ public class FolderAdaptor implements IFolderAdaptor {
   }
 
   private boolean updateWorkflow(Folder folder, PSFolderProperties folderProperties) {
-    String requestWorkflow = folder.getWorkflow();
+    String requestWorkflow = ApiUtils.orNull(folder.getWorkflow());
     if (requestWorkflow != null) {
       int wfid;
       if (requestWorkflow.equalsIgnoreCase("[default]")) {
@@ -1152,25 +1203,26 @@ public class FolderAdaptor implements IFolderAdaptor {
     Access accessLevel = permission.getAccessLevel();
 
     boolean isSection =
-        ((existingFolder != null && existingFolder.getSectionInfo() != null)
-            || folder.getSectionInfo() != null);
+        ((existingFolder != null && existingFolder.getSectionInfo().isPresent())
+            || folder.getSectionInfo().isPresent());
 
     // Need to change to write if we are converting to a section and the
     // original access level was ADMIN
 
     if (existingFolder != null
         && isSection
-        && existingFolder.getSectionInfo() == null
-        && existingFolder.getAccessLevel().equals("ADMIN")) {
+        && existingFolder.getSectionInfo().isEmpty()
+        && existingFolder.getAccessLevel().orElse("").equals("ADMIN")) {
       folder.setAccessLevel("WRITE");
       changed = true;
     }
 
     // FB: EC_UNRELATED_TYPES NC 1-16-16
-    if (folder.getAccessLevel() != null && !folder.getAccessLevel().equals(accessLevel.name())) {
+    if (folder.getAccessLevel().isPresent()
+        && !folder.getAccessLevel().get().equals(accessLevel.name())) {
       // default for section is write, does not allow admin. default for
       // non section is admin. Unknown will be set to correct default
-      String level = folder.getAccessLevel();
+      String level = ApiUtils.orNull(folder.getAccessLevel());
       if (isSection) {
         if (!(level.equals("READ") || level.equals("WRITE"))) {
           level = "WRITE";
@@ -1183,7 +1235,7 @@ public class FolderAdaptor implements IFolderAdaptor {
       changed = true;
     }
 
-    List<String> editUsers = folder.getEditUsers();
+    Collection<String> editUsers = ApiUtils.orEmpty(folder.getEditUsers());
     if (editUsers != null) {
       List<String> serverUsers = new ArrayList<>();
       List<Principal> writePrincipals = permission.getWritePrincipals();
@@ -1418,8 +1470,8 @@ public class FolderAdaptor implements IFolderAdaptor {
     }
   }
 
-  private IPSItemSummary getFolderPathItem(String path) throws Exception {
-    return folderHelper.findFolder(path);
+  private PSDataItemSummary getFolderPathItem(String path) throws Exception {
+    return (PSDataItemSummary) folderHelper.findFolder(path);
   }
 
   @Override
@@ -1431,7 +1483,8 @@ public class FolderAdaptor implements IFolderAdaptor {
       String correctedItemPath = PSPathUtils.fixSiteFolderPath(siteDataService, itemPath);
       String correctedTargetPath = PSPathUtils.fixSiteFolderPath(siteDataService, targetFolderPath);
 
-      IPSItemSummary sourceItem = this.folderHelper.findItem(correctedItemPath);
+      PSDataItemSummary sourceItem =
+          (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
 
       // If it is a page, treat it special
       if (sourceItem.isPage()) {
@@ -1473,7 +1526,7 @@ public class FolderAdaptor implements IFolderAdaptor {
           PSPathUtils.fixSiteFolderPath(siteDataService, PSPathUtils.getFolderPath(folderPath));
       String targetFolderName = PSPathUtils.getFolderName(correctedSource);
 
-      IPSItemSummary item = getFolderPathItem(correctedSource);
+      PSDataItemSummary item = getFolderPathItem(correctedSource);
       PSLocator sourceLoc = idMapper.getLocator(item.getId());
 
       if (item == null) {
@@ -1486,7 +1539,7 @@ public class FolderAdaptor implements IFolderAdaptor {
       IPSGuid guid = idMapper.getGuid(item.getId());
       List<IPSGuid> guids = new ArrayList<>();
 
-      IPSItemSummary targetItem = getFolderPathItem(correctedTarget);
+      PSDataItemSummary targetItem = getFolderPathItem(correctedTarget);
 
       PSLocator destLoc = null;
       String folderName = null;

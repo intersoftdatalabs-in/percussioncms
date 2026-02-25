@@ -16,6 +16,11 @@
  */
 package test.percussion.pso.jexl;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.pso.jexl.PSOListTools;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,12 +45,8 @@ public class PSOListToolsTest {
   // private Object[] emptyArray;
   private PSOListTools listTools;
 
-  public PSOListToolsTest(String arg0) {
-    super(arg0);
-  }
-
+  @BeforeEach
   protected void setUp() throws Exception {
-    super.setUp();
     listTools = new PSOListTools();
     emptyList = new ArrayList();
     nullArray = null;
@@ -73,8 +74,8 @@ public class PSOListToolsTest {
     integerSetFour.add(3);
   }
 
+  @AfterEach
   protected void tearDown() throws Exception {
-    super.tearDown();
     emptyList = null;
     listTools = null;
     emptyList = null;
@@ -89,11 +90,13 @@ public class PSOListToolsTest {
   /*
    * Test method for 'com.percussion.pso.jexl.PSOListTools.subListUnSafe(Collection, int, int)'
    */
+  @Test
   public void testSubListUnSafe() {}
 
   /*
    * Test method for 'com.percussion.pso.jexl.PSOListTools.sublist(Collection, int, int)'
    */
+  @Test
   public void testSublistCollectionIntInt() {
     /*
      * sublist(null, *, *)    = []
@@ -109,46 +112,47 @@ public class PSOListToolsTest {
     List ab = Arrays.asList("a", "b");
     List c = Arrays.asList("c");
     List b = Arrays.asList("b");
-    assertNotNull("Empty collection should not be null", listTools.sublist(emptyList, 5, 6));
+    assertNotNull(listTools.sublist(emptyList, 5, 6), "Empty collection should not be null");
     assertNotNull(
-        "Null value for collection should return an empty list",
-        listTools.sublist(nullCollection, 3, 4));
-    assertTrue("List should be empty", listTools.sublist(emptyList, 5, 6).size() == 0);
+        listTools.sublist(nullCollection, 3, 4),
+        "Null value for collection should return an empty list");
+    assertTrue(listTools.sublist(emptyList, 5, 6).size() == 0, "List should be empty");
 
     //// sublist(["a","b","c"], 0, 3)   = ["a","b","c"]
     List abcTest = listTools.sublist(stringVectorThree, 0, 3);
-    assertTrue("List should be equal", ListUtils.isEqualList(abcTest, stringVectorThree));
+    assertTrue(ListUtils.isEqualList(abcTest, stringVectorThree), "List should be equal");
 
     // sublist(["a","b","c"], 2, 4)   = ["c"]
     List cTest = listTools.sublist(stringVectorThree, 2, 4);
-    assertTrue("List should be equal to [\"c\"] but is " + cTest, ListUtils.isEqualList(cTest, c));
+    assertTrue(ListUtils.isEqualList(cTest, c), "List should be equal to [\"c\"] but is " + cTest);
 
     // sublist(["a","b","c"], 0, 2)   = ["a","b"]
     List abTest = listTools.sublist(stringVectorThree, 0, 2);
-    assertTrue("List should be equal to ['a','b'] ", ListUtils.isEqualList(abTest, ab));
+    assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b'] ");
 
     // sublist(["a","b","c"], -2, -1) = ["b"]
     List bTest = listTools.sublist(stringVectorThree, -2, -1);
-    assertTrue("List should be equal to ['b'] ", ListUtils.isEqualList(bTest, b));
+    assertTrue(ListUtils.isEqualList(bTest, b), "List should be equal to ['b'] ");
 
     // sublist(["a","b","c"], -4, 2)  = ["a","b"]
     abTest = listTools.sublist(stringVectorThree, -4, 2);
-    assertTrue("List should be equal to ['a','b']", ListUtils.isEqualList(abTest, ab));
+    assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b']");
   }
 
   /*
    * Test method for 'com.percussion.pso.jexl.PSOListTools.sublist(Collection, String, String)'
    */
+  @Test
   public void testSublistCollectionStringString() {
     List ab = Arrays.asList("a", "b");
     List b = Arrays.asList("b");
     // sublist(["a","b","c"], -2, -1) = ["b"]
     List bTest = listTools.sublist(stringVectorThree, "-2", "-1");
-    assertTrue("List should be equal to ['b'] ", ListUtils.isEqualList(bTest, b));
+    assertTrue(ListUtils.isEqualList(bTest, b), "List should be equal to ['b'] ");
 
     // sublist(["a","b","c"], -4, 2)  = ["a","b"]
     List abTest = listTools.sublist(stringVectorThree, "-4", "2");
-    assertTrue("List should be equal to ['a','b']", ListUtils.isEqualList(abTest, ab));
+    assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b']");
     try {
       listTools.sublist(stringVectorThree, "wef", "");
       fail("IllegalArgumentException should have been thrown");
@@ -159,52 +163,54 @@ public class PSOListToolsTest {
   /*
    * Test method for 'com.percussion.pso.jexl.PSOListTools.sublist(Object[], int, int)'
    */
+  @Test
   public void testSublistObjectArrayIntInt() {
     List abc = Arrays.asList("a", "b", "c");
     List ab = Arrays.asList("a", "b");
     List c = Arrays.asList("c");
     List b = Arrays.asList("b");
 
-    assertNotNull("Empty collection should not be null", listTools.sublist(emptyList, 5, 6));
+    assertNotNull(listTools.sublist(emptyList, 5, 6), "Empty collection should not be null");
     assertNotNull(
-        "Null value for collection should return an empty list",
-        listTools.sublist(nullArray, 3, 4));
-    assertTrue("List should be empty", listTools.sublist(nullArray, 5, 6).size() == 0);
+        listTools.sublist(nullArray, 3, 4),
+        "Null value for collection should return an empty list");
+    assertTrue(listTools.sublist(nullArray, 5, 6).size() == 0, "List should be empty");
 
     //// sublist(["a","b","c"], 0, 3)   = ["a","b","c"]
     List abcTest = listTools.sublist(stringArrayThree, 0, 3);
-    assertTrue("List should be equal", ListUtils.isEqualList(abcTest, abc));
+    assertTrue(ListUtils.isEqualList(abcTest, abc), "List should be equal");
 
     // sublist(["a","b","c"], 2, 4)   = ["c"]
     List cTest = listTools.sublist(stringArrayThree, 2, 4);
-    assertTrue("List should be equal to [\"c\"] but is " + cTest, ListUtils.isEqualList(cTest, c));
+    assertTrue(ListUtils.isEqualList(cTest, c), "List should be equal to [\"c\"] but is " + cTest);
 
     // sublist(["a","b","c"], 0, 2)   = ["a","b"]
     List abTest = listTools.sublist(stringArrayThree, 0, 2);
-    assertTrue("List should be equal to ['a','b'] ", ListUtils.isEqualList(abTest, ab));
+    assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b'] ");
 
     // sublist(["a","b","c"], -2, -1) = ["b"]
     List bTest = listTools.sublist(stringArrayThree, -2, -1);
-    assertTrue("List should be equal to ['b'] ", ListUtils.isEqualList(bTest, b));
+    assertTrue(ListUtils.isEqualList(bTest, b), "List should be equal to ['b'] ");
 
     // sublist(["a","b","c"], -4, 2)  = ["a","b"]
     abTest = listTools.sublist(stringArrayThree, -4, 2);
-    assertTrue("List should be equal to ['a','b']", ListUtils.isEqualList(abTest, ab));
+    assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b']");
   }
 
   /*
    * Test method for 'com.percussion.pso.jexl.PSOListTools.sublist(Object[], String, String)'
    */
+  @Test
   public void testSublistObjectArrayStringString() {
     List ab = Arrays.asList("a", "b");
     List b = Arrays.asList("b");
     // sublist(["a","b","c"], -2, -1) = ["b"]
     List bTest = listTools.sublist(stringArrayThree, "-2", "-1");
-    assertTrue("List should be equal to ['b'] ", ListUtils.isEqualList(bTest, b));
+    assertTrue(ListUtils.isEqualList(bTest, b), "List should be equal to ['b'] ");
 
     // sublist(["a","b","c"], -4, 2)  = ["a","b"]
     List abTest = listTools.sublist(stringArrayThree, "-4", "2");
-    assertTrue("List should be equal to ['a','b']", ListUtils.isEqualList(abTest, ab));
+    assertTrue(ListUtils.isEqualList(abTest, ab), "List should be equal to ['a','b']");
     try {
       listTools.sublist(stringArrayThree, "wef", "");
       fail("IllegalArgumentException should have been thrown");

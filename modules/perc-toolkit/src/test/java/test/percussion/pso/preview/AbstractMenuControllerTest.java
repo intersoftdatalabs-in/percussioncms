@@ -39,14 +39,14 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class AbstractMenuControllerTest {
-  @InjectMocks TestableAbstractMenuController cut = new TestableAbstractMenuController();
+  // create instance manually; avoid ambiguous @InjectMocks
+  TestableAbstractMenuController cut = new TestableAbstractMenuController();
 
   @Mock IPSSecurityWs secws;
   @Mock IPSAssemblyService asm;

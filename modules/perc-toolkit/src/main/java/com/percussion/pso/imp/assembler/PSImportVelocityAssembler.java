@@ -18,6 +18,7 @@ package com.percussion.pso.imp.assembler;
 
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
+import com.percussion.extension.PSExtensionDef;
 import com.percussion.services.assembly.IPSAssembler;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
@@ -69,7 +70,11 @@ public class PSImportVelocityAssembler extends PSVelocityAssembler implements IP
    */
   @Override
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {
-    m_def = arg0.clone();
+    if (arg0 instanceof PSExtensionDef) {
+      m_def = ((PSExtensionDef) arg0).clone();
+    } else {
+      m_def = arg0;
+    }
     super.init(arg0, arg1);
   }
 }

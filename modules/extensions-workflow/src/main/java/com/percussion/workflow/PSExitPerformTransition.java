@@ -44,6 +44,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Performs the requested workflow transition (such as approval, check-in or check-out) based on the
@@ -931,9 +932,11 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
        * transition the item to a non-public state and then check it out.
        */
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      IPSStatesContext stateContext =
-          cms.loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID());
-      if (stateContext.getIsValid())
+      boolean isValidState = cms
+          .loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID())
+          .map(IPSStatesContext::getIsValid)
+          .orElse(false);
+      if (isValidState)
         throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.CHECKOUT_FROM_PUBLIC_STATE);
 
       // The default checkout revision is the tip revision
@@ -1230,9 +1233,11 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
      * checked out.
      */
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    sc = cms.loadWorkflowState(workflowID, transitionToStateID);
+    Optional<? extends IPSStatesContext> scOpt =
+        cms.loadWorkflowState(workflowID, transitionToStateID);
+    sc = scOpt.orElse(null);
 
-    if (sc.getIsValid()) {
+    if (sc != null && sc.getIsValid()) {
       csc.lockRevision();
     }
     /*

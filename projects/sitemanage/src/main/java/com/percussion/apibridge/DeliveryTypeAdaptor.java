@@ -17,6 +17,7 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.rest.Guid;
 import com.percussion.rest.deliverytypes.DeliveryType;
 import com.percussion.rest.deliverytypes.IDeliveryTypeAdaptor;
 import com.percussion.rest.errors.BackendException;
@@ -63,16 +64,22 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
   @Override
   public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) throws BackendException {
     try {
-      if (type.getId() == null || StringUtils.isBlank(type.getId().getStringValue())) {
+      Guid idGuid = ApiUtils.orNull(type.getId());
+      String idStr = ApiUtils.orNull(idGuid == null ? null : idGuid.getStringValue());
+      if (idGuid == null || StringUtils.isBlank(idStr)) {
         // Create new delivery type
         var create = pubService.createDeliveryType();
-        create.setUnpublishingRequiresAssembly(type.getUnpublishingRequiresAssembly());
-        create.setName(type.getName());
-        create.setDescription(type.getDescription());
-        create.setBeanName(type.getBeanName());
+        create.setUnpublishingRequiresAssembly(type.isUnpublishingRequiresAssembly());
+        create.setName(ApiUtils.orNull(type.getName()));
+        create.setDescription(ApiUtils.orNull(type.getDescription()));
+        create.setBeanName(ApiUtils.orNull(type.getBeanName()));
         pubService.saveDeliveryType(create);
         return copyDeliveryType(create);
       } else {
+        // unwrap Optionals before copying
+        type.setName(ApiUtils.orNull(type.getName()));
+        type.setDescription(ApiUtils.orNull(type.getDescription()));
+        type.setBeanName(ApiUtils.orNull(type.getBeanName()));
         var update = copyDeliveryType(type);
         pubService.saveDeliveryType(update);
         // Load after save
@@ -115,11 +122,11 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
 
   private IPSDeliveryType copyDeliveryType(DeliveryType type) {
     var ret = new PSDeliveryType();
-    ret.setBeanName(type.getBeanName());
-    ret.setDescription(type.getDescription());
-    ret.setName(type.getName());
-    ret.setUnpublishingRequiresAssembly(type.getUnpublishingRequiresAssembly());
-    ret.setGUID(ApiUtils.convertGuid(type.getId()));
+    ret.setBeanName(ApiUtils.orNull(type.getBeanName()));
+    ret.setDescription(ApiUtils.orNull(type.getDescription()));
+    ret.setName(ApiUtils.orNull(type.getName()));
+    ret.setUnpublishingRequiresAssembly(type.isUnpublishingRequiresAssembly());
+    ret.setGUID(ApiUtils.convertGuid(ApiUtils.orNull(type.getId())));
     return ret;
   }
 }

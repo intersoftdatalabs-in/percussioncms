@@ -357,7 +357,6 @@ public class PSContentMigrationService implements IPSContentMigrationService {
     pageService.updateMigrationEmptyWidgetFlag(pageId, hasEmptyWidgets);
   }
 
-  @Override
   public void createAndAssociateAsset(String pageId, ApplicableWidget applicableWidget)
       throws PSDataServiceException, IPSItemWorkflowService.PSItemWorkflowServiceException {
     var asset = new PSAsset();

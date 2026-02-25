@@ -43,7 +43,7 @@ public class PSBetwixtObjectConverter extends DefaultObjectStringConverter {
    *      org.apache.commons.betwixt.expression.Context)
    */
   @Override
-  @SuppressWarnings({"rawtypes","unchecked"})
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public String objectToString(Object object, Class type, String flavour, Context context) {
     if (object instanceof java.util.Date && isUtilDate(type)) {
       return ms_iso8601date.format((java.util.Date) object);
@@ -66,7 +66,7 @@ public class PSBetwixtObjectConverter extends DefaultObjectStringConverter {
    *      org.apache.commons.betwixt.expression.Context)
    */
   @Override
-  @SuppressWarnings({"rawtypes","unchecked"})
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public Object stringToObject(String value, Class type, String flavour, Context context) {
     if (value.trim().length() == 0) {
       return null;

@@ -19,24 +19,36 @@ package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Language;
 import java.util.Collection;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class HibernateLanguageDAO extends HibernateDaoSupport implements LanguageDAO {
+@Repository
+@Transactional
+public class HibernateLanguageDAO implements LanguageDAO {
+
+  @Autowired private SessionFactory sessionFactory;
 
   public Language getLanguage(int id) {
-    return (Language) getHibernateTemplate().get(Language.class, new Integer(id));
+    Session session = sessionFactory.getCurrentSession();
+    return session.get(Language.class, id);
   }
 
-  public Collection getAllLanguages() {
-    // Optional: Add order by to query
-    return getHibernateTemplate().find("from Language lan");
+  @SuppressWarnings("unchecked")
+  public Collection<Language> getAllLanguages() {
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Language>) (Collection<?>) session.createQuery("from Language lan", Language.class).list();
   }
 
   public void saveLanguage(Language language) {
-    getHibernateTemplate().saveOrUpdate(language);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(language);
   }
 
   public void removeLanguage(Language language) {
-    getHibernateTemplate().delete(language);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(language);
   }
 }

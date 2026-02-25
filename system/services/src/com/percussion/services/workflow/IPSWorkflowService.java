@@ -16,19 +16,14 @@
  */
 package com.percussion.services.workflow;
 
-import com.percussion.cx.objectstore.PSMenuAction;
+
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
-import com.percussion.services.workflow.data.PSContentAdhocUser;
-import com.percussion.services.workflow.data.PSContentApproval;
-import com.percussion.services.workflow.data.PSContentWorkflowState;
 import com.percussion.services.workflow.data.PSNotification;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
-import com.percussion.services.workflow.data.PSContentAdhocUser;
-import com.percussion.services.workflow.data.PSContentApproval;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
@@ -137,6 +132,21 @@ public interface IPSWorkflowService {
     }
 
     /**
+     * Convenience method to obtain the default workflow GUID for the system.
+     *
+     * <p>Historically this method existed in various helpers; having it on the
+     * service allows callers to avoid hardcoding defaults.
+     *
+     * <p>The default implementation returns {@code null} to maintain backward
+     * compatibility.  Implementations should override as appropriate.
+     *
+     * @return the default workflow GUID or {@code null} if unknown
+     */
+    default IPSGuid getDefaultWorkflowId() {
+        return null;
+    }
+
+    /**
      * Load a workflow from the database, bypassing cache.
      *
      * @param id The GUID, not {@code null}
@@ -179,6 +189,30 @@ public interface IPSWorkflowService {
      *         {@code null}, may be empty
      */
     List<PSWorkflow> findWorkflowsByName(String name);
+
+    /**
+     * Get all available workflow actions for the supplied content items and context.
+     *<p>
+     * Historically callers invoked this via {@code PSWorkflowServiceImpl} directly; the
+     * interface was updated to expose the method so that Active Assembly and other UI
+     * modules can compile against the interface instead of casting.
+     *
+     * @param contentids list of content item GUIDs, never {@code null}
+     * @param assignmentTypes assignment type enums obtained from the system service,
+     *                        may be empty
+     * @param userName user performing the request, not {@code null}
+     * @param userRoles roles assigned to the user, not {@code null}
+     * @param locale user locale string, may be {@code null}
+     * @return list of {@link com.percussion.cx.objectstore.PSMenuAction} objects,
+     *         never {@code null}, may be empty
+     * @throws PSWorkflowException on service error
+     */
+    List<com.percussion.cx.objectstore.PSMenuAction> getAllWorkflowActions(
+        List<com.percussion.utils.guid.IPSGuid> contentids,
+        List<PSAssignmentTypeEnum> assignmentTypes,
+        String userName,
+        List<String> userRoles,
+        String locale) throws PSWorkflowException;
 
     /**
      * Get a stream of workflows for efficient processing.
@@ -500,4 +534,16 @@ public interface IPSWorkflowService {
     default boolean hasWorkflows(String name) {
         return streamWorkflows(name).findAny().isPresent();
     }
+
+    /**
+     * Copy all workflow assignments that reference {@code fromRole} to {@code toRole}.
+     *
+     * <p>This is primarily a convenience method used when renaming or duplicating roles.  The
+     * implementation is responsible for efficiently updating any database records or caches
+     * that refer to the original role.
+     *
+     * @param fromRole the name of the role to copy assignments from, not {@code null}
+     * @param toRole the name of the role to copy assignments to, not {@code null}
+     */
+    void copyWorkflowToRole(String fromRole, String toRole);
 }

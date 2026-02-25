@@ -66,4 +66,13 @@ public class PSApprovableItem extends PSItemProperties {
   public void setApprovalMessage(String approvalMessage) {
     this.approvalMessage = approvalMessage;
   }
+
+  /**
+   * Convenience method used by streams to test the approval flag.
+   *
+   * @return {@code true} if the item is marked for approval, {@code false} otherwise.
+   */
+  public boolean isApprove() {
+    return Boolean.TRUE.equals(approve);
+  }
 }

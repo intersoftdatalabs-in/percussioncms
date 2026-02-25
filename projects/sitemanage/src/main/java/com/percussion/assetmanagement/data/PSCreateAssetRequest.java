@@ -97,4 +97,8 @@ public class PSCreateAssetRequest extends PSAbstractDataObject {
   public void setSharedAsset(Boolean sharedAsset) {
     this.sharedAsset = sharedAsset;
   }
+
+  public boolean isSharedAsset() {
+    return sharedAsset != null && sharedAsset;
+  }
 }

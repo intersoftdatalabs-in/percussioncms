@@ -64,10 +64,10 @@ public class PSPublicAssetItemFilterRule extends PSAbstractWorkflowExtension
   public List<IPSFilterItem> filter(List<IPSFilterItem> items, Map<String, String> params) {
     boolean isPublish = !"unpublish".equals(params.get(IPSHtmlParameters.SYS_PUBLISH));
     var pubServer = findPubServer(params.get(IPSHtmlParameters.SYS_EDITIONID));
-    var ignoreAssets =
+    String ignoreAssets =
         pubServer == null
             ? "false"
-            : pubServer.getPropertyValue(PUBLISH_IGNORE_UNMODIFIED_ASSETS_PROPERTY);
+            : pubServer.getPropertyValue(PUBLISH_IGNORE_UNMODIFIED_ASSETS_PROPERTY).orElse("false");
     boolean ignoreUnModAssets = StringUtils.equals(ignoreAssets, "true");
     Long serverId = pubServer == null ? null : pubServer.getServerId();
 

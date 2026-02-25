@@ -38,7 +38,7 @@ public class HtmlLinkHelperTests {
   public void testConvertToAbsoluteLink1() throws URISyntaxException, MalformedURLException {
 
     String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "image1.jpg");
-    Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
+    assertEquals("http://www.somedomain.com/image1.jpg", test);
   }
 
   @Test
@@ -46,28 +46,28 @@ public class HtmlLinkHelperTests {
 
     String test =
         HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "./image1.jpg");
-    Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
+    assertEquals("http://www.somedomain.com/image1.jpg", test);
   }
 
   @Test
   public void testRootAbsoluteFile() throws MalformedURLException, URISyntaxException {
 
     String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "/image1.jpg");
-    Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
+    assertEquals("http://www.somedomain.com/image1.jpg", test);
   }
 
   @Test
   public void testRelativeDir() throws MalformedURLException, URISyntaxException {
 
     String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images");
-    Assertions.assertEquals("http://www.somedomain.com/images", test);
+    assertEquals("http://www.somedomain.com/images", test);
   }
 
   @Test
   public void testRelativeDirTrailingSlash() throws MalformedURLException, URISyntaxException {
 
     String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/");
-    Assertions.assertEquals("http://www.somedomain.com/images/", test);
+    assertEquals("http://www.somedomain.com/images/", test);
   }
 
   @Test
@@ -75,7 +75,7 @@ public class HtmlLinkHelperTests {
 
     String test =
         HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/file1.docx");
-    Assertions.assertEquals("http://www.somedomain.com/images/file1.docx", test);
+    assertEquals("http://www.somedomain.com/images/file1.docx", test);
   }
 
   @Test
@@ -85,7 +85,7 @@ public class HtmlLinkHelperTests {
     String test =
         HtmlLinkHelper.convertToAbsoluteLink(
             "http://www.somedomain.com/", "images/file1.html#234.78");
-    Assertions.assertEquals("http://www.somedomain.com/images/file1.html#234.78", test);
+    assertEquals("http://www.somedomain.com/images/file1.html#234.78", test);
   }
 
   @Test
@@ -94,7 +94,7 @@ public class HtmlLinkHelperTests {
     String test =
         HtmlLinkHelper.getBaseLink("http://www.somewhere.gov/news/about.html?month=03&year=2011");
 
-    Assertions.assertEquals("http://www.somewhere.gov/", test);
+    assertEquals("http://www.somewhere.gov/", test);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class HtmlLinkHelperTests {
         HtmlLinkHelper.getBaseLink(
             "http://www.somewhere.gov:8793/news/about.html?month=03&year=2011");
 
-    Assertions.assertEquals("http://www.somewhere.gov:8793/", test);
+    assertEquals("http://www.somewhere.gov:8793/", test);
   }
 
   @Test
@@ -129,6 +129,6 @@ public class HtmlLinkHelperTests {
         HtmlLinkHelper.convertLinksToAbsolute(
             "https://www.percussion.com/randomcar.html", builder.toString());
 
-    Assertions.assertEquals(builder.toString(), n);
+    assertEquals(builder.toString(), n);
   }
 }

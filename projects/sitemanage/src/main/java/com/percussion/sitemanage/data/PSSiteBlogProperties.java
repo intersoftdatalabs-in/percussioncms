@@ -20,7 +20,6 @@ package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /** This class contains information for a blog of a site. */
 @XmlRootElement(name = "SiteBlogProperties")
@@ -61,8 +60,8 @@ public class PSSiteBlogProperties extends PSAbstractDataObject {
     this.title = title;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
@@ -77,8 +76,8 @@ public class PSSiteBlogProperties extends PSAbstractDataObject {
     this.blogPostcount = blogPostcount;
   }
 
-  public Optional<String> getLastPublishDate() {
-    return Optional.ofNullable(lastPublishDate);
+  public String getLastPublishDate() {
+    return lastPublishDate;
   }
 
   public void setLastPublishDate(String lastPublishDate) {

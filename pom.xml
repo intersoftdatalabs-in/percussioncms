@@ -41,8 +41,8 @@
         <module>modules/perc-toolkit</module>
         <module>modules/perc-taxonomy</module>
         <module>deployer</module>
-        <module>modules/ContentUI</module>
         <module>modules/ServerUIComponents</module>
+        <module>modules/ContentUI</module>
         <module>modules/extensions-default-template</module>
         <module>modules/extensions-main</module>
         <module>modules/extensions-nav</module>
@@ -53,7 +53,9 @@
         <module>PCM-PkgMgtUI</module>
         <module>WebUI</module>
         <module>modules/perc-thumbnail</module>
+        <!-- Shindig Dashboard Needs To Be Replaced
         <module>modules/shindig-uber</module>
+        -->
         <module>projects/sitemanage</module>
         <module>modules/perc-checkboxtree</module>
         <!-- <module>modules/DesktopContentExplorer</module> -->
@@ -82,6 +84,12 @@
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
         <build.profile.id>dev</build.profile.id>
         <buildNumber>${maven.build.timestamp}</buildNumber>
+        <!-- Closure Compiler is used by minify-maven-plugin. Pin to a specific build date version. -->
+        <closure.compiler.version>v20260112</closure.compiler.version>
+        <!-- CodeMirror 5.x (MIT-licensed). The vendor copy in perc-tinymce is managed via this WebJar. -->
+        <!-- Do NOT upgrade to CodeMirror 6.x without refactoring source.html and the codemirror plugin; -->
+        <!-- CodeMirror 6 has a completely different API. -->
+        <codemirror.version>5.65.20</codemirror.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <commons-email.version>1.6.0</commons-email.version>
         <commons.beanutils.version>1.11.0</commons.beanutils.version>
@@ -218,7 +226,7 @@
         <solr.version>9.10.1</solr.version>
         <spotless.plugin.version>3.1.0</spotless.plugin.version>
         <!-- 5.17.x and up require Java 11 -->
-        <spring.version>7.0.3</spring.version>
+        <spring.version>7.0.4</spring.version>
         <sqlite.version>3.51.1.0</sqlite.version>
         <stax.version>1.0.1</stax.version>
         <swagger.ui.version>5.31.0</swagger.ui.version>
@@ -229,14 +237,8 @@
         <!-- with this project's Apache 2.0 license for distribution. -->
         <!-- Do NOT upgrade past 6.8.x without a legal review. -->
         <tinymce.version>6.8.6</tinymce.version>
-        <!-- CodeMirror 5.x (MIT-licensed). The vendor copy in perc-tinymce is managed via this WebJar. -->
-        <!-- Do NOT upgrade to CodeMirror 6.x without refactoring source.html and the codemirror plugin; -->
-        <!-- CodeMirror 6 has a completely different API. -->
-        <codemirror.version>5.65.20</codemirror.version>
-        <!-- Closure Compiler is used by minify-maven-plugin. Pin to a specific build date version. -->
-        <closure.compiler.version>v20260112</closure.compiler.version>
         <trinidad.version>2.2.1</trinidad.version>
-        <twelvemonkeys.version>3.13.0</twelvemonkeys.version>
+        <twelvemonkeys.version>3.13.1</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
         <versionString>INTERNAL</versionString>
@@ -252,7 +254,7 @@
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-spring</artifactId>
-                <version>4.29</version>
+                <version>4.30</version>
             </dependency>
             <dependency>
                 <groupId>com.github.javafaker</groupId>
@@ -1140,7 +1142,8 @@
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
-                <version>3.3.1-PATCHED</version>
+                <!-- snapshot version was unavailable in public repositories; downgrade to a released version that is compatible -->
+                <version>3.3.0</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
@@ -1950,6 +1953,11 @@
                         <includes>
                             <include>**/*Test.java</include>
                         </includes>
+                        <!-- Needed for Mockito on Java 21+ -->
+                        <argLine>
+                            -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                            -Xshare:off
+                        </argLine>
                     </configuration>
                     <dependencies/>
                 </plugin>
@@ -2463,6 +2471,8 @@
                                     <!-- Exclude system release documentation and legacy release materials -->
                                     <exclude>**/system/release/**</exclude>
                                     <exclude>**/system/ApplicationFiles/dojo/**</exclude>
+                                    <!-- Exclude docker development data which contains unparseable HTML snippets and is not part of source -->
+                                    <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
                                     <prettierVersion>2.8.8</prettierVersion>
@@ -2489,6 +2499,7 @@
                                     <exclude>**/src/test/resources/**/*.scss</exclude>
                                     <exclude>**/src/test/java/**/*.css</exclude>
                                     <exclude>**/system/ApplicationFiles/dojo/**</exclude>
+                                    <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
                                     <prettierVersion>2.8.8</prettierVersion>
@@ -2511,6 +2522,7 @@
                                     <!-- Exclude specific legacy/third-party JSON that Prettier can't safely format -->
                                     <exclude>modules/jcadf-master/audit_events.json</exclude>
                                     <exclude>**/audit_events.json</exclude>
+                                    <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
                                     <prettierVersion>2.8.8</prettierVersion>
@@ -2529,6 +2541,7 @@
                                     <exclude>**/node_modules/**</exclude>
                                     <exclude>**/.idea/**</exclude>
                                     <exclude>**/src/test/resources/**/*.yml</exclude>
+                                    <exclude>**/docker/dev-data/**</exclude>
                                     <exclude>**/src/test/resources/**/*.yaml</exclude>
                                 </excludes>
                                 <prettier>
@@ -2554,7 +2567,7 @@
                         </dependency>
                     </dependencies>
                     <executions>
-                      <!--  <execution>
+                        <!--  <execution>
                             <id>auto-style</id>
                             <goals>
                                 <goal>check</goal>
@@ -2687,6 +2700,11 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
+                    <!-- Needed for Mockito on Java 21+ -->
+                    <argLine>
+                        -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                        -Xshare:off
+                    </argLine>
                 </configuration>
             </plugin>
             <!-- Modern Failsafe plugin for JUnit5 -->
@@ -2783,6 +2801,97 @@
                 <skip.integration.tests>false</skip.integration.tests>
                 <skip.unit.tests>true</skip.unit.tests>
             </properties>
+        </profile>
+        <profile>
+            <id>docker-compose</id>
+            <properties>
+                <docker.cms.health.url>http://localhost:9992/Rhythmyx/rest/folders/by-path/Assets</docker.cms.health.url>
+                <docker.compose.env.file>${maven.multiModuleProjectDirectory}/.env.compose</docker.compose.env.file>
+                <docker.compose.file>${maven.multiModuleProjectDirectory}/docker-compose.yml</docker.compose.file>
+                <docker.compose.project.name>percussion-dev</docker.compose.project.name>
+                <docker.dts.health.url>http://localhost:9980/</docker.dts.health.url>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>docker-compose-up</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <executable>docker</executable>
+                                    <arguments>
+                                        <argument>compose</argument>
+                                        <argument>--project-name</argument>
+                                        <argument>${docker.compose.project.name}</argument>
+                                        <argument>--env-file</argument>
+                                        <argument>${docker.compose.env.file}</argument>
+                                        <argument>-f</argument>
+                                        <argument>${docker.compose.file}</argument>
+                                        <argument>up</argument>
+                                        <argument>-d</argument>
+                                        <argument>--build</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>docker-compose-wait-cms</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <executable>bash</executable>
+                                    <arguments>
+                                        <argument>-c</argument>
+                                        <argument>set -euo pipefail; max=60; i=1; while [ "$i" -le "$max" ]; do code=$(curl -s -o /dev/null -w '%{http_code}' "${docker.cms.health.url}" || true); if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ]; then exit 0; fi; sleep 5; i=$((i+1)); done; echo "CMS did not become ready in time"; exit 1</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>docker-compose-wait-dts</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <executable>bash</executable>
+                                    <arguments>
+                                        <argument>-c</argument>
+                                        <argument>set -euo pipefail; max=60; i=1; while [ "$i" -le "$max" ]; do code=$(curl -s -o /dev/null -w '%{http_code}' "${docker.dts.health.url}" || true); if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ]; then exit 0; fi; sleep 5; i=$((i+1)); done; echo "DTS did not become ready in time"; exit 1</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>docker-compose-down</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>post-integration-test</phase>
+                                <configuration>
+                                    <executable>docker</executable>
+                                    <arguments>
+                                        <argument>compose</argument>
+                                        <argument>--project-name</argument>
+                                        <argument>${docker.compose.project.name}</argument>
+                                        <argument>--env-file</argument>
+                                        <argument>${docker.compose.env.file}</argument>
+                                        <argument>-f</argument>
+                                        <argument>${docker.compose.file}</argument>
+                                        <argument>down</argument>
+                                        <argument>-v</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>with-dts</id>

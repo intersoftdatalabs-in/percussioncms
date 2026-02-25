@@ -75,7 +75,7 @@ public class PSThumbnailGenerationHelper extends PSImportHelper {
     var runner =
         new PSThumbnailRunner(
             siteTemplateService, templateService, pageService, true, requestInfoMap);
-    runner.generateThumbnailNow(context.getTemplateId(), Function.GENERATE_TEMPLATE_THUMBNAIL);
+    runner.generateThumbnailNow(context.getTemplateId().orElse(""), Function.GENERATE_TEMPLATE_THUMBNAIL);
     endTimer();
   }
 

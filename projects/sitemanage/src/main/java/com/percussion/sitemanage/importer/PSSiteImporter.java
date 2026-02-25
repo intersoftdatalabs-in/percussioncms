@@ -77,8 +77,8 @@ public class PSSiteImporter {
   public static PSPageContent getPageContentFromSite(PSSiteImportCtx siteImportCtx)
       throws IOException {
     notNull(siteImportCtx);
-    notNull(siteImportCtx.getSiteUrl());
-    notNull(siteImportCtx.getUserAgent());
+notNull(siteImportCtx.getSiteUrl().orElse(null));
+      notNull(siteImportCtx.getUserAgent().orElse(null));
 
     URLConnectionProperties properties = null;
 
@@ -87,11 +87,11 @@ public class PSSiteImporter {
 
       var con =
           buildJsoupConnection(
-              siteImportCtx.getSiteUrl(), true, true, siteImportCtx.getUserAgent());
+                siteImportCtx.getSiteUrl().orElse(""), true, true, siteImportCtx.getUserAgent().orElse(""));
       var doc = con.get();
 
       var pageContent = createPageContent(doc, siteImportCtx.getLogger());
-      pageContent.setPath(siteImportCtx.getSiteUrl());
+        pageContent.setPath(siteImportCtx.getSiteUrl().orElse(""));
       return pageContent;
     } catch (IOException e) {
       throw e;
@@ -173,8 +173,7 @@ public class PSSiteImporter {
 
   /** Adds the body element to the document, as a child of the html element. */
   private static void addBodyToDocument(Document doc) {
-    // this should add the body if it does not exist
-    doc.normalise();
+    // jsoup Document has no normalize/normalise method; skip this step
 
     // check just in case the document could not be normalised
     if (doc.body() == null) {

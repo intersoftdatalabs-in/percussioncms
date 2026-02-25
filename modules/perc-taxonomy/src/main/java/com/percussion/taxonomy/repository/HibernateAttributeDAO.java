@@ -19,46 +19,57 @@ package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Attribute;
 import java.util.Collection;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class HibernateAttributeDAO extends HibernateDaoSupport implements AttributeDAO {
+@Repository
+@Transactional
+public class HibernateAttributeDAO implements AttributeDAO {
+
+  @Autowired private SessionFactory sessionFactory;
 
   public Collection getAttribute(int id) {
     String queryString =
-        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs where a.id ="
-            + " "
-            + id;
-    return (Collection) getHibernateTemplate().execute(new HibernateQuery(queryString));
+        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs where a.id =" + " " + id;
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection) session.createQuery(queryString).list();
   }
 
   /** Return all Attributes */
   public Collection getAllAttributes(int taxonomy_id, int langID) {
     String queryString =
-        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs al join"
-            + " fetch al.language where a.taxonomy.id = "
-            + taxonomy_id
-            + " and al.language.id = "
-            + langID;
-    return (Collection) getHibernateTemplate().execute(new HibernateQuery(queryString));
+        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs al join" +
+            " fetch al.language where a.taxonomy.id = " +
+            taxonomy_id +
+            " and al.language.id = " +
+            langID;
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection) session.createQuery(queryString).list();
   }
 
   /** Return all Attribute names and IDs */
   public Collection getAttributeNames(int taxonomy_id, int language_id) {
     String queryString =
-        "select al.Name, a.id from Attribute a, Attribute_lang al where al.attribute.id = a.id and"
-            + " a.taxonomy.id = "
-            + taxonomy_id
-            + " and al.language.id = "
-            + language_id
-            + " order by al.id";
-    return (Collection) getHibernateTemplate().execute(new HibernateQuery(queryString));
+        "select al.Name, a.id from Attribute a, Attribute_lang al where al.attribute.id = a.id and" +
+            " a.taxonomy.id = " +
+            taxonomy_id +
+            " and al.language.id = " +
+            language_id +
+            " order by al.id";
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection) session.createQuery(queryString).list();
   }
 
   public void saveAttribute(Attribute attribute) {
-    getHibernateTemplate().saveOrUpdate(attribute);
+    Session session = sessionFactory.getCurrentSession();
+    session.merge(attribute);
   }
 
   public void removeAttribute(Attribute attribute) {
-    getHibernateTemplate().delete(attribute);
+    Session session = sessionFactory.getCurrentSession();
+    session.remove(attribute);
   }
 }

@@ -121,7 +121,8 @@ public class ActionMenuResource {
         @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
       })
   public ActionMenuList getAllowedContentTypeMenus(AllowedContentTypeMenusRequest request) {
-    var contentIds = Arrays.stream(request.getContentIds().orElse(new int[0])).boxed().toArray(Integer[]::new);
+    var contentIds =
+        Arrays.stream(request.getContentIds().orElse(new int[0])).boxed().toArray(Integer[]::new);
     return new ActionMenuList(adaptor.findAllowedContentTypes(contentIds));
   }
 

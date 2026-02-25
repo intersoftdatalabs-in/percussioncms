@@ -19,7 +19,7 @@ package com.percussion.pagemanagement.data.regiontree;
 
 import static com.percussion.pagemanagement.data.PSRegionTreeUtils.getEmptyWidgetRegions;
 import static com.percussion.pagemanagement.data.PSRegionTreeUtils.getWidgetRegions;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.pagemanagement.data.PSRegion;
 import com.percussion.pagemanagement.data.PSRegionTree;

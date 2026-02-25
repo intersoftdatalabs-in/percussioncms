@@ -69,7 +69,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.4</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
@@ -78,7 +77,10 @@
 						--add-opens
 						java.base/sun.security.ssl=ALL-UNNAMED
 						--add-opens
-						java.base/sun.security.util=ALL-UNNAMED</argLine>
+						java.base/sun.security.util=ALL-UNNAMED
+            -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+            -Xshare:off
+                </argLine>
                 </configuration>
             </plugin>
         </plugins>

@@ -86,7 +86,8 @@ public class SimpleXmlViewTest {
       cut.render(model, request, response);
       fail("Should throw exception");
     } catch (Exception ex) {
-      assertTrue("ExpectedException", true);
+      // message first, condition second per JUnit 5 signature
+      assertTrue(true, "ExpectedException");
     }
   }
 
@@ -104,7 +105,8 @@ public class SimpleXmlViewTest {
       cut.render(model, request, response);
       fail("Should throw exception");
     } catch (Exception ex) {
-      assertTrue("ExpectedException", true);
+      // message first, condition second per JUnit 5 signature
+      assertTrue(true, "ExpectedException");
     }
   }
 }
