@@ -85,7 +85,7 @@
 ### Additional Specialized Widgets (13 more)
 1. Unpublished Items Widget
 2. Recent Cache Keywords Widget
-3. System Performance Widget  
+3. System Performance Widget
 4. Content Approval Queue Widget
 5. Failed Job Reports Widget
 6. User Activity by Content Type Widget
