@@ -45,6 +45,8 @@ import { FormsTrackerWidget } from "./FormsTrackerWidget";
 import { CookieConsentWidget } from "./CookieConsentWidget";
 import { SEOAuditWidget } from "./SEOAuditWidget";
 import { GoogleSetupWidget } from "./GoogleSetupWidget";
+import { MembershipWidget } from "./MembershipWidget";
+import { SitewideFrameworkWidget } from "./SitewideFrameworkWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -165,14 +167,21 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     description: "Google integration and account configuration status",
     category: "Integration",
   },
+  {
+    id: "membership",
+    name: "Membership",
+    component: MembershipWidget,
+    description: "User membership information and statistics",
+    category: "System",
+  },
+  {
+    id: "sitewide-framework",
+    name: "Sitewide Framework",
+    component: SitewideFrameworkWidget,
+    description: "Framework configuration and module status",
+    category: "System",
+  },
 ];
-
-/**
- * Default gadget configuration for initial dashboard.
- *
- * <p>This is the "home" configuration. In the future, users can customize
- * this via dashboard configuration endpoints.</p>
- */
 const DEFAULT_GADGETS: DashboardWidget[] = [
   {
     id: "welcome",
