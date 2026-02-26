@@ -42,6 +42,7 @@ import { TrafficWidget } from "./TrafficWidget";
 import { BlogsWidget } from "./BlogsWidget";
 import { CommentsWidget } from "./CommentsWidget";
 import { FormsTrackerWidget } from "./FormsTrackerWidget";
+import { CookieConsentWidget } from "./CookieConsentWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -140,6 +141,13 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     component: FormsTrackerWidget,
     description: "Form submission tracking and analytics",
     category: "Content Management",
+  },
+  {
+    id: "cookie-consent",
+    name: "Cookie Consent",
+    component: CookieConsentWidget,
+    description: "GDPR compliance and cookie consent status",
+    category: "Compliance",
   },
 ];
 
