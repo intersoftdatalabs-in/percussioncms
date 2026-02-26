@@ -26,9 +26,10 @@
  * {@code ?legacyDashboard=true}).</p>
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { DashboardLayout, type DashboardWidget } from "./DashboardLayout";
 import { AddGadgetModal, type AddGadgetModalProps } from "./AddGadgetModal";
+import { useDashboardConfig, type WidgetConfig } from "./hooks/useDashboardConfig";
 import { WelcomeWidget } from "./WelcomeWidget";
 import { ActivityWidget } from "./ActivityWidget";
 import { WorkflowStatusWidget } from "./WorkflowStatusWidget";
@@ -157,32 +158,89 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
 
 export interface DashboardProps {
   legacyDashboardUrl?: string;
+  userId?: string;
 }
 
 /**
  * Main dashboard component.
  *
  * @param legacyDashboardUrl - Optional URL to legacy dashboard for fallback
+ * @param userId - Optional user ID for loading/saving dashboard configuration
  */
 export const Dashboard: React.FC<DashboardProps> = ({
   legacyDashboardUrl = "/cm/app/dashboard.jsp?legacy=true",
+  userId,
 }) => {
   const [gadgets, setGadgets] = useState<DashboardWidget[]>(DEFAULT_GADGETS);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load dashboard configuration from server
+  const { config, isLoading, error: configError, addWidget, removeWidget } = useDashboardConfig(
+    userId,
+    true // autoRefresh
+  );
+
+  // Convert WidgetConfig to DashboardWidget format
+  const convertToDashboardWidget = useCallback(
+    (widgetConfig: WidgetConfig): DashboardWidget | null => {
+      const gadgetInfo = AVAILABLE_GADGETS.find((g) => g.id === widgetConfig.widgetKey);
+      if (!gadgetInfo) return null;
+
+      return {
+        id: widgetConfig.widgetKey,
+        name: gadgetInfo.name,
+        component: gadgetInfo.component,
+        props: widgetConfig.settings || {},
+        position: widgetConfig.position,
+      };
+    },
+    []
+  );
+
+  // Convert DashboardWidget to WidgetConfig format
+  const convertToWidgetConfig = useCallback((dashboardWidget: DashboardWidget): WidgetConfig => {
+    return {
+      widgetKey: dashboardWidget.id,
+      widgetType: dashboardWidget.id,
+      position: dashboardWidget.position,
+      settings: dashboardWidget.props,
+    };
+  }, []);
+
+  // Load configuration from server on mount
+  useEffect(() => {
+    if (config && userId) {
+      const dashboardWidgets = config.widgets
+        .map(convertToDashboardWidget)
+        .filter((w) => w !== null) as DashboardWidget[];
+
+      if (dashboardWidgets.length > 0) {
+        setGadgets(dashboardWidgets);
+      } else {
+        // If config exists but is empty, fallback to defaults and save
+        setGadgets(DEFAULT_GADGETS);
+      }
+    } else if (!userId) {
+      // No user ID, use defaults (offline mode or fallback)
+      setGadgets(DEFAULT_GADGETS);
+    }
+  }, [config, userId, convertToDashboardWidget]);
 
   // Get active gadget IDs for the modal
-  const activeGadgetIds = new Set(gadgets.map((g) => g.id));
+  const activeGadgetIds = useMemo(() => new Set(gadgets.map((g) => g.id)), [gadgets]);
 
   // Get available gadgets that aren't already active
-  const availableGadgetsForModal: Parameters<typeof AddGadgetModal>[0]["availableGadgets"] =
-    AVAILABLE_GADGETS.map((gadget) => ({
-      id: gadget.id,
-      name: gadget.name,
-      description: gadget.description,
-      category: gadget.category,
-    }));
+  const availableGadgetsForModal: Parameters<typeof AddGadgetModal>[0]["availableGadgets"] = useMemo(
+    () =>
+      AVAILABLE_GADGETS.map((gadget) => ({
+        id: gadget.id,
+        name: gadget.name,
+        description: gadget.description,
+        category: gadget.category,
+      })),
+    []
+  );
 
   // Check for feature flag to use legacy dashboard
   useEffect(() => {
@@ -193,56 +251,73 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   }, [legacyDashboardUrl]);
 
-  // TODO: Load user's saved dashboard configuration from REST API
-  // useEffect(() => {
-  //   setLoading(true);
-  //   try {
-  //     // const config = await getDashboardConfig(userId);
-  //     // setGadgets(config.gadgets);
-  //   } catch (err) {
-  //     setError(err instanceof Error ? err.message : String(err));
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, []);
-
   /**
    * Handle adding a new gadget to the dashboard.
    */
-  const handleAddGadget = (gadgetId: string) => {
+  const handleAddGadget = async (gadgetId: string) => {
     // Find the gadget info
     const gadgetInfo = AVAILABLE_GADGETS.find((g) => g.id === gadgetId);
     if (!gadgetInfo) return;
 
-    // Calculate next order for the left column
-    const leftGadgets = gadgets.filter((g) => g.position.column === "left");
-    const nextOrder = leftGadgets.length;
+    try {
+      setIsSaving(true);
 
-    // Create new gadget widget
-    const newGadget: DashboardWidget = {
-      id: gadgetId,
-      name: gadgetInfo.name,
-      component: gadgetInfo.component,
-      props: {},
-      position: { column: "left", order: nextOrder },
-    };
+      // Calculate next order for the left column
+      const leftGadgets = gadgets.filter((g) => g.position.column === "left");
+      const nextOrder = leftGadgets.length;
 
-    // Add gadget and close modal
-    setGadgets([...gadgets, newGadget]);
-    setIsModalOpen(false);
+      // Create new gadget widget
+      const newGadget: DashboardWidget = {
+        id: gadgetId,
+        name: gadgetInfo.name,
+        component: gadgetInfo.component,
+        props: {},
+        position: { column: "left", order: nextOrder },
+      };
 
-    // TODO: Persist to REST API via useDashboardConfig hook
+      // Add to local state
+      setGadgets([...gadgets, newGadget]);
+
+      // Save to server if userId is present
+      if (userId && addWidget) {
+        const widgetConfig = convertToWidgetConfig(newGadget);
+        await addWidget(widgetConfig);
+      }
+
+      // Close modal
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Failed to add gadget:", err);
+      // TODO: Show user-friendly error message
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   /**
    * Handle removing a gadget from the dashboard.
    */
-  const handleRemoveGadget = (gadgetId: string) => {
-    setGadgets(gadgets.filter((g) => g.id !== gadgetId));
-    // TODO: Persist to REST API via useDashboardConfig hook
+  const handleRemoveGadget = async (gadgetId: string) => {
+    try {
+      setIsSaving(true);
+
+      // Remove from local state
+      setGadgets(gadgets.filter((g) => g.id !== gadgetId));
+
+      // Remove from server if userId is present
+      if (userId && removeWidget) {
+        await removeWidget(gadgetId);
+      }
+    } catch (err) {
+      console.error("Failed to remove gadget:", err);
+      // TODO: Show user-friendly error message
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  if (error) {
+  // Show error if configuration failed to load
+  if (configError && userId) {
     return (
       <div
         style={{
@@ -253,7 +328,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           margin: "20px",
         }}
       >
-        <strong>Error loading dashboard:</strong> {error}
+        <strong>Error loading dashboard:</strong> {configError}
         <p>
           <a href={legacyDashboardUrl}>Fall back to legacy dashboard</a>
         </p>
@@ -261,7 +336,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     );
   }
 
-  if (loading) {
+  // Show loading state while fetching configuration
+  if (isLoading && userId) {
     return (
       <div
         style={{
