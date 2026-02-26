@@ -22,7 +22,7 @@
                     </label>
                 </div>
             </div>
-            <div class="col-md-8 float-left">
+            <div class="col-md-8 float-start">
                 <!-- Filter Field -->
                 <div class="md-form mt-0">
                     <input class="form-control perc-site-filter-field" tabindex="2" type="text" placeholder='<i18n:message key="perc.ui.publish.title@Filter Sites"/>' aria-label='<i18n:message key="perc.ui.publish.title@Filter Sites"/>'>
@@ -82,8 +82,8 @@
             </div>
         </div>
         <div class="row">
-            <div class="col perc-publish-state-nav text-right">
-                <span class="float-left"><button title='<i18n:message key="perc.ui.publish.reports@Back"/>' tabindex="0" id="percBackToSites" class="btn perc-btn-primary"><i18n:message key="perc.ui.publish.reports@Back"/></button></span>&nbsp;
+            <div class="col perc-publish-state-nav text-end">
+                <span class="float-start"><button title='<i18n:message key="perc.ui.publish.reports@Back"/>' tabindex="0" id="percBackToSites" class="btn perc-btn-primary"><i18n:message key="perc.ui.publish.reports@Back"/></button></span>&nbsp;
                 <span><button title='<i18n:message key="perc.ui.publish.view@Add New Server"/>' tabindex="0" id="percAddServer" class="btn perc-btn-primary"><i aria-hidden="true" class="fas fa-plus"></i></button></span>
                 <span><button title='<i18n:message key="perc.ui.publish.view@Refresh Server Info"/>' tabindex="0" id="percRefreshServerList" class="btn perc-btn-primary"><i aria-hidden="true" class="fas fa-sync-alt"></i></button></span>
             </div>
@@ -180,9 +180,9 @@
                 <div class="modal-footer">
                     {{#if (validatePropertyValue action 'update')}}
                         {{#if serverInfo.isDefault}}
-                            <button aria-label='<i18n:message key="perc.ui.publish.title@Delete Server"/>' type="button" id="percDeleteServer" class="btn perc-btn-inverse mr-auto" disabled><i class="fas fa-trash-alt"></i></button>
+                            <button aria-label='<i18n:message key="perc.ui.publish.title@Delete Server"/>' type="button" id="percDeleteServer" class="btn perc-btn-inverse me-auto" disabled><i class="fas fa-trash-alt"></i></button>
                         {{else}}
-                            <button aria-label='<i18n:message key="perc.ui.publish.title@Delete Server"/>' type="button" id="percDeleteServer" class="btn perc-btn-inverse mr-auto"><i class="fas fa-trash-alt"></i></button>
+                            <button aria-label='<i18n:message key="perc.ui.publish.title@Delete Server"/>' type="button" id="percDeleteServer" class="btn perc-btn-inverse me-auto"><i class="fas fa-trash-alt"></i></button>
                         {{/if}}
                     {{/if}}
                     <button type="button" class="btn perc-btn-primary perc-clear-server" data-dismiss="modal"><i18n:message key="perc.ui.common.label@Cancel"/></button>

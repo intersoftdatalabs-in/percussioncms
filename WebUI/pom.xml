@@ -57,6 +57,11 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
+            <artifactId>perc-common-ui-bundle</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
             <artifactId>perc-jetty-jars</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
@@ -570,8 +575,6 @@
                             <excludes>
                                 <exclude>WEB-INF</exclude>
                                 <exclude>META-INF</exclude>
-                                <exclude>cssMin</exclude>
-                                <exclude>jslibMin</exclude>
                             </excludes>
                         </resource>
                         <!-- cui content is now in war/cui/ and copied via the war/ resource above -->

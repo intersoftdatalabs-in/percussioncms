@@ -287,13 +287,15 @@
 		</if>
 
 
+		<!-- Common UI bundles — read directly from the perc-common-ui-bundle module output. -->
+		<!-- This mirrors the perc-tinymce pattern: copy from target/classes/META-INF/resources. -->
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/common/js/perc_common_ui.js"
-			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/common/js/perc_common_ui.js" />
+			file="${basedir}/../perc-common-ui-bundle/target/classes/META-INF/resources/cm/common/js/perc_common_ui.js" />
 
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/common/js/perc_common_ui_slim.js"
-			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/common/js/perc_common_ui_slim.js" />
+			file="${basedir}/../perc-common-ui-bundle/target/classes/META-INF/resources/cm/common/js/perc_common_ui_slim.js" />
 
 		<!-- Copy Java Script -->
 		<!-- jquery for gadgets -->
