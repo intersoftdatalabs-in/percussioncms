@@ -49,6 +49,7 @@ import { MembershipWidget } from "./MembershipWidget";
 import { SitewideFrameworkWidget } from "./SitewideFrameworkWidget";
 import { SiteimproveWidget } from "./SiteimproveWidget";
 import { IframeWidget } from "./IframeWidget";
+import { GlobalVariablesWidget } from "./GlobalVariablesWidget";
 import { WidgetConfigurationWidget } from "./WidgetConfigurationWidget";
 
 /**
@@ -197,6 +198,13 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     component: IframeWidget,
     description: "Embedded external content and dashboards",
     category: "External",
+  },
+  {
+    id: "global-variables",
+    name: "Global Variables",
+    component: GlobalVariablesWidget,
+    description: "System-wide global variables and configuration settings",
+    category: "System",
   },
   {
     id: "widget-configuration",

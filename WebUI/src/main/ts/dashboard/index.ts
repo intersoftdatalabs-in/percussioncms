@@ -40,6 +40,7 @@ export { MembershipWidget, type MembershipWidgetProps } from "./MembershipWidget
 export { SitewideFrameworkWidget, type SitewideFrameworkWidgetProps } from "./SitewideFrameworkWidget";
 export { SiteimproveWidget, type SiteimproveWidgetProps } from "./SiteimproveWidget";
 export { IframeWidget, type IframeWidgetProps } from "./IframeWidget";
+export { GlobalVariablesWidget, type GlobalVariablesWidgetProps } from "./GlobalVariablesWidget";
 export { WidgetConfigurationWidget, type WidgetConfigurationWidgetProps } from "./WidgetConfigurationWidget";
 export { AddGadgetModal, type  AddGadgetModalProps } from "./AddGadgetModal";
 export { styles } from "./dashboard.styles";
