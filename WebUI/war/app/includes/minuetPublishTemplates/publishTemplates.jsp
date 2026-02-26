@@ -13,7 +13,7 @@
         </div>
         <div class="row">
             <div class="col-md-4 order-sm-first order-md-2 mb-3">
-                <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                <div class="btn-group btn-group-toggle d-flex" data-bs-toggle="buttons">
                     <label tabindex="3" role="button" title='<i18n:message key = "perc.ui.publish.title@Card"/>' class="btn btn-secondary perc-site-view-toggle-button active">
                         <input value="card" type="radio" name="percSiteView" id="percSiteCardOption" autocomplete="off" checked><i aria-hidden="true" class="fas fa-th fa-fw"></i>&nbsp;&nbsp;<i18n:message key = "perc.ui.publish.title@Card"/>
                     </label>
@@ -92,7 +92,7 @@
             <div class="col">
                 <div id="percServerSection">
                     <div class="card perc-server-card">
-                        <div class="card-header perc-site-card-name" data-toggle="collapse" data-target="#percServerList" aria-expanded="true" aria-controls="percServerList">
+                        <div class="card-header perc-site-card-name" data-bs-toggle="collapse" data-bs-target="#percServerList" aria-expanded="true" aria-controls="percServerList">
                             <div id="percServerSectionTitle" class="perc-publish-section-title">
                                 <i18n:message key="perc.ui.publish.view@Servers"/>
                             </div>
@@ -150,7 +150,7 @@
             <div data-perc-server-name="{{serverName}}" class="btn-group perc-publish-button-group">
                 {{#if (enableIncremental canIncrementalPublish isFullPublishRequired)}}
                 <button title='<i18n:message key="perc.ui.publish.view@Incremental Publish"/>' tabindex="0" aria-label='<i18n:message key="perc.ui.publish.view@Incremental Publish"/>' data-perc-publish-type="incremental" data-perc-server-id="{{serverId}}" type="button" class="btn perc-btn-primary perc-publish-button"><i18n:message key="perc.ui.publish.view@Incremental"/></button>
-                <button title='<i18n:message key="perc.ui.publish.title@Toggle Dropdown"/>' tabindex="0" type="button" class="btn perc-btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button title='<i18n:message key="perc.ui.publish.title@Toggle Dropdown"/>' tabindex="0" type="button" class="btn perc-btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="sr-only"><i18n:message key="perc.ui.publish.title@Toggle Dropdown"/></span>
                 </button>
                 <div role="button" title='<i18n:message key="perc.ui.publish.view@Full Publish"/>' tabindex="0" class="dropdown-menu">
@@ -172,7 +172,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4><i18n:message key="perc.ui.publish.view@Server Properties Configuration"/></h4>
-                    <button type="button" class="close perc-clear-server" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close perc-clear-server" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -185,7 +185,7 @@
                             <button aria-label='<i18n:message key="perc.ui.publish.title@Delete Server"/>' type="button" id="percDeleteServer" class="btn perc-btn-inverse me-auto"><i class="fas fa-trash-alt"></i></button>
                         {{/if}}
                     {{/if}}
-                    <button type="button" class="btn perc-btn-primary perc-clear-server" data-dismiss="modal"><i18n:message key="perc.ui.common.label@Cancel"/></button>
+                    <button type="button" class="btn perc-btn-primary perc-clear-server" data-bs-dismiss="modal"><i18n:message key="perc.ui.common.label@Cancel"/></button>
                     <button id="percUpdateServerProperties" data-perc-server-name="{{serverInfo.serverName}}" type="button" class="btn perc-btn-primary"><i18n:message key="perc.ui.common.label@Save"/></button>
                 </div>
             </div>
