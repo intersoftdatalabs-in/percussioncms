@@ -239,7 +239,7 @@
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
         <versionString>INTERNAL</versionString>
-        <versions.maven.plugin.version>2.20.1</versions.maven.plugin.version>
+        <versions.maven.plugin.version>2.21.0</versions.maven.plugin.version>
         <xerces.version>2.12.2</xerces.version>
         <xmlgraphics.common.version>2.11</xmlgraphics.common.version>
         <xmlresolver.version>1.2</xmlresolver.version>
