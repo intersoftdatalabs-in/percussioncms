@@ -452,11 +452,11 @@ cite {
   color: #2d6987;
 }
 
-.text-left {
+.text-start {
   text-align: left;
 }
 
-.text-right {
+.text-end {
   text-align: right;
 }
 
@@ -2363,20 +2363,20 @@ fieldset[disabled] .btn-link:focus {
   padding: 1px 5px;
 }
 
-.btn-block {
+.d-block w-100 {
   display: block;
   width: 100%;
   padding-right: 0;
   padding-left: 0;
 }
 
-.btn-block + .btn-block {
+.d-block w-100 + .d-block w-100 {
   margin-top: 5px;
 }
 
-input[type="submit"].btn-block,
-input[type="reset"].btn-block,
-input[type="button"].btn-block {
+input[type="submit"].d-block w-100,
+input[type="reset"].d-block w-100,
+input[type="button"].d-block w-100 {
   width: 100%;
 }
 
@@ -5830,7 +5830,7 @@ body.modal-open,
   margin-left: -1px;
 }
 
-.modal-footer .btn-block + .btn-block {
+.modal-footer .d-block w-100 + .d-block w-100 {
   margin-left: 0;
 }
 

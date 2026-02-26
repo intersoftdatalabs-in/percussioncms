@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-define(["knockout", "pubsub", "utils", "dynatree"], function (
+define(["knockout", "pubsub", "utils", "fancytree"], function (
   ko,
   PubSub,
   utils,
-  dynatree
+  fancytree,
 ) {
   return function PageWizardViewModel(options) {
     var self = this;
@@ -34,7 +34,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
       NOT_AUTHORIZED_ERROR_MSG: "NotAuthorized",
       NOT_AUTHORIZED_ERROR_MSG_RESPONSE:
         "You are not authorized to create a page in folder: ",
-      DYNATREE_ID: "#page-folder-tree",
+      FANCYTREE_ID: "#page-folder-tree",
     };
 
     self.isLoading = ko.observable(false);
@@ -65,7 +65,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
     self.multipleSites = ko.computed(function () {
       return self.sites().length > 1;
     }, self);
-    self.dynatreeExists = ko.observable(false);
+    self.fancytreeExists = ko.observable(false);
     self.initialTemplatesLoad = true;
     self.initialFoldersLoad = true;
 
@@ -103,7 +103,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
             .replace(/[ _]/g, "-")
             .replace(/[^a-zA-Z0-9\-_.]/g, "")
             .replace(/[-]+/g, "-")
-            .toLowerCase()
+            .toLowerCase(),
         );
       }
     });
@@ -112,7 +112,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
         self
           .pageFile()
           .replace(/[ ]/g, "-")
-          .replace(/[\\\/:*?"<>|#;%']/g, "")
+          .replace(/[\\\/:*?"<>|#;%']/g, ""),
       ); //.replace( /\.*$/g, '' )
       if (self.fileHasFocus()) self.autfillFocusLost(true);
     });
@@ -262,11 +262,11 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
         });
     }
 
-    self.initDynatree = function () {
+    self.initFancytree = function () {
       // --- Initialize sample trees
       if (self.allFoldersSelected()) {
-        self.dynatreeExists(true);
-        $(self.constants.DYNATREE_ID).dynatree({
+        self.fancytreeExists(true);
+        $(self.constants.FANCYTREE_ID).fancytree({
           children: [
             {
               title: self.selectedSite().name,
@@ -301,7 +301,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
             self.pageFolder(node.data.key);
           },
           classNames: {
-            expander: "dynatree-expander fa",
+            expander: "fancytree-expander fa",
           },
         });
       }
@@ -351,11 +351,11 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
       self.selectedFolderFilter("");
       self.initialTemplatesLoad = true;
       self.initialFoldersLoad = true;
-      if (self.dynatreeExists()) {
-        $(self.constants.DYNATREE_ID).dynatree("destroy");
-        $(self.constants.DYNATREE_ID).empty();
+      if (self.fancytreeExists()) {
+        $(self.constants.FANCYTREE_ID).fancytree("destroy");
+        $(self.constants.FANCYTREE_ID).empty();
       }
-      self.dynatreeExists(false);
+      self.fancytreeExists(false);
       self.fileNameTooLong(false);
     };
 
@@ -363,7 +363,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
       self.initialTemplatesLoad = true;
       self.initialFoldersLoad = true;
       $(self.constants.SECONDARY_BUTTON_SELECTOR).text(
-        self.constants.SECONDARY_BUTTON_NAME
+        self.constants.SECONDARY_BUTTON_NAME,
       );
       self.options.cm1Adaptor
         .getSites()
@@ -431,7 +431,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
                   self.pageFile(),
                   self.pageTitle(),
                   self.pageTemplate(),
-                  self.pageFolder()
+                  self.pageFolder(),
                 )
                 .fail(function (message) {
                   if (message === self.constants.NOT_AUTHORIZED_ERROR_MSG) {
@@ -444,7 +444,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
                 .always(function () {
                   self.isLoading(false);
                 });
-            }
+            },
           );
         }
       }

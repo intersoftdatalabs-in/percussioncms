@@ -51,6 +51,7 @@
         <module>modules/extensions-linkback</module>
         <module>modules/extensions-serverutils</module>
         <module>PCM-PkgMgtUI</module>
+        <module>modules/perc-common-ui-bundle</module>
         <module>WebUI</module>
         <module>modules/perc-thumbnail</module>
         <module>projects/sitemanage</module>

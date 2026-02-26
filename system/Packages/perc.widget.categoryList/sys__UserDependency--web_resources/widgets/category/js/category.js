@@ -17,7 +17,7 @@
 
 $(document).ready(function () {
   $(".perc-category-list .perc-category-list-collapsible").each(function () {
-    $(this).dynatree({
+    $(this).fancytree({
       minExpandLevel: 2, //Default expanded levels = 2
     });
   });

@@ -10,7 +10,7 @@
     boolean isWdgActive = "true".equalsIgnoreCase(wdgBuilderParam.trim());
 %>
 <nav class="navbar perc-nav-title perc-navbar-dark navbar-expand-xs fixed-top">
-    <span class="float-left perc-page-title"><%=currentPage%></span>
+    <span class="float-start perc-page-title"><%=currentPage%></span>
     <button aria-hidden title="Toggle Navigation" role="button" tabindex="1"  id="percToggleNavigation" class="btn perc-nav-toggle perc-btn-primary mt-2 mt-md-0">
         <i aria-hidden class="fas fa-ellipsis-v fa-2x"></i>
     </button>
@@ -80,7 +80,7 @@
         <section id="percNavMenuButtons">
             <div class="row">
                 <div class="col">
-                    <button tabindex="0" title='<i18n:message key="perc.ui.change.pw@Change Password" />'  class="perc-toggle-password btn btn-block perc-btn-inverse perc-nav-menu-button text-left">
+                    <button tabindex="0" title='<i18n:message key="perc.ui.change.pw@Change Password" />'  class="perc-toggle-password btn d-block w-100 perc-btn-inverse perc-nav-menu-button text-start">
                   <span>
                     <i aria-hidden class="fas fa-user-cog  fa-fw"></i>
                   </span>
@@ -92,7 +92,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <a tabindex="0" role="button" href="https://percussioncmshelp.intsof.com" target="_blank" rel="noopener noreferrer" title="<i18n:message key="perc.ui.common.label@Help" />" role="button" class="btn btn-block perc-btn-inverse perc-nav-menu-button text-left">
+                    <a tabindex="0" role="button" href="https://percussioncmshelp.intsof.com" target="_blank" rel="noopener noreferrer" title="<i18n:message key="perc.ui.common.label@Help" />" role="button" class="btn d-block w-100 perc-btn-inverse perc-nav-menu-button text-start">
                   <span>
                     <i aria-hidden class="fas fa-question-circle fa-fw"></i>
                   </span>
@@ -104,7 +104,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <a tabindex="0" role="button" href="https://percussioncmscommunity.intsof.com/" target="_blank" rel="noopener noreferrer" title="<i18n:message key="perc.ui.common.label@Percussion Community" />" role="button" class="btn btn-block perc-btn-inverse perc-nav-menu-button text-left">
+                    <a tabindex="0" role="button" href="https://percussioncmscommunity.intsof.com/" target="_blank" rel="noopener noreferrer" title="<i18n:message key="perc.ui.common.label@Percussion Community" />" role="button" class="btn d-block w-100 perc-btn-inverse perc-nav-menu-button text-start">
                   <span>
                     <i aria-hidden class="fas fa-hands-helping fa-fw"></i>
                   </span>
@@ -116,7 +116,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <button tabindex="0" title="<i18n:message key="perc.ui.common.label@About" />" class="perc-toggle-about btn btn-block perc-btn-inverse perc-nav-menu-button text-left">
+                    <button tabindex="0" title="<i18n:message key="perc.ui.common.label@About" />" class="perc-toggle-about btn d-block w-100 perc-btn-inverse perc-nav-menu-button text-start">
                   <span>
                     <i aria-hidden class="fas fa-info-circle fa-fw"></i>
                   </span>
@@ -128,7 +128,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <a tabindex="0" role="button" href="/Rhythmyx/logout" title="<i18n:message key="perc.ui.common.label@Log Out" />" role="button" class="btn btn-block perc-btn-inverse perc-nav-menu-button text-left">
+                    <a tabindex="0" role="button" href="/Rhythmyx/logout" title="<i18n:message key="perc.ui.common.label@Log Out" />" role="button" class="btn d-block w-100 perc-btn-inverse perc-nav-menu-button text-start">
                   <span>
                     <i aria-hidden class="fas fa-sign-out-alt fa-fw"></i>
                   </span>
@@ -152,14 +152,14 @@
 <div role="dialog" tabindex="-1" aria-modal="true" style="display:none;" id="percAbout">
     <div role="document" class="container d-flex h-100">
         <div class="row align-items-center">
-            <div class="col text-left">
+            <div class="col text-start">
                 <span class="perc-dialog-title"><i18n:message key="perc.ui.change.pw@About Percussion" /></span>
                 <hr class="perc-divider-white mb-5">
                 <p><img class="perc-about-logo" src="/cm/images/logos/percussion-logo-white.png" alt="Percussion Logo" title="Percussion"></p>
                 <p><%= ver %></p>
                 <p>Copyright &copy; <%= year %> by Percussion&nbsp;Software&nbsp;Inc.</p>
                 <p><a title="Percussion Software" href="https://www.percussion.com" target="_blank" rel="noopener noreferrer" class="perc-about-link">https://www.percussion.com</a></p>
-                <p><button tabindex="0" title='<i18n:message key="perc.ui.common.label@Close" />' class="perc-toggle-about perc-close-about btn btn-block perc-confirmation-button perc-confirmation-button-dark"><i18n:message key="perc.ui.common.label@Close" /></button></p>
+                <p><button tabindex="0" title='<i18n:message key="perc.ui.common.label@Close" />' class="perc-toggle-about perc-close-about btn d-block w-100 perc-confirmation-button perc-confirmation-button-dark"><i18n:message key="perc.ui.common.label@Close" /></button></p>
             </div>
         </div>
     </div>
@@ -189,10 +189,10 @@
                     </div>
                     <div class="row">
                         <div class="col-6">
-                            <button tabindex="0" title='<i18n:message key="perc.ui.common.label@Cancel" />' class="perc-toggle-password btn btn-block perc-confirmation-button perc-confirmation-button-dark"><i18n:message key="perc.ui.common.label@Cancel" /></button>
+                            <button tabindex="0" title='<i18n:message key="perc.ui.common.label@Cancel" />' class="perc-toggle-password btn d-block w-100 perc-confirmation-button perc-confirmation-button-dark"><i18n:message key="perc.ui.common.label@Cancel" /></button>
                         </div>
                         <div class="col-6">
-                            <button tabindex="0" title='<i18n:message key="perc.ui.common.label@Submit" />' class="btn btn-block perc-confirmation-button perc-confirmation-button-dark perc-submit-password-change"><i18n:message key="perc.ui.common.label@Submit" /></button>
+                            <button tabindex="0" title='<i18n:message key="perc.ui.common.label@Submit" />' class="btn d-block w-100 perc-confirmation-button perc-confirmation-button-dark perc-submit-password-change"><i18n:message key="perc.ui.common.label@Submit" /></button>
                         </div>
                     </div>
                 </div>

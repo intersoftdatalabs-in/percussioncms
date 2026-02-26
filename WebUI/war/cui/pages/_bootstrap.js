@@ -26,14 +26,14 @@ var requireJsConfig = {
     "jquery-ui": "/cm/cui/components/jquery-ui/jquery-ui",
     knockout: "/cm/cui/components/knockoutjs/dist/knockout",
     pubsub: "/cm/cui/components/pubsub-js/src/pubsub",
-    dynatree:
-      "/cm/jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree",
+    fancytree:
+      "/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree",
     "widgel-base": "/cm/cui/components/widgel/dist/widgel-base",
     "perc-utils": "/cm/cui/components/perc-utils/dist",
     "perc-css": "/cm/cui/components/perc-css/perc.css",
     "opensans-css": "/cm/cui/components/google-fonts/opensans.css",
     "montserrat-css": "/cm/cui/components/google-fonts/montserrat.css",
-    "dynatree-css": "/cm/cui/components/dynatree/skin/ui.dynatree.css",
+    "fancytree-css": "/cm/cui/components/fancytree/skin/ui.fancytree.css",
     widgets: "/cm/cui/widgets",
     modules: "/cm/cui/modules",
     test: "/cm/cui/test",
@@ -45,8 +45,12 @@ var requireJsConfig = {
       "/cm/jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
     "bootstrap-theme":
       "/cm/cui/components/twitter-bootstrap-3.0.0/dist/css/bootstrap-theme.min.css",
+    "bootstrap5-compat": "/cm/assets/js/bootstrap5-compat",
   },
   shim: {
+    "bootstrap5-compat": {
+      deps: ["jquery"],
+    },
     knockout: {
       exports: "ko",
     },
@@ -54,7 +58,7 @@ var requireJsConfig = {
       exports: "$",
       deps: ["jquery"],
     },
-    dynatree: {
+    fancytree: {
       deps: ["jquery-ui"],
     },
   },
