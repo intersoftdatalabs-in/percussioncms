@@ -1047,9 +1047,9 @@ public class PSMetadataQueryServiceTest {
       props = toPropsMap(entry.getProperties());
 
       assertEquals(
-          "Title greater than previous",
           orderedTitles[i],
-          props.get("dcterms:title").getStringvalue());
+          props.get("dcterms:title").getStringvalue(),
+          "Title greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1065,7 +1065,7 @@ public class PSMetadataQueryServiceTest {
 
     props = toPropsMap(results.get(1).getProperties());
     assertEquals(
-        "First title from the list", "f page", props.get("dcterms:title").getStringvalue());
+        "f page", props.get("dcterms:title").getStringvalue(), "First title from the list");
   }
 
   @Test
@@ -1122,9 +1122,9 @@ public class PSMetadataQueryServiceTest {
       props = toPropsMap(entry.getProperties());
 
       assertEquals(
-          "Title greater than previous",
           orderedTitles[i],
-          props.get("dcterms:title").getStringvalue());
+          props.get("dcterms:title").getStringvalue(),
+          "Title greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1151,7 +1151,7 @@ public class PSMetadataQueryServiceTest {
     String[] orderedFileNames =
         new String[] {"/run.html", "/none.html", "/hello.html", "/bye.html"};
 
-    String[] orderedPagePaths = new String[ENTRY_COUNT];
+    String[] orderedPagePaths = new String[orderedFileNames.length];
 
     String path = "/customSite/folder1/child1";
 
@@ -1180,20 +1180,18 @@ public class PSMetadataQueryServiceTest {
     List<IPSMetadataEntry> results = searchResults.getFirst();
 
     assertNotNull(results, "entries not null");
-    assertEquals(5, results.size(), "results list size");
+    assertEquals(4, results.size(), "results list size");
 
     PSDbMetadataEntry entry;
 
     for (int i = 0; i < results.size(); i++) {
       entry = (PSDbMetadataEntry) results.get(i);
       System.out.println(entry.getPagepath());
-      assertEquals("Pagepath greater than previous", orderedPagePaths[i], entry.getPagepath());
+      assertEquals(orderedPagePaths[i], entry.getPagepath(), "Pagepath greater than previous");
     }
 
-    assertEquals(4, results.size(), "results list size");
-
     totalCount = searchResults.getSecond();
-    assertEquals(5, totalCount.intValue(), "total entries");
+    assertEquals(4, totalCount.intValue(), "total entries");
   }
 
   @Test
@@ -1234,7 +1232,7 @@ public class PSMetadataQueryServiceTest {
 
     for (int i = 0; i < results.size(); i++) {
       entry = (PSDbMetadataEntry) results.get(i);
-      assertEquals("Pagepath greater than previous", folderNames[i], entry.getFolder());
+      assertEquals(folderNames[i], entry.getFolder(), "Folder greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1383,7 +1381,7 @@ public class PSMetadataQueryServiceTest {
     List<IPSMetadataEntry> results = searchResults.getFirst();
 
     assertNotNull(results, "entries not null");
-    assertEquals(ENTRY_COUNT, results.size(), "entries found");
+    assertEquals(entryCountExpected, results.size(), "entries found");
 
     for (IPSMetadataEntry entry : results) {
       assertTrue(propertyValueChecker.valueIsCorrect(entry), "entry with correct value");
@@ -1624,7 +1622,14 @@ public class PSMetadataQueryServiceTest {
           latest = curDate;
           System.out.println("Starting date is " + latest.toString());
         } else {
-          assertTrue(latest.after(curDate));
+          // Descending ordering: allow equality because multiple entries can share the same date
+          // (random test data, day-level precision).
+          assertTrue(
+              !latest.before(curDate),
+              "Expected non-increasing created dates (desc), but "
+                  + latest
+                  + " was older than "
+                  + curDate);
           System.out.println(latest.toString() + " is more recent than " + curDate.toString());
           latest = curDate;
         }
@@ -1665,7 +1670,14 @@ public class PSMetadataQueryServiceTest {
         if (latest == null) {
           latest = curDate;
         } else {
-          assertTrue(latest.before(curDate));
+          // Ascending ordering: allow equality because multiple entries can share the same date
+          // (random test data, day-level precision).
+          assertTrue(
+              !latest.after(curDate),
+              "Expected non-decreasing created dates (asc), but "
+                  + latest
+                  + " was newer than "
+                  + curDate);
           System.out.println(latest.toString() + " is older than " + curDate.toString());
           latest = curDate;
         }

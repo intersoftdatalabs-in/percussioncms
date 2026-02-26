@@ -47,7 +47,8 @@
 
 				<!-- Apache Derby -->
 				<prop key="jdbcUrl">jdbc:derby:memory:percmetadata;create=true</prop>
-				<prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+				<!-- Derby 10.17 no longer exposes org.apache.derby.jdbc.EmbeddedDriver; use the autoloaded driver instead -->
+				<prop key="jdbcDriver">org.apache.derby.iapi.jdbc.AutoloadedDriver</prop>
 				<prop key="db.username">test</prop>
 				<prop key="db.password">test</prop>
 				<prop key="db.schema">APP</prop>
@@ -119,7 +120,7 @@
 
 	<!-- Hibernate SessionFactory -->
 	<bean id="metadataSessionFactory"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean">
 		<property name="dataSource">
 			<ref bean="${datasource}" />
 		</property>
@@ -135,7 +136,7 @@
 		transaction-manager="txManager" />
 
 	<bean id="txManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		class="org.springframework.orm.jpa.hibernate.HibernateTransactionManager">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 		<property name="nestedTransactionAllowed" value="true" />
 	</bean>

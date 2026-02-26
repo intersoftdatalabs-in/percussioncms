@@ -432,20 +432,27 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
     for (int i = 0; i < propsCrit.size(); i++)
       queryBuf.append(" left join me.properties as p").append(i);
 
-    if (!entryCrit.isEmpty() || !propsCrit.isEmpty()) queryBuf.append(" where");
+    // If sorting on a specific metadata property, we must apply the prop.name filter even when
+    // there are no other criteria; otherwise the generated HQL will be syntactically invalid and/or
+    // produce duplicate rows.
+    if (isSortingOnProperty || !entryCrit.isEmpty() || !propsCrit.isEmpty()) {
+      queryBuf.append(" where");
+    }
 
     if ((isSortingOnProperty)) {
-      queryBuf
-          .append(" prop.id.name = ")
-          .append("'")
-          .append(PSMetadataQueryServiceHelper.getSortPropertyName(orderBy))
-          .append("'");
+      // PSDbMetadataProperty has a simple String 'name' column (not a composite id with 'name').
+      // Bind this as a parameter to avoid quoting/escaping issues.
+      queryBuf.append(" lower(prop.name) = lower(:sortPropName)");
     }
     String clauseTemplate = " me.{0} {1} :{2}";
     String inClauseTemplate = " me.{0} {1} (:{2})";
     int paramIndex = 0;
     Map<String, Object> paramValues = new HashMap<>();
     Map<String, PSCriteriaElement.OPERATION_TYPE> paramOps = new HashMap<>();
+    if (isSortingOnProperty) {
+      paramValues.put(
+          "sortPropName", PSMetadataQueryServiceHelper.getSortPropertyName(orderBy));
+    }
     boolean needConjunction = false;
     if (isSortingOnProperty) {
       needConjunction = true;
@@ -463,8 +470,8 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       paramOps.put(replParam, ce.getOperationType());
     }
 
-    clauseTemplate = " lower(p{0}.id.name) = lower(:{4}) and p{0}.{1} {2} :{3}";
-    inClauseTemplate = " lower(p{0}.id.name) = lower(:{4}) and p{0}.{1} {2} (:{3})";
+    clauseTemplate = " lower(p{0}.name) = lower(:{4}) and p{0}.{1} {2} :{3}";
+    inClauseTemplate = " lower(p{0}.name) = lower(:{4}) and p{0}.{1} {2} (:{3})";
 
     int i = 0;
     for (PSCriteriaElement ce : propsCrit) {

@@ -44,9 +44,13 @@
       -->
       <property name="properties">
          <props>
-		    <!-- default properties for database -->
+	     <!-- default properties for database -->
             <prop key="jdbcUrl">jdbc:derby:${catalina.home}/derbydata/percmetadata;create=true</prop>
-            <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+	     <!--
+	        Derby 10.17+ no longer exposes org.apache.derby.jdbc.EmbeddedDriver.
+	        Use the JDBC4 autoloaded driver instead.
+	     -->
+            <prop key="jdbcDriver">org.apache.derby.iapi.jdbc.AutoloadedDriver</prop>
             <prop key="maximumPoolSize">10</prop>
 			<prop key="db.username">APP</prop>
 			<prop key="db.password">test</prop>
@@ -87,7 +91,7 @@
 
    <!-- Hibernate SessionFactory -->
    <bean id="metadataSessionFactory"
-         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+         class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean">
       <property name="dataSource">
          <ref bean="${datasource}" />
       </property>
@@ -101,7 +105,7 @@
    
    <tx:annotation-driven transaction-manager="txManager"/>
    
-   <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+      <bean id="txManager" class="org.springframework.orm.jpa.hibernate.HibernateTransactionManager">
       <property name="sessionFactory" ref="metadataSessionFactory" />
       <property name="nestedTransactionAllowed" value="true" />
    </bean>

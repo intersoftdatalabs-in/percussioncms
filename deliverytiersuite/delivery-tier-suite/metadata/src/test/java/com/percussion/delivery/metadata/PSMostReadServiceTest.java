@@ -259,7 +259,7 @@ public class PSMostReadServiceTest {
     }
 
     bpv = new PSDbBlogPostVisit("test", new Date(), BigInteger.ONE);
-    assertEquals("should equal test", bpv.getPagepath(), "test");
+    assertEquals("test", bpv.getPagepath(), "should equal test");
     assertTrue(bpv.getHitDate().getTime() <= System.currentTimeMillis());
   }
 

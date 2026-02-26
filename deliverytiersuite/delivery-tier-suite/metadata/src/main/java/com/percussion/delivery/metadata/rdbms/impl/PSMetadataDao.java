@@ -41,6 +41,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -207,18 +208,33 @@ public class PSMetadataDao implements IPSMetadataDao {
       Collection<PSDbMetadataEntry> dbEntries = convertRestEntriesToDb(entries);
       session.setHibernateFlushMode(FlushMode.ALWAYS);
       // Save entries
-      int i = 0;
+      //
+      // NOTE: We primarily deal with detached entities coming from service.findEntry(..) in tests
+      // and runtime usage. Using merge is more reliable with JPA CascadeType mappings than
+      // saveOrUpdate, ensuring changes to child collections are persisted.
       for (PSDbMetadataEntry entry : dbEntries) {
         tx = session.beginTransaction();
         try {
-          session.saveOrUpdate(entry);
-          tx.commit();
-        } catch (org.hibernate.NonUniqueObjectException e) {
           session.merge(entry);
           tx.commit();
+        } catch (HibernateException e) {
+          if (tx != null && tx.isActive()) {
+            tx.rollback();
+          }
+          throw e;
+        } catch (RuntimeException e) {
+          if (tx != null && tx.isActive()) {
+            tx.rollback();
+          }
+          throw e;
         }
       }
-    } catch (Exception e) {
+    } catch (HibernateException e) {
+      if (tx != null && tx.isActive()) {
+        tx.rollback();
+      }
+      log.error(PSExceptionUtils.getMessageForLog(e));
+    } catch (RuntimeException e) {
       if (tx != null && tx.isActive()) {
         tx.rollback();
       }
