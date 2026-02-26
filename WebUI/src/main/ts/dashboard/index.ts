@@ -35,5 +35,6 @@ export { CommentsWidget, type CommentsWidgetProps } from "./CommentsWidget";
 export { FormsTrackerWidget, type FormsTrackerWidgetProps } from "./FormsTrackerWidget";
 export { CookieConsentWidget, type CookieConsentWidgetProps } from "./CookieConsentWidget";
 export { SEOAuditWidget, type SEOAuditWidgetProps } from "./SEOAuditWidget";
+export { GoogleSetupWidget, type GoogleSetupWidgetProps } from "./GoogleSetupWidget";
 export { AddGadgetModal, type  AddGadgetModalProps } from "./AddGadgetModal";
 export { styles } from "./dashboard.styles";

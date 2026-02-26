@@ -44,6 +44,7 @@ import { CommentsWidget } from "./CommentsWidget";
 import { FormsTrackerWidget } from "./FormsTrackerWidget";
 import { CookieConsentWidget } from "./CookieConsentWidget";
 import { SEOAuditWidget } from "./SEOAuditWidget";
+import { GoogleSetupWidget } from "./GoogleSetupWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -156,6 +157,13 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     component: SEOAuditWidget,
     description: "SEO health metrics and recommendations",
     category: "Analytics",
+  },
+  {
+    id: "google-setup",
+    name: "Google Setup",
+    component: GoogleSetupWidget,
+    description: "Google integration and account configuration status",
+    category: "Integration",
   },
 ];
 
