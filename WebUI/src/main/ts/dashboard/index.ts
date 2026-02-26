@@ -30,4 +30,5 @@ export { AssetsStatusWidget, type AssetsStatusWidgetProps } from "./AssetsStatus
 export { BulkUploadWidget, type BulkUploadWidgetProps } from "./BulkUploadWidget";
 export { ReportsWidget, type ReportsWidgetProps } from "./ReportsWidget";
 export { TrafficWidget, type TrafficWidgetProps } from "./TrafficWidget";
+export { AddWidgetModal, type AddWidgetModalProps } from "./AddWidgetModal";
 export { styles } from "./dashboard.styles";
