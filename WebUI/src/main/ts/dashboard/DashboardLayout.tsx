@@ -42,9 +42,10 @@ export interface DashboardWidget {
 
 export interface DashboardLayoutProps {
   widgets: DashboardWidget[];
+  onRemoveGadget?: (gadgetId: string) => void;
 }
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ widgets }) => {
+export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ widgets, onRemoveGadget }) => {
   // Separate widgets by column
   const leftWidgets = widgets
     .filter((w) => w.position.column === "left")
@@ -58,15 +59,85 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ widgets }) => 
     <div style={styles.container}>
       <div style={styles.column}>
         {leftWidgets.map((widget) => (
-          <div key={widget.id}>
+          <div
+            key={widget.id}
+            style={{
+              position: "relative",
+              marginBottom: "16px",
+            }}
+          >
+            {/* Gadget component */}
             <widget.component {...(widget.props || {})} />
+
+            {/* Remove button */}
+            {onRemoveGadget && (
+              <button
+                onClick={() => onRemoveGadget(widget.id)}
+                style={{
+                  position: "absolute",
+                  top: "8px",
+                  right: "8px",
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "28px",
+                  height: "28px",
+                  padding: "0",
+                  cursor: "pointer",
+                  fontSize: "1em",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10,
+                }}
+                title="Remove gadget"
+              >
+                ✕
+              </button>
+            )}
           </div>
         ))}
       </div>
       <div style={styles.column}>
         {rightWidgets.map((widget) => (
-          <div key={widget.id}>
+          <div
+            key={widget.id}
+            style={{
+              position: "relative",
+              marginBottom: "16px",
+            }}
+          >
+            {/* Gadget component */}
             <widget.component {...(widget.props || {})} />
+
+            {/* Remove button */}
+            {onRemoveGadget && (
+              <button
+                onClick={() => onRemoveGadget(widget.id)}
+                style={{
+                  position: "absolute",
+                  top: "8px",
+                  right: "8px",
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "28px",
+                  height: "28px",
+                  padding: "0",
+                  cursor: "pointer",
+                  fontSize: "1em",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10,
+                }}
+                title="Remove gadget"
+              >
+                ✕
+              </button>
+            )}
           </div>
         ))}
       </div>

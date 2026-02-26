@@ -18,14 +18,14 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AddWidgetModal } from './AddWidgetModal';
+import { AddGadgetModal } from '../../main/ts/dashboard/AddGadgetModal';
 
-describe('AddWidgetModal', () => {
-  const mockAvailableWidgets = [
-    { id: '1', name: 'Widget A', description: 'Description A', category: 'Analytics' },
-    { id: '2', name: 'Widget B', description: 'Description B', category: 'Reports' },
-    { id: '3', name: 'Widget C', description: 'Description C', category: 'Analytics' },
-    { id: '4', name: 'Widget D', description: 'Description D', category: 'Tools' },
+describe('AddGadgetModal', () => {
+  const mockAvailableGadgets = [
+    { id: '1', name: 'Gadget A', description: 'Description A', category: 'Analytics' },
+    { id: '2', name: 'Gadget B', description: 'Description B', category: 'Reports' },
+    { id: '3', name: 'Gadget C', description: 'Description C', category: 'Analytics' },
+    { id: '4', name: 'Gadget D', description: 'Description D', category: 'Tools' },
   ];
 
   const mockOnAdd = vi.fn();
@@ -38,10 +38,10 @@ describe('AddWidgetModal', () => {
 
   it('should not render when isOpen is false', () => {
     const { container } = render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={false}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
@@ -52,41 +52,41 @@ describe('AddWidgetModal', () => {
 
   it('should render when isOpen is true', () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
     );
 
-    expect(screen.getByText('Add Widget')).toBeDefined();
+    expect(screen.getByText('Add Gadget')).toBeDefined();
   });
 
-  it('should display all available widgets', () => {
+  it('should display all available gadgets', () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
     );
 
-    expect(screen.getByText('Widget A')).toBeDefined();
-    expect(screen.getByText('Widget B')).toBeDefined();
-    expect(screen.getByText('Widget C')).toBeDefined();
-    expect(screen.getByText('Widget D')).toBeDefined();
+    expect(screen.getByText('Gadget A')).toBeDefined();
+    expect(screen.getByText('Gadget B')).toBeDefined();
+    expect(screen.getByText('Gadget C')).toBeDefined();
+    expect(screen.getByText('Gadget D')).toBeDefined();
   });
 
-  it('should group widgets by category', () => {
+  it('should group gadgets by category', () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
@@ -97,51 +97,51 @@ describe('AddWidgetModal', () => {
     expect(screen.getByText('Tools')).toBeDefined();
   });
 
-  it('should filter widgets by search term', async () => {
+  it('should filter gadgets by search term', async () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
     );
 
-    const searchInput = screen.getByPlaceholderText('Search widgets...');
-    fireEvent.change(searchInput, { target: { value: 'Widget A' } });
+    const searchInput = screen.getByPlaceholderText('Search gadgets...');
+    fireEvent.change(searchInput, { target: { value: 'Gadget A' } });
 
     await waitFor(() => {
-      expect(screen.getByText('Widget A')).toBeDefined();
-      expect(screen.queryByText('Widget B')).toBeNull();
+      expect(screen.getByText('Gadget A')).toBeDefined();
+      expect(screen.queryByText('Gadget B')).toBeNull();
     });
   });
 
-  it('should filter widgets by description', async () => {
+  it('should filter gadgets by description', async () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
     );
 
-    const searchInput = screen.getByPlaceholderText('Search widgets...');
+    const searchInput = screen.getByPlaceholderText('Search gadgets...');
     fireEvent.change(searchInput, { target: { value: 'Description B' } });
 
     await waitFor(() => {
-      expect(screen.getByText('Widget B')).toBeDefined();
+      expect(screen.getByText('Gadget B')).toBeDefined();
     });
   });
 
   it('should call onAdd when add button is clicked', async () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
@@ -153,12 +153,12 @@ describe('AddWidgetModal', () => {
     expect(mockOnAdd).toHaveBeenCalledWith('1');
   });
 
-  it('should disable add button for active widgets', () => {
+  it('should disable add button for active gadgets', () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set(['1', '2'])}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set(['1', '2'])}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
@@ -168,17 +168,17 @@ describe('AddWidgetModal', () => {
       (btn) => btn.textContent === 'Added' || btn.textContent === 'Add'
     );
 
-    // First two buttons should be disabled (for widgets 1 and 2)
+    // First two buttons should be disabled (for gadgets 1 and 2)
     expect(buttons[0].textContent).toBe('Added');
     expect(buttons[1].textContent).toBe('Added');
   });
 
   it('should call onClose when close button is clicked', () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
@@ -193,10 +193,10 @@ describe('AddWidgetModal', () => {
 
   it('should call onClose when clicking outside modal', () => {
     const { container } = render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
@@ -212,83 +212,83 @@ describe('AddWidgetModal', () => {
 
   it('should not call onClose when clicking inside modal content', () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
     );
 
-    const modalContent = screen.getByText('Add Widget').parentElement;
+    const modalContent = screen.getByText('Add Gadget').parentElement;
     if (modalContent) {
       fireEvent.click(modalContent);
       expect(mockOnClose).not.toHaveBeenCalled();
     }
   });
 
-  it('should display "No widgets found" when search returns empty', async () => {
+  it('should display "No gadgets found" when search returns empty', async () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
     );
 
-    const searchInput = screen.getByPlaceholderText('Search widgets...');
-    fireEvent.change(searchInput, { target: { value: 'NonexistentWidget' } });
+    const searchInput = screen.getByPlaceholderText('Search gadgets...');
+    fireEvent.change(searchInput, { target: { value: 'NonexistentGadget' } });
 
     await waitFor(() => {
-      expect(screen.getByText('No widgets found')).toBeDefined();
+      expect(screen.getByText('No gadgets found')).toBeDefined();
     });
   });
 
   it('should clear search when input is cleared', async () => {
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={mockAvailableWidgets}
-        activeWidgetIds={new Set()}
+        availableGadgets={mockAvailableGadgets}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
     );
 
-    const searchInput = screen.getByPlaceholderText('Search widgets...') as HTMLInputElement;
-    fireEvent.change(searchInput, { target: { value: 'Widget A' } });
+    const searchInput = screen.getByPlaceholderText('Search gadgets...') as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: 'Gadget A' } });
 
     await waitFor(() => {
-      expect(searchInput.value).toBe('Widget A');
+      expect(searchInput.value).toBe('Gadget A');
     });
 
     fireEvent.change(searchInput, { target: { value: '' } });
 
     await waitFor(() => {
-      expect(screen.getByText('Widget B')).toBeDefined();
+      expect(screen.getByText('Gadget B')).toBeDefined();
     });
   });
 
-  it('should handle widgets without category', () => {
-    const widgetsWithoutCategory = [
-      { id: '1', name: 'Widget No Cat', description: 'No category' },
-      { id: '2', name: 'Widget A', description: 'Description A', category: 'Analytics' },
+  it('should handle gadgets without category', () => {
+    const gadgetsWithoutCategory = [
+      { id: '1', name: 'Gadget No Cat', description: 'No category' },
+      { id: '2', name: 'Gadget A', description: 'Description A', category: 'Analytics' },
     ];
 
     render(
-      <AddWidgetModal
+      <AddGadgetModal
         isOpen={true}
-        availableWidgets={widgetsWithoutCategory}
-        activeWidgetIds={new Set()}
+        availableGadgets={gadgetsWithoutCategory}
+        activeGadgetIds={new Set()}
         onAdd={mockOnAdd}
         onClose={mockOnClose}
       />
     );
 
-    expect(screen.getByText('Widget No Cat')).toBeDefined();
+    expect(screen.getByText('Gadget No Cat')).toBeDefined();
     expect(screen.getByText('Other')).toBeDefined(); // Default category
   });
 });
