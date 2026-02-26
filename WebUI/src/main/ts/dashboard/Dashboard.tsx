@@ -41,6 +41,7 @@ import { ReportsWidget } from "./ReportsWidget";
 import { TrafficWidget } from "./TrafficWidget";
 import { BlogsWidget } from "./BlogsWidget";
 import { CommentsWidget } from "./CommentsWidget";
+import { FormsTrackerWidget } from "./FormsTrackerWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -131,6 +132,13 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Comments",
     component: CommentsWidget,
     description: "Latest visitor comments and feedback",
+    category: "Content Management",
+  },
+  {
+    id: "forms-tracker",
+    name: "Form Tracker",
+    component: FormsTrackerWidget,
+    description: "Form submission tracking and analytics",
     category: "Content Management",
   },
 ];
