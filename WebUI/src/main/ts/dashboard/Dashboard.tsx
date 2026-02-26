@@ -43,6 +43,7 @@ import { BlogsWidget } from "./BlogsWidget";
 import { CommentsWidget } from "./CommentsWidget";
 import { FormsTrackerWidget } from "./FormsTrackerWidget";
 import { CookieConsentWidget } from "./CookieConsentWidget";
+import { SEOAuditWidget } from "./SEOAuditWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -148,6 +149,13 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     component: CookieConsentWidget,
     description: "GDPR compliance and cookie consent status",
     category: "Compliance",
+  },
+  {
+    id: "seo-audit",
+    name: "SEO Audit",
+    component: SEOAuditWidget,
+    description: "SEO health metrics and recommendations",
+    category: "Analytics",
   },
 ];
 
