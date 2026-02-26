@@ -19,8 +19,8 @@
 //  - require.js
 
 requirejs(
-  ["jquery", "perc-utils/hashwatcher", "widgets/app/app"],
-  function ($, HashWatcher, app) {
+  ["jquery", "bootstrap5-compat", "perc-utils/hashwatcher", "widgets/app/app"],
+  function ($, bootstrap5Compat, HashWatcher, app) {
     $(document).ready(function () {
       var $app = $("#application");
       $app.app();
