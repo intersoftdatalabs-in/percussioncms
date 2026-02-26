@@ -137,30 +137,6 @@
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>
-		<packageName>perc.gadget.blogs</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.welcome</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.iframe</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.globalVariables</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.processMonitor</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.widgetConfig</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
 		<packageName>perc.widget.MostReadBlogPosts</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>
@@ -177,78 +153,6 @@
 
 	<PackageFileEntry>
 		<packageName>perc.widgets.image</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.pageByStatus</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.assetByStatus</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.comments</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.seoAuditor</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.activity</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.bulkFileUpload</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.cookieconsent</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.googleSetup</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.siteImprove</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.effectiveness</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.traffic</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.formTracker</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.membership</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.licenseMonitor</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.pageOptimizerKeywords</packageName>
-		<status>UNINSTALL</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.SiteConfig</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.reports</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.gadget.siteframework</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>

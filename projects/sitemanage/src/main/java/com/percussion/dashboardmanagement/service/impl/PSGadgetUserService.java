@@ -104,8 +104,7 @@ public class PSGadgetUserService implements IPSGadgetUserService {
     "http://www.labpixies.com/campaigns/todo/todo.xml",
     "http://www.labpixies.com/campaigns/weather/weather.xml",
     "http://www.labpixies.com/campaigns/calendar/calendar.xml",
-    "http://www.labpixies.com/campaigns/wiki/wiki.xml",
-    "http://localhost:9982/shindig/gadgets/hello_world.xml"
+    "http://www.labpixies.com/campaigns/wiki/wiki.xml"
   };
 
   String[] alexGadgetUrls = {
