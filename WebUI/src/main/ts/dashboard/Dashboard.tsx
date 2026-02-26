@@ -49,6 +49,7 @@ import { MembershipWidget } from "./MembershipWidget";
 import { SitewideFrameworkWidget } from "./SitewideFrameworkWidget";
 import { SiteimproveWidget } from "./SiteimproveWidget";
 import { IframeWidget } from "./IframeWidget";
+import { WidgetConfigurationWidget } from "./WidgetConfigurationWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -196,6 +197,13 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     component: IframeWidget,
     description: "Embedded external content and dashboards",
     category: "External",
+  },
+  {
+    id: "widget-configuration",
+    name: "Dashboard Configuration",
+    component: WidgetConfigurationWidget,
+    description: "Manage dashboard widgets and configuration",
+    category: "System",
   },
 ];
 const DEFAULT_GADGETS: DashboardWidget[] = [
