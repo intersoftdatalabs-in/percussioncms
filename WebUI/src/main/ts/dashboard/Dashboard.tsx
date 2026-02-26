@@ -47,6 +47,8 @@ import { SEOAuditWidget } from "./SEOAuditWidget";
 import { GoogleSetupWidget } from "./GoogleSetupWidget";
 import { MembershipWidget } from "./MembershipWidget";
 import { SitewideFrameworkWidget } from "./SitewideFrameworkWidget";
+import { SiteimproveWidget } from "./SiteimproveWidget";
+import { IframeWidget } from "./IframeWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -180,6 +182,20 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     component: SitewideFrameworkWidget,
     description: "Framework configuration and module status",
     category: "System",
+  },
+  {
+    id: "siteimprove",
+    name: "Siteimprove",
+    component: SiteimproveWidget,
+    description: "Accessibility and quality metrics from Siteimprove",
+    category: "Analytics",
+  },
+  {
+    id: "iframe",
+    name: "External Content",
+    component: IframeWidget,
+    description: "Embedded external content and dashboards",
+    category: "External",
   },
 ];
 const DEFAULT_GADGETS: DashboardWidget[] = [

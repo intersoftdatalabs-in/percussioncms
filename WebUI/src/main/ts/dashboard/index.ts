@@ -38,5 +38,7 @@ export { SEOAuditWidget, type SEOAuditWidgetProps } from "./SEOAuditWidget";
 export { GoogleSetupWidget, type GoogleSetupWidgetProps } from "./GoogleSetupWidget";
 export { MembershipWidget, type MembershipWidgetProps } from "./MembershipWidget";
 export { SitewideFrameworkWidget, type SitewideFrameworkWidgetProps } from "./SitewideFrameworkWidget";
+export { SiteimproveWidget, type SiteimproveWidgetProps } from "./SiteimproveWidget";
+export { IframeWidget, type IframeWidgetProps } from "./IframeWidget";
 export { AddGadgetModal, type  AddGadgetModalProps } from "./AddGadgetModal";
 export { styles } from "./dashboard.styles";
