@@ -17,29 +17,29 @@
 
 import React, { useState } from 'react';
 
-interface AvailableWidget {
+interface AvailableGadget {
   id: string;
   name: string;
   description?: string;
   category?: string;
 }
 
-export interface AddWidgetModalProps {
+export interface AddGadgetModalProps {
   isOpen: boolean;
-  availableWidgets: AvailableWidget[];
-  activeWidgetIds: Set<string>;
-  onAdd: (widgetId: string) => void;
+  availableGadgets: AvailableGadget[];
+  activeGadgetIds: Set<string>;
+  onAdd: (gadgetId: string) => void;
   onClose: () => void;
 }
 
 /**
- * AddWidgetModal component for users to add new widgets to their dashboard.
- * Displays available widgets organized by category with descriptions.
+ * AddGadgetModal component for users to add new gadgets to their dashboard.
+ * Displays available gadgets organized by category with descriptions.
  */
-export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
+export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
   isOpen,
-  availableWidgets,
-  activeWidgetIds,
+  availableGadgets,
+  activeGadgetIds,
   onAdd,
   onClose,
 }) => {
@@ -47,23 +47,23 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
 
   if (!isOpen) return null;
 
-  const filteredWidgets = availableWidgets.filter((widget) => {
+  const filteredGadgets = availableGadgets.filter((gadget) => {
     const matchesSearch =
-      widget.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      widget.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      gadget.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      gadget.description?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
-  const groupedWidgets = filteredWidgets.reduce(
-    (acc, widget) => {
-      const category = widget.category || 'Other';
+  const groupedGadgets = filteredGadgets.reduce(
+    (acc, gadget) => {
+      const category = gadget.category || 'Other';
       if (!acc[category]) {
         acc[category] = [];
       }
-      acc[category].push(widget);
+      acc[category].push(gadget);
       return acc;
     },
-    {} as Record<string, AvailableWidget[]>
+    {} as Record<string, AvailableGadget[]>
   );
 
   return (
@@ -104,7 +104,7 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
             alignItems: 'center',
           } as React.CSSProperties}
         >
-          <h2 style={{ margin: 0, fontSize: '1.5em' }}>Add Widget</h2>
+          <h2 style={{ margin: 0, fontSize: '1.5em' }}>Add Gadget</h2>
           <button
             style={{
               background: 'none',
@@ -123,7 +123,7 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
         <div style={{ padding: '16px 20px' } as React.CSSProperties}>
           <input
             type="text"
-            placeholder="Search widgets..."
+            placeholder="Search gadgets..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -137,24 +137,24 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
           />
         </div>
 
-        {/* Widgets List */}
+        {/* Gadgets List */}
         <div style={{ padding: '0 20px 20px' } as React.CSSProperties}>
-          {Object.entries(groupedWidgets).length === 0 ? (
+          {Object.entries(groupedGadgets).length === 0 ? (
             <p style={{ color: '#999', textAlign: 'center', padding: '40px 0' }}>
-              No widgets found
+              No gadgets found
             </p>
           ) : (
-            Object.entries(groupedWidgets).map(([category, widgets]) => (
+            Object.entries(groupedGadgets).map(([category, gadgets]) => (
               <div key={category} style={{ marginBottom: '20px' } as React.CSSProperties}>
                 <h3 style={{ marginBottom: '12px', color: '#333', fontSize: '0.95em' }}>
                   {category}
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' } as React.CSSProperties}>
-                  {widgets.map((widget) => {
-                    const isActive = activeWidgetIds.has(widget.id);
+                  {gadgets.map((gadget) => {
+                    const isActive = activeGadgetIds.has(gadget.id);
                     return (
                       <div
-                        key={widget.id}
+                        key={gadget.id}
                         style={{
                           padding: '12px',
                           border: '1px solid #e0e0e0',
@@ -178,16 +178,16 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } as React.CSSProperties}>
                           <div style={{ flex: 1 } as React.CSSProperties}>
                             <div style={{ fontWeight: '600', marginBottom: '4px', color: '#333' }}>
-                              {widget.name}
+                              {gadget.name}
                             </div>
-                            {widget.description && (
+                            {gadget.description && (
                               <div style={{ fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}>
-                                {widget.description}
+                                {gadget.description}
                               </div>
                             )}
                           </div>
                           <button
-                            onClick={() => onAdd(widget.id)}
+                            onClick={() => onAdd(gadget.id)}
                             disabled={isActive}
                             style={{
                               marginLeft: '12px',
@@ -217,4 +217,4 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
   );
 };
 
-export default AddWidgetModal;
+export default AddGadgetModal;
