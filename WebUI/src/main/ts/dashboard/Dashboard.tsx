@@ -40,6 +40,7 @@ import { BulkUploadWidget } from "./BulkUploadWidget";
 import { ReportsWidget } from "./ReportsWidget";
 import { TrafficWidget } from "./TrafficWidget";
 import { BlogsWidget } from "./BlogsWidget";
+import { CommentsWidget } from "./CommentsWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -123,6 +124,13 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Blogs",
     component: BlogsWidget,
     description: "Blog listings and management",
+    category: "Content Management",
+  },
+  {
+    id: "comments",
+    name: "Comments",
+    component: CommentsWidget,
+    description: "Latest visitor comments and feedback",
     category: "Content Management",
   },
 ];
