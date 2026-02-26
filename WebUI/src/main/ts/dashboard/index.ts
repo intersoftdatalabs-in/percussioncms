@@ -28,4 +28,5 @@ export { ProcessMonitorWidget, type ProcessMonitorWidgetProps } from "./ProcessM
 export { EffectivenessWidget, type EffectivenessWidgetProps } from "./EffectivenessWidget";
 export { AssetsStatusWidget, type AssetsStatusWidgetProps } from "./AssetsStatusWidget";
 export { BulkUploadWidget, type BulkUploadWidgetProps } from "./BulkUploadWidget";
+export { ReportsWidget, type ReportsWidgetProps } from "./ReportsWidget";
 export { styles } from "./dashboard.styles";
