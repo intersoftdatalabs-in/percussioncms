@@ -27,5 +27,5 @@ requirejs(
 
       var watcher = new HashWatcher();
     });
-  }
+  },
 );
