@@ -12,8 +12,10 @@
     "lint": "eslint src/main/ts --ext .ts,.tsx"
   },
   "dependencies": {
+    "date-fns": "^4.1.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.0",
