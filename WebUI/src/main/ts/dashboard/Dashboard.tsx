@@ -39,6 +39,7 @@ import { AssetsStatusWidget } from "./AssetsStatusWidget";
 import { BulkUploadWidget } from "./BulkUploadWidget";
 import { ReportsWidget } from "./ReportsWidget";
 import { TrafficWidget } from "./TrafficWidget";
+import { BlogsWidget } from "./BlogsWidget";
 
 /**
  * Available gadgets registry for the dashboard.
@@ -116,6 +117,13 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     component: TrafficWidget,
     description: "Content traffic analytics with charts",
     category: "Analytics",
+  },
+  {
+    id: "blogs",
+    name: "Blogs",
+    component: BlogsWidget,
+    description: "Blog listings and management",
+    category: "Content Management",
   },
 ];
 
