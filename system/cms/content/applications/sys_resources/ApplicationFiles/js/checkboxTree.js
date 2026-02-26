@@ -121,11 +121,11 @@
       }
 
       function displayTree(data) {
-        if ($this.dynatree.initialized) {
-          $this.dynatree("destroy");
+        if ($this.fancytree.initialized) {
+          $this.fancytree("destroy");
         }
-        $this.dynatree({
-          imagePath: "../web_resources/cm/css/dynatree/skin",
+        $this.fancytree({
+          imagePath: "../web_resources/cm/css/fancytree/skin",
           checkbox: true,
           selectMode: 2,
           children: data,
@@ -153,11 +153,11 @@
             // Use arrows to navigate within tree, rather than tabs
             // 2012-11-07 on expand/collapse, need to reset tabindexes
             // Performance TODO: scope selection to items that have changed
-            $(".dynatree-title").attr("tabindex", -1);
+            $(".fancytree-title").attr("tabindex", -1);
 
             // Only first item in tree should have a tab stop
             // so we can quickly navigate out of it
-            $(".dynatree-title:first").attr("tabindex", 0);
+            $(".fancytree-title:first").attr("tabindex", 0);
 
             // Focus should return the last tree node visited
             event.target.setAttribute("tabindex", "0");
@@ -170,17 +170,17 @@
             }
           },
           // The following options are only required, if we have more than one tree on one page:
-          cookieId: "ui-dynatree-Cb2" + paramName,
-          idPrefix: "ui-dynatree-Cb2-" + paramName,
+          cookieId: "ui-fancytree-Cb2" + paramName,
+          idPrefix: "ui-fancytree-Cb2-" + paramName,
         });
         resizeTreeWidthToFitContent();
       }
 
       function resizeTreeWidthToFitContent() {
-        var container = $(".dynatree-container");
+        var container = $(".fancytree-container");
         var parentWidth = container.parent().width();
         var biggestWidth = parentWidth;
-        $(".dynatree-title").each(function (index, title) {
+        $(".fancytree-title").each(function (index, title) {
           var width = $(title).width();
           var leftOffset = $(title).offset().left;
           width += leftOffset;

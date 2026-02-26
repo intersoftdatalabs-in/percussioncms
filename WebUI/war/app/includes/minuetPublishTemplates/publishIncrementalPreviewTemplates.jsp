@@ -7,10 +7,10 @@
             </div>
         </div>
         <div class="row">
-            <div class="col text-right">
-                <span class="float-left"><button id="percCloseIncrementalPublishPreviewOverlay" class="btn perc-btn-primary"><i18n:message key="perc.ui.common.label@Back"/></button></span>
+            <div class="col text-end">
+                <span class="float-start"><button id="percCloseIncrementalPublishPreviewOverlay" class="btn perc-btn-primary"><i18n:message key="perc.ui.common.label@Back"/></button></span>
                 {{#if PagedItemList.childrenInPage}}
-                <span class="float-right"><button id="percIncrementalPublishConfirm" class="btn perc-btn-primary"><i18n:message key="perc.ui.common.label@Continue"/></button></span>
+                <span class="float-end"><button id="percIncrementalPublishConfirm" class="btn perc-btn-primary"><i18n:message key="perc.ui.common.label@Continue"/></button></span>
                 {{/if}}
             </div>
         </div>
@@ -21,12 +21,12 @@
 		</div>
         <div class="row">
 			<div class="col">
-				<div class="float-left">
+				<div class="float-start">
 					{{#if PagedItemList.childrenInPage}}
 					<i18n:message key="perc.ui.publish.incrementalPreview@Items queued for incremental"/>: {{PagedItemList.childrenCount}}
 					{{/if}}
 				</div>
-				<div class="float-right" id="perc-paging-buttons">
+				<div class="float-end" id="perc-paging-buttons">
                 </div>
 			</div>
         </div>

@@ -35,7 +35,7 @@
                             </select>
                         </div>
                         <div class="d-flex align-items-end form-group col-sm">
-                            <button title='<i18n:message key="perc.ui.perc.pub.reports@Delete Logs"/>' tabindex="0" aria-label='<i18n:message key="perc.ui.perc.pub.reports@Delete Logs"/>' id="percDeleteServerLogs" class="btn btn-sm btn-block perc-btn-inverse"><i class="fas fa-trash-alt"></i></button>
+                            <button title='<i18n:message key="perc.ui.perc.pub.reports@Delete Logs"/>' tabindex="0" aria-label='<i18n:message key="perc.ui.perc.pub.reports@Delete Logs"/>' id="percDeleteServerLogs" class="btn btn-sm d-block w-100 perc-btn-inverse"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </div>
                 </csrf:form>
@@ -101,8 +101,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col perc-publish-state-nav text-right">
-                    <span class="float-left"><button id="percClosePublishItemsDetails" class="btn perc-btn-primary"><i18n:message key="perc.ui.publish.reports@Back"/></button></span>
+                <div class="col perc-publish-state-nav text-end">
+                    <span class="float-start"><button id="percClosePublishItemsDetails" class="btn perc-btn-primary"><i18n:message key="perc.ui.publish.reports@Back"/></button></span>
                 </div>
             </div>
             <div class="row">
