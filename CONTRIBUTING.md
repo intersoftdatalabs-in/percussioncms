@@ -536,10 +536,6 @@ For example:
            <AppenderRef ref="RevisionPurgeApp"/>
        </AsyncLogger>
 
-      <AsyncLogger name="org.apache.shindig" level="DEBUG" includeLocation="true">
-           <AppenderRef ref="CONSOLE"/>
-           <AppenderRef ref="FILE"/>
-       </AsyncLogger>
       <AsyncLogger name="com.percussion.delivery" level="DEBUG" includeLocation="true">
            <AppenderRef ref="CONSOLE"/>
            <AppenderRef ref="FILE"/>

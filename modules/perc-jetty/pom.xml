@@ -130,7 +130,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.eclipse.jetty</groupId>
-                                    <artifactId>jetty-distribution</artifactId>
+                                    <artifactId>jetty-home</artifactId>
                                     <version>${jetty.version}</version>
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
@@ -256,7 +256,7 @@
                         <configuration>
                             <target>
                                 <copy todir="${assembly-directory}/upstream">
-                                    <fileset dir="${jetty-directory}/jetty-distribution-${jetty.version}/"/>
+                                    <fileset dir="${jetty-directory}/jetty-home-${jetty.version}/"/>
                                 </copy>
                                 <!--Copying the Jetty jar having fix from jetty project for bug CMS-6724 -->
                                 <copy todir="${assembly-directory}/upstream/lib/">

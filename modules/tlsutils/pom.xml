@@ -10,10 +10,7 @@
     <groupId>com.percussion</groupId>
     <artifactId>tlsutils</artifactId>
     <properties>
-        <maven.compiler.release>11</maven.compiler.release>
-        <!-- Java 11 compatibility -->
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>

@@ -197,11 +197,6 @@
 			<AppenderRef ref="CONSOLE" />
 			<AppenderRef ref="FILE" />
 		</AsyncLogger>
-		<AsyncLogger name="org.apache.shindig" level="off"
-			includeLocation="true" additivity="false">
-			<AppenderRef ref="CONSOLE" />
-			<AppenderRef ref="FILE" />
-		</AsyncLogger>
 		<!-- <AsyncLogger name="com.percussion.rx.delivery" level="DEBUG" includeLocation="true">
 			<AppenderRef ref="CONSOLE"/> <AppenderRef ref="FILE"/> </AsyncLogger> -->
 	</Loggers>

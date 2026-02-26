@@ -134,6 +134,59 @@
 			sql="DELETE FROM PSX_WB_HIERARCHY_NODE_PROP WHERE NODE_ID NOT IN (SELECT NODE_ID FROM PSX_WB_HIERARCHY_NODE)"
 			failonerror="false" silenceerrors="false" />
 
+		<!-- ============================================================== -->
+		<!-- Remove obsolete gadget package records from the package engine  -->
+		<!-- tables. Gadgets formerly installed via the package engine have   -->
+		<!-- been migrated to native CMS features and their PSX_PKG_* rows   -->
+		<!-- must be removed so the old/brittle package engine no longer      -->
+		<!-- attempts to manage them on upgrade. Child tables are deleted      -->
+		<!-- before the parent (PSX_PKG_INFO) to satisfy FK constraints.      -->
+		<!-- failonerror="false" makes each statement a no-op on fresh        -->
+		<!-- installs where these rows do not yet exist.                       -->
+		<!-- ============================================================== -->
+
+		<!-- Step 1: Remove PSX_PKG_ELEMENT_DEPEND rows owned by gadget packages -->
+		<PSExecSQLStmt rootDir="${install.dir}"
+			printExceptionStackTrace="true"
+			qualifyTableNames="PSX_PKG_ELEMENT_DEPEND,PSX_PKG_INFO"
+			sql="DELETE FROM PSX_PKG_ELEMENT_DEPEND WHERE OWNER_PACKAGE_GUID IN (SELECT GUID FROM PSX_PKG_INFO WHERE DESCRIPTOR_NAME IN ('perc.gadget.activity','perc.gadget.assetByStatus','perc.gadget.blogs','perc.gadget.bulkFileUpload','perc.gadget.comments','perc.gadget.cookieconsent','perc.gadget.effectiveness','perc.gadget.formTracker','perc.gadget.globalVariables','perc.gadget.googleSetup','perc.gadget.iframe','perc.gadget.licenseMonitor','perc.gadget.membership','perc.gadget.pageByStatus','perc.gadget.processMonitor','perc.gadget.reports','perc.gadget.seoAuditor','perc.gadget.SiteConfig','perc.gadget.siteframework','perc.gadget.siteImprove','perc.gadget.traffic','perc.gadget.welcome','perc.gadget.widgetConfig'))"
+			failonerror="false" silenceerrors="false" />
+
+		<!-- Step 2: Remove PSX_PKG_ELEMENT_DEPEND rows that depend on gadget packages -->
+		<PSExecSQLStmt rootDir="${install.dir}"
+			printExceptionStackTrace="true"
+			qualifyTableNames="PSX_PKG_ELEMENT_DEPEND,PSX_PKG_INFO"
+			sql="DELETE FROM PSX_PKG_ELEMENT_DEPEND WHERE DEPEND_PACKAGE_GUID IN (SELECT GUID FROM PSX_PKG_INFO WHERE DESCRIPTOR_NAME IN ('perc.gadget.activity','perc.gadget.assetByStatus','perc.gadget.blogs','perc.gadget.bulkFileUpload','perc.gadget.comments','perc.gadget.cookieconsent','perc.gadget.effectiveness','perc.gadget.formTracker','perc.gadget.globalVariables','perc.gadget.googleSetup','perc.gadget.iframe','perc.gadget.licenseMonitor','perc.gadget.membership','perc.gadget.pageByStatus','perc.gadget.processMonitor','perc.gadget.reports','perc.gadget.seoAuditor','perc.gadget.SiteConfig','perc.gadget.siteframework','perc.gadget.siteImprove','perc.gadget.traffic','perc.gadget.welcome','perc.gadget.widgetConfig'))"
+			failonerror="false" silenceerrors="false" />
+
+		<!-- Step 3: Remove PSX_PKG_DEPENDENCY rows owned by gadget packages -->
+		<PSExecSQLStmt rootDir="${install.dir}"
+			printExceptionStackTrace="true"
+			qualifyTableNames="PSX_PKG_DEPENDENCY,PSX_PKG_INFO"
+			sql="DELETE FROM PSX_PKG_DEPENDENCY WHERE OWNER_PACKAGE_GUID IN (SELECT GUID FROM PSX_PKG_INFO WHERE DESCRIPTOR_NAME IN ('perc.gadget.activity','perc.gadget.assetByStatus','perc.gadget.blogs','perc.gadget.bulkFileUpload','perc.gadget.comments','perc.gadget.cookieconsent','perc.gadget.effectiveness','perc.gadget.formTracker','perc.gadget.globalVariables','perc.gadget.googleSetup','perc.gadget.iframe','perc.gadget.licenseMonitor','perc.gadget.membership','perc.gadget.pageByStatus','perc.gadget.processMonitor','perc.gadget.reports','perc.gadget.seoAuditor','perc.gadget.SiteConfig','perc.gadget.siteframework','perc.gadget.siteImprove','perc.gadget.traffic','perc.gadget.welcome','perc.gadget.widgetConfig'))"
+			failonerror="false" silenceerrors="false" />
+
+		<!-- Step 4: Remove PSX_PKG_DEPENDENCY rows that depend on gadget packages -->
+		<PSExecSQLStmt rootDir="${install.dir}"
+			printExceptionStackTrace="true"
+			qualifyTableNames="PSX_PKG_DEPENDENCY,PSX_PKG_INFO"
+			sql="DELETE FROM PSX_PKG_DEPENDENCY WHERE DEPENDENT_PACKAGE_GUID IN (SELECT GUID FROM PSX_PKG_INFO WHERE DESCRIPTOR_NAME IN ('perc.gadget.activity','perc.gadget.assetByStatus','perc.gadget.blogs','perc.gadget.bulkFileUpload','perc.gadget.comments','perc.gadget.cookieconsent','perc.gadget.effectiveness','perc.gadget.formTracker','perc.gadget.globalVariables','perc.gadget.googleSetup','perc.gadget.iframe','perc.gadget.licenseMonitor','perc.gadget.membership','perc.gadget.pageByStatus','perc.gadget.processMonitor','perc.gadget.reports','perc.gadget.seoAuditor','perc.gadget.SiteConfig','perc.gadget.siteframework','perc.gadget.siteImprove','perc.gadget.traffic','perc.gadget.welcome','perc.gadget.widgetConfig'))"
+			failonerror="false" silenceerrors="false" />
+
+		<!-- Step 5: Remove PSX_PKG_ELEMENT rows belonging to gadget packages -->
+		<PSExecSQLStmt rootDir="${install.dir}"
+			printExceptionStackTrace="true"
+			qualifyTableNames="PSX_PKG_ELEMENT,PSX_PKG_INFO"
+			sql="DELETE FROM PSX_PKG_ELEMENT WHERE PACKAGE_GUID IN (SELECT GUID FROM PSX_PKG_INFO WHERE DESCRIPTOR_NAME IN ('perc.gadget.activity','perc.gadget.assetByStatus','perc.gadget.blogs','perc.gadget.bulkFileUpload','perc.gadget.comments','perc.gadget.cookieconsent','perc.gadget.effectiveness','perc.gadget.formTracker','perc.gadget.globalVariables','perc.gadget.googleSetup','perc.gadget.iframe','perc.gadget.licenseMonitor','perc.gadget.membership','perc.gadget.pageByStatus','perc.gadget.processMonitor','perc.gadget.reports','perc.gadget.seoAuditor','perc.gadget.SiteConfig','perc.gadget.siteframework','perc.gadget.siteImprove','perc.gadget.traffic','perc.gadget.welcome','perc.gadget.widgetConfig'))"
+			failonerror="false" silenceerrors="false" />
+
+		<!-- Step 6: Remove the gadget package info records themselves -->
+		<PSExecSQLStmt rootDir="${install.dir}"
+			printExceptionStackTrace="true"
+			qualifyTableNames="PSX_PKG_INFO"
+			sql="DELETE FROM PSX_PKG_INFO WHERE DESCRIPTOR_NAME IN ('perc.gadget.activity','perc.gadget.assetByStatus','perc.gadget.blogs','perc.gadget.bulkFileUpload','perc.gadget.comments','perc.gadget.cookieconsent','perc.gadget.effectiveness','perc.gadget.formTracker','perc.gadget.globalVariables','perc.gadget.googleSetup','perc.gadget.iframe','perc.gadget.licenseMonitor','perc.gadget.membership','perc.gadget.pageByStatus','perc.gadget.processMonitor','perc.gadget.reports','perc.gadget.seoAuditor','perc.gadget.SiteConfig','perc.gadget.siteframework','perc.gadget.siteImprove','perc.gadget.traffic','perc.gadget.welcome','perc.gadget.widgetConfig')"
+			failonerror="false" silenceerrors="false" />
+
 		<!-- update table schema -->
 		<echo> updating table schemas</echo>
 
