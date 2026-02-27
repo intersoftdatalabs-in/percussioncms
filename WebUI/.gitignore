@@ -121,4 +121,6 @@ fabric.properties
 /war/jslibMin/*.min.js
 /war/shared-common.css
 /war/shared-common.js
+/war/shared-common.js.map
 /war/shared-common-minuet.js
+/war/shared-common-minuet.css
