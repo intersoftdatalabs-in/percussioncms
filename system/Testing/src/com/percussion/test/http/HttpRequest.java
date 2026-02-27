@@ -644,7 +644,7 @@ public class HttpRequest
     *
     * @return A value >= 0.
     */
-   public int getBytesSent()
+   public long getBytesSent()
    {
       return m_bytesSent;
    }
@@ -654,7 +654,7 @@ public class HttpRequest
     * of <code>sendRequest</code>. 0 until this method called at least once.
     * Use {@link #getBytesSent} to retrieve.
     */
-   protected int m_bytesSent = 0;
+   protected long m_bytesSent = 0L;
    protected Socket m_sock;
    protected LogSink m_logger;
 
