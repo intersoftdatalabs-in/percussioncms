@@ -52,7 +52,7 @@ if (-not (Test-Path $JavaExe)) {
 
 if (-not (Test-Path $JarPath)) {
     Write-Error "DTS distribution JAR not found at $JarPath"
-    Write-Error "Run './mvn-env.sh -P with-dts clean install' to build the project or pass --jar with a release artifact."
+    Write-Error "Run './mvn-env.sh clean install' to build the project or pass --jar with a release artifact."
     exit 1
 }
 

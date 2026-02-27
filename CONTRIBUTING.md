@@ -178,13 +178,7 @@ Key store password properties can be encrypted in your setting.xml by following 
 # Use the project wrapper so Maven runs with JDK 21:
 ./mvn-env.sh clean install
 
-# Build without DTS (default):
-./mvn-env.sh clean install
-
-# Build with DTS (opt-in profile):
-./mvn-env.sh -P with-dts clean install
-
-# One-off: Exclude DTS from the reactor (quote the leading ! to avoid shell history expansion):
+# One-off: Exclude delivery-tier-suite from the reactor (quote the leading ! to avoid shell history expansion):
 ./mvn-env.sh -pl '!deliverytiersuite/delivery-tier-suite' -am clean install
 ```
 

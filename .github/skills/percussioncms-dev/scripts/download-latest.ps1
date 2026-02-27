@@ -47,7 +47,7 @@ if ($DownloadDts) {
         Write-Host "  -> $dtsPath"
     } else {
         Write-Warning "DTS distribution JAR not found in release assets."
-        Write-Warning "Run './mvn-env.sh -P with-dts clean install' to build DTS locally."
+        Write-Warning "Run './mvn-env.sh clean install' to build DTS locally."
     }
 }
 

@@ -53,7 +53,7 @@ fi
 
 if [[ ! -f "${JAR_PATH}" ]]; then
   echo "ERROR: DTS distribution JAR not found at ${JAR_PATH}" >&2
-  echo "Run './mvn-env.sh -P with-dts clean install' to build the project first, or provide a release JAR via --jar." >&2
+  echo "Run './mvn-env.sh clean install' to build the project first, or provide a release JAR via --jar." >&2
   exit 1
 fi
 

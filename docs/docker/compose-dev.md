@@ -21,7 +21,7 @@ When a command fails, open the referenced log file for full diagnostics.
 Use project wrappers to build artifacts:
 
 ```bash
-./mvn-env.sh clean install -P with-dts -DskipTests
+./mvn-env.sh clean install -DskipTests=true
 ```
 
 ## Configure environment
@@ -112,7 +112,7 @@ Agent-friendly equivalent:
 Maven lifecycle equivalent (profile-driven):
 
 ```bash
-./mvn-env.sh -P with-dts,docker-compose pre-integration-test
+./mvn-env.sh -P docker-compose pre-integration-test
 ```
 
 Services:
@@ -174,7 +174,7 @@ Agent-friendly equivalent:
 Maven lifecycle equivalent:
 
 ```bash
-./mvn-env.sh -P with-dts,docker-compose post-integration-test
+./mvn-env.sh -P docker-compose post-integration-test
 ```
 
 To also remove MySQL data volume:
@@ -194,7 +194,7 @@ Agent-friendly with volume cleanup:
 Use profile-driven lifecycle to start stack, run integration tests, and teardown automatically:
 
 ```bash
-./mvn-env.sh -P with-dts,integration-test,docker-compose verify
+./mvn-env.sh -P integration-test,docker-compose verify
 ```
 
 Agent-friendly equivalent:
@@ -221,7 +221,7 @@ This flow performs:
 - Use Maven flow:
 
   ```bash
-  ./mvn-env.sh -P with-dts,integration-test,docker-compose verify
+  ./mvn-env.sh -P integration-test,docker-compose verify
   ```
 - Keep `PERC_INSTALL_MODE=install-if-missing` for speed, or use `install-always` if test isolation requires full reinstall.
 
