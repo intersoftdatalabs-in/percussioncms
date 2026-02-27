@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,20 @@
 package com.percussion.cx;
 
 import com.percussion.util.IOTools;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
- /**
-  * Helper class to load image icons from UIManager cache or archive.
-  */
-public class PSImageIconLoader extends UIManager
-{
-   static Logger log = LogManager.getLogger(PSImageIconLoader.class);
-   private static String rootPath = "../../../";
-   /**
-    * Cannot instantiate!!!
-    */
-   private PSImageIconLoader()
-   {
-   }
+/** Helper class to load image icons from UIManager cache or archive. */
+public class PSImageIconLoader extends UIManager {
+  static Logger log = LogManager.getLogger(PSImageIconLoader.class);
+  private static String rootPath = "../../../";
+  /** Cannot instantiate!!! */
+  private PSImageIconLoader() {}
 
   /**
    * Loads the icon with the supplied key from the UI manager/archive/server.If not found in UI

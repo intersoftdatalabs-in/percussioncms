@@ -943,12 +943,6 @@
 				</excludes>
 			</resource>
 			<resource>
-				<directory>integration/src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-			<resource>
 				<directory>src/main/resources</directory>
 			</resource>
 			<resource>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,10 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-
 package com.percussion.cx;
 
 import com.percussion.cx.javafx.PSWindowManager;
 import com.percussion.security.xml.PSSecureXMLUtils;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.web.WebView;
-import javafx.stage.Stage;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
-import javax.swing.InputMap;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.text.DefaultEditorKit;
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -56,18 +40,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 public class PSContentExplorerApplication extends Application {
-   
-   static Logger log = LogManager.getLogger(PSContentExplorerApplication.class);
-   
-   private static File configDir;
-   private static final Dimension DEFAULT_DIMENSION = new Dimension(1180, 750);
 
-  static Logger log = Logger.getLogger(PSContentExplorerApplication.class);
+  static Logger log = LogManager.getLogger(PSContentExplorerApplication.class);
 
   private static File configDir;
   private static Dimension dimension = new Dimension(1180, 750);
@@ -137,23 +117,7 @@ public class PSContentExplorerApplication extends Application {
 
     String version = this.getClass().getPackage().getImplementationVersion();
 
-      Map<String, String> params = this.getParameters().getNamed();
-      String codebase = params.get("codebase");
-      if (codebase==null)
-    	  codebase="http://localhost:9992";
-      String clientConfigDir = DEFAULT_CONFIG_FOLDER_NAME;
-      try
-      {
-         if (StringUtils.isNotEmpty(codebase))
-         {
-            var uri = new URI(codebase);
-            var protocol = uri.getScheme();
-            var host = uri.getHost();
-            var port = uri.getPort();
-            if (port==-1)
-               port = ("https".equals(protocol)) ? 443:80;
-            
-            clientConfigDir+= File.separator+host.replace(".","_");
+    Parameters parameters = getParameters();
 
     Map<String, String> params = this.getParameters().getNamed();
     String codebase = params.get("codebase");
@@ -195,7 +159,7 @@ public class PSContentExplorerApplication extends Application {
     if (!logConfig.exists()) {
       URL inputUrl = loader.getResource("dce_log4j.properties");
       if (inputUrl != null) {
-        PropertyConfigurator.configure(inputUrl);
+        Configurator.initialize(null, inputUrl.toString());
 
         try {
           FileUtils.copyURLToFile(inputUrl, logConfig);
@@ -203,11 +167,10 @@ public class PSContentExplorerApplication extends Application {
           log.error("Cannot write user log config to " + logConfig.getAbsolutePath());
         }
       }
-      
-      configDir = new File(System.getProperty("user.home")
-            + File.separator + clientConfigDir);
-      
-      configDir.mkdirs();
+    } else {
+      Configurator.initialize(null, logConfig.getAbsolutePath());
+    }
+    PSSecureXMLUtils.setupJAXPDefaults();
 
     //      System.setProperty("javax.xml.parsers.SAXParserFactory",
     //            "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
@@ -223,38 +186,12 @@ public class PSContentExplorerApplication extends Application {
     log.info("USING JAVA:   " + System.getProperty("java.version"));
     log.info("DesktopContentExplorer.jar version :   " + version);
 
-      System.out.println("Setting log4j config to "+logConfig);
-      System.setProperty("configDir", configDir.getAbsolutePath());
-      var loader = Thread.currentThread().getContextClassLoader();
-      
-      if (!logConfig.exists())
-      {
-         var inputUrl = loader.getResource("dce_log4j.properties");
-         if (inputUrl != null)
-            {
-            try {
-               Configurator.initialize(null, inputUrl.toURI());
-            
-            try
-            {
-               FileUtils.copyURLToFile(inputUrl, logConfig);
-            }
-            catch (IOException e)
-            {
-               log.error("Cannot write user log config to "+logConfig.getAbsolutePath());
-            }
-            } catch (URISyntaxException e) {
-               log.error("Cannot convert URL to URI for Log4j configuration: " + inputUrl, e);
-            }
-         }
-      } else {
-         try {
-         Configurator.initialize(null, logConfig.toURI());
-         } catch (URISyntaxException e) {
-            log.error("Cannot convert file path to URI for Log4j configuration: " + logConfig, e);
-         }
-      }
-      PSSecureXMLUtils.setupJAXPDefaults();
+    WebView web = new WebView();
+    log.info("Java Version:   " + System.getProperty("java.runtime.version"));
+    log.info("JavaFX Version: " + System.getProperty("javafx.runtime.version"));
+    log.info(
+        "OS:             " + System.getProperty("os.name") + ", " + System.getProperty("os.arch"));
+    log.info("User Agent:     " + web.getEngine().getUserAgent());
 
     Map<String, String> namedParameters = parameters.getNamed();
     List<String> rawArguments = parameters.getRaw();

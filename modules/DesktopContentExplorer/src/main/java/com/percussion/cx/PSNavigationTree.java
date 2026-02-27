@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,6 @@ import com.percussion.cx.guitools.PSMouseAdapter;
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.utils.collections.PSIteratorUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import jakarta.accessibility.Accessible;
-import jakarta.accessibility.AccessibleContext;
-import javax.swing.*;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
@@ -59,8 +47,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import jakarta.accessibility.Accessible;
-import jakarta.accessibility.AccessibleContext;
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -68,7 +56,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The tree that builds tree model as per 'sys_Node.dtd'. See {@link
@@ -76,11 +65,8 @@ import org.apache.log4j.Logger;
  * com.percussion.cx.PSNavTreeNodeRenderer } to render the nodes of the tree. Displays pop-up menu
  * for right-click on a node.
  */
-public class PSNavigationTree
-        extends JTree
-        implements DragGestureListener, DropTargetListener
-{
-   static final Logger log = LogManager.getLogger(PSNavigationTree.class);
+public class PSNavigationTree extends JTree implements DragGestureListener, DropTargetListener {
+  static Logger log = LogManager.getLogger(PSNavigationTree.class);
 
   /** Serializable id */
   private static final long serialVersionUID = 1L;
@@ -1087,7 +1073,7 @@ public class PSNavigationTree
     }
 
     /* (non-Javadoc)
-     * @see jakarta.accessibility.Accessible#getAccessibleContext()
+     * @see javax.accessibility.Accessible#getAccessibleContext()
      */
     public AccessibleContext getAccessibleContext() {
       return m_accessibleContext;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,7 @@ import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.guitools.PSDialog;
 import com.percussion.webservices.security.data.PSCommunity;
 import com.percussion.webservices.security.data.PSLogin;
-import javafx.application.Platform;
-import javafx.scene.web.WebEngine;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import com.percussion.webservices.security.data.PSRole;
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.applet.AppletStub;
@@ -57,23 +49,23 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PSContentExplorerFrame extends PSDesktopExplorerWindow
     implements AppletStub, AppletContext {
 
   private static final long serialVersionUID = 1L;
 
-   static Logger log = LogManager.getLogger(PSContentExplorerFrame.class);
-  
-   private PSContentExplorerHelper helper = new PSContentExplorerHelper();
+  static Logger log = LogManager.getLogger(PSContentExplorerFrame.class);
 
   private PSContentExplorerHelper helper = new PSContentExplorerHelper();
 
@@ -276,7 +268,7 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
 
   private PSUserInfo getUserInfo() {
     PSLogin login = PSCESessionManager.getInstance().getLoginInfo();
-    PSCommunity[] communities = login.getCommunities();
+    List<PSCommunity> communities = login.getCommunities().getPSCommunity();
     long commId = 0;
     String defaultComm = login.getDefaultCommunity();
     if (defaultComm == null) {
@@ -289,13 +281,23 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
       }
     }
 
+    List<com.percussion.webservices.security.data.PSRoleGen> roleGens =
+        login.getRoles().getPSRole();
+    PSRole[] rolesArray = roleGens.stream()
+        .map(rg -> {
+          PSRole r = new PSRole();
+          r.setName(rg.getName());
+          return r;
+        })
+        .toArray(PSRole[]::new);
+
     PSUserInfo userInfo =
         new PSUserInfo(
             login.getSessionId(),
             PSCESessionManager.getInstance().getUserName(),
             commId,
             login.getDefaultLocaleCode(),
-            login.getRoles(),
+            rolesArray,
             login.getSessionTimeout());
 
     return userInfo;

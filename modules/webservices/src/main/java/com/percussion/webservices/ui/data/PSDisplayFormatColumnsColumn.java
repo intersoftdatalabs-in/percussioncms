@@ -16,8 +16,6 @@
  */
 package com.percussion.webservices.ui.data;
 
-import org.apache.axis.types.UnsignedInt;
-
 /** DTO for a display format column used by converters. */
 public class PSDisplayFormatColumnsColumn {
   private String name;
@@ -27,7 +25,7 @@ public class PSDisplayFormatColumnsColumn {
   private boolean defaultSortColumn;
   private PSDisplayFormatColumnsColumnRenderType renderType;
   private PSDisplayFormatColumnsColumnSortOrder sortOrder;
-  private UnsignedInt sequence;
+  private long sequence;
   private int width;
 
   public PSDisplayFormatColumnsColumn() {}
@@ -40,7 +38,7 @@ public class PSDisplayFormatColumnsColumn {
       boolean defaultSortColumn,
       PSDisplayFormatColumnsColumnRenderType renderType,
       PSDisplayFormatColumnsColumnSortOrder sortOrder,
-      UnsignedInt sequence,
+      long sequence,
       int width) {
     this.name = name;
     this.label = label;
@@ -109,11 +107,11 @@ public class PSDisplayFormatColumnsColumn {
     this.sortOrder = sortOrder;
   }
 
-  public UnsignedInt getSequence() {
+  public long getSequence() {
     return sequence;
   }
 
-  public void setSequence(UnsignedInt sequence) {
+  public void setSequence(long sequence) {
     this.sequence = sequence;
   }
 

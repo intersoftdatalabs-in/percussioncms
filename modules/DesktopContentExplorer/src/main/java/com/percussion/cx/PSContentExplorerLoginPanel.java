@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,36 +20,12 @@ package com.percussion.cx;
 import com.percussion.border.PSFocusBorder;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cx.guitools.UTMnemonicLabel;
-import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.error.PSExceptionUtils;
 import com.percussion.guitools.ErrorDialogs;
 import com.percussion.util.PSProperties;
-import com.percussion.webservices.faults.PSContractViolationFault;
-import com.percussion.webservices.faults.PSNotAuthenticatedFault;
+import com.percussion.webservices.securityservices.ContractViolationFaultMessage;
+import com.percussion.webservices.securityservices.NotAuthenticatedFaultMessage;
 import com.percussion.webservices.security.data.PSLocale;
-import org.apache.axis.AxisFault;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -97,9 +73,10 @@ import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import org.apache.axis.AxisFault;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import jakarta.xml.ws.WebServiceException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -110,118 +87,8 @@ import org.json.JSONObject;
  * on successful login.
  */
 ////////////////////////////////////////////////////////////////////////////////
-public class PSContentExplorerLoginPanel extends JFrame
-{
-   static Logger log = LogManager.getLogger(PSContentExplorerLoginPanel.class);
-
-  /**
-   * The name of the file where various properties are stored, such as the last server name, port #,
-   * etc.
-   */
-  public static final String PROPERTIES_FILENAME = "admin.properties";
-
-  public static final String LAST_USER = "last_user_name";
-
-  public PSContentExplorerApplet applet;
-  Font boldTextFont = new Font("Arial", Font.BOLD, 18);
-  Font plainTextFont = new Font("Arial", Font.PLAIN, 18);
-
-  public PSContentExplorerLoginPanel(
-      PSContentExplorerFrame parent, PSContentExplorerApplet applet) {
-    // blank constructor in case you already have a session
-
-    super(PSContentExplorerHelper.getResources().getString("titlelogin"));
-
-    m_parent = parent;
-    this.applet = applet;
-
-    // add the applet as the child, so when the applet ref is called it will
-    // be there
-    // add the applet as the child, so when the applet ref is called it will
-    // be there
-    m_res = applet.getResources();
-    m_login = new JButton(m_res.getString("login"));
-    m_login.setFont(boldTextFont);
-    FontMetrics metrics = getFontMetrics(m_login.getFont());
-    int width = metrics.stringWidth(m_login.getText());
-    int height = metrics.getHeight();
-    Dimension newDimension = new Dimension(width + 100, height + 100);
-    m_login.setSize(newDimension);
-    m_login.setMinimumSize(newDimension);
-
-    m_login.addActionListener(e -> onOk());
-
-    m_statusBar = new JLabel();
-    m_statusBar.setText(m_res.getString("disconnectedStatus"));
-    for (Component comp : m_statusBar.getComponents()) {
-      comp.setFont(boldTextFont);
-    }
-
-    this.setMinimumSize(new Dimension(400, 200));
-    try {
-      initData();
-      initPanel();
-    } catch (Exception e) {
-      JOptionPane.showMessageDialog(
-          this,
-          ErrorDialogs.cropErrorMessage(e.getMessage()),
-          m_res.getString("error"),
-          JOptionPane.ERROR_MESSAGE);
-    }
-  }
-
-  /** Create and initialize all GUI elements. */
-  private void initPanel() {
-    PSFocusBorder focusBorder = new PSFocusBorder(1, Color.RED);
-
-    this.setLayout(new BorderLayout());
-
-    JPanel panel = new JPanel();
-
-    panel.setLayout(new GridBagLayout());
-    GridBagConstraints c = new GridBagConstraints();
-    c.weighty = 0;
-    c.weightx = 0.2;
-    c.gridx = 0;
-    c.ipadx = 10;
-    c.ipady = 10;
-    c.gridy = 0;
-    c.insets = new Insets(5, 20, 0, 50); // top padding
-    c.anchor = GridBagConstraints.LINE_START;
-    c.fill = 0;
-
-    UTMnemonicLabel p1alabel = new UTMnemonicLabel(m_res, "serverurl", m_url);
-    p1alabel.setMinimumSize(new Dimension(150, 60));
-    p1alabel.setFont(boldTextFont);
-    p1alabel.setLabelFor(m_url);
-    panel.add(p1alabel, c);
-    c.weightx = 1.0;
-    c.gridx = 1;
-    c.gridy = 0;
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.insets = new Insets(5, 0, 0, 20); // top padding
-    m_url.setFont(plainTextFont);
-
-    FontMetrics metrics = getFontMetrics(m_url.getFont());
-    int width = metrics.stringWidth(m_url.getText());
-    int height = metrics.getHeight();
-    Dimension newDimension = new Dimension(width + 40, height + 10);
-
-    m_url.setMinimumSize(newDimension);
-    panel.add(m_url, c);
-
-    // Rebuild the locale list when the server url is changed.
-    m_url.addFocusListener(
-        new FocusAdapter() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            SwingUtilities.invokeLater(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    refreshLocalCombo();
-                  }
-                });
+public class PSContentExplorerLoginPanel extends JFrame {
+  static Logger log = LogManager.getLogger(PSContentExplorerLoginPanel.class);
 
   /**
    * The name of the file where various properties are stored, such as the last server name, port #,
@@ -660,14 +527,14 @@ public class PSContentExplorerLoginPanel extends JFrame
               m_parent.setParameter("userId", m_userId.getText());
               m_parent.setParameter("password", m_password.getText());
               m_parent.setParameter("locale", getDefaultLocale());
-            } catch (PSNotAuthenticatedFault e) {
+            } catch (NotAuthenticatedFaultMessage e) {
               errorMessage = "Failed to authenticate with username and password.";
               return false;
-            } catch (PSContractViolationFault e) {
+            } catch (ContractViolationFaultMessage e) {
               errorMessage = "Login details are invalid.";
               return false;
-            } catch (AxisFault f) {
-              errorMessage = f.getFaultString();
+            } catch (WebServiceException f) {
+              errorMessage = f.getMessage();
               if (StringUtils.contains(errorMessage, "Connection refused: connect"))
                 errorMessage = "The service is down or port is incorrect.";
               if (StringUtils.contains(errorMessage, "java.net.UnknownHostException:"))

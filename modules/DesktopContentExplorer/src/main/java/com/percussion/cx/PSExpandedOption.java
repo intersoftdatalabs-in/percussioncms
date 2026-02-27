@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@ package com.percussion.cx;
 import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -29,32 +33,8 @@ import org.w3c.dom.Text;
  * This class provides a way of constructing the Expanded object from the XML document and to get
  * XML document from the Expanded object.
  */
-public class PSExpandedOption implements IPSClientObjects
-{
-   static Logger log = LogManager.getLogger(PSExpandedOption.class);
-   
-   /**
-    * Default constructor, this is needed so that an instance of this class can
-    * be created by reflection.  {@link #fromXml(Element) fromXml(Element)}
-    * should be called immediately after calling this constructor in order
-    * to create a valid object.
-    *
-    * @param sourceNode   the XML element node from which to populate.  Must not
-    * be <code>null</code>.
-    * @throws PSContentExplorerException if the XML element node does not
-    * represent a type supported by this class.
-    */
-   public PSExpandedOption(Element sourceNode)
-   {
-      try
-      {
-         fromXml(sourceNode);
-      }
-      catch (PSContentExplorerException e)
-      {
-         log.error(e);
-      }
-   }
+public class PSExpandedOption implements IPSClientObjects {
+  static Logger log = LogManager.getLogger(PSExpandedOption.class);
 
   /**
    * Default constructor, this is needed so that an instance of this class can be created by

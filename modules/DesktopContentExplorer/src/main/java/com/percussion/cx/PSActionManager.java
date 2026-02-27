@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-
 package com.percussion.cx;
 
 import com.percussion.border.PSFocusBorder;
@@ -68,11 +66,11 @@ import com.percussion.guitools.PSAboutDialog;
 import com.percussion.guitools.UTBrowserControl;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.search.PSSearchFieldFilterMap;
-import com.percussion.system.utils.PSFormatVersion;
-import com.percussion.system.utils.PSHttpUtils;
 import com.percussion.tools.help.PSJavaHelp;
 import com.percussion.system.utils.IPSHtmlParameters;
+import com.percussion.system.utils.PSFormatVersion;
 import com.percussion.util.PSHttpConnection;
+import com.percussion.system.utils.PSHttpUtils;
 import com.percussion.util.PSLineBreaker;
 import com.percussion.util.PSRemoteAppletRequester;
 import com.percussion.util.PSURLEncoder;
@@ -81,32 +79,6 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.wizard.PSWizardStartFinishPanel;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import javafx.application.Platform;
-import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -140,9 +112,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -152,10 +127,9 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.xml.parsers.ParserConfigurationException;
-import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -168,11 +142,9 @@ import org.xml.sax.SAXException;
  */
 public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
-   private PSDesktopExplorerWindow dceWindow = null;
-   
-   static Logger log = LogManager.getLogger(PSActionManager.class);
+  private PSDesktopExplorerWindow dceWindow = null;
 
-  static Logger log = Logger.getLogger(PSActionManager.class);
+  static Logger log = LogManager.getLogger(PSActionManager.class);
 
   /**
    * Constructs the action manager with supplied parameters, a reference back to the parent applet.
@@ -1831,185 +1803,13 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               m_searchResultsNode = node;
               hideOrShowNewSearchNode();
             }
-         }
-      }
-
-      if (!paramsValid)
-      {
-         // prompt user and set result on paramsvalid
-         String key = selection.isMultiSelect()
-               ? "Batch Stale Revision Warning: Continue?"
-               : "Stale Revision Warning: Continue?";
-         String warning = m_applet.getResourceString(getClass(), key);
-         String title = m_applet.getResourceString(getClass(), "Error");
-         warning = PSLineBreaker.wrapString(warning, 78, 77, "\n");
-         
-         // Use JavaFX Alert instead of JOptionPane for better integration
-         var result = showJavaFXConfirmDialog(warning, title);
-         paramsValid = result;
-      }
-
-      if (!paramsValid)
-      {
-         // user said no, dirty matching nodes and refresh current view
-         informListeners(dirtyNodes.iterator(), PSActionEvent.DIRTY_NODES);
-         informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
-      }
-
-      return paramsValid;
-   }
-
-   /**
-    * Determines if the supplied action can handle multiple items in a single
-    * request.
-    *
-    * @param action Assumed not <code>null</code>.
-    *
-    * @return Always <code>true</code> for the special action whose id is -1,
-    *         otherwise, the value as noted by the multi-select property on the
-    *         action.
-    */
-   private boolean actionSupportsMultiSelection(PSMenuAction action)
-   {
-      // If it is the special hidden root action return true
-      if (action.getActionId() == -1)
-         return true;
-      // check if we have multiple selection
-      String val = action.getProperty(PROPERTY_SUP_MULTI_SELECT);
-
-      // default is "no" if not found
-      return val != null && val.equalsIgnoreCase("yes");
-   }
-
-   /**
-    * Provides the user state specific to the content explorer.
-    */
-   private class CxGlobalState extends PSActionVisibilityGlobalState
-   {
-
-      @Override
-      public String getClientContext()
-      {
-         return m_applet.getClientContext();
-      }
-
-      @Override
-      public int getCommunityUuid()
-      {
-         return m_applet.getUserInfo().getCommunityId();
-      }
-
-      @Override
-      public String getLocale()
-      {
-         return m_applet.getUserInfo().getLocale();
-      }
-
-      @Override
-      public Collection<String> getRoles()
-      {
-         Collection<String> roles = new ArrayList<String>();
-         Iterator it = m_applet.getUserInfo().getRoles();
-         while (it.hasNext())
-            roles.add(it.next().toString());
-         return roles;
-      }
-
-   }
-
-   /**
-    * Filter the specified actions based on the visibility contexts.
-    *
-    * @param action the action to be filtered, never <code>null</code>
-    *
-    * @param selection the current selection of nodes to be processed, never
-    *           <code>null</code>
-    *
-    * @param isTestMultiSelect <code>true</code> if need to test whether the
-    *           action supports multi-selection in conjunction of whether the
-    *           given selection contains multi-nodes. It must be
-    *           <code>false</code> if the given selection is retrieved from the
-    *           clip board (the source nodes); otherwise it must be
-    *           <code>true</code>.
-    *
-    * @return true to keep the specified action, otherwise returns false
-    */
-   private boolean checkActionVisibility(PSMenuAction action, PSSelection selection, boolean isTestMultiSelect)
-   {
-      PSActionVisibilityContexts vcs = m_visibilityContextsMap.get("" + action.getActionId());
-
-      boolean isSupportMultiSel = isTestMultiSelect ? actionSupportsMultiSelection(action) : true;
-
-      PSActionVisibilityChecker visibilityChecker = new PSActionVisibilityChecker(action.getActionId(),
-            isSupportMultiSel, vcs);
-
-      PSActionVisibilityGlobalState globalState = new CxGlobalState();
-      Collection<PSActionVisibilityObjectState> objStates = new ArrayList<PSActionVisibilityObjectState>();
-      Iterator selIter = selection.getNodeList();
-      PSNode parent = selection.getParent();
-      while (selIter.hasNext())
-      {
-         PSNode node = (PSNode) selIter.next();
-         objStates.add(new CxObjectState(node, parent));
-      }
-
-      return visibilityChecker.isVisible(globalState, objStates);
-   }
-
-   /**
-    * Provides the object instance state specific to the content explorer.
-    */
-   private class CxObjectState extends PSActionVisibilityObjectState
-   {
-      /**
-       * @param child The node that represents the instance of the object that
-       *           the action would act upon. Never <code>null</code>. A copy of
-       *           the node is held by this class, so changes to the supplied
-       *           object may affect the behavior of this class. This class
-       *           treats it read-only.
-       *
-       * @param parent Similar to <code>child</code>, except it is the direct
-       *           parent of the child. May be <code>null</code> if the child is
-       *           the root.
-       */
-      public CxObjectState(PSNode child, PSNode parent)
-      {
-         if (null == child)
-         {
-            throw new IllegalArgumentException("node cannot be null");
-         }
-         m_child = child;
-         m_parent = parent;
-      }
-
-      @Override
-      public int getAssignmentType()
-      {
-         return toInt(m_child.getAssignmentTypeID());
-      }
-
-      @Override
-      public String getCheckoutStatus()
-      {
-         return m_child.getCheckOutStatus();
-      }
-
-      @Override
-      public int getContentTypeUuid()
-      {
-         return toInt(m_child.getContentTypeId());
-      }
-
-      @Override
-      public PSObjectPermissions getFolderPermissions()
-      {
-         PSObjectPermissions perm = null;
-
-         if (m_child.isOfType(PSNode.TYPE_SYS_FOLDERS) || m_child.isOfType(PSNode.TYPE_SYS_SITES))
-         {
-            try
-            {
-               perm = m_folderMgr.loadFolder(m_child).getPermissions();
+            children = node.getChildren();
+            Iterator searchChildren = node.getChildren();
+            while (searchChildren.hasNext()) {
+              PSNode searchNode = (PSNode) searchChildren.next();
+              if (searchNode.getType().equals(PSNode.TYPE_EMPTY_SRCH)) {
+                m_emptySearchNode = searchNode;
+              }
             }
           }
         }
@@ -2267,42 +2067,16 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               if (monitor.getStatus() != PSProcessMonitor.STATUS_STOP)
                 monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
 
-                     m_applet.debugMessage("Response code is: " + code);
-                  }
-                  catch (PSContentExplorerException e)
-                  {
-                     m_applet.debugMessage(e);
+            } catch (InterruptedException e) {
+              m_applet.debugMessage("Interrupted " + e.getLocalizedMessage());
+              monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
+              Thread.currentThread().interrupt();
+            } catch (PSContentExplorerException e) {
+              String msg =
+                  "Failed to acquire initial states of items, no items were transitioned: "
+                        + e.getLocalizedMessage();
+              showJavaFXErrorDialog(msg, "Fatal Error");
 
-                     Object[] args =
-                     {action.getName(), e.getLocalizedMessage()};
-                     String error = MessageFormat
-                           .format(
-                                 m_applet
-                                       .getResourceString(getClass(),
-                                             "An error occurred processing action {0} in batch mode. The error returned was: {1}. \n\nDo you want to continue?"),
-                                 args);
-
-                     PSLineBreaker.wrapString(error, 78, 77, "\n");
-                     monitor.showError(null, error);
-                  }
-               }
-
-               if (monitor.getStatus() != PSProcessMonitor.STATUS_STOP)
-                  monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
-
-            }
-            catch (InterruptedException e)
-            {
-               m_applet.debugMessage("Interrupted " + e.getLocalizedMessage());
-               monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
-               Thread.currentThread().interrupt();
-            }
-            catch (PSContentExplorerException e)
-            {
-               String msg = "Failed to acquire initial states of items, no items were transitioned: "
-                     + e.getLocalizedMessage();
-               showJavaFXErrorDialog(msg, "Fatal Error");
-               monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
             }
 
             // dirty processed nodes
@@ -3299,11 +3073,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
           mgr.insert(ownerContentId, slotId, selection.getNodeList());
 
-          // Use LiveConnect to call refreshParent javascript
-          // method
-          JSObject window = JSObject.getWindow(m_applet);
-          Object[] args = new Object[] {};
-          window.call("refreshParent", args);
+          // LiveConnect (JSObject.getWindow) was removed in JDK 11.
+          // TODO: Implement alternative mechanism to call refreshParent.
+          log.warn("LiveConnect is no longer available; cannot call refreshParent JavaScript method.");
         }
       } else if (action.getName().endsWith(ACTION_CHANGE_VARIANT)) {
         if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
@@ -3950,7 +3722,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         if (StringUtils.isNotEmpty(refreshHint)) {
           informListeners(refreshHint);
         }
-      } catch (JSException jse) {
+      } catch (RuntimeException jse) {
+        // Previously caught JSException from LiveConnect (removed in JDK 11)
         String locMsg = jse.getLocalizedMessage();
         m_applet.debugMessage(jse);
         if (locMsg == null || locMsg.length() == 0) locMsg = "Popup Blocker Error Message";
@@ -5322,10 +5095,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               });
         }
       } else {
-        // Use LiveConnect to call showWindow javascript
-        // method
-        JSObject window = JSObject.getWindow(m_applet);
-        window.call("showWindow", args);
+        // LiveConnect (JSObject.getWindow) was removed in JDK 11.
+        // TODO: Implement alternative mechanism to call showWindow.
+        log.warn("LiveConnect is no longer available; cannot call showWindow JavaScript method.");
       }
     }
 
@@ -5584,306 +5356,57 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     ms_specialParams.add(IPSHtmlParameters.SYS_SLOTID);
   }
 
-    private boolean isCompareUrl(String urlString) {
-      if (urlString.toLowerCase().contains("sys_compare/compare.html")) {
-        return true;
-      }
-      return false;
-    }
-
-    private void startSwingBrowser() {
-      Platform.runLater(
-          () -> {
-            dceWindow.openChildWindow(mi_actionurl, mi_target, mi_style, mi_selection, action);
-          });
-    }
-
-    @Override
-    public String toString() {
-      return "javascript:showWindow(\""
-          + mi_actionurl
-          + "\",\""
-          + mi_target
-          + "\",\""
-          + mi_style
-          + "\")";
-    }
-
-    private String mi_actionurl = "";
-
-    private String mi_target = "";
-
-    private String mi_style = "";
-
-    private PSMenuAction action;
-
-    private PSSelection mi_selection;
-  }
-
   /**
-   * Set whenever MainView fires selection change notification, never <code>null</code>, may be
-   * <code>empty</code> before the first tree selection is made.
+   * Some params we just want to add to the final dyanmic action and not pass through to the request
+   * for templates. This will prevent re-caching results if only these values have changed.
    */
-  private String m_navSelectionPath = "";
-
-  /**
-   * Map of all the actions excluding the dynamic menus, initialized in the ctor, never <code>null
-   * </code>, may be empty. It uses an String as the key defined as the url with the mode and
-   * context and returns a <code>
-   * PSAction</code> as the value for each key.
-   */
-  private final Map<String, PSMenuAction> m_actionMap = new HashMap<String, PSMenuAction>();
-
-  /** A reference back to the applet that initiated this action manager. */
-  protected PSContentExplorerApplet m_applet;
-
-  /**
-   * The clip board that supports drag and copy clips, initialized in the ctor and never <code>null
-   * </code> after that. The content of the clip may be modified using this reference object.
-   */
-  private PSClipBoard m_clipBoard;
-
-  /**
-   * The slot definitions are loaded into this map on demand, this will be <code>null</code> until
-   * needed. Never modified after loaded.
-   */
-  private Map<String, List<ContentIdVariantId>> m_slotDefMap;
-
-  /**
-   * The list of action listeners that gets informed when an action is executed, initialized to an
-   * empty list and gets updated through calls to <code>
-   * addActionListener(IPSActionListener)</code>. Never <code>null</code>.
-   */
-  private final List<IPSActionListener> m_actionListeners = new ArrayList<IPSActionListener>();
-
-  /**
-   * Contstant for the name of the resource to execute the server action url. This resource picks
-   * the server action url from the session variable SYS_SERVERACTIONURL and redirects to that url.
-   */
-  private static final String EXECUTE_SERVERACTIONURL =
-      "../sys_cxSupport/executeserveractionurl.html";
-
-  /*
-   * Catalog of display formats. Initilized when the first time this class is
-   * loaded. Never <code>null</code> after that.
-   */
-  private PSDisplayFormatCatalog ms_dfCatalog = null;
-
-  /**
-   * Catalog of server communities. Lazily initilized by the {@link #getCommunityCataloger() } when
-   * it is invoked for the first time. Never <code>null</code> after that.
-   */
-  private PSCommunityCataloger m_communityCataloger = null;
-
-  /**
-   * Catalog of registered locales in the CMS. Lazily initilized by the {@link #getLocaleCataloger()
-   * } when it is invoked for the first time. Never <code>null</code> after that.
-   */
-  private PSLocaleCataloger m_localeCataloger = null;
-
-  /**
-   * Catalog of server roles. Lazily initilized by the {@link #getRoleCataloger() } when it is
-   * invoked for the first time, never <code>null</code> after that.
-   */
-  private PSRoleCataloger m_roleCataloger = null;
-
-  /**
-   * Catalog of server subjects / users. Lazily initilized by the {@link #getSubjectCataloger() }
-   * when it is invoked for the first time, never <code>null</code> after that.
-   */
-  private PSSubjectCataloger m_subjectCataloger = null;
-
-  /**
-   * Catalog of security providers. Lazily initilized by the {@link #getSecurityProviderCataloger()
-   * } when it is invoked for the first time, never <code>null</code> after that.
-   */
-  private PSSecurityProviderCataloger m_securityProviderCataloger = null;
-
-  /**
-   * Catalogs global templates. Lazily initilized by the {@link #getGlobalTemplateCataloger() } when
-   * it is invoked for the first time. Never <code>null</code> after that.
-   */
-  private PSGlobalTemplateCataloger ms_globalTemplateCataloger = null;
-
-  /**
-   * Catalogs site names. Lazily initilized by the {@link #getSiteCataloger() } when it is invoked
-   * for the first time. Never <code>null</code> after that. This member is static because multiple
-   * instances of this class may exist at the same time and changes to one should affect the other.
-   */
-  private PSSiteCataloger ms_siteCataloger = null;
-
-  /**
-   * Map of visibility contexts for each defined menu. Initialized in the ctor, never <code>null
-   * </code> after that.
-   */
-  private Map<String, PSActionVisibilityContexts> m_visibilityContextsMap;
-
-  /**
-   * The remote proxy that is used to make remote requests to the server from this applet to manage
-   * CMS components, initialized in the ctor and never <code>null</code> or modified after that.
-   */
-  private PSComponentProcessorProxy m_componentProxy;
-
-  /**
-   * The remote proxy that is used to make remote requests to the server from this applet,
-   * initialized in the ctor and never <code>null</code> or modified after that.
-   */
-  private PSRelationshipProcessorProxy m_relationshipProxy;
-
-  /**
-   * The remote cataloger to use thorughout this applet instance, initialized in the ctor and never
-   * <code>null</code> or modified after that.
-   */
-  private PSRemoteCataloger m_remCataloger;
-
-  /**
-   * The manager that handles the item relationships, initialized in the ctor and never <code>null
-   * </code> or modified after that.
-   */
-  private PSItemRelationshipsManager m_irsManager = null;
-
-  /**
-   * The manager that handles the actions related folders, initialized in the ctor and never <code>
-   * null</code> or modified after that.
-   */
-  private PSFolderActionManager m_folderMgr = null;
-
-  /**
-   * The manager that handles the actions related to searches and views, initialized in the ctor and
-   * never <code>null</code> or modified after that.
-   */
-  private PSSearchViewActionManager m_searchViewMgr = null;
-
-  /**
-   * Reference to the New Search node. Initialized when the Searh Results loads its child nodes for
-   * the first time. Used to hide until user performs first time search. Initialized when action
-   * manager loads the children of Search Results node for the first time, never <code>null</code>
-   * after that.
-   */
-  private PSNode m_newSearchNode = null;
-
-  /**
-   * Reference to the node that is used to activate a new search request. Initialized when {@link
-   * #loadChildren(PSNode)} is called. May be <code>null</code>, but in general operation shouldn't
-   * be.
-   */
-  private PSNode m_emptySearchNode = null;
-
-  /**
-   * Reference to the Search Results node. Initialized when Root node (hidden) of the Content
-   * Explorer navigation pane loads its child nodes for the first time. Used to manage new search
-   * child node easilty in that we hide it hide until user performs first time search. Initialized
-   * when action manager loads the children of Root node of the Content Explorer navigation pane for
-   * the first time, never <code>null</code> after that.
-   */
-  private PSNode m_searchResultsNode = null;
-
-  /**
-   * List of column names used to load dynamic properties for search nodes. Never <code>null</code>,
-   * no longer used, but left in case we need to reinstitute dynamic menu properties, in which case
-   * it should be populated by the static initializer.
-   */
-  private final List<String> ms_dynColumNames = new ArrayList<String>();
-
-  /**
-   * The community / content type mapper, used to lazily cache the mapper in the current applet
-   * section. Init to <code>null</code>.
-   */
-  private PSCommunityContentTypeMapperCataloger m_commCtMapper = null;
-
-  /**
-   * Cache of dynamic child menu actions where the key is the url and the value is the resulting
-   * action list, never <code>null</code>.
-   */
-  private Map<String, List<PSMenuAction>> m_childMenuCache =
-      new HashMap<String, List<PSMenuAction>>();
-
-  // Static initilizer
-  static {
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_DTITEM, new String[] {ACTION_OPEN});
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_ITEM, new String[] {ACTION_EDIT, ACTION_VIEW_CONTENT});
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_NEW_SRCH, new String[] {ACTION_EDIT_SEARCH});
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_SAVE_SRCH, new String[] {ACTION_EDIT_SEARCH});
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_PARENT, new String[] {ACTION_EDIT, ACTION_VIEW_CONTENT});
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_CUSTOM_SRCH, new String[] {ACTION_EDIT_SEARCH});
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_EMPTY_SRCH, new String[] {ACTION_EDIT_SEARCH});
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_STANDARD_SRCH, new String[] {ACTION_EDIT_SEARCH});
-    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
-        PSNode.TYPE_FOLDER_REF, new String[] {ACTION_OPEN_FOLDER_REF});
-  }
-
-  /**
-   * Set of special parameter names to resolve in the server action URLs. Currently we have only
-   * {@link IPSHtmlParameters#SYS_FOLDERID} and {@link IPSHtmlParameters#SYS_SLOTID}. These special
-   * params are added to the URL based on the following contexts: 1. Drop-Paste, Copy-Paste: Params
-   * are resolved to target Nodes 2. Regular case: Params are resolved to the selection node's
-   * parent.
-   */
-  public static Set<String> ms_specialParams = new HashSet<String>();
-
-  static {
-    ms_specialParams.add(IPSHtmlParameters.SYS_FOLDERID);
-    ms_specialParams.add(IPSHtmlParameters.SYS_SLOTID);
-  }
-
-   /**
-    * Shows a JavaFX confirmation dialog as replacement for JOptionPane.
-    * This provides better integration with the JavaFX-based application.
-    * 
-    * @param message the message to display
-    * @param title the dialog title
-    * @return true if user clicked Yes/OK, false otherwise
-    */
-   private boolean showJavaFXConfirmDialog(String message, String title) {
-      if (Platform.isFxApplicationThread()) {
-         var alert = new Alert(Alert.AlertType.CONFIRMATION);
-         alert.setTitle(title);
-         alert.setHeaderText(null);
-         alert.setContentText(message);
-         
-         var result = alert.showAndWait();
-         return result.isPresent() && result.get() == ButtonType.OK;
-      } else {
-         // If not on JavaFX thread, fall back to JOptionPane for now
-         // This ensures compatibility while migrating
-         return javax.swing.JOptionPane.showConfirmDialog(
-            getApplet(), message, title, javax.swing.JOptionPane.YES_NO_OPTION
-         ) == javax.swing.JOptionPane.YES_OPTION;
-      }
-   }
-
-   /**
-    * Shows a JavaFX error dialog as replacement for JOptionPane error messages.
-    * 
-    * @param message the error message to display
-    * @param title the dialog title
-    */
-   private void showJavaFXErrorDialog(String message, String title) {
-      if (Platform.isFxApplicationThread()) {
-         var alert = new Alert(Alert.AlertType.ERROR);
-         alert.setTitle(title);
-         alert.setHeaderText(null);
-         alert.setContentText(message);
-         alert.showAndWait();
-      } else {
-         // Fall back to JOptionPane for compatibility
-         javax.swing.JOptionPane.showMessageDialog(
-            getApplet().getDialogParentFrame(), message, title, 
-            javax.swing.JOptionPane.ERROR_MESSAGE
-         );
-      }
-   }
-
+  private static final Set<String> PASS_THRU_PARAMS =
+      Collections.unmodifiableSet(
+          new HashSet<String>(Arrays.asList("targetStyle", "target", "launchesWindow")));
 
   public PSSearchConfig getSearchConfig() {
     return m_searchViewMgr.getSearchConfig();
+  }
+
+  /**
+   * Shows a JavaFX confirmation dialog as replacement for JOptionPane.
+   * This provides better integration with the JavaFX-based application.
+   *
+   * @param message the message to display
+   * @param title the dialog title
+   * @return true if user clicked Yes/OK, false otherwise
+   */
+  private boolean showJavaFXConfirmDialog(String message, String title) {
+    if (Platform.isFxApplicationThread()) {
+      var alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.setTitle(title);
+      alert.setHeaderText(null);
+      alert.setContentText(message);
+      var result = alert.showAndWait();
+      return result.isPresent() && result.get() == ButtonType.OK;
+    } else {
+      return JOptionPane.showConfirmDialog(
+              getApplet(), message, title, JOptionPane.YES_NO_OPTION)
+          == JOptionPane.YES_OPTION;
+    }
+  }
+
+  /**
+   * Shows a JavaFX error dialog as replacement for JOptionPane error messages.
+   *
+   * @param message the error message to display
+   * @param title the dialog title
+   */
+  private void showJavaFXErrorDialog(String message, String title) {
+    if (Platform.isFxApplicationThread()) {
+      var alert = new Alert(Alert.AlertType.ERROR);
+      alert.setTitle(title);
+      alert.setHeaderText(null);
+      alert.setContentText(message);
+      alert.showAndWait();
+    } else {
+      JOptionPane.showMessageDialog(
+          getApplet().getDialogParentFrame(), message, title, JOptionPane.ERROR_MESSAGE);
+    }
   }
 }

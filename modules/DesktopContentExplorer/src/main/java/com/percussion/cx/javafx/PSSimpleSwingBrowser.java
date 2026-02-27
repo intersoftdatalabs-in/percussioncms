@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,14 +61,7 @@ import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
-import netscape.javascript.JSObject;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import jakarta.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleContext;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -79,17 +72,19 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import netscape.javascript.JSObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
 
   private static final String CANNOT_READ_MESSAGE =
       "Screen reader cannot read embedded browser.  Select button to open in system browser.";
 
-  static Logger log = Logger.getLogger(PSSimpleSwingBrowser.class);
+  static Logger log = LogManager.getLogger(PSSimpleSwingBrowser.class);
 
-   static Logger log = LogManager.getLogger(PSSimpleSwingBrowser.class);
+  private static boolean isMac =
+      System.getProperty("os.name").toLowerCase(Locale.US).startsWith("mac");
 
   private static final long serialVersionUID = 1L;
 
