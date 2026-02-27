@@ -60,7 +60,7 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <configuration>
                     <!-- Use the same Node version as the rest of the project (perc-tinymce). -->
-                    <nodeVersion>v20.18.0</nodeVersion>
+                    <nodeVersion>v22.22.0</nodeVersion>
                     <workingDirectory>${project.basedir}</workingDirectory>
                     <!-- Node binaries are cached once in the local Maven repo. -->
                     <installDirectory>${user.home}/.m2/frontend</installDirectory>
