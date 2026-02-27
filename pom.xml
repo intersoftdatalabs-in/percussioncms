@@ -114,7 +114,7 @@
         <hikari.version>4.0.3</hikari.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jackson.annotations.version>2.17.2</jackson.annotations.version>
+        <jackson.annotations.version>2.21</jackson.annotations.version>
         <jackson.version>2.21.1</jackson.version>
         <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
         <jacoco.maven.plugin.version>0.8.14</jacoco.maven.plugin.version>
@@ -1284,12 +1284,6 @@
                 <groupId>javax.xml</groupId>
                 <artifactId>jaxrpc-api</artifactId>
                 <version>1.1</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-imaging -->
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-imaging</artifactId>
-                <version>1.0.0-alpha6</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/soap/soap -->
             <dependency>

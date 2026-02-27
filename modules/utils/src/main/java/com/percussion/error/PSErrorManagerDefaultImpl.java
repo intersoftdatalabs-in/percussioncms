@@ -30,7 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PSErrorManagerDefaultImpl implements IPSErrorManager {
-  private static final Logger log = LogManager.getLogger();
+  private static final Logger log = LogManager.getLogger(PSErrorManagerDefaultImpl.class);
 
   @Override
   public void init() {

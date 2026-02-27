@@ -1094,7 +1094,7 @@ public class XmlUploader
     * The singleton instance of the logger. All methods use this guy to display
     * status and error messages.
     */
-   private static final Logger log = LogManager.getLogger();
+   private static final Logger log = LogManager.getLogger(XmlUploader.class);
 
    /**
     * A debugging flag. If <code>true</code>, additional debugging information

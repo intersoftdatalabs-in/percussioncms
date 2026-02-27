@@ -271,7 +271,7 @@ public class PSLogger {
    * This reference to a root logger. Initialized in ensureLog4jConfiguration may be <code>null
    * </code> if used before that.
    */
-  private static final Logger ms_Logger = LogManager.getLogger();
+  private static final Logger ms_Logger = LogManager.getLogger(PSLogger.class);
 
   /** Default log file */
   public static String DEFAULT_LOG_FILE =
