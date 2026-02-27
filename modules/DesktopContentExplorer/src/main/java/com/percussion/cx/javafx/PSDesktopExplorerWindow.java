@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,16 +25,6 @@ import com.percussion.guitools.PSDialog;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
-import netscape.javascript.JSObject;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -49,8 +39,9 @@ import javafx.scene.web.WebView;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import netscape.javascript.JSObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class PSDesktopExplorerWindow extends JFrame {
@@ -62,11 +53,15 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
       ourJsState = state;
     }
 
-   static Logger log = LogManager.getLogger(PSDesktopExplorerWindow.class);
+    @Override
+    public @NotNull BoxedJsObject getState() {
+      return ourJsState;
+    }
+  }
 
   protected PSDesktopExplorerStateProvider myStateProvider = new PSDesktopExplorerStateProvider();
 
-  static Logger log = Logger.getLogger(PSDesktopExplorerWindow.class);
+  static Logger log = LogManager.getLogger(PSDesktopExplorerWindow.class);
 
   protected PSJavaBridge bridge = new PSJavaBridge(this);
 

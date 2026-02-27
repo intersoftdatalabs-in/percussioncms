@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,16 +45,12 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSException;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStringComparator;
+import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -65,7 +61,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -95,8 +91,7 @@ public class PSFolderActionManager {
     m_actionManager = actionManager;
     m_appletBase = urlBase;
 
-    PSRemoteFolderAgent agent =
-        new PSRemoteFolderAgent(actionManager.getApplet().getHttpConnection(), urlBase);
+    PSRemoteFolderAgent agent = new PSRemoteFolderAgent();
     m_componentProxy =
         new PSComponentProcessorProxy(PSComponentProcessorProxy.PROCTYPE_REMOTE, agent);
 

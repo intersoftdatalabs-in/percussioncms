@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,39 +19,30 @@ package com.percussion.cx.javafx;
 
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.swing.SwingUtilities;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.SwingUtilities;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PSWindowManager {
   private static PSWindowManager instance = new PSWindowManager();
 
-   private Map<String, PSDesktopExplorerWindow> windows = new HashMap<String, PSDesktopExplorerWindow>();
-   private Map<String, String> parents = new HashMap<String, String>();
-   protected String mi_style = "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=1";
-   
-   private int defaultHeight = 400;
-   private int defaultWidth = 780;
-   
-   private static final String ROOT_TARGET="_root";
-   
-   static Logger log = LogManager.getLogger(PSWindowManager.class);
+  private Map<String, PSDesktopExplorerWindow> windows =
+      new HashMap<String, PSDesktopExplorerWindow>();
+  private Map<String, String> parents = new HashMap<String, String>();
+  protected String mi_style =
+      "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=1";
 
   private int defaultHeight = 400;
   private int defaultWidth = 780;
 
   private static final String ROOT_TARGET = "_root";
 
-  static Logger log = Logger.getLogger(PSWindowManager.class);
+  static Logger log = LogManager.getLogger(PSWindowManager.class);
 
   int window_count = 0;
 

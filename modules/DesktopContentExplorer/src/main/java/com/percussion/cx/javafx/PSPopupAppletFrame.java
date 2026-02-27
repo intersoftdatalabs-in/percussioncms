@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,6 @@ import com.percussion.cx.PSContentExplorerUtils;
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
-import javafx.application.Platform;
-import javafx.scene.web.WebView;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -41,11 +34,11 @@ import javafx.application.Platform;
 import javafx.scene.web.WebView;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class PSPopupAppletFrame extends PSDesktopExplorerWindow
-{
-   static Logger log = LogManager.getLogger(PSPopupAppletFrame.class);
+public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
+  static Logger log = LogManager.getLogger(PSPopupAppletFrame.class);
 
   PSContentExplorerAppletStub stub = new PSContentExplorerAppletStub();
 

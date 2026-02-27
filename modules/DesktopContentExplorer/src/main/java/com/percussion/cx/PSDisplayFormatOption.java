@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package com.percussion.cx;
 import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -28,15 +31,10 @@ import org.w3c.dom.Element;
  * This class provides a way of constructing the Display Format Option object from the XML document
  * and to get XML document from the Display Format object.
  */
-public class PSDisplayFormatOption implements IPSClientObjects
-{
-   static Logger log = LogManager.getLogger(PSDisplayFormatOption.class);
-   /**
-    * Empty constructor.
-    */
-   public PSDisplayFormatOption()
-   {
-   }
+public class PSDisplayFormatOption implements IPSClientObjects {
+  static Logger log = LogManager.getLogger(PSDisplayFormatOption.class);
+  /** Empty constructor. */
+  public PSDisplayFormatOption() {}
 
   /**
    * Default constructor, this is needed so that an instance of this class can be created by

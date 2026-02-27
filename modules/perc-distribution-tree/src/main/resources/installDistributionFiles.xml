@@ -128,12 +128,7 @@
 			</fileset>
 		</copy>
 
-		<copy todir="${assembly-directory}/rx_resources"
-			overwrite="false" verbose="true">
-			<fileset
-				dir="${basedir}/../../system/cms/content/applications/rx_resources/ApplicationFiles">
-			</fileset>
-		</copy>
+		<!-- Duplicate rx_resources copy removed: identical operation already performed above (line ~109). -->
 		<copy todir="${assembly-directory}">
 			<fileset
 				dir="${rxapps-directory}/perc-rxapps-${project.version}/RxApp/rxAppSupport">
@@ -330,14 +325,6 @@
 		<copy
 			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/collapser/jquery.collapser.js"
 			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/plugins/jquery-collapser/jquery.collapser.js" />
-
-		<!-- uploadify -->
-		<copy
-			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/uploadify/swfobject.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/plugins/jquery-uploadify/swfobject.js" />
-		<copy
-			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/uploadify/jquery.uploadify.v2.1.0.min.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/plugins/jquery-uploadify/jquery.uploadify.v2.1.0.min.js" />
 
 		<!-- jQuery.cookie -->
 		<copy

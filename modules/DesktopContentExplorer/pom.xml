@@ -81,7 +81,7 @@
 							</includes>
 						</filter>
 						<filter>
-							<artifact>axis:axis</artifact>
+							<artifact>com.percussion:webservices</artifact>
 							<includes>
 								<include>**</include>
 							</includes>
@@ -147,7 +147,7 @@
 					</artifactSet>
 				</configuration>
 			</plugin>
-			<plugin>
+		<!-- TODO: Fix signing	<plugin>
 				<artifactId>maven-jarsigner-plugin</artifactId>
 				<executions>
 					<execution>
@@ -170,6 +170,7 @@
 					<verbose>true</verbose>
 				</configuration>
 			</plugin>
+        -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M5</version>
@@ -201,6 +202,20 @@
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-fxml</artifactId>
 			<version>17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>17</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 
 		<dependency>

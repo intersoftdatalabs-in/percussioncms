@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,34 +27,6 @@ import com.percussion.cx.objectstore.PSNode;
 import com.percussion.guitools.PSTableSorter;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.CellEditor;
-import javax.swing.Icon;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.MouseInputListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.plaf.basic.BasicTableUI;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -114,38 +86,17 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The main display panel that is used to display a table that represents children of a node
  * according to the node's display format. Supports pop-up menu based on selection.
  */
 public class PSMainDisplayPanel extends JScrollPane
-   implements DragGestureListener, DropTargetListener
-{
-   static Logger log = LogManager.getLogger(PSMainDisplayPanel.class);
-   
-   /**
-    * Constructs the panel with supplied parameters.
-    *
-    * @param view the current view of applet, must be one of the <code>
-    * PSUiMode.TYPE_VIEW_xxx</code> values.
-    * @param actManager the action manager to use to support context menu, may
-    * not be <code>null</code>
-    * @param isSorted <code>true</code> to allow the table to be sorted,
-    * <code>false</code> to maintain the supplied order of the data.
-    */
-   public PSMainDisplayPanel(String view, PSActionManager actManager,
-      boolean isSorted)
-   {
-      if(!PSUiMode.isValidView(view))
-         throw new IllegalArgumentException("view is not valid.");
-      if(actManager == null)
-         throw new IllegalArgumentException("actManager may not be null.");
-      
-      if(actManager.getApplet() == null)
-         throw new IllegalArgumentException("applet may not be null.");
+    implements DragGestureListener, DropTargetListener {
+  static Logger log = LogManager.getLogger(PSMainDisplayPanel.class);
 
   /**
    * Constructs the panel with supplied parameters.
@@ -1197,7 +1148,7 @@ public class PSMainDisplayPanel extends JScrollPane
    * @author vamsinukala
    */
   private class TableKeyBoardHandler extends KeyAdapter {
-    private Logger log = Logger.getLogger(TableKeyBoardHandler.class);
+    private Logger log = LogManager.getLogger(TableKeyBoardHandler.class);
     private boolean isPopup = false;
     private int enter = 0;
 
@@ -1331,344 +1282,11 @@ public class PSMainDisplayPanel extends JScrollPane
       // The autoscroller can generate drag events outside the Table's range.
       if ((column == -1) || (row == -1)) return;
 
-            if (selNode.isContainer()) {
-              m_navTree.selectNode(selNode);
-            } else // execute the default action for the node if applicable
-            {
-              // parent node a node selected in display panel is the node
-              // selected in the navigation tree.
-              PSNode parentNode = m_navTree.getSelectedNode();
-              PSUiMode mode = new PSUiMode(m_view, ms_mode);
-              PSSelection selection =
-                  new PSSelection(mode, parentNode, PSIteratorUtils.iterator(selNode));
-              PSMenuAction defAction = m_actManager.findDefaultAction(selection);
-
-              if (defAction != null) {
-                m_actManager.executeAction(defAction, selection);
-              }
-            }
-          } else {
-            isPopup = false;
-          }
-        } else {
-          enter = 0;
-        }
-
-      } else if (code == KeyEvent.VK_CONTEXT_MENU || code == KeyEvent.VK_RIGHT) {
-        Iterator<PSNode> selNodes = getSelectedRowNodes();
-
-        PSNode selNode = null;
-        if (selNodes.hasNext()) {
-          selNode = selNodes.next();
-        } else {
-          return;
-        }
-
-        int row = getMatchingRowIndex(selNode);
-        int col = table.getSelectedColumn();
-        displayPopupMenu(
-            (Component) e.getSource(),
-            null,
-            getSelectedRowNodes(),
-            new Point(row + 150, col + (row * 17)));
-        isPopup = true;
-      } else if (code == KeyEvent.VK_TAB) {
-        int row = table.getSelectedRow();
-        int col = table.getSelectedColumn();
-        if (row == -1 && col == -1) {
-          row = 0;
-          col = 0;
-        }
-        table.requestFocusInWindow();
-        CellEditor editor = table.getCellEditor();
-        if (editor == null || editor.shouldSelectCell(e)) {
-          table.getSelectionModel().setValueIsAdjusting(true);
-          table.getColumnModel().getSelectionModel().setValueIsAdjusting(true);
-          table.changeSelection(row, col, e.isControlDown(), e.isShiftDown());
-        }
-      }
-    }
-  }
-
-  /**
-   * The mouse input handler that handles the mouse events on the table in this panel. This differs
-   * from <code>BasicTableUI</code>'s <code>
-   * MouseInputHandler</code> in the following ways.
-   *
-   * <ol>
-   *   <li>Selects the row or cell upon mouse click, not on mouse press.
-   *   <li>In mouse dragged, if the cell at drag origin (mouse press location) is not currently
-   *       selected, makes that as selected, otherwise keeps the current selection.
-   * </ol>
-   *
-   * This behavior is similar to windows explorer behavior in right panel.
-   */
-  private class TableMouseInputHandler extends PSMouseAdapter implements MouseInputListener {
-    /**
-     * Implements interface method to make the clicked cell as selected. If the control key is down,
-     * the cell is selected/deselected based on current selection state of that row not affecting
-     * any other selection. If shift key is down, the range of cells between last selected row in
-     * the direction (up/down) are selected. See the interface for more description.
-     */
-    @Override
-    public void mouseWasClicked(MouseEvent e) {
-      if (shouldIgnore(e)) return;
-
-      JTable table = (JTable) e.getSource();
-      Point p = e.getPoint();
-      int row = table.rowAtPoint(p);
-      int column = table.columnAtPoint(p);
-      // The autoscroller can generate drag events outside the Table's range.
-      if ((column == -1) || (row == -1)) return;
-
-         String name = "Table Header column "+ column + " " + value;
-         if (dispOptions != null)
-         {
-            if (hasFocus)
-            {
-
-               setBackground(dispOptions.getHighlightColor());
-               setForeground(dispOptions.getHighlightTextColor());
-               setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-               getAccessibleContext().setAccessibleName("Table header "+ value);
-            }
-            else
-            {
-               setBackground(dispOptions.getBackGroundColor());
-               setForeground(dispOptions.getHeadingForeGroundColor());
-               setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-               getAccessibleContext().setAccessibleName("Table header raised " +value);
-            }
-
-            setFont(dispOptions.getFont());
-
-         }
-         else
-         {
-            JTableHeader header = table.getTableHeader();
-            if (header != null)
-            {
-               if (hasFocus)
-               {
-                  setForeground(UIManager.getColor("TableHeader.focusCellForeground"));
-                  setBackground(UIManager.getColor("TableHeader.focusCellBackground"));
-                  setBorder(UIManager.getBorder("TableHeader.focusCellBorder"));
-               }
-               else
-               {
-                  setForeground(header.getForeground());
-                  setBackground(header.getBackground());
-                  setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-               }
-            }
-         }
-
-         // is this the column that is being sorted?
-         if (table.convertColumnIndexToModel(column) == m_childViewTableModel.getLatestSortingColumn())
-         {
-            if (m_childViewTableModel.isAscending())
-            {
-               setIcon(PSImageIconLoader.loadIcon("up", false, m_applet));
-               name += " sort ascending";
-            }
-            else
-            {
-               setIcon(PSImageIconLoader.loadIcon("down", false, m_applet));
-               name += " sort descending";
-            }
-         }
-         else
-         {
-            setIcon(null);
-         }
-       
-         
-         getAccessibleContext().setAccessibleName(name);
-  
-         setText((value == null) ? "" : value.toString());
-         setHorizontalAlignment(LEFT);
-         setHorizontalTextPosition(LEFT);
-         setVerticalAlignment(BOTTOM);
-         setOpaque(true);
-         return this;
-      }
-   }
-  
- 
-   /**
-    * A keyboard handler is attached to the table so that when the user tabs or
-    * uses directional keys, we can navigate the table much the same as 
-    * we do with a MouseEvent. This fixes the issue with KeyBoard selection in 
-    * the table is not setting context menus correctly.(It was setting the last 
-    * selected node in the navigation tree.
-    * @author vamsinukala
-    *
-    */
-   private class TableKeyBoardHandler extends KeyAdapter
-   {
-	  private Logger log = LogManager.getLogger(TableKeyBoardHandler.class);
-	  private boolean isPopup = false;
-	  private int enter=0;
-	  
-      @Override
-      public void keyReleased(KeyEvent e)
-      {
-    	 int code = e.getKeyCode();
-    	 
-         JTable table = (JTable) e.getSource();
-         if ( table == null ) {
-            return;
-         }
-
-         if (code == KeyEvent.VK_ENTER)
-         {
-        	 enter++;
-        	/* A boolean enter is placed so that the logic for enter key is executed only once. 
-        	 * For some reason it is getting called twice. 
-        	 * May be it is required to look into all the related classes and correct the keyboard handling.
-        	 * Possibly the event is getting triggered from two places.
-        	 * 
-        	 * Something to work on if time permits.
-        	 */
-        	 if(enter == 1){
-        		 /* There is a global JPopupMenu object, but it does not seem to be getting used.
-        		  * Implementing key listener on the local instance of popup menu is not working correctly.
-        		  * A boolean isPopup is used to avoid this 'enter' key event when user clicks enter on an option in the popup menu.
-        		  * Without this boolean, the application opens the user's popup menu selection and also opens the item for edit.
-        		  */
-            	 if(!isPopup) {
-    	             PSNode selNode = null;
-    	             PSNode root = getDataModel().getRoot();
-    	             PSNavigationTree m_navTree = new PSNavigationTree(root, m_view, m_actManager);
-    					
-    	             //This will always have only one entry because, double-click removes
-    	             //the previous selection and makes the clicked row alone as selected.
-    	             //even if multiple rows comes, take the first one.
-    	             Iterator<PSNode> selNodes = getSelectedRowNodes();
-    	
-    	             if (selNodes.hasNext()) {
-    	                 selNode = selNodes.next();
-    	             } else {
-    	                 return;
-    	             }
-    	
-    	             if (selNode.isContainer()) {
-    	                 m_navTree.selectNode(selNode);
-    	             } else //execute the default action for the node if applicable
-    	              {
-    	                 //parent node a node selected in display panel is the node
-    	                 //selected in the navigation tree.
-    	                 PSNode parentNode = m_navTree.getSelectedNode();
-    	                 PSUiMode mode = new PSUiMode(m_view, ms_mode);
-    	                 PSSelection selection = new PSSelection(mode, parentNode, PSIteratorUtils.iterator(selNode));
-    	                 PSMenuAction defAction = m_actManager.findDefaultAction(selection);
-    	
-    	                 if (defAction != null) {
-    	                	 m_actManager.executeAction(defAction, selection);
-    	                 }
-    	             }
-            	 } else {
-            		 isPopup = false;
-            	 }
-        	 }
-        	 else {
-        		 enter = 0;
-        	 }
-        	 
-         }
-         else if (code == KeyEvent.VK_CONTEXT_MENU || code == KeyEvent.VK_RIGHT)
-         {
-        	 Iterator<PSNode> selNodes = getSelectedRowNodes();
-        	 
-        	 PSNode selNode = null;
-        	 if (selNodes.hasNext()) {
-                 selNode = selNodes.next();
-             } else {
-            	 return;
-             }
-
-        	 int row= getMatchingRowIndex(selNode);
-	         int col = table.getSelectedColumn();
-        	 displayPopupMenu((Component)e.getSource(), null, getSelectedRowNodes(), new Point(row + 150, col + (row*17)));
-        	 isPopup = true;
-         }
-            
-         else if (code == KeyEvent.VK_TAB)
-         {
-	         int row= table.getSelectedRow();
-	         int col = table.getSelectedColumn();
-	         if ( row == -1 && col == -1 )
-	         {
-	            row =0;
-	            col =0;
-	         }
-	         table.requestFocusInWindow();
-	         CellEditor editor = table.getCellEditor();
-	         if (editor == null || editor.shouldSelectCell(e))
-	         {
-	            table.getSelectionModel().setValueIsAdjusting(true);
-	            table.getColumnModel().getSelectionModel().setValueIsAdjusting(
-	                  true);
-	            table.changeSelection(row, col, e.isControlDown(), e.isShiftDown());
-	         }
-         }
-      }
-   }
-
-   /**
-    * The mouse input handler that handles the mouse events on the table in this
-    * panel. This differs from <code>BasicTableUI</code>'s <code>
-    * MouseInputHandler</code> in the following ways.
-    * <ol>
-    * <li>Selects the row or cell upon mouse click, not on mouse press.
-    * <li>In mouse dragged, if the cell at drag origin (mouse press location) is
-    * not currently selected, makes that as selected, otherwise keeps the
-    * current selection.
-    * </ol>
-    * This behavior is similar to windows explorer behavior in right panel.
-    */
-   private class TableMouseInputHandler extends PSMouseAdapter 
-     implements MouseInputListener
-   {
-      /**
-       * Implements interface method to make the clicked cell as selected. If
-       * the control key is down, the cell is selected/deselected based on
-       * current selection state of that row not affecting any other selection.
-       * If shift key is down, the range of cells between last selected row in
-       * the direction (up/down) are selected. See the interface for more
-       * description.
-       */
-      @Override
-      public void mouseWasClicked(MouseEvent e)
-      {
-         if (shouldIgnore(e))
-            return;
-
-         JTable table = (JTable) e.getSource();
-         Point p = e.getPoint();
-         int row = table.rowAtPoint(p);
-         int column = table.columnAtPoint(p);
-         // The autoscroller can generate drag events outside the Table's range.
-         if ((column == -1) || (row == -1))
-            return;
-
-         if (table.editCellAt(row, column, e))
-         {
-            setDispatchComponent(e);
-            repostEvent(e);
-         }
-         else
-         {
-            table.requestFocus();
-         }
-
-         CellEditor editor = table.getCellEditor();
-         if (editor == null || editor.shouldSelectCell(e))
-         {
-            setValueIsAdjusting(table, true);
-            table.changeSelection(
-               row, column, e.isControlDown(), e.isShiftDown());
-         }
+      if (table.editCellAt(row, column, e)) {
+        setDispatchComponent(e);
+        repostEvent(e);
+      } else {
+        table.requestFocus();
       }
 
       CellEditor editor = table.getCellEditor();

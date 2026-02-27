@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,21 +36,6 @@ import com.percussion.search.ui.PSSearchAdvancedPanel;
 import com.percussion.search.ui.PSSearchFieldEditor;
 import com.percussion.search.ui.PSSearchSimplePanel;
 import com.percussion.system.utils.IPSHtmlParameters;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -84,69 +69,12 @@ import javax.swing.JScrollBar;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * Dialog to build/edit Search Query.
- */
-public class PSSearchDialog extends PSDialog
-{
-   static Logger log = LogManager.getLogger(PSSearchDialog.class);
-   
-   /**
-    * Constructs the dialog with supplied parameters.
-    * <p>Either retrieves a <code>PSSearch</code> or creates a new one 
-    * depending on the supplied flags. If this is a new, non-RC search, 
-    * a new one will be created, otherwise, it is obtained from the supplied
-    * <code>mgr</code>.
-    * <p>If a new one is created, and the property 
-    * {@link IPSConstants#PROPERTY_FOLDER_PATH} is found on the
-    * supplied <code>searchNode</code>, the 
-    * {@link PSSearch#PROP_FOLDER_PATH} will be set on the created 
-    * <code>PSSearch</code> object, along with the 
-    * {@link PSSearch#PROP_FOLDER_PATH_RECURSE} property set to 
-    * <code>true</code>.
-    * <p>If the <code>PSSearch</code> object that is edited by this dialog
-    * contains the folder path property, it will affect the behavior of this 
-    * class. Firstly, the title will change to indicate that the search is a
-    * folder search. Secondly, a checkbox will appear to allow the user to 
-    * change the recurse property. 
-    * 
-    * @param parent the parent frame of the dialog, may be <code>null</code>
-    * @param mgr the action manager to use to get different catalogers to
-    * get the search object, display formats and content editor fields, may not
-    * be <code>null</code>
-    * @param cataloger The PSRemoteCataloger object.
-    * @param searchNode the search node whose search criteria is to be edited,
-    * may not be <code>null</code>
-    * @param filterMap It is the map that need to be applied on the contents of 
-    * search fields.
-    * @param isNewSearch if <code>true</code> an empty search object will be used
-    * otherwise the search object corresponding to initiating search will be used.
-    * Ignored if isRcSearch param is set to <code>true</code>.
-    * @param isRcSearch <code>true</code> if the search is Related Content Search.
-    * otherwise <code>false</code>. This is used to select appropriate search 
-    * object from the cataloger.
-    * @param searchConfig the search configuration, never <code>null</code>.
-    * @param searchableFieldsCache it is used to cache (or hold) the catalogged 
-    * searchable fields. It maps cataloger flag of the applet (as 
-    * <code>String</code> object) to its corresponding searchable fields 
-    * (as <code>PSContentEditorFieldCataloger</code> object). It may be
-    * <code>null</code> if not to cache the searchable fields.
-    * @param codeBase the code base of the current applet, which is used as
-    * part of the key for the searchable fields cache.
-    * 
-    * @throws PSCmsException if the catalog request to get the content editor
-    * fields fails.
-    */
-   public PSSearchDialog(Frame parent, PSSearchViewActionManager mgr,
-         PSRemoteCataloger cataloger, PSNode searchNode, Map filterMap,
-         boolean isNewSearch, boolean isRcSearch, PSSearchConfig searchConfig,
-         Map searchableFieldsCache, URL codeBase)
-         throws PSCmsException
-   {
-      super(parent, mgr.getApplet().getResourceString(
-         PSSearchDialog.class, "Content Search"));
+/** Dialog to build/edit Search Query. */
+public class PSSearchDialog extends PSDialog {
+  static Logger log = LogManager.getLogger(PSSearchDialog.class);
 
   /**
    * Constructs the dialog with supplied parameters.

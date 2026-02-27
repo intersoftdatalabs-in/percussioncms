@@ -18,11 +18,12 @@
 package com.percussion.cx;
 
 import com.percussion.util.PSHttpConnection;
-import com.percussion.webservices.faults.PSNotAuthenticatedFault;
-import com.percussion.webservices.security.LoginRequest;
-import com.percussion.webservices.security.LoginResponse;
-import com.percussion.webservices.security.SecuritySOAPStub;
+import com.percussion.webservices.securityservices.LoginRequest;
+import com.percussion.webservices.securityservices.LoginResponse;
+import com.percussion.webservices.securityservices.NotAuthenticatedFaultMessage;
+import com.percussion.webservices.securityservices.Security;
 import com.percussion.webservices.security.data.PSLogin;
+import jakarta.xml.ws.BindingProvider;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,25 +38,19 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.URL;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 public class PSCESessionManager implements Runnable {
   private static final String LOGOUT_NOW = "Logout Now";
 
   private static final String EXTEND_SESSION = "Extend Session";
 
-   static Logger log = LogManager.getLogger(PSCESessionManager.class);
+  private static final Logger log = LogManager.getLogger(PSCESessionManager.class);
 
   private ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 
@@ -94,7 +89,6 @@ public class PSCESessionManager implements Runnable {
   }
 
   public void start(String protocol, String server, String port, PSLogin loginInfo) {
-
     this.protocol = protocol;
     this.server = server;
     this.port = port;
@@ -135,18 +129,18 @@ public class PSCESessionManager implements Runnable {
       } catch (Exception e) {
         // Assume that countdown is continuing
         log.warn(
-            "Failed to check session state server may be down or network connection lost :"
-                + e.getLocalizedMessage());
+            "Failed to check session state server may be down or network connection lost: {}",
+            e.getLocalizedMessage());
         log.debug(
-            "Failed to check session state server may be down or network connection lost:"
-                + e.getLocalizedMessage(),
+            "Failed to check session state server may be down or network connection lost: {}",
+            e.getLocalizedMessage(),
             e);
         long currTime = System.currentTimeMillis();
         expiry = expireTime - currTime;
         warning = warningTime - currTime;
       }
 
-      log.debug("session status check: expiry=" + expiry + " warning=" + warning);
+      log.debug("session status check: expiry={} warning={}", expiry, warning);
 
       if (expiry <= 0) {
         if (isLoggedIn) {
@@ -191,7 +185,7 @@ public class PSCESessionManager implements Runnable {
 
                 countdown.cancel(false);
                 if (optionPane.getValue() == null) {
-                  log.debug("Close / Cross dialog button clicked. ");
+                  log.debug("Close / Cross dialog button clicked.");
                   if (countdown != null) {
                     countdown.cancel(false);
                   }
@@ -214,24 +208,22 @@ public class PSCESessionManager implements Runnable {
                   return;
                 }
               });
-          // take the chance to save the applet state while there is no
-          // activity
-          // need to make sure that saving the state does not reset session
-          // time
+          // Take the chance to save the applet state while there is no
+          // activity. Need to make sure that saving the state does not reset session time.
           if (applet.getOptionsManager() != null) {
             applet.saveAppletState();
             applet.getOptionsManager().save(true);
           }
         }
         if (!ex.isShutdown()) ex.schedule(this, expiry, TimeUnit.MILLISECONDS);
-        log.debug("Waiting for logout in " + expiry + "ms");
+        log.debug("Waiting for logout in {}ms", expiry);
 
       } else {
         if (dialogOn.compareAndSet(true, false)) {
           log.debug("Turning off warning");
           SwingUtilities.invokeLater(
               () -> {
-                // stop countdown timer
+                // Stop countdown timer
                 if (countdown != null) countdown.cancel(false);
                 if (dialog != null && dialog.isVisible()) {
                   dialog.dispose();
@@ -239,11 +231,10 @@ public class PSCESessionManager implements Runnable {
               });
         }
         if (!ex.isShutdown()) ex.schedule(this, (expiry - warning), TimeUnit.MILLISECONDS);
-        log.debug("Waiting for warning in " + (expiry - warning) + "ms");
+        log.debug("Waiting for warning in {}ms", expiry - warning);
       }
 
     } catch (Exception e) {
-
       log.error("Error with session check thread", e);
     }
   }
@@ -267,7 +258,7 @@ public class PSCESessionManager implements Runnable {
       SwingUtilities.invokeLater(
           () -> {
             String timeText = DurationFormatUtils.formatDuration(remainTime, "HH:mm:ss");
-            log.debug("Remaing Time : " + remainTime + " -- Time Text : " + timeText);
+            log.debug("Remaining Time: {} -- Time Text: {}", remainTime, timeText);
             timeLabel.setText(timeText);
             if (remainTime <= 0
                 || DurationFormatUtils.formatDuration(remainTime, "HH:mm:ss")
@@ -294,11 +285,10 @@ public class PSCESessionManager implements Runnable {
   private void closeAllDialog() {
     Window[] windows = Window.getWindows();
     for (Window window : windows) {
-      if (window instanceof JDialog) {
-        JDialog dialog = (JDialog) window;
-        if (dialog.getContentPane().getComponents().length > 0
-            && dialog.getContentPane().getComponent(0) instanceof JOptionPane) {
-          dialog.dispose();
+      if (window instanceof JDialog jDialog) {
+        if (jDialog.getContentPane().getComponents().length > 0
+            && jDialog.getContentPane().getComponent(0) instanceof JOptionPane) {
+          jDialog.dispose();
         }
       }
     }
@@ -311,21 +301,28 @@ public class PSCESessionManager implements Runnable {
   public void login(
       String protocol, String server, String port, String uid, String password, String locale)
       throws Exception {
-    Integer timeoutInSec = 30;
+    int timeoutInMs = 30_000;
     try {
-      // Clear all cookies that may have been left over from previouse
+      // Clear all cookies that may have been left over from previous sessions
       CookieManager manager = new CookieManager();
       manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
       CookieHandler.setDefault(manager);
 
       PSWsUtils.setConnectionInfo(protocol, server, Integer.parseInt(port));
 
-      SecuritySOAPStub securitySession = PSWsUtils.getSecurityService();
-      // convert timeout to milliseconds
-      securitySession.setTimeout(timeoutInSec * 1000);
-      LoginRequest logRequest = new LoginRequest(uid, password, null, null, locale);
+      Security securitySession = PSWsUtils.getSecurityService();
 
-      // convert time from seconds to milliseconds
+      // Set HTTP connection and receive timeouts via JAX-WS BindingProvider
+      Map<String, Object> requestContext =
+          ((BindingProvider) securitySession).getRequestContext();
+      requestContext.put("jakarta.xml.ws.client.connectionTimeout", timeoutInMs);
+      requestContext.put("jakarta.xml.ws.client.receiveTimeout", timeoutInMs);
+
+      LoginRequest logRequest = new LoginRequest();
+      logRequest.setUsername(uid);
+      logRequest.setPassword(password);
+      logRequest.setLocaleCode(locale);
+
       log.debug("Logging in ...");
       LoginResponse resp = securitySession.login(logRequest);
       log.debug("Got login response");
@@ -333,41 +330,40 @@ public class PSCESessionManager implements Runnable {
       String session = login.getSessionId();
       PSWsUtils.setRxSessionHeader(securitySession, session);
 
-      if (login.getCommunities().length > 0) {
+      if (!login.getCommunities().getPSCommunity().isEmpty()) {
         log.info(
-            "logged in using community "
-                + login.getDefaultCommunity()
-                + " locale = "
-                + login.getDefaultLocaleCode());
-        log.info("session=" + login.getSessionId());
+            "Logged in using community {} locale = {}",
+            login.getDefaultCommunity(),
+            login.getDefaultLocaleCode());
+        log.info("session={}", login.getSessionId());
       }
 
       // Replicated javascript session check
-      // hold the resulting login info in loginInfo
-
+      // Hold the resulting login info in loginInfo
       this.userName = uid;
-
       this.start(protocol, server, port, login);
-
       isLoggedIn = true;
 
-      return;
-
-    } catch (PSNotAuthenticatedFault e) {
-      if (log.isDebugEnabled()) log.debug("Failed to login.  resetting applet", e);
-      else
+    } catch (NotAuthenticatedFaultMessage e) {
+      if (log.isDebugEnabled()) {
+        log.debug("Failed to login. Resetting applet", e);
+      } else {
         log.info(
-            "Header login failed.  Failed to authenticate with username and password. "
-                + e.getErrorMessage());
+            "Header login failed. Failed to authenticate with username and password. {}",
+            e.getMessage());
+      }
       PSContentExplorerApplication.getBaseFrame().logout();
       isLoggedIn = false;
       shutdown();
       throw new RuntimeException("Authentication failed. Invalid User Name and/or Password.");
     } catch (Exception e) {
-      if (log.isDebugEnabled()) log.debug("Failed to login.  resetting applet", e);
-      else
+      if (log.isDebugEnabled()) {
+        log.debug("Failed to login. Resetting applet", e);
+      } else {
         log.info(
-            "Header login failed.  Session may have expired or connection lost " + e.getMessage());
+            "Header login failed. Session may have expired or connection lost {}",
+            e.getMessage());
+      }
       PSContentExplorerApplication.getBaseFrame().logout();
       isLoggedIn = false;
       shutdown();
