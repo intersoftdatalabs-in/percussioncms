@@ -3,9 +3,11 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "daily"
-    open-pull-requests-limit: 5
+      interval: "weekly"
+    open-pull-requests-limit: 3
     target-branch: "development-8.1.x"
+    allow:
+      - dependency-type: "direct"
     # ignore known groups/artifacts that require > Java 1.8.0+
     ignore:
       - dependency-name: "org.apache.cxf:*"
@@ -91,10 +93,7 @@ updates:
       - dependency-name: "org.eclipse.jetty:jetty-maven-plugin"
         versions:
           - ">=10"
-      - dependency-name: "org.mortbay.jasper:apache-jsp"
-        versions:
-          - ">=10"
-      - dependency-name: "org.mortbay.jasper:apache-el"
+      - dependency-name: "org.mortbay.jasper:*"
         versions:
           - ">=10"
       - dependency-name: "com.github.spotbugs:spotbugs-annotations"
@@ -137,20 +136,7 @@ updates:
         versions:
           - ">=5.2"
       # Jakarta namespace - all Jakarta dependencies require Java 11+
-      - dependency-name: "jakarta.annotation:*"
-      - dependency-name: "jakarta.servlet:*"
-      - dependency-name: "jakarta.servlet.jsp:*"
-      - dependency-name: "jakarta.servlet.jsp.jstl:*"
-      - dependency-name: "jakarta.ws.rs:*"
-      - dependency-name: "jakarta.persistence:*"
-      - dependency-name: "jakarta.el:*"
-      - dependency-name: "jakarta.mail:*"
-      - dependency-name: "jakarta.validation:*"
-      - dependency-name: "jakarta.transaction:*"
-      - dependency-name: "jakarta.xml.bind:*"
-      - dependency-name: "jakarta.activation:*"
-      - dependency-name: "jakarta.inject:*"
-      - dependency-name: "jakarta.json:*"
+      - dependency-name: "jakarta.*:*"
       # Trinidad 3.x requires Jakarta namespace
       - dependency-name: "org.apache.myfaces.trinidad:*"
         versions:
@@ -170,13 +156,7 @@ updates:
       - dependency-name: "org.apache.velocity.tools:*"
         versions:
           - ">=4"
-      - dependency-name: "com.google.inject:guice"
-        versions:
-          - ">=3"
-      - dependency-name: "com.google.inject.extensions:guice-multibindings"
-        versions:
-          - ">=3"
-      - dependency-name: "com.google.inject.extensions:guice-jmx"
+      - dependency-name: "com.google.inject.*:*"
         versions:
           - ">=3"
       - dependency-name: "org.apache.shiro:shiro-web"
