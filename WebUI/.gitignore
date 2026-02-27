@@ -1,3 +1,4 @@
+node/
 **/node_modules
 # os
 **/.DS_Store
@@ -111,3 +112,13 @@ fabric.properties
 
 # Vite build output (generated from src/main/ts during Maven build)
 /war/modern/
+# Build-generated bundle files (minified & packed assets)
+/war/cssMin/*.packed.css
+/war/cssMin/*.packed.min.css
+/war/cssMin/*.min.css
+/war/jslibMin/*.packed.js
+/war/jslibMin/*.packed.min.js
+/war/jslibMin/*.min.js
+/war/shared-common.css
+/war/shared-common.js
+/war/shared-common-minuet.js
