@@ -58,7 +58,14 @@
 				
 				if(name !== 'Not found' && length > 0) {
 					document.querySelector('option[data-personname="' + name + '"]').selected = 'selected';
-				}
+                }
+                
+                //Set accessibility attributes for email-from field if present.
+                var emailField = document.getElementById('email-from');
+                if (emailField) {
+                    emailField.setAttribute('autocomplete', 'email');
+                    emailField.setAttribute('type', 'email');
+                }
 				
                 var formAction = $(this).attr("action");
                 formAction = formAction + "collect/";
