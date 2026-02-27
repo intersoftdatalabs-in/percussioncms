@@ -59,7 +59,7 @@ final class RespInputStream extends InputStream implements GlobalConstants {
   private int end = 0;
 
   /** the total number of bytes of entity data read from the demux so far */
-  int count = 0;
+  long count = 0L;
 
   static {
     try {
