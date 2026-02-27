@@ -175,6 +175,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>servlet-utils</artifactId>
             <version>${project.version}</version>
@@ -562,7 +566,7 @@
                                 <artifactId>commons-logging</artifactId>
                             </dependency>
                             <dependency>
-                                <groupId>ocommons-io</groupId>
+                                <groupId>commons-io</groupId>
                                 <artifactId>commons-io</artifactId>
                             </dependency>
                             <dependency>
@@ -575,7 +579,7 @@
                             </dependency>
                             <dependency>
                                 <groupId>net.sf.ehcache</groupId>
-                                <artifactId>ehcache-core</artifactId>
+                                <artifactId>ehcache</artifactId>
                             </dependency>
                             <dependency>
                                 <groupId>commons-collections</groupId>
@@ -753,11 +757,6 @@
                         </deployable>
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
-                            <artifactId>perc-integrations</artifactId>
-                            <type>war</type>
-                        </deployable>
-                        <deployable>
-                            <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>perc-membership-services</artifactId>
                             <type>war</type>
                         </deployable>
@@ -863,19 +862,19 @@
                                 </copy>
                                 <!-- Perc-Ant -->
                                 <copy todir="${ant-installer}">
-                                    <fileset dir="{basedir}/../../../../modules/perc-ant/target/">
+                                    <fileset dir="${basedir}/../../../../modules/perc-ant/target/" erroronmissingdir="false">
                                         <include name="perc-ant*.jar"/>
                                     </fileset>
                                 </copy>
                                 <!-- Version.properties -->
                                 <copy todir="${assembly-directory}">
-                                    <fileset dir="{basedir}/../../../../modules/utils/target/classes/com/percussion/util/">
+                                    <fileset dir="${basedir}/../../../../modules/utils/target/classes/com/percussion/util/" erroronmissingdir="false">
                                         <include name="Version.properties"/>
                                     </fileset>
                                 </copy>
                                 <mkdir dir="${assembly-directory}/rxconfig/secure"/>
                                 <copy todir="${assembly-directory}/rxconfig/secure">
-                                    <fileset dir="{basedir}/../../../../modules/utils/src/main/resources/com/percussion/security/encryption">
+                                    <fileset dir="${basedir}/../../../../modules/utils/src/main/resources/com/percussion/security/encryption" erroronmissingdir="false">
                                         <include name=".legacy-key"/>
                                     </fileset>
                                 </copy>

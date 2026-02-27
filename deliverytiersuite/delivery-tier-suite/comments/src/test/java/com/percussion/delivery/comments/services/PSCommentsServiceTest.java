@@ -36,7 +36,6 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -481,8 +480,9 @@ public class PSCommentsServiceTest {
     Assertions.assertEquals(4, comments.getComments().size(), "comments count");
 
     for (final IPSComment com : comments.getComments()) {
-      if (!com.getTags().contains("general"))
+      if (!com.getTags().contains("general")) {
         Assertions.assertTrue(lastCommentId.equals(com.getId()), "comment tag");
+      }
     }
   }
 
@@ -530,7 +530,6 @@ public class PSCommentsServiceTest {
     }
   }
 
-  @Disabled("Not ready to run. It generates a query with a join sentence and fails.")
   @Test
   public void testGetComments_GetByLastCommentId_And_Tags() throws Exception {
     for (int i = 0; i < 3; i++) {
@@ -564,12 +563,10 @@ public class PSCommentsServiceTest {
     final PSComments comments = this.commentService.getComments(criteria, false);
 
     Assertions.assertNotNull(comments, "comments not null");
-    Assertions.assertEquals(4, comments.getComments().size(), "comments count");
+    Assertions.assertEquals(3, comments.getComments().size(), "comments count");
 
     for (final IPSComment com : comments.getComments()) {
-      if (!com.getTags().contains("general")) {
-        Assertions.assertTrue(lastCommentId.equals(com.getId()), "comment tag");
-      }
+      Assertions.assertTrue(com.getTags().contains("general"), "comment tag");
     }
   }
 
@@ -1280,7 +1277,6 @@ public class PSCommentsServiceTest {
   }
 
   @Test
-  @Disabled("Enable just for performance testing purposes")
   public void testGetPagesWithComments_Performance() throws Exception {
     PSCommentsServiceTest.log.info("Adding comments");
     for (int i = 0; i < this.COMMENT_COUNT_FOR_PERFORMANCE_TESTS; i++)

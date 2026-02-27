@@ -33,7 +33,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
@@ -57,6 +56,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @TestPropertySource(
     inheritLocations = true,
     inheritProperties = true,
+    properties = {"rxdeploydir=target"},
     locations = {
       "file:src/test/webapp/WEB-INF/perc-security.properties",
       "file:src/test/webapp/WEB-INF/perc-datasources.properties",
@@ -65,7 +65,11 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class PSFormServiceTest extends PSBaseFormServiceTest {
 
   @BeforeEach
-  public void setup() {}
+  public void setup() {
+    PSMockEmailHelper.setConfigured(true);
+    PSMockEmailHelper.setError(null);
+    PSMockEmailHelper.getEmailRequests();
+  }
 
   @Test
   public void testSave_NullForm() {
@@ -646,7 +650,6 @@ public class PSFormServiceTest extends PSBaseFormServiceTest {
   }
 
   @Test
-  @Disabled("Test fails for no good reason - bad mock")
   public void testSendFormEmail() throws Exception {
     String[] fieldValue1 = new String[] {"field1", "value1"};
     String[] fieldValue2 = new String[] {"field2", "value2"};

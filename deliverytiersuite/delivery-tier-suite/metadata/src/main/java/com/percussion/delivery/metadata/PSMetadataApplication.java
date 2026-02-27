@@ -34,6 +34,7 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 @ApplicationPath("/")
 public class PSMetadataApplication extends ResourceConfig {
+  @SuppressWarnings("this-escape")
   public PSMetadataApplication() {
     register(RequestContextFilter.class);
     register(SpringComponentProvider.class);

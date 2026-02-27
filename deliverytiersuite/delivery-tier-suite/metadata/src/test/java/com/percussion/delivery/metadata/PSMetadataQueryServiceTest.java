@@ -766,7 +766,7 @@ public class PSMetadataQueryServiceTest {
   public void testCriteria_Single_Property_String_NotEqualsOperator() throws Exception {
     runPropertyTest(
         "dcterms:abstract != 'a summary of the page'",
-        ENTRY_COUNT,
+        ENTRY_COUNT * 2,
         "dcterms:abstract",
         VALUETYPE.STRING,
         new PropertyValueChecker<Object>() {
@@ -799,7 +799,7 @@ public class PSMetadataQueryServiceTest {
     // less than operators with created properties).
     runPropertyTest(
         "dcterms:created != '2010-12-15T16:17:18'",
-        ENTRY_COUNT * 3,
+      ENTRY_COUNT * 4,
         "dcterms:created",
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
@@ -814,7 +814,7 @@ public class PSMetadataQueryServiceTest {
   public void testCriteria_Single_Property_Date_GreaterThanOperator() throws Exception {
     runPropertyTest(
         "dcterms:created > '2010-12-15T16:17:18'",
-        ENTRY_COUNT * 2,
+        ENTRY_COUNT * 3,
         "dcterms:created",
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
@@ -829,7 +829,7 @@ public class PSMetadataQueryServiceTest {
   public void testCriteria_Single_Property_Date_GreaterOrEqualsThanOperator() throws Exception {
     runPropertyTest(
         "dcterms:created >= '2010-12-15T16:17:18'",
-        ENTRY_COUNT * 3,
+        ENTRY_COUNT * 4,
         "dcterms:created",
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
@@ -1047,9 +1047,9 @@ public class PSMetadataQueryServiceTest {
       props = toPropsMap(entry.getProperties());
 
       assertEquals(
-          "Title greater than previous",
           orderedTitles[i],
-          props.get("dcterms:title").getStringvalue());
+          props.get("dcterms:title").getStringvalue(),
+          "Title greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1065,7 +1065,7 @@ public class PSMetadataQueryServiceTest {
 
     props = toPropsMap(results.get(1).getProperties());
     assertEquals(
-        "First title from the list", "f page", props.get("dcterms:title").getStringvalue());
+      "f page", props.get("dcterms:title").getStringvalue(), "First title from the list");
   }
 
   @Test
@@ -1122,9 +1122,9 @@ public class PSMetadataQueryServiceTest {
       props = toPropsMap(entry.getProperties());
 
       assertEquals(
-          "Title greater than previous",
           orderedTitles[i],
-          props.get("dcterms:title").getStringvalue());
+          props.get("dcterms:title").getStringvalue(),
+          "Title greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1180,20 +1180,20 @@ public class PSMetadataQueryServiceTest {
     List<IPSMetadataEntry> results = searchResults.getFirst();
 
     assertNotNull(results, "entries not null");
-    assertEquals(5, results.size(), "results list size");
+    assertEquals(4, results.size(), "results list size");
 
     PSDbMetadataEntry entry;
 
     for (int i = 0; i < results.size(); i++) {
       entry = (PSDbMetadataEntry) results.get(i);
       System.out.println(entry.getPagepath());
-      assertEquals("Pagepath greater than previous", orderedPagePaths[i], entry.getPagepath());
+      assertEquals(orderedPagePaths[i], entry.getPagepath(), "Pagepath greater than previous");
     }
 
     assertEquals(4, results.size(), "results list size");
 
     totalCount = searchResults.getSecond();
-    assertEquals(5, totalCount.intValue(), "total entries");
+    assertEquals(4, totalCount.intValue(), "total entries");
   }
 
   @Test
@@ -1234,7 +1234,7 @@ public class PSMetadataQueryServiceTest {
 
     for (int i = 0; i < results.size(); i++) {
       entry = (PSDbMetadataEntry) results.get(i);
-      assertEquals("Pagepath greater than previous", folderNames[i], entry.getFolder());
+      assertEquals(folderNames[i], entry.getFolder(), "Pagepath greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1383,7 +1383,7 @@ public class PSMetadataQueryServiceTest {
     List<IPSMetadataEntry> results = searchResults.getFirst();
 
     assertNotNull(results, "entries not null");
-    assertEquals(ENTRY_COUNT, results.size(), "entries found");
+    assertEquals(entryCountExpected, results.size(), "entries found");
 
     for (IPSMetadataEntry entry : results) {
       assertTrue(propertyValueChecker.valueIsCorrect(entry), "entry with correct value");
@@ -1409,6 +1409,7 @@ public class PSMetadataQueryServiceTest {
     Map<String, IPSMetadataProperty> props;
 
     assertNotNull(results, "entries not null");
+    assertEquals(entryCountExpected, results.size(), "entries found");
 
     for (IPSMetadataEntry entry : results) {
       props = toPropsMap(entry.getProperties());
@@ -1425,10 +1426,6 @@ public class PSMetadataQueryServiceTest {
     }
   }
 
-  private int getRandomNumber(int min, int max) {
-    return (int) ((Math.random() * (max - min)) + min);
-  }
-
   private void addTestEntries() {
     Collection<IPSMetadataEntry> ents = new ArrayList<IPSMetadataEntry>();
     PSDbMetadataEntry e = null;
@@ -1437,7 +1434,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/blogs/",
               "blogs linktext",
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2010, 12, 14, 12, 0, 0),
               "blog",
               entryIdx++);
       ents.add(e);
@@ -1448,7 +1445,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/events/",
               "events linktext",
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2010, 12, 15, 16, 17, 18),
               "event",
               entryIdx++);
       ents.add(e);
@@ -1459,7 +1456,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/foobars/",
               "foobars linktext",
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2010, 12, 16, 9, 0, 0),
               "template2",
               "foobar",
               entryIdx++);
@@ -1472,7 +1469,7 @@ public class PSMetadataQueryServiceTest {
               "customSite",
               "/folderA/pages/",
               "pages linktext",
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2010, 12, 17, 10, 0, 0),
               "other abstract",
               "otherTemplate",
               "page",
@@ -1488,7 +1485,7 @@ public class PSMetadataQueryServiceTest {
               "portal",
               "/noticias/destacadas/noticias-destacadas-2021/",
               faker.chuckNorris().fact(),
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2011, 1, i + 1, 11, 0, 0),
               faker.hitchhikersGuideToTheGalaxy().quote(),
               "Noticias-Noticia-Single",
               "page",

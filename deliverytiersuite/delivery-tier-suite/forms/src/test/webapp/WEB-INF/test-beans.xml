@@ -88,7 +88,7 @@
 
     <context:component-scan base-package="com.percussion.delivery.forms.impl" />
     <tx:annotation-driven transaction-manager="txManager"/>
- 
+
     <!-- DataSource -->
     <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
         <property name="jdbcUrl" value="${jdbcUrl}" />
@@ -102,7 +102,7 @@
     <bean id="percDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <constructor-arg ref="hikariConfig" />
     </bean>
-    
+
     <!-- Database Property -->
     <bean id="percHibernateProperties"
           class="org.springframework.beans.factory.config.PropertiesFactoryBean" >
@@ -143,14 +143,12 @@
         <constructor-arg index = "3" value = "${recaptcha.userAgent}"/>
     </bean>
 
-    <bean id="emailHelper" class="com.percussion.delivery.utils.PSEmailHelper" autowire="constructor">
-        <constructor-arg ref="emailProperties"/>
-    </bean>
+    <bean id="emailHelper" class="com.percussion.delivery.forms.impl.PSMockEmailHelper" />
 
     <!-- Define Form DAO bean -->
     <bean id="formDao" class="com.percussion.delivery.forms.impl.rdbms.PSFormDao">
     </bean>
-    
+
     <!-- Define Form Service bean -->
     <bean id="formService" class="com.percussion.delivery.forms.impl.PSFormService" >
         <constructor-arg ref="formDao"/>

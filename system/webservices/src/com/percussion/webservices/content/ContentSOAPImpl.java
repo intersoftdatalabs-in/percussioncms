@@ -18,16 +18,13 @@
 package com.percussion.webservices.content;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.cms.objectstore.PSBinaryValue;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSItemChild;
 import com.percussion.cms.objectstore.PSItemChildEntry;
 import com.percussion.cms.objectstore.PSItemField;
-import com.percussion.cms.objectstore.PSItemFieldMeta;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.PSRelationshipProcessorProxy;
-import com.percussion.cms.objectstore.server.PSPurgableFileValue;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.security.error.PSExceptionUtils;
@@ -44,7 +41,6 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.services.system.data.PSContentStatusHistory;
-import com.percussion.util.IOTools;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
@@ -63,7 +59,6 @@ import com.percussion.webservices.faults.PSErrorResultsFault;
 import com.percussion.webservices.faults.PSErrorsFault;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
-import com.percussion.webservices.faults.PSUnknownChildFault;
 import com.percussion.webservices.faults.PSUnknownContentTypeFault;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,15 +66,8 @@ import com.percussion.webservices.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.FileDataSource;
 import jakarta.jws.WebService;
-import jakarta.xml.ws.handler.MessageContext;
-import java.io.File;
 import java.util.Iterator;
-import org.apache.axis.attachments.AttachmentPart;
-import java.io.IOException;
-import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;

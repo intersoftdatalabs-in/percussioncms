@@ -33,6 +33,9 @@ import java.util.Set;
  */
 @XmlType(propOrder = {"name"})
 public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
+
+  private static final long serialVersionUID = 1L;
+
   private String pagepath;
 
   private String name;
@@ -47,7 +50,7 @@ public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
 
   @XmlElementWrapper(name = "property")
   @XmlElement(type = PSMetadataProperty.class)
-  private Set<IPSMetadataProperty> properties = new HashSet<>();
+  private Set<PSMetadataProperty> properties = new HashSet<>();
 
   public PSMetadataEntry() {}
 
@@ -164,20 +167,40 @@ public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
   /* (non-Javadoc)
    * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getProperties()
    */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public Set<IPSMetadataProperty> getProperties() {
-    return properties;
+    if (properties == null) {
+      properties = new HashSet<>();
+    }
+    return (Set) properties;
   }
 
   /* (non-Javadoc)
    * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setProperties(java.util.Set)
    */
   public void setProperties(Set<IPSMetadataProperty> properties) {
-    this.properties = properties;
+    Set<PSMetadataProperty> convertedProperties = new HashSet<>();
+    if (properties != null) {
+      for (IPSMetadataProperty property : properties) {
+        if (property instanceof PSMetadataProperty) {
+          convertedProperties.add((PSMetadataProperty) property);
+        } else {
+          convertedProperties.add(
+              new PSMetadataProperty(
+                  property.getName(), property.getValuetype(), property.getValue()));
+        }
+      }
+    }
+    this.properties = convertedProperties;
   }
 
   public void addProperty(IPSMetadataProperty prop) {
     if (properties == null) properties = new HashSet<>();
-    properties.add(prop);
+    if (prop instanceof PSMetadataProperty) {
+      properties.add((PSMetadataProperty) prop);
+    } else {
+      properties.add(new PSMetadataProperty(prop.getName(), prop.getValuetype(), prop.getValue()));
+    }
   }
 
   public void clearProperties() {

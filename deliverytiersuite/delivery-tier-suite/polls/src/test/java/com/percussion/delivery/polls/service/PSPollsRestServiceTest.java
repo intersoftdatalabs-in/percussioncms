@@ -16,27 +16,15 @@
  */
 package com.percussion.delivery.polls.service;
 
-import com.percussion.delivery.polls.services.impl.PSPollsService;
+import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.delivery.utils.PSVersionHelper;
-import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.net.URI;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.ServletDeploymentContext;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.request.RequestContextListener;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author natechadwick
  */
-@ContextConfiguration(locations = {"classpath:/test-beans.xml"})
 public class PSPollsRestServiceTest extends JerseyTest {
 
   /***
@@ -55,39 +42,17 @@ public class PSPollsRestServiceTest extends JerseyTest {
    */
   @Override
   protected Application configure() {
-    ResourceConfig resourceConfig = new ResourceConfig(PSPollsService.class);
-    resourceConfig.property("contextClass", PSConfigurableApplicationContext.class);
-    return resourceConfig;
-  }
-
-  @Override
-  protected URI getBaseUri() {
-    return URI.create("http://localhost:9980");
-  }
-
-  @Override
-  protected DeploymentContext configureDeployment() {
-    return ServletDeploymentContext.forPackages("com.percussion.delivery.polls.services")
-        .servletClass(HttpServlet.class)
-        .contextPath("perc-polls-services")
-        .addListener(ContextLoaderListener.class)
-        .addListener(RequestContextListener.class)
-        .addFilter(
-            org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
-        .build();
+    return new ResourceConfig(TestPollsRestService.class)
+        .property("jersey.config.server.provider.scanning.disableMetainf.services.lookup", true);
   }
 
   @Test
-  @Disabled
   public void testGetRestVersion() {
-    Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/polls/version");
-    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-    Response response = invocationBuilder.get();
+    Response response = target("/polls/version").request(MediaType.APPLICATION_JSON).get();
 
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    assertEquals(testGetVersion(), response.getEntity());
+    assertEquals(testGetVersion(), response.readEntity(String.class));
   }
 
   private String testGetVersion() {
@@ -95,5 +60,13 @@ public class PSPollsRestServiceTest extends JerseyTest {
     assertNotNull(version);
     System.out.print(version);
     return version;
+  }
+
+  @Path("/polls")
+  public static class TestPollsRestService extends PSAbstractRestService {
+    @Override
+    public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+      return Response.noContent().build();
+    }
   }
 }

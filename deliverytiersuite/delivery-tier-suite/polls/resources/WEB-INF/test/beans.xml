@@ -21,25 +21,25 @@
          </list>
       </property>
       <property name="locations">
-         <!-- One or more locations of the property files. Properties with 
-            the same name override based on the order the file appears in the list last 
+         <!-- One or more locations of the property files. Properties with
+            the same name override based on the order the file appears in the list last
             one defined wins -->
          <list>
             <value>perc-datasources.properties</value>
             <value>perc-polls-services.properties</value>
          </list>
       </property>
-      <!-- Local properties to default to if no file exists or the properties 
-         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the 
+      <!-- Local properties to default to if no file exists or the properties
+         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the
          properties file where the password will be encrypted -->
       <property name="properties">
          <props>
             <!-- Global and database-agnostic Hibernate properties -->
-            
+
 		    <!-- Apache Derby -->
 	        <prop key="jdbcUrl">jdbc:derby:memory:percpolls;create=true</prop>
-	        <!-- Use the public Derby embedded driver class instead of internal autoloaded APIs -->
-	        <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver40</prop>
+           <!-- Use the standard Derby embedded driver class -->
+           <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
 	        <prop key="db.username">test</prop>
 	        <prop key="db.password">test</prop>
 	        <prop key="db.schema">APP</prop>
@@ -49,7 +49,7 @@
             <prop key="hibernate.cache.use_query_cache">false</prop>
 	        <prop key="hibernate.dialect">com.percussion.delivery.rdbms.DerbyTenOneFourDialect</prop>
 	        <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
-			
+
             <!-- MySQL -->
 <!-- 	        <prop key="jdbcUrl">jdbc:mysql://localhost:3306/deliverydb</prop> -->
 <!-- 	        <prop key="jdbcDriver">com.mysql.jdbc.Driver</prop> -->
@@ -58,7 +58,7 @@
 <!-- 	        <prop key="db.schema"></prop> -->
 <!-- 	        <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop> -->
 <!-- 	        <prop key="hibernate.query.substitutions"></prop> -->
-         
+
             <!-- Oracle -->
 <!--             <prop key="jdbcUrl">jdbc:oracle:thin:@localhost:1521:XE</prop> -->
 <!--             <prop key="jdbcDriver">oracle.jdbc.driver.OracleDriver</prop> -->
@@ -67,7 +67,7 @@
 <!--             <prop key="db.schema">PERC</prop> -->
 <!--             <prop key="hibernate.dialect">org.hibernate.dialect.Oracle9iDialect</prop> -->
 <!--             <prop key="hibernate.query.substitutions"></prop> -->
-         
+
 		    <!-- MS SQL Server -->
 <!-- 	        <prop key="jdbcUrl">jdbc:jtds:sqlserver://localhost/deliverydb</prop> -->
 <!-- 	        <prop key="jdbcDriver">net.sourceforge.jtds.jdbc.Driver</prop> -->
@@ -109,8 +109,8 @@
    <bean id="pollsDao"
          class="com.percussion.delivery.polls.service.rdbms.PSPollsDao">
       <property name="entityManager" ref="pollsEntityManager" />
-   </bean> 
-    
+   </bean>
+
    <!-- Polls Service bean -->
    <bean id="pollsService"
       class="com.percussion.delivery.polls.services.impl.PSPollsService"

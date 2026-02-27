@@ -21,6 +21,8 @@ package com.percussion.delivery.metadata.error;
  */
 public class PSMalformedMetadataQueryException extends Exception {
 
+  private static final long serialVersionUID = 1L;
+
   /** */
   public PSMalformedMetadataQueryException() {
     super();
