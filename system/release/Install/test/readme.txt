@@ -1,1 +1,0 @@
-@see system/Testing/src/com/percussion/test/install to add unit tests
