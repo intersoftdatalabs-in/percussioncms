@@ -46,8 +46,8 @@ define(// prerequisites:
   );
   $.widGEL.baseWidget.injectCssFile("perc.css", requirejs.toUrl("perc-css"));
   $.widGEL.baseWidget.injectCssFile(
-    "dynatree.css",
-    requirejs.toUrl("dynatree-css")
+    "fancytree.css",
+    requirejs.toUrl("fancytree-css")
   );
 
   $.widget(widgetName, $.widGEL.baseWidget, {

@@ -59,7 +59,7 @@
 
     <!-- Themes/skin never should be concatenated or packed -->
     <link rel="stylesheet" type="text/css" href="../themes/smoothness/jquery-ui-1.8.9.custom.css"/>
-    <link rel='stylesheet' type='text/css' href='../css/dynatree/skin/ui.dynatree.css'/>
+    <link rel='stylesheet' type='text/css' href='../css/fancytree/skin/ui.fancytree.css'/>
     <link rel="stylesheet" type="text/css" href="/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css"/>
     <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%=locale%>"></script>
     <script src="/JavaScriptServlet"></script>

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-define(["knockout", "pubsub", "utils", "dynatree"], function (
+define(["knockout", "pubsub", "utils", "fancytree"], function (
   ko,
   PubSub,
   utils,
-  dynatree
+  fancytree,
 ) {
   return function AssetWizardViewModel(options) {
     var self = this;
@@ -56,7 +56,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
     self.allFoldersSelected = ko.computed(function () {
       return self.selectedAssetFolderFilter() === "All";
     }, this);
-    self.dynatreeExists = ko.observable(false);
+    self.fancytreeExists = ko.observable(false);
     self.emptyRecentAssetFolders = ko.computed(function () {
       return (
         self.selectedAssetFolderFilter() === "Recent" &&
@@ -93,7 +93,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
       NOT_AUTHORIZED_ERROR_MSG: "NotAuthorized",
       NOT_AUTHORIZED_ERROR_MSG_RESPONSE:
         "You are not authorized to create a page in folder: ",
-      DYNATREE_ID: "#asset-folder-tree",
+      FANCYTREE_ID: "#asset-folder-tree",
     };
 
     //sets invalid field observables and returns true if all fields are valid
@@ -122,7 +122,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
       if (self.selectedAssetFolderFilter() === "Recent") {
         getRecentFolders();
       } else if (self.selectedAssetFolderFilter() === "All") {
-        self.initDynatree();
+        self.initFancytree();
       }
     });
 
@@ -150,7 +150,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
       self.selectedAssetTypeFilter("Recent");
       self.selectedAssetFolderFilter("Recent");
       $(self.constants.SECONDARY_BUTTON_SELECTOR).text(
-        self.constants.SECONDARY_BUTTON_NAME
+        self.constants.SECONDARY_BUTTON_NAME,
       );
       self.invalidAssetTypeSelected(false);
       self.invalidAssetFolderSelected(false);
@@ -260,11 +260,11 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
         });
     }
 
-    self.initDynatree = function () {
+    self.initFancytree = function () {
       // --- Initialize sample trees
       if (self.allFoldersSelected()) {
-        self.dynatreeExists(true);
-        $(self.constants.DYNATREE_ID).dynatree({
+        self.fancytreeExists(true);
+        $(self.constants.FANCYTREE_ID).fancytree({
           children: [
             {
               title: "Assets",
@@ -299,7 +299,7 @@ define(["knockout", "pubsub", "utils", "dynatree"], function (
             self.assetFolder(node.data.key);
           },
           classNames: {
-            expander: "dynatree-expander fa",
+            expander: "fancytree-expander fa",
           },
         });
       }
