@@ -64,19 +64,24 @@ public class PSMakeLasagnaTest {
     File ret = rxDir.toFile();
     ret.deleteOnExit();
 
-    InputStream is = PSMakeLasagnaTest.class.getResourceAsStream(TEST_RXREPOSITORY_PROPS_FILE);
     File temp = new File(ret, "rxconfig/Installer/rxrepository.properties");
     temp.deleteOnExit();
 
     FileUtils.forceMkdirParent(temp);
-    FileUtils.copyInputStreamToFile(is, temp);
+    try (InputStream is =
+        PSMakeLasagnaTest.class.getResourceAsStream(TEST_RXREPOSITORY_PROPS_FILE)) {
+      FileUtils.copyInputStreamToFile(is, temp);
+    }
+
     PSMakeLasagna ml;
     ml = new PSMakeLasagna();
     ml.setRoot(rxDir.toString());
 
     // load the original, un-encrypted password
     Properties repositoryProps = new Properties();
-    repositoryProps.load(new FileInputStream(temp));
+    try (FileInputStream fis = new FileInputStream(temp)) {
+      repositoryProps.load(fis);
+    }
     String originalPWD = repositoryProps.getProperty(PSJdbcDbmsDef.PWD_PROPERTY);
 
     // this will encrypt the password and write it back
@@ -84,7 +89,9 @@ public class PSMakeLasagnaTest {
 
     // load the new, encrypted password
     repositoryProps = new Properties();
-    repositoryProps.load(new FileInputStream(temp));
+    try (FileInputStream fis = new FileInputStream(temp)) {
+      repositoryProps.load(fis);
+    }
     String newPWD = repositoryProps.getProperty(PSJdbcDbmsDef.PWD_PROPERTY);
 
     // verify encryption was successful
