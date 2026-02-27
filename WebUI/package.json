@@ -5,15 +5,36 @@
   "description": "Modern React/TypeScript UI layer for Percussion CMS (WebUI module).",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run build:modern && npm run build:legacy",
+    "build:modern": "tsc --noEmit && vite build",
+    "build:legacy": "node scripts/build-legacy-bundles.js",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src/main/ts --ext .ts,.tsx"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "animate.css": "^4.1.1",
+    "backbone": "^1.6.0",
+    "bootstrap": "^4.6.2",
+    "bowser": "^2.11.0",
+    "date-fns": "^4.1.0",
+    "datatables.net": "^1.13.11",
+    "handlebars": "^4.7.8",
+    "jquery": "^3.7.1",
+    "jquery-form": "^4.3.0",
+    "jquery-migrate": "^3.4.1",
+    "jquery-ui": "^1.14.1",
+    "jquery-validation": "^1.21.0",
+    "jquery.fancytree": "^2.38.3",
+    "js-cookie": "^3.0.5",
+    "moment": "^2.30.1",
+    "mousetrap": "^1.6.5",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "recharts": "^3.7.0",
+    "underscore": "^1.13.7"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.0",

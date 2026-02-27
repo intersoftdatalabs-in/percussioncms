@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,23 +43,6 @@ import com.percussion.util.PSRemoteAppletRequester;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import javafx.application.Platform;
-import javafx.scene.web.WebEngine;
-import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import javax.swing.*;
-import javax.swing.text.DefaultEditorKit;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -79,7 +62,6 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
@@ -103,12 +85,11 @@ import javafx.scene.web.WebEngine;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import javax.xml.parsers.ParserConfigurationException;
-import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -121,12 +102,9 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
 
   private static final long serialVersionUID = 1L;
 
-   public static ConcurrentMap<String, PSRelationshipInfo> REL_MAP = new ConcurrentHashMap<String, PSRelationshipInfo> ();
-   static Logger log = LogManager.getLogger(PSContentExplorerApplet.class);
-
-  private PSHttpConnection m_httpConnection;
-
-  private boolean m_initialized = false;
+  public static ConcurrentMap<String, PSRelationshipInfo> REL_MAP =
+      new ConcurrentHashMap<String, PSRelationshipInfo>();
+  static Logger log = LogManager.getLogger(PSContentExplorerApplet.class);
 
   private PSHttpConnection m_httpConnection;
 
@@ -186,7 +164,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
 
       URL inputUrl = loader.getResource("wce_log4j.properties");
       if (inputUrl != null) {
-        PropertyConfigurator.configure(inputUrl);
+        Configurator.initialize(null, inputUrl.toString());
         log.info("log4j configured");
       }
     }
@@ -250,18 +228,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
       String debug = getParameter(PSContentExplorerConstants.PARAM_DEBUG);
       if (debug != null) // reset isDebug if not on
       {
-         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
-         URL inputUrl = loader.getResource("wce_log4j.properties");
-         if (inputUrl != null)
-            {
-               try {
-               Configurator.initialize(null, inputUrl.toURI());
-               log.info("log4j configured");
-               } catch (URISyntaxException e) {
-                  log.error("Cannot convert URL to URI for Log4j configuration: " + inputUrl, e);
-               }
-            }
+        Configurator.setLevel(log.getName(), Level.DEBUG);
+        ms_isDebug = "TRUE".equalsIgnoreCase(debug) || "YES".equalsIgnoreCase(debug);
       }
       String showSplash = getParameter(PSContentExplorerConstants.PARAM_SHOW_SPLASH);
       if (showSplash != null) m_splash.show();
@@ -1904,13 +1872,11 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
         PSContentExplorerApplication.getBaseFrame().logout();
       } else {
         try {
-          JSObject window = JSObject.getWindow(ms_thisApplet);
-          log.debug(
-              "Deteceted 401 or Not Authenticated message, returning to login screen. Msg is: "
-                  + msg);
-          window.eval(
-              "if (window.parent) {window.parent.location.href('/Rhythmyx/login')} else {window.location.href('/Rhythmyx/login')}");
-        } catch (JSException e) {
+          // LiveConnect (JSObject.getWindow) was removed in JDK 11.
+          // TODO: Implement alternative mechanism to redirect to login.
+          log.warn("LiveConnect is no longer available; cannot redirect to login screen via JavaScript.");
+          hasErrors = true;
+        } catch (Exception e) {
           hasErrors = true;
           log.error("Error redirecting Rhythmyx to login screen.", e);
         }
@@ -2433,12 +2399,11 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
       return isConsumed;
     }
 
-    /** Call JavaScripte to set focus to the banner frame */
+    /** Call JavaScript to set focus to the banner frame */
     private void focusBannerFrame() {
-      JSObject window = JSObject.getWindow(m_applet);
-
-      Object[] args = new Object[0];
-      window.call("focusBannerFrame", args);
+      // LiveConnect (JSObject.getWindow) was removed in JDK 11.
+      // TODO: Implement alternative mechanism for focusing the banner frame.
+      log.warn("LiveConnect is no longer available; cannot call focusBannerFrame JavaScript method.");
     }
 
     /** The current applet object, init by ctor, never <code>null</code> after that. */

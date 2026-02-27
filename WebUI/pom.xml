@@ -57,6 +57,11 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
+            <artifactId>perc-common-ui-bundle</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
             <artifactId>perc-jetty-jars</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
@@ -97,12 +102,6 @@
             <groupId>com.percussion</groupId>
             <artifactId>rest</artifactId>
             <version>${project.parent.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>flexera.ia</groupId>
-                    <artifactId>IAClasses</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -118,16 +117,6 @@
                     <artifactId>jsoup</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jsecurity</groupId>
-            <artifactId>jsecurity</artifactId>
-            <version>0.9.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.oauth.core</groupId>
-            <artifactId>oauth</artifactId>
-            <version>20100527</version>
         </dependency>
         <dependency>
             <groupId>org.apache.myfaces.trinidad</groupId>
@@ -441,11 +430,6 @@
             <artifactId>tika-parsers-standard-package</artifactId>
         </dependency>
         <dependency>
-            <groupId>caja</groupId>
-            <artifactId>caja</artifactId>
-            <version>r3828</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <scope>compile</scope>
@@ -585,8 +569,6 @@
                             <excludes>
                                 <exclude>WEB-INF</exclude>
                                 <exclude>META-INF</exclude>
-                                <exclude>cssMin</exclude>
-                                <exclude>jslibMin</exclude>
                             </excludes>
                         </resource>
                         <!-- cui content is now in war/cui/ and copied via the war/ resource above -->
@@ -806,7 +788,7 @@
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <configuration>
-                    <nodeVersion>v20.18.0</nodeVersion>
+                    <nodeVersion>v22.22.0</nodeVersion>
                     <workingDirectory>${project.basedir}</workingDirectory>
                     <installDirectory>${user.home}/.m2/frontend</installDirectory>
                 </configuration>

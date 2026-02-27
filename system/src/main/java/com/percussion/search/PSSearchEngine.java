@@ -248,18 +248,22 @@ public abstract class PSSearchEngine {
   }
 
   /**
-   * This class implements the singleton pattern. The first call must be
-   * made to the 1 parameter {@link #getInstance(Properties) getInstance}
-   * to instantiate the object. From then on, this method should be used.
+   * This class implements the singleton pattern. The first call must be made to the 1 parameter
+   * {@link #getInstance(Properties) getInstance} to instantiate the object. From then on, this
+   * method should be used.
    *
-   * @return Never <code>null<code>.
+   * <p>The maximum time to wait for initialization can be controlled via the system property
+   * {@code com.percussion.search.init.timeout} (value in seconds; defaults to {@code 60}).
    *
+   * @return Never {@code null}.
    * @throws IllegalStateException If an instance hasn't been created yet.
    */
   public static PSSearchEngine getInstance() {
     try {
-      // await  initialization
-      latch.await(60, TimeUnit.SECONDS);
+      // await initialization; allow override via system property for testing
+      long timeoutSeconds =
+          Long.parseLong(System.getProperty("com.percussion.search.init.timeout", "60"));
+      latch.await(timeoutSeconds, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       logger.error(PSExceptionUtils.getMessageForLog(e));
       Thread.currentThread().interrupt();

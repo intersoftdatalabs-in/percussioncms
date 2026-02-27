@@ -16,12 +16,6 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-checkboxtree</artifactId>
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <!-- Prefer release if not inheriting from parent pluginManagement -->
-        <!-- <maven.compiler.release>11</maven.compiler.release> -->
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

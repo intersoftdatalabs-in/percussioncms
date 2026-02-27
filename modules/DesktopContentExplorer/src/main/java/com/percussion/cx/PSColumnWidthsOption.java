@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,12 @@ import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -37,15 +33,10 @@ import org.w3c.dom.Element;
  * This class provides a way of constructing the Column Widths Option object from the XML document
  * and to get XML document from the Column Width object.
  */
-public class PSColumnWidthsOption implements IPSClientObjects
-{
-   static Logger log = LogManager.getLogger(PSColumnWidthsOption.class);
-   /**
-    * Empty constructor.
-    */
-   public PSColumnWidthsOption()
-   {
-   }
+public class PSColumnWidthsOption implements IPSClientObjects {
+  static Logger log = LogManager.getLogger(PSColumnWidthsOption.class);
+  /** Empty constructor. */
+  public PSColumnWidthsOption() {}
 
   /**
    * Default constructor, this is needed so that an instance of this class can be created by

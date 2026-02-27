@@ -63,35 +63,35 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-start</artifactId>
         </dependency>
+        <!-- Build-time only: used by Ant tasks, not imported by preinstall Java code -->
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>tablefactory</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
+        <!-- Build-time only: copied as an artifact file, not imported by preinstall Java code -->
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-service-wrapper</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
+        <!-- Build-time only: 234 MB shaded uber-jar copied as artifact, not imported by preinstall Java code.
+             The antrun plugin declares its own perc-ant dependency for Ant task execution. -->
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-ant</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>installanywhere</groupId>
-            <artifactId>iaant</artifactId>
-            <version>0.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>installanywhere</groupId>
-            <artifactId>services</artifactId>
-            <version>0.0.1</version>
-        </dependency>
+        <!-- Build-time only: Ant task library, not imported by preinstall Java code.
+             The antrun plugin declares its own ant-contrib dependency. -->
         <dependency>
             <groupId>ant-contrib</groupId>
             <artifactId>ant-contrib</artifactId>
             <version>1.0b3</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>ant</groupId>
@@ -119,21 +119,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>flexera.ia</groupId>
-            <artifactId>IAClasses</artifactId>
-            <version>2020.0.0.0</version>
-        </dependency>
+        <!-- Build-time only: not imported by preinstall Java code -->
         <dependency>
             <groupId>saxon</groupId>
             <artifactId>saxon</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
+        <!-- Build-time only: not imported by preinstall Java code (11 MB + massive transitive chain) -->
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-system</artifactId>
             <version>${project.parent.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
@@ -146,27 +143,116 @@
             <artifactId>rxutils</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
+            <!-- Exclude large transitives not needed by the preinstall classes.
+                 Only PathUtils (needs commons-lang3) and perc-xml-security are used. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.percussion</groupId>
+                    <artifactId>perc-legacy</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.sf.jtidy</groupId>
+                    <artifactId>jtidy</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.jcr</groupId>
+                    <artifactId>jcr</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>saxon</groupId>
+                    <artifactId>saxon</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-jexl3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.aspectj</groupId>
+                    <artifactId>aspectjrt</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-betwixt</groupId>
+                    <artifactId>commons-betwixt</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jsoup</groupId>
+                    <artifactId>jsoup</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.velocity</groupId>
+                    <artifactId>velocity-engine-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-security-utils</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
+            <!-- Exclude large transitives not needed by PSExceptionUtils (uses only java.io). -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.ibm.icu</groupId>
+                    <artifactId>icu4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.owasp.esapi</groupId>
+                    <artifactId>esapi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.javafaker</groupId>
+                    <artifactId>javafaker</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-math3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jasypt</groupId>
+                    <artifactId>jasypt</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- Build-time only: not imported by preinstall Java code -->
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
+        <!-- Build-time only: not imported by preinstall Java code -->
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
@@ -354,16 +440,6 @@
                         <version>${jakarta.servlet.api.version}</version>
                     </dependency>
                     <dependency>
-                        <groupId>installanywhere</groupId>
-                        <artifactId>iaant</artifactId>
-                        <version>0.0.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>installanywhere</groupId>
-                        <artifactId>services</artifactId>
-                        <version>0.0.1</version>
-                    </dependency>
-                    <dependency>
                         <groupId>ant-contrib</groupId>
                         <artifactId>ant-contrib</artifactId>
                         <version>1.0b3</version>
@@ -373,11 +449,6 @@
                                 <artifactId>ant</artifactId>
                             </exclusion>
                         </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>flexera.ia</groupId>
-                        <artifactId>IAClasses</artifactId>
-                        <version>2020.0.0.0</version>
                     </dependency>
                 </dependencies>
                 <executions>

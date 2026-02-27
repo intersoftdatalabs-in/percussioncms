@@ -12,6 +12,11 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-shared-app</artifactId>
             <version>${project.parent.version}</version>

@@ -511,16 +511,26 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     String protocol = null;
     Client client;
 
+    // Sanitize the scheme from the incoming request to avoid using unexpected values
+    String scheme = httpRequest.getScheme();
+    if (scheme != null) {
+      scheme = scheme.toLowerCase();
+    }
+    if (!"http".equals(scheme) && !"https".equals(scheme)) {
+      // Fallback to a safe default if the scheme is not one of the allowed values
+      scheme = "http";
+    }
+
     try {
       client = this.httpClient.getSSLClient();
       uri = new URI(desc.getLink());
       if (isIPV4Address) {
-        url = httpRequest.getScheme() + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
+        url = scheme + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
       } else if (isIPV6Address) {
         url =
-            httpRequest.getScheme() + "://[" + this.rssFeedsIP + "]:" + httpRequest.getLocalPort();
+            scheme + "://[" + this.rssFeedsIP + "]:" + httpRequest.getLocalPort();
       } else {
-        url = httpRequest.getScheme() + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
+        url = scheme + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
       }
 
       protocol = uri.getScheme() + "://";

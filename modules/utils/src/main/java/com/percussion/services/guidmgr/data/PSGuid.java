@@ -280,7 +280,7 @@ public class PSGuid extends Number implements IPSGuid {
             setType(type.getOrdinal());
           }
 
-          if (type == null) type = PSTypeEnum.valueOf((int) typeid);
+          if (type == null) type = PSTypeEnum.valueOf(typeid);
 
           assemble(hostid, type, uuid);
         }

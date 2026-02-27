@@ -179,12 +179,6 @@
 		<priority value="INFO" />
 	</category>
 
-	<!-- Limit shindig to ERROR as unwanted INFO messages logged on dashboard
-		request -->
-	<category name="org.apache.shindig">
-		<priority value="ERROR" />
-	</category>
-
 	<!-- Limit JSF logging to INFO. FINER and FINEST will not be logged -->
 	<category name="javax.enterprise.resource.webcontainer.jsf">
 		<priority value="INFO" />

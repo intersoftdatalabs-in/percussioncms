@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.percussion</groupId>
+        <artifactId>core</artifactId>
+        <version>8.2.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>perc-common-ui-bundle</artifactId>
+    <version>8.2.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Percussion CMS Common UI Bundle</name>
+    <description>
+        Minified JavaScript bundle for the Percussion CMS delivery-tier widgets
+        (perc_common_ui.js and perc_common_ui_slim.js). Built with esbuild via
+        the frontend-maven-plugin and served as bundled web resources from this JAR.
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--
+            Skip the default Java compilation; this module contains no Java sources.
+            Only JS assets matter here.
+        -->
+        <maven.compiler.skip>true</maven.compiler.skip>
+    </properties>
+
+    <build>
+        <plugins>
+            <!--
+                Disable the default-compile and default-testCompile executions — there
+                are no Java sources in this module.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                frontend-maven-plugin: installs Node.js (shared across all modules via
+                ~/.m2/frontend), runs npm install, then runs `npm run bundle` to produce
+                the minified output files under target/classes/META-INF/resources/.
+                Maven JAR packaging picks up everything under target/classes/ automatically.
+            -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Use the same Node version as the rest of the project (perc-tinymce). -->
+                    <nodeVersion>v22.22.0</nodeVersion>
+                    <workingDirectory>${project.basedir}</workingDirectory>
+                    <!-- Node binaries are cached once in the local Maven repo. -->
+                    <installDirectory>${user.home}/.m2/frontend</installDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-test</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>run test</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>bundle-common-ui</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <arguments>run bundle</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                Make sure the JAR includes the generated web resources from
+                target/classes/META-INF/resources/.
+                Default maven-jar-plugin behaviour already includes all of
+                target/classes, so this is explicit for clarity.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

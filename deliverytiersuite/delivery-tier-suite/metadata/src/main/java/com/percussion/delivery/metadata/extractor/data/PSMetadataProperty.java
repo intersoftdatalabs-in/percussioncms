@@ -26,7 +26,7 @@ import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
-import org.apache.commons.lang3.ObjectUtils;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -42,6 +42,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
 
+  private static final long serialVersionUID = 1L;
+
   FastDateFormat sdf = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
 
   /** Property name. For example: dcterms:creator */
@@ -53,7 +55,7 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
    * Value of the metadata property. It may be a String, Date or Double. You can get the value type
    * by reading the "valuetype" field.
    */
-  private Object value;
+  private Serializable value;
 
   public PSMetadataProperty() {
     // Default constructor
@@ -69,7 +71,7 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   public PSMetadataProperty(String name, VALUETYPE valuetype, Object value) {
     this.name = name;
     this.valuetype = valuetype;
-    this.value = value;
+    this.value = toSerializable(value);
   }
 
   /**
@@ -169,7 +171,7 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   public void setValuetype(VALUETYPE type) {
     valuetype = type;
     if (value != null) {
-      value = convertVal(value, type);
+      value = toSerializable(convertVal(value, type));
     }
   }
 
@@ -201,11 +203,7 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
    */
   @Override
   public int hashCode() {
-    int nameHash = name != null ? name.hashCode() : 0;
-    int valueTypeHash = valuetype.hashCode();
-    int valueHash = value != null ? value.hashCode() : 0;
-
-    return nameHash + valueTypeHash + valueHash;
+    return Objects.hash(name, valuetype, value);
   }
 
   /* (non-Javadoc)
@@ -216,15 +214,16 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
    */
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof PSMetadataProperty)) return false;
-
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof PSMetadataProperty)) {
+      return false;
+    }
     PSMetadataProperty other = (PSMetadataProperty) obj;
-
-    if (StringUtils.equals(this.name, other.name)
-        && ObjectUtils.equals(this.valuetype, other.valuetype)
-        && ObjectUtils.equals(this.value, other.value)) return true;
-
-    return false;
+    return Objects.equals(name, other.name)
+        && Objects.equals(valuetype, other.valuetype)
+        && Objects.equals(value, other.value);
   }
 
   /* (non-Javadoc)
@@ -283,10 +282,20 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   @XmlTransient
   public void setValue(Object val) {
     if (valuetype == null) {
-      value = val;
+      value = toSerializable(val);
     } else {
-      convertVal(val, valuetype);
+      value = toSerializable(convertVal(val, valuetype));
     }
+  }
+
+  private Serializable toSerializable(Object val) {
+    if (val == null) {
+      return null;
+    }
+    if (val instanceof Serializable) {
+      return (Serializable) val;
+    }
+    throw new IllegalArgumentException("value must implement Serializable");
   }
 
   private Object convertVal(Object val, VALUETYPE type) {

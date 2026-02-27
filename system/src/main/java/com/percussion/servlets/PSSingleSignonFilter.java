@@ -76,14 +76,7 @@ public class PSSingleSignonFilter implements Filter {
         authenticated = validateSession(pssessid, prepareBaseUrl(httpReq));
       }
 
-      String gadgetUrlPrefix = m_config.getInitParameter("gadgetUrlPrefix");
-      boolean isShindigRequestor = httpReq.getHeader("x-shindig-dos") != null;
-      boolean isGadgetRequest =
-          gadgetUrlPrefix != null
-              && httpReq.getRequestURI().toLowerCase().startsWith(gadgetUrlPrefix)
-              && isShindigRequestor;
-
-      if (!authenticated && !isGadgetRequest) {
+      if (!authenticated) {
         String forcedRedirectUrl = m_config.getInitParameter("forcedRedirectUrl");
         String redirectUrl = httpReq.getRequestURL().toString();
         if (forcedRedirectUrl != null && forcedRedirectUrl.length() > 0) {

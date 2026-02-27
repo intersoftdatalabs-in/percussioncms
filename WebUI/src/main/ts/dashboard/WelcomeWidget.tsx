@@ -1,0 +1,76 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Welcome widget: static welcome greeting and quick action links.
+ *
+ * <p>This is the first dashboard widget, providing a welcome message,
+ * quick links to common tasks, and getting started resources.</p>
+ */
+
+import React from "react";
+import { styles } from "./dashboard.styles";
+
+export interface WelcomeWidgetProps {
+  userName?: string;
+}
+
+export const WelcomeWidget: React.FC<WelcomeWidgetProps> = ({
+  userName = "User",
+}) => {
+  const now = new Date();
+  const hour = now.getHours();
+  let greeting = "Good morning";
+  if (hour >= 12 && hour < 18) greeting = "Good afternoon";
+  if (hour >= 18) greeting = "Good evening";
+
+  return (
+    <div style={styles.widget}>
+      <h3 style={styles.widgetTitle}>Welcome</h3>
+      <div style={styles.widgetContent}>
+        <p>
+          {greeting}, <strong>{userName}</strong>!
+        </p>
+        <p style={{ color: "#666", fontSize: "14px", marginTop: "12px" }}>
+          You're using Percussion CMS 8.2. Here are some quick actions:
+        </p>
+        <ul style={{ marginTop: "12px", paddingLeft: "20px" }}>
+          <li>
+            <a href="/cm/app/sitemanage" style={styles.link}>
+              Site Management
+            </a>
+          </li>
+          <li>
+            <a href="/cm/app/webmgt" style={styles.link}>
+              Web Management
+            </a>
+          </li>
+          <li>
+            <a href="/cm/app/admin" style={styles.link}>
+              Administration
+            </a>
+          </li>
+          <li>
+            <a href="/Rhythmyx/ui/admin/console.faces" style={styles.link}>
+              Admin Console
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+};

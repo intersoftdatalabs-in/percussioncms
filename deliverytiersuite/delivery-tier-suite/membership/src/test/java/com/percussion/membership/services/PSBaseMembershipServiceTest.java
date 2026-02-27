@@ -19,12 +19,14 @@ package com.percussion.membership.services;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.delivery.multitenant.PSThreadLocalTenantContext;
+import com.percussion.membership.data.IPSMembership;
 import com.percussion.membership.data.PSUserSummary;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public abstract class PSBaseMembershipServiceTest {
   @Autowired private IPSMembershipService membershipService;
+  @Autowired private IPSMembershipDao membershipDao;
 
   private String TEST_TENANT_ID = "007";
 
@@ -85,31 +88,20 @@ public abstract class PSBaseMembershipServiceTest {
     isValidSession(userId, sessionId);
   }
 
-  @Disabled // This is breaking when within the full build and it takes way too much time
   @Test
   public void testGetUserExpiredSession() throws Exception {
-    // assumes test bean is configured for 1 minute timeout
     String userId = "testExpiredUser1";
     String sessionId = createAccount(userId, "demo", false);
 
-    // check valid session
     isValidSession(userId, sessionId);
 
-    // wait 30 secs, touch, then wait 35, ensure still valid
-    System.out.println("Sleeping 30 secs");
-    Thread.currentThread().sleep(30 * 1000);
-    isValidSession(userId, sessionId);
-    System.out.println("Sleeping 35 secs");
-    Thread.currentThread().sleep(35 * 1000);
-    isValidSession(userId, sessionId);
+    IPSMembership member = membershipDao.findMemberBySessionId(sessionId);
+    assertNotNull(member);
+    member.setLastAccessed(DateUtils.addMinutes(new Date(), -10));
+    membershipDao.saveMember(member);
 
-    // wait 1 minute
-    System.out.println("Sleeping 1 minute");
-    Thread.currentThread().sleep(60 * 1000);
-
-    // check invalid
     PSUserSummary userSum = membershipService.getUser(sessionId);
-    assertTrue(userSum == null);
+    assertNull(userSum);
   }
 
   @Test

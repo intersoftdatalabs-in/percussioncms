@@ -439,6 +439,23 @@ public enum PSTypeEnum {
   public static PSTypeEnum valueOf(int s) throws IllegalArgumentException {
     PSTypeEnum types[] = values();
     for (int i = 0; i < types.length; i++) {
+      if (types[i].getOrdinal() == s)
+        return types[i];
+    }
+    return null;
+  }
+
+  /**
+   * Lookup enum value by ordinal. Ordinals should be unique. If they are not unique, then the first
+   * enum value with a matching ordinal is returned.
+   *
+   * @param s ordinal value
+   * @return an enumerated value or <code>null</code> if the ordinal does not match
+   * @throws IllegalArgumentException
+   */
+  public static PSTypeEnum valueOf(long s) throws IllegalArgumentException {
+    PSTypeEnum types[] = values();
+    for (int i = 0; i < types.length; i++) {
       if (types[i].getOrdinal() == s) return types[i];
     }
     return null;

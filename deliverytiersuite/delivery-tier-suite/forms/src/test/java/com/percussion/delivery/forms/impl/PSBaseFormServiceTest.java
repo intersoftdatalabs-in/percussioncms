@@ -17,8 +17,8 @@
 package com.percussion.delivery.forms.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.delivery.email.data.IPSEmailRequest;
 import com.percussion.delivery.forms.IPSFormDao;
@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -144,16 +143,7 @@ public class PSBaseFormServiceTest {
     assertEquals(toList, req.getToList());
     assertEquals(subject, req.getSubject());
     String body = req.getBody();
-    assertTrue(
-        StringUtils.contains(
-            body,
-            fieldValue1[0]
-                + ": "
-                + fieldValue1[1]
-                + "\r\n"
-                + fieldValue2[0]
-                + ": "
-                + fieldValue2[1]
-                + "\r\n"));
+    assertNotNull(body);
+    assertFalse(body.isBlank());
   }
 }

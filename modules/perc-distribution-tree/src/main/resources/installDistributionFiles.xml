@@ -128,12 +128,7 @@
 			</fileset>
 		</copy>
 
-		<copy todir="${assembly-directory}/rx_resources"
-			overwrite="false" verbose="true">
-			<fileset
-				dir="${basedir}/../../system/cms/content/applications/rx_resources/ApplicationFiles">
-			</fileset>
-		</copy>
+		<!-- Duplicate rx_resources copy removed: identical operation already performed above (line ~109). -->
 		<copy todir="${assembly-directory}">
 			<fileset
 				dir="${rxapps-directory}/perc-rxapps-${project.version}/RxApp/rxAppSupport">
@@ -287,13 +282,15 @@
 		</if>
 
 
+		<!-- Common UI bundles — read directly from the perc-common-ui-bundle module output. -->
+		<!-- This mirrors the perc-tinymce pattern: copy from target/classes/META-INF/resources. -->
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/common/js/perc_common_ui.js"
-			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/common/js/perc_common_ui.js" />
+			file="${basedir}/../perc-common-ui-bundle/target/classes/META-INF/resources/cm/common/js/perc_common_ui.js" />
 
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/common/js/perc_common_ui_slim.js"
-			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/common/js/perc_common_ui_slim.js" />
+			file="${basedir}/../perc-common-ui-bundle/target/classes/META-INF/resources/cm/common/js/perc_common_ui_slim.js" />
 
 		<!-- Copy Java Script -->
 		<!-- jquery for gadgets -->
@@ -328,14 +325,6 @@
 		<copy
 			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/collapser/jquery.collapser.js"
 			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/plugins/jquery-collapser/jquery.collapser.js" />
-
-		<!-- uploadify -->
-		<copy
-			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/uploadify/swfobject.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/plugins/jquery-uploadify/swfobject.js" />
-		<copy
-			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/uploadify/jquery.uploadify.v2.1.0.min.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/plugins/jquery-uploadify/jquery.uploadify.v2.1.0.min.js" />
 
 		<!-- jQuery.cookie -->
 		<copy

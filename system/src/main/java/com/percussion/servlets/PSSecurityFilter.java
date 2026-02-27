@@ -907,10 +907,6 @@ public class PSSecurityFilter implements Filter {
     // see if header specifies it
     if (request.getHeader(IPSHtmlParameters.SYS_USE_BASIC_AUTH) != null) return AuthType.BASIC;
 
-    // see if shindig request
-    boolean isShindigRequestor = request.getHeader("x-shindig-dos") != null;
-    if (isShindigRequestor) return AuthType.ANONYMOUS;
-
     // Now check each entry in the configuration for a match. The matcher
     // will skip user entries if the request is for a system resource
     String url = request.getServletPath();

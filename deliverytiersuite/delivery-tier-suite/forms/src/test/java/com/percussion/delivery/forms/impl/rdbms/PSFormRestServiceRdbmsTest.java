@@ -28,12 +28,11 @@ import com.percussion.delivery.forms.data.PSFormSummary;
 import com.percussion.delivery.forms.impl.PSBaseFormServiceTest;
 import com.percussion.delivery.forms.impl.PSFormRestServiceBaseTest;
 import com.percussion.delivery.forms.impl.PSMockEmailHelper;
-import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
-import com.percussion.security.PSEncryptor;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.Configuration;
 import jakarta.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.Form;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
@@ -50,14 +49,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.security.Principal;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.internal.MapPropertiesDelegate;
 import org.glassfish.jersey.internal.PropertiesDelegate;
 import org.glassfish.jersey.server.ContainerRequest;
+import org.glassfish.jersey.server.internal.InternalServerProperties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -85,6 +86,9 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
 
     rxdeploydir = System.getProperty("rxdeploydir");
     System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
+    PSMockEmailHelper.setConfigured(true);
+    PSMockEmailHelper.setError(null);
+    PSMockEmailHelper.getEmailRequests();
   }
 
   @AfterEach
@@ -93,7 +97,6 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
   }
 
   @Test
-  @Disabled("TODO: FixMe!")
   public void testSubmitFormWithEmail() throws Exception {
     // FIXME
     String[] fieldValue1 = new String[] {"field1", "value1"};
@@ -107,7 +110,6 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
   }
 
   @Test
-  @Disabled("TODO: FixMe!")
   public void testSubmitFormWithEmailNotConfigured() throws Exception {
     // FIXME
     String[] fieldValue1 = new String[] {"field1", "value1"};
@@ -125,7 +127,6 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
   }
 
   @Test
-  @Disabled("TODO: FixMe!")
   public void testSubmitFormWithoutEmail() throws IOException {
     String[] fieldValue1 = new String[] {"field1", "value1"};
     String[] fieldValue2 = new String[] {"field2", "value2"};
@@ -140,7 +141,6 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
   }
 
   @Test
-  @Disabled("TODO: FixMe!")
   public void testSubmitFormWithEmailError() throws IOException {
     String[] fieldValue1 = new String[] {"field1", "value1"};
     String[] fieldValue2 = new String[] {"field2", "value2"};
@@ -158,23 +158,19 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
   }
 
   @Test
-  @Disabled("TODO: Fix Me!")
   public void testSubmitFormWithInvalidName() throws IOException {
     String[] fieldValue1 = new String[] {"field1", "value1"};
     String[] fieldValue2 = new String[] {"field2", "value2"};
-    String subject = "TestFormSubject";
-    String toList = "testEmail@testEmail.com";
 
     for (int i = 0; i < INVALID_TEST_CHARS.length(); i++) {
       String formName = INVALID_FORM_NAME_PREFIX + INVALID_TEST_CHARS.charAt(i);
 
-      MockResponse resp = submitForm(fieldValue1, fieldValue2, subject, toList, formName);
+      MockResponse resp = submitForm(fieldValue1, fieldValue2, null, null, formName);
       assertEquals("error.html", resp.mi_redirect);
     }
   }
 
   @Test
-  @Disabled("TODO: FixMe!")
   public void getSummariesWithInvalidFormNamesInDb() throws IOException {
     String[] fieldValue1 = new String[] {"field1", "value1"};
     String[] fieldValue2 = new String[] {"field2", "value2"};
@@ -214,42 +210,58 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     MockResponse resp = new MockResponse();
     MockHttpServletRequest request = new MockHttpServletRequest();
 
+    MockContainerRequest containerRequest =
+        new MockContainerRequest(
+            URI.create("http://localhost/perc-form-processor"),
+            URI.create("http://localhost/perc-form-processor/forms/form/collect"),
+            "POST",
+            new SecurityContext() {
+              @Override
+              public Principal getUserPrincipal() {
+                return null;
+              }
+
+              @Override
+              public boolean isUserInRole(String role) {
+                return false;
+              }
+
+              @Override
+              public boolean isSecure() {
+                return false;
+              }
+
+              @Override
+              public String getAuthenticationScheme() {
+                return null;
+              }
+            },
+            new MapPropertiesDelegate(),
+            null);
+
     String action = "";
-    MultivaluedMap<String, String> params = new MultivaluedHashMap();
+    MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
     params.put("perc_formName", Arrays.asList(formName));
+    params.put("perc_successUrl", Arrays.asList("success.html"));
+    params.put("perc_errorUrl", Arrays.asList("error.html"));
     if (subject != null && toList != null) {
-      params.put(
-          "perc_emnt",
-          Arrays.asList(
-              PSLegacyEncrypter.getInstance(
-                      temporaryFolder.toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR))
-                  .encrypt(
-                      toList,
-                      PSLegacyEncrypter.getInstance(
-                              temporaryFolder
-                                  .toAbsolutePath()
-                                  .toString()
-                                  .concat(PSEncryptor.SECURE_DIR))
-                          .DEFAULT_KEY())));
-      params.put(
-          "perc_emns",
-          Arrays.asList(
-              PSLegacyEncrypter.getInstance(
-                      temporaryFolder.toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR))
-                  .encrypt(
-                      subject,
-                      PSLegacyEncrypter.getInstance(
-                              temporaryFolder
-                                  .toAbsolutePath()
-                                  .toString()
-                                  .concat(PSEncryptor.SECURE_DIR))
-                          .DEFAULT_KEY())));
+      params.put("emailForm", Arrays.asList("true"));
+      params.put("perc_EmailFormTo", Arrays.asList(toList));
+      params.put("email-subject", Arrays.asList(subject));
     }
 
     params.put(fieldValue1[0], Arrays.asList(fieldValue1[1]));
     params.put(fieldValue2[0], Arrays.asList(fieldValue2[1]));
 
-    //   formRestService.create(containerRequest, action, header, request, resp);
+    Form form = new Form();
+    for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+      for (String value : entry.getValue()) {
+        form.param(entry.getKey(), value);
+      }
+    }
+    containerRequest.setProperty(InternalServerProperties.FORM_DECODED_PROPERTY, form);
+
+    formRestService.create(containerRequest, action, header, request, resp);
     return resp;
   }
 

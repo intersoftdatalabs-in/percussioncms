@@ -51,18 +51,17 @@
         <module>modules/extensions-linkback</module>
         <module>modules/extensions-serverutils</module>
         <module>PCM-PkgMgtUI</module>
+        <module>modules/perc-common-ui-bundle</module>
         <module>WebUI</module>
         <module>modules/perc-thumbnail</module>
-        <!-- Shindig Dashboard Needs To Be Replaced
-        <module>modules/shindig-uber</module>
-        -->
         <module>projects/sitemanage</module>
         <module>modules/perc-checkboxtree</module>
-        <!-- <module>modules/DesktopContentExplorer</module> -->
+        <module>modules/DesktopContentExplorer</module>
         <module>modules/perc-jetty</module>
         <module>modules/perc-jetty-jars</module>
         <module>modules/perc-jetty-logging</module>
         <module>modules/perc-packages</module>
+        <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-distribution-tree</module>
     </modules>
     <scm>
@@ -144,8 +143,8 @@
         <jakarta.xml.bind.version>4.0.4</jakarta.xml.bind.version>
         <jakarta.xml.soap.api.version>2.0.1</jakarta.xml.soap.api.version>
         <jasypt.version>1.9.3</jasypt.version>
-        <java.source.version>17</java.source.version>
-        <java.version>17</java.version>
+        <java.source.version>21</java.source.version>
+        <java.version>21</java.version>
         <javassist.version>3.30.2-GA</javassist.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jaxb.runtime.version>4.0.6</jaxb.runtime.version>
@@ -174,8 +173,8 @@
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <maven.dependency.plugin.version>3.9.0</maven.dependency.plugin.version>
         <maven.deploy.plugin.version>3.1.4</maven.deploy.plugin.version>
         <maven.enforcer.plugin.version>3.6.2</maven.enforcer.plugin.version>
@@ -215,7 +214,6 @@
         <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
         <servlet.spec>6.1.0</servlet.spec>
-        <shindig.version>3.0.0-beta4</shindig.version>
         <simple.jndi.version>0.11.4.1</simple.jndi.version>
         <simplexml.version>2.7.1</simplexml.version>
         <sitemap4j.version>1.1.2</sitemap4j.version>
@@ -242,7 +240,7 @@
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
         <versionString>INTERNAL</versionString>
-        <versions.maven.plugin.version>2.20.1</versions.maven.plugin.version>
+        <versions.maven.plugin.version>2.21.0</versions.maven.plugin.version>
         <xerces.version>2.12.2</xerces.version>
         <xmlgraphics.common.version>2.11</xmlgraphics.common.version>
         <xmlresolver.version>1.2</xmlresolver.version>
@@ -1285,34 +1283,11 @@
                 <artifactId>quartz</artifactId>
                 <version>${quartz.version}</version>
             </dependency>
-            <!--<dependency>
-                <groupId>axis</groupId>
-                <artifactId>axis-saaj</artifactId>
-                <version>${axis.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>axis</groupId>
-                <artifactId>axis-jaxrpc</artifactId>
-                <version>${axis.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml</groupId>
-                <artifactId>jaxrpc-api</artifactId>
-                <version>1.1</version>
-            </dependency>
--->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-imaging</artifactId>
                 <version>1.0.0-alpha6</version>
             </dependency>
-            <!--
-            <dependency>
-                <groupId>soap</groupId>
-                <artifactId>soap</artifactId>
-                <version>2.3.1</version>
-            </dependency>
-            -->
             <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
@@ -1906,11 +1881,6 @@
                 <groupId>com.percussion</groupId>
                 <artifactId>perc-server-ui-cmp</artifactId>
                 <version>${project.parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>caja</groupId>
-                <artifactId>caja</artifactId>
-                <version>r3828</version>
             </dependency>
             <dependency>
                 <groupId>aopalliance</groupId>
@@ -2892,12 +2862,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>with-dts</id>
-            <modules>
-                <module>deliverytiersuite/delivery-tier-suite</module>
-            </modules>
         </profile>
     </profiles>
 </project>

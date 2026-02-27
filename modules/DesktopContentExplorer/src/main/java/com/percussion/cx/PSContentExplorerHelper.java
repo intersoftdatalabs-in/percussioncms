@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,6 @@
 
 package com.percussion.cx;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.swing.ImageIcon;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -31,23 +27,15 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PSContentExplorerHelper {
-  static Logger log = Logger.getLogger(PSContentExplorerHeader.class);
+  static Logger log = LogManager.getLogger(PSContentExplorerHeader.class);
 
   public static List<String> htmExt = Arrays.asList("html", "htm");
 
-public class PSContentExplorerHelper
-{
-   static Logger log = LogManager.getLogger(PSContentExplorerHeader.class);
-   
-   public static  List<String> htmExt = Arrays.asList("html", "htm");
-   
-   public static  List<String> xlsExt = Arrays.asList("xls");
-   
-  
-   private static ResourceBundle sm_res = null;
+  public static List<String> xlsExt = Arrays.asList("xls");
 
   private static ResourceBundle sm_res = null;
 

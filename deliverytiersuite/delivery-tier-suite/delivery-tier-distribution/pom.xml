@@ -23,6 +23,105 @@
         <assembly-directory>${basedir}/target/classes/distribution</assembly-directory>
         <tomcat-directory>${basedir}/target/tomcat</tomcat-directory>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml</groupId>
+                <artifactId>classmate</artifactId>
+                <version>1.7.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.tukaani</groupId>
+                <artifactId>xz</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox-io</artifactId>
+                <version>3.0.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>fontbox</artifactId>
+                <version>3.0.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>2.41.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.logging</groupId>
+                <artifactId>jboss-logging</artifactId>
+                <version>3.6.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>jakarta.activation</artifactId>
+                <version>2.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.ws</groupId>
+                <artifactId>jakarta.xml.ws-api</artifactId>
+                <version>4.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.soap</groupId>
+                <artifactId>jakarta.xml.soap-api</artifactId>
+                <version>3.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>1.82</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcjmail-jdk18on</artifactId>
+                <version>1.82</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcutil-jdk18on</artifactId>
+                <version>1.82</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bctls-jdk18on</artifactId>
+                <version>1.82</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpg-jdk18on</artifactId>
+                <version>1.82</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>1.82</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>5.4.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>5.4.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-scratchpad</artifactId>
+                <version>5.4.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
@@ -173,6 +272,10 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -562,7 +665,7 @@
                                 <artifactId>commons-logging</artifactId>
                             </dependency>
                             <dependency>
-                                <groupId>ocommons-io</groupId>
+                                <groupId>commons-io</groupId>
                                 <artifactId>commons-io</artifactId>
                             </dependency>
                             <dependency>
@@ -575,7 +678,7 @@
                             </dependency>
                             <dependency>
                                 <groupId>net.sf.ehcache</groupId>
-                                <artifactId>ehcache-core</artifactId>
+                                <artifactId>ehcache</artifactId>
                             </dependency>
                             <dependency>
                                 <groupId>commons-collections</groupId>
@@ -753,11 +856,6 @@
                         </deployable>
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
-                            <artifactId>perc-integrations</artifactId>
-                            <type>war</type>
-                        </deployable>
-                        <deployable>
-                            <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>perc-membership-services</artifactId>
                             <type>war</type>
                         </deployable>
@@ -863,19 +961,19 @@
                                 </copy>
                                 <!-- Perc-Ant -->
                                 <copy todir="${ant-installer}">
-                                    <fileset dir="{basedir}/../../../../modules/perc-ant/target/">
+                                    <fileset dir="${basedir}/../../../../modules/perc-ant/target/" erroronmissingdir="false">
                                         <include name="perc-ant*.jar"/>
                                     </fileset>
                                 </copy>
                                 <!-- Version.properties -->
                                 <copy todir="${assembly-directory}">
-                                    <fileset dir="{basedir}/../../../../modules/utils/target/classes/com/percussion/util/">
+                                    <fileset dir="${basedir}/../../../../modules/utils/target/classes/com/percussion/util/" erroronmissingdir="false">
                                         <include name="Version.properties"/>
                                     </fileset>
                                 </copy>
                                 <mkdir dir="${assembly-directory}/rxconfig/secure"/>
                                 <copy todir="${assembly-directory}/rxconfig/secure">
-                                    <fileset dir="{basedir}/../../../../modules/utils/src/main/resources/com/percussion/security/encryption">
+                                    <fileset dir="${basedir}/../../../../modules/utils/src/main/resources/com/percussion/security/encryption" erroronmissingdir="false">
                                         <include name=".legacy-key"/>
                                     </fileset>
                                 </copy>

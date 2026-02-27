@@ -22,7 +22,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import org.apache.commons.lang3.ObjectUtils;
+import java.util.Objects;
 
 /**
  * Represents a year and the list of months with the number of posts for each month. Also each year
@@ -124,6 +124,11 @@ public class PSMetadataBlogYear {
     if (!(obj instanceof PSMetadataBlogYear)) {
       return false;
     }
-    return ObjectUtils.equals(((PSMetadataBlogYear) obj).year, this.year);
+    return Objects.equals(((PSMetadataBlogYear) obj).year, this.year);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(year);
   }
 }

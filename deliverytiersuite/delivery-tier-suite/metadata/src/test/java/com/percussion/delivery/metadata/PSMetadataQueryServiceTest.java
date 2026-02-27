@@ -766,7 +766,7 @@ public class PSMetadataQueryServiceTest {
   public void testCriteria_Single_Property_String_NotEqualsOperator() throws Exception {
     runPropertyTest(
         "dcterms:abstract != 'a summary of the page'",
-        ENTRY_COUNT,
+        ENTRY_COUNT * 2,
         "dcterms:abstract",
         VALUETYPE.STRING,
         new PropertyValueChecker<Object>() {
@@ -799,7 +799,7 @@ public class PSMetadataQueryServiceTest {
     // less than operators with created properties).
     runPropertyTest(
         "dcterms:created != '2010-12-15T16:17:18'",
-        ENTRY_COUNT * 3,
+      ENTRY_COUNT * 4,
         "dcterms:created",
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
@@ -814,7 +814,7 @@ public class PSMetadataQueryServiceTest {
   public void testCriteria_Single_Property_Date_GreaterThanOperator() throws Exception {
     runPropertyTest(
         "dcterms:created > '2010-12-15T16:17:18'",
-        ENTRY_COUNT * 2,
+        ENTRY_COUNT * 3,
         "dcterms:created",
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
@@ -829,7 +829,7 @@ public class PSMetadataQueryServiceTest {
   public void testCriteria_Single_Property_Date_GreaterOrEqualsThanOperator() throws Exception {
     runPropertyTest(
         "dcterms:created >= '2010-12-15T16:17:18'",
-        ENTRY_COUNT * 3,
+        ENTRY_COUNT * 4,
         "dcterms:created",
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
@@ -1407,6 +1407,7 @@ public class PSMetadataQueryServiceTest {
     Map<String, IPSMetadataProperty> props;
 
     assertNotNull(results, "entries not null");
+    assertEquals(entryCountExpected, results.size(), "entries found");
 
     for (IPSMetadataEntry entry : results) {
       props = toPropsMap(entry.getProperties());
@@ -1423,10 +1424,6 @@ public class PSMetadataQueryServiceTest {
     }
   }
 
-  private int getRandomNumber(int min, int max) {
-    return (int) ((Math.random() * (max - min)) + min);
-  }
-
   private void addTestEntries() {
     Collection<IPSMetadataEntry> ents = new ArrayList<IPSMetadataEntry>();
     PSDbMetadataEntry e = null;
@@ -1435,7 +1432,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/blogs/",
               "blogs linktext",
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2010, 12, 14, 12, 0, 0),
               "blog",
               entryIdx++);
       ents.add(e);
@@ -1446,7 +1443,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/events/",
               "events linktext",
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2010, 12, 15, 16, 17, 18),
               "event",
               entryIdx++);
       ents.add(e);
@@ -1457,7 +1454,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/foobars/",
               "foobars linktext",
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2010, 12, 16, 9, 0, 0),
               "template2",
               "foobar",
               entryIdx++);
@@ -1470,7 +1467,7 @@ public class PSMetadataQueryServiceTest {
               "customSite",
               "/folderA/pages/",
               "pages linktext",
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2010, 12, 17, 10, 0, 0),
               "other abstract",
               "otherTemplate",
               "page",
@@ -1486,7 +1483,7 @@ public class PSMetadataQueryServiceTest {
               "portal",
               "/noticias/destacadas/noticias-destacadas-2021/",
               faker.chuckNorris().fact(),
-              getTime(getRandomNumber(2010, 2021), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+            getTime(2011, 1, i + 1, 11, 0, 0),
               faker.hitchhikersGuideToTheGalaxy().quote(),
               "Noticias-Noticia-Single",
               "page",

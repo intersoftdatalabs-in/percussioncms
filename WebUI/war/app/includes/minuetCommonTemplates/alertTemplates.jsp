@@ -15,15 +15,15 @@
                     {{/if}}
                     <div class="row">
                         <div class="col perc-dialog-message">
-                            <p class="text-left">{{message}}</p>
+                            <p class="text-start">{{message}}</p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <button data-perc-confirmation-result="cancel" type="button" class="btn btn-block perc-confirmation-button{{#if (validatePropertyValue type 'warning')}} perc-confirmation-button-warning{{else}} perc-confirmation-button-branded{{/if}}"><i18n:message key="perc.ui.common.label@Cancel"/></button>
+                            <button data-perc-confirmation-result="cancel" type="button" class="btn d-block w-100 perc-confirmation-button{{#if (validatePropertyValue type 'warning')}} perc-confirmation-button-warning{{else}} perc-confirmation-button-branded{{/if}}"><i18n:message key="perc.ui.common.label@Cancel"/></button>
                         </div>
                         <div class="col">
-                            <button data-perc-confirmation-result="confirm" type="button" class="btn btn-block perc-confirmation-button{{#if (validatePropertyValue type 'warning')}} perc-confirmation-button-warning{{else}} perc-confirmation-button-branded{{/if}}"><i18n:message key="perc.ui.common.label@Confirm"/></button>
+                            <button data-perc-confirmation-result="confirm" type="button" class="btn d-block w-100 perc-confirmation-button{{#if (validatePropertyValue type 'warning')}} perc-confirmation-button-warning{{else}} perc-confirmation-button-branded{{/if}}"><i18n:message key="perc.ui.common.label@Confirm"/></button>
                         </div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
     <div id="percProcessRunningAlert" class="container-fluid">
         <div class="row">
             <div class="alert perc-alert-process-running" role="alert">
-                <span class="perc-alert-message-strong float-left"><i18n:message key="perc.ui.common.label@Processing"/></span><span class="float-right"><i class="fa fa-cog fa-spin fa-fw"></i></span>
+                <span class="perc-alert-message-strong float-start"><i18n:message key="perc.ui.common.label@Processing"/></span><span class="float-end"><i class="fa fa-cog fa-spin fa-fw"></i></span>
             </div>
         </div>
     </div>
@@ -65,8 +65,8 @@
                         <div class="col perc-dialog-message">
                             <span class="perc-dialog-title"><i18n:message key="perc.ui.session.timeout@Session Inactivity"/></span>
                             <hr class="perc-divider-white mb-5">
-                            <p class="text-left">{{message}}</p>
-                            <p id="logouttime" class="text-left"></p>
+                            <p class="text-start">{{message}}</p>
+                            <p id="logouttime" class="text-start"></p>
                         </div>
                     </div>
                 </div>

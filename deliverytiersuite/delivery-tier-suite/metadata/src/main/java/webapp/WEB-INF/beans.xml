@@ -10,7 +10,7 @@
       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-      
+
    <context:annotation-config/>
 
    <bean id="propertyPlaceholderProps"
@@ -24,8 +24,8 @@
       </property>
       <property name="locations">
          <!--
-            One or more locations of the property files. Properties with 
-            the same name override based on the order the file appears in the list last 
+            One or more locations of the property files. Properties with
+            the same name override based on the order the file appears in the list last
             one defined wins
          -->
          <list>
@@ -38,8 +38,8 @@
          </list>
       </property>
       <!--
-         Local properties to default to if no file exists or the properties 
-         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the 
+         Local properties to default to if no file exists or the properties
+         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the
          properties file where the password will be encrypted
       -->
       <property name="properties">
@@ -102,7 +102,7 @@
          <value>/WEB-INF/hibernate.cfg.xml</value>
       </property>
    </bean>
-   
+
    <tx:annotation-driven transaction-manager="txManager"/>
    
       <bean id="txManager" class="org.springframework.orm.jpa.hibernate.HibernateTransactionManager">
@@ -115,18 +115,18 @@
          <ref bean="metadataSessionFactory" />
       </property>
    </bean>
-   
+
    <bean id="consentDao" class="com.percussion.delivery.metadata.rdbms.impl.PSCookieConsentDao">
       <property name="sessionFactory">
          <ref bean="metadataSessionFactory" />
       </property>
-   </bean> 
+   </bean>
 
    <bean id="visitService" class="com.percussion.delivery.metadata.impl.PSBlogPostVisitService"
          autowire="constructor">
          <constructor-arg type="java.lang.Integer" value="${blogpost.scheduler.interval}" index="2" />
    </bean>
-   
+
    <bean id="cookieConsentService" class="com.percussion.delivery.metadata.impl.PSCookieConsentService"
          autowire="constructor">
    </bean>
@@ -135,7 +135,7 @@
       <property name="sessionFactory">
          <ref bean="metadataSessionFactory" />
       </property>
-   </bean> 
+   </bean>
 
    <!-- Define Metadata Indexer Service bean -->
    <bean id="MetadataIndexerService" class="com.percussion.delivery.metadata.impl.PSMetadataIndexerService"
@@ -154,7 +154,7 @@
    <bean id="metadataRestService" class="com.percussion.delivery.metadata.impl.PSMetadataRestService"
       autowire="constructor">
    </bean>
-   
+
     <bean id="metadataExtractorRestService" class="com.percussion.delivery.metadata.impl.PSMetadataExtractorRestService"
       autowire="constructor">
    </bean>

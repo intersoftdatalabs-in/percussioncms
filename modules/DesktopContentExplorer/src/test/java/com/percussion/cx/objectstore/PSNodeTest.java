@@ -16,13 +16,7 @@
  */
 package com.percussion.cx.objectstore;
 
-import com.percussion.util.PSEntrySet;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.Iterator;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,14 +27,38 @@ public class PSNodeTest
 {
    /**
     * Test the clone method to ensure child collections are properly supported.
-    * 
-    * @throws Exception if there are any errors 
+    *
+    * @throws Exception if there are any errors
     */
    @Test
    public void testClone() throws Exception
    {
-      PSNode node1 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", 
+      PSNode node1 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url",
          "iconKey", true, 1);
-      
-      PSNode node2 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", 
-         "iconKey", true, 1);
+
+      // add a child to node1 to ensure children are cloned
+      PSNode child = new PSNode("child1", "child 1", PSNode.TYPE_ITEM, "", "", false, -1);
+      node1.addChild(child);
+
+      PSNode copy = (PSNode) node1.clone();
+
+      assertNotSame(node1, copy);
+      assertEquals(node1.getName(), copy.getName());
+      assertEquals(node1.getLabel(), copy.getLabel());
+      assertEquals(node1.getType(), copy.getType());
+      assertEquals(node1.shouldExpand(), copy.shouldExpand());
+
+      // verify children were cloned (deep copy)
+      Iterator origChildren = node1.getChildren();
+      Iterator copyChildren = copy.getChildren();
+      assertNotNull(origChildren);
+      assertNotNull(copyChildren);
+      assertTrue(origChildren.hasNext());
+      assertTrue(copyChildren.hasNext());
+      PSNode origChild = (PSNode) origChildren.next();
+      PSNode clonedChild = (PSNode) copyChildren.next();
+      assertNotSame(origChild, clonedChild);
+      assertEquals(origChild.getName(), clonedChild.getName());
+   }
+
+}

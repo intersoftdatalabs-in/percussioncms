@@ -715,6 +715,8 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
                           .DEFAULT_KEY(),
                       null);
         }
+      } else {
+        urlErrorPage = redirect;
       }
 
       urlErrorPage = urlErrorPage.startsWith("/") ? urlErrorPage : "/" + urlErrorPage;

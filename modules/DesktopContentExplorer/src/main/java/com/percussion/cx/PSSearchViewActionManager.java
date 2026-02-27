@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,13 +35,6 @@ import com.percussion.util.PSHtmlParamDocument;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -52,7 +45,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -63,23 +57,20 @@ import org.xml.sax.SAXException;
  * search criteria defined in search nodes and saves the new searches.
  */
 @SuppressWarnings("unchecked")
-public class PSSearchViewActionManager
-{
-   static Logger log = LogManager.getLogger(PSSearchViewActionManager.class);
-   
-   /**
-    * Constructs the manager with the supplied connection objects to server
-    * to perform search requests. Loads the current searches/views available on
-    * server. The search criteria is different for 'CX' and 'IA' modes. The
-    * search mode defaults to {@link #MODE_CXSEARCH}. The search mode can be set
-    * using {@link #setSearchMode(String)}.
-    *
-    * @param proxy the remote proxy to use to make requests to the server,
-    * may not be <code>null</code>
-    * @param urlBase the base url of the applet to make url requests, may not be
-    * <code>null</code>
-    */
-   public PSSearchViewActionManager(
+public class PSSearchViewActionManager {
+  static Logger log = LogManager.getLogger(PSSearchViewActionManager.class);
+
+  /**
+   * Constructs the manager with the supplied connection objects to server to perform search
+   * requests. Loads the current searches/views available on server. The search criteria is
+   * different for 'CX' and 'IA' modes. The search mode defaults to {@link #MODE_CXSEARCH}. The
+   * search mode can be set using {@link #setSearchMode(String)}.
+   *
+   * @param proxy the remote proxy to use to make requests to the server, may not be <code>null
+   *     </code>
+   * @param urlBase the base url of the applet to make url requests, may not be <code>null</code>
+   */
+  public PSSearchViewActionManager(
       PSComponentProcessorProxy proxy,
       PSRemoteCataloger remCataloger,
       URL urlBase,
