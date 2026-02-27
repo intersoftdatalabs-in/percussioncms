@@ -17,9 +17,6 @@
 
 package com.percussion.preinstall;
 
-import com.percussion.security.error.PSExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildListener;
 
@@ -28,127 +25,44 @@ import org.apache.tools.ant.BuildListener;
  * in installer mode.  For dev installs does nothing.
  *
  * See https://ant.apache.org/manual/develop.html#buildevents
+ *
+ * Note: InstallAnywhere is no longer used by the product. This listener is kept as a no-op
+ * to maintain backward compatibility with build scripts.
  */
 public class AntBuildListener implements BuildListener {
 
-  private static final Logger log = LogManager.getLogger(AntBuildListener.class);
-
   @Override
   public void buildStarted(BuildEvent buildEvent) {
-    try {
-      if (MainIAInstall.installProxy != null) {
-        Main.currentLineNo.getAndIncrement();
-        MainIAInstall.showProgress(
-            MainIAInstall.installProxy,
-            Main.currentLineNo.get(),
-            "Installing files...",
-            buildEvent.getMessage());
-      }
-    } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    }
+    // No-op: InstallAnywhere is no longer used
   }
 
   @Override
   public void buildFinished(BuildEvent buildEvent) {
-    try {
-      if (MainIAInstall.installProxy != null) {
-        Main.currentLineNo.getAndIncrement();
-        MainIAInstall.showProgress(
-            MainIAInstall.installProxy,
-            Main.currentLineNo.get(),
-            "Installation complete.",
-            buildEvent.getMessage());
-      }
-    } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    }
+    // No-op: InstallAnywhere is no longer used
   }
 
   @Override
   public void targetStarted(BuildEvent buildEvent) {
-    try {
-      if (MainIAInstall.installProxy != null) {
-        Main.currentLineNo.getAndIncrement();
-        MainIAInstall.showProgress(
-            MainIAInstall.installProxy,
-            Main.currentLineNo.get(),
-            "Starting Install phase...",
-            buildEvent.getMessage());
-      }
-    } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    }
+    // No-op: InstallAnywhere is no longer used
   }
 
   @Override
   public void targetFinished(BuildEvent buildEvent) {
-    try {
-      if (MainIAInstall.installProxy != null) {
-        Main.currentLineNo.getAndIncrement();
-        MainIAInstall.showProgress(
-            MainIAInstall.installProxy,
-            Main.currentLineNo.get(),
-            "Install phase complete.",
-            buildEvent.getMessage());
-      }
-    } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    }
+    // No-op: InstallAnywhere is no longer used
   }
 
   @Override
   public void taskStarted(BuildEvent buildEvent) {
-    try {
-      if (MainIAInstall.installProxy != null) {
-        Main.currentLineNo.getAndIncrement();
-        MainIAInstall.showProgress(
-            MainIAInstall.installProxy,
-            Main.currentLineNo.get(),
-            "Starting task...",
-            buildEvent.getMessage());
-      }
-    } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    }
+    // No-op: InstallAnywhere is no longer used
   }
 
   @Override
   public void taskFinished(BuildEvent buildEvent) {
-    try {
-      if (MainIAInstall.installProxy != null) {
-        Main.currentLineNo.getAndIncrement();
-        MainIAInstall.showProgress(
-            MainIAInstall.installProxy,
-            Main.currentLineNo.get(),
-            "Task complete.",
-            buildEvent.getMessage());
-      }
-    } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    }
+    // No-op: InstallAnywhere is no longer used
   }
 
   @Override
   public void messageLogged(BuildEvent buildEvent) {
-    try {
-      if (MainIAInstall.installProxy != null) {
-        Main.currentLineNo.getAndIncrement();
-        MainIAInstall.showProgress(
-            MainIAInstall.installProxy,
-            Main.currentLineNo.get(),
-            "Running installation...",
-            buildEvent.getMessage());
-      }
-    } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    }
+    // No-op: InstallAnywhere is no longer used
   }
 }
