@@ -71,6 +71,8 @@ To ensure Maven uses JDK 21, use the provided environment setup scripts instead 
 
 If `JAVA_HOME_21` is not set or invalid, the script will display an error message with setup instructions.
 
+⚠️ **Windows Developers: Important!** Before building, please read [WINDOWS-BUILD-GUIDE.md](WINDOWS-BUILD-GUIDE.md), especially the **"Enable Long Path Support"** section. This is critical for modules with Node.js builds (like `perc-tinymce`) and prevents build failures on Windows.
+
 Editor / IDE tip: To avoid your IDE (for example, VS Code) writing build outputs into Maven's `target/` directory and causing conflicts with command-line builds, add the following to your local `.vscode/settings.json` (the repository ignores `.vscode/`):
 
 ```json

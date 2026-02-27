@@ -9,4 +9,72 @@ This module contains the support for tinymce editor plugin.
 
 ## Building
 
-mvn clean install
+### Linux/macOS
+
+```bash
+./mvn-env.sh clean install
+```
+
+### Windows
+
+⚠️ **Important:** See [WINDOWS-BUILD-GUIDE.md](../../WINDOWS-BUILD-GUIDE.md) for Windows-specific setup, especially the critical "Enable Long Path Support" section.
+
+```cmd
+mvn-env.bat clean install
+```
+
+## How It Works
+
+This module uses the `frontend-maven-plugin` to:
+
+1. **Automatically download and install Node.js v22** to `%USERPROFILE%\.m2\frontend`
+2. **Run `npm install`** to install esbuild and dependencies
+3. **Minify TinyMCE plugins** using esbuild during the `prepare-package` phase
+
+The built resources are packaged into `META-INF/resources/sys_resources/tinymce/` in the JAR.
+
+### Node.js Version
+
+* **Version:** v22.22.0 (latest stable)
+* **Install Location:** `%USERPROFILE%\.m2\frontend` (Windows) or `~/.m2\frontend` (Linux/macOS)
+* **Note:** The plugin downloads and caches Node.js, so `mvn clean` will NOT trigger a re-download
+
+## Troubleshooting
+
+### Windows: `npm install` Fails
+
+If you see `[ERROR] Failed to execute goal com.github.eirslett:frontend-maven-plugin:1.15.1:npm (npm-install)`:
+
+1. **Enable long path support** (critical for Windows):
+   * See [WINDOWS-BUILD-GUIDE.md](../../WINDOWS-BUILD-GUIDE.md#enable-long-paths)
+
+2. **Clear npm cache:**
+
+```cmd
+npm cache clean --force
+mvn-env.bat clean install
+```
+
+3. **Get more details** with verbose logging:
+
+```cmd
+mvn-env.bat clean install -X > build-debug.log 2>&1
+```
+
+### Node.js Download Fails
+
+If Node.js fails to download:
+
+```cmd
+REM Clear the cached Node.js
+rmdir /s %USERPROFILE%\.m2\frontend
+
+REM Retry the build
+mvn-env.bat clean install
+```
+
+## Building Without Node.js Download
+
+If you have npm already installed and want to use it:
+
+Set the npm executable path in the pom.xml `<npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>` configuration, or install Node.js globally and the plugin will detect it.
