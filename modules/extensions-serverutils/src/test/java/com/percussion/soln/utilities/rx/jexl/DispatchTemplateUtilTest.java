@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package test.percussion.soln.utilities.rx.jexl;
+package com.percussion.soln.utilities.rx.jexl;
 
 import static org.junit.Assert.*;
 
@@ -23,7 +23,6 @@ import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
-import com.percussion.soln.utilities.rx.jexl.DispatchTemplateUtil;
 import com.percussion.util.IPSHtmlParameters;
 import java.util.HashMap;
 import java.util.Map;
