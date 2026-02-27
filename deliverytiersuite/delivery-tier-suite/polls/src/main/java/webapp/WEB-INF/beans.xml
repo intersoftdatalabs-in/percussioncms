@@ -18,8 +18,8 @@
          </list>
       </property>
       <property name="locations">
-         <!-- One or more locations of the property files. Properties with 
-            the same name override based on the order the file appears in the list last 
+         <!-- One or more locations of the property files. Properties with
+            the same name override based on the order the file appears in the list last
             one defined wins -->
          <list>
             <value>WEB-INF/perc-security.properties</value>
@@ -29,15 +29,15 @@
             <value>file:${catalina.home}/conf/perc/perc-security.properties</value>
          </list>
       </property>
-      <!-- Local properties to default to if no file exists or the properties 
-         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the 
+      <!-- Local properties to default to if no file exists or the properties
+         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the
          properties file where the password will be encrypted -->
       <property name="properties">
          <props>
             <!-- default properties for database -->
             <prop key="jdbcUrl">jdbc:derby:${catalina.home}/derbydata/percpolls;create=true</prop>
-            <!-- Use the public Derby embedded driver class instead of internal autoloaded driver -->
-            <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver40</prop>
+            <!-- Use the standard Derby embedded driver class -->
+            <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
             <prop key="maximumPoolSize">10</prop>
             <prop key="db.username">test</prop>
             <prop key="db.password">test</prop>
@@ -50,7 +50,7 @@
             <prop key="hibernate.cache.use_query_cache">false</prop>
             <prop key="session.timeout.mins">60</prop>
             <prop key="hibernate.hbm2ddl.auto">update</prop>
-            
+
              <!-- default properties for encryption -->
             <prop key="encryption.type">ENC</prop>
              <!-- default properties for Spring Security -->
@@ -96,11 +96,11 @@
          class="com.percussion.delivery.polls.service.rdbms.PSPollsDao">
       <property name="entityManager" ref="pollsEntityManager" />
    </bean>
-   
+
    <!-- Polls Service bean -->
    <bean id="pollsService"
          class="com.percussion.delivery.polls.services.impl.PSPollsService"
-         autowire="constructor">      
+         autowire="constructor">
    </bean>
 
    <bean id="pollRestService"

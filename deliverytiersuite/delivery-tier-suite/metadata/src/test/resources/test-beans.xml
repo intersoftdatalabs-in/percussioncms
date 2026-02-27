@@ -119,7 +119,7 @@
 
 	<!-- Hibernate SessionFactory -->
 	<bean id="metadataSessionFactory"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean">
 		<property name="dataSource">
 			<ref bean="${datasource}" />
 		</property>
@@ -135,7 +135,7 @@
 		transaction-manager="txManager" />
 
 	<bean id="txManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		class="org.springframework.orm.jpa.hibernate.HibernateTransactionManager">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 		<property name="nestedTransactionAllowed" value="true" />
 	</bean>

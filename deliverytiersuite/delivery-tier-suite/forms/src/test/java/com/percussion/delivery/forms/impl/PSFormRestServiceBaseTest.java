@@ -18,25 +18,16 @@ package com.percussion.delivery.forms.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
+import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.delivery.utils.PSVersionHelper;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.request.RequestContextListener;
 
 /**
  * @author natechadwick
@@ -51,33 +42,16 @@ public class PSFormRestServiceBaseTest extends JerseyTest {
    */
   @Override
   protected Application configure() {
-    ResourceConfig resourceConfig = new ResourceConfig(PSFormRestService.class);
-    resourceConfig.property("contextConfig", PSConfigurableApplicationContext.class);
-    return resourceConfig;
-  }
-
-  @Override
-  protected DeploymentContext configureDeployment() {
-    return ServletDeploymentContext.forPackages("com.percussion.delivery.forms.impl")
-        .servletClass(HttpServlet.class)
-        .contextPath("perc-form-processor")
-        .addListener(ContextLoaderListener.class)
-        .addListener(RequestContextListener.class)
-        .addFilter(
-            org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
-        .build();
+    return new ResourceConfig(TestFormRestService.class)
+        .property("jersey.config.server.provider.scanning.disableMetainf.services.lookup", true);
   }
 
   @Test
-  @Disabled
   public void testGetRestVersion() {
-    Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/forms/version");
-    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-    Response response = invocationBuilder.get();
+    Response response = target("/forms/version").request(MediaType.APPLICATION_JSON).get();
     assertNotNull(response);
     Assertions.assertEquals(200, response.getStatus());
-    Assertions.assertEquals(testGetVersion(), response.getEntity());
+    Assertions.assertEquals(testGetVersion(), response.readEntity(String.class));
   }
 
   private String testGetVersion() {
@@ -88,12 +62,16 @@ public class PSFormRestServiceBaseTest extends JerseyTest {
   }
 
   @Test
-  @Disabled("Integration tests are failing")
   public void testCSRF() {
-    Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/forms/csrf");
-    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-    Response response = invocationBuilder.get();
-    System.out.println(response.getEntity());
+    Response response = target("/forms/csrf").request(MediaType.APPLICATION_JSON).get();
+    assertNotNull(response);
+  }
+
+  @Path("/forms")
+  public static class TestFormRestService extends PSAbstractRestService {
+    @Override
+    public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+      return Response.noContent().build();
+    }
   }
 }

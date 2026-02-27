@@ -26,7 +26,6 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.webservices.common.Reference;
 import com.percussion.webservices.content.PSAaRelationshipFolder;
 
-import org.apache.axis.types.NonNegativeInteger;
 import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**

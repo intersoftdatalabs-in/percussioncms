@@ -225,7 +225,7 @@ class StreamDemultiplexor implements GlobalConstants {
 
           case CD_CONTLEN:
             int cl = resph.resp.ContentLength;
-            if (len > cl - resph.stream.count) len = cl - resph.stream.count;
+            if (len > cl - resph.stream.count) len = (int) (cl - resph.stream.count);
 
             rcvd = Stream.read(b, off, len);
             if (rcvd == -1) throw new EOFException("Premature EOF encountered");

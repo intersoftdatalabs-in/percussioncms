@@ -17,7 +17,6 @@
 	    <property name="jdbcUrl" value="${jdbcUrl}" />
 	    <property name="username" value="${db.username}" />
 	    <property name="password" value="${db.password}" />
-		<property name="driverClassName" value="${jdbcDriver}" />
         <property name="maximumPoolSize" value="${maximumPoolSize}" />
 	</bean>
 
@@ -37,12 +36,12 @@
             	There is some EL embedded in the key. This is needed to avoid
             	Hibernate to set the default_schema when it's empty.
            	 -->
-            <prop key="hibernate.default_schema#{'${db.schema}'.length() == 0 ? '.null' : ''}">${db.schema}</prop>  
+            <prop key="hibernate.default_schema#{'${db.schema}'.length() == 0 ? '.null' : ''}">${db.schema}</prop>
             <prop key="hibernate.query.substitutions">${hibernate.query.substitutions}</prop>
             <prop key="hibernate.show_sql">false</prop>
             <prop key="hibernate.jdbc.batch_size">50</prop>
             <prop key="hibernate.cache.use_query_cache">true</prop>
-            <prop key="hibernate.cache.use_second_level_cache">true</prop>       
+            <prop key="hibernate.cache.use_second_level_cache">true</prop>
             <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
              <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.internal.EhcacheRegionFactory</prop>
          </props>

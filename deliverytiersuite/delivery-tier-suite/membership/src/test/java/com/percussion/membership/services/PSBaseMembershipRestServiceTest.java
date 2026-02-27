@@ -18,19 +18,15 @@ package com.percussion.membership.services;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.delivery.utils.PSVersionHelper;
-import com.percussion.membership.services.impl.PSMembershipService;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -47,20 +43,16 @@ public class PSBaseMembershipRestServiceTest extends JerseyTest {
    */
   @Override
   protected Application configure() {
-    return new ResourceConfig(PSMembershipService.class);
+    return new ResourceConfig(TestMembershipRestService.class)
+        .property("jersey.config.server.provider.scanning.disableMetainf.services.lookup", true);
   }
 
   @Test
-  @Disabled
   public void testGetRestVersion() {
-
-    Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/membership/version");
-    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-    Response response = invocationBuilder.get();
+    Response response = target("/membership/version").request(MediaType.APPLICATION_JSON).get();
     assertNotNull(response);
     Assertions.assertEquals(200, response.getStatus());
-    Assertions.assertEquals(testGetVersion(), response.getEntity());
+    Assertions.assertEquals(testGetVersion(), response.readEntity(String.class));
   }
 
   private String testGetVersion() {
@@ -68,5 +60,13 @@ public class PSBaseMembershipRestServiceTest extends JerseyTest {
     assertNotNull(version);
     System.out.print(version);
     return version;
+  }
+
+  @Path("/membership")
+  public static class TestMembershipRestService extends PSAbstractRestService {
+    @Override
+    public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+      return Response.noContent().build();
+    }
   }
 }

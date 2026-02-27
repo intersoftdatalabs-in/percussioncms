@@ -436,7 +436,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     if ((isSortingOnProperty)) {
       queryBuf
-          .append(" prop.id.name = ")
+          .append(" prop.name = ")
           .append("'")
           .append(PSMetadataQueryServiceHelper.getSortPropertyName(orderBy))
           .append("'");
@@ -463,8 +463,8 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       paramOps.put(replParam, ce.getOperationType());
     }
 
-    clauseTemplate = " lower(p{0}.id.name) = lower(:{4}) and p{0}.{1} {2} :{3}";
-    inClauseTemplate = " lower(p{0}.id.name) = lower(:{4}) and p{0}.{1} {2} (:{3})";
+    clauseTemplate = " lower(p{0}.name) = lower(:{4}) and p{0}.{1} {2} :{3}";
+    inClauseTemplate = " lower(p{0}.name) = lower(:{4}) and p{0}.{1} {2} (:{3})";
 
     int i = 0;
     for (PSCriteriaElement ce : propsCrit) {

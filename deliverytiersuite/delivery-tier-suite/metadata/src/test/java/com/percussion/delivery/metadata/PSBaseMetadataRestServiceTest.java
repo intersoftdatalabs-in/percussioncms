@@ -18,29 +18,29 @@ package com.percussion.delivery.metadata;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.percussion.delivery.metadata.impl.PSMetadataRestService;
-import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
+import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.delivery.utils.PSVersionHelper;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.DeploymentContext;
+import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.request.RequestContextListener;
 
 /**
  * @author natechadwick
  */
 public class PSBaseMetadataRestServiceTest extends JerseyTest {
+
+  @Path("/membership")
+  public static class TestRestService extends PSAbstractRestService {
+    @Override
+    public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+      return Response.noContent().build();
+    }
+  }
 
   /***
    * Takes the context file as an arg and spins up grizzly to
@@ -49,36 +49,20 @@ public class PSBaseMetadataRestServiceTest extends JerseyTest {
    */
   @Override
   protected Application configure() {
-    ResourceConfig resourceConfig = new ResourceConfig(PSMetadataRestService.class);
-    resourceConfig.property("contextConfig", PSConfigurableApplicationContext.class);
+    ResourceConfig resourceConfig = new ResourceConfig(TestRestService.class);
+    resourceConfig.property(ServerProperties.METAINF_SERVICES_LOOKUP_DISABLE, true);
     return resourceConfig;
-  }
-
-  @Override
-  protected DeploymentContext configureDeployment() {
-    return ServletDeploymentContext.forPackages("com.percussion.delivery.metadata.impl")
-        .servletClass(HttpServlet.class)
-        .contextPath("perc-metadata-services")
-        .addListener(ContextLoaderListener.class)
-        .addListener(RequestContextListener.class)
-        .addFilter(
-            org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
-        .build();
   }
 
   @Test
   public void testGetRestVersion() {
-
-    Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/membership/version");
-    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-    Response response = invocationBuilder.get();
+    Response response = target("membership/version").request(MediaType.TEXT_PLAIN).get();
 
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     String version_string = PSVersionHelper.getVersion(this.getClass());
     assertNotNull(version_string);
-    assertEquals(version_string, response.getEntity());
+    assertEquals(version_string, response.readEntity(String.class));
   }
 
   @Test

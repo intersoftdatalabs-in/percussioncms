@@ -9,7 +9,6 @@
      <property name="jdbcUrl" value="${jdbcUrl}" />
      <property name="username" value="${db.username}" />
      <property name="password" value="${db.password}" />
-  <property name="driverClassName" value="${jdbcDriver}" />
         <property name="maximumPoolSize" value="${maximumPoolSize}" />
  </bean>
 
@@ -17,7 +16,7 @@
    <bean id="percDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
    		<constructor-arg ref="hikariConfig" />
    </bean>
-   
+
    <!-- Database Property -->
    <bean id="percHibernateProperties"
          class="org.springframework.beans.factory.config.PropertiesFactoryBean" >
@@ -40,5 +39,5 @@
          </props>
       </property>
    </bean>
-   
+
 </beans>

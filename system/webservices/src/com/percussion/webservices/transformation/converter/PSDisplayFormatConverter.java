@@ -29,7 +29,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.ui.data.CommunityRef;
 import com.percussion.webservices.ui.data.Property; // WS DTOs (use fully qualified names where necessary)
-import org.apache.axis.types.UnsignedInt;
 import org.apache.commons.beanutils.BeanUtilsBean;
 
 import java.util.ArrayList;

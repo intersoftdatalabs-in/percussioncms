@@ -155,10 +155,7 @@
 	</bean>
 
 	<bean id="emailHelper"
-		class="com.percussion.delivery.utils.PSEmailHelper"
-		autowire="constructor">
-		<constructor-arg ref="emailProperties" />
-	</bean>
+		class="com.percussion.delivery.forms.impl.PSMockEmailHelper" />
 
 	<!-- Define Form DAO bean -->
 	<bean id="formDao"

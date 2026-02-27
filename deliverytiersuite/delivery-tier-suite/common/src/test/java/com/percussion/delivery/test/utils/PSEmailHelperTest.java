@@ -21,7 +21,6 @@ import com.percussion.delivery.exceptions.PSEmailException;
 import com.percussion.delivery.test.utils.spring.PSEmailTestFakeSender;
 import com.percussion.delivery.utils.PSEmailServiceNotInitializedException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +42,6 @@ public class PSEmailHelperTest {
   private PSEmailTestFakeSender sender = new PSEmailTestFakeSender();
 
   @Test
-  @Disabled // This test is disabled because it requires a valid SMTP configuration to run.
   public void testCreate() throws PSEmailServiceNotInitializedException {
     PSEmailRequest r = new PSEmailRequest();
 

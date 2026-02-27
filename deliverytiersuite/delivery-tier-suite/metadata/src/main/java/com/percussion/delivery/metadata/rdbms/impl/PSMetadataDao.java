@@ -204,19 +204,11 @@ public class PSMetadataDao implements IPSMetadataDao {
 
     Transaction tx = null;
     try (Session session = getSession()) {
-      Collection<PSDbMetadataEntry> dbEntries = convertRestEntriesToDb(entries);
       session.setHibernateFlushMode(FlushMode.ALWAYS);
-      // Save entries
-      int i = 0;
-      for (PSDbMetadataEntry entry : dbEntries) {
+      for (IPSMetadataEntry entry : entries) {
         tx = session.beginTransaction();
-        try {
-          session.saveOrUpdate(entry);
-          tx.commit();
-        } catch (org.hibernate.NonUniqueObjectException e) {
-          session.merge(entry);
-          tx.commit();
-        }
+        saveOrUpdateEntry(session, entry);
+        tx.commit();
       }
     } catch (Exception e) {
       if (tx != null && tx.isActive()) {
@@ -338,47 +330,109 @@ public class PSMetadataDao implements IPSMetadataDao {
     Collection<PSDbMetadataEntry> result = new ArrayList<>();
 
     for (IPSMetadataEntry metadataEntry : entries) {
-      IPSMetadataEntry dbMetadataEntry = null;
+      PSDbMetadataEntry dbMetadataEntry;
       if (metadataEntry.getPagepath() == null) {
         dbMetadataEntry = new PSDbMetadataEntry();
       } else {
-        dbMetadataEntry = findEntry(metadataEntry.getPagepath());
+        dbMetadataEntry = (PSDbMetadataEntry) findEntry(metadataEntry.getPagepath());
       }
+
       if (dbMetadataEntry == null) {
         dbMetadataEntry = new PSDbMetadataEntry();
       } else {
         dbMetadataEntry.clearProperties();
       }
 
-      if (!(metadataEntry instanceof PSDbMetadataEntry)) {
+      dbMetadataEntry.setFolder(metadataEntry.getFolder());
+      dbMetadataEntry.setLinktext(metadataEntry.getLinktext());
+      dbMetadataEntry.setName(metadataEntry.getName());
+      dbMetadataEntry.setPagepath(metadataEntry.getPagepath());
+      dbMetadataEntry.setSite(metadataEntry.getSite());
+      dbMetadataEntry.setType(metadataEntry.getType());
 
-        dbMetadataEntry.setFolder(metadataEntry.getFolder());
-        dbMetadataEntry.setLinktext(metadataEntry.getLinktext());
-        dbMetadataEntry.setName(metadataEntry.getName());
-        dbMetadataEntry.setPagepath(metadataEntry.getPagepath());
-        dbMetadataEntry.setSite(metadataEntry.getSite());
-        dbMetadataEntry.setType(metadataEntry.getType());
-        PSDbMetadataProperty prop = null;
-        for (IPSMetadataProperty metadataProperty : metadataEntry.getProperties()) {
-          if (metadataProperty instanceof PSDbMetadataProperty) {
-            prop = (PSDbMetadataProperty) metadataProperty;
-          } else {
-            prop =
-                new PSDbMetadataProperty(
-                    metadataProperty.getName(),
-                    metadataProperty.getValuetype(),
-                    metadataProperty.getValue());
-          }
-          dbMetadataEntry.addProperty(prop);
-        }
-      } else {
-        dbMetadataEntry = (PSDbMetadataEntry) metadataEntry;
+      for (IPSMetadataProperty metadataProperty : metadataEntry.getProperties()) {
+        dbMetadataEntry.addProperty(copyProperty(metadataProperty));
       }
 
-      result.add((PSDbMetadataEntry) dbMetadataEntry);
+      result.add(dbMetadataEntry);
     }
 
     return result;
+  }
+
+  private void saveOrUpdateEntry(Session session, IPSMetadataEntry metadataEntry) {
+    Validate.notNull(metadataEntry, "metadataEntry cannot be null");
+
+    PSDbMetadataEntry dbMetadataEntry = null;
+    String pagePath = metadataEntry.getPagepath();
+    if (pagePath != null) {
+      String pagePathHash = hashCalculator.calculateHash(pagePath);
+      dbMetadataEntry = session.get(PSDbMetadataEntry.class, pagePathHash);
+    }
+
+    boolean isNewEntry = dbMetadataEntry == null;
+    if (isNewEntry) {
+      dbMetadataEntry = new PSDbMetadataEntry();
+    }
+    Validate.notNull(dbMetadataEntry, "dbMetadataEntry cannot be null");
+
+    dbMetadataEntry.setFolder(metadataEntry.getFolder());
+    dbMetadataEntry.setLinktext(metadataEntry.getLinktext());
+    dbMetadataEntry.setName(metadataEntry.getName());
+    dbMetadataEntry.setPagepath(pagePath);
+    dbMetadataEntry.setSite(metadataEntry.getSite());
+    dbMetadataEntry.setType(metadataEntry.getType());
+
+    dbMetadataEntry.clearProperties();
+    Set<IPSMetadataProperty> properties = metadataEntry.getProperties();
+    if (properties != null) {
+      for (IPSMetadataProperty metadataProperty : properties) {
+        dbMetadataEntry.addProperty(copyProperty(metadataProperty));
+      }
+    }
+
+    if (isNewEntry) {
+      session.persist(dbMetadataEntry);
+    }
+  }
+
+  private PSDbMetadataProperty copyProperty(IPSMetadataProperty metadataProperty) {
+    Validate.notNull(metadataProperty, "metadataProperty cannot be null");
+
+    PSDbMetadataProperty copiedProperty = new PSDbMetadataProperty();
+    copiedProperty.setName(metadataProperty.getName());
+
+    Object value = metadataProperty.getValue();
+    switch (metadataProperty.getValuetype()) {
+      case DATE:
+        copiedProperty.setDatevalue((java.util.Date) value);
+        break;
+      case NUMBER:
+        copiedProperty.setNumbervalue(toDouble(value));
+        break;
+      case TEXT:
+        copiedProperty.setTextvalue(value == null ? null : String.valueOf(value));
+        break;
+      case STRING:
+      default:
+        copiedProperty.setStringvalue(value == null ? null : String.valueOf(value));
+        break;
+    }
+
+    return copiedProperty;
+  }
+
+  private Double toDouble(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Double) {
+      return (Double) value;
+    }
+    if (value instanceof Number) {
+      return ((Number) value).doubleValue();
+    }
+    return Double.parseDouble(String.valueOf(value));
   }
 
   @Override
