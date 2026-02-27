@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package test.percussion.soln.utilities.rx.jexl;
+package com.percussion.soln.utilities.rx.jexl;
 
 import static junit.framework.Assert.*;
 

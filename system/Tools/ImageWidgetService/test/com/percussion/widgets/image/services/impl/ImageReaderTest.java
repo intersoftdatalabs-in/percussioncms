@@ -24,9 +24,6 @@ import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.data.MimeUtils;
 import com.percussion.widgets.image.web.impl.ImageReader;
 import com.percussion.widgets.image.web.impl.ImageReader.ImageReaderException;
-import org.apache.commons.imaging.ImageInfo;
-import org.apache.commons.imaging.ImagingException;
-import org.apache.commons.imaging.Imaging;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +35,7 @@ import org.junit.Test;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -95,19 +93,18 @@ public class ImageReaderTest {
    }
 
    @Test
-   @Ignore // TODO: Should be passing once svg support is working
+   @Ignore // SVG requires Batik transcoding, not supported via standard ImageIO
    public void testSVG() throws IOException {
       testImage("anenome.svg");
    }
 
    @Test
-   @Ignore // TODO: Should be passing once jpeg2000 support is working
+   @Ignore // JPEG2000 requires a dedicated ImageIO plugin not currently on classpath
    public void testJPEG2000() throws IOException {
       testImage("relax.jp2");
    }
 
    @Test
-   @Ignore // TODO: Should be passing once webp support is working
    public void testWebp() throws IOException {
       testImage("1.webp");
    }
@@ -128,7 +125,6 @@ public class ImageReaderTest {
    }
 
    @Test
-   @Ignore
    public void testSmallGif() throws IOException {
       // This GIF in particular had an issue with site sucker.
       testImage("small_gif.gif");
@@ -193,25 +189,22 @@ public class ImageReaderTest {
       return bufferedImage;
    }
 
-   private ImageInfo getImageInfo(byte[] imageBytes) {
-      ImageInfo imageInfo = null;
+   private void getImageInfo(byte[] imageBytes) {
       try {
-         imageInfo = Imaging.getImageInfo(imageBytes);
-
-         System.out.print("=============================Testing " + imageInfo.getFormatName()
-               + " | Color Type: " + imageInfo.getColorType() + "\n");
-
-         System.out.print(imageInfo.toString());
-      } catch (ImagingException e) {
-         Assert.fail("Caught image read exception getting image information:" + e.getMessage());
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+         BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+         if (image != null) {
+            System.out.print("=============================Testing image"
+                  + " | Width: " + image.getWidth()
+                  + " | Height: " + image.getHeight()
+                  + " | Type: " + image.getType() + "\n");
+         } else {
+            Assert.fail("ImageIO.read returned null for image data");
+         }
       } catch (IOException e) {
          Assert.fail("Caught IO exception getting image information:" + e.getMessage());
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
-      return imageInfo;
    }
 
    private byte[] readBytesForImageResource(String resourceLocation) {

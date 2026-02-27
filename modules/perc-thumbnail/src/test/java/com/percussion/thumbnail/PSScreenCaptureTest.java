@@ -34,7 +34,7 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class PSScreenCaptureTest {
 
-  protected static final Logger log = LogManager.getLogger();
+  protected static final Logger log = LogManager.getLogger(PSScreenCaptureTest.class);
 
   public static final String RXDEPLOYDIR = "rxdeploydir";
 
