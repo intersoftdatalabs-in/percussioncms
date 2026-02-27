@@ -213,7 +213,7 @@ public class PSAutotuneCache {
   private long calcSpaceForSmallerTables() {
     long kb = 0;
     for (String key : smallTables.keySet()) {
-      kb += ehcacheDbRowCountValues.get(key) * smallTables.get(key);
+      kb += (long) (ehcacheDbRowCountValues.get(key) * smallTables.get(key));
     }
     log.debug(
         "The current amount of MB allocated for entries in the cache for smaller tables are: {}",
