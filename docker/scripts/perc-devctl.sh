@@ -194,7 +194,7 @@ case "${COMMAND}" in
     ;;
 
   it-verify)
-    run_logged "it-verify" "cd '${PROJECT_ROOT}' && ./mvn-env.sh -P with-dts,integration-test,docker-compose verify"
+    run_logged "it-verify" "cd '${PROJECT_ROOT}' && ./mvn-env.sh -P integration-test,docker-compose verify"
     ;;
 
   deploy-jar)

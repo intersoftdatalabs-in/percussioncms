@@ -90,7 +90,7 @@ else:
     echo "  -> ${OUTPUT_DIR}/delivery-tier-distribution.jar"
   else
     echo "WARNING: DTS distribution JAR not found in release assets."
-    echo "You may need to build from source: ./mvn-env.sh -P with-dts clean install"
+    echo "You may need to build from source: ./mvn-env.sh clean install"
   fi
 fi
 
