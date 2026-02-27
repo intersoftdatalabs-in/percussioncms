@@ -128,7 +128,7 @@
                     <!-- Node.js is installed once into the local Maven repository cache. -->
                     <!-- The plugin checks for the binary before downloading, so mvn clean -->
                     <!-- does NOT trigger a re-download. node_modules/ is git-ignored. -->
-                    <nodeVersion>v20.18.0</nodeVersion>
+                    <nodeVersion>v22.22.0</nodeVersion>
                     <workingDirectory>${project.basedir}</workingDirectory>
                     <installDirectory>${user.home}/.m2/frontend</installDirectory>
                 </configuration>
