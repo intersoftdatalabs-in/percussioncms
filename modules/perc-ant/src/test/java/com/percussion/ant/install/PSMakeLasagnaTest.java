@@ -68,6 +68,7 @@ public class PSMakeLasagnaTest {
     File temp = new File(ret, "rxconfig/Installer/rxrepository.properties");
     temp.deleteOnExit();
 
+    FileUtils.forceMkdirParent(temp);
     FileUtils.copyInputStreamToFile(is, temp);
     PSMakeLasagna ml;
     ml = new PSMakeLasagna();
