@@ -1,19 +1,8 @@
-dojo.provide("ps.content.FolderSitesBaseTabPanel");
-
-dojo.require("ps.content.History");
-dojo.require("ps.content.BrowseTabPanel");
-dojo.require("ps.content.SelectTemplates");
-dojo.require("ps.widget.ContentPaneProgress");
-dojo.require("dojo.collections.Dictionary");
-dojo.require("dojo.lang.declare");
-dojo.require("dojo.json");
-dojo.require("dojo.string");
-
 dojo.declare(
   "ps.content.FolderSitesBaseTabPanel",
   ps.content.BrowseTabPanel,
   function (_parent) {
-    dojo.lang.assert(_parent, "Parent must be specified");
+    ps.assert(_parent, "Parent must be specified");
 
     this.parent = _parent;
   },

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.pso.restservice.model;
 
-import org.apache.commons.httpclient.Header;
+import java.net.http.HttpHeaders;
 import org.jsoup.nodes.Document;
 
 public class HttpHtmlResponse extends BaseHttpResponse {
@@ -38,7 +38,7 @@ public class HttpHtmlResponse extends BaseHttpResponse {
    * @param doc
    * @param head
    */
-  public HttpHtmlResponse(Document doc, Header[] head) {
+  public HttpHtmlResponse(Document doc, HttpHeaders head) {
     this.setHeaders(head);
     this.document = doc;
   }

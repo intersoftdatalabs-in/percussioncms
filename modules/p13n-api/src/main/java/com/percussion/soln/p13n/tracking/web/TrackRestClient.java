@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,21 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.Cookie;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -63,9 +63,9 @@ public class TrackRestClient {
 
     /**
      * Makes a tracking request with the supplied parameters.
-     * This is a convenience method 
+     * This is a convenience method
      * for {@link #clientRequest(HttpServletRequest, HttpServletResponse, VisitorTrackingActionRequest)}.
-     * 
+     *
      * @param servletRequest
      *            Servlet request. Maybe null. If passed the tracking cookie will be retrieved.
      * @param servletResponse Servlet response. Maybe null. If passed cookie will be set.
@@ -79,32 +79,32 @@ public class TrackRestClient {
      * @see #clientRequest(HttpServletRequest, HttpServletResponse, VisitorTrackingActionRequest)
      */
     protected VisitorTrackingResponse clientRequest(
-            HttpServletRequest servletRequest, 
-            HttpServletResponse servletResponse, 
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse,
             String visitorProfileId,
-            String action, 
-            String userName, 
-            String label, 
+            String action,
+            String userName,
+            String label,
             Map<String, Integer> segmentWeights) {
-        
+
         VisitorTrackingActionRequest tr = new VisitorTrackingActionRequest();
 
         if (visitorProfileId != null) {
             tr.setVisitorProfileId(Long.parseLong(visitorProfileId));
-        } 
+        }
 
         tr.setSegmentWeights(segmentWeights);
         tr.setActionName(action);
         tr.setUserId(userName);
         tr.setLabel(label);
-        
+
         return clientRequest(servletRequest, servletResponse, tr);
     }
-    
+
     /**
-     * 
+     *
      * Makes tracking action request based on the trackingRequest parameter.
-     * 
+     *
      * @param servletRequest
      *            Servlet request. Maybe null. If passed the tracking cookie will be retrieved.
      * @param servletResponse Servlet response. Maybe null. If passed cookie will be set.
@@ -113,88 +113,99 @@ public class TrackRestClient {
      * @see VisitorTrackingActionRequest
      */
     public VisitorTrackingResponse clientRequest(
-            HttpServletRequest servletRequest, 
-            HttpServletResponse servletResponse, 
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse,
             VisitorTrackingActionRequest trackingRequest) {
-        HttpClient client = new HttpClient();
-        client.getParams().setParameter("http.socket.timeout", getTimeOut());
         final VisitorTrackingActionRequest tr = trackingRequest;
+        List<jakarta.servlet.http.Cookie> forwardedCookies = new ArrayList<>();
         /*
          * Extract data from the servlet request.
          */
         if (servletRequest != null) {
             jakarta.servlet.http.Cookie cookies[] = servletRequest.getCookies();
-            HttpState state = new HttpState();
             /*
              * Forward all the cookies to the p13n server.
              */
             if (cookies != null) {
-                for (int i = 0; i < cookies.length; i++) {
-                    jakarta.servlet.http.Cookie c = cookies[i];
-                    String domain = c.getDomain();
-                    if (domain == null) {
-                        domain = servletRequest.getServerName();
-                    }
-                    String cpath = c.getPath();
-                    if (cpath == null) {
-                        cpath = servletRequest.getContextPath();
-                    }
+                for (jakarta.servlet.http.Cookie c : cookies) {
                     log.debug("forwarding cookie domain=" + c.getDomain() + " name=" + c.getName() + " value="
                             + c.getValue() + " path=" + c.getPath());
-                    Cookie cookie = new Cookie(domain, c.getName(), c.getValue(), cpath, c.getMaxAge(), c.getSecure());
-                    state.addCookie(cookie);
+                    forwardedCookies.add(c);
                 }
             }
-            client.setState(state);
             convertServletRequestToTrackingRequest(servletRequest, tr);
-        } 
+        }
 
         Map<String, String> nvp = parameterizeTrackingRequest(tr);
-        NameValuePair[] paramArray = nameValuePairs(nvp.entrySet());
 
-        HttpMethod method = createMethod(getTrackingURI(servletRequest));
-        method.setQueryString(paramArray);
-        String response =  executeMethod(client, method);
+        HttpRequest request = createMethod(getTrackingURI(servletRequest), nvp.entrySet(), forwardedCookies);
+        String response = executeMethod(request);
         VisitorTrackingResponse trackResponse = jsonToResponse(response);
         if (servletRequest != null && servletResponse != null && "OK".equals(trackResponse.getStatus())) {
             setVisitorProfileToCookie(servletRequest, servletResponse, trackResponse.getVisitorProfileId());
         }
         return trackResponse;
     }
-    
-    
-    private NameValuePair[] nameValuePairs(Collection<Entry<String, String>> params) {
-        ArrayList<NameValuePair> list = new ArrayList<NameValuePair>();
+
+
+    private String toQueryString(Collection<Entry<String, String>> params) {
+        ArrayList<String> list = new ArrayList<>();
         for(Entry<String,String> e : params) {
             if (isNotBlank(e.getValue())) {
-                NameValuePair nvp = new NameValuePair(e.getKey(),e.getValue());
-                list.add(nvp);
+                String key = URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8);
+                String value = URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8);
+                list.add(key + "=" + value);
             }
         }
-        return list.toArray(new NameValuePair[] { });
+        return String.join("&", list);
     }
 
-    private HttpMethod createMethod(String requestURI) {
-        return new GetMethod(requestURI);
+    private HttpRequest createMethod(
+            String requestURI,
+            Collection<Entry<String, String>> params,
+            List<jakarta.servlet.http.Cookie> cookies) {
+        String query = toQueryString(params);
+        String uri = query.isEmpty() ? requestURI : requestURI + "?" + query;
+
+        HttpRequest.Builder requestBuilder =
+                HttpRequest.newBuilder(URI.create(uri))
+                        .GET()
+                        .timeout(Duration.ofMillis(getTimeOut() > 0 ? getTimeOut() : 30000))
+                        .header("User-Agent", "Percussion-TrackRestClient/1.0");
+
+        String cookieHeader = cookies.stream()
+                .filter(cookie -> isNotBlank(cookie.getName()))
+                .map(cookie -> cookie.getName() + "=" + (cookie.getValue() == null ? "" : cookie.getValue()))
+                .reduce((left, right) -> left + "; " + right)
+                .orElse("");
+        if (isNotBlank(cookieHeader)) {
+            requestBuilder.header("Cookie", cookieHeader);
+        }
+
+        return requestBuilder.build();
     }
 
-    private String executeMethod(HttpClient client, HttpMethod method) throws TrackRestClientException {
+    private String executeMethod(HttpRequest method) throws TrackRestClientException {
         String uri = "";
         try {
-            uri = method.getURI().toString();
-            int stat = client.executeMethod(method);
+            uri = method.uri().toString();
+            HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+            HttpResponse<String> response =
+                    client.send(method, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            int stat = response.statusCode();
             log.debug("HTTP return code: " + stat);
             if (/* Not Success */!(200 <= stat && stat < 300)) {
-                String error = "HTTP Error: " + stat + " Response: \n" + method.getResponseBodyAsString();
+                String error = "HTTP Error: " + stat + " Response: \n" + response.body();
                 log.error(error);
                 throw new TrackRestClientException(error);
             }
-            String response = method.getResponseBodyAsString();
+            String responseBody = response.body();
             if (log.isDebugEnabled())
-                log.debug("Response: " + response);
-            return response;
-        } catch (HttpException e) {
-            throw new TrackRestClientException("HTTP Problem with " + uri, e);
+                log.debug("Response: " + responseBody);
+            return responseBody;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TrackRestClientException("HTTP request interrupted for " + uri, e);
         } catch (IOException e) {
             String error = "Problem connecting to " + uri;
             throw new TrackRestClientException(error, e);
@@ -203,10 +214,10 @@ public class TrackRestClient {
     }
 
     /**
-     * 
+     *
      * Indicates an error happened while using trying to connect
      * and use a REST service.
-     * 
+     *
      * @author adamgent
      *
      */
@@ -268,12 +279,12 @@ public class TrackRestClient {
         return siteURI.resolve(resource).toString();
 
     }
-    
+
     public int getTimeOut() {
         return timeOut;
     }
 
-    
+
     public void setTimeOut(int timeOut) {
         this.timeOut = timeOut;
     }

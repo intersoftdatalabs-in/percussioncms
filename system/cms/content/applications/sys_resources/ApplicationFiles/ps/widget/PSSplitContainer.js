@@ -8,9 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.PSSplitContainer");
-
-dojo.require("dojo.widget.SplitContainer");
+// ps.widget.PSSplitContainer — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * The SplitContainer class overriden to allow disabling of the sizer bar

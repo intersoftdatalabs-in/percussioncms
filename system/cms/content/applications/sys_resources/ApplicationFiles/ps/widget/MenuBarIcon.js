@@ -8,10 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.MenuBarIcon");
-
-dojo.require("dojo.widget.Menu2");
-dojo.require("dojo.dom");
+// ps.widget.MenuBarIcon — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * This widget is used to display an icon at the menubar. It supports the onClick
@@ -27,18 +24,14 @@ dojo.widget.defineWidget("ps.widget.MenuBarIcon", dojo.widget.MenuBarItem2, {
 
   setImage: function (imgUrl) {
     if (this.imgDomNode == null) {
-      //var nodes = this.domNode.childNodes;
-      //this.imgDomNode = nodes[0];
-      this.imgDomNode = dojo.dom.getFirstChildElement(this.domNode, "img");
+      this.imgDomNode = this.domNode.querySelector("img");
     }
     this.imgDomNode.setAttribute("src", imgUrl);
   },
 
   setTitle: function (title) {
     if (this.imgDomNode == null) {
-      //var nodes = this.domNode.childNodes;
-      //this.imgDomNode = nodes[0];
-      this.imgDomNode = dojo.dom.getFirstChildElement(this.domNode, "img");
+      this.imgDomNode = this.domNode.querySelector("img");
     }
     this.imgDomNode.setAttribute("title", title);
   },

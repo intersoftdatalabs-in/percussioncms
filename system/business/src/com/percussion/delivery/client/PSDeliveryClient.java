@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 package com.percussion.delivery.client;
 
 import com.percussion.delivery.data.PSDeliveryInfo;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.proxyconfig.data.PSProxyConfig;
 import com.percussion.proxyconfig.service.IPSProxyConfigService;
 import com.percussion.proxyconfig.service.PSProxyConfigServiceLocator;
@@ -28,34 +27,6 @@ import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.SimpleHttpConnectionManager;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -65,13 +36,30 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -80,17 +68,15 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * @author wesleyhirsch
  *
  */
-public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
+public class PSDeliveryClient implements IPSDeliveryClient
 {
 
    public static final String PERC_VERSION_HEADER="perc-version";
    public static final String TOMCAT_USER="tomcat-user";
    public static final String TOMCAT_PASSWORD="tomcat-password";
+    public static final String LICENSE_OVERRIDE_HEADER = "licenseOverride";
 
-   /**
-    * License Override
-    */
-    private String licenseOverride="";
+    private String licenseOverride = "";
 
     /**
      * Logger for this service.
@@ -98,9 +84,7 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
     public static final Logger log = LogManager.getLogger(PSDeliveryClient.class);
 
     /**
-     * The number of times a method will be retried.
-     *
-     * @see org.apache.commons.httpclient.DefaultHttpMethodRetryHandler
+        * The number of times a request will be retried after I/O failures.
      */
     private int retryCount = 3;
 
@@ -147,15 +131,11 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
 
     /**
      * Sets the timeout until a connection is established in milli-seconds.
-     *
-     * @see org.apache.commons.httpclient.params.HttpConnectionParams#setConnectionTimeout(int)
      */
     private int connectionTimeout = 300000;
 
     /**
      * Sets the socket timeout (for each HTTP method called) in milli-seconds.
-     *
-     * @see org.apache.commons.httpclient.params.HttpConnectionParams#setSoTimeout(int)
      */
     private int operationTimeout = 300000;
 
@@ -171,8 +151,8 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         private static final long serialVersionUID = 1L;
 
         {
-            add(HttpStatus.SC_OK);
-            add(HttpStatus.SC_NO_CONTENT);
+            add(200);
+            add(204);
         }
     };
 
@@ -188,18 +168,13 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
 
     private String responseMessageBodyContentType = MediaType.APPLICATION_JSON;
 
-    // Make these set-able
-    private final String requestMessageBodyEncoding = StandardCharsets.UTF_8.name();
-
-    /**
-     * The request message body content type is only used when the request body
-     * is a String.
-     */
-    private static final String requestMessageBodyContentType = MediaType.APPLICATION_JSON;
-
     private IPSProxyConfigService proxyConfigService;
 
     private PSProxyConfig proxyConfig = null;
+
+    private boolean allowSelfSignedCertificate;
+
+    private boolean sslEnabled;
 
     /**
      * Creates an instance with default options for connection and operation
@@ -210,37 +185,15 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
      */
     public PSDeliveryClient()
     {
-        super(new MultiThreadedHttpConnectionManager());
-
-        setupParams();
     }
 
     /**
-     * Creates an instance with the specified {@link HttpConnectionManager} object
-     * and default options for connection and operation timeouts.
+      * Creates an instance with retry count, connection and operation timeout
+      * parameters.
      * <p>
      * The instance has to be closed when it's no longer necessary. See {@link
      * PSDeliveryClient#close} for more information.
      *
-     * @param httpConnectionManager the connection manager, not
-     *            <code>null</code>.
-     */
-    public PSDeliveryClient(HttpConnectionManager httpConnectionManager)
-    {
-       super(httpConnectionManager);
-
-       setupParams();
-    }
-
-    /**
-     * Creates an instance with the specified {@link HttpConnectionManager}
-     * object, retry count, connection and operation timeout parameters.
-     * <p>
-     * The instance has to be closed when it's no longer necessary. See {@link
-     * PSDeliveryClient#close} for more information.
-     *
-     * @param httpConnectionManager the connection manager, not
-     *            <code>null</code>.
      * @param retryCount the number of retry if failure, must not be less than
      *            zero.
      * @param connectionTimeout the timeout until a connection is established in
@@ -248,11 +201,9 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
      * @param operationTimeout the socket timeout for each operation in
      *            milli-seconds. Must not be less than zero.
      */
-    public PSDeliveryClient(HttpConnectionManager httpConnectionManager, int retryCount,
+     public PSDeliveryClient(int retryCount,
             int connectionTimeout, int operationTimeout)
     {
-       super(httpConnectionManager);
-
        if (retryCount < 0)
           throw new IllegalArgumentException("retryCount must not be < 0.");
        if (connectionTimeout < 0)
@@ -263,52 +214,17 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
        this.retryCount = retryCount;
        this.connectionTimeout = connectionTimeout;
        this.operationTimeout = operationTimeout;
-
-       setupParams();
     }
 
     /**
-     * Setups parameters for this PSDeliveryClient instance.
-     */
-    private void setupParams()
-    {
-        this.getHttpConnectionManager().getParams().setConnectionTimeout(connectionTimeout);
-        this.getHttpConnectionManager().getParams().setSoTimeout(operationTimeout);
-    }
-
-    /**
-     * Shuts down the {@link HttpConnectionManager} instance configured for this
-     * <code>PSDeliveryClient</code> object. This method should be called when this PSDeliveryClient
-     * instance is not used anymore.
+     * Closes resources used by this client.
      * <p>
-     * HTTP connection managers supported by this close method are
-     * {@link SimpleHttpConnectionManager} and
-     * {@link MultiThreadedHttpConnectionManager}. If the client provides a
-     * custom HttpConnectionManager implementation, it is the caller's
-     * responsibility to properly close it.
-     * <p>
-     * Calling this method more than once will have no effect.
-     *
-     * @throws IllegalStateException if a not supported HttpConnectionManager
-     *             was set to the PSDeliveryClient object.
+     * There are currently no explicit resources to release for the JDK client
+     * implementation, so this method is intentionally a no-op.
      */
     public void close()
     {
-        HttpConnectionManager connectionManager = this.getHttpConnectionManager();
-
-        if (connectionManager instanceof SimpleHttpConnectionManager)
-        {
-            ((SimpleHttpConnectionManager) connectionManager).shutdown();
-        }
-        else if (connectionManager instanceof MultiThreadedHttpConnectionManager)
-        {
-            ((MultiThreadedHttpConnectionManager) connectionManager).shutdown();
-        }
-        else
-            throw new IllegalStateException("The provided HttpConnectionManager is not supported. "
-                    + "Close method only support SimpleHttpConnectionManager and MultiThreadedHttpConnectionManager "
-                    + "implementations. For other ones, it's the client responsibility to close the connection "
-                    + "manager.");
+        // no-op
     }
 
     /**
@@ -510,30 +426,22 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
           throw new PSDeliveryClientException(error);
        }
 
-        ProtocolSocketFactory socketFactory = null;
-        boolean sslEnabled = isSslEnabled(actionOptions);
-
-        if (sslEnabled) {
-           if (actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate().orElse(false)) {
-               socketFactory = new EasySSLProtocolSocketFactory();
-           } else {
-              socketFactory = new TLSProtocolSocketFactory();
-           }
-        }
+          sslEnabled = isSslEnabled(actionOptions);
+          allowSelfSignedCertificate = sslEnabled
+                     && actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate().orElse(false);
         PSDeliveryInfo server = actionOptions.getDeliveryInfo();
         URI uri;
         String protocol;
-        String port;
 
         try {
             String adminUrl = server.getAdminUrl().orElseThrow(() -> new PSDeliveryClientException("Error getting info from delivery config file"));
-            uri = new URI(adminUrl, false);
+            uri = new URI(adminUrl);
             if (!sslEnabled) {
                 // Parse delivery server url to get the protocol and port
-                uri = new URI(server.getUrl(), false);
+                uri = new URI(server.getUrl());
             }
         }
-        catch (URIException e)
+        catch (URISyntaxException e)
         {
             log.error("Error getting info from delivery config file");
             throw new PSDeliveryClientException("Error getting info from delivery config file", e);
@@ -541,16 +449,7 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
 
         protocol = uri.getScheme();
 
-        if (sslEnabled)
-        {
-           port = (uri.getPort() <= 0) ? "443" : Integer.toString(uri.getPort());
-           if("-1".equalsIgnoreCase(port))
-               port = "443";
-           Protocol.registerProtocol(protocol, new Protocol(protocol, socketFactory, Integer.parseInt(port)));
-        }
-
         this.requestType = actionOptions.getHttpMethod();
-        this.requestMessageBody = requestMessageBody;
 
         if (actionOptions.getSuccessfullHttpStatusCodes() != null &&
                 !actionOptions.getSuccessfullHttpStatusCodes().isEmpty())
@@ -571,17 +470,6 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         if (isNotBlank(userName) && isBlank(password))
             log.warn("Executing HTTP request with username but blank password.  This is probably not what you intended.");
 
-        if (StringUtils.isNotEmpty(userName)) {
-            AuthScope authScope = AuthScope.ANY;
-            try {
-                authScope = new AuthScope(uri.getHost(), uri.getPort(), server.getRealm().orElse(null));
-            } catch (URIException e) {
-                log.error(PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            }
-            this.getState().setCredentials(authScope, new UsernamePasswordCredentials(userName, password));
-        }
-        
         if (proxyConfig == null)
         {
            if (this.proxyConfigService == null)
@@ -594,140 +482,61 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
         }
 
     }
-    public Header[] getCsrfToken(PSDeliveryActionOptions actionOptions) throws IOException {
-        if(actionOptions.getDeliveryInfo() == null)
+    public java.net.http.HttpHeaders getCsrfToken(PSDeliveryActionOptions actionOptions) throws IOException {
+        prepare(actionOptions, null);
+
+        HttpRequest request =
+                createRequestBuilder(this.requestUrl)
+                        .method("HEAD", HttpRequest.BodyPublishers.noBody())
+                        .timeout(Duration.ofMillis(operationTimeout))
+                        .build();
+
+        try
         {
-            String error = "Error getting info from delivery config file";
-            log.error(error);
-            throw new PSDeliveryClientException(error);
+            HttpResponse<Void> response =
+                    createJdkHttpClient().send(request, HttpResponse.BodyHandlers.discarding());
+            return response.headers();
         }
-
-        ProtocolSocketFactory socketFactory = null;
-        boolean sslEnabled = isSslEnabled(actionOptions);
-
-        if (sslEnabled) {
-            if (actionOptions.getDeliveryInfo().getAllowSelfSignedCertificate().orElse(false)) {
-                socketFactory = new EasySSLProtocolSocketFactory();
-            } else {
-                socketFactory = new TLSProtocolSocketFactory();
-            }
-        }
-        PSDeliveryInfo server = actionOptions.getDeliveryInfo();
-        URI uri;
-        String protocol;
-        String port;
-
-        try {
-            String adminUrl = server.getAdminUrl().orElseThrow(() -> new PSDeliveryClientException("Error getting info from delivery config file"));
-            uri = new URI(adminUrl, false);
-            if (!sslEnabled) {
-                // Parse delivery server url to get the protocol and port
-                uri = new URI(server.getUrl(), false);
-            }
-        }
-        catch (URIException e)
+        catch (InterruptedException e)
         {
-            log.error("Error getting info from delivery config file");
-            throw new PSDeliveryClientException("Error getting info from delivery config file", e);
+            Thread.currentThread().interrupt();
+            throw new IOException("Interrupted while retrieving CSRF token headers", e);
         }
-
-        protocol = uri.getScheme();
-
-        if (sslEnabled)
-        {
-            port = (uri.getPort() <= 0) ? "443" : Integer.toString(uri.getPort());
-            Protocol.registerProtocol(protocol, new Protocol(protocol, socketFactory, Integer.parseInt(port)));
-        }else{
-            port = (uri.getPort() <= 0) ? "80" : Integer.toString(uri.getPort());
-        }
-
-        this.requestType = actionOptions.getHttpMethod();
-        this.requestMessageBody = requestMessageBody;
-
-        if (actionOptions.getSuccessfullHttpStatusCodes() != null &&
-                !actionOptions.getSuccessfullHttpStatusCodes().isEmpty())
-            successfulHttpStatusCodes.addAll(actionOptions.getSuccessfullHttpStatusCodes());
-
-        // Request information
-        if (this.requestType.equals(HttpMethodType.GET) && requestMessageBody != null)
-            throw new IllegalArgumentException("Attempting to execute GET method with message body.  Body is: " + requestMessageBody);
-
-        this.requestUrl = processUrl(actionOptions);
-
-        // Authentication information
-        String userName = actionOptions.getDeliveryInfo().getUsername().orElse(null);
-        String password = actionOptions.getDeliveryInfo().getPassword().orElse(null);
-        this.userName = userName;
-        this.password = password;
-
-        if (isNotBlank(userName) && isBlank(password))
-            log.warn("Executing HTTP request with username but blank password.  This is probably not what you intended.");
-
-        if (StringUtils.isNotEmpty(userName)) {
-            AuthScope authScope = AuthScope.ANY;
-            try {
-                authScope = new AuthScope(uri.getHost(), uri.getPort(), server.getRealm().orElse(null));
-            } catch (URIException e) {
-                log.error(PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            }
-            this.getState().setCredentials(authScope, new UsernamePasswordCredentials(userName, password));
-        }
-
-        if (proxyConfig == null)
-        {
-            if (this.proxyConfigService == null)
-                this.proxyConfigService = getProxyConfigService();
-            if (this.proxyConfigService != null)
-                this.proxyConfig = proxyConfigService
-                        .findByProtocol(protocol).orElse(new PSProxyConfig());
-            else
-                this.proxyConfig = new PSProxyConfig();
-        }
-
-        HeadMethod headMethod = new HeadMethod(this.requestUrl);
-        headMethod.setRequestHeader(HttpHeaders.CONTENT_TYPE, this.responseMessageBodyContentType);
-
-
-        this.executeMethod(headMethod);
-       return headMethod.getResponseHeaders();
-
-
     }
 
 	/**
 	 * Process the delivery server host URL, and returns the appropriate
 	 * one according to the type of service (admin or non-admin) in the
 	 * delivery server.
-	 * 
+	 *
 	 * @param actionOptions The PSDeliveryActionOptions object
 	 * @return The processed URL of the delivery service.
 	 */
     private String processUrl(PSDeliveryActionOptions actionOptions)
     {
         PSDeliveryInfo server = actionOptions.getDeliveryInfo();
-        
+
         String actionUrl = actionOptions.getActionUrl();
         String finalUrl = "";
-        
+
         URI uri;
-        
+
         try
         {
             String protocol;
             String deliveryHost;
             String port;
-            
+
             if (actionOptions.isAdminOperation())
             {
                 // Parse delivery server url to get the host
                 String adminUrl = server.getAdminUrl().orElseThrow(() -> new PSDeliveryClientException("Error getting info from delivery config file"));
-                uri = new URI(adminUrl, false);
+                uri = new URI(adminUrl);
             }
             else
             {
                 // Parse delivery server url to get the host
-                uri = new URI(server.getUrl(), false);
+                uri = new URI(server.getUrl());
             }
             deliveryHost = uri.getHost();
             protocol = uri.getScheme();
@@ -737,28 +546,28 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
 
             //Add the slash for the port
             port = port.length() == 0 ? "" : ":" + port;
-            
+
             // Make final URL
             finalUrl =
                 protocol + "://" +
                 deliveryHost + port +
                 // Add slash to the url if necessary
                 (actionUrl.startsWith("/") ? StringUtils.EMPTY : "/") + actionUrl;
-            
-            uri = new URI(finalUrl, false);
+
+            uri = new URI(finalUrl);
         }
-        catch (URIException e)
+        catch (URISyntaxException e)
         {
             log.error("Error parsing URL: {}" , finalUrl);
             throw new PSDeliveryClientException("Error parsing URL: " + finalUrl, e);
         }
-        
-        return uri.getEscapedURI();
+
+        return uri.toASCIIString();
     }
-	
+
     /**
      * Executes a GET request against the given URL using authentication.
-     * 
+     *
      * @return A string containing the entire contents of the body of the
      *         response. May return <code>null</code> if there is an error
      *         processing the given url.
@@ -767,31 +576,36 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
     {
         if (isBlank(this.responseMessageBodyContentType))
             this.responseMessageBodyContentType = MediaType.APPLICATION_JSON;
-        
-        GetMethod getMethod = new GetMethod(this.requestUrl);
-        getMethod.setRequestHeader(HttpHeaders.CONTENT_TYPE, this.responseMessageBodyContentType);
 
-        return this.executeHttpMethod(getMethod);
+        HttpRequest.Builder builder = createRequestBuilder(this.requestUrl);
+        if (isNotBlank(this.responseMessageBodyContentType))
+            builder.header(HttpHeaders.CONTENT_TYPE, this.responseMessageBodyContentType);
+
+        return this.executeHttpRequest(builder.GET().build(), "GET", this.requestUrl);
     }
-    
+
     private String executeDeleteMethod()
     {
         if (isBlank(this.responseMessageBodyContentType))
             this.responseMessageBodyContentType = MediaType.APPLICATION_JSON;
 
+        String deleteUrl = this.requestUrl;
+        if (requestMessageBody instanceof Map<?, ?>)
+            deleteUrl = appendQueryParams(this.requestUrl, (Map<?, ?>) requestMessageBody);
 
-        DeleteMethod deleteMethod = new DeleteMethod(this.requestUrl);
+        HttpRequest.Builder builder = createRequestBuilder(deleteUrl);
+        if (isNotBlank(this.responseMessageBodyContentType))
+            builder.header(HttpHeaders.CONTENT_TYPE, this.responseMessageBodyContentType);
 
-        
-        if (requestMessageBody instanceof NameValuePair[])
-            deleteMethod.setQueryString((NameValuePair[]) requestMessageBody);
-
-        return this.executeHttpMethod(deleteMethod);
+        return this.executeHttpRequest(
+                builder.method("DELETE", HttpRequest.BodyPublishers.noBody()).build(),
+                "DELETE",
+                deleteUrl);
     }
 
     /**
      * Executes a PUT method against the given URL using authentication.
-     * 
+     *
      * @param requestMessageBodyContentType Content Type
      * @return A string containing the entire contents of the body of the
      *         response. May return <code>null</code> if there is an error
@@ -799,170 +613,112 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
      */
     private String executePutMethod(String requestMessageBodyContentType)
     {
-        PutMethod putMethod = new PutMethod(this.requestUrl);
-        return this.executeEntityEnclosingMethod(putMethod, requestMessageBodyContentType);
+        return this.executeEntityEnclosingMethod(HttpMethodType.PUT, requestMessageBodyContentType);
     }
-    
+
     /**
      * Executes a POST request against the given URL using authentication.
-     * 
+     *
      * @param requestMessageBodyContentType Content Type
      * @return A string containing the entire contents of the body of the
      *         response. May return <code>null</code> if there is an error
      *         processing the given url.
      */
-    @SuppressWarnings("unchecked")
     private String executePostMethod(String requestMessageBodyContentType)
     {
-         PostMethod postMethod = new PostMethod(this.requestUrl);
-
-
-        if (this.requestMessageBody instanceof Collection<?>)
-        {
-            try
-            {
-                @SuppressWarnings("rawtypes")
-               NameValuePair[] parts = (NameValuePair[]) ((Collection) this.requestMessageBody).toArray(
-                        new NameValuePair[0]);
-                postMethod.setRequestBody(parts);
-            }
-            catch (Exception ex)
-            {
-                String errorMessage = "Error in trying to set the request body for the POST method";
-                
-                log.error(errorMessage);
-                throw new PSDeliveryClientException(errorMessage);
-            }
-        } else {
-            try {
-                postMethod.setRequestEntity(new StringRequestEntity(this.requestMessageBody.toString(),"application/json", StandardCharsets.UTF_8.name()));
-            } catch (UnsupportedEncodingException e) {
-                throw new PSDeliveryClientException(e.getMessage());
-            }
-        }
-        
-        return this.executeEntityEnclosingMethod(postMethod, requestMessageBodyContentType);
+        return this.executeEntityEnclosingMethod(HttpMethodType.POST, requestMessageBodyContentType);
     }
-    
+
     /**
      * Executes an entity enclosing method (POST or PUT). This methods contains
      * the shared logic between POST and PUT.
-     * 
+     *
      * @param httpMethod The HTTP method object to execute.
      * @param requestMessageBodyContentType Content Type
      * @return A string containing the entire contents of the body of the
      *         response. May return <code>null</code> if there is an error
      *         processing the given url.
      */
-    private String executeEntityEnclosingMethod(EntityEnclosingMethod httpMethod, String requestMessageBodyContentType)
+    private String executeEntityEnclosingMethod(HttpMethodType methodType,
+                                                String requestMessageBodyContentType)
     {
         try
         {
-            if (this.requestMessageBody != null)
-            {
-                if (this.requestMessageBody instanceof String)
-                {
-                    StringRequestEntity requestEntity = new StringRequestEntity(
-                            this.requestMessageBody.toString(),
-                            requestMessageBodyContentType,
-                            this.requestMessageBodyEncoding);
-                    
-                    httpMethod.setRequestEntity(requestEntity);
-                }
-                else if (this.requestMessageBody instanceof Part[])
-                {
-                    httpMethod.setRequestEntity(new MultipartRequestEntity((Part[]) this.requestMessageBody,
-                            httpMethod.getParams()));
-                }
-                else if (this.requestMessageBody instanceof InputStream)
-                {
-                    httpMethod.setRequestEntity(new InputStreamRequestEntity((InputStream) this.requestMessageBody,
-                            requestMessageBodyContentType));
-                }
-            }
+            HttpRequest.Builder builder = createRequestBuilder(this.requestUrl);
+            HttpRequest.BodyPublisher publisher;
+            if (isNotBlank(requestMessageBodyContentType))
+                builder.header(HttpHeaders.CONTENT_TYPE, requestMessageBodyContentType);
+            publisher = createBodyPublisher(this.requestMessageBody);
+
+            HttpRequest request = builder.method(methodType.name(), publisher).build();
+            return this.executeHttpRequest(request, methodType.name(), this.requestUrl);
         }
         catch (Exception e)
         {
             String errorMessage = "Error in trying to set the request body for the HTTP method";
-            
+
             log.error(errorMessage, e);
             throw new PSDeliveryClientException(errorMessage);
         }
-        
-        return this.executeHttpMethod(httpMethod);
+
     }
 
     /**
      * Low level HTTP request function.
-     * 
-     * @param httpMethod An extended HttpMethodBase class (e.g., GetMethod,
-     *            PostMethod) which contains all the configuration necessary to
-     *            make a request. <strong>Note:</strong> May attempt the same
-     *            request multiple times. Make sure the request passed into here
-     *            is idempotent.
-     * 
+     *
+        * @param request A fully configured JDK {@link HttpRequest}.
+        *            <strong>Note:</strong> May attempt the same request multiple
+        *            times. Make sure the request passed into here is idempotent.
+        * @param methodLabel The HTTP method label used for error reporting.
+        * @param url The target URL used for error reporting.
+     *
      * @return A string containing the body of the returned page. May be
      *         <code>null</code> if something went wrong.
      */
-    private String executeHttpMethod(HttpMethodBase httpMethod)
+    private String executeHttpRequest(HttpRequest request, String methodLabel, String url)
     {
- 
-        // By default, the content type is APPLICATION_JSON.
-        if (httpMethod.getRequestHeader(HttpHeaders.CONTENT_TYPE) != null &&
-                isBlank(httpMethod.getRequestHeader(HttpHeaders.CONTENT_TYPE).getValue()))
-            httpMethod.setRequestHeader(HttpHeaders.CONTENT_TYPE, requestMessageBodyContentType);
-
-           if (proxyConfig != null && proxyConfig.getHost() != null && proxyConfig.getPort() != null)
-           {
-              HostConfiguration config = this.getHostConfiguration();
-              config.setProxy(proxyConfig.getHost(),
-                      Integer.parseInt(proxyConfig.getPort()));
-              
-              if (proxyConfig.getUser() != null && proxyConfig.getPassword().isPresent())
-              {
-                 String proxyUser = proxyConfig.getUser();
-                 String proxyPassword = proxyConfig.getPassword().orElse(null);
-                 Credentials credentials = new UsernamePasswordCredentials(proxyUser, proxyPassword);
-                 AuthScope authScope = new AuthScope(proxyConfig.getHost(),
-                         Integer.parseInt(proxyConfig.getPort()));
-                 
-                 this.getState().setProxyCredentials(authScope, credentials);              
-              }
-           }
-
-
-        httpMethod.setRequestHeader(PERC_VERSION_HEADER, PSServer.getVersion());
-        httpMethod.setRequestHeader(TOMCAT_USER, this.userName);
-        httpMethod.setRequestHeader(TOMCAT_PASSWORD, this.password);
-        httpMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-                new DefaultHttpMethodRetryHandler(retryCount, true));
-
+        int statusCode = -1;
+        String responseData = "";
         try {
-
-            int statusCode = this.executeMethod(httpMethod);
-
-            try (InputStream responseDataStream = httpMethod.getResponseBodyAsStream()) {
-
-                String responseData = responseDataStream == null ? "" : IOUtils.toString(responseDataStream,StandardCharsets.UTF_8);
-                if (!successfulHttpStatusCodes.contains(statusCode)) {
-                    failureCount = 0;
-                    offline = false;
-                    String msg;
-                    if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-                        msg = String.format("Authentication error. Check user and password for this delivery server: %s",
-                                httpMethod.getStatusLine());
-                    } else {
-                        msg = String.format("Error when executing method : %s : %s" , httpMethod.getStatusLine() , responseData);
+            for (int attempt = 0; attempt <= retryCount; attempt++) {
+                try {
+                    HttpResponse<InputStream> response =
+                            createJdkHttpClient().send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    statusCode = response.statusCode();
+                    try (InputStream responseDataStream = response.body()) {
+                        responseData = responseDataStream == null
+                                ? ""
+                                : IOUtils.toString(responseDataStream, StandardCharsets.UTF_8);
                     }
-                    log.error(msg);
-                    throw new PSDeliveryClientException(msg);
-
-                } else {
-                    if (statusCode == HttpStatus.SC_NO_CONTENT)
-                        return "";
-                    else
-                        return responseData;
+                    break;
                 }
+                catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Interrupted while executing " + methodLabel + " request", e);
+                }
+                catch (IOException ex) {
+                    if (attempt >= retryCount)
+                        throw ex;
+                }
+            }
+
+            if (!successfulHttpStatusCodes.contains(statusCode)) {
+                failureCount = 0;
+                offline = false;
+                String msg;
+                if (statusCode == 401) {
+                    msg = String.format("Authentication error. Check user and password for this delivery server. HTTP status: %s",
+                            statusCode);
+                } else {
+                    msg = String.format("Error when executing method : %s %s : %s", methodLabel, url, responseData);
+                }
+                log.error(msg);
+                throw new PSDeliveryClientException(msg);
+            } else {
+                if (statusCode == 204)
+                    return "";
+                else
+                    return responseData;
             }
         }
         catch (IOException ex)
@@ -974,41 +730,215 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
            }
            if(!offline)
               log.error("Fatal transport error: {}" , ex.getMessage());
-            
+
            String reqUrl = this.requestUrl;
            try
            {
-              URL url = new URL(reqUrl);
-              reqUrl = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
+              URL parsedUrl = new URL(reqUrl);
+              reqUrl = parsedUrl.getProtocol() + "://" + parsedUrl.getHost() + ":" + parsedUrl.getPort();
            }
            catch (MalformedURLException e)
            {
-              if(!offline)                 
+              if(!offline)
                  log.error(e.getLocalizedMessage());
            }
            if(!offline)
               throw new PSDeliveryClientException("Unable to connect to delivery server at: {}." + reqUrl + ".");
-         return null;
-        }
-        finally
-        {
-            httpMethod.releaseConnection();
+           return null;
         }
     }
-    
+
+        private HttpClient createJdkHttpClient()
+    {
+        HttpClient.Builder builder =
+            HttpClient.newBuilder().connectTimeout(Duration.ofMillis(connectionTimeout));
+
+        if (sslEnabled && allowSelfSignedCertificate)
+            configureAllowSelfSignedTls(builder);
+
+        if (proxyConfig != null && proxyConfig.getHost() != null && proxyConfig.getPort() != null)
+        {
+            builder.proxy(ProxySelector.of(
+                    new InetSocketAddress(proxyConfig.getHost(), Integer.parseInt(proxyConfig.getPort()))));
+
+            if (proxyConfig.getUser() != null && proxyConfig.getPassword().isPresent())
+            {
+                String proxyUser = proxyConfig.getUser();
+                String proxyPassword = proxyConfig.getPassword().orElse("");
+                builder.authenticator(new java.net.Authenticator()
+                {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication()
+                    {
+                        if (getRequestorType() == RequestorType.PROXY)
+                            return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
+                        return null;
+                    }
+                });
+            }
+        }
+
+        return builder.build();
+    }
+
+    private void configureAllowSelfSignedTls(HttpClient.Builder builder)
+    {
+        try
+        {
+            TrustManager[] trustAll = new TrustManager[] {new X509TrustManager()
+            {
+                @Override
+                public java.security.cert.X509Certificate[] getAcceptedIssuers()
+                {
+                    return new java.security.cert.X509Certificate[0];
+                }
+
+                @Override
+                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
+                {
+                    // allow all
+                }
+
+                @Override
+                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
+                {
+                    // allow all
+                }
+            }};
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAll, new SecureRandom());
+            builder.sslContext(sslContext);
+            SSLParameters sslParameters = new SSLParameters();
+            sslParameters.setEndpointIdentificationAlgorithm(null);
+            builder.sslParameters(sslParameters);
+        }
+        catch (GeneralSecurityException e)
+        {
+            throw new PSDeliveryClientException("Unable to configure TLS for self-signed certificates", e);
+        }
+    }
+
+    private HttpRequest.Builder createRequestBuilder(String targetUrl)
+    {
+        HttpRequest.Builder builder =
+                HttpRequest.newBuilder(URI.create(targetUrl)).timeout(Duration.ofMillis(operationTimeout));
+
+        builder.header(PERC_VERSION_HEADER, PSServer.getVersion());
+        if (isNotBlank(this.userName))
+            builder.header(TOMCAT_USER, this.userName);
+        if (this.password != null)
+            builder.header(TOMCAT_PASSWORD, this.password);
+        if (isNotBlank(this.userName) && this.password != null)
+        {
+            String token = Base64.getEncoder().encodeToString(
+                    (this.userName + ":" + this.password).getBytes(StandardCharsets.UTF_8));
+            builder.header(HttpHeaders.AUTHORIZATION, "Basic " + token);
+        }
+        if (isNotBlank(this.licenseOverride))
+            builder.header(LICENSE_OVERRIDE_HEADER, this.licenseOverride);
+        return builder;
+    }
+
+        private HttpRequest.BodyPublisher createBodyPublisher(Object body)
+            throws IOException
+    {
+        if (body == null)
+            return HttpRequest.BodyPublishers.noBody();
+
+            if (body instanceof HttpRequest.BodyPublisher)
+                return (HttpRequest.BodyPublisher) body;
+
+            if (body instanceof Map<?, ?>)
+                return HttpRequest.BodyPublishers.ofString(formEncode((Map<?, ?>) body),
+                    StandardCharsets.UTF_8);
+
+        if (body instanceof Collection<?>)
+        {
+            try
+            {
+                    String encoded = formEncodeCollection((Collection<?>) body);
+                    if (isNotBlank(encoded))
+                        return HttpRequest.BodyPublishers.ofString(encoded, StandardCharsets.UTF_8);
+                    return HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8);
+            }
+            catch (Exception ex)
+            {
+                throw new PSDeliveryClientException("Error in trying to set the request body for the HTTP method");
+            }
+        }
+
+        if (body instanceof InputStream)
+            return HttpRequest.BodyPublishers.ofByteArray(((InputStream) body).readAllBytes());
+
+        if (body instanceof String)
+            return HttpRequest.BodyPublishers.ofString((String) body, StandardCharsets.UTF_8);
+
+        return HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8);
+    }
+
+    private String appendQueryParams(String baseUrl, Map<?, ?> params)
+    {
+        String query = formEncode(params);
+        if (isBlank(query))
+            return baseUrl;
+        return baseUrl + (baseUrl.contains("?") ? "&" : "?") + query;
+    }
+
+    private String formEncode(Map<?, ?> params)
+    {
+        if (params == null || params.isEmpty())
+            return "";
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<?, ?> entry : params.entrySet())
+        {
+            if (builder.length() > 0)
+                builder.append('&');
+            String name = entry.getKey() == null ? "" : entry.getKey().toString();
+            String value = entry.getValue() == null ? "" : entry.getValue().toString();
+            builder.append(URLEncoder.encode(name, StandardCharsets.UTF_8));
+            builder.append('=');
+            builder.append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+        }
+        return builder.toString();
+    }
+
+    private String formEncodeCollection(Collection<?> values)
+    {
+        if (values == null || values.isEmpty())
+            return "";
+
+        StringBuilder builder = new StringBuilder();
+        for (Object value : values)
+        {
+            if (!(value instanceof Map.Entry<?, ?>))
+                return "";
+
+            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) value;
+            if (builder.length() > 0)
+                builder.append('&');
+            String name = entry.getKey() == null ? "" : entry.getKey().toString();
+            String mappedValue = entry.getValue() == null ? "" : entry.getValue().toString();
+            builder.append(URLEncoder.encode(name, StandardCharsets.UTF_8));
+            builder.append('=');
+            builder.append(URLEncoder.encode(mappedValue, StandardCharsets.UTF_8));
+        }
+        return builder.toString();
+    }
+
     private boolean isSslEnabled(PSDeliveryActionOptions actionOptions)
     {
         boolean sslEnabled = false;
-        
+
         PSDeliveryInfo server = actionOptions.getDeliveryInfo();
-        
+
         URI uri;
-        String protocol;            
-        
+        String protocol;
+
         try
         {
             String adminUrl = server.getAdminUrl().orElseThrow(() -> new PSDeliveryClientException("Error getting info from delivery config file"));
-            uri = new URI(adminUrl, false);
+            uri = new URI(adminUrl);
             protocol = uri.getScheme();
             if (protocol.equals("https"))
             {
@@ -1017,23 +947,23 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
 
 
         }
-        catch (URIException e)
+        catch (URISyntaxException e)
         {
             log.error("Error getting info from delivery config file");
             throw new PSDeliveryClientException("Error getting info from delivery config file", e);
-        }     
+        }
         return sslEnabled;
     }
 
 
    /**
     * When set, requests send to the delivery tier will use
-    * the supplied license number instead of the primary 
+    * the supplied license number instead of the primary
     * instance license id.
-    * 
+    *
     * This property will be automatically cleared after method
-    * execution to prevent accidental override. 
-    * 
+    * execution to prevent accidental override.
+    *
     * @param licenseOverride the licenseOverride to set
     */
    public void setLicenseOverride(String licenseOverride)
@@ -1041,7 +971,7 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
       this.licenseOverride = licenseOverride;
    }
 
-   
+
    /**
     * Gets the corresponding proxy config bean for the service
     * @return ProxyConfigService bean. May be <code>null</code> if bean is not found
@@ -1054,17 +984,17 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
       }
       catch (PSMissingBeanConfigurationException e)
       {
-         return null;         
+         return null;
       }
    }
-   
+
    public void setProxyConfig (PSProxyConfig proxyConfig)
    {
       this.proxyConfig = proxyConfig;
    }
-   
+
    public PSProxyConfig getProxyConfig ()
    {
       return this.proxyConfig;
-   }   
+   }
 }

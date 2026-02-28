@@ -8,9 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.MenuBarItem2");
-
-dojo.require("dojo.widget.Menu2");
+// ps.widget.MenuBarItem2 — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * Extends the dojo MenuBarItem2 to do nothing to fix a weird menubar item

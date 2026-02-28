@@ -8,11 +8,6 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.aa.SnippetMove");
-
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.lang.type");
-
 /**
  * Data for moving a snippet between slots.
  * Read-only after creation.
@@ -36,13 +31,12 @@ ps.aa.SnippetMove = function (
   targetIndex,
   dontUpdatePage
 ) {
-  dojo.lang.assertType(snippetId, ps.aa.ObjectId);
-  dojo.lang.assertType(targetSlotId, ps.aa.ObjectId);
-  dojo.lang.assert(
-    dojo.lang.isNumeric(targetIndex),
-    "Should be interpreted as number"
-  );
-  dontUpdatePage && dojo.lang.isBoolean(dontUpdatePage);
+  ps.assertType(snippetId, ps.aa.ObjectId);
+  ps.assertType(targetSlotId, ps.aa.ObjectId);
+  ps.assert(ps.isNumeric(targetIndex), "Should be interpreted as number");
+  if (dontUpdatePage !== undefined) {
+    ps.assertType(dontUpdatePage, Boolean);
+  }
 
   this._m_snippetId = snippetId;
   this._m_slotId = slotId;
@@ -80,7 +74,7 @@ ps.aa.SnippetMove = function (
    * Not <code>null</code>.
    */
   this.setTargetSnippetId = function (targetSnippetId) {
-    dojo.lang.assertType(targetSnippetId, ps.aa.ObjectId);
+    ps.assertType(targetSnippetId, ps.aa.ObjectId);
     this._m_targetSnippetId = targetSnippetId;
   };
 
@@ -142,11 +136,11 @@ ps.aa.SnippetMove = function (
    * Not <code>null</code>.
    */
   this.setUiUpdateNeeded = function (uiUpdateNeeded) {
-    dojo.lang.assert(dojo.lang.isBoolean(uiUpdateNeeded));
+    ps.assert(ps.isBoolean(uiUpdateNeeded));
     if (uiUpdateNeeded) {
-      dojo.lang.assert(
+      ps.assert(
         this.getDontUpdatePage(),
-        "uiUpdateNeedeed can be true only if getDontUpdatePage is true"
+        "uiUpdateNeeded can be true only if getDontUpdatePage is true"
       );
     }
     this._m_uiUpdateNeeded = uiUpdateNeeded;
@@ -166,7 +160,7 @@ ps.aa.SnippetMove = function (
    * @param {Boolean} success the new value.
    */
   this.setSuccess = function (success) {
-    dojo.lang.assertType(success, Boolean);
+    ps.assertType(success, Boolean);
     this._m_success = success;
   };
 };

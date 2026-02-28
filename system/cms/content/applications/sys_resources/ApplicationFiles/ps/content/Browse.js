@@ -7,20 +7,6 @@
  * work including confidential and proprietary information of Percussion.
  *
  *****************************************************************************/
-dojo.provide("ps.content.Browse");
-
-dojo.require("ps.content.History");
-dojo.require("ps.content.SelectTemplates");
-dojo.require("ps.content.BrowseTabPanel");
-dojo.require("ps.content.SitesTabPanel");
-dojo.require("ps.content.FoldersTabPanel");
-dojo.require("ps.content.SearchTabPanel");
-dojo.require("ps.widget.ContentPaneProgress");
-dojo.require("ps.util");
-dojo.require("dojo.collections.Dictionary");
-dojo.require("dojo.lang.declare");
-dojo.require("dojo.json");
-dojo.require("dojo.string");
 
 /**
  * Ctor for the Content Browser Dialog. Content Browser Dialog is a generic
@@ -140,17 +126,13 @@ ps.content.Browse = function (mode) {
     var rxroot = this.rxroot;
     // load the first tab ASAP
     sitestab.init();
-    dojo.lang.delayThese(
-      [
-        function () {
-          folderstab.init();
-        },
-        function () {
-          searchtab.init();
-        },
-      ],
-      500
-    );
+    // Interlieve remaining tab inits with main flow for responsiveness
+    setTimeout(function () {
+      folderstab.init();
+    }, 500);
+    setTimeout(function () {
+      searchtab.init();
+    }, 1000);
     var tabContainer = dojo.widget.byId("ps.content.mainTabContainer");
   };
 
@@ -174,8 +156,8 @@ ps.content.Browse = function (mode) {
    * with respect to the snippet represented by the supplied relationship id.
    */
   this.open = function (okCallback, slotId, refRelId, position) {
-    dojo.lang.assert(slotId, "slotId parameter must be specified");
-    dojo.lang.assert(slotId.isSlotNode(), "Must pass a slot id");
+    ps.assert(slotId, "slotId parameter must be specified");
+    ps.assert(slotId.isSlotNode(), "Must pass a slot id");
     ps.aa.controller.enableConflictStyleSheets(false);
     if (position == null) position = "before";
     this.slotId = slotId;
@@ -192,7 +174,7 @@ ps.content.Browse = function (mode) {
       );
     } else {
       var _this = this;
-      dojo.lang.setTimeout(function () {
+      setTimeout(function () {
         _this.fillInParentWindow();
       }, 500);
     }
@@ -203,29 +185,6 @@ ps.content.Browse = function (mode) {
     tabContainer.selectChild(tab0, tabContainer);
 
     this.wgtDlg.show();
-    if (dojo.render.html.ie55 || dojo.render.html.ie60) {
-      // otherwise it does not displayed when the dialog is shown second time
-      dojo.html.hide(tabContainer.domNode);
-      dojo.html.show(tabContainer.domNode);
-    }
-
-    if (dojo.render.html.safari) {
-      // Force this tab to be selected to get around bug
-      // with Safari not displaying or laying out the tab
-      // correctly on intial tab load.
-      dojo.lang.setTimeout(function () {
-        tabContainer.selectChild(tab0, tabContainer);
-      }, 500);
-    }
-
-    if (dojo.render.html.ie55 || dojo.render.html.ie60) {
-      dojo.lang.setTimeout(function () {
-        // workaroundof of an IE6 bug, when the dialog container
-        // does not show up when the dialog is open second time
-        dojo.html.hide(tabContainer.domNode);
-        dojo.html.show(tabContainer.domNode);
-      }, 1000 * 5);
-    }
   };
   /**
    * Causes the dialog to fill in the entire parent window and moves it

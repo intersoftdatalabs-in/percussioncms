@@ -8,9 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.PopupMenu");
-
-dojo.require("dojo.widget.Menu2");
+// ps.widget.PopupMenu — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * Added additional features based on dojo.widget.PopupMenu2.

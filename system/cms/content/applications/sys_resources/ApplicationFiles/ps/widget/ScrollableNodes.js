@@ -8,8 +8,6 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.ScrollableNodes");
-
 /**
  * Manages list of scrollable elements to support autoscroll.
  *
@@ -22,8 +20,8 @@ ps.widget.ScrollableNodes = function () {
   this.init = function (nodes) {
     this.nodes = nodes;
 
-    dojo.lang.forEach(this.nodes, function (node) {
-      dojo.lang.assert(node, "Expected all scrollable nodes to be defined.");
+    this.nodes.forEach(function (node) {
+      ps.assert(node, "Expected all scrollable nodes to be defined.");
     });
   };
 
@@ -32,7 +30,7 @@ ps.widget.ScrollableNodes = function () {
    * @param e the mouse event. Not <code>null</code>.
    */
   this.getOverNode = function (e) {
-    dojo.lang.assert(e, "Event must be specified");
+    ps.assert(e, "Event must be specified");
 
     for (var i = 0; i < this.nodes.length; i++) {
       var n = this.nodes[i];
@@ -52,8 +50,8 @@ ps.widget.ScrollableNodes = function () {
    * Not <code>null</code>.
    */
   this._overElement = function (element, e) {
-    dojo.lang.assert(element, "Element must be specified");
-    dojo.lang.assert(e, "Event must be specified");
+    ps.assert(element, "Element must be specified");
+    ps.assert(e, "Event must be specified");
 
     var sides = ps.util.getVisibleSides(element);
     return (

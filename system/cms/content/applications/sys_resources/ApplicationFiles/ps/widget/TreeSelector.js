@@ -8,9 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.TreeSelector");
-
-dojo.require("dojo.widget.TreeSelectorV3");
+// ps.widget.TreeSelector — dojo.provide/require removed (jQuery + ps/compat.js)
 
 dojo.widget.defineWidget(
   "ps.widget.TreeSelector",
@@ -24,9 +22,9 @@ dojo.widget.defineWidget(
      * @param node the tree node to activate. Not <code>null</code>
      */
     _nodeActivated: function (node) {
-      dojo.lang.assert(node);
+      ps.assert(node);
       var objId = node.modelId;
-      dojo.lang.assert(objId, "widget does not have a model id");
+      ps.assert(objId, "widget does not have a model id");
       ps.aa.controller.activate(objId);
     },
   }

@@ -8,14 +8,6 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.UserInfo");
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.html");
-dojo.require("dojo.widget.Menu2");
-dojo.require("ps.aa");
-dojo.require("ps.aa.controller");
-dojo.require("ps.io.Actions");
-
 /**
  * This is used to manage the controls that allow the user to logout and change
  * her community/locale.

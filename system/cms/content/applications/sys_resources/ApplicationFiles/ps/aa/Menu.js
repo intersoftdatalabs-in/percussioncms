@@ -8,13 +8,8 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.aa.Menu");
+// ps.aa.Menu — dojo.provide/require removed (jQuery + ps/compat.js)
 
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.html");
-dojo.require("ps.aa");
-dojo.require("ps.aa.controller");
-dojo.require("ps.io.Actions");
 
 /**
  * This is used to manage the menubar and context menu for the current
@@ -131,7 +126,7 @@ ps.aa.Menu = new (function () {
       if (this.m_labels == null) {
         var response = ps.io.Actions.getActionLabels(this.getNames());
         if (!response.isSuccess()) {
-          dojo.debug(
+          console.debug(
             "Failed to retrieve labels for some menu actions. Reason: " +
               response.getValue()
           );
@@ -170,7 +165,7 @@ ps.aa.Menu = new (function () {
           this.m_currentId
         );
         if (!response.isSuccess()) {
-          dojo.debug(
+          console.debug(
             "Failed to retrieve visibility states for some menu actions. Reason: " +
               response.getValue()
           );
@@ -331,7 +326,7 @@ ps.aa.Menu = new (function () {
     if (objId.isFieldNode()) {
       title = objId.getFieldName();
     } else {
-      div = dojo.byId(objId.serialize());
+      div = document.getElementById(objId.serialize());
       title = div.getAttribute("psAaLabel");
     }
     this.menubarIcon.setTitle(title);
@@ -357,8 +352,8 @@ ps.aa.Menu = new (function () {
           );
         }
       }
-      if (visible) dojo.html.show(widget.domNode);
-      else dojo.html.hide(widget.domNode);
+      if (visible) widget.domNode.style.display = "";
+      else widget.domNode.style.display = "none";
     }
   };
 
@@ -367,7 +362,7 @@ ps.aa.Menu = new (function () {
    */
   this._maybeHide = function (widget) {
     if (widget) {
-      dojo.html.hide(widget.domNode);
+      widget.domNode.style.display = "none";
     }
   };
 
@@ -384,13 +379,13 @@ ps.aa.Menu = new (function () {
 
     this._maybeHide(this.downElem);
 
-    dojo.html.hide(this.editElem.domNode);
+    this.editElem.domNode.style.display = "none";
     this._maybeHide(this.editAllElem);
     this._maybeHide(this.editFieldElem);
     this._maybeHide(this.removeElem);
 
     // hide Tools menu because it contains no items visible for a slot
-    dojo.html.hide(this.toolElem.domNode);
+    this.toolElem.domNode.style.display = "none";
     this._maybeHide(this.workflow);
 
     // show menu items that are specific for a slot
@@ -414,10 +409,10 @@ ps.aa.Menu = new (function () {
       this._maybeHide(this.removeElem);
 
       // show the menu items that are specific for a page/field node
-      dojo.html.show(this.editElem.domNode);
+      this.editElem.domNode.style.display = "";
       this._maybeShow(this.editAllElem);
 
-      dojo.html.show(this.toolElem.domNode);
+      this.toolElem.domNode.style.display = "";
       this._maybeShow(this.viewContent);
       this._maybeShow(this.viewProperties);
       this._maybeShow(this.viewRevisions);
@@ -465,11 +460,11 @@ ps.aa.Menu = new (function () {
       this._maybeShow(this.upElem);
       this._maybeShow(this.downElem);
 
-      dojo.html.show(this.editElem.domNode);
+      this.editElem.domNode.style.display = "";
       this._maybeShow(this.editAllElem);
       this._maybeShow(this.removeElem);
 
-      dojo.html.show(this.toolElem.domNode);
+      this.toolElem.domNode.style.display = "";
       this._maybeShow(this.workflow);
 
       var disableParent = !parentId.isCheckoutByMe();
@@ -535,7 +530,7 @@ ps.aa.Menu = new (function () {
    * Not null.
    */
   this._addMenubarItems2 = function (menubar) {
-    dojo.lang.assert(menubar, "Menu bar must be specified");
+    ps.assert(menubar, "Menu bar must be specified");
 
     this.addSnippetElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
       caption: "Insert Snippet...",
@@ -543,7 +538,7 @@ ps.aa.Menu = new (function () {
         ps.aa.controller.addSnippet(ps.aa.Menu.INSERT_FROM_SLOT);
       },
     });
-    dojo.html.hide(this.addSnippetElem.domNode);
+    this.addSnippetElem.domNode.style.display = "none";
 
     menubar.addChild(this.addSnippetElem, null, "before", this.preview.domNode);
 
@@ -553,7 +548,7 @@ ps.aa.Menu = new (function () {
         ps.aa.controller.changeTemplate();
       },
     });
-    dojo.html.hide(this.changeTemplateElem.domNode);
+    this.changeTemplateElem.domNode.style.display = "none";
 
     this.upElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
       caption: "Up",
@@ -561,7 +556,7 @@ ps.aa.Menu = new (function () {
         ps.aa.controller.moveSnippetUp();
       },
     });
-    dojo.html.hide(this.upElem.domNode);
+    this.upElem.domNode.style.display = "none";
 
     this.downElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
       caption: "Down",
@@ -569,7 +564,7 @@ ps.aa.Menu = new (function () {
         ps.aa.controller.moveSnippetDown();
       },
     });
-    dojo.html.hide(this.downElem.domNode);
+    this.downElem.domNode.style.display = "none";
 
     // add them 3 in a row
     menubar.addChild(
@@ -890,7 +885,7 @@ ps.aa.Menu = new (function () {
           ps.aa.controller.editField();
         },
       });
-      dojo.html.hide(_this.editFieldElem.domNode);
+      _this.editFieldElem.domNode.style.display = "none";
       popmenu.addChild(_this.editFieldElem);
 
       _this.removeElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
@@ -899,7 +894,7 @@ ps.aa.Menu = new (function () {
           ps.aa.controller.removeSnippet();
         },
       });
-      dojo.html.hide(_this.removeElem.domNode);
+      _this.removeElem.domNode.style.display = "none";
       popmenu.addChild(_this.removeElem);
 
       _this._resetLastMenubar();
@@ -1281,22 +1276,22 @@ ps.aa.Menu = new (function () {
       return;
     }
     // hide and show snippet specific menu items
-    dojo.html.hide(this.ctxEditField.domNode);
+    this.ctxEditField.domNode.style.display = "none";
 
-    dojo.html.show(this.ctxChangeTemplate.domNode);
-    dojo.html.show(this.ctxUp.domNode);
-    dojo.html.show(this.ctxDown.domNode);
-    dojo.html.show(this.ctxRemove.domNode);
+    this.ctxChangeTemplate.domNode.style.display = "";
+    this.ctxUp.domNode.style.display = "";
+    this.ctxDown.domNode.style.display = "";
+    this.ctxRemove.domNode.style.display = "";
 
-    dojo.html.show(this.ctxItemSeparator1.domNode);
-    dojo.html.show(this.ctxNewFromSnippet.domNode);
-    dojo.html.show(this.ctxInsertFromSnippet.domNode);
-    dojo.html.show(this.ctxReplaceFromSnippet.domNode);
-    dojo.html.show(this.ctxOpenFromSnippet.domNode);
-    dojo.html.show(this.ctxItemSeparator2.domNode);
+    this.ctxItemSeparator1.domNode.style.display = "";
+    this.ctxNewFromSnippet.domNode.style.display = "";
+    this.ctxInsertFromSnippet.domNode.style.display = "";
+    this.ctxReplaceFromSnippet.domNode.style.display = "";
+    this.ctxOpenFromSnippet.domNode.style.display = "";
+    this.ctxItemSeparator2.domNode.style.display = "";
 
-    dojo.html.show(this.ctxWorkflow.domNode);
-    dojo.html.show(this.ctxEditAll.domNode);
+    this.ctxWorkflow.domNode.style.display = "";
+    this.ctxEditAll.domNode.style.display = "";
 
     // enable and disable menu items according to 'objId' and 'parentId'
     var disable = !parentId.isCheckoutByMe();
@@ -1321,25 +1316,25 @@ ps.aa.Menu = new (function () {
       return;
     }
     // hide menu items which are not appliable to snippet
-    dojo.html.hide(this.ctxChangeTemplate.domNode);
-    dojo.html.hide(this.ctxUp.domNode);
-    dojo.html.hide(this.ctxDown.domNode);
-    dojo.html.hide(this.ctxRemove.domNode);
-    dojo.html.hide(this.ctxItemSeparator1.domNode);
-    dojo.html.hide(this.ctxNewFromSnippet.domNode);
-    dojo.html.hide(this.ctxInsertFromSnippet.domNode);
-    dojo.html.hide(this.ctxReplaceFromSnippet.domNode);
-    dojo.html.hide(this.ctxOpenFromSnippet.domNode);
-    dojo.html.hide(this.ctxItemSeparator2.domNode);
+    this.ctxChangeTemplate.domNode.style.display = "none";
+    this.ctxUp.domNode.style.display = "none";
+    this.ctxDown.domNode.style.display = "none";
+    this.ctxRemove.domNode.style.display = "none";
+    this.ctxItemSeparator1.domNode.style.display = "none";
+    this.ctxNewFromSnippet.domNode.style.display = "none";
+    this.ctxInsertFromSnippet.domNode.style.display = "none";
+    this.ctxReplaceFromSnippet.domNode.style.display = "none";
+    this.ctxOpenFromSnippet.domNode.style.display = "none";
+    this.ctxItemSeparator2.domNode.style.display = "none";
 
     // show snippet specific menu items
-    dojo.html.show(this.ctxEditAll.domNode);
+    this.ctxEditAll.domNode.style.display = "";
     if (objId.isPageNode()) {
-      dojo.html.hide(this.ctxEditField.domNode);
+      this.ctxEditField.domNode.style.display = "none";
     } else {
-      dojo.html.show(this.ctxEditField.domNode);
+      this.ctxEditField.domNode.style.display = "";
     }
-    dojo.html.show(this.ctxWorkflow.domNode);
+    this.ctxWorkflow.domNode.style.display = "";
 
     // enable and disable menu items according to 'objId' and 'parentId'
     var disable = !objId.isCheckoutByMe();
@@ -1349,21 +1344,21 @@ ps.aa.Menu = new (function () {
 
   this.toggleShowHideTree = function (isShowTree) {
     if (isShowTree) {
-      dojo.html.show(this.hideTreeElem.domNode);
-      dojo.html.hide(this.showTreeElem.domNode);
+      this.hideTreeElem.domNode.style.display = "";
+      this.showTreeElem.domNode.style.display = "none";
     } else {
-      dojo.html.hide(this.hideTreeElem.domNode);
-      dojo.html.show(this.showTreeElem.domNode);
+      this.hideTreeElem.domNode.style.display = "none";
+      this.showTreeElem.domNode.style.display = "";
     }
   };
 
   this.toggleShowHidePlaceholders = function (isShow) {
     if (isShow) {
-      dojo.html.show(this.hidePlaceholdersElem.domNode);
-      dojo.html.hide(this.showPlaceholdersElem.domNode);
+      this.hidePlaceholdersElem.domNode.style.display = "";
+      this.showPlaceholdersElem.domNode.style.display = "none";
     } else {
-      dojo.html.hide(this.hidePlaceholdersElem.domNode);
-      dojo.html.show(this.showPlaceholdersElem.domNode);
+      this.hidePlaceholdersElem.domNode.style.display = "none";
+      this.showPlaceholdersElem.domNode.style.display = "";
     }
   };
 
@@ -1378,7 +1373,7 @@ ps.aa.Menu = new (function () {
         items.push(item);
       }
     }
-    dojo.lang.assert(items.length > 0);
+    ps.assert(items.length > 0);
     return items;
   };
 })();

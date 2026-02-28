@@ -20,11 +20,16 @@ package com.percussion.integrations.ems.rest;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.percussion.delivery.client.PSDeliveryClient;
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSSiteManageBean;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -33,11 +38,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +71,8 @@ public class PSEmsRestService {
   private IPSDeliveryInfoService deliveryService;
 
   private static final Logger log = LogManager.getLogger(PSEmsRestService.class);
+  private static final HttpClient HTTP_CLIENT =
+      HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(30)).build();
 
   /***
    * The license Override if any
@@ -176,20 +178,19 @@ public class PSEmsRestService {
         log.error(msg);
         return Response.serverError().entity(msg).build();
       }
-      var deliveryClient = new PSDeliveryClient();
-      deliveryClient.setLicenseOverride(licenseId);
+      var uri = buildRequestUri(server.getUrl(), path);
+      var request =
+          HttpRequest.newBuilder(uri)
+              .timeout(Duration.ofSeconds(60))
+              .header("Content-Type", mediaType)
+              .header("Accept", mediaType)
+              .GET()
+              .build();
 
-      var method = new GetMethod();
-      method.setPath(path);
-      method.setRequestHeader("Content-Type", mediaType);
-      method.setRequestHeader("Accept", mediaType);
-
-      var uri = new URI(new URI(server.getUrl(), true), path, true);
-      method.setURI(uri);
-
-      var code = deliveryClient.executeMethod(method);
+      var response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+      var code = response.statusCode();
       if (code == 200) {
-        ret = IOUtils.toString(method.getResponseBodyAsStream());
+        ret = response.body();
       } else {
         throw new Exception(
             "Invalid response code: " + code + " was received when listing " + logLabel + ".");
@@ -214,25 +215,21 @@ public class PSEmsRestService {
         log.error(msg);
         return Response.serverError().entity(msg).build();
       }
-
-      var deliveryClient = new PSDeliveryClient();
-      deliveryClient.setLicenseOverride(licenseId);
       var mapper = new ObjectMapper();
-      log.debug("Building Request Entity...");
-      var entity = new StringRequestEntity(mapper.writeValueAsString(query), mediaType, "UTF-8");
-      log.debug("Built Request Entity");
-      var method = new PostMethod();
-      method.setPath(path);
-      method.setRequestHeader("Content-Type", mediaType);
-      method.setRequestHeader("Accept", mediaType);
-      method.setRequestEntity(entity);
+      var requestBody = mapper.writeValueAsString(query);
+      var uri = buildRequestUri(server.getUrl(), path);
+      var request =
+          HttpRequest.newBuilder(uri)
+              .timeout(Duration.ofSeconds(60))
+              .header("Content-Type", mediaType)
+              .header("Accept", mediaType)
+              .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
+              .build();
 
-      var uri = new URI(new URI(server.getUrl(), true), path, true);
-      method.setURI(uri);
-
-      var code = deliveryClient.executeMethod(method);
+      var response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+      var code = response.statusCode();
       if (code == 200) {
-        ret = IOUtils.toString(method.getResponseBodyAsStream());
+        ret = response.body();
       } else {
         throw new Exception(
             "Invalid response code: " + code + " was received when listing " + logLabel + ".");
@@ -243,5 +240,16 @@ public class PSEmsRestService {
       return Response.serverError().entity(e.getMessage()).build();
     }
     return Response.status(Status.OK).entity(ret).build();
+  }
+
+  private URI buildRequestUri(String serverUrl, String path) {
+    var baseUri = URI.create(serverUrl);
+    return URI.create(
+        String.format(
+            "%s://%s%s%s",
+            baseUri.getScheme(),
+            baseUri.getHost(),
+            baseUri.getPort() > 0 ? ":" + baseUri.getPort() : "",
+            path));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,17 +21,15 @@ import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Connection;
@@ -47,6 +45,10 @@ import org.jsoup.nodes.Document;
 public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpression {
 
   private static final Logger log = LogManager.getLogger(PSORemoteContentTools.class);
+  private static final int SC_OK = 200;
+  private static final int SC_NOT_MODIFIED = 304;
+  private static final HttpClient HTTP_CLIENT =
+      HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
 
   public PSORemoteContentTools() {
     super();
@@ -71,17 +73,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       },
       returns = "Returns an integer status code")
   public int getHTTPStatusCode(String urlString) throws IllegalArgumentException, IOException {
-    HttpClient client = new HttpClient();
-    GetMethod get = new GetMethod(urlString);
-    String responseBody;
-    int statusCode = 400;
-    try {
-      statusCode = client.executeMethod(get);
-    } finally {
-      // Process the data from the input stream.
-      get.releaseConnection();
-    }
-    return statusCode;
+    return executeGet(urlString, null, null, null).statusCode();
   }
 
   /**
@@ -106,28 +98,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       returns = "Returns a integer status code")
   public int getHTTPStatusCode(String urlString, String username, String password)
       throws IllegalArgumentException, IOException {
-    HttpClient client = new HttpClient();
-    GetMethod get = new GetMethod(urlString);
-
-    Credentials defaultcreds = new UsernamePasswordCredentials(username, password);
-    URI uriObject = new URI(urlString);
-
-    int statusCode = 400;
-    try {
-      client
-          .getState()
-          .setCredentials(
-              new AuthScope(uriObject.getHost(), uriObject.getPort(), AuthScope.ANY_REALM),
-              defaultcreds);
-
-      statusCode = client.executeMethod(get);
-
-    } finally {
-      // Process the data from the input stream.
-      get.releaseConnection();
-    }
-
-    return statusCode;
+    return executeGet(urlString, null, username, password).statusCode();
   }
 
   /**
@@ -150,24 +121,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       returns = "Returns a integer status code")
   public int getHTTPStatusCode(String urlString, Map<String, String> headers)
       throws IllegalArgumentException, IOException {
-    HttpClient client = new HttpClient();
-    GetMethod get = new GetMethod(urlString);
-
-    for (Map.Entry<String, String> entry : headers.entrySet()) {
-      get.setRequestHeader(entry.getKey(), entry.getValue());
-    }
-
-    int statusCode = 400;
-    try {
-
-      statusCode = client.executeMethod(get);
-
-    } finally {
-      // Process the data from the input stream.
-      get.releaseConnection();
-    }
-
-    return statusCode;
+    return executeGet(urlString, headers, null, null).statusCode();
   }
 
   /**
@@ -195,32 +149,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   public int getHTTPStatusCode(
       String urlString, Map<String, String> headers, String username, String password)
       throws IllegalArgumentException, IOException {
-    HttpClient client = new HttpClient();
-    GetMethod get = new GetMethod(urlString);
-
-    for (Map.Entry<String, String> entry : headers.entrySet()) {
-      get.setRequestHeader(entry.getKey(), entry.getValue());
-    }
-
-    Credentials defaultcreds = new UsernamePasswordCredentials(username, password);
-    URI uriObject = new URI(urlString);
-
-    int statusCode = 400;
-    try {
-      client
-          .getState()
-          .setCredentials(
-              new AuthScope(uriObject.getHost(), uriObject.getPort(), AuthScope.ANY_REALM),
-              defaultcreds);
-
-      statusCode = client.executeMethod(get);
-
-    } finally {
-      // Process the data from the input stream.
-      get.releaseConnection();
-    }
-
-    return statusCode;
+    return executeGet(urlString, headers, username, password).statusCode();
   }
 
   /**
@@ -243,27 +172,15 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       returns = "Returns a net.sf.json.JSONObject")
   public JSONObject getRemoteJSONContent(String urlString)
       throws IllegalArgumentException, IOException {
-    HttpClient client = new HttpClient();
-    GetMethod get = new GetMethod(urlString);
-    String responseBody;
-    try {
-      int statusCode = client.executeMethod(get);
-      if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NOT_MODIFIED) {
-        log.warn(
-            "JEXL: getRemoteJSONContent request was not 200/304: URL: {} Status Code: {} Status"
-                + " Message: {}",
-            statusCode,
-            get.getStatusLine(),
-            urlString);
-      }
-      // execute method and handle any error responses.
-      responseBody = get.getResponseBodyAsString();
-    } finally {
-      // Process the data from the input stream.
-      get.releaseConnection();
+    HttpResponse<String> response = executeGet(urlString, null, null, null);
+    int statusCode = response.statusCode();
+    if (statusCode != SC_OK && statusCode != SC_NOT_MODIFIED) {
+      log.warn(
+          "JEXL: getRemoteJSONContent request was not 200/304: URL: {} Status Code: {}",
+          urlString,
+          statusCode);
     }
-
-    return JSONObject.fromObject(responseBody);
+    return JSONObject.fromObject(response.body());
   }
 
   /**
@@ -289,36 +206,15 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       returns = "Returns a net.sf.json.JSONObject")
   public JSONObject getRemoteJSONContent(String urlString, String username, String password)
       throws IllegalArgumentException, IOException {
-    HttpClient client = new HttpClient();
-    GetMethod get = new GetMethod(urlString);
-
-    Credentials defaultcreds = new UsernamePasswordCredentials(username, password);
-    URI uriObject = new URI(urlString);
-
-    String responseBody;
-    try {
-      client
-          .getState()
-          .setCredentials(
-              new AuthScope(uriObject.getHost(), uriObject.getPort(), AuthScope.ANY_REALM),
-              defaultcreds);
-
-      int statusCode = client.executeMethod(get);
-      if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NOT_MODIFIED) {
-        log.warn(
-            "JEXL: getRemoteJSONContent response was not 200/304. URL: {} Status Code: {} Status"
-                + " Message: {}",
-            urlString,
-            statusCode,
-            get.getStatusLine());
-      }
-      responseBody = get.getResponseBodyAsString();
-    } finally {
-      // Process the data from the input stream.
-      get.releaseConnection();
+    HttpResponse<String> response = executeGet(urlString, null, username, password);
+    int statusCode = response.statusCode();
+    if (statusCode != SC_OK && statusCode != SC_NOT_MODIFIED) {
+      log.warn(
+          "JEXL: getRemoteJSONContent response was not 200/304. URL: {} Status Code: {}",
+          urlString,
+          statusCode);
     }
-
-    return JSONObject.fromObject(responseBody);
+    return JSONObject.fromObject(response.body());
   }
 
   /**
@@ -341,28 +237,11 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       returns = "Returns a net.sf.json.JSONObject")
   public JSONObject getRemoteJSONContent(String urlString, Map<String, String> headers)
       throws IllegalArgumentException, IOException {
-    HttpClient client = new HttpClient();
-    GetMethod get = new GetMethod(urlString);
-
-    for (Map.Entry<String, String> entry : headers.entrySet()) {
-      get.setRequestHeader(entry.getKey(), entry.getValue());
+    HttpResponse<String> response = executeGet(urlString, headers, null, null);
+    if (response.statusCode() != SC_OK) {
+      log.debug("Get failed for URL {}. Status code: {}", urlString, response.statusCode());
     }
-
-    String responseBody;
-    try {
-
-      int statusCode = client.executeMethod(get);
-      if (statusCode != HttpStatus.SC_OK) {
-        log.debug("Get failed" + get.getStatusLine() + ": " + urlString);
-      }
-      responseBody = get.getResponseBodyAsString();
-    } finally {
-      // Process the data from the input stream.
-      get.releaseConnection();
-    }
-
-    JSONObject jsonObject = JSONObject.fromObject(responseBody);
-    return jsonObject;
+    return JSONObject.fromObject(response.body());
   }
 
   /**
@@ -392,40 +271,44 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   public JSONObject getRemoteJSONContent(
       String urlString, Map<String, String> headers, String username, String password)
       throws IllegalArgumentException, IOException {
-    HttpClient client = new HttpClient();
-    GetMethod get = new GetMethod(urlString);
-
-    for (Map.Entry<String, String> entry : headers.entrySet()) {
-      get.setRequestHeader(entry.getKey(), entry.getValue());
+    HttpResponse<String> response = executeGet(urlString, headers, username, password);
+    int statusCode = response.statusCode();
+    if (statusCode != SC_OK && statusCode != SC_NOT_MODIFIED) {
+      log.warn(
+          "JEXL: getRemoteJSONContent was not 200/304. URL: {} Status Code:{}",
+          urlString,
+          statusCode);
     }
+    return JSONObject.fromObject(response.body());
+  }
 
-    Credentials defaultcreds = new UsernamePasswordCredentials(username, password);
-    URI uriObject = new URI(urlString);
+  private HttpResponse<String> executeGet(
+      String urlString, Map<String, String> headers, String username, String password)
+      throws IOException {
+    HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(URI.create(urlString)).GET();
 
-    String responseBody;
-    try {
-      client
-          .getState()
-          .setCredentials(
-              new AuthScope(uriObject.getHost(), uriObject.getPort(), AuthScope.ANY_REALM),
-              defaultcreds);
-
-      int statusCode = client.executeMethod(get);
-      if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NOT_MODIFIED) {
-        log.warn(
-            "JEXL: getRemoteJSONContent was not 200/304. URL: {} Status Code:{}, Status Message:"
-                + " {}",
-            urlString,
-            statusCode,
-            get.getStatusLine());
+    Map<String, String> requestHeaders = headers == null ? new HashMap<>() : headers;
+    for (Map.Entry<String, String> entry : requestHeaders.entrySet()) {
+      if (entry.getKey() != null && entry.getValue() != null) {
+        requestBuilder.header(entry.getKey(), entry.getValue());
       }
-      responseBody = get.getResponseBodyAsString();
-    } finally {
-      // Process the data from the input stream.
-      get.releaseConnection();
     }
 
-    return JSONObject.fromObject(responseBody);
+    if (username != null && password != null) {
+      String login = username + ":" + password;
+      String base64Login =
+          new String(Base64.encodeBase64(login.getBytes(StandardCharsets.UTF_8)),
+              StandardCharsets.UTF_8);
+      requestBuilder.header("Authorization", "Basic " + base64Login);
+    }
+
+    try {
+      return HTTP_CLIENT.send(
+          requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IOException("Interrupted while requesting " + urlString, e);
+    }
   }
 
   /**

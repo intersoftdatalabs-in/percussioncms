@@ -356,8 +356,7 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
                 mimeType = mimeType.replace(";charset=UTF-8", "");
 
                 if (isMimeTypeSupported(mimeType))
-                {
-                    log.debug("Posting {}" , description);
+                    deliveryClient = new PSDeliveryClient(retryCount, connectionTimeout, operationTimeout);
                     item.getFile().setSourceContentType(mimeType);
                     try (FileReader reader = new FileReader(item.getFile())){
                         metadata = extractor.process(reader, mimeType, path, item.getMetaData());

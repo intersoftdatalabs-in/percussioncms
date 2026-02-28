@@ -8,9 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.Autoscroller");
-
-dojo.require("ps.widget.ScrollableNodes");
+// ps.widget.Autoscroller — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * Scrolls an element in the provided direction while it's
@@ -46,7 +44,7 @@ ps.widget.Autoscroller = function () {
    * Autoscrolls if necessary.
    */
   this._onMouseMove = function (invocation) {
-    dojo.lang.assert(invocation, "Invocation must be defined");
+    ps.assert(invocation, "Invocation must be defined");
     invocation.proceed();
     if (dojo.dnd.dragManager.dragObjects.length) {
       var e = invocation.args[0];
@@ -64,7 +62,7 @@ ps.widget.Autoscroller = function () {
    * @param event the mouse event. Not <code>null</code>.
    */
   this._maybeAutoscroll = function (element, event) {
-    dojo.lang.assert(event, "Event for maybeAutoscroll should not be null.");
+    ps.assert(event, "Event for maybeAutoscroll should not be null.");
     this._resetTimeout();
 
     var stopScroll = true;
@@ -112,12 +110,10 @@ ps.widget.Autoscroller = function () {
     this.element.scrollLeft += this.direction.x * this.SCROLL_DISTANCE;
     this.element.scrollTop += this.direction.y * this.SCROLL_DISTANCE;
 
-    dojo.lang.setTimeout(
-      this,
-      "_continueScroll",
-      this.SCROLL_TIME,
-      this.element
-    );
+    var _this = this;
+    setTimeout(function () {
+      _this._continueScroll(_this.element);
+    }, this.SCROLL_TIME);
 
     var moved =
       scrollLeft !== this.element.scrollLeft ||
@@ -176,8 +172,8 @@ ps.widget.Autoscroller = function () {
    * component edge nearby.
    */
   this._detectAutoscrollArea = function (element, e) {
-    dojo.lang.assert(element, "Element must be specified");
-    dojo.lang.assert(e, "Event must be specified");
+    ps.assert(element, "Element must be specified");
+    ps.assert(e, "Event must be specified");
 
     var sides = ps.util.getVisibleSides(element);
 

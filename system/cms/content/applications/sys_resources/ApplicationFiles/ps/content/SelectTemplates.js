@@ -7,10 +7,6 @@
  * work including confidential and proprietary information of Percussion.
  *
  *****************************************************************************/
-dojo.provide("ps.content.SelectTemplates");
-
-dojo.require("ps.io.Actions");
-dojo.require("ps.widget.ContentPaneProgress");
 
 /**
  * The javascript code needed to make the select templates
@@ -151,7 +147,7 @@ ps.content.SelectTemplates = function () {
    */
   this.open = function (okCallback, cancelCallback, snippetId) {
     if (!this.isAsDialog) return;
-    dojo.lang.assertType(snippetId, ps.aa.ObjectId);
+    ps.assertType(snippetId, ps.aa.ObjectId);
     this.snippetId = snippetId;
     this.okCallback = okCallback;
     this.cancelCallback = cancelCallback;
@@ -192,7 +188,7 @@ ps.content.SelectTemplates = function () {
    * in the preview pane.
    */
   this.loadPreviewPane = function (snippetId) {
-    dojo.lang.assertType(snippetId, ps.aa.ObjectId);
+    ps.assertType(snippetId, ps.aa.ObjectId);
     var tempId = snippetId.getTemplateId();
     var isBinary = false;
     var content = "";

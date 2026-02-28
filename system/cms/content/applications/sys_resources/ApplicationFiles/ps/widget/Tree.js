@@ -14,13 +14,7 @@
  * Throws events about clicks on it, so someone may catch them and process
  */
 
-dojo.provide("ps.widget.Tree");
-
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.widget.Manager");
-dojo.require("dojo.widget.HtmlWidget");
-dojo.require("dojo.widget.TreeNodeV3");
-dojo.require("dojo.widget.TreeV3");
+// ps.widget.Tree — dojo.provide/require removed (jQuery + ps/compat.js)
 
 dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
   /**
@@ -72,7 +66,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    */
   createWidgetFromModelNode: function (modelNode) {
     // dojo.debug("Creating widget node from model " + modelNode.toString());
-    dojo.lang.assertType(modelNode, ps.aa.TreeNode);
+    ps.assertType(modelNode, ps.aa.TreeNode);
     var title = modelNode.getLabel();
     var widgetId = modelNode.objId.getTreeNodeWidgetId();
     var widgetNode = dojo.widget.createWidget("TreeNodeV3", {
@@ -124,7 +118,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
       if (ps.aa.Menu.slotCtxMenu) {
         ps.aa.Menu.slotCtxMenu.bindTargetNodes([widget.domNode]);
       } else {
-        dojo.lang.assert(
+        ps.assert(
           !this.indexOfSupported ||
             this.delayedInitSlotNodes.indexOf(widget.domNode) === -1,
           "Slot node is registered more than once: " + widget.domNode
@@ -135,7 +129,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
       if (ps.aa.Menu.itemCtxMenu) {
         ps.aa.Menu.itemCtxMenu.bindTargetNodes([widget.domNode]);
       } else {
-        dojo.lang.assert(
+        ps.assert(
           !this.indexOfSupported ||
             this.delayedInitItemNodes.indexOf(widget.domNode) === -1,
           "Snippet node is registered more than once: " + widget.domNode
@@ -178,7 +172,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * @param {ps.aa.Tree} model the tree model to use. Not null.
    */
   loadFromModelAsynch: function (model) {
-    dojo.lang.assertType(model, ps.aa.Tree);
+    ps.assertType(model, ps.aa.Tree);
     if (this.delayedInitSlotNodes.length) {
       ps.aa.Menu.slotCtxMenu.bindTargetNodes(this.delayedInitSlotNodes);
     }
@@ -192,11 +186,11 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    */
   _loadModel: function () {
     if (this.loaded) {
-      dojo.lang.assert(this.children);
-      dojo.lang.assertType(this.children, Array);
+      ps.assert(this.children);
+      ps.assertType(this.children, Array);
       if (this.children.length > 0) {
         var child = this.children[0];
-        dojo.lang.assertType(child, dojo.widget.TreeNodeV3);
+        ps.assertType(child, dojo.widget.TreeNodeV3);
         this.removeChild(child);
         child.destroy();
       }
@@ -310,7 +304,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    */
   _removeNodes: function (node) {
     //dojo.debug("Tree - Removing NODES: " + node.modelId.toString() + ", len=" + node.children.length);
-    dojo.lang.assert(node, "Can't remove null node.");
+    ps.assert(node, "Can't remove null node.");
 
     // removes the child nodes first if any
     while (node.children.length > 0) {
@@ -329,8 +323,8 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
   _removeNode: function (node) {
     //dojo.debug("Tree - Removing node: " + node.modelId.toString());
 
-    dojo.lang.assert(node, "Can't remove null node.");
-    dojo.lang.assert(
+    ps.assert(node, "Can't remove null node.");
+    ps.assert(
       !node.children.length,
       "Can't remove a node with children."
     );
@@ -359,7 +353,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
     //dojo.debug("original root = " + child);
     //dojo.debug("new root = " + rootWidgetNode);
 
-    dojo.lang.assert(
+    ps.assert(
       child == rootWidgetNode,
       "The root widget node should not have changed."
     );
@@ -443,12 +437,12 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
     var _this = this;
     // expand from top to trigger lazy node loading
     function expandTo(n) {
-      dojo.lang.assert(n, "Tree model node is expected to be not null.");
+      ps.assert(n, "Tree model node is expected to be not null.");
       if (n.parentNode) {
         expandTo(n.parentNode);
 
         var w = _this.getWidgetFromModelId(n.parentNode.objId);
-        dojo.lang.assert(w, "Can't find a widget for  " + n.parentNode);
+        ps.assert(w, "Can't find a widget for  " + n.parentNode);
         w.expand();
       }
     }
@@ -471,23 +465,23 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
     //ps.aa.SnippetMove = function (snippetId, slotId, targetSlotId, targetIndex,
     // dontUpdatePage)
 
-    dojo.lang.assert(child.modelId, "Node being moved does not have a model");
-    dojo.lang.assert(
+    ps.assert(child.modelId, "Node being moved does not have a model");
+    ps.assert(
       newParent.modelId,
       "Node being moved does not have a model"
     );
     var pid = newParent.modelId;
     var cid = child.modelId;
-    dojo.lang.assert(cid.isSnippetNode(), "child is not a snippet.");
+    ps.assert(cid.isSnippetNode(), "child is not a snippet.");
     var childModelNode = this.model.getNodeById(child.modelId);
     var parentModelNode = childModelNode.parentNode;
-    dojo.lang.assert(parentModelNode, "Unable to get the parent model node.");
+    ps.assert(parentModelNode, "Unable to get the parent model node.");
     var sid = parentModelNode.objId;
-    dojo.lang.assert(
+    ps.assert(
       sid.isSlotNode(),
       "Original parent of child is not a slot."
     );
-    dojo.lang.assert(pid.isSlotNode(), "New parent is not a slot.");
+    ps.assert(pid.isSlotNode(), "New parent is not a slot.");
     var targetSlotId = pid;
     var snippetId = cid;
     var slotId = sid;
@@ -510,12 +504,12 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
         // and the template selection dialog is called
         ps.aa.controller.activate(snipid);
       } catch (e) {
-        dojo.debug("Ignore on a template change request");
-        dojo.debug(e);
+        console.debug("Ignore on a template change request");
+        console.debug(e);
       }
       //We don't need resync the tree because the controller will.
     } else {
-      dojo.debug("Tree - move failed.");
+      console.debug("Tree - move failed.");
     }
   },
 

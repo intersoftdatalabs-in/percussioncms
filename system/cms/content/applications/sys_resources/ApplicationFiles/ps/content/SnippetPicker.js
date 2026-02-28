@@ -7,10 +7,6 @@
  * work including confidential and proprietary information of Percussion.
  *
  *****************************************************************************/
-dojo.provide("ps.content.SnippetPicker");
-
-dojo.require("ps.io.Actions");
-dojo.require("ps.widget.ContentPaneProgress");
 
 /**
  * The javascript code needed to make the select templates
@@ -84,10 +80,10 @@ ps.content.SnippetPicker = function () {
     this.wgtSnippetDisplayDiv = dojo.widget.byId(
       "ps.snippet.picker.wgtSnippetDisplayDiv"
     );
-    this.tblRemoveSnippetBtns = dojo.byId(
+    this.tblRemoveSnippetBtns = document.getElementById(
       "ps.snippet.picker.tblRemoveSnippetBtns"
     );
-    this.tblCreateSnippetBtns = dojo.byId(
+    this.tblCreateSnippetBtns = document.getElementById(
       "ps.snippet.picker.tblCreateSnippetBtns"
     );
 
@@ -137,24 +133,21 @@ ps.content.SnippetPicker = function () {
       this.wgtButtonDeselectAll.onClick = function () {
         _this.toggleSelection(false);
       };
-      dojo.html.hide(this.tblCreateSnippetBtns);
-      dojo.html.setStyle(this.tblRemoveSnippetBtns.parentNode, "valign", "top");
-      dojo.html.setStyle(
-        this.tblRemoveSnippetBtns.parentNode,
+      this.tblCreateSnippetBtns.style.display = "none";
+      $(this.tblRemoveSnippetBtns.parentNode).css("valign", "top");
+      $(this.tblRemoveSnippetBtns.parentNode).css(
         "vertical-align",
         "top"
       );
       this.wgtButtonSelect.setCaption("Remove");
       this.wgtButtonSelect.setDisabled(true);
     } else {
-      dojo.html.hide(this.tblRemoveSnippetBtns);
-      dojo.html.setStyle(
-        this.tblCreateSnippetBtns.parentNode,
+      this.tblRemoveSnippetBtns.style.display = "none";
+      $(this.tblCreateSnippetBtns.parentNode).css(
         "valign",
         "middle"
       );
-      dojo.html.setStyle(
-        this.tblCreateSnippetBtns.parentNode,
+      $(this.tblCreateSnippetBtns.parentNode).css(
         "vertical-valign",
         "middle"
       );
@@ -167,13 +160,9 @@ ps.content.SnippetPicker = function () {
     this.snippetContent = content;
     this.wgtSnippetDisplayDiv.setContent(this.snippetContent);
     this.snippetDisplayType = this.SNIPPETS;
-    this.snippetNodes = dojo.html.getElementsByClass(
-      "PSAASnippetPickerItem",
-      this.wgtSnippetDisplayDiv.domNode,
-      "div",
-      dojo.html.classMatchType.IsOnly,
-      false
-    );
+    this.snippetNodes = Array.from(
+      this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
+    ).filter(function (el) { return el.className === "PSAASnippetPickerItem"; });
     //Connect onclick event to snippets
     for (var i = 0; (node = this.snippetNodes[i]); i++) {
       dojo.event.connect(node, "onclick", _this, "toggleSingleSelection");
@@ -183,12 +172,12 @@ ps.content.SnippetPicker = function () {
       var defnode = this.snippetNodes[0];
       if (this.refRelId) {
         for (var i = 0; (node = this.snippetNodes[i]); i++) {
-          if (this.refRelId == dojo.html.getAttribute(node, "rid"))
+          if (this.refRelId == node.getAttribute("rid"))
             defnode = node;
         }
       }
-      dojo.html.setStyle(defnode, "background-color", this.SELECTED_BGCOLOR);
-      dojo.html.setStyle(defnode, "border", this.SELECTED_BORDER);
+      $(defnode).css("background-color", this.SELECTED_BGCOLOR);
+      $(defnode).css("border", this.SELECTED_BORDER);
       defnode.setAttribute("selection", true);
       if (this.option) this._setOption(this.option);
     }
@@ -220,7 +209,7 @@ ps.content.SnippetPicker = function () {
     var rids = "";
     var nodes = this.getSelectedNodes();
     for (var i = 0; (node = nodes[i]); i++) {
-      rids += dojo.html.getAttribute(node, "rid");
+      rids += node.getAttribute("rid");
       if (i < nodes.length - 1) rids += ",";
     }
     return rids;
@@ -258,13 +247,9 @@ ps.content.SnippetPicker = function () {
         this.titlesContent = content;
         this.wgtSnippetDisplayDiv.setContent(this.titlesContent);
       }
-      this.titleNodes = dojo.html.getElementsByClass(
-        "PSAASnippetPickerTitle",
-        this.wgtSnippetDisplayDiv.domNode,
-        "div",
-        dojo.html.classMatchType.IsOnly,
-        false
-      );
+      this.titleNodes = Array.from(
+        this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
+      ).filter(function (el) { return el.className === "PSAASnippetPickerTitle"; });
       nodes = this.titleNodes;
       this.transferSelection(this.snippetNodes, nodes);
     } else {
@@ -278,13 +263,9 @@ ps.content.SnippetPicker = function () {
         this.snippetContent = content;
         this.wgtSnippetDisplayDiv.setContent(this.snippetContent);
       }
-      this.snippetNodes = dojo.html.getElementsByClass(
-        "PSAASnippetPickerItem",
-        this.wgtSnippetDisplayDiv.domNode,
-        "div",
-        dojo.html.classMatchType.IsOnly,
-        false
-      );
+      this.snippetNodes = Array.from(
+        this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
+      ).filter(function (el) { return el.className === "PSAASnippetPickerItem"; });
       nodes = this.snippetNodes;
       this.transferSelection(this.titleNodes, nodes);
     }
@@ -306,8 +287,8 @@ ps.content.SnippetPicker = function () {
       var isSelected = this.isNodeSelected(nodeSet1[i]);
       var bgc = isSelected ? this.SELECTED_BGCOLOR : this.DESELECTED_BGCOLOR;
       var bdr = isSelected ? this.SELECTED_BORDER : this.DESELECTED_BORDER;
-      dojo.html.setStyle(nodeSet2[i], "background-color", bgc);
-      dojo.html.setStyle(nodeSet2[i], "border", bdr);
+      $(nodeSet2[i]).css("background-color", bgc);
+      $(nodeSet2[i]).css("border", bdr);
       nodeSet2[i].setAttribute("selection", isSelected);
     }
   };
@@ -335,7 +316,7 @@ ps.content.SnippetPicker = function () {
     * @return true if the node is selected otherwise false.
     */
   this.isNodeSelected = function (node) {
-    var sattr = dojo.html.getAttribute(node, "selection");
+    var sattr = node.getAttribute("selection");
     return sattr ? (sattr == "true" ? true : false) : false;
   };
 
@@ -351,8 +332,8 @@ ps.content.SnippetPicker = function () {
         ? this.snippetNodes
         : this.titleNodes;
     for (var i = 0; (node = nodes[i]); i++) {
-      dojo.html.setStyle(node, "background-color", bgc);
-      dojo.html.setStyle(node, "border", bdr);
+      $(node).css("background-color", bgc);
+      $(node).css("border", bdr);
       node.setAttribute("selection", isSelectAll);
     }
     this.wgtButtonSelect.setDisabled(!isSelectAll);
@@ -372,16 +353,16 @@ ps.content.SnippetPicker = function () {
     if (this.dlgType == this.CREATE_SNIPPET_DLG && !isSelected) {
       var snodes = this.getSelectedNodes();
       for (var i = 0; (snode = snodes[i]); i++) {
-        dojo.html.setStyle(snode, "background-color", this.DESELECTED_BGCOLOR);
-        dojo.html.setStyle(snode, "border", this.DESELECTED_BORDER);
+        $(snode).css("background-color", this.DESELECTED_BGCOLOR);
+        $(snode).css("border", this.DESELECTED_BORDER);
         snode.setAttribute("selection", false);
       }
     }
 
     var bgc = isSelected ? this.DESELECTED_BGCOLOR : this.SELECTED_BGCOLOR;
     var bdr = isSelected ? this.DESELECTED_BORDER : this.SELECTED_BORDER;
-    dojo.html.setStyle(node, "background-color", bgc);
-    dojo.html.setStyle(node, "border", bdr);
+    $(node).css("background-color", bgc);
+    $(node).css("border", bdr);
     node.setAttribute("selection", !isSelected);
 
     if (this.getSelectedRids() == "") this.wgtButtonSelect.setDisabled(true);
@@ -406,10 +387,10 @@ ps.content.SnippetPicker = function () {
       this.snippetDisplayType == this.SNIPPETS
         ? "PSAASnippetPickerItem"
         : "PSAASnippetPickerTitle";
-    if (dojo.html.hasClass(node, cssCls)) return node;
+    if (node.classList.contains(cssCls)) return node;
     node = node.parentNode;
     while (node) {
-      if (dojo.html.hasClass(node, cssCls)) return node;
+      if (node.classList && node.classList.contains(cssCls)) return node;
       node = node.parentNode;
     }
   };
@@ -437,8 +418,8 @@ ps.content.SnippetPicker = function () {
     option,
     refRelId
   ) {
-    dojo.lang.assertType(slotId, ps.aa.ObjectId);
-    dojo.lang.assert(
+    ps.assertType(slotId, ps.aa.ObjectId);
+    ps.assert(
       dlgType != this.REMOVE_SNIPPETS_DLG || dlgType != this.CREATE_SNIPPET_DLG,
       "The Snippet Picker Dialog must of type Remove Snippets or Create Snippet"
     );
@@ -446,7 +427,7 @@ ps.content.SnippetPicker = function () {
     this.slotId = slotId;
     this.option = option;
     if (this.option) {
-      dojo.lang.assert(
+      ps.assert(
         this.option != "before" ||
           this.option != "after" ||
           this.option != "replace",

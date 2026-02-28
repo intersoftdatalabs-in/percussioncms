@@ -52,8 +52,8 @@
 		<html>
 			<head>
 			<script language="javascript" src="../tmx/tmx.jsp?sys_lang={$lang}">;</script>
-				<script src="/cm/jslib/profiles/3x/jquery/jquery-3.0.6.js"></script>
-				<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
+				<script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
+				<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js"></script>
 				<script src="../sys_resources/js/browser.js">;</script>
 				<script src="../sys_resources/js/href.js">;</script>
 			   <script language="javascript" src="../sys_resources/js/globalErrorMessages.js">;</script>
@@ -110,7 +110,7 @@
 							if(rxApplet != null && !is_safari)
 							{
 								rxApplet.refresh("Selected","]]><xsl:value-of select="$syscontentid"/><![CDATA[","");
-							} 					
+							}
 							else
 							{
 								refreshCxApplet(window.opener, "Selected","]]><xsl:value-of select="$syscontentid"/><![CDATA[","");
@@ -125,7 +125,7 @@
 				   updateAaParent();
 				}
 			}
-			
+
          function updateAaParent()
          {
             if(window.opener.ps_updateFlag && isOpenerActiveAssembly())
@@ -154,7 +154,7 @@
                window.opener.ps_updateFlag = false;
             }
          }
-			
+
 			function refreshWithHint()
 			{
 				var url = window.location.href;
@@ -174,13 +174,13 @@
 					}
 				}
 				// Always refresh caller action pane
-				reloadOpener(window);            
+				reloadOpener(window);
 			}
 			function resizeWindow()
 			{
 				if(isOpenerActiveAssembly())
 					self.resizeTo(800, 400);
-			}         
+			}
 	 function psCustomControlIsDirty()
 	 {
 	    return (false]]><xsl:apply-templates select="/*/ItemContent/DisplayField[@displayType='sys_normal']" mode="psxcontrol-customcontrol-isdirty"/><![CDATA[);
@@ -392,7 +392,7 @@
             																				</table>
       																			   </td>
    																		      </tr>
-   																	      </table> 
+   																	      </table>
    																	      </div>
    																	    </td>
 																	   </tr>
@@ -464,10 +464,10 @@
 						{
 						   relcDiv.style.position = "absolute";
 						   relcDiv.style.visibility = "hidden";
-						} 
+						}
 					}
 				]]></script>
-				
+
 			</body>
 		</html>
 	</xsl:template>
@@ -635,7 +635,7 @@
 	<xsl:template match="Workflow"/>
 	<xsl:template match="SectionLinkList"/>
 	<xsl:template match="ActionLinkList"/>
-        
+
 	<!-- Generic template that searches for a supplied string  in the supplied text and then replaces with another supplied string -->
         <!-- Parameters: -->
         <!-- text    - text in which search and replace is needed -->

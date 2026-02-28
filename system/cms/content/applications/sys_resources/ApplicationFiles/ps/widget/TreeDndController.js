@@ -8,12 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.TreeDndController");
-
-dojo.require("dojo.widget.TreeDndControllerV3");
-dojo.require("dojo.dnd.TreeDragAndDropV3");
-dojo.require("dojo.experimental");
-dojo.require("ps.aa.controller");
+// ps.widget.TreeDndController — dojo.provide/require removed (jQuery + ps/compat.js)
 
 dojo.widget.defineWidget(
   "ps.widget.TreeDndController",
@@ -28,7 +23,7 @@ dojo.widget.defineWidget(
       //We don't want to stop listening to the tree because it will be
       //reloaded with a new model most likely.
       //this.unlistenTree(message.source);
-      dojo.debug("I would be not listening anymore but I am going to.");
+      console.debug("I would be not listening anymore but I am going to.");
     },
 
     reset: function () {
@@ -73,7 +68,7 @@ dojo.widget.defineWidget(
       } else {
         return false;
       }
-      dojo.lang.assert(false, "Should not reach here");
+      ps.assert(false, "Should not reach here");
     },
   }
 );

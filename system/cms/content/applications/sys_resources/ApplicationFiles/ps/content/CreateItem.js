@@ -7,11 +7,6 @@
  * work including confidential and proprietary information of Percussion.
  *
  *****************************************************************************/
-dojo.provide("ps.content.CreateItem");
-
-dojo.require("ps.io.Actions");
-dojo.require("ps.widget.ContentPaneProgress");
-dojo.require("ps.widget.PSImageGallery");
 
 /**
  * Create new item dialog.
@@ -75,8 +70,8 @@ ps.content.CreateItem = function () {
         "ps.createitem.templateGallery"
       );
       this.selectContentTypes = dojo.widget.byId("ps.createitem.contentType");
-      this.itemTitle = dojo.byId("ps.createitem.itemTitle");
-      this.folderPath = dojo.byId("ps.createitem.folderPath");
+      this.itemTitle = document.getElementById("ps.createitem.itemTitle");
+      this.folderPath = document.getElementById("ps.createitem.folderPath");
       //Connect events
       this.wgtButtonCancel.onClick = function () {
         _this.cancelCallback();
@@ -218,7 +213,7 @@ ps.content.CreateItem = function () {
       }
       var path = response.getValue();
       this.folderPath.value = path.substring(0, path.lastIndexOf("/"));
-      dojo.html.setStyle(this.folderPath, "background-color", "ThreeDFace");
+      $(this.folderPath).css("background-color", "ThreeDFace");
     }),
     /**
      * Resets the content url and displays the dialog.

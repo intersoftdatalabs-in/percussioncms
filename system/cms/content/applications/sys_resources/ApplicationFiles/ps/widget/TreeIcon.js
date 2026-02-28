@@ -8,11 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.TreeIcon");
-
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.widget.HtmlWidget");
-dojo.require("dojo.widget.TreeDocIconExtension");
+// ps.widget.TreeIcon — dojo.provide/require removed (jQuery + ps/compat.js)
 
 dojo.widget.defineWidget(
   "ps.widget.TreeIcon",
@@ -31,10 +27,10 @@ dojo.widget.defineWidget(
      */
     getnodeDocType: function (node) {
       //dojo.debug("getnodeDocType called with Node: " + node);
-      dojo.lang.assert(node);
-      dojo.lang.assertType(node, dojo.widget.TreeNodeV3);
+      ps.assert(node);
+      ps.assertType(node, dojo.widget.TreeNodeV3);
       var oid = node.modelId;
-      dojo.lang.assert(oid, "node does not have model id attached to it.");
+      ps.assert(oid, "node does not have model id attached to it.");
       var nodeDocType = this._getNodeType(oid);
       //dojo.debug("TreeIcon - doc type is: " + nodeDocType);
       return nodeDocType;
@@ -48,7 +44,7 @@ dojo.widget.defineWidget(
      * @return {String} node type.
      */
     _getNodeType: function (objId) {
-      dojo.lang.assertType(objId, ps.aa.ObjectId);
+      ps.assertType(objId, ps.aa.ObjectId);
       var objClass;
       if (objId.isPageNode()) {
         objClass = ps.aa.PAGE_CLASS;

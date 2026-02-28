@@ -30,9 +30,6 @@ ps.DivActionHelper.mouseOverInfo.boundIds = null;
 ps.DivActionHelper.mouseOverInfo.fIconsActive = false;
 ps.DivActionHelper.mouseOverInfo.mouseOnFloat = false;
 ps.DivActionHelper.mouseOverInfo.dndOccurring = false;
-if (!dojo.render.html.ie) {
-  document.captureEvents(Event.MOUSEMOVE);
-}
 
 ps.DivActionHelper._onDNDStart = function () {
   ps.DivActionHelper.reset();
@@ -175,17 +172,8 @@ ps.DivActionHelper._onmousemove = function (e) {
     ps.DivActionHelper.mouseOverInfo.mouseStopTimeoutId = -1;
   }
 
-  if (dojo.render.html.ie) {
-    try {
-      ps.DivActionHelper.mouseOverInfo.x =
-        event.clientX + document.body.scrollLeft;
-      ps.DivActionHelper.mouseOverInfo.y =
-        event.clientY + document.body.scrollTop;
-    } catch (ignore) {}
-  } else {
-    ps.DivActionHelper.mouseOverInfo.x = e.pageX;
-    ps.DivActionHelper.mouseOverInfo.y = e.pageY;
-  }
+  ps.DivActionHelper.mouseOverInfo.x = e.pageX;
+  ps.DivActionHelper.mouseOverInfo.y = e.pageY;
   ps.DivActionHelper.mouseOverInfo.mouseStopTimeoutId = window.setTimeout(
     "ps.DivActionHelper._onmousestop()",
     1000
@@ -228,11 +216,14 @@ ps.DivActionHelper._initFloatingActionBar = function () {
 
   while (stack.length > 0) {
     var node = stack.shift();
-    var coords = dojo.html.toCoordinateObject(
-      node,
-      false,
-      dojo.html.boxSizing.BORDER_BOX
-    );
+    var $node = $(node);
+    var offset = $node.offset();
+    var coords = {
+      top: offset.top,
+      left: offset.left,
+      width: $node.outerWidth(),
+      height: $node.outerHeight()
+    };
     objId = new ps.aa.ObjectId(node.id);
 
     if (coords.top < 0 || coords.left < 0) continue;
@@ -257,9 +248,7 @@ ps.DivActionHelper._initFloatingActionBar = function () {
   fDiv.style.visibility = "visible";
   fDiv.style.backgroundColor = "#ffffff";
   fDiv.style.paddingTop = "4px";
-  if (dojo.render.html.ie) {
-    fDiv.style.paddingBottom = "4px";
-  }
+  fDiv.style.paddingBottom = "4px";
   fDiv.style.paddingLeft = "4px";
   fDiv.style.paddingRight = "4px";
   fDiv.style.border = "solid #000000 1px";
@@ -300,7 +289,7 @@ ps.DivActionHelper._createActionBarElement = function (objId, div) {
 
   var label = null;
   if (objId.isFieldNode()) {
-    label = dojo.string.trim(objId.getFieldLabel());
+    label = objId.getFieldLabel().trim();
     //Filed labels will have trailing colons, remove it.
     if (label && label.charAt(label.length - 1) == ":") {
       label = label.substring(0, label.length - 1);
@@ -310,16 +299,10 @@ ps.DivActionHelper._createActionBarElement = function (objId, div) {
   }
   el.setAttribute("href", "javascript:void(0)");
   el.setAttribute("id", "img." + div.id);
-  if (dojo.render.html.ie) {
-    el.onclick = new Function("evt", "ps.aa.controller.activate(this)");
-    el.style.border = "none";
-    imgEl.style.paddingRight = "2px";
-    imgEl.style.border = "none";
-  } else {
-    el.setAttribute("onclick", "ps.aa.controller.activate(this)");
-    el.setAttribute("style", "border: none;");
-    imgEl.setAttribute("style", "padding-right: 2px; border: none;");
-  }
+  el.setAttribute("onclick", "ps.aa.controller.activate(this)");
+  el.style.border = "none";
+  imgEl.style.paddingRight = "2px";
+  imgEl.style.border = "none";
   imgEl.setAttribute("src", imgPath + objId.getImagePath());
   if (label != null) imgEl.setAttribute("title", label);
   el.appendChild(imgEl);

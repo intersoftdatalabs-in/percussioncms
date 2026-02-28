@@ -1,20 +1,8 @@
-dojo.provide("ps.content.SearchTabPanel");
-
-dojo.require("ps.content.History");
-dojo.require("ps.content.BrowseTabPanel");
-dojo.require("ps.content.SelectTemplates");
-dojo.require("ps.widget.ContentPaneProgress");
-dojo.require("ps.util");
-dojo.require("dojo.collections.Dictionary");
-dojo.require("dojo.lang.declare");
-dojo.require("dojo.json");
-dojo.require("dojo.string");
-
 dojo.declare(
   "ps.content.SearchTabPanel",
   ps.content.BrowseTabPanel,
   function (_parent) {
-    dojo.lang.assert(_parent, "Parent must be specified");
+    ps.assert(_parent, "Parent must be specified");
 
     this.prefix = ps.util.BROWSETAB_SEARCH_PANEL_PREF;
     this.parent = _parent;
@@ -25,7 +13,7 @@ dojo.declare(
     init: function () {
       this.tabId = this.prefix + ".tab";
       this.tab = dojo.widget.byId(this.tabId);
-      dojo.lang.assert(this.tab, "Tab for " + this.prefix + " should exist");
+      ps.assert(this.tab, "Tab for " + this.prefix + " should exist");
       this.url = this.parent.rxroot + "/ui/content/searchpanel.jsp";
       ps.content.SearchTabPanel.superclass.init.apply(this);
     },
@@ -62,8 +50,8 @@ dojo.declare(
           false
         );
 
-        dojo.html.hide(this._getQId("nameAndCtypeFilterDiv"));
-        dojo.html.show(this._getQId("siteAndFolderFilterDiv"));
+        this._getQId("nameAndCtypeFilterDiv").style.display = "none";
+        this._getQId("siteAndFolderFilterDiv").style.display = "";
         this.searchBackButton.hide();
         this._maybeSetButton(
           this.okButton,
@@ -93,8 +81,8 @@ dojo.declare(
           this.searchformPanel,
           false
         );
-        dojo.html.show(this._getQId("nameAndCtypeFilterDiv"));
-        dojo.html.hide(this._getQId("siteAndFolderFilterDiv"));
+        this._getQId("nameAndCtypeFilterDiv").style.display = "";
+        this._getQId("siteAndFolderFilterDiv").style.display = "none";
         this.searchBackButton.show();
         this._maybeSetButton(
           this.okButton,
@@ -109,11 +97,11 @@ dojo.declare(
      */
     _showSearchFields: function () {
       if (this.isSearchSimple) {
-        dojo.html.show(dojo.byId("advancedfields"));
+        document.getElementById("advancedfields").style.display = "";
         this.advancedButton.hide();
         this.simpleButton.show();
       } else {
-        dojo.html.hide(dojo.byId("advancedfields"));
+        document.getElementById("advancedfields").style.display = "none";
         this.advancedButton.show();
         this.simpleButton.hide();
       }
@@ -145,7 +133,7 @@ dojo.declare(
       // reset table columns
       this.contentTable.reset();
       var head = this.contentTable.domNode.getElementsByTagName("thead")[0];
-      dojo.dom.removeChildren(head);
+      while (head.firstChild) head.removeChild(head.firstChild);
       this.contentTable.columns = this._cloneColumns(this.contentTableColumns);
 
       if (this.includeSitesCheckbox.checked) {
@@ -172,7 +160,7 @@ dojo.declare(
     _onCancel: function () {
       if (this.isSelectTemplateMode) return this._handleTemplateCancel();
       var _this = this;
-      dojo.lang.setTimeout(function () {
+      setTimeout(function () {
         _this.setSearchMode(true);
       }, 500);
 
@@ -281,7 +269,7 @@ dojo.declare(
       // clean up script
       if (this.searchScriptElem) {
         this.searchformPanel.setContent("");
-        dojo.dom.removeNode(this.searchScriptElem, true);
+        this.searchScriptElem.remove();
         this.searchScriptElem = null;
       }
 
@@ -302,14 +290,14 @@ dojo.declare(
      * Is called when the search form panel is loaded.
      */
     _onSearchFormPanelLoad: function () {
-      if (!dojo.byId("advancedfields")) {
+      if (!document.getElementById("advancedfields")) {
         // this method was called on form cleanup
         return;
       }
 
       this.advancedButton = dojo.widget.byId("ps.search.advanced");
       this.simpleButton = dojo.widget.byId("ps.search.simple");
-      this.ftquery = dojo.byId("searchfor");
+      this.ftquery = document.getElementById("searchfor");
 
       this._loadSearchScript();
 
@@ -375,7 +363,7 @@ dojo.declare(
       this._maybeSetButton(
         this.okButton,
         null,
-        this.isSearchSimple && q && dojo.string.isBlank(q.value)
+        this.isSearchSimple && q && (!q.value || q.value.trim() === "")
       );
     },
 
@@ -441,7 +429,7 @@ dojo.declare(
       }
 
       this._ctypeList = this._getElemById("ctypeList");
-      dojo.html.hide(this._ctypeList.parentNode);
+      this._ctypeList.parentNode.style.display = "none";
     },
 
     /**

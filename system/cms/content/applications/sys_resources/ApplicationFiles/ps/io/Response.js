@@ -8,8 +8,6 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.io.Response");
-
 /**
  * A small class to hold server action response information
  */
@@ -33,10 +31,10 @@ ps.io.Response = function () {
   };
 
   /**
-   * @return the error code if an error occured.
+   * @return the error code if an error occurred.
    */
   this.getErrorCode = function () {
-    return this._m.errorcode;
+    return this._m_errorcode;
   };
 
   // Private members
