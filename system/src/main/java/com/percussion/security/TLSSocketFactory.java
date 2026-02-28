@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,15 +41,13 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
 
-public class TLSSocketFactory extends SSLSocketFactory implements ProtocolSocketFactory {
+public class TLSSocketFactory extends SSLSocketFactory {
 
   /** Logger for the reaper, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(TLSSocketFactory.class);
@@ -253,11 +251,4 @@ public class TLSSocketFactory extends SSLSocketFactory implements ProtocolSocket
     return ret.toArray(new String[] {});
   }
 
-  @Override
-  public Socket createSocket(
-      String host, int port, InetAddress localAddress, int localPort, HttpConnectionParams params)
-      throws IOException {
-    return enableTLSOnSocket(
-        internalSSLSocketFactory.createSocket(host, port, localAddress, localPort));
-  }
 }

@@ -19,15 +19,15 @@ package com.percussion.install;
 
 // java
 
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.xml.PSXmlUtil;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -129,7 +129,7 @@ public class PSBrandCodeUtil {
    *     jar file
    */
   public static Document createXmlDocument() throws ParserConfigurationException {
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    var dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(PSXmlSecurityOptions.secure());
     dbf.setNamespaceAware(true);
     dbf.setValidating(false);
     DocumentBuilder db = dbf.newDocumentBuilder();
@@ -150,11 +150,8 @@ public class PSBrandCodeUtil {
   public static Document createXmlDocument(InputStream in)
       throws IOException, SAXException, ParserConfigurationException {
     if (null == in) throw new IllegalArgumentException("Input stream may not be null");
-    // We will use xerces to create the document, as we do not want
-    // this class to depend upon com.percussion.xml package.
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
+    // Use PSSecureXMLUtils for XXE-safe document parsing.
+    var dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(PSXmlSecurityOptions.secureWithDtd());
     dbf.setNamespaceAware(true);
     dbf.setValidating(false);
     DocumentBuilder db = dbf.newDocumentBuilder();

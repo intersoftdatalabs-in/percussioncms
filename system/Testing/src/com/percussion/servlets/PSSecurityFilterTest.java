@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,6 @@ import com.percussion.servlets.PSSecurityFilter.AuthType;
 import com.percussion.servlets.PSSecurityFilter.SecurityEntry;
 import com.percussion.utils.io.PathUtils;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -139,26 +136,6 @@ public class PSSecurityFilterTest
       ms_filter.initSecurityConfiguration(tempFolder.toAbsolutePath().toString());
       assertEquals(ms_configuredRequests, ms_filter.getConfiguredEntries());
       assertTrue(ms_filter.isSecureLogin());
-   }
-
-
-
-
-
-   private void checkRequestHeaderRedirectLogin(HttpClient client, String strHeader, String strHdrVal, String strRequestURL) throws Exception {
-
-      HttpMethod method = new GetMethod(strRequestURL);
-      method.addRequestHeader("RX_USEBASICAUTH", "true");
-      method.setDoAuthentication(true);
-      assertEquals(200, client.executeMethod(method));
-
-      method = new GetMethod(strRequestURL);
-      method.setRequestHeader(strHeader, strHdrVal);
-      client.executeMethod(method);
-      assertEquals(method.getPath(), RHYTHMYX_CONTEXT_PATH + "/login"); // Redirected to login
-
-      if (method != null)
-         method.releaseConnection();
    }
 
    @Test
@@ -410,6 +387,4 @@ public class PSSecurityFilterTest
             "/user/*basic.jsp"));
    }
 
-   private static final String RHYTHMYX_CONTEXT_PATH = "/Rhythmyx";
-   private static final String require_HTTPS = "requireHTTPS";
 }

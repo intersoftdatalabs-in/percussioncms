@@ -25,6 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.transform.TransformerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
@@ -84,10 +85,25 @@ public class PSSecureXMLUtils {
     dbf.setXIncludeAware(XINCLUDE_AWARE);
     dbf.setExpandEntityReferences(EXPAND_ENTITY_REFERENCES);
     PSXMLEntityResolverWrapper resolver = new PSXMLEntityResolverWrapper();
-    // Set each feature logging any errors as warnings for unsupported features.
+
+    // Defense-in-depth: always disable external entities and external parameter
+    // entities regardless of caller-supplied options.  This prevents XXE
+    // (CWE-611) even when callers accidentally pass enableExternalEntities=true.
+    if (options.isEnableExternalEntities()) {
+      log.warn(
+          "Caller requested enableExternalEntities=true — overriding to false"
+              + " to prevent XXE (CWE-611). Update the call site to pass false.");
+    }
+    if (options.isEnableExternalParameterEntities()) {
+      log.warn(
+          "Caller requested enableExternalParameterEntities=true — overriding"
+              + " to false to prevent XXE (CWE-611). Update the call site to pass false.");
+    }
+
+    // Set each feature, logging any unsupported-feature errors as warnings.
     try {
       dbf.setAttribute("http://apache.org/xml/properties/internal/entity-resolver", resolver);
-      dbf.setFeature(SECURE_PROCESSING_FEATURE, options.isEnableSecureProcessing());
+      dbf.setFeature(SECURE_PROCESSING_FEATURE, true);
     } catch (ParserConfigurationException e) {
       log.error(UNSUPPORTED_FEATURE_WARN, SECURE_PROCESSING_FEATURE);
     }
@@ -98,40 +114,39 @@ public class PSSecureXMLUtils {
       log.debug(UNSUPPORTED_FEATURE_WARN, DISALLOW_DOCTYPES_FEATURE);
     }
 
+    // Hard-disable all external-entity features (XXE prevention)
     try {
-      dbf.setFeature(SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
+      dbf.setFeature(SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
     } catch (ParserConfigurationException e) {
       log.debug(UNSUPPORTED_FEATURE_WARN, SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
     try {
-      dbf.setFeature(X1_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
+      dbf.setFeature(X1_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
     } catch (ParserConfigurationException e) {
       log.debug(UNSUPPORTED_FEATURE_WARN, X1_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
     try {
-      dbf.setFeature(X2_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
+      dbf.setFeature(X2_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
     } catch (ParserConfigurationException e) {
       log.debug(UNSUPPORTED_FEATURE_WARN, X2_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
     try {
-      dbf.setFeature(
-          X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalParameterEntities());
+      dbf.setFeature(X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
     } catch (ParserConfigurationException e) {
       log.debug(UNSUPPORTED_FEATURE_WARN, X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
     try {
-      dbf.setFeature(
-          X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalParameterEntities());
+      dbf.setFeature(X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
     } catch (ParserConfigurationException e) {
       log.debug(UNSUPPORTED_FEATURE_WARN, X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
     try {
-      dbf.setFeature(SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalEntities());
+      dbf.setFeature(SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
     } catch (ParserConfigurationException e) {
       log.debug(UNSUPPORTED_FEATURE_WARN, SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
@@ -145,11 +160,22 @@ public class PSSecureXMLUtils {
     return dbf;
   }
 
+  /**
+   * Returns a secured DocumentBuilderFactory for the given class name. Uses reflection to
+   * instantiate the factory, then applies OWASP XXE-prevention features.
+   *
+   * @param className the fully-qualified DocumentBuilderFactory implementation class name
+   * @param options the security options to apply
+   * @return the secured DocumentBuilderFactory
+   * @throws ClassNotFoundException if the class cannot be found
+   * @throws ReflectiveOperationException if the class cannot be instantiated
+   */
   public static DocumentBuilderFactory getSecuredDocumentBuilderFactory(
       String className, PSXmlSecurityOptions options)
-      throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-    return enableDBFFeatures(
-        (DocumentBuilderFactory) Class.forName(className).newInstance(), options);
+      throws ClassNotFoundException, ReflectiveOperationException {
+    var clazz = Class.forName(className);
+    var instance = (DocumentBuilderFactory) clazz.getDeclaredConstructor().newInstance();
+    return enableDBFFeatures(instance, options);
   }
 
   /**
@@ -185,9 +211,13 @@ public class PSSecureXMLUtils {
     // This enables / disables DTDs entirely for that factory
     xif.setProperty(XMLInputFactory.SUPPORT_DTD, options.isEnableDtdDeclarations());
 
-    // disable / enable external entities
-    xif.setProperty(
-        "javax.xml.stream.isSupportingExternalEntities", options.isEnableExternalEntities());
+    // Hard-disable external entities regardless of caller options (XXE prevention)
+    if (options.isEnableExternalEntities()) {
+      log.warn(
+          "Caller requested enableExternalEntities=true for XMLInputFactory"
+              + " — overriding to false to prevent XXE (CWE-611).");
+    }
+    xif.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
 
     return xif;
   }
@@ -199,141 +229,102 @@ public class PSSecureXMLUtils {
     return xs;
   }
 
+  /**
+   * Returns a TransformerFactory with OWASP-recommended security attributes. External DTD and
+   * stylesheet access are disabled to prevent XXE and SSRF via XSLT processing.
+   *
+   * @return a secured TransformerFactory instance
+   */
+  public static TransformerFactory getSecuredTransformerFactory() {
+    TransformerFactory tf = TransformerFactory.newInstance();
+    return enableTFFeatures(tf);
+  }
+
+  /**
+   * Returns a TransformerFactory for the given implementation class name with OWASP-recommended
+   * security attributes. External DTD and stylesheet access are disabled to prevent XXE and SSRF.
+   *
+   * @param className the fully-qualified TransformerFactory implementation class name
+   * @param classLoader the class loader to use, may be {@code null}
+   * @return a secured TransformerFactory instance
+   */
+  public static TransformerFactory getSecuredTransformerFactory(
+      String className, ClassLoader classLoader) {
+    TransformerFactory tf = TransformerFactory.newInstance(className, classLoader);
+    return enableTFFeatures(tf);
+  }
+
+  /**
+   * Applies security features to a TransformerFactory instance. Disables external DTD and
+   * stylesheet access to prevent XXE (CWE-611) and SSRF via XSLT processing.
+   *
+   * @param tf the TransformerFactory to secure, assumed not {@code null}
+   * @return the secured TransformerFactory
+   */
+  private static TransformerFactory enableTFFeatures(TransformerFactory tf) {
+    try {
+      tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    } catch (IllegalArgumentException e) {
+      log.debug("TransformerFactory does not support ACCESS_EXTERNAL_DTD attribute");
+    }
+    try {
+      tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    } catch (IllegalArgumentException e) {
+      log.debug("TransformerFactory does not support ACCESS_EXTERNAL_STYLESHEET attribute");
+    }
+    try {
+      tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    } catch (javax.xml.transform.TransformerConfigurationException e) {
+      log.debug("TransformerFactory does not support FEATURE_SECURE_PROCESSING");
+    }
+    return tf;
+  }
+
   public static SAXParserFactory getSecuredSaxParserFactory(
       String className, ClassLoader classLoader, PSXmlSecurityOptions options) {
 
     SAXParserFactory spf = SAXParserFactory.newInstance(className, classLoader);
-
-    // Set each feature logging any errors as warnings for unsupported features.
-    try {
-      spf.setFeature(SECURE_PROCESSING_FEATURE, options.isEnableSecureProcessing());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          SECURE_PROCESSING_FEATURE);
-    }
-
-    try {
-      spf.setFeature(DISALLOW_DOCTYPES_FEATURE, !options.isEnableDtdDeclarations());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          DISALLOW_DOCTYPES_FEATURE);
-    }
-
-    try {
-      spf.setFeature(SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE);
-    }
-
-    try {
-      spf.setFeature(X1_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          X1_GENERAL_EXTERNAL_ENTITIES_FEATURE);
-    }
-
-    try {
-      spf.setFeature(X2_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          X2_GENERAL_EXTERNAL_ENTITIES_FEATURE);
-    }
-
-    try {
-      spf.setFeature(
-          X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalParameterEntities());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
-    }
-
-    try {
-      spf.setFeature(
-          X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalParameterEntities());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
-    }
-
-    try {
-      spf.setFeature(
-          SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalParameterEntities());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
-    }
-
-    try {
-      spf.setFeature(LOAD_EXTERNAL_DTD, options.isEnableExternalDtdReferences());
-    } catch (java.lang.UnsupportedOperationException
-        | ParserConfigurationException
-        | SAXNotRecognizedException
-        | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          LOAD_EXTERNAL_DTD);
-    }
-
-    return spf;
+    return enableSPFFeatures(spf, options);
   }
 
   public static SAXParserFactory getSecuredSaxParserFactory(PSXmlSecurityOptions options) {
 
     SAXParserFactory spf = SAXParserFactory.newInstance();
+    return enableSPFFeatures(spf, options);
+  }
 
-    // Set each feature logging any errors as warnings for unsupported features.
+  /**
+   * Applies security features to a SAXParserFactory instance. External entities and external
+   * parameter entities are always hard-disabled regardless of caller-supplied options to prevent XXE
+   * (CWE-611).
+   *
+   * @param spf the SAXParserFactory to secure, assumed not {@code null}
+   * @param options the security options to apply
+   * @return the secured SAXParserFactory
+   */
+  private static SAXParserFactory enableSPFFeatures(
+      SAXParserFactory spf, PSXmlSecurityOptions options) {
+
+    // Defense-in-depth: always disable external entities regardless of caller options.
+    if (options.isEnableExternalEntities()) {
+      log.warn(
+          "Caller requested enableExternalEntities=true for SAXParserFactory"
+              + " — overriding to false to prevent XXE (CWE-611).");
+    }
+    if (options.isEnableExternalParameterEntities()) {
+      log.warn(
+          "Caller requested enableExternalParameterEntities=true for SAXParserFactory"
+              + " — overriding to false to prevent XXE (CWE-611).");
+    }
+
+    // Set each feature, logging unsupported features at debug level.
     try {
-      spf.setFeature(SECURE_PROCESSING_FEATURE, options.isEnableSecureProcessing());
+      spf.setFeature(SECURE_PROCESSING_FEATURE, true);
     } catch (java.lang.UnsupportedOperationException
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          SECURE_PROCESSING_FEATURE);
+      log.debug(UNSUPPORTED_FEATURE_WARN, SECURE_PROCESSING_FEATURE);
     }
 
     try {
@@ -342,85 +333,62 @@ public class PSSecureXMLUtils {
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          DISALLOW_DOCTYPES_FEATURE);
+      log.debug(UNSUPPORTED_FEATURE_WARN, DISALLOW_DOCTYPES_FEATURE);
     }
 
+    // Hard-disable all external-entity features (XXE prevention)
     try {
-      spf.setFeature(SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
+      spf.setFeature(SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
     } catch (java.lang.UnsupportedOperationException
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE);
+      log.debug(UNSUPPORTED_FEATURE_WARN, SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
     try {
-      spf.setFeature(X1_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
+      spf.setFeature(X1_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
     } catch (java.lang.UnsupportedOperationException
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          X1_GENERAL_EXTERNAL_ENTITIES_FEATURE);
+      log.debug(UNSUPPORTED_FEATURE_WARN, X1_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
     try {
-      spf.setFeature(X2_GENERAL_EXTERNAL_ENTITIES_FEATURE, options.isEnableExternalEntities());
+      spf.setFeature(X2_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
     } catch (java.lang.UnsupportedOperationException
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          X2_GENERAL_EXTERNAL_ENTITIES_FEATURE);
+      log.debug(UNSUPPORTED_FEATURE_WARN, X2_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
     try {
-      spf.setFeature(
-          X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalParameterEntities());
+      spf.setFeature(X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
     } catch (java.lang.UnsupportedOperationException
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
+      log.debug(UNSUPPORTED_FEATURE_WARN, X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
     try {
-      spf.setFeature(
-          X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalParameterEntities());
+      spf.setFeature(X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
     } catch (java.lang.UnsupportedOperationException
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
+      log.debug(UNSUPPORTED_FEATURE_WARN, X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
     try {
-      spf.setFeature(
-          SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE, options.isEnableExternalParameterEntities());
+      spf.setFeature(SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
     } catch (java.lang.UnsupportedOperationException
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
+      log.debug(UNSUPPORTED_FEATURE_WARN, SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
     try {
@@ -429,10 +397,7 @@ public class PSSecureXMLUtils {
         | ParserConfigurationException
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
-      log.debug(
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
-              + " Parser.",
-          LOAD_EXTERNAL_DTD);
+      log.debug(UNSUPPORTED_FEATURE_WARN, LOAD_EXTERNAL_DTD);
     }
 
     return spf;

@@ -16,6 +16,8 @@
 package com.percussion.controls.contenteditor.checkboxtree;
 
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.xml.PSXmlSecurityOptions;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,7 +25,6 @@ import java.net.URLConnection;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -71,7 +72,9 @@ public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
       URLConnection conn = docUrl.openConnection();
       try (InputStream is = conn.getInputStream()) {
 
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        DocumentBuilder builder =
+            PSSecureXMLUtils.getSecuredDocumentBuilderFactory(PSXmlSecurityOptions.secure())
+                .newDocumentBuilder();
         doc = builder.parse(is);
         PSCheckboxTreeRootNode rootNode = (PSCheckboxTreeRootNode) getRoot();
         rootNode.loadDocument(doc);

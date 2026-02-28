@@ -27,13 +27,14 @@ import com.icl.saxon.om.NodeEnumeration;
 import com.icl.saxon.om.NodeInfo;
 import com.percussion.data.PSInternalRequestURIResolver;
 import com.percussion.security.xml.PSCatalogResolver;
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.xml.PSXmlSecurityOptions;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -75,7 +76,10 @@ public class PSXPathEvaluator {
     if (saxIs.getXMLReader() != null) {
       saxIs.getXMLReader().setEntityResolver(cr);
     } else {
-      XMLReader xr = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
+      XMLReader xr =
+          PSSecureXMLUtils.getSecuredSaxParserFactory(PSXmlSecurityOptions.secure())
+              .newSAXParser()
+              .getXMLReader();
       xr.setEntityResolver(cr);
       saxIs.setXMLReader(xr);
     }
@@ -101,7 +105,7 @@ public class PSXPathEvaluator {
 
     // make a new identity transform
     TransformerFactory tfactory =
-        TransformerFactory.newInstance(
+        PSSecureXMLUtils.getSecuredTransformerFactory(
             "com.icl.saxon.TransformerFactoryImpl", this.getClass().getClassLoader());
     PSCatalogResolver cr = new PSCatalogResolver();
     cr.setInternalRequestURIResolver(new PSInternalRequestURIResolver());
@@ -136,7 +140,7 @@ public class PSXPathEvaluator {
 
     // make a new identity transform
     TransformerFactory tfactory =
-        TransformerFactory.newInstance(
+        PSSecureXMLUtils.getSecuredTransformerFactory(
             "com.icl.saxon.TransformerFactoryImpl", this.getClass().getClassLoader());
     Transformer idt = tfactory.newTransformer();
     Properties defaultProps = idt.getOutputProperties();

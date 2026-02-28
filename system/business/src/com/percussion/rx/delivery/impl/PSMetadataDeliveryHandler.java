@@ -49,8 +49,6 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -356,7 +354,8 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
                 mimeType = mimeType.replace(";charset=UTF-8", "");
 
                 if (isMimeTypeSupported(mimeType))
-                    deliveryClient = new PSDeliveryClient(retryCount, connectionTimeout, operationTimeout);
+                {
+                    log.debug("Posting {}" , description);
                     item.getFile().setSourceContentType(mimeType);
                     try (FileReader reader = new FileReader(item.getFile())){
                         metadata = extractor.process(reader, mimeType, path, item.getMetaData());
@@ -605,8 +604,7 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
             this.deliveryServer = deliveryServer;
             if (deliveryServer !=null)
             {
-                MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
-                deliveryClient = new PSDeliveryClient(connectionManager, retryCount, connectionTimeout, operationTimeout);
+                deliveryClient = new PSDeliveryClient(retryCount, connectionTimeout, operationTimeout);
             }
             this.actionUrl = actionUrl;
             this.solr = solr;
@@ -691,7 +689,7 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
      *
      * @author adamgent
      *
-     * @param mimeType the string with the corresponding mime type, may be <code>null</code>. Eg: text/html 
+     * @param mimeType the string with the corresponding mime type, may be <code>null</code>. Eg: text/html
      *
      * @return true if it's included in the list of supported mime types, false otherwise or param is null.
      */
@@ -712,7 +710,7 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
      *
      * @author federicoromanelli
      *
-     * @param contentType the string with the corresponding contentType name, may be <code>null</code>. Eg: percPage 
+     * @param contentType the string with the corresponding contentType name, may be <code>null</code>. Eg: percPage
      *
      * @return true if it's included in the list, false otherwise or param is null.
      */

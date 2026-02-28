@@ -19,6 +19,8 @@ package com.percussion.cx;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSUserInfo;
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.xml.PSXmlSecurityOptions;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -31,9 +33,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -144,18 +143,22 @@ public class PSContentExplorerUtils {
   static void OutputJaxpImplementationInfo() {
     if (PSContentExplorerApplet.log.isDebugEnabled()) {
       try {
+        var secureOpts = PSXmlSecurityOptions.secure();
         PSContentExplorerApplet.log.debug(
             PSContentExplorerApplet.getJaxpImplementationInfo(
-                "DocumentBuilderFactory", DocumentBuilderFactory.newInstance().getClass()));
+                "DocumentBuilderFactory",
+                PSSecureXMLUtils.getSecuredDocumentBuilderFactory(secureOpts).getClass()));
         PSContentExplorerApplet.log.debug(
             PSContentExplorerApplet.getJaxpImplementationInfo(
                 "XPathFactory", XPathFactory.newInstance().getClass()));
         PSContentExplorerApplet.log.debug(
             PSContentExplorerApplet.getJaxpImplementationInfo(
-                "TransformerFactory", TransformerFactory.newInstance().getClass()));
+                "TransformerFactory",
+                PSSecureXMLUtils.getSecuredTransformerFactory().getClass()));
         PSContentExplorerApplet.log.debug(
             PSContentExplorerApplet.getJaxpImplementationInfo(
-                "SAXParserFactory", SAXParserFactory.newInstance().getClass()));
+                "SAXParserFactory",
+                PSSecureXMLUtils.getSecuredSaxParserFactory(secureOpts).getClass()));
       } catch (Exception e) {
         PSContentExplorerApplet.log.error("Couldn't print JAXP property", e);
       }

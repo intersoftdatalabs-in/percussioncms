@@ -55,62 +55,62 @@ import java.util.List;
 
 public class EMSSOAPEventService implements IPSEMSEventService {
 
-	private List<GroupType>groupTypes;	
+	private List<GroupType>groupTypes;
 	private List<EventType>eventTypes;
 	private List<Building>buildings;
 	private List<Status> statuses;
-	
+
 	private Service svc;
 	private ServiceSoap soap;
-	private String userName; 
+	private String userName;
 	private String password;
 	private String endpoint;
 
-	
+
 	private static final Logger log = LogManager.getLogger(EMSSOAPEventService.class);
-	
+
 	public static final int STATUS_TYPE_BOOKEDSPACE=-14;
 	public static final int STATUS_TYPE_INFOONLY=-11;
 	public static final int STATUS_TYPE_WAIT=-13;
 	public static final int STATUS_TYPE_CANCEL=-12;
-	
+
 	public EMSSOAPEventService(String userName, String password, String endpoint){
 		try {
 			if(password == null || userName == null || endpoint == null || endpoint.equals("")){
 				return;
 			}
-			
+
 			this.password = password;
 			this.userName = userName;
 			this.endpoint = endpoint;
-			
+
 			svc = new Service(new URL(this.endpoint));
 			soap = svc.getServiceSoap();
-			
+
 		} catch (MalformedURLException e) {
 			log.error("Unable to configure EMS API Soap Client. {}",PSExceptionUtils.getMessageForLog(e));
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 		}
-	
-		
+
+
 	}
-	
-	
+
+
 	public List<Status> getStatus(){
 		if(statuses == null){
 			String xml = soap.getStatuses(userName, password);
-			
+
 			if(checkForErrors(xml)){
 				log.error("getStatues Service returned the following errors:{}", xml);
 			}else{
 				statuses = parseStatusXML(xml);
 			}
 		}
-		
+
 		return statuses;
-		
+
 	}
-	
+
 	private List<Status> parseStatusXML(String xml) {
 		List<Status> ret = new ArrayList<>();
 		DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
@@ -130,7 +130,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 		} catch (ParserConfigurationException e1) {
 			log.error("Error parsing Statuses: {} Error: {}",xml, e1.getMessage());
 			log.debug(e1.getMessage(), e1);
-		} 
+		}
 		try {
 			Document doc = db.newDocument();
 			Node fragmentNode = db.parse(
@@ -153,7 +153,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 				}
 				ret.add(e);
 			}
-			
+
 		} catch (SAXException e) {
 			log.error("Error parsing response: {}, Error: {}", xml,e.getMessage());
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -167,24 +167,24 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 
 	@Override
 	public List<Booking> getBookings(PSBookingsQuery query) {
-		
+
 		List<Booking> ret= new ArrayList<>();
 		ArrayOfInt buildings = null;
 		ArrayOfInt eventTypes = null;
 		ArrayOfInt groups = null;
 		ArrayOfInt statuses = null;
-		
+
 		if(query.getBuildingIds() != null && !query.getBuildingIds().isEmpty()){
 			buildings = new ArrayOfInt();
 			buildings.getInt().addAll(query.getBuildingIds());
 		}
-		
+
 		if(query.getEventTypes() != null && !query.getEventTypes().isEmpty()){
 			eventTypes = new ArrayOfInt();
 			eventTypes.getInt().addAll(query.getEventTypes());
 
 		}
-		
+
 		if(query.getGroupTypes() != null && !query.getGroupTypes().isEmpty()){
 			groups = new ArrayOfInt();
 			groups.getInt().addAll(query.getGroupTypes());
@@ -217,7 +217,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 		}
 		cal.setTime(date);
-	
+
 		XMLGregorianCalendar endDate = null;
 		try {
 			endDate =  DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
@@ -227,18 +227,18 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 		}
 
 		String xml = soap.getBookings(userName, password, startDate, endDate, buildings, statuses, eventTypes, groups,false);
-		
+
 		if(checkForErrors(xml)){
 			log.error("Bookings service returned the following errors:{}", xml);
 			return ret;
 		}
-		
+
 		ret = parseBookingXML(xml);
-		
+
 		return ret;
-		
+
 	}
-	
+
 	private List<Booking>parseBookingXML(String xml){
 		List<Booking> ret = new ArrayList<>();
 		DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
@@ -258,7 +258,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 		} catch (ParserConfigurationException e1) {
 			log.error("Error parsing Buildings:{}, Error: {}", xml,e1.getMessage());
 			log.debug(e1.getMessage(), e1);
-		} 
+		}
 		try {
 			Document doc = db.newDocument();
 			Node fragmentNode = db.parse(
@@ -267,7 +267,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 				    fragmentNode = doc.importNode(fragmentNode, true);
 				    doc.appendChild(fragmentNode);
 			NodeList bookings = doc.getElementsByTagName("Data");
-			
+
 			for(int i=0;i<bookings.getLength();i++){
 				NodeList children = bookings.item(i).getChildNodes();
 				Booking b = new Booking();
@@ -371,7 +371,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 					ret.add(b);
 				}
 			}
-		
+
 		} catch (SAXException e) {
 			log.error("Error parsing bookings:{}",PSExceptionUtils.getMessageForLog(e));
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -386,7 +386,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 	public List<EventType> getEventTypes() {
 		if(eventTypes == null){
 			String xml = soap.getEventTypes(userName, password);
-			
+
 			if(checkForErrors(xml)){
 				log.error("getEventTypes Service returned the following errors:{}", xml);
 			}else{
@@ -395,21 +395,21 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 		}
 		return eventTypes;
 	}
-	
+
 	private boolean checkForErrors(String xml){
 		if(xml.contains("<Errors>")){
 			return true;
 		}else{
 			return false;
 		}
-		
+
 	}
 
 	@Override
 	public List<Building> getBuildings() {
 		if(buildings == null){
 			String xml = soap.getBuildings(userName, password);
-			
+
 			if(checkForErrors(xml)){
 				log.error("Buildings service returned the following errors:{}", xml);
 			}else{
@@ -421,7 +421,8 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 
 	private List<Building> parseBuildingXML(String xml) {
 		List<Building> ret = new ArrayList<>();
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+				PSXmlSecurityOptions.secureWithDtd());
 		dbf.setNamespaceAware(false);
 		dbf.setValidating(false);
 		DocumentBuilder db = null;
@@ -430,7 +431,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 		} catch (ParserConfigurationException e1) {
 			log.error("Error configuring XML parser for :{}, Error: {}", xml,e1.getMessage());
 			log.debug(e1.getMessage(), e1);
-		} 
+		}
 		try {
 			 /* <Data>
 			    <Description>Z (old) Loker Student Union</Description>
@@ -467,7 +468,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 				}
 				ret.add(b);
 			}
-			
+
 		} catch (SAXException e) {
 			log.error("Error parsing response: {} Error: {}", xml,e.getMessage());
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -493,7 +494,8 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 
 	private List<GroupType> parseGroupXML(String xml) {
 		List<GroupType> ret = new ArrayList<>();
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+				PSXmlSecurityOptions.secureWithDtd());
 		dbf.setNamespaceAware(false);
 		dbf.setValidating(false);
 		DocumentBuilder db = null;
@@ -502,7 +504,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 		} catch (ParserConfigurationException e1) {
 			log.error("Error parsiing Group Types:{} {}", xml, e1.getMessage());
 			log.debug(e1.getMessage(), e1);
-		} 
+		}
 		try {
 			Document doc = db.newDocument();
 			Node fragmentNode = db.parse(
@@ -525,7 +527,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 				}
 				ret.add(g);
 			}
-			
+
 		} catch (SAXException e) {
 			log.error("Error parsing response: {}, Error: {}", xml,e.getMessage());
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -538,7 +540,8 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 
 	private List<EventType> parseEventTypeXML(String xml) {
 		List<EventType> ret = new ArrayList<>();
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+				PSXmlSecurityOptions.secureWithDtd());
 		dbf.setNamespaceAware(false);
 		dbf.setValidating(false);
 		DocumentBuilder db = null;
@@ -547,7 +550,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 		} catch (ParserConfigurationException e1) {
 			log.error("Error parsing Event Types:: {}, Error: {}", xml,e1.getMessage());
 			log.debug(e1.getMessage(), e1);
-		} 
+		}
 		try {
 			Document doc = db.newDocument();
 			Node fragmentNode = db.parse(
@@ -570,7 +573,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 				}
 				ret.add(e);
 			}
-			
+
 		} catch (SAXException e) {
 			log.error("Error parsing response:: {}, Error: {}", xml,e.getMessage());
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -580,7 +583,7 @@ public class EMSSOAPEventService implements IPSEMSEventService {
 		}
 		return ret;
 	}
-	
-	
+
+
 
 }

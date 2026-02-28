@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.commons.httpclient.HttpException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -106,13 +105,12 @@ public class PSPageValidatorTest extends PSRestTestCase<PSPageValidatorRestClien
    *
    * @param viewName Assumed not <code>null</code> or empty. The value for the view parameter
    *     supplied in the page request URL.
-   * @throws HttpException
    * @throws IOException
    * @throws ParserConfigurationException
    * @throws SAXException
    */
   private void validatePage(String viewName)
-      throws HttpException, IOException, ParserConfigurationException, SAXException {
+      throws IOException, ParserConfigurationException, SAXException {
     String src = restClient.getPage(viewName);
 
     src = fixupDoctype(src);

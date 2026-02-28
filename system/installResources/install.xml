@@ -318,8 +318,6 @@
 		<pathelement
 			location="${toolsdir}/Commons/commons-codec-1.10.jar" />
 		<pathelement
-			location="${toolsdir}/Commons/commons-httpclient-3.1.jar" />
-		<pathelement
 			location="${toolsdir}/Commons/commons-collections-3.2.2.jar" />
 		<pathelement
 			location="${toolsdir}/Commons/commons-io-2.0.1.jar" />
