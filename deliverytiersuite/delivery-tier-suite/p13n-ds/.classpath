@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="ivylib/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="ivylib/commons-collections.jar"/>
 	<classpathentry kind="lib" path="ivylib/commons-dbcp.jar"/>
-	<classpathentry kind="lib" path="ivylib/commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="ivylib/commons-lang.jar"/>
 	<classpathentry kind="lib" path="ivylib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="ivylib/commons-pool.jar"/>

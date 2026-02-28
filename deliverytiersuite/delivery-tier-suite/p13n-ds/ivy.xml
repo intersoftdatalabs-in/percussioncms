@@ -132,11 +132,6 @@
 			conf="test-&gt;*" />
 		<dependency org="junit" name="junit" rev="4.4"
 			conf="test-&gt;*" />
-		<dependency rev="3.1" org="commons-httpclient"
-			name="commons-httpclient" force="true">
-			<exclude name="commons-logging" />
-			<exclude name="commons-codec" />
-		</dependency>
 		<exclude org="cglib" module="cglib" />
 		<!-- Commons httpclient 2.0 has many conflicts with the newer one <exclude
 			module="commons-httpclient" /> -->
