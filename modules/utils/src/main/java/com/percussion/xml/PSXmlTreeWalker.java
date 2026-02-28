@@ -17,6 +17,7 @@
 
 package com.percussion.xml;
 
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.utils.tools.IPSUtilsConstants;
 import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
@@ -1212,7 +1213,8 @@ public class PSXmlTreeWalker implements Serializable {
    * initialized when the current class is loaded. Only one instance of the transformer is needed
    * per JVM, but need to be used in a sychronized block since it is not thread safe.
    */
-  private static TransformerFactory ms_transformerFactory = TransformerFactory.newInstance();
+  private static TransformerFactory ms_transformerFactory =
+      PSSecureXMLUtils.getSecuredTransformerFactory();
 
   static {
     try {

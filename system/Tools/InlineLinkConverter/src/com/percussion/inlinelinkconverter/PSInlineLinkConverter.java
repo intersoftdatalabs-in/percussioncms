@@ -17,6 +17,7 @@
 package com.percussion.inlinelinkconverter;
 
 import com.percussion.cms.PSCmsException;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.cms.objectstore.IPSFieldValue;
 import com.percussion.cms.objectstore.PSItemChild;
 import com.percussion.cms.objectstore.PSItemChildEntry;
@@ -448,9 +449,9 @@ public class PSInlineLinkConverter {
 
     /**
     * Convert the specified content type.
-    * 
+    *
     * @param contentType the type of content to be converted
-    * @throws PSCmsException 
+    * @throws PSCmsException
     */
    private void convertType(String contentType) throws PSCmsException
    {
@@ -459,11 +460,11 @@ public class PSInlineLinkConverter {
          PSItemDefinition itemDef = m_rtAgent.getTypeDef(contentType);
          if (itemDef == null)
             return;
-         
-         // now that we have the def, check for the inline link properties 
+
+         // now that we have the def, check for the inline link properties
          // on each of the fields, if found, then this is a contentType
          // that we want to convert
-         PSField [] fields =    
+         PSField [] fields =
             ((PSContentEditorPipe)itemDef.getContentEditor().getPipe()).
                getMapper().getFieldSet().getAllFields();
 
@@ -508,27 +509,27 @@ public class PSInlineLinkConverter {
 
    /**
     * Convert all the fields of the specified content type.
-    * 
+    *
     * @param itemDef the content type definition, used to get the proper fields,
     *    never <code>null</code>.
     * @param contentType the content type to convert, never <code>null</code> or
     *    empty. It must be an valid (or existing) content type.
-    * 
+    *
     * @throws PSCmsException if an error occurs.
     */
-   protected void convertAllFields(PSItemDefinition itemDef, String contentType) 
+   protected void convertAllFields(PSItemDefinition itemDef, String contentType)
       throws PSCmsException
    {
       if (itemDef == null)
          throw new IllegalArgumentException("itemDef must not be null");
       if (contentType == null || contentType.trim().length() == 0)
          throw new IllegalArgumentException("contentType must not be null or empty.");
-      
+
       List convertFieldList = (List)m_inlineLinkFieldMap.get(contentType);
       if (convertFieldList == null)
          throw new IllegalArgumentException("Unknown contentType : \""
                + contentType + "\".");
-      
+
 
       List contentIdList = getContentIds(contentType);
       int totalIds = contentIdList.size();
@@ -540,7 +541,7 @@ public class PSInlineLinkConverter {
       {
          boolean needToConvert = false;
          ContentKey ck = (ContentKey)iter.next();
-         
+
          int index = contentIdList.indexOf(ck);
          int lp = 0;
          int cp = Math.round((index*100)/(totalIds*10));
@@ -550,7 +551,7 @@ public class PSInlineLinkConverter {
             lp=cp;
          }
 
-         try 
+         try
          {
             PSClientItem item = getItem(ck, false, itemDef);
             // first see if conversion is necessary, stop as soon
@@ -566,19 +567,19 @@ public class PSInlineLinkConverter {
                   break;
                }
             }
-            
+
             // if we need to convert, create a new item just in case it has
             // changed since we last got it
             if (!needToConvert)
             {
-               writeToLog(" " + ck.m_contentId 
+               writeToLog(" " + ck.m_contentId
                   + " - not converted, no inline links found");
             }
             else
             {
                if (! preConvert(ck))
                   continue;
-                                 
+
                item = getItem(ck, ck.m_chkoutBeforeProcessing, itemDef);
                iterFieldList = convertFieldList.iterator();
                while (iterFieldList.hasNext())
@@ -588,15 +589,15 @@ public class PSInlineLinkConverter {
                      continue;
                }
                saveUpdatedItem(item);
-               
+
                if (! postConvert(ck))
                   continue;
-               
+
                logSuccessItem(ck);
                writeToLog(" " + ck.m_contentId + " - converted");
             }
          }
-         catch (Exception ex) 
+         catch (Exception ex)
          {
             writeToLog(" " + ck.m_contentId + " - Error - " + ex.getMessage());
          }
@@ -604,21 +605,21 @@ public class PSInlineLinkConverter {
    }
 
    /**
-    * Pre-process before the actual conversion. Making sure the specified item 
-    * can be checked out by the current login id. If the item is in public 
+    * Pre-process before the actual conversion. Making sure the specified item
+    * can be checked out by the current login id. If the item is in public
     * state, then transition it to a editable state.
-    * 
+    *
     * @param ck The specified item, assume not <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if it is ok to proceed the conversion process;
-    *    otherwise, the item cannot be converted.  
+    *    otherwise, the item cannot be converted.
     */
    private boolean preConvert(ContentKey  ck)
    {
       boolean success = true;
-      
+
       String itemUser = ck.m_checkoutUsername;
-      
+
       if (ck.isCheckedOut() && m_userName.equalsIgnoreCase(itemUser))
       {
          // checked out by the same user already, no need to be check out later
@@ -629,11 +630,11 @@ public class PSInlineLinkConverter {
          if (! checkInItem(ck)) // force check in
          {
             success = false;
-            writeToLog(" failed to force checkin: " + ck.m_contentId 
-               + " - not converted, checked out by '" 
-               + ck.m_checkoutUsername 
+            writeToLog(" failed to force checkin: " + ck.m_contentId
+               + " - not converted, checked out by '"
+               + ck.m_checkoutUsername
                + "'");
-                        
+
             logFailureItem(ck);
          }
          else // it is checked in now, needs to be checked out before processing
@@ -646,10 +647,10 @@ public class PSInlineLinkConverter {
          if (! transPublicToEditState(ck))
          {
             success = false;
-            writeToLog(" failed transition from public, id: " 
-               + ck.m_contentId 
+            writeToLog(" failed transition from public, id: "
+               + ck.m_contentId
                + " - not converted");
-                        
+
             logFailureItem(ck);
          }
          else // it is in QuickEdit state, but not checked out yet
@@ -657,16 +658,16 @@ public class PSInlineLinkConverter {
             ck.m_chkoutBeforeProcessing = true;
          }
       }
-      
+
       return success;
    }
-   
+
    /**
     * Post process after the actual conversion. Transfers the specified item
     * to public state if it was in public state before the conversion.
-    * 
+    *
     * @param ck The item, assume not <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if not error occurs; otherwise to transfer to
     *    public state.
     */
@@ -679,63 +680,63 @@ public class PSInlineLinkConverter {
          if (! transEditToPublicState(ck))
          {
             success = false;
-            
-            writeToLog(" failed transition to public, id: " 
-               + ck.m_contentId 
+
+            writeToLog(" failed transition to public, id: "
+               + ck.m_contentId
                + " - not converted");
-                           
+
             logFailureItem(" converted, but fail to transfer to public state, "
                + "id: " + ck.m_contentId + ", " + ck.m_revision);
          }
       }
-      
+
       return success;
    }
-   
+
    /**
     * Transfers the specified item from public to editable state.
-    *  
-    * @param ck The specified item, assume not <code>null</code>. 
-    * 
+    *
+    * @param ck The specified item, assume not <code>null</code>.
+    *
     * @return <code>true</code> for a successful transition; <code>false</code>
-    *    otherwise. 
+    *    otherwise.
     */
    private boolean transPublicToEditState(ContentKey ck)
    {
       WorkflowTransitions trans = getTransitions(ck);
-         
+
       if (trans != null)
          return transferItemState(ck, trans.getPubToEditTrans());
       else
-         return false; 
+         return false;
    }
 
    /**
     * Transfers the specified item from current editable state to public state.
-    *  
-    * @param ck The specified item, assume not <code>null</code>. 
-    * 
+    *
+    * @param ck The specified item, assume not <code>null</code>.
+    *
     * @return <code>true</code> for a successful transition; <code>false</code>
-    *    otherwise. 
+    *    otherwise.
     */
    private boolean transEditToPublicState(ContentKey ck)
    {
       WorkflowTransitions trans = getTransitions(ck);
-         
+
       if (trans != null)
          return transferItemState(ck, trans.getEditToPubTrans());
       else
-         return false; 
+         return false;
    }
 
    /**
     * Transfers the specified item according to the given list of transitions.
-    * 
+    *
     * @param ck The specified item, assume not <code>null</code>.
-    * 
-    * @param transList The transition list, one or more transition id or 
-    *    internal (trigger) name, assume not <code>null</code> or empty. 
-    * 
+    *
+    * @param transList The transition list, one or more transition id or
+    *    internal (trigger) name, assume not <code>null</code> or empty.
+    *
     * @return <code>true</code> for a successful transition; <code>false</code>
     *    otherwise.
     */
@@ -749,7 +750,7 @@ public class PSInlineLinkConverter {
          while (transIt.hasNext())
          {
             String trans = (String) transIt.next();
-            m_rtAgent.transitionItem(loc, trans);     
+            m_rtAgent.transitionItem(loc, trans);
          }
          success = true;
       }
@@ -761,15 +762,15 @@ public class PSInlineLinkConverter {
                + " - Caught exception: "
                + e.getMessage());
       }
-      
+
       return success;
    }
-   
+
    /**
     * Gets the transitions for the specified item.
-    *  
+    *
     * @param ck The item, assume not <code>null</code>.
-    * 
+    *
     * @return The transitions for the specified item, may be <code>null</code>
     *    if the transitions are not specified in the properties file.
     */
@@ -779,12 +780,12 @@ public class PSInlineLinkConverter {
          (WorkflowTransitions) m_wfTransMap.get(ck.getWorkflowId());
       if (wfTrans != null)
          return wfTrans;
-         
+
       // cannot find the transition list, it may not been cached yet.
       String wfName = (String) m_wfIdNameMap.get(ck.getWorkflowId());
-         
+
       String trans = m_props.getProperty(wfName);
-      List transList1 = new ArrayList();         
+      List transList1 = new ArrayList();
       List transList2 = new ArrayList();
       if (trans != null)
       {
@@ -798,7 +799,7 @@ public class PSInlineLinkConverter {
             transList2 = PSStringOperation.getSplittedList(trans2, ',');
          }
       }
-      
+
       if ((! transList1.isEmpty()) && (! transList2.isEmpty()))
       {
          wfTrans = new WorkflowTransitions(transList1, transList2);
@@ -811,15 +812,15 @@ public class PSInlineLinkConverter {
             + "Must specified transitions for both 'public to editable state'"
             + " and 'editable to public state', they cannot be empty";
          writeToLog(errorMsg);
-         throw new RuntimeException(errorMsg);         
+         throw new RuntimeException(errorMsg);
       }
-      
+
       return wfTrans;
    }
-   
+
    /**
     * Get all the content id's for the specified content type.
-    * 
+    *
     * @param contentType the content type to look up all the items
     * @return a list of content ids as Integers
     */
@@ -828,13 +829,13 @@ public class PSInlineLinkConverter {
       List retList = new ArrayList();
 
       String contentTypeId = getContentTypeId(contentType);
-      
+
       Element msg = getSearchRequest(contentTypeId);
-      
+
       PSRemoteWsRequester wsRequester =
          new PSRemoteWsRequester(m_rtAgent.getRemoteRequester());
 
-      // do search      
+      // do search
       Element data = wsRequester.sendRequest(
          SEARCH_OPERATION,
          SEARCH_PORT,
@@ -852,7 +853,7 @@ public class PSInlineLinkConverter {
             String workflowId = null;
             String checkoutUser = "";
             boolean isPublic = false;
-            
+
             Element el = PSXMLDomUtil.getFirstElementChild(resultEl);
             while (el != null)
             {
@@ -860,11 +861,11 @@ public class PSInlineLinkConverter {
                if (name != null)
                {
                   String val = PSXMLDomUtil.getElementData(el);
-                  if (name.equalsIgnoreCase(SYS_CONTENTID))            
+                  if (name.equalsIgnoreCase(SYS_CONTENTID))
                   {
                      contentId = val;
                   }
-                  else if (name.equalsIgnoreCase(SYS_TIPREVISION))            
+                  else if (name.equalsIgnoreCase(SYS_TIPREVISION))
                   {
                      revision = val;
                   }
@@ -900,25 +901,25 @@ public class PSInlineLinkConverter {
                      + ", rev="
                      + (revision==null ? "null" : revision));
             }
-               
+
             resultEl = PSXMLDomUtil.getNextElementSibling(resultEl);
          }
       }
-      
-      return retList;      
+
+      return retList;
    }
 
    /**
     * Get the content type id from the specified name.
-    * 
+    *
     * @param ctName The content type name, assume not <code>null</code>.
-    * 
+    *
     * @return The id of the content type name, never <code>null</code> or empty.
     */
    private String getContentTypeId(String ctName)
-   {   
+   {
       String contentTypeId = null;
-      
+
       Iterator cts = m_allContentTypes.iterator();
       while (cts.hasNext())
       {
@@ -932,18 +933,18 @@ public class PSInlineLinkConverter {
       {
          throw new RuntimeException("Failed to find content type: " + ctName);
       }
-      
+
       return contentTypeId;
    }
-   
+
    /**
     * Get the search request for the specified content type id. This is used
     * to request all items of the content type, or only the items that are
     * specified in the properties file if there is any.
-    *  
+    *
     * @param contentTypeId The content type id, assume not <code>null</code>
     *    or empty.
-    * 
+    *
     * @return The request element, never <code>null</code>.
     */
    private Element getSearchRequest(String contentTypeId)
@@ -957,12 +958,12 @@ public class PSInlineLinkConverter {
       //          <SearchField name="sys_contentid" operator="in">302,303
       //          </SearchField>
       //       </Parameter>
-      //      
+      //
       //       <SearchResults>
       //          <ResultField name="sys_publishabletype"/>
       //       </SearchResults>
       //    </SearchParams>
-      // </SearchRequest>      
+      // </SearchRequest>
 
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
@@ -976,7 +977,7 @@ public class PSInlineLinkConverter {
             contentTypeId);
 
       // If "contentId" exist, then create the <Parameter> element:
-      //      
+      //
       // <Parameter>
       //    <SearchField name="sys_communityid" operator="in">10</SearchField>
       // </Parameter>
@@ -1003,21 +1004,21 @@ public class PSInlineLinkConverter {
          srchField.setAttribute(NAME_ATTR, SYS_CONTENTID);
          srchField.setAttribute("operator", "in");
       }
-            
+
       // create <SerachResults> element
       Element resultsEl = doc.createElement(SEARCH_RESULTS);
       Element fieldEl = doc.createElement(RESULT_FIELD);
       fieldEl.setAttribute(NAME_ATTR, SYS_PUB_TYPE);
       resultsEl.appendChild(fieldEl);
- 
+
       schParamsEl.appendChild(resultsEl);
-      
+
       return msg;
    }
-   
+
    /**
     * Get the specific content item from the rx server.
-    * 
+    *
     * @param ck the specific content id and revision
     * @param checkOut if true, check out the item, otherwise just get the item
     * @return the xml of the item in standard item format
@@ -1031,11 +1032,11 @@ public class PSInlineLinkConverter {
       PSLocator loc = new PSLocator(ck.m_contentId, ck.m_revision);
       PSClientItem item =
          m_rtAgent.openItem(loc, true, false, false, checkOut, itemDef);
-      
+
       // update the revision, which may change after check out.
       if (checkOut)
          ck.setRevision("" + item.getRevision());
-         
+
       return item;
    }
 
@@ -1062,7 +1063,7 @@ public class PSInlineLinkConverter {
                + "id: "
                + ck.m_contentId
                + ", "
-               + ck.m_revision 
+               + ck.m_revision
                + ". Caught exception: "
                + ex.getMessage());
       }
@@ -1071,13 +1072,13 @@ public class PSInlineLinkConverter {
 
    /**
     * Converts a child field.
-    * 
+    *
     * @param ck the content key of the converted item, never <code>null</code>.
     * @param item the converted item, never <code>null</code>.
     * @param fieldName the name of the child field, never <code>null</code>
     *    or empty.
-    * 
-    * @return <code>true</code> if the value of the field is converted; 
+    *
+    * @return <code>true</code> if the value of the field is converted;
     *    otherwise return <code>false</code>.
     */
    protected boolean convertChildField(
@@ -1091,9 +1092,9 @@ public class PSInlineLinkConverter {
          throw new IllegalArgumentException("item must not be null");
       if (fieldName == null || fieldName.trim().length() == 0)
          throw new IllegalArgumentException("fieldName must not be null or empty");
-      
+
       boolean success = false;
-      
+
       Iterator children = item.getAllChildren();
       PSItemChild childItem;
       PSItemChildEntry entry;
@@ -1113,17 +1114,17 @@ public class PSInlineLinkConverter {
             }
          }
       }
-      
+
       return success;
    }
 
    /**
     * Convert the supplied field.
-    * 
+    *
     * @param ck the content key of the converted item, never <code>null</code>.
     * @param field the to be converted field, never <code>null</code>.
-    * 
-    * @return <code>true</code> if the value of the field is converted; 
+    *
+    * @return <code>true</code> if the value of the field is converted;
     *    otherwise return <code>false</code>.
     */
    protected boolean convertField(
@@ -1134,19 +1135,19 @@ public class PSInlineLinkConverter {
          throw new IllegalArgumentException("ck must not be null");
       if (field == null)
          throw new IllegalArgumentException("field must not be null");
-      
+
       boolean success = false;
       String data = null;
-      try 
+      try
       {
          IPSFieldValue value = field.getValue();
          if (value == null)
-            return false; // no data 
+            return false; // no data
          data = value.getValueAsString();
          if (data == null || data.trim().length() == 0)
             return false; // no data needs to be converted
-         
-   
+
+
          Document root = PSXmlDocumentBuilder.createXmlDocument();
          // add the rx location and session to the root element
          Element el = root.createElement("root");
@@ -1163,15 +1164,15 @@ public class PSInlineLinkConverter {
          el.appendChild(node);
 
          root.appendChild(el);
-            
+
          // convert here using stylesheet
          Document newDoc = transformXML(root, m_XslDoc);
          if (newDoc == null)
             return false;
-   
+
          el = (Element)newDoc.getDocumentElement().getFirstChild();
          String newData = PSXmlDocumentBuilder.toString(el);
-         
+
          if (newData.length() != oldData.length() || !newData.equals(oldData))
          {
             field.clearValues();
@@ -1179,10 +1180,10 @@ public class PSInlineLinkConverter {
             success = true;
          }
       }
-      catch (Exception ex) 
+      catch (Exception ex)
       {
          logFailureItem(ck);
-         
+
          String errMsg =
             "Error - on item (id="
                + ck.m_contentId
@@ -1195,7 +1196,7 @@ public class PSInlineLinkConverter {
             errMsg = errMsg + "null.";
          else
             errMsg = errMsg + ex.getMessage() + ".";
-         
+
          writeToLog(errMsg);
 
          errMsg = "Error - on item (id="
@@ -1207,20 +1208,20 @@ public class PSInlineLinkConverter {
                + "\", data: " + data;
          writeToLog(errMsg);
       }
-      
+
       return success;
    }
-   
-   
+
+
    /**
     * Converts the specified field with its name.
-    * 
+    *
     * @param ck the to be converted content key, never <code>null</code>.
     * @param item the item to convert the field, never <code>null</code>.
     * @param fieldName the actual field name to convert, never <code>null</code>
     *    or empty.
-    * 
-    * @return <code>true</code> if the value of the field is converted; 
+    *
+    * @return <code>true</code> if the value of the field is converted;
     *    otherwise return <code>false</code>.
     */
    protected boolean convertFieldWithName(
@@ -1234,17 +1235,17 @@ public class PSInlineLinkConverter {
          throw new IllegalArgumentException("item must not be null");
       if (fieldName == null || fieldName.trim().length() == 0)
          throw new IllegalArgumentException("fieldName must not be null or empty");
-      
+
       PSItemField field = item.getFieldByName(fieldName);
       if (field == null)
          return convertChildField(ck, item, fieldName);
       else
          return convertField(ck, field);
    }
-   
+
    /**
     * Save the updated client item back to the server.
-    * 
+    *
     * @param item the specific item to save
     */
    private void saveUpdatedItem(PSClientItem item) throws PSRemoteException
@@ -1253,10 +1254,10 @@ public class PSInlineLinkConverter {
       Element itemEl = item.toMinXml(doc, true, true, false, false);
       m_rtAgent.updateItem(itemEl, true);
    }
-   
+
    /**
     * Transform the document using the supplied XSL.
-    * 
+    *
     * @param srcDoc the document to transform
     * @param xslDoc the stylesheet to use for the transformation
     * @return the transformed document
@@ -1269,10 +1270,10 @@ public class PSInlineLinkConverter {
       {
          outNode = PSXmlDocumentBuilder.createXmlDocument();
          DOMSource dsource = new DOMSource(xslDoc);
-   
-         TransformerFactory tfactory = TransformerFactory.newInstance();
+
+         TransformerFactory tfactory = PSSecureXMLUtils.getSecuredTransformerFactory();
          Templates templates = tfactory.newTemplates(dsource);
-   
+
          templates.newTransformer().transform(
             new DOMSource(srcDoc), new DOMResult(outNode));
       }
@@ -1291,12 +1292,12 @@ public class PSInlineLinkConverter {
 
    /**
     * Write a message to the log file.
-    * 
+    *
     * @param msg the message to write
     */
    private void writeToLog(String msg)
    {
-      try 
+      try
       {
          m_logger.write(msg);
          m_logger.newLine();
@@ -1307,14 +1308,14 @@ public class PSInlineLinkConverter {
 
    /**
     * Log the successful converted item id and revision.
-    * 
+    *
     * @param ck The to be logged item, assume not <code>null</code>.
-    * 
+    *
     * @throws IOException if error occurs.
     */
    private void logSuccessItem(ContentKey ck) throws IOException
    {
-      try 
+      try
       {
          m_loggerSuccess.write(" " + ck.m_contentId + ", " + ck.m_revision);
          m_loggerSuccess.newLine();
@@ -1325,22 +1326,22 @@ public class PSInlineLinkConverter {
 
    /**
     * Format the specified item, then call {@link #logFailureItem(ContentKey)}
-    * 
+    *
     * @param ck The to be logged item, assume not <code>null</code>.
-    */    
+    */
    private void logFailureItem(ContentKey ck)
    {
       logFailureItem(" " + ck.m_contentId + ", " + ck.m_revision);
    }
-   
+
    /**
     * Log the un-successful converted item id and revision.
-    * 
+    *
     * @param logInfo The to be logged item info, assume not <code>null</code>.
     */
    private void logFailureItem(String logInfo)
    {
-      try 
+      try
       {
          m_loggerFail.write(logInfo);
          m_loggerFail.newLine();
@@ -1351,14 +1352,14 @@ public class PSInlineLinkConverter {
 
    /**
     * Closes the specified logger.
-    * 
+    *
     * @param logger The to be closed logger, assume not <code>null</code>.
     */
    private void closeLogger(BufferedWriter logger)
    {
       if (logger != null)
       {
-         try 
+         try
          {
             logger.flush();
             logger.close();
@@ -1366,53 +1367,53 @@ public class PSInlineLinkConverter {
          catch (Exception ex) { /* ignore */ }
       }
    }
-   
-   
+
+
    /**
-    * Inner class to maintain information for a content item, such as id, 
+    * Inner class to maintain information for a content item, such as id,
     * revision, ...etc.
     */
    protected class ContentKey
    {
       /**
        * Constructs an object from id and revision.
-       * 
+       *
        * @param contentId The content id, assume not <code>null</code> or empty.
-       * 
+       *
        * @param revision The revision, assume not <code>null</code> or empty.
-       * 
-       * @param checkoutUser The check out user name, assume not 
+       *
+       * @param checkoutUser The check out user name, assume not
        *    <code>null</code>, but may be empty.
-       * 
+       *
        * @param workflowId the workflow id, assume not <code>null</code> or
        *    empty.
-       * 
+       *
        * @param isPublic <code>true</code> if the item is in public state.
-       */      
-      private ContentKey(String contentId, String revision, 
+       */
+      private ContentKey(String contentId, String revision,
          String checkoutUser, String workflowId, boolean isPublic)
       {
          m_contentId = contentId;
          m_revision = revision;
          m_checkoutUsername = checkoutUser;
          m_workflowId = workflowId;
-         m_isPublic = isPublic; 
+         m_isPublic = isPublic;
       }
 
       /**
        * Set revision
-       * 
-       * @param rev The new revision, assume not <code>null</code> or empty.  
-       */      
+       *
+       * @param rev The new revision, assume not <code>null</code> or empty.
+       */
       private void setRevision(String rev)
       {
          m_revision = rev;
       }
-      
+
       /**
        * Determines whether the item is checked out.
-       * 
-       * @return <code>true</code> if the item has been checked out; 
+       *
+       * @return <code>true</code> if the item has been checked out;
        *    <code>false</code> otherwise.
        */
       private boolean isCheckedOut()
@@ -1421,20 +1422,20 @@ public class PSInlineLinkConverter {
             m_checkoutUsername != null
                && m_checkoutUsername.trim().length() > 0);
       }
-      
+
       /**
        * Determines whether the item is in public state.
-       * 
+       *
        * @return <code>true</code> if the item is in public state.
        */
       private boolean isPublic()
       {
          return m_isPublic;
       }
-      
+
       /**
        * Get the workflow id
-       * 
+       *
        * @return the workflow id, never <code>null</code> or empty.
        */
       private String getWorkflowId()
@@ -1446,7 +1447,7 @@ public class PSInlineLinkConverter {
       {
          return m_contentId;
       }
-      
+
       protected String getRevision()
       {
          return m_revision;
@@ -1456,51 +1457,51 @@ public class PSInlineLinkConverter {
        * empty after that.
        */
       private String m_contentId;
-      
+
       /**
        * The tip revision of the item. Init by ctor, never <code>null</code> or
-       * empty after that. 
+       * empty after that.
        */
       private String m_revision;
-      
+
       /**
        * The user name who checked out the item. It may be empty, but never
        * <code>null</code>.
        */
       private String m_checkoutUsername = "";
-      
+
       /**
        * Indicating whether the item is in public state. <code>true</code> if
        * is in public state.
        */
       private boolean m_isPublic = false;
-      
+
       /**
        * The workflow id of the item. Init by ctor, never <code>null</code> or
        * empty after that.
        */
       private String m_workflowId = "";
-      
+
       /**
        * Indicating if the item needs to be checked out before processing its
        * content. <code>true</code> if it needs to be checked out before
-       * conversion; otherwise, <code>false</code>. 
+       * conversion; otherwise, <code>false</code>.
        */
       private boolean m_chkoutBeforeProcessing = true;
    }
 
    /**
-    * Inner class contains transition lists for a workflow. 
-    */   
+    * Inner class contains transition lists for a workflow.
+    */
    private class WorkflowTransitions
    {
       /**
        * Construct an object with the specified transition list.
-       * 
+       *
        * @param pubToEditTrans The transition list used to transfer an item
        *    from public state to an editable state. Assume not <code>null</code>
        *    or empty.
-       *  
+       *
        * @param editToPubTrans The transition list used to transfer an item
        *    from an editable state to public state. Assume not <code>null</code>
        *    or empty.
@@ -1510,29 +1511,29 @@ public class PSInlineLinkConverter {
          m_pubToEditTrans = pubToEditTrans;
          m_editToPubTrans = editToPubTrans;
       }
-      
+
       /**
        * Get the transition list that is used to transfer items from public
        * state to editable state.
-       * 
+       *
        * @return The transition list, never <code>null</code> or empty.
        */
       private List getPubToEditTrans()
       {
          return m_pubToEditTrans;
       }
-      
+
       /**
        * Get the transition list that is used to transfer items from editable
        * state to public state.
-       * 
+       *
        * @return The transition list, never <code>null</code> or empty.
        */
       private List getEditToPubTrans()
       {
          return m_editToPubTrans;
       }
-      
+
       /**
        * Init by ctor, never <code>null</code> or empty, see ctor for detail.
        */
@@ -1543,10 +1544,10 @@ public class PSInlineLinkConverter {
        */
       private List m_editToPubTrans;
    }
-   
+
    /**
     * Main for this converter application.
-    * 
+    *
     * @param args - @see usage
     */
    public static void main(String[] args)
@@ -1557,7 +1558,7 @@ public class PSInlineLinkConverter {
          printUsage();
          System.exit(-1);
       }
-      
+
       // load the properties file
       FileInputStream in = null;
       Properties props = new Properties();
@@ -1575,9 +1576,9 @@ public class PSInlineLinkConverter {
       catch (IOException e)
       {
          System.out.println(
-            "Error loading properties from file (" 
-               + DEFAULT_PROPERTIES_FILE 
-               + "): " 
+            "Error loading properties from file ("
+               + DEFAULT_PROPERTIES_FILE
+               + "): "
                + e.toString());
          printUsage();
          System.exit(-1);
@@ -1586,14 +1587,14 @@ public class PSInlineLinkConverter {
       {
          if (in != null)
          {
-            try 
+            try
             {
                   in.close();
             }
             catch (Exception e) { /* ignore */ }
          }
       }
-      
+
       FileInputStream cvXSL = null;
       Document xslDoc = null;
       try
@@ -1610,9 +1611,9 @@ public class PSInlineLinkConverter {
       catch (IOException e)
       {
          System.out.println(
-            "Error loading xsl file (" 
-               + INLINE_LINK_CONVERTER_XSL 
-               + "): " 
+            "Error loading xsl file ("
+               + INLINE_LINK_CONVERTER_XSL
+               + "): "
                + e.toString());
          printUsage();
          System.exit(-1);
@@ -1620,9 +1621,9 @@ public class PSInlineLinkConverter {
       catch (SAXException e)
       {
          System.out.println(
-               "Error parsing xsl file (" 
-                  + INLINE_LINK_CONVERTER_XSL 
-                  + "): " 
+               "Error parsing xsl file ("
+                  + INLINE_LINK_CONVERTER_XSL
+                  + "): "
                   + e.toString());
             printUsage();
             System.exit(-1);
@@ -1631,7 +1632,7 @@ public class PSInlineLinkConverter {
       {
          if (cvXSL != null)
          {
-            try 
+            try
             {
                cvXSL.close();
             }

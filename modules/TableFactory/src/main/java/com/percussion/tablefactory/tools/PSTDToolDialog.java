@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory.tools;
 
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableFactory;
@@ -64,7 +65,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-import javax.xml.XMLConstants;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -1571,8 +1571,7 @@ public class PSTDToolDialog extends JPanel {
       throw new FileNotFoundException(errMsg);
     }
 
-    TransformerFactory tFactory = TransformerFactory.newInstance();
-    tFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    TransformerFactory tFactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     Transformer transformer = null;
     transformer = tFactory.newTransformer(new StreamSource(xslUrl.toString()));
     DOMResult domResult = new DOMResult();

@@ -17,6 +17,7 @@
 package com.percussion.data;
 
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSCatalogResolver;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -70,7 +71,7 @@ public class PSCachedStylesheet {
     m_ssTemplate = null;
     m_listener = new PSTransformErrorListener();
 
-    m_transformFactory = TransformerFactory.newInstance();
+    m_transformFactory = PSSecureXMLUtils.getSecuredTransformerFactory();
 
     var cr = new PSCatalogResolver();
     cr.setInternalRequestURIResolver(new PSInternalRequestURIResolver());

@@ -17,6 +17,7 @@
 package com.percussion.servlets;
 
 import com.percussion.security.SecureStringUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableFactory;
@@ -44,7 +45,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.xml.XMLConstants;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -259,8 +259,7 @@ public class PSTdSchemaXmlServlet extends HttpServlet {
       throw new FileNotFoundException(errMsg);
     }
 
-    TransformerFactory tFactory = TransformerFactory.newInstance();
-    tFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    TransformerFactory tFactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     Transformer transformer = null;
     transformer = tFactory.newTransformer(new StreamSource(xslUrl.toString()));
     DOMResult domResult = new DOMResult();

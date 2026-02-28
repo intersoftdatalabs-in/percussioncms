@@ -18,6 +18,7 @@
 package com.percussion.xml;
 
 import com.percussion.security.xml.PSCatalogResolver;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import java.io.StringWriter;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -41,7 +42,7 @@ public class PSXmlUtil {
     if (node == null) return "";
 
     // write the content into xml file
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    TransformerFactory transformerFactory = PSSecureXMLUtils.getSecuredTransformerFactory();
 
     try {
       Transformer transformer = transformerFactory.newTransformer();

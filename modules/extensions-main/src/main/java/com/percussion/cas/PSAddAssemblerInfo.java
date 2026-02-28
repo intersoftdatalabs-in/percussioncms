@@ -17,6 +17,7 @@
 package com.percussion.cas;
 
 import com.percussion.cms.PSCmsException;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.cms.PSRelationshipData;
 import com.percussion.cms.PSSingleValueBuilder;
 import com.percussion.cms.objectstore.PSSite;
@@ -75,7 +76,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -944,8 +944,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
       if (tempSrcFile != null) fileSrc = tempSrcFile;
 
       // Create a transform factory instance.
-      TransformerFactory tfactory = TransformerFactory.newInstance();
-      tfactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      TransformerFactory tfactory = PSSecureXMLUtils.getSecuredTransformerFactory();
       // Create a transformer for the stylesheet.
       Transformer transformer = tfactory.newTransformer(new StreamSource(fileTransform));
 

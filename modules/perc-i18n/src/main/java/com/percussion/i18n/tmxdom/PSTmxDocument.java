@@ -17,6 +17,7 @@
 package com.percussion.i18n.tmxdom;
 
 import com.percussion.i18n.PSI18nUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.tools.PSCopyStream;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -450,7 +451,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     if (xslDoc == null) {
       throw new IllegalArgumentException("xslDoc must not be null.");
     }
-    TransformerFactory tfactory = TransformerFactory.newInstance();
+    TransformerFactory tfactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     if (!tfactory.getFeature(DOMSource.FEATURE)) {
       throw new org.xml.sax.SAXNotSupportedException("DOM node processing not supported!");
     }

@@ -19,6 +19,7 @@ package com.percussion.pso.fop;
 import static org.apache.xmlgraphics.util.MimeConstants.MIME_PDF;
 
 import com.percussion.extension.IPSExtensionDef;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.services.assembly.IPSAssembler;
 import com.percussion.services.assembly.IPSAssemblyItem;
@@ -101,7 +102,7 @@ public class FopAssembler extends PSVelocityAssembler implements IPSAssembler {
   /** */
   public FopAssembler() {
     super();
-    xfactory = TransformerFactory.newInstance();
+    xfactory = PSSecureXMLUtils.getSecuredTransformerFactory();
 
     try {
       String rxRootDir =

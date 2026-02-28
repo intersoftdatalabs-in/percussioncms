@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 import org.w3c.dom.Element;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import javax.xml.transform.dom.DOMSource;
@@ -102,7 +103,7 @@ public class SOAPHTTPConnection
         envEl.appendChild(bodyEl);
 
         // Transform to string
-        TransformerFactory tf = TransformerFactory.newInstance();
+        TransformerFactory tf = PSSecureXMLUtils.getSecuredTransformerFactory();
         Transformer transformer = tf.newTransformer();
         StringWriter writer = new StringWriter();
         transformer.transform(new DOMSource(doc), new StreamResult(writer));

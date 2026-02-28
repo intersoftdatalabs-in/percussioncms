@@ -20,6 +20,7 @@ package com.percussion.install;
 import static com.percussion.utils.container.IPSJdbcDbmsDefConstants.PWD_ENCRYPTED_PROPERTY;
 
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.PSEncryptor;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSCharSets;
@@ -524,7 +525,7 @@ public class RxUpgrade {
     if (xslFile.equals("")) {
       throw new IllegalArgumentException("xslFile must not be null.");
     }
-    TransformerFactory tfactory = TransformerFactory.newInstance();
+    TransformerFactory tfactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     if (!tfactory.getFeature(DOMSource.FEATURE)) {
       throw new org.xml.sax.SAXNotSupportedException("DOM node processing not supported!");
     }

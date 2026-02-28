@@ -17,6 +17,8 @@
 
 package com.percussion.xml;
 
+import com.percussion.security.xml.PSSecureXMLUtils;
+
 import java.net.URI;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
@@ -44,8 +46,9 @@ public class PSTransformerFactoryImpl extends SAXTransformerFactory {
 
   /** Constructor TransformerFactoryImpl */
   public PSTransformerFactoryImpl() {
-    // Use the SAXTransformerFactory implementation instead of internal APIs
-    this.delegate = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    // Use the SAXTransformerFactory implementation with security features
+    this.delegate =
+        (SAXTransformerFactory) PSSecureXMLUtils.getSecuredTransformerFactory();
     forceResolver();
   }
 
