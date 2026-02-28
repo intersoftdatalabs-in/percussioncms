@@ -19,6 +19,7 @@ Windows has a 260-character path limitation that can cause build failures when n
 
 1. **Open Registry Editor** (run `regedit` as Administrator)
 2. **Navigate to:**
+
    ```
    HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
    ```
@@ -34,6 +35,7 @@ New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
 ```
 
 **Verify the setting is applied:**
+
 ```powershell
 Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
   -Name "LongPathsEnabled"
@@ -51,6 +53,7 @@ Set `JAVA_HOME_21` as a **permanent** environment variable:
 5. Click **OK** and restart any open terminals
 
 **Verify the setup:**
+
 ```cmd
 echo %JAVA_HOME_21%
 mvn-env.bat -version
@@ -83,6 +86,7 @@ Parameters:
 ### Issue 1: `npm install` Fails with "Process exited with error: 1"
 
 **Symptoms:**
+
 ```
 [ERROR] Failed to execute goal com.github.eirslett:frontend-maven-plugin:1.15.1:npm (npm-install) on project perc-tinymce
 [ERROR] org.apache.commons.exec.ExecuteException: Process exited with an error: 1 (Exit value: 1)
@@ -101,6 +105,7 @@ npm cache clean --force
 ```
 
 Then retry the build:
+
 ```cmd
 mvn-env.bat clean install -pl modules/perc-tinymce -am
 ```
@@ -114,6 +119,7 @@ mvn-env.bat clean install -pl modules/perc-tinymce -am -X > build-debug.log 2>&1
 ```
 
 Search the log for the actual npm error near these markers:
+
 ```
 [INFO] --- frontend-maven-plugin:1.15.1:npm (npm-install)
 [ERROR] Failed to execute goal
@@ -132,6 +138,7 @@ Windows Defender or other antivirus software can interfere with npm file operati
 ### Issue 2: "node: command not found" or Node.js Download Fails
 
 **Symptoms:**
+
 ```
 [ERROR] Could not download Node.js
 [ERROR] Node.js is not installed
@@ -140,16 +147,19 @@ Windows Defender or other antivirus software can interfere with npm file operati
 **Solutions:**
 
 #### Check internet connectivity
+
 ```cmd
 ping www.npm.org
 ```
 
 #### Clear the frontend plugin cache
+
 ```cmd
 rmdir /s %USERPROFILE%\.m2\frontend
 ```
 
 Then retry:
+
 ```cmd
 mvn-env.bat clean install -pl modules/perc-tinymce -am
 ```
@@ -166,6 +176,7 @@ If the automated download fails:
 ### Issue 3: Long Path Error After Long Path Support is Enabled
 
 **Symptoms:**
+
 ```
 Error: ENAMETOOLONG: name too long
 ```
@@ -177,6 +188,7 @@ Verify the registry setting was applied and was successful:
 1. Restart your computer
 2. Open a **new** command prompt (don't reuse an old one)
 3. Retry the build:
+
    ```cmd
    mvn-env.bat clean install -pl modules/perc-tinymce -am
    ```
@@ -197,14 +209,16 @@ Then retry the build.
 1. **Disable antivirus scanning for Maven directories** (optional but speeds up builds):
    - Windows Defender Settings > Virus & threat protection > Manage settings
    - Add `%USERPROFILE%\.m2` to exclusions
-
 2. **Use parallel builds** to speed up compilation:
+
    ```cmd
    mvn-env.bat clean install -T 1C
    ```
+
    (builds with 1 thread per CPU core)
 
 3. **Build only what you need**:
+
    ```cmd
    mvn-env.bat clean install -pl modules/perc-tinymce -am -DskipTests
    ```
@@ -218,6 +232,7 @@ cmd /c mvn-env.bat clean install
 ```
 
 Or enter a command prompt session first:
+
 ```powershell
 cmd
 mvn-env.bat clean install
@@ -244,3 +259,4 @@ If you encounter issues not covered here:
 - [Microsoft Registry Documentation](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file)
 - [Node.js Windows Issues](https://github.com/nodejs/node/issues)
 - [npm Windows Troubleshooting](https://docs.npmjs.com/cli/v10/configuring-npm/folders)
+
