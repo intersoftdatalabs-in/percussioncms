@@ -440,7 +440,7 @@ ps.aa.Tree = function () {
    * @param {String} fieldName The field name of the searched nodes. This is
    *    an optional parameter.
    *
-   * @return a list {dojo.collections.ArrayList} of {ps.aa.ObjectId} objects.
+   * @return a list {ps.collections.ArrayList} of {ps.aa.ObjectId} objects.
    *    Never null, but may be empty.
    */
   this.getIdsFromContentId = function (contentId, fieldName) {
@@ -448,7 +448,7 @@ ps.aa.Tree = function () {
 
     var result = null;
     if (typeof fieldName === "string") {
-      result = new dojo.collections.ArrayList();
+      result = new ps.collections.ArrayList();
       this._getFieldIdsByContentIdName(contentId, fieldName, this.root, result);
     } else {
       result = this._getIdsOfTopLevelFieldNode(contentId);
@@ -464,11 +464,11 @@ ps.aa.Tree = function () {
    * @param contentId The content id of the returned object id. It may be
    *    null if wants to get all object ids regardless the content id property.
    *
-   * @return {dojo.collections.ArrayList} a list of {ps.aa.ObjectId} ids
+   * @return {ps.collections.ArrayList} a list of {ps.aa.ObjectId} ids
    *    described above. Never null, but may be empty.
    */
   this.getAllIdsByContentId = function (contentId) {
-    var result = new dojo.collections.ArrayList();
+    var result = new ps.collections.ArrayList();
     if (this.root == null) return result;
 
     this._getAllIdsByContentId(contentId, this.root, result);
@@ -481,12 +481,12 @@ ps.aa.Tree = function () {
    *
    * @param {ps.aa.ObjectId} objId The object id of the specified node.
    *
-   * @return {dojo.collections.ArrayList} a list of ids described above.
+   * @return {ps.collections.ArrayList} a list of ids described above.
    *    Never null, but may be empty.
    */
   this.getIdsFromNodeId = function (objId) {
     ps.assertType(objId, ps.aa.ObjectId);
-    var ids = new dojo.collections.ArrayList();
+    var ids = new ps.collections.ArrayList();
     var node = this.getNodeById(objId);
     if (node != null) this._getIdsFromNode(node, ids);
 
@@ -497,7 +497,7 @@ ps.aa.Tree = function () {
    * Gets the object ids from the given node and its descendants.
    *
    * @param {ps.aa.TreeNode} objId The object id of the specified node.
-   * @param {dojo.collections.ArrayList} ids The list of ids described above,
+   * @param {ps.collections.ArrayList} ids The list of ids described above,
    *    which is used to collects all ids.
    */
   this._getIdsFromNode = function (node, ids) {
@@ -519,7 +519,7 @@ ps.aa.Tree = function () {
    *    regardless the content id property.
    * @param {ps.aa.TreeNode} node The node which is searched from.
    *    This is a  required parameter.
-   * @param {dojo.collections.ArrayList} result The variable that collects
+   * @param {ps.collections.ArrayList} result The variable that collects
    *    all qualified snippet nodes. This is a required parameter.
    */
   this._getAllIdsByContentId = function (contentId, node, result) {
@@ -543,7 +543,7 @@ ps.aa.Tree = function () {
    *    a required parameter.
    * @param {ps.aa.TreeNode} pnoade The parent node that the search from.
    *    This is a  required parameter.
-   * @param {dojo.collections.ArrayList} result The variable that collects
+   * @param {ps.collections.ArrayList} result The variable that collects
    *    all qualified snippet nodes. This is a required parameter.
    */
   this._getFieldIdsByContentIdName = function (
@@ -575,11 +575,11 @@ ps.aa.Tree = function () {
    * @param {int} contentId The content id of the searched nodes. This is a
    *    required parameter.
    *
-   * @return a list {dojo.collections.ArrayList} of {ps.aa.ObjectId} objects.
+   * @return a list {ps.collections.ArrayList} of {ps.aa.ObjectId} objects.
    *    Never null, but may be empty.
    */
   this._getIdsOfTopLevelFieldNode = function (contentId) {
-    var result = new dojo.collections.ArrayList();
+    var result = new ps.collections.ArrayList();
     for (var i = 0; i < this.root.childNodes.count; i++) {
       var node = this.root.childNodes.item(i);
       if (node.isFieldNode() && node.objId.getContentId() == contentId) {
@@ -598,7 +598,7 @@ ps.aa.Tree = function () {
    *    required parameter.
    * @param {ps.aa.TreeNode} pnoade The parent node that the search from.
    *    This is a  required parameter.
-   * @param {dojo.collections.ArrayList} result The variable that collects
+   * @param {ps.collections.ArrayList} result The variable that collects
    *    all qualified snippet nodes. This is a required parameter.
    */
   this._getSnippetIdsFromContentId = function (contentId, pnode, result) {
@@ -688,7 +688,7 @@ ps.aa.Tree = function () {
  * @param (ps.aa.ObjectId} objectId  The id of this node, never null.
  * @param (ps.aa.TreeNode} parentNode  The id of the parent node, it may be null
  *    for a root node; otherwise it may not be null.
- * @param {dojo.collections.ArrayList} childNodes  The child nodes, never null,
+ * @param {ps.collections.ArrayList} childNodes  The child nodes, never null,
  *    may be empty.
  * @constructor
  */
@@ -708,7 +708,7 @@ ps.aa.TreeNode = function (objectId, pNode, childNodes) {
   else this.parentNode = pNode;
 
   /**
-   * The immidiate child nodes. {dojo.collections.ArrayList}.
+   * The immidiate child nodes. {ps.collections.ArrayList}.
    */
   if (typeof childNodes === "undefined") this.childNodes = null;
   else this.childNodes = childNodes;
@@ -831,7 +831,7 @@ ps.aa.TreeNode = function (objectId, pNode, childNodes) {
    */
   this.addChildNode = function (node) {
     if (this.childNodes == null)
-      this.childNodes = new dojo.collections.ArrayList();
+      this.childNodes = new ps.collections.ArrayList();
 
     node.parentNode = this;
     this.childNodes.add(node);

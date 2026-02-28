@@ -1,4 +1,4 @@
-dojo.declare(
+ps.declare(
   "ps.content.SearchTabPanel",
   ps.content.BrowseTabPanel,
   function (_parent) {
@@ -144,7 +144,7 @@ dojo.declare(
       }
       this.setContent(response.getValue());
       this.setSearchMode(false);
-      dojo.event.connect(
+      ps.event.connect(
         this.contentTable,
         "onSelect",
         this,
@@ -307,7 +307,7 @@ dojo.declare(
         ps.io.Actions.MIMETYPE_JSON
       );
       if (this.advancedButton) {
-        dojo.event.connect(
+        ps.event.connect(
           this.advancedButton,
           "onClick",
           this,
@@ -315,7 +315,7 @@ dojo.declare(
         );
       }
       if (this.simpleButton) {
-        dojo.event.connect(
+        ps.event.connect(
           this.simpleButton,
           "onClick",
           this,
@@ -327,7 +327,7 @@ dojo.declare(
       }
 
       if (this.ftquery) {
-        dojo.event.connect(
+        ps.event.connect(
           this.ftquery,
           "onkeyup",
           this,
@@ -411,7 +411,7 @@ dojo.declare(
       this.filteringTable = this._getWidgetById("FilteringTable");
       this.filterText = this._getElemById("filterText");
 
-      dojo.event.connect(this.filterText, "onkeyup", this, "_onFilterTyped");
+      ps.event.connect(this.filterText, "onkeyup", this, "_onFilterTyped");
       //Set the default values for include site id and folder id check boxes
       var inclSitesFlag = ps.util.getServerProperty(
         "slotContentIncludeSiteDefaultValue",
@@ -438,7 +438,7 @@ dojo.declare(
     _parseSearchPanelOnlyControls: function () {
       this.searchformPanel = this._getWidgetById("searchformpanel");
       new ps.widget.ContentPaneProgress(this.searchformPanel);
-      dojo.event.connect(
+      ps.event.connect(
         this.searchformPanel,
         "onLoad",
         this,
@@ -446,7 +446,7 @@ dojo.declare(
       );
 
       this.searchBackButton = this._getWidgetById("searchBackButton");
-      dojo.event.connect(
+      ps.event.connect(
         this.searchBackButton,
         "onClick",
         this,

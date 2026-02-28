@@ -120,15 +120,15 @@ ps.aa.controller = new (function () {
     this.treeModel = new ps.aa.Tree();
     this.treeModel.init();
     this.pageId = this.treeModel.getRootNode().objId;
-    dojo.event.connect(
+    ps.event.connect(
       this.treeModel,
       "onBeforeDomChange",
       this,
       "_onBeforeDomChange",
     );
-    dojo.event.connect(this.treeModel, "onDomChanged", this, "_onDomChanged");
+    ps.event.connect(this.treeModel, "onDomChanged", this, "_onDomChanged");
 
-    var ids = new dojo.collections.ArrayList();
+    var ids = new ps.collections.ArrayList();
     ids.add(this.pageId);
     if (___sys_aamode != 1) ids = this.treeModel.getIdsFromNodeId(this.pageId);
 
@@ -139,7 +139,7 @@ ps.aa.controller = new (function () {
     this._maybeShowTree();
 
     this.bottomPane = dojo.widget.byId("ps.aa.BottomPane");
-    dojo.event.connect(this.bottomPane, "endSizing", this, "_endTreeSizing");
+    ps.event.connect(this.bottomPane, "endSizing", this, "_endTreeSizing");
     this.treeWidget = dojo.widget.manager.getWidgetById("pageTree");
     this.treeWidget.loadFromModel(this.treeModel);
     this.activate(ps.aa.Page.getElement(this.pageId));
@@ -1670,7 +1670,7 @@ ps.aa.controller = new (function () {
    * @param {String} fieldName The modified field name. It may be null if all
    *    field may have been modified.
    *
-   * @return {dojo.collections.ArrayList} a list of affected object ids in
+   * @return {ps.collections.ArrayList} a list of affected object ids in
    *    {ps.aa.ObjectId}.
    */
   this._getAffectedObjectIds = function (contentId, fieldName) {
@@ -1681,7 +1681,7 @@ ps.aa.controller = new (function () {
 
     // gets the content id of all managed nodes
     var allObjIds = this.treeModel.getAllIdsByContentId(null);
-    var allContentIds = new dojo.collections.ArrayList();
+    var allContentIds = new ps.collections.ArrayList();
     var cid;
     for (var i = 0; i < allObjIds.count; i++) {
       cid = allObjIds.item(i).getContentId();
@@ -2132,7 +2132,7 @@ ps.aa.controller = new (function () {
   /**
    * Refresh the icons of the given object ids.
    *
-   * @param {dojo.collections.ArrayList} ids the list of object ids {ps.aa.ObjectId}.
+   * @param {ps.collections.ArrayList} ids the list of object ids {ps.aa.ObjectId}.
    */
   this._resetObjectIcons = function (ids) {
     for (var i = 0; i < ids.count; i++) {

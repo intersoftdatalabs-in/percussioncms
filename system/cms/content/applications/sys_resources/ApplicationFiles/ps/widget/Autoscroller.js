@@ -28,10 +28,10 @@ ps.widget.Autoscroller = function () {
 
     // listen on dojo.dnd.dragManager methods instead of concreate targets
     // and objects to provide autoscroll for all DnD
-    dojo.event.connect(dojo.dnd.dragManager, "onMouseUp", function () {
+    ps.event.connect(dojo.dnd.dragManager, "onMouseUp", function () {
       _this._stopScroll();
     });
-    dojo.event.connectAround(
+    ps.event.connectAround(
       dojo.dnd.dragManager,
       "onMouseMove",
       this,

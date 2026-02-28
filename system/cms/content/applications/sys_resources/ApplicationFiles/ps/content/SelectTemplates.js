@@ -56,7 +56,7 @@ ps.content.SelectTemplates = function () {
       this.hide();
     };
 
-    dojo.event.connect(this.wgtDlg, "onLoad", function () {
+    ps.event.connect(this.wgtDlg, "onLoad", function () {
       _this.parseControls();
       var temps = _this.wgtTemplates;
       if (temps.options.length > 0) {

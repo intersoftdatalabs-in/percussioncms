@@ -47,10 +47,10 @@ ps.widget.ContentPaneProgress = function (contentPane) {
   if (!contentPane.isLoaded) {
     start();
   }
-  dojo.event.connect(contentPane, "onDownloadStart", function () {
+  ps.event.connect(contentPane, "onDownloadStart", function () {
     start();
   });
-  dojo.event.connect(contentPane, "onDownloadEnd", function () {
+  ps.event.connect(contentPane, "onDownloadEnd", function () {
     element.style.cursor = originalCursor === WAIT_CURSOR ? "" : originalCursor;
   });
 };

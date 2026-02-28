@@ -7,7 +7,7 @@
  * appended '|' character, and numeric item id.
  * </p>
  */
-dojo.declare(
+ps.declare(
   "ps.content.BrowseTabPanel",
   null,
   function (_parent) {
@@ -16,7 +16,7 @@ dojo.declare(
     this.parent = _parent;
     this.isSearchForm = true;
     this.isSelectTemplateMode = false;
-    this.lastButtonState = new dojo.collections.Dictionary();
+    this.lastButtonState = new ps.collections.Dictionary();
     this.templatesPanelObj = null;
   },
   {
@@ -24,7 +24,7 @@ dojo.declare(
      * Initializes the tab.
      */
     init: function () {
-      dojo.event.topic.subscribe(
+      ps.event.topic.subscribe(
         this.tab.parent.domNode.id + "-selectChild",
         this,
         "_onTabSelected",
@@ -35,7 +35,7 @@ dojo.declare(
         this._initOnLoad();
       } else {
         var _this = this;
-        dojo.event.connect(this.tab, "onLoad", function () {
+        ps.event.connect(this.tab, "onLoad", function () {
           try {
             _this._initOnLoad();
           } catch (e) {
@@ -148,8 +148,8 @@ dojo.declare(
       this.contentSplitPane = this._getWidgetById("contentsplitpane");
       this.commandPanel = this._getWidgetById("commandpanel");
 
-      dojo.event.connect(this.okButton, "onClick", this, "_onOk");
-      dojo.event.connect(this.cancelButton, "onClick", this, "_onCancel");
+      ps.event.connect(this.okButton, "onClick", this, "_onOk");
+      ps.event.connect(this.cancelButton, "onClick", this, "_onCancel");
     },
 
     /**
@@ -897,7 +897,7 @@ dojo.declare(
             _this._goTo(newPath, row);
           },
         };
-        dojo.event.connect(a, "onclick", wrapper, "myClickFunc");
+        ps.event.connect(a, "onclick", wrapper, "myClickFunc");
       }, this);
     },
 
@@ -1111,7 +1111,7 @@ dojo.declare(
             psxGetLocalMessage("javascript.ps.content.browse@Include_Folder"),
           );
         this.templatesSiteFolderParam.setUrl(newUrl);
-        dojo.event.connect(
+        ps.event.connect(
           this.templatesSiteFolderParam,
           "onLoad",
           function () {
@@ -1130,7 +1130,7 @@ dojo.declare(
       var panel = new ps.content.SelectTemplates();
       var _this = this;
 
-      dojo.event.connect(this.templatesPanel, "onLoad", function () {
+      ps.event.connect(this.templatesPanel, "onLoad", function () {
         panel.initAsPanel(_this.parent.mode);
       });
       return panel;

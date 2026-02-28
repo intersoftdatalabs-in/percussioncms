@@ -14,7 +14,7 @@ dojo.widget.defineWidget(
   "ps.widget.TreeSelector",
   dojo.widget.TreeSelectorV3,
   function () {
-    dojo.event.connect(this, "processNode", this, "_nodeActivated");
+    ps.event.connect(this, "processNode", this, "_nodeActivated");
   },
   {
     /**

@@ -21,13 +21,13 @@ ps.aa.dnd = new (function () {
    */
   this.init = function () {
     dojo.dnd.dragManager.nestedTargets = true;
-    dojo.event.connect(
+    ps.event.connect(
       ps.aa.controller.treeModel,
       "onBeforeDomChange",
       this,
       "_onBeforeDomChange"
     );
-    dojo.event.connect(
+    ps.event.connect(
       ps.aa.controller.treeModel,
       "onDomChanged",
       this,
@@ -83,24 +83,24 @@ ps.aa.dnd = new (function () {
       var target = new dojo.dnd.HtmlDropTarget(node, ps.aa.SNIPPET_CLASS);
       _this.dropTargets[id.serialize()] = target;
 
-      dojo.event.connectAround(
+      ps.event.connectAround(
         target,
         "onDragMove",
         _this,
         "_resetDropTargetVertical"
       );
 
-      dojo.event.connectAround(target, "onDragOver", _this, "_onDragOver");
+      ps.event.connectAround(target, "onDragOver", _this, "_onDragOver");
       ps.assert(target.insert);
-      dojo.event.connectAround(target, "insert", _this, "_dropTargetInsert");
-      dojo.event.connectAround(
+      ps.event.connectAround(target, "insert", _this, "_dropTargetInsert");
+      ps.event.connectAround(
         target,
         "createDropIndicator",
         _this,
         "_createDropIndicator"
       );
 
-      dojo.event.connect(target, "onDropEnd", _this, "_onDropEnd");
+      ps.event.connect(target, "onDropEnd", _this, "_onDropEnd");
     });
   };
 
