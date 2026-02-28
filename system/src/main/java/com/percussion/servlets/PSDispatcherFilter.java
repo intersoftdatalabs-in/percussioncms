@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,10 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -152,28 +146,11 @@ public class PSDispatcherFilter implements Filter {
 
     if (referrer != null) {
       String site = null;
-      try {
+      Matcher m = pattern.matcher(referrer);
 
-        List<NameValuePair> params =
-            URLEncodedUtils.parse(new URI(referrer), StandardCharsets.UTF_8);
-        NameValuePair siteParam = null;
-        /*NameValuePair siteParam = params.stream()
-                                    .filter(p -> p.getName().equals("site"))
-                                    .findFirst()
-                                    .orElse(null);
-        */
-        if (siteParam != null) {
-          site = siteParam.getValue();
-        } else {
-          Matcher m = pattern.matcher(referrer);
-
-          if (m.find()) {
-            site = m.group(1);
-            log.debug("Found site referer = {}", site);
-          }
-        }
-      } catch (URISyntaxException e) {
-        log.debug("Invalid referrer url");
+      if (m.find()) {
+        site = m.group(1);
+        log.debug("Found site referer = {}", site);
       }
       if (site != null) path = "/Sites/" + site + path;
     }

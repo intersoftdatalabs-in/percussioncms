@@ -58,7 +58,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -459,9 +458,6 @@ public class JettyDatasourceConfigurationAdapter
 
     if (idNameMap.size() > 0) updated = true;
 
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    factory.setNamespaceAware(true);
-
     for (IPSJndiDatasource ds : idNameMap.values()) {
       maxId++;
 
@@ -483,8 +479,6 @@ public class JettyDatasourceConfigurationAdapter
 
   private Document createNewDatasourceXml() throws IOException, SAXException {
     Document doc;
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    factory.setNamespaceAware(true);
     String newXml = dsTemplate;
 
     try (InputStream is = new ByteArrayInputStream(newXml.getBytes())) {

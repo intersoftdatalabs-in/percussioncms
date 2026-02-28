@@ -17,7 +17,14 @@
 
 package com.percussion.security.xml;
 
-/** Allows for the setting of XML security options. */
+/**
+ * Allows for the setting of XML security options.
+ *
+ * <p>Prefer the {@link #secure()} or {@link #secureWithDtd()} factory methods for safe defaults.
+ * Note that {@link PSSecureXMLUtils} will <em>always</em> hard-disable external entities and
+ * external parameter entities regardless of the values set here, as a defense-in-depth measure
+ * against XXE (CWE-611).
+ */
 public class PSXmlSecurityOptions {
   public PSXmlSecurityOptions(
       boolean enableExternalEntities,
@@ -32,6 +39,28 @@ public class PSXmlSecurityOptions {
     this.enableSecureProcessing = enableSecureProcessing;
     this.enableExternalParameterEntities = enableExternalParameterEntities;
     this.enableValidation = enableValidation;
+  }
+
+  /**
+   * Returns the most restrictive secure defaults: no external entities, no DTDs, no external DTD
+   * references, no external parameter entities, secure processing enabled, validation off.
+   *
+   * @return a new secure {@link PSXmlSecurityOptions} instance
+   */
+  public static PSXmlSecurityOptions secure() {
+    return new PSXmlSecurityOptions(false, false, false, true, false, false);
+  }
+
+  /**
+   * Returns secure defaults that still allow DTD declarations and local DTD loading. External
+   * entities and external parameter entities remain disabled.
+   *
+   * <p>Use this when parsing Percussion CMS XML that relies on DTD-based entity definitions.
+   *
+   * @return a new secure {@link PSXmlSecurityOptions} instance with DTD support
+   */
+  public static PSXmlSecurityOptions secureWithDtd() {
+    return new PSXmlSecurityOptions(false, true, true, true, false, false);
   }
 
   private boolean enableExternalEntities;

@@ -17,6 +17,8 @@
 package com.percussion.install;
 
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSOsTool;
 import com.percussion.util.PSProperties;
@@ -58,9 +60,7 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang3.StringUtils;
@@ -779,11 +779,10 @@ public class InstallUtil {
             + "deploy"
             + File.separator
             + "rx-ds.xml";
-    DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder docBuilder;
     try {
-      docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      docBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
+      var docBuilderFactory =
+          PSSecureXMLUtils.getSecuredDocumentBuilderFactory(PSXmlSecurityOptions.secureWithDtd());
 
       docBuilder = docBuilderFactory.newDocumentBuilder();
       Document doc = docBuilder.parse(new File(pathToRsDx));
@@ -843,11 +842,10 @@ public class InstallUtil {
     if (dirName == null || dirName.length() == 0)
       throw new IllegalArgumentException("install location may not be " + "null or empty");
 
-    DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder docBuilder;
     try {
-      docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      docBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
+      var docBuilderFactory =
+          PSSecureXMLUtils.getSecuredDocumentBuilderFactory(PSXmlSecurityOptions.secureWithDtd());
       docBuilder = docBuilderFactory.newDocumentBuilder();
       Document doc = docBuilder.parse(new File(pathToServerConf));
       NodeList connectorList = doc.getElementsByTagName("Connector");

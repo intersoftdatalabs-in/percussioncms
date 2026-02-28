@@ -281,12 +281,6 @@
 		<level value="INFO" />
 	</logger>
 
-	<!-- Remove info about basic auth -->
-	<logger
-		name="org.apache.commons.httpclient.auth.AuthChallengeProcessor">
-		<level value="ERROR" />
-	</logger>
-
 	<!-- Change to INFO to see Metadata extraction errors -->
 	<logger name="org.deri.any23.extractor.SingleDocumentExtraction">
 		<level value="ERROR" />

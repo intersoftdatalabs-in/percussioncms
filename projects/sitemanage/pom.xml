@@ -547,11 +547,6 @@
             <artifactId>ehcache</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.github.dfabulich</groupId>
             <artifactId>sitemapgen4j</artifactId>
         </dependency>

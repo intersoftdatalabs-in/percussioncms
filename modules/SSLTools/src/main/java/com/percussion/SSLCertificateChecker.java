@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,6 @@ package com.percussion;
 
 import com.percussion.security.error.PSExceptionUtils;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,16 +25,15 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import javax.net.ssl.HttpsURLConnection;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -80,7 +78,6 @@ public class SSLCertificateChecker {
       // Eating this Exception as may be list of urls sent in file rather than 1 url.
     }
 
-    File urlsFile = null;
     if (url != null) {
       sslChecker.checkCertificate(urlStr, warningDays);
     } else {
@@ -215,34 +212,27 @@ public class SSLCertificateChecker {
   private void postSlackMessage() {
 
     if (slackUrl != null) {
-
-      // Incoming Webhook e.g."https://hooks.slack.com/services/your-token-here"
-      HttpPost post = new HttpPost(slackUrlStr);
-
-      CloseableHttpClient httpClient = HttpClients.createDefault();
-
       JSONObject json = new JSONObject();
       try {
         json.put("channel", slackChannel);
         json.put("text", messageBuffer.toString());
         json.put("username", slackUserName);
 
-        StringEntity params = new StringEntity(json.toString());
-        post.addHeader("content-type", "application/json");
-        post.setEntity(params);
-        httpClient.execute(post);
+        HttpRequest request =
+            HttpRequest.newBuilder(URI.create(slackUrlStr))
+                .header("content-type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+                .build();
+
+        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding());
 
       } catch (Exception ex) {
         log.error(ex.getMessage());
         log.debug(ex.getMessage(), ex);
-        // handle exception here
-      } finally {
-        try {
-          httpClient.close();
-        } catch (IOException e) {
-          log.error(PSExceptionUtils.getMessageForLog(e));
-          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        if (ex instanceof InterruptedException) {
+          Thread.currentThread().interrupt();
         }
+      } finally {
         messagePostedFlag = true;
         messageBuffer = null;
       }
