@@ -61,7 +61,6 @@ CLASSPATH=${CLASSPATH}:$pwd/Tools/AspectJ/aspectjrt.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/AspectJ/aspectjweaver.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Stax/stax-api-1.0.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Hibernate/hibernate-commons-annotations.jar
-CLASSPATH=${CLASSPATH}:$pwd/Tools/Commons/commons-httpclient-3.1.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Commons/commons-logging-1.1.1.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Ehcache/backport-util-concurrent.jar
 CLASSPATH=${CLASSPATH}:$pwd/Tools/Ehcache/ehcache-1.4.1.jar

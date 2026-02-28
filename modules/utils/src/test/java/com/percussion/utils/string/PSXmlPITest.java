@@ -41,8 +41,12 @@ public class PSXmlPITest {
   static String ms_result1 =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<doc>\n"
-          + "   <el><?psx-activetag <%active%>?><?php phpcode?></el><?psx-activetag <%active2%>?>\n"
-          + "</doc>";
+          + "   <el>\n"
+          + "      <?psx-activetag <%active%>?>\n"
+          + "      <?php phpcode?>\n"
+          + "   </el>\n"
+          + "   <?psx-activetag <%active2%>?>\n"
+          + "</doc>\n";
 
   @Test
   public void testEncode() throws Exception {
@@ -82,8 +86,12 @@ public class PSXmlPITest {
   static String ms_result2 =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<doc>\n"
-          + "   <el><%active%><?php phpcode?></el><%active2%>\n"
-          + "</doc>";
+          + "   <el>\n"
+          + "      <%active%>\n"
+          + "      <?php phpcode?>\n"
+          + "   </el>\n"
+          + "   <%active2%>\n"
+          + "</doc>\n";
 
   @Test
   public void testStrip() throws Exception {

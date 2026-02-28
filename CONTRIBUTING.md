@@ -503,12 +503,6 @@ For example:
            <AppenderRef ref="RXGLOBALTEMPLATES"/>
        </AsyncLogger>
 
-       <!-- Remove info about basic auth -->
-       <AsyncLogger name="org.apache.commons.httpclient.auth.AuthChallengeProcessor" level="error" includeLocation="true" additivity="false">
-           <AppenderRef ref="CONSOLE"/>
-           <AppenderRef ref="FILE"/>
-       </AsyncLogger>
-
        <!-- Change to INFO to see Metadata extraction errors -->
        <AsyncLogger name="org.deri.any23.extractor.SingleDocumentExtraction" level="error" includeLocation="true" additivity="false">
            <AppenderRef ref="CONSOLE"/>
