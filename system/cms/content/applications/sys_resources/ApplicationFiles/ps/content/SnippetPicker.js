@@ -68,16 +68,16 @@ ps.content.SnippetPicker = function () {
    */
   this.parseControls = function () {
     var _this = this;
-    this.wgtButtonSelect = dojo.widget.byId(
+    this.wgtButtonSelect = ps.widget.byId(
       "ps.snippet.picker.wgtButtonSelect"
     );
-    this.wgtButtonCancel = dojo.widget.byId(
+    this.wgtButtonCancel = ps.widget.byId(
       "ps.snippet.picker.wgtButtonCancel"
     );
-    this.wgtButtonShowtitles = dojo.widget.byId(
+    this.wgtButtonShowtitles = ps.widget.byId(
       "ps.snippet.picker.wgtButtonShowTitles"
     );
-    this.wgtSnippetDisplayDiv = dojo.widget.byId(
+    this.wgtSnippetDisplayDiv = ps.widget.byId(
       "ps.snippet.picker.wgtSnippetDisplayDiv"
     );
     this.tblRemoveSnippetBtns = document.getElementById(
@@ -121,10 +121,10 @@ ps.content.SnippetPicker = function () {
     };
 
     if (this.dlgType == this.REMOVE_SNIPPETS_DLG) {
-      this.wgtButtonSelectAll = dojo.widget.byId(
+      this.wgtButtonSelectAll = ps.widget.byId(
         "ps.snippet.picker.wgtButtonSelectAll"
       );
-      this.wgtButtonDeselectAll = dojo.widget.byId(
+      this.wgtButtonDeselectAll = ps.widget.byId(
         "ps.snippet.picker.wgtButtonDeselectAll"
       );
       this.wgtButtonSelectAll.onClick = function () {

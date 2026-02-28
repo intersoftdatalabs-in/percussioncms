@@ -265,7 +265,7 @@ ps.aa.Menu = new (function () {
    */
   this.initAsynch = function (ids) {
     this._initContextMenu(ids);
-    var menubar = dojo.widget.byId("ps.aa.Menubar");
+    var menubar = ps.widget.byId("ps.aa.Menubar");
     this._addMenubarItems2(menubar);
   };
 
@@ -502,14 +502,14 @@ ps.aa.Menu = new (function () {
      */
     (this._initMenuBar = function () {
       // dynamically build the menubar
-      var menubar = dojo.widget.byId("ps.aa.Menubar");
+      var menubar = ps.widget.byId("ps.aa.Menubar");
 
-      this.menubarIcon = dojo.widget.createWidget(ps.aa.Menu.MENUBARICON);
+      this.menubarIcon = ps.widget.createWidget(ps.aa.Menu.MENUBARICON);
       menubar.addChild(this.menubarIcon);
       this._addContentMenu(menubar);
       this._addEditMenu(menubar);
       this._addViewMenu(menubar);
-      this.workflow = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
+      this.workflow = ps.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
         caption: "Workflow...",
         onClick: function () {
           ps.aa.controller.workflowItem();
@@ -532,7 +532,7 @@ ps.aa.Menu = new (function () {
   this._addMenubarItems2 = function (menubar) {
     ps.assert(menubar, "Menu bar must be specified");
 
-    this.addSnippetElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
+    this.addSnippetElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
       caption: "Insert Snippet...",
       onClick: function () {
         ps.aa.controller.addSnippet(ps.aa.Menu.INSERT_FROM_SLOT);
@@ -542,7 +542,7 @@ ps.aa.Menu = new (function () {
 
     menubar.addChild(this.addSnippetElem, null, "before", this.preview.domNode);
 
-    this.changeTemplateElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
+    this.changeTemplateElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
       caption: "Template...",
       onClick: function () {
         ps.aa.controller.changeTemplate();
@@ -550,7 +550,7 @@ ps.aa.Menu = new (function () {
     });
     this.changeTemplateElem.domNode.style.display = "none";
 
-    this.upElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
+    this.upElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
       caption: "Up",
       onClick: function () {
         ps.aa.controller.moveSnippetUp();
@@ -558,7 +558,7 @@ ps.aa.Menu = new (function () {
     });
     this.upElem.domNode.style.display = "none";
 
-    this.downElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
+    this.downElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEM, {
       caption: "Down",
       onClick: function () {
         ps.aa.controller.moveSnippetDown();
@@ -587,40 +587,40 @@ ps.aa.Menu = new (function () {
 
     /* these must be created before the menu is accessed because they are
          called early during init */
-    this.showTreeElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+    this.showTreeElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
       caption: "Show Outline",
       onClick: function () {
         ps.aa.controller.showTree();
       },
     });
-    this.hideTreeElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+    this.hideTreeElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
       caption: "Hide Outline",
       onClick: function () {
         ps.aa.controller.hideTree();
       },
     });
     if (___sys_aamode == 1) {
-      this.showBordersElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      this.showBordersElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Show Icons/Borders",
         onClick: function () {
           ps.aa.controller.showBorders();
         },
       });
     } else {
-      this.hideBordersElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      this.hideBordersElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Hide Icons/Borders",
         onClick: function () {
           ps.aa.controller.hideBorders();
         },
       });
     }
-    this.showPlaceholdersElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+    this.showPlaceholdersElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
       caption: "Show Place Holders",
       onClick: function () {
         ps.aa.controller.showPlaceholders();
       },
     });
-    this.hidePlaceholdersElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+    this.hidePlaceholdersElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
       caption: "Hide Place Holders",
       onClick: function () {
         ps.aa.controller.hidePlaceholders();
@@ -628,7 +628,7 @@ ps.aa.Menu = new (function () {
     });
 
     function createSubmenu() {
-      var popmenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+      var popmenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
         id: "ps.aa.ViewSubMenu",
       });
 
@@ -647,7 +647,7 @@ ps.aa.Menu = new (function () {
       _this._resetLastMenubar();
     }
 
-    this.viewElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
+    this.viewElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
       caption: "View",
       submenuId: "ps.aa.ViewSubMenu",
     });
@@ -662,12 +662,12 @@ ps.aa.Menu = new (function () {
     var _this = this;
 
     function createSubmenu() {
-      var popmenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+      var popmenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
         id: "ps.aa.ToolSubMenu",
       });
 
       var actionName = "View_Compare";
-      _this.compare = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.compare = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: _this.actionVisibilityChecker.getLabel(actionName),
         onClick: function () {
           ps.aa.controller.compareItemRevisions();
@@ -677,7 +677,7 @@ ps.aa.Menu = new (function () {
       popmenu.addChild(_this.compare);
 
       actionName = "Item_ViewDependents";
-      _this.showRelationships = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.showRelationships = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: _this.actionVisibilityChecker.getLabel(actionName),
         onClick: function () {
           ps.aa.controller.showItemRelationships();
@@ -686,10 +686,10 @@ ps.aa.Menu = new (function () {
       _this.showRelationships.rx_actionName = actionName;
       popmenu.addChild(_this.showRelationships);
 
-      var separator = dojo.widget.createWidget(ps.aa.Menu.MENUSEPARATOR);
+      var separator = ps.widget.createWidget(ps.aa.Menu.MENUSEPARATOR);
       popmenu.addChild(separator);
 
-      _this.viewContent = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.viewContent = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "View Content Item",
         onClick: function () {
           ps.aa.controller.viewContent();
@@ -697,7 +697,7 @@ ps.aa.Menu = new (function () {
       });
       popmenu.addChild(_this.viewContent);
 
-      _this.viewProperties = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.viewProperties = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Properties",
         onClick: function () {
           ps.aa.controller.viewProperties();
@@ -705,7 +705,7 @@ ps.aa.Menu = new (function () {
       });
       popmenu.addChild(_this.viewProperties);
 
-      _this.viewRevisions = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.viewRevisions = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Revisions",
         onClick: function () {
           ps.aa.controller.viewRevisions();
@@ -713,7 +713,7 @@ ps.aa.Menu = new (function () {
       });
       popmenu.addChild(_this.viewRevisions);
 
-      _this.viewAuditTrail = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.viewAuditTrail = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Audit Trail",
         onClick: function () {
           ps.aa.controller.viewAuditTrail();
@@ -721,12 +721,12 @@ ps.aa.Menu = new (function () {
       });
       popmenu.addChild(_this.viewAuditTrail);
 
-      _this.separator = dojo.widget.createWidget(ps.aa.Menu.MENUSEPARATOR);
+      _this.separator = ps.widget.createWidget(ps.aa.Menu.MENUSEPARATOR);
       popmenu.addChild(_this.separator);
 
       if (ps.io.Actions.getLocaleCount() > 1) {
         actionName = "Translate";
-        _this.translate = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        _this.translate = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: _this.actionVisibilityChecker.getLabel(actionName),
           onClick: function () {
             ps.aa.controller.createTranslation();
@@ -737,7 +737,7 @@ ps.aa.Menu = new (function () {
       }
 
       actionName = "Edit_PromotableVersion";
-      _this.createVersion = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.createVersion = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: _this.actionVisibilityChecker.getLabel(actionName),
         onClick: function () {
           ps.aa.controller.createVersion();
@@ -746,7 +746,7 @@ ps.aa.Menu = new (function () {
       _this.createVersion.rx_actionName = actionName;
       popmenu.addChild(_this.createVersion);
 
-      _this.showUrl = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.showUrl = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Link to Page",
         onClick: function () {
           ps.aa.controller.showPageUrl();
@@ -755,7 +755,7 @@ ps.aa.Menu = new (function () {
       popmenu.addChild(_this.showUrl);
 
       actionName = "Publish_Now";
-      _this.pubNow = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.pubNow = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: _this.actionVisibilityChecker.getLabel(actionName),
         onClick: function () {
           ps.aa.controller.publishPage();
@@ -775,7 +775,7 @@ ps.aa.Menu = new (function () {
       _this._resetLastMenubar();
     }
 
-    this.toolElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
+    this.toolElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
       caption: "Tools",
       submenuId: "ps.aa.ToolSubMenu",
     });
@@ -790,11 +790,11 @@ ps.aa.Menu = new (function () {
     var _this = this;
 
     function createSubmenu() {
-      var popmenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+      var popmenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
         id: "ps.aa.ContentSubMenu",
       });
 
-      _this.contentNewElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.contentNewElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Copy",
         onClick: function () {
           ps.aa.controller.createItem(ps.aa.Menu.COPY_FROM_CONTENT);
@@ -802,7 +802,7 @@ ps.aa.Menu = new (function () {
       });
       popmenu.addChild(_this.contentNewElem);
 
-      _this.contentNewItemElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.contentNewItemElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "New",
         onClick: function () {
           ps.aa.controller.createItem(ps.aa.Menu.NEW_FROM_CONTENT);
@@ -813,7 +813,7 @@ ps.aa.Menu = new (function () {
       _this._resetLastMenubar();
     }
 
-    this.contentElem = dojo.widget.createWidget(
+    this.contentElem = ps.widget.createWidget(
       ps.aa.Menu.MENUBARITEMDROPDOWN,
       { caption: "Content", submenuId: "ps.aa.ContentSubMenu" }
     );
@@ -828,11 +828,11 @@ ps.aa.Menu = new (function () {
     var _this = this;
 
     function createSubmenu() {
-      var popmenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+      var popmenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
         id: "ps.aa.AccountSubMenu",
       });
 
-      _this.accountUserInfoElem = dojo.widget.createWidget(
+      _this.accountUserInfoElem = ps.widget.createWidget(
         ps.aa.Menu.MENUITEM,
         {
           caption: "User Info",
@@ -843,7 +843,7 @@ ps.aa.Menu = new (function () {
       );
       popmenu.addChild(_this.accountUserInfoElem);
 
-      _this.accountLogoutElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.accountLogoutElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Logout",
         onClick: function () {
           ps.aa.controller.logout();
@@ -852,7 +852,7 @@ ps.aa.Menu = new (function () {
       popmenu.addChild(_this.accountLogoutElem);
     }
 
-    this.accountElem = dojo.widget.createWidget(
+    this.accountElem = ps.widget.createWidget(
       ps.aa.Menu.MENUBARITEMDROPDOWN,
       { caption: "Account", submenuId: "ps.aa.AccountSubMenu" }
     );
@@ -867,11 +867,11 @@ ps.aa.Menu = new (function () {
     var _this = this;
 
     function createSubmenu() {
-      var popmenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+      var popmenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
         id: "ps.aa.EditSubMenu",
       });
 
-      _this.editAllElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.editAllElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Content Item",
         onClick: function () {
           ps.aa.controller.editAll();
@@ -879,7 +879,7 @@ ps.aa.Menu = new (function () {
       });
       popmenu.addChild(_this.editAllElem);
 
-      _this.editFieldElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.editFieldElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Field",
         onClick: function () {
           ps.aa.controller.editField();
@@ -888,7 +888,7 @@ ps.aa.Menu = new (function () {
       _this.editFieldElem.domNode.style.display = "none";
       popmenu.addChild(_this.editFieldElem);
 
-      _this.removeElem = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.removeElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Remove",
         onClick: function () {
           ps.aa.controller.removeSnippet();
@@ -900,7 +900,7 @@ ps.aa.Menu = new (function () {
       _this._resetLastMenubar();
     }
 
-    this.editElem = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
+    this.editElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
       caption: "Edit",
       submenuId: "ps.aa.EditSubMenu",
     });
@@ -915,11 +915,11 @@ ps.aa.Menu = new (function () {
     var _this = this;
 
     function createSubmenu() {
-      var popmenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+      var popmenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
         id: "ps.aa.HelpSubMenu",
       });
       popmenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "Active Assembly Help",
           onClick: function () {
             ps.aa.controller.openHelpWindow(ps.aa.Menu.AAHELP);
@@ -927,7 +927,7 @@ ps.aa.Menu = new (function () {
         })
       );
       popmenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "Active Assembly Tutorial",
           onClick: function () {
             ps.aa.controller.openHelpWindow(ps.aa.Menu.AATUTORIAL);
@@ -935,7 +935,7 @@ ps.aa.Menu = new (function () {
         })
       );
       popmenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "About Active Assembly",
           onClick: function () {
             ps.aa.controller.openHelpWindow(ps.aa.Menu.AAABOUT);
@@ -945,7 +945,7 @@ ps.aa.Menu = new (function () {
       _this._resetLastMenubar();
     }
 
-    var helpMenu = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
+    var helpMenu = ps.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
       caption: "Help",
       submenuId: "ps.aa.HelpSubMenu",
     });
@@ -960,11 +960,11 @@ ps.aa.Menu = new (function () {
     var _this = this;
 
     function createSubmenu() {
-      var popmenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+      var popmenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
         id: "ps.aa.PreviewSubMenu",
       });
       popmenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "Current Revisions",
           onClick: function () {
             ps.aa.controller.previewWithCurrentRevisions();
@@ -972,7 +972,7 @@ ps.aa.Menu = new (function () {
         })
       );
       popmenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "With Edits",
           onClick: function () {
             ps.aa.controller.previewWithEditRevisions();
@@ -982,7 +982,7 @@ ps.aa.Menu = new (function () {
       _this._resetLastMenubar();
     }
 
-    this.preview = dojo.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
+    this.preview = ps.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
       caption: "Preview",
       submenuId: "ps.aa.PreviewSubMenu",
     });
@@ -998,27 +998,27 @@ ps.aa.Menu = new (function () {
     var _this = this;
 
     // create Slot Context Menu
-    this.slotCtxMenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+    this.slotCtxMenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
       id: "ps.aa.SlotCtxMenu",
     });
     var slotMenu = this.slotCtxMenu;
     document.body.appendChild(slotMenu.domNode);
     slotMenu.createMenuItems = function () {
-      _this.ctxNewSnippet = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxNewSnippet = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "New Snippet...",
         onClick: function () {
           ps.aa.controller.createItem(ps.aa.Menu.NEW_FROM_SLOT);
         },
       });
       slotMenu.addChild(_this.ctxNewSnippet);
-      _this.ctxAddSnippet = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxAddSnippet = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Insert Snippet...",
         onClick: function () {
           ps.aa.controller.addSnippet(ps.aa.Menu.INSERT_FROM_SLOT);
         },
       });
       slotMenu.addChild(_this.ctxAddSnippet);
-      _this.ctxRemoveSnippet = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxRemoveSnippet = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Remove Snippets...",
         onClick: function () {
           ps.aa.controller.openRemoveSnippetsDlg();
@@ -1028,13 +1028,13 @@ ps.aa.Menu = new (function () {
     };
 
     // create Item Context Menu
-    this.itemCtxMenu = dojo.widget.createWidget(ps.aa.Menu.POPUPMENU, {
+    this.itemCtxMenu = ps.widget.createWidget(ps.aa.Menu.POPUPMENU, {
       id: "ps.aa.ItemCtxMenu",
     });
     var itemMenu = this.itemCtxMenu;
     document.body.appendChild(itemMenu.domNode);
     itemMenu.createMenuItems = function () {
-      _this.ctxChangeTemplate = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxChangeTemplate = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Template...",
         onClick: function () {
           ps.aa.controller.changeTemplate();
@@ -1042,7 +1042,7 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxChangeTemplate);
 
-      _this.ctxUp = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxUp = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Up",
         onClick: function () {
           ps.aa.controller.moveSnippetUp();
@@ -1050,7 +1050,7 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxUp);
 
-      _this.ctxDown = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxDown = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Down",
         onClick: function () {
           ps.aa.controller.moveSnippetDown();
@@ -1058,7 +1058,7 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxDown);
 
-      _this.ctxRemove = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxRemove = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Remove",
         onClick: function () {
           ps.aa.controller.removeSnippet();
@@ -1066,12 +1066,12 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxRemove);
 
-      _this.ctxItemSeparator1 = dojo.widget.createWidget(
+      _this.ctxItemSeparator1 = ps.widget.createWidget(
         ps.aa.Menu.MENUSEPARATOR
       );
       itemMenu.addChild(_this.ctxItemSeparator1);
 
-      _this.ctxNewFromSnippet = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxNewFromSnippet = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "New...",
         onClick: function () {
           ps.aa.controller.createItem(ps.aa.Menu.NEW_FROM_SNIPPET);
@@ -1079,7 +1079,7 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxNewFromSnippet);
 
-      _this.ctxInsertFromSnippet = dojo.widget.createWidget(
+      _this.ctxInsertFromSnippet = ps.widget.createWidget(
         ps.aa.Menu.MENUITEM,
         {
           caption: "Insert...",
@@ -1090,7 +1090,7 @@ ps.aa.Menu = new (function () {
       );
       itemMenu.addChild(_this.ctxInsertFromSnippet);
 
-      _this.ctxReplaceFromSnippet = dojo.widget.createWidget(
+      _this.ctxReplaceFromSnippet = ps.widget.createWidget(
         ps.aa.Menu.MENUITEM,
         {
           caption: "Replace...",
@@ -1101,12 +1101,12 @@ ps.aa.Menu = new (function () {
       );
       itemMenu.addChild(_this.ctxReplaceFromSnippet);
 
-      _this.ctxItemSeparator2 = dojo.widget.createWidget(
+      _this.ctxItemSeparator2 = ps.widget.createWidget(
         ps.aa.Menu.MENUSEPARATOR
       );
       itemMenu.addChild(_this.ctxItemSeparator2);
 
-      _this.ctxOpenFromSnippet = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxOpenFromSnippet = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Open",
         onClick: function () {
           ps.aa.controller.openSnippet();
@@ -1114,7 +1114,7 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxOpenFromSnippet);
 
-      _this.ctxWorkflow = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxWorkflow = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Workflow...",
         onClick: function () {
           ps.aa.controller.workflowItem();
@@ -1122,7 +1122,7 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxWorkflow);
 
-      _this.ctxEditField = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxEditField = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Edit Field",
         onClick: function () {
           ps.aa.controller.editField();
@@ -1130,7 +1130,7 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxEditField);
 
-      _this.ctxEditAll = dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+      _this.ctxEditAll = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
         caption: "Edit Content Item",
         onClick: function () {
           ps.aa.controller.editAll();
@@ -1139,7 +1139,7 @@ ps.aa.Menu = new (function () {
       itemMenu.addChild(_this.ctxEditAll);
 
       itemMenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "View Content Item",
           onClick: function () {
             ps.aa.controller.viewContent();
@@ -1148,7 +1148,7 @@ ps.aa.Menu = new (function () {
       );
 
       itemMenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "Properties",
           onClick: function () {
             ps.aa.controller.viewProperties();
@@ -1157,7 +1157,7 @@ ps.aa.Menu = new (function () {
       );
 
       itemMenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "Revisions",
           onClick: function () {
             ps.aa.controller.viewRevisions();
@@ -1166,7 +1166,7 @@ ps.aa.Menu = new (function () {
       );
 
       itemMenu.addChild(
-        dojo.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
           caption: "Audit Trail",
           onClick: function () {
             ps.aa.controller.viewAuditTrail();
@@ -1369,7 +1369,7 @@ ps.aa.Menu = new (function () {
     var items = [];
     for (name in this) {
       var item = this[name];
-      if (item instanceof dojo.widget.MenuItem2) {
+      if (item instanceof ps.widget.MenuItem2) {
         items.push(item);
       }
     }

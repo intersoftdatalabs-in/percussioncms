@@ -138,9 +138,9 @@ ps.aa.controller = new (function () {
     ps.aa.Menu.init(ids);
     this._maybeShowTree();
 
-    this.bottomPane = dojo.widget.byId("ps.aa.BottomPane");
+    this.bottomPane = ps.widget.byId("ps.aa.BottomPane");
     ps.event.connect(this.bottomPane, "endSizing", this, "_endTreeSizing");
-    this.treeWidget = dojo.widget.manager.getWidgetById("pageTree");
+    this.treeWidget = ps.widget.manager.getWidgetById("pageTree");
     this.treeWidget.loadFromModel(this.treeModel);
     this.activate(ps.aa.Page.getElement(this.pageId));
     this.updateBodyStyles();
@@ -226,7 +226,7 @@ ps.aa.controller = new (function () {
     // init autoscroller
     var nodes = [];
     nodes.push(document.getElementById("ps.aa.ContentPane"));
-    nodes.push(dojo.widget.byId("pageTree").domNode);
+    nodes.push(ps.widget.byId("pageTree").domNode);
     this.autoscroller.init(nodes);
 
     // these take long time, so interleave them with main flow
@@ -245,7 +245,7 @@ ps.aa.controller = new (function () {
    * the main window.
    */
   this.adjustLayout = function () {
-    var mainPane = dojo.widget.byId("ps.aa.mainSplitPane");
+    var mainPane = ps.widget.byId("ps.aa.mainSplitPane");
     var viewport = { width: window.innerWidth, height: window.innerHeight };
     mainPane.resizeTo(viewport.width, viewport.height);
   };
@@ -303,7 +303,7 @@ ps.aa.controller = new (function () {
    * Is called when the user resized the tree.
    */
   ((this._endTreeSizing = function () {
-    var wg = dojo.widget.byId("pageTree");
+    var wg = ps.widget.byId("pageTree");
     if (wg.sizeShare > this.MIN_TREE_WIDTH && !this.isShowTree) {
       // became visible because of resizing
       this.showTree();
@@ -365,7 +365,7 @@ ps.aa.controller = new (function () {
   this.toggleTreePane = function (treePaneShowing) {
     ps.assert(ps.isBoolean(treePaneShowing));
 
-    var wg = dojo.widget.byId("pageTree");
+    var wg = ps.widget.byId("pageTree");
 
     if (!treePaneShowing) {
       this.lastShowingTreePaneWidth = wg.sizeShare;
@@ -379,7 +379,7 @@ ps.aa.controller = new (function () {
     }
 
     this._saveTreePaneShowing(treePaneShowing);
-    var mainPane = dojo.widget.byId("ps.aa.mainSplitPane");
+    var mainPane = ps.widget.byId("ps.aa.mainSplitPane");
     mainPane._layoutPanels();
   };
 
@@ -398,7 +398,7 @@ ps.aa.controller = new (function () {
    * Returns <code>true</code> if a tree pane should be shown.
    */
   this._loadTreePaneShowing = function () {
-    var wg = dojo.widget.byId("pageTree");
+    var wg = ps.widget.byId("pageTree");
     var ck = ps.util._getCookie(this._TREE_PANE_SHOWING_COOKIE);
     return ck ? eval(ck) : wg.sizeShare > 0;
   };
@@ -2000,7 +2000,7 @@ ps.aa.controller = new (function () {
    * This method is called to dismiss the template selection dialog.
    */
   this._cancelSnippetTemplateSelectionDialog = function () {
-    var dialog = dojo.widget.byId(this._SELECT_TEMPLATE_DLG_ID);
+    var dialog = ps.widget.byId(this._SELECT_TEMPLATE_DLG_ID);
     if (!dialog) {
       return;
     }
@@ -2238,24 +2238,24 @@ ps.aa.controller = new (function () {
    * Overides the show and hide methods of ModalFloatingPane.
    */
   this._handleMenuBarBackGround = function () {
-    var menubar = dojo.widget.byId("ps.aa.Menubar");
+    var menubar = ps.widget.byId("ps.aa.Menubar");
     this.menuBarStyle = menubar.domNode.style;
     var _this = this;
     //Overrides the show function of ModalFloatingPane, copies the original
     //function and overrides it by calling disable menubar function
     //first and then calling the original show function.
-    dojo.widget.ModalFloatingPane.prototype.origShow =
-      dojo.widget.ModalFloatingPane.prototype.show;
-    dojo.widget.ModalFloatingPane.prototype.show = function () {
+    ps.widget.ModalFloatingPane.prototype.origShow =
+      ps.widget.ModalFloatingPane.prototype.show;
+    ps.widget.ModalFloatingPane.prototype.show = function () {
       _this._toggleMenuBarBackGround(false);
       this.origShow();
     };
     //Overrides the hide function of ModalFloatingPane, copies the original
     //function and overrides it by calling enable menubar function
     //first and then calling the original hide function.
-    dojo.widget.ModalFloatingPane.prototype.origHide =
-      dojo.widget.ModalFloatingPane.prototype.hide;
-    dojo.widget.ModalFloatingPane.prototype.hide = function () {
+    ps.widget.ModalFloatingPane.prototype.origHide =
+      ps.widget.ModalFloatingPane.prototype.hide;
+    ps.widget.ModalFloatingPane.prototype.hide = function () {
       _this._toggleMenuBarBackGround(true);
       this.origHide();
     };

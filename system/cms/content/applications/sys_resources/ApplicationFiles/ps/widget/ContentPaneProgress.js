@@ -10,7 +10,7 @@
 // ps.widget.ContentPaneProgress — dojo.provide removed (jQuery + ps/compat.js)
 
 /**
- * Shows "wait" cursor while {@link dojo.widget.ContentPane} loads.
+ * Shows "wait" cursor while {@link ps.widget.ContentPane} loads.
  *
  * @author Andriy Palamarchuk
  * @param contentPane the content pane widget to show content loading for.

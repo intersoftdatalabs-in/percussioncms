@@ -99,11 +99,11 @@ ps.workflow.WorkflowActions = function () {
       this.wfAdhocUsers = document.getElementById("ps.workflow.adhocUsers");
 
       //Buttons
-      this.wgtAdhocSearch = dojo.widget.byId(
+      this.wgtAdhocSearch = ps.widget.byId(
         "ps.workflow.wgtButtonAdhocSearch"
       );
-      var submit = dojo.widget.byId("ps.workflow.wgtButtonSubmit");
-      var cancel = dojo.widget.byId("ps.workflow.wgtButtonCancel");
+      var submit = ps.widget.byId("ps.workflow.wgtButtonSubmit");
+      var cancel = ps.widget.byId("ps.workflow.wgtButtonCancel");
 
       //Resize the dialog
       if (this.wfCommentText && this.wgtAdhocSearch) {
@@ -132,7 +132,7 @@ ps.workflow.WorkflowActions = function () {
       ps.event.connect(submit, "onClick", this, "executeWorkflowAction");
       ps.event.connect(cancel, "onClick", this, "onWfActionCancelled");
     } else {
-      this.wgtButtonClose = dojo.widget.byId("ps.workflow.wgtButtonClose");
+      this.wgtButtonClose = ps.widget.byId("ps.workflow.wgtButtonClose");
       ps.event.connect(
         this.wgtButtonClose,
         "onClick",
@@ -226,9 +226,9 @@ ps.workflow.WorkflowActions = function () {
     ps.event.connect(this.adhocSearchPane, "onLoad", function () {
       _this.adhocRoleSelect = document.getElementById("ps.workflow.adhocRole");
       _this.nameFilterText = document.getElementById("ps.workflow.nameFilter");
-      _this.wgtButtonSearch = dojo.widget.byId("ps.workflow.wgtButtonSearch");
-      _this.wgtButtonAdd = dojo.widget.byId("ps.workflow.wgtButtonAdd");
-      _this.wgtButtonClose = dojo.widget.byId("ps.workflow.wgtButtonClose");
+      _this.wgtButtonSearch = ps.widget.byId("ps.workflow.wgtButtonSearch");
+      _this.wgtButtonAdd = ps.widget.byId("ps.workflow.wgtButtonAdd");
+      _this.wgtButtonClose = ps.widget.byId("ps.workflow.wgtButtonClose");
       //If the button exists already setting the disabled multiple times
       //causing multiple dojoButtonDisabled classes to be added to the element
       //and enable code is not working properly.
@@ -267,7 +267,7 @@ ps.workflow.WorkflowActions = function () {
     style.border = "0px solid black";
     this.wfActionPane.parentNode.appendChild(div);
 
-    this.wfAdhocPane = dojo.widget.createWidget(
+    this.wfAdhocPane = ps.widget.createWidget(
       "ContentPane",
       {
         titleBarDisplay: false,
@@ -301,9 +301,9 @@ ps.workflow.WorkflowActions = function () {
         "</table>"
     );
 
-    this.adhocSearchPane = dojo.widget.byId("ps.workflow.adhocSearchPane");
+    this.adhocSearchPane = ps.widget.byId("ps.workflow.adhocSearchPane");
     ps.assert(this.adhocSearchPane, "Expected adhocSearchPane");
-    this.adhocResultsPane = dojo.widget.byId("ps.workflow.adhocResultsPane");
+    this.adhocResultsPane = ps.widget.byId("ps.workflow.adhocResultsPane");
     ps.assert(this.adhocResultsPane, "Expected adhocResultsPane");
   };
 

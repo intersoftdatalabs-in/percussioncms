@@ -20,7 +20,7 @@ ps.aa.dnd = new (function () {
    * Configured page drag and drop.
    */
   this.init = function () {
-    dojo.dnd.dragManager.nestedTargets = true;
+    ps.dnd.dragManager.nestedTargets = true;
     ps.event.connect(
       ps.aa.controller.treeModel,
       "onBeforeDomChange",
@@ -72,7 +72,7 @@ ps.aa.dnd = new (function () {
     this._getSnippetIds(id).forEach(function (id) {
       ps.assert(!(id.serialize() in _this.dragSources));
       var node = ps.aa.Page.getElement(id);
-      var source = new dojo.dnd.HtmlDragSource(node, ps.aa.SNIPPET_CLASS);
+      var source = new ps.dnd.HtmlDragSource(node, ps.aa.SNIPPET_CLASS);
       _this.dragSources[id.serialize()] = source;
     });
 
@@ -80,7 +80,7 @@ ps.aa.dnd = new (function () {
     this._getSlotIds(id).forEach(function (id) {
       ps.assert(!(id.serialize() in _this.dropTargets));
       var node = ps.aa.Page.getElement(id);
-      var target = new dojo.dnd.HtmlDropTarget(node, ps.aa.SNIPPET_CLASS);
+      var target = new ps.dnd.HtmlDropTarget(node, ps.aa.SNIPPET_CLASS);
       _this.dropTargets[id.serialize()] = target;
 
       ps.event.connectAround(
@@ -255,7 +255,7 @@ ps.aa.dnd = new (function () {
   /**
    * An around advice for the "insert" method of a drop target handler.
    * Parameters for the advised invocation:
-   * @param {dojo.dnd.DragEvent} e the drag event.
+   * @param {ps.dnd.DragEvent} e the drag event.
    * Not <code>null</code>.
    * @param refNode the node relative to which the insert is done.
    * Not <code>null</code>.
@@ -419,7 +419,7 @@ ps.aa.dnd = new (function () {
   /**
    * Makes drop indicator more visible.
    * @param invocation call to
-   * {@link dojo.dnd.HtmlDropTarget#createDropIndicator}.
+   * {@link ps.dnd.HtmlDropTarget#createDropIndicator}.
    * Not <code>null</code>.
    */
   this._createDropIndicator = function (invocation) {
@@ -465,7 +465,7 @@ ps.aa.dnd = new (function () {
 
   /**
    * Checks that the provided position value is a valid value as defined
-   * in {@link dojo.dnd.HtmlDropTarget#insert}.
+   * in {@link ps.dnd.HtmlDropTarget#insert}.
    */
   this._assertValidPosition = function (position) {
     ps.assert(
@@ -478,8 +478,8 @@ ps.aa.dnd = new (function () {
 
   /**
    * Generates a box object for placing it into
-   * dojo.dnd.HtmlDropTarget.boxes list.
-   * Borrowed from dojo.dnd.HtmlDropTarget.onDragOver
+   * ps.dnd.HtmlDropTarget.boxes list.
+   * Borrowed from ps.dnd.HtmlDropTarget.onDragOver
    * @param child the dom element to generate the box for.
    * @see _resetTargetChildBoxes
    */
@@ -532,33 +532,33 @@ ps.aa.dnd = new (function () {
 
   /**
    * Constant to indicate that a node should be inserted before the specified
-   * node in {@link dojo.dnd.HtmlDropTarget#insert}.
+   * node in {@link ps.dnd.HtmlDropTarget#insert}.
    */
   this.POS_BEFORE = "before";
 
   /**
    * Constant to indicate that a node should be inserted after the specified
-   * node in {@link dojo.dnd.HtmlDropTarget#insert}.
+   * node in {@link ps.dnd.HtmlDropTarget#insert}.
    */
   this.POS_AFTER = "after";
 
   /**
    * Constant to indicate that a node should be appended to the specified
-   * node in {@link dojo.dnd.HtmlDropTarget#insert}.
+   * node in {@link ps.dnd.HtmlDropTarget#insert}.
    */
   this.POS_APPEND = "append";
 
   /**
-   * Drag sources of type dojo.dnd.HtmlDragSource.
+   * Drag sources of type ps.dnd.HtmlDragSource.
    * Keys - string representation of ids, values -
-   * {@link dojo.dnd.HtmlDragSource} objects.
+   * {@link ps.dnd.HtmlDragSource} objects.
    * Can be empty if not defined yet or the page does not have any sources.
    */
   this.dragSources = {};
 
   /**
    * Keys - string representation of ids, values -
-   * {@link dojo.dnd.HtmlDropTarget} objects.
+   * {@link ps.dnd.HtmlDropTarget} objects.
    * Can be empty if not defined yet or the page does not have any targets.
    */
   this.dropTargets = {};

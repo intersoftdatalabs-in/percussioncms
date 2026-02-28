@@ -10,25 +10,25 @@
 
 // ps.widget.TreeIcon — dojo.provide/require removed (jQuery + ps/compat.js)
 
-dojo.widget.defineWidget(
+ps.widget.defineWidget(
   "ps.widget.TreeIcon",
-  dojo.widget.TreeDocIconExtension,
+  ps.widget.TreeDocIconExtension,
   {
-    templateCssPath: dojo.uri.moduleUri("ps", "widget/TreeIcon.css"),
+    templateCssPath: ps.uri.moduleUri("ps", "widget/TreeIcon.css"),
 
     /**
      * Gets the nominal node type to be used as part of
      * CSS class selector. The CSS class is used to display the icon.
      * @Override
      *
-     * @param {dojo.widget.TreeNodeV3} node
+     * @param {ps.widget.TreeNodeV3} node
      * @return {String}
      * @see {#_getNodeType}
      */
     getnodeDocType: function (node) {
       // console.debug("getnodeDocType called with Node: " + node);
       ps.assert(node);
-      ps.assertType(node, dojo.widget.TreeNodeV3);
+      ps.assertType(node, ps.widget.TreeNodeV3);
       var oid = node.modelId;
       ps.assert(oid, "node does not have model id attached to it.");
       var nodeDocType = this._getNodeType(oid);

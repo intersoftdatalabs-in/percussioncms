@@ -11,11 +11,11 @@
 // ps.widget.PopupMenu — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
- * Added additional features based on dojo.widget.PopupMenu2.
+ * Added additional features based on ps.widget.PopupMenu2.
  * If method createMenuItems is specified, calls it to create the menu items
  * on demand.
  */
-dojo.widget.defineWidget("ps.widget.PopupMenu", dojo.widget.PopupMenu2, {
+ps.widget.defineWidget("ps.widget.PopupMenu", ps.widget.PopupMenu2, {
   /**
    * Binds all specified DOM nodes to this popup menu.
    *

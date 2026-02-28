@@ -132,8 +132,8 @@ ps.DivActionHelper.reset = function () {
   )
     return;
   ps.DivActionHelper._destroyFloatingActionBar();
-  var ctxMenu1 = dojo.widget.byId("ps.aa.ItemCtxMenu");
-  var ctxMenu2 = dojo.widget.byId("ps.aa.SlotCtxMenu");
+  var ctxMenu1 = ps.widget.byId("ps.aa.ItemCtxMenu");
+  var ctxMenu2 = ps.widget.byId("ps.aa.SlotCtxMenu");
   try {
     ctxMenu1.close(true);
     ctxMenu2.close(true);

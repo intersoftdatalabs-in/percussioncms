@@ -537,3 +537,161 @@ ps.event.topic.publish = function (topic) {
     subs[i].apply(null, args);
   }
 };
+
+// ---- Widget-system facades (Track A7) ---------------------------------------
+// These thin wrappers delegate to the real Dojo 0.4 widget runtime so that
+// consumer code references only ps.* APIs.  When the Dojo widget system is
+// eventually replaced, only this file needs to change.
+
+/**
+ * Defines a new widget class (maps to dojo.widget.defineWidget).
+ *
+ * Signature mirrors Dojo 0.4:
+ *   ps.widget.defineWidget(name, superclass, props)
+ *   ps.widget.defineWidget(name, superclass, initFn, props)
+ */
+ps.widget.defineWidget = function () {
+  return dojo.widget.defineWidget.apply(dojo.widget, arguments);
+};
+
+/**
+ * Creates and returns a new widget instance (maps to dojo.widget.createWidget).
+ *
+ *   ps.widget.createWidget(type, props, node, position)
+ */
+ps.widget.createWidget = function () {
+  return dojo.widget.createWidget.apply(dojo.widget, arguments);
+};
+
+/**
+ * Looks up a widget by its widgetId (maps to dojo.widget.byId).
+ *
+ *   ps.widget.byId(id)
+ */
+ps.widget.byId = function (id) {
+  return dojo.widget.byId(id);
+};
+
+/**
+ * Widget manager namespace — provides getWidgetById.
+ */
+ps.widget.manager = ps.widget.manager || {};
+
+/**
+ * Looks up a widget by its widgetId through the manager
+ * (maps to dojo.widget.manager.getWidgetById).
+ *
+ *   ps.widget.manager.getWidgetById(id)
+ */
+ps.widget.manager.getWidgetById = function (id) {
+  return dojo.widget.manager.getWidgetById(id);
+};
+
+// ---- DnD facades (Track A7) ------------------------------------------------
+// Thin proxies so consumer code can reference ps.dnd.* instead of dojo.dnd.*.
+// Actual objects are resolved lazily because dojo.dnd is populated after
+// dojo.js loads.
+
+ps.dnd = ps.dnd || {};
+
+/**
+ * Lazy accessor for dojo.dnd.HtmlDropTarget.
+ * Usage:  new ps.dnd.HtmlDropTarget(node, types)
+ */
+Object.defineProperty(ps.dnd, "HtmlDropTarget", {
+  get: function () {
+    return dojo.dnd.HtmlDropTarget;
+  },
+  configurable: true,
+});
+
+/**
+ * Lazy accessor for dojo.dnd.HtmlDragSource.
+ * Usage:  new ps.dnd.HtmlDragSource(node, type)
+ */
+Object.defineProperty(ps.dnd, "HtmlDragSource", {
+  get: function () {
+    return dojo.dnd.HtmlDragSource;
+  },
+  configurable: true,
+});
+
+/**
+ * Lazy accessor for dojo.dnd.dragManager.
+ * Usage:  ps.dnd.dragManager.nestedTargets = true
+ */
+Object.defineProperty(ps.dnd, "dragManager", {
+  get: function () {
+    return dojo.dnd.dragManager;
+  },
+  configurable: true,
+});
+
+/**
+ * Lazy accessor for dojo.dnd.DragEvent (used as a type reference).
+ */
+Object.defineProperty(ps.dnd, "DragEvent", {
+  get: function () {
+    return dojo.dnd.DragEvent;
+  },
+  configurable: true,
+});
+
+// ---- URI facades (Track A7) ------------------------------------------------
+
+ps.uri = ps.uri || {};
+
+/**
+ * Resolves a module-relative URI (maps to dojo.uri.moduleUri).
+ *
+ *   ps.uri.moduleUri("ps", "widget/PSButton.css")
+ */
+ps.uri.moduleUri = function () {
+  return dojo.uri.moduleUri.apply(dojo.uri, arguments);
+};
+
+/**
+ * Resolves a Dojo-relative URI (maps to dojo.uri.dojoUri).
+ *
+ *   ps.uri.dojoUri("../ps/widget/images/icon.gif")
+ */
+ps.uri.dojoUri = function () {
+  return dojo.uri.dojoUri.apply(dojo.uri, arguments);
+};
+
+// ---- Dojo base-widget type accessors (Track A7) -----------------------------
+// Lazy accessors for Dojo built-in widget constructors referenced in ps/* code.
+// These are resolved after dojo.js loads because compat.js is sourced first.
+//
+// NOTE: dojo.widget.MenuBar2 and dojo.widget.MenuBarItem2 are intentionally
+// NOT proxied here — our custom ps.widget.MenuBar2 / ps.widget.MenuBarItem2
+// classes (defined via ps.widget.defineWidget) share the same property name
+// and would conflict with a lazy getter.
+
+(function () {
+  var types = [
+    "Button",
+    "ContentPane",
+    "FloatingPane",
+    "MenuItem2",
+    "ModalFloatingPane",
+    "PopupContainerBase",
+    "PopupMenu2",
+    "SplitContainer",
+    "TreeDndControllerV3",
+    "TreeDocIconExtension",
+    "TreeNodeV3",
+    "TreeSelectorV3",
+    "TreeV3",
+  ];
+  for (var i = 0; i < types.length; i++) {
+    (function (name) {
+      Object.defineProperty(ps.widget, name, {
+        get: function () {
+          return dojo.widget[name];
+        },
+        configurable: true,
+      });
+    })(types[i]);
+  }
+})();

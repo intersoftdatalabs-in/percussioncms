@@ -13,6 +13,6 @@
 /**
  * The Button class overriden to customize style sheet
  */
-dojo.widget.defineWidget("ps.widget.PSButton", dojo.widget.Button, {
-  templateCssPath: dojo.uri.moduleUri("ps", "widget/PSButton.css"),
+ps.widget.defineWidget("ps.widget.PSButton", ps.widget.Button, {
+  templateCssPath: ps.uri.moduleUri("ps", "widget/PSButton.css"),
 });
