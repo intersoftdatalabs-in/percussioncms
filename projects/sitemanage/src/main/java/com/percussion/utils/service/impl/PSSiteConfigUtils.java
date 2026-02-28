@@ -885,7 +885,7 @@ sectionNode.getFolderPath().orElse(""),
   private static void writeToXmlFile(SecureXmlData securityData, Document doc)
       throws TransformerException {
     File secureXmlFile = getSecureXmlFile(securityData.getSitename());
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    TransformerFactory transformerFactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     Transformer transformer = transformerFactory.newTransformer();
     DOMSource domSource = new DOMSource(doc);
     StreamResult streamResult = new StreamResult(secureXmlFile);
@@ -895,7 +895,7 @@ sectionNode.getFolderPath().orElse(""),
 
   private static void writeAccessGroupsToXmlFile(SecureXmlData securityData, Document doc)
       throws TransformerException {
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    TransformerFactory transformerFactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     Transformer transformer = transformerFactory.newTransformer();
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");

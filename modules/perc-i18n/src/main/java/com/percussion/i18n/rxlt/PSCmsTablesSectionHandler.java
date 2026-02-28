@@ -17,6 +17,7 @@
 package com.percussion.i18n.rxlt;
 
 import com.percussion.i18n.PSI18nUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.i18n.tmxdom.IPSTmxDocument;
 import com.percussion.i18n.tmxdom.IPSTmxDtdConstants;
 import com.percussion.i18n.tmxdom.IPSTmxTranslationUnit;
@@ -283,7 +284,7 @@ public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectio
     if (xslDoc == null) {
       throw new IllegalArgumentException("xslDoc must not be null.");
     }
-    TransformerFactory tfactory = TransformerFactory.newInstance();
+    TransformerFactory tfactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     if (!tfactory.getFeature(DOMSource.FEATURE)) {
       throw new org.xml.sax.SAXNotSupportedException("DOM node processing not supported!");
     }

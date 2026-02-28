@@ -18,6 +18,7 @@
 package com.percussion.ant.install;
 
 import com.percussion.install.PSLogger;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.install.RxFileManager;
 import com.percussion.util.IOTools;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -35,7 +36,6 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Properties;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -224,8 +224,7 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
     StreamSource xmlSource = new StreamSource(xmlIn);
 
     // Create a transformer for the stylesheet.
-    TransformerFactory tfactory = TransformerFactory.newInstance();
-    tfactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    TransformerFactory tfactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     Transformer transformer = tfactory.newTransformer(xslSource);
 
     setTransformParams(rxDir, transformer);

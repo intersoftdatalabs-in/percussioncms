@@ -238,7 +238,7 @@ public class PSPrepForConvert {
   private void saveXML(Document doc, File file) throws TransformerException {
 
     // write the content into xml file
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    TransformerFactory transformerFactory = PSSecureXMLUtils.getSecuredTransformerFactory();
     Transformer transformer = transformerFactory.newTransformer();
 
     DOMSource source = new DOMSource(doc);

@@ -18,6 +18,7 @@
 package com.percussion.tablefactory;
 
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.tools.PSCatalogTableData;
 import com.percussion.util.PSBase64Encoder;
 import com.percussion.util.PSLogger;
@@ -52,7 +53,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import javax.xml.XMLConstants;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
@@ -1652,8 +1652,7 @@ public class PSJdbcTableFactory {
 
     DOMResult result = new DOMResult();
     try {
-      TransformerFactory factory = TransformerFactory.newInstance();
-      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      TransformerFactory factory = PSSecureXMLUtils.getSecuredTransformerFactory();
       Transformer transformer = factory.newTransformer(new StreamSource(xslUrl.toString()));
 
       transformer.transform(new DOMSource(doc), result);
