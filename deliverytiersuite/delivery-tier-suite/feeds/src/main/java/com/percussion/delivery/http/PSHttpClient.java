@@ -1,21 +1,38 @@
-// REFACTORED: CP-JAVA11
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.percussion.delivery.http;
 
 import com.percussion.delivery.feeds.data.PSFeedItem;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * HTTP client for fetching feed items. Sunny Sal: "HTTP requests faster than Mumbai traffic!"
  *
- * <p>Uses Apache HttpClient for robust, OWASP-compliant HTTP operations. Designed for dependency
+ * <p>Uses JDK HttpClient for robust, OWASP-compliant HTTP operations. Designed for dependency
  * injection and testability.
  */
 @Component
@@ -24,10 +41,10 @@ public class PSHttpClient {
   private final HttpClient httpClient;
 
   /**
-   * Default constructor for production use. Uses Apache HttpClient with sensible connection limits.
+   * Default constructor for production use. Uses JDK HttpClient with sensible connection limits.
    */
   public PSHttpClient() {
-    this(HttpClients.custom().setMaxConnTotal(50).setMaxConnPerRoute(10).build());
+    this(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build());
   }
 
   /**
@@ -74,12 +91,14 @@ public class PSHttpClient {
    */
   private boolean tryAccess(String url) {
     try {
-      var request = org.apache.http.client.methods.RequestBuilder.head().setUri(url).build();
-      var response = httpClient.execute(request);
-      var statusCode = response.getStatusLine().getStatusCode();
-      // Consume entity to ensure connection can be reused
-      org.apache.http.util.EntityUtils.consumeQuietly(response.getEntity());
+      HttpRequest request =
+          HttpRequest.newBuilder().uri(URI.create(url)).method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
+      HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+      int statusCode = response.statusCode();
       return statusCode == 200;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
     } catch (Exception e) {
       // Sunny Sal: "Network issues? Blame the WiFi, not the code!"
       return false;

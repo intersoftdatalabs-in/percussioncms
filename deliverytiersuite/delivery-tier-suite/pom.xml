@@ -29,7 +29,6 @@
     <properties>
         <build.profile.id>dev</build.profile.id>
         <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-httpclient.version>3.1</commons-httpclient.version>
         <disruptor.version>4.0.0</disruptor.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache-core.version>3.10.8</ehcache-core.version>
@@ -614,21 +613,6 @@
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>${commons-collections.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-                <version>${commons-httpclient.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-codec</groupId>
-                        <artifactId>commons-codec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.lmax</groupId>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.percussion.delivery.forms.data.IPSFormData;
 import com.percussion.delivery.forms.data.PSFormSummaries;
 import com.percussion.delivery.forms.data.PSFormSummary;
 import com.percussion.delivery.services.PSAbstractRestService;
-import com.percussion.delivery.utils.security.PSTlsSocketFactory;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
@@ -49,21 +48,25 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.security.Security;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.StringJoiner;
 import javax.net.ssl.SSLContext;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.protocol.Protocol;
+import javax.net.ssl.SSLParameters;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.glassfish.jersey.server.internal.InternalServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -385,50 +388,32 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
         String processorUrl = null;
         if (percFields.get(FORM_PROCESSORURL) != null) {
           processorUrl = percFields.get(FORM_PROCESSORURL)[0];
-          Security.addProvider(new BouncyCastleProvider());
-          SSLContext sslContext = SSLContext.getInstance("TLS");
-          sslContext.init(null, null, new SecureRandom());
+          HttpClient client = createSecureHttpClient(enabledCiphers);
+          HttpRequest request =
+              HttpRequest.newBuilder(URI.create(processorUrl))
+                  .header("Content-Type", "application/x-www-form-urlencoded")
+                  .timeout(Duration.ofSeconds(30))
+                  .POST(HttpRequest.BodyPublishers.ofString(buildFormBody(params)))
+                  .build();
 
-          Protocol.registerProtocol(
-              "https", new Protocol("https", new PSTlsSocketFactory(this.enabledCiphers), 443));
-
-          HttpClient client = new HttpClient();
-          PostMethod post = new PostMethod(processorUrl);
-          // Loop through form parameters and set up for re-posting
-          params
-              .keySet()
-              .forEach(
-                  key -> {
-                    for (String value : params.get(key)) {
-                      post.addParameter(key, value);
-                    }
-                  });
-
-          boolean success = false;
-
-          // execute method and handle any error responses.
-          client.executeMethod(post);
-          String body = post.getResponseBodyAsString();
+          HttpResponse<String> response =
+              client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+          int statusCode = response.statusCode();
+          String body = response.body();
 
           log.debug("Response Body: {}", body);
 
-          if (post.getStatusCode() >= 200 && post.getStatusCode() <= 399) {
-            success = true;
-          } else {
+          if (statusCode < 200 || statusCode > 399) {
             log.error(
                 "Post to remote form service: {} failed with error code: {} and a response body of:"
                     + " {}",
                 processorUrl,
-                post.getStatusCode(),
+                statusCode,
                 body);
             log.error("Redirecting to error page...");
-          }
-
-          post.releaseConnection();
-          if (success) {
-            handleRedirect(successRedirect, encryptExist, hostRedirect, resp);
-          } else {
             handleError(header, resp, null, hostRedirect, errorRedirect, encryptExist);
+          } else {
+            handleRedirect(successRedirect, encryptExist, hostRedirect, resp);
           }
 
         } else {
@@ -563,6 +548,67 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
           PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+  }
+
+  private HttpClient createSecureHttpClient(String configuredCiphers) throws Exception {
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(null, null, new SecureRandom());
+
+    SSLParameters sslParameters = new SSLParameters();
+    configureTlsProtocols(sslParameters);
+    if (StringUtils.isNotBlank(configuredCiphers)) {
+      String[] ciphers =
+          java.util.Arrays.stream(configuredCiphers.split(","))
+              .map(String::trim)
+              .filter(StringUtils::isNotBlank)
+              .toArray(String[]::new);
+      if (ciphers.length > 0) {
+        sslParameters.setCipherSuites(ciphers);
+      }
+    }
+
+    return HttpClient.newBuilder()
+        .sslContext(sslContext)
+        .sslParameters(sslParameters)
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build();
+  }
+
+  private void configureTlsProtocols(SSLParameters sslParameters) {
+    String protocolsProperty = System.getProperty("jdk.tls.client.protocols");
+    if (StringUtils.isBlank(protocolsProperty)) {
+      protocolsProperty = System.getProperty("https.protocols");
+    }
+    if (StringUtils.isBlank(protocolsProperty)) {
+      return;
+    }
+
+    String[] protocols =
+        java.util.Arrays.stream(protocolsProperty.split(","))
+            .map(String::trim)
+            .filter(StringUtils::isNotBlank)
+            .toArray(String[]::new);
+    if (protocols.length > 0) {
+      sslParameters.setProtocols(protocols);
+    }
+  }
+
+  private String buildFormBody(MultivaluedMap<String, String> params) {
+    StringJoiner body = new StringJoiner("&");
+    params.forEach(
+        (key, values) -> {
+          if (values == null || values.isEmpty()) {
+            body.add(encodeFormPart(key) + "=");
+            return;
+          }
+          values.forEach(value -> body.add(encodeFormPart(key) + "=" + encodeFormPart(value)));
+        });
+    return body.toString();
+  }
+
+  private String encodeFormPart(String part) {
+    String value = part == null ? "" : part;
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   /* (non-Javadoc)
