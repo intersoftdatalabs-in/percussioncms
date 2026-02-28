@@ -388,7 +388,7 @@ ps.util.ShowPageLinkDialog = function (text) {
     div,
   );
 
-  //couldn't use Dojo's dojo.event.connect, it wouldn't work for onfocus (??)
+  //couldn't use Dojo's ps.event.connect, it wouldn't work for onfocus (??)
   dlg.setContent(
     '<input onfocus="ps.util.selectAll(event)" id="ps.util.wgtShowPageLink" type="text" size="60" readonly="true" value="' +
       text +
@@ -463,7 +463,7 @@ ps.util.CreatePromptDialog = function (options) {
     div,
   );
 
-  dojo.event.connect(this.wgtDlg, "onLoad", function () {
+  ps.event.connect(this.wgtDlg, "onLoad", function () {
     _this.wgtButtonOk = dojo.widget.byId("ps.util.promptButtonSelect");
     _this.wgtButtonCancel = dojo.widget.byId("ps.util.promptButtonCancel");
     _this.wgtPromptText = document.getElementById("ps.util.promptInput");

@@ -41,7 +41,7 @@ dojo.widget.defineWidget(
           this,
           arguments
         );
-      dojo.event.connectAround(target, "onDragOver", this, "_onDragOver");
+      ps.event.connectAround(target, "onDragOver", this, "_onDragOver");
       return target;
     },
 

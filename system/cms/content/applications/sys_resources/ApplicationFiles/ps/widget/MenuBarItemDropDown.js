@@ -33,8 +33,8 @@ dojo.widget.defineWidget(
       }
     }
 
-    dojo.event.connectBefore(this, "_onClick", onCreateSubmenu);
-    dojo.event.connectBefore(this, "_openSubmenu", onCreateSubmenu);
+    ps.event.connectBefore(this, "_onClick", onCreateSubmenu);
+    ps.event.connectBefore(this, "_openSubmenu", onCreateSubmenu);
   },
   {
     // it would be nice to modify the super class template string to add

@@ -53,7 +53,7 @@ ps.content.CreateItem = function () {
         this.hide();
       };
 
-      dojo.event.connect(this.wgtDlg, "onLoad", function () {
+      ps.event.connect(this.wgtDlg, "onLoad", function () {
         _this._parseControls();
       });
     }),

@@ -7,7 +7,8 @@
  * Provides:
  *   - ps.* namespace initialization
  *   - Lightweight replacements for the most common Dojo utility functions
- *     used by ps/* modules (assertions, type checks, collections).
+ *     used by ps/* modules (assertions, type checks, collections, events,
+ *     class inheritance).
  *
  * Load order: jQuery -> compat.js -> dojo.js (bundle) -> other scripts
  *
@@ -205,4 +206,334 @@ ps.util._createNodesFromText = function (html) {
   var div = document.createElement("div");
   div.innerHTML = html;
   return Array.from(div.childNodes);
+};
+
+// ===========================================================================
+// Track A6 shims — collections, class inheritance, event wiring
+// ===========================================================================
+
+// ---- Collections namespace --------------------------------------------------
+ps.collections = ps.collections || {};
+
+// ---------------------------------------------------------------------------
+// ps.collections.ArrayList  (replaces dojo.collections.ArrayList)
+//
+// Only the API methods actually used in ps/* are implemented:
+//   constructor, add, addRange, clear, contains, count, indexOf, item,
+//   remove, setByIndex, toArray
+// ---------------------------------------------------------------------------
+
+/**
+ * A simple ordered list backed by a native Array.
+ * Drop-in replacement for dojo.collections.ArrayList.
+ *
+ * @param {Array} [arr] - Optional initial contents (shallow-copied).
+ * @constructor
+ */
+ps.collections.ArrayList = function (arr) {
+  this._data = arr ? arr.slice() : [];
+  this.count = this._data.length;
+};
+
+/** Adds an item to the end of the list. */
+ps.collections.ArrayList.prototype.add = function (obj) {
+  this._data.push(obj);
+  this.count = this._data.length;
+};
+
+/** Appends all items from an array or another ArrayList. */
+ps.collections.ArrayList.prototype.addRange = function (a) {
+  if (a && typeof a.toArray === "function") {
+    this._data = this._data.concat(a.toArray());
+  } else if (Array.isArray(a)) {
+    this._data = this._data.concat(a);
+  }
+  this.count = this._data.length;
+};
+
+/** Removes all items. */
+ps.collections.ArrayList.prototype.clear = function () {
+  this._data = [];
+  this.count = 0;
+};
+
+/** Returns true if the list contains an item (== comparison). */
+ps.collections.ArrayList.prototype.contains = function (obj) {
+  for (var i = 0; i < this._data.length; i++) {
+    if (this._data[i] == obj) return true;
+  }
+  return false;
+};
+
+/** Returns the index of the first match, or -1. */
+ps.collections.ArrayList.prototype.indexOf = function (obj) {
+  for (var i = 0; i < this._data.length; i++) {
+    if (this._data[i] == obj) return i;
+  }
+  return -1;
+};
+
+/** Returns the item at the given index. */
+ps.collections.ArrayList.prototype.item = function (i) {
+  return this._data[i];
+};
+
+/** Removes the first occurrence of obj from the list. */
+ps.collections.ArrayList.prototype.remove = function (obj) {
+  var idx = this.indexOf(obj);
+  if (idx >= 0) {
+    this._data.splice(idx, 1);
+    this.count = this._data.length;
+  }
+};
+
+/** Sets the item at the given index. */
+ps.collections.ArrayList.prototype.setByIndex = function (i, obj) {
+  this._data[i] = obj;
+};
+
+/** Returns a shallow copy of the internal array. */
+ps.collections.ArrayList.prototype.toArray = function () {
+  return this._data.slice();
+};
+
+/** Iterates items using a callback. */
+ps.collections.ArrayList.prototype.forEach = function (fn, scope) {
+  var s = scope || window;
+  for (var i = 0; i < this._data.length; i++) {
+    fn.call(s, this._data[i], i, this._data);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// ps.collections.Dictionary  (replaces dojo.collections.Dictionary)
+//
+// Used API: constructor, add, containsKey, item, remove
+// ---------------------------------------------------------------------------
+
+/**
+ * A simple string-keyed dictionary backed by a plain object.
+ * Drop-in replacement for dojo.collections.Dictionary.
+ *
+ * @constructor
+ */
+ps.collections.Dictionary = function () {
+  this._data = {};
+  this.count = 0;
+};
+
+/** Adds or overwrites a key/value pair. */
+ps.collections.Dictionary.prototype.add = function (key, value) {
+  if (!(key in this._data)) {
+    this.count++;
+  }
+  this._data[key] = value;
+};
+
+/** Returns true if the given key exists. */
+ps.collections.Dictionary.prototype.containsKey = function (key) {
+  return key in this._data;
+};
+
+/** Alias for containsKey (matching dojo API). */
+ps.collections.Dictionary.prototype.contains =
+  ps.collections.Dictionary.prototype.containsKey;
+
+/** Returns the value for the given key, or undefined. */
+ps.collections.Dictionary.prototype.item = function (key) {
+  return this._data[key];
+};
+
+/** Removes the entry for the given key. Returns true if the key existed. */
+ps.collections.Dictionary.prototype.remove = function (key) {
+  if (key in this._data) {
+    delete this._data[key];
+    this.count--;
+    return true;
+  }
+  return false;
+};
+
+// ---------------------------------------------------------------------------
+// ps.declare  (replaces dojo.declare)
+//
+// Minimal Dojo 0.4 class declaration: creates a constructor that calls
+// an initFn, mixes in proto, and sets up single inheritance via a
+// superclass property.
+// ---------------------------------------------------------------------------
+
+/**
+ * Declares a named class with single inheritance, matching the subset of
+ * dojo.declare() used in ps/content tab panels.
+ *
+ * @param {string}   className  - Dot-separated class name (e.g. "ps.content.Foo").
+ * @param {Function} superclass - Parent constructor.
+ * @param {Function} [initFn]   - Initializer (called in constructor).
+ * @param {Object}   [proto]    - Methods/properties mixed into prototype.
+ */
+ps.declare = function (className, superclass, initFn, proto) {
+  // dojo.declare overloads: (name, super, init, proto) or (name, super, proto)
+  if (typeof initFn !== "function") {
+    proto = initFn;
+    initFn = null;
+  }
+
+  // Build the constructor
+  var ctor = function () {
+    if (initFn) {
+      initFn.apply(this, arguments);
+    }
+  };
+
+  // Wire inheritance
+  if (superclass) {
+    ctor.prototype = Object.create(superclass.prototype);
+    ctor.prototype.constructor = ctor;
+    ctor.superclass = superclass.prototype;
+  }
+
+  // Mix in instance members
+  if (proto) {
+    for (var key in proto) {
+      if (proto.hasOwnProperty(key)) {
+        ctor.prototype[key] = proto[key];
+      }
+    }
+  }
+
+  // Register into the global namespace (e.g. "ps.content.Foo")
+  var parts = className.split(".");
+  var cur = window;
+  for (var i = 0; i < parts.length - 1; i++) {
+    cur[parts[i]] = cur[parts[i]] || {};
+    cur = cur[parts[i]];
+  }
+  cur[parts[parts.length - 1]] = ctor;
+
+  return ctor;
+};
+
+// ---------------------------------------------------------------------------
+// ps.event  (replaces dojo.event.connect / connectAround / connectBefore /
+//            topic.subscribe)
+//
+// Lightweight AOP-style wiring used by the AA widget system.
+// ---------------------------------------------------------------------------
+ps.event = ps.event || {};
+
+/**
+ * Connects a listener to a method on an object, matching the two call
+ * signatures used in the codebase:
+ *
+ *   ps.event.connect(src, "method", listener)
+ *   ps.event.connect(src, "method", scope, "handler")
+ *
+ * After wiring, calling src.method() also calls listener / scope[handler].
+ *
+ * @param {Object}          src      - Source object.
+ * @param {string}          method   - Method name on src.
+ * @param {Object|Function} listener - Either a callback or the scope object.
+ * @param {string}          [handler]- Method name on scope (when 4 args).
+ */
+ps.event.connect = function (src, method, listener, handler) {
+  var orig = src[method];
+  if (typeof handler === "string") {
+    src[method] = function () {
+      var r = orig ? orig.apply(src, arguments) : undefined;
+      listener[handler].apply(listener, arguments);
+      return r;
+    };
+  } else {
+    src[method] = function () {
+      var r = orig ? orig.apply(src, arguments) : undefined;
+      listener.apply(null, arguments);
+      return r;
+    };
+  }
+};
+
+/**
+ * Wraps src[method] with an around-advice function.  The advice receives
+ * an invocation object with { args, proceed(), object }.
+ *
+ *   ps.event.connectAround(src, "method", scope, "advice")
+ *
+ * @param {Object} src    - Source object.
+ * @param {string} method - Method name on src.
+ * @param {Object} scope  - Scope for the advice.
+ * @param {string} advice - Method name on scope.
+ */
+ps.event.connectAround = function (src, method, scope, advice) {
+  var orig = src[method];
+  src[method] = function () {
+    var args = arguments;
+    var invocation = {
+      args: args,
+      object: src,
+      proceed: function () {
+        return orig ? orig.apply(src, args) : undefined;
+      },
+    };
+    return scope[advice].call(scope, invocation);
+  };
+};
+
+/**
+ * Connects a before-advice.  The advice runs before the original method.
+ *
+ *   ps.event.connectBefore(src, "method", listener)
+ *   ps.event.connectBefore(src, "method", scope, "handler")
+ */
+ps.event.connectBefore = function (src, method, listener, handler) {
+  var orig = src[method];
+  if (typeof handler === "string") {
+    src[method] = function () {
+      listener[handler].apply(listener, arguments);
+      return orig ? orig.apply(src, arguments) : undefined;
+    };
+  } else {
+    src[method] = function () {
+      listener.apply(null, arguments);
+      return orig ? orig.apply(src, arguments) : undefined;
+    };
+  }
+};
+
+// ---- Event topics (pub/sub) -------------------------------------------------
+ps.event.topic = ps.event.topic || {};
+
+/** Simple topic registry for pub/sub (replaces dojo.event.topic). */
+ps.event._topics = {};
+
+/**
+ * Subscribes a listener to a named topic.
+ *
+ *   ps.event.topic.subscribe("topicName", scope, "handler")
+ *   ps.event.topic.subscribe("topicName", callback)
+ */
+ps.event.topic.subscribe = function (topic, scopeOrFn, handler) {
+  if (!ps.event._topics[topic]) {
+    ps.event._topics[topic] = [];
+  }
+  if (typeof handler === "string") {
+    ps.event._topics[topic].push(function () {
+      scopeOrFn[handler].apply(scopeOrFn, arguments);
+    });
+  } else {
+    ps.event._topics[topic].push(scopeOrFn);
+  }
+};
+
+/**
+ * Publishes a message to all subscribers of a named topic.
+ *
+ *   ps.event.topic.publish("topicName", data)
+ */
+ps.event.topic.publish = function (topic) {
+  var subs = ps.event._topics[topic];
+  if (!subs) return;
+  var args = Array.prototype.slice.call(arguments, 1);
+  for (var i = 0; i < subs.length; i++) {
+    subs[i].apply(null, args);
+  }
 };

@@ -65,7 +65,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * @return {dojo.widget.TreeNodeV3}
    */
   createWidgetFromModelNode: function (modelNode) {
-    // dojo.debug("Creating widget node from model " + modelNode.toString());
+    // console.debug("Creating widget node from model " + modelNode.toString());
     ps.assertType(modelNode, ps.aa.TreeNode);
     var title = modelNode.getLabel();
     var widgetId = modelNode.objId.getTreeNodeWidgetId();
@@ -232,36 +232,36 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * @return {dojo.widget.TreeNodeV3}
    */
   _updateWidgetFromModelNode: function (modelNode, parentWidget) {
-    //dojo.debug("Trying to update an existing tree " +
+    // console.debug("Trying to update an existing tree " +
     //      "node widget with modelNode: " + modelNode.toString());
 
     var childWidget = this.getWidgetFromModelNode(modelNode);
     if (childWidget) {
-      //dojo.debug("sync: Found an existing widget that " +
+      // console.debug("sync: Found an existing widget that " +
       //      "matchs this modelNode: " + modelNode.toString());
       if (!parentWidget) {
-        //dojo.debug("parentWidget is null so this must be the root node.");
+        // console.debug("parentWidget is null so this must be the root node.");
       } else if (parentWidget == childWidget.parent) {
-        //dojo.debug("This child node had the same parent as before (OK).");
+        // console.debug("This child node had the same parent as before (OK).");
         childWidget.doDetach();
       } else {
         /*
          * detach the child from the old parent and attach it to the
          * new parent.
          */
-        //dojo.debug("Detaching child widget from old parent.");
+        // console.debug("Detaching child widget from old parent.");
         childWidget.doDetach();
         // The caller of this method will add the node to the parent.
       }
 
       if (childWidget.title != modelNode.getLabel()) {
-        //dojo.debug("Title changed from " + childWidget.title
+        // console.debug("Title changed from " + childWidget.title
         // + " to " + modelNode.getLabel());
         childWidget.setTitle(modelNode.getLabel());
       }
       childWidget.modelId = modelNode.objId;
     } /* did not find widget for model */ else {
-      //dojo.debug("Did not find widget corresponding to model node");
+      // console.debug("Did not find widget corresponding to model node");
       childWidget = this.createWidgetFromModelNode(modelNode);
     }
     return childWidget;
@@ -271,7 +271,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * Removes the tree nodes that are no longer exist in the tree model.
    */
   _cleanTree: function () {
-    //dojo.debug("Tree - Cleaning Tree - Start");
+    // console.debug("Tree - Cleaning Tree - Start");
 
     var deadNodes = [];
     var root = this.children[0];
@@ -279,12 +279,12 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
     while ((wNode = stack.pop())) {
       var mNode = this.model.getNodeById(wNode.modelId);
       if (mNode) {
-        //dojo.debug("Tree has node " + mNode.toString());
+        // console.debug("Tree has node " + mNode.toString());
         for (var i = 0; i < wNode.children.length; i++) {
           stack.push(wNode.children[i]);
         }
       } else {
-        //dojo.debug("Node is dead: " + wNode.toString());
+        // console.debug("Node is dead: " + wNode.toString());
         deadNodes.push(wNode);
       }
     }
@@ -293,7 +293,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
     for (var i = 0; i < deadNodes.length; i++) {
       this._removeNodes(deadNodes[i]);
     }
-    //dojo.debug("Tree - Cleaning Tree - End");
+    // console.debug("Tree - Cleaning Tree - End");
   },
 
   /**
@@ -303,7 +303,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    *    contain child node.
    */
   _removeNodes: function (node) {
-    //dojo.debug("Tree - Removing NODES: " + node.modelId.toString() + ", len=" + node.children.length);
+    // console.debug("Tree - Removing NODES: " + node.modelId.toString() + ", len=" + node.children.length);
     ps.assert(node, "Can't remove null node.");
 
     // removes the child nodes first if any
@@ -321,7 +321,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    *    contain any child node.
    */
   _removeNode: function (node) {
-    //dojo.debug("Tree - Removing node: " + node.modelId.toString());
+    // console.debug("Tree - Removing node: " + node.modelId.toString());
 
     ps.assert(node, "Can't remove null node.");
     ps.assert(
@@ -337,7 +337,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * Reloads the model.
    */
   _synchModel: function () {
-    //dojo.debug("Tree - Synchronizing Tree to Model - Start");
+    // console.debug("Tree - Synchronizing Tree to Model - Start");
 
     // Clean Widgets that are no longer in the tree.
     this._cleanTree();
@@ -350,8 +350,8 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
     var rootWidgetNode = this._updateWidgetFromModelNode(rootModelNode, null);
     var child = this.children[0];
 
-    //dojo.debug("original root = " + child);
-    //dojo.debug("new root = " + rootWidgetNode);
+    // console.debug("original root = " + child);
+    // console.debug("new root = " + rootWidgetNode);
 
     ps.assert(
       child == rootWidgetNode,
@@ -364,7 +364,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
       var w = mw.widget;
       var m = mw.model;
       if (!m.isLeafNode() && !w.tryLazyInit) {
-        //dojo.debug("Number of children: " + m.childNodes.count);
+        // console.debug("Number of children: " + m.childNodes.count);
         for (var i = 0; i < m.childNodes.count; i++) {
           var childModel = m.childNodes.item(i);
           var childWidget = this._updateWidgetFromModelNode(childModel, w);
@@ -372,7 +372,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
           w.addChild(childWidget, i, false);
         }
       } else {
-        //dojo.debug("Tree - leaf node, no children");
+        // console.debug("Tree - leaf node, no children");
       }
       this._updateIsFolderFromModel(w, m);
     }
@@ -382,7 +382,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
       treeDnd.reset();
     }
 
-    //dojo.debug("Tree - Synchronizing Tree to Model - End");
+    // console.debug("Tree - Synchronizing Tree to Model - End");
   },
 
   /**
@@ -461,7 +461,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * @Override dojo.widget.TreeV3#doMove
    */
   doMove: function (child, newParent, index) {
-    //dojo.debug("Tree move: "+child+" to "+newParent+" at "+index);
+    // console.debug("Tree move: "+child+" to "+newParent+" at "+index);
     //ps.aa.SnippetMove = function (snippetId, slotId, targetSlotId, targetIndex,
     // dontUpdatePage)
 
@@ -497,7 +497,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
 
     //var parent = child.parent;
     if (success == true) {
-      //dojo.debug("Tree - successful move.");
+      // console.debug("Tree - successful move.");
       var snipid = move.getTargetSnippetId();
       try {
         // could fail if the target slot requires a template change
@@ -518,7 +518,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * @see ps.aa.Tree
    */
   onModelChanged: function () {
-    //dojo.debug("tree on model change called.");
+    // console.debug("tree on model change called.");
 
     if (this.loaded) {
       this._synchModel();
@@ -526,6 +526,6 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
       this._loadModel();
     }
 
-    //dojo.debug("tree on model change SUCCESSFUL");
+    // console.debug("tree on model change SUCCESSFUL");
   },
 });

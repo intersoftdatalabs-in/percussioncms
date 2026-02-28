@@ -53,7 +53,7 @@ ps.aa.Field = function () {
     this.fieldModalDlg.closeWindow = function () {
       _this.fieldModalDlg.hide();
     };
-    dojo.event.connect(this.fieldModalDlg, "onLoad", function () {
+    ps.event.connect(this.fieldModalDlg, "onLoad", function () {
       _this.parseControls();
     });
   };
@@ -106,7 +106,7 @@ ps.aa.Field = function () {
     );
 
     this.inplaceTextBox = document.getElementById("ps.field.inplaceTextBox");
-    dojo.event.connect(
+    ps.event.connect(
       this.inplaceTextBox,
       "onkeyup",
       this,
@@ -117,8 +117,8 @@ ps.aa.Field = function () {
     var cancelButon = dojo.widget.byId("ps.field.inplaceCancelButton");
     ps.assert(cancelButon, "Cancel button could not be found");
 
-    dojo.event.connect(updateButton, "onClick", this, "updateField");
-    dojo.event.connect(cancelButon, "onClick", this, "onInplaceCancel");
+    ps.event.connect(updateButton, "onClick", this, "updateField");
+    ps.event.connect(cancelButon, "onClick", this, "onInplaceCancel");
   };
 
   /**
@@ -135,14 +135,14 @@ ps.aa.Field = function () {
     this.divRegularButtons.style.visibility = "hidden";
     this.divDojoButtons.style.visibility = "visible";
 
-    dojo.event.connect(
+    ps.event.connect(
       this.wgtButtonFullEditor,
       "onClick",
       this,
       "openFullEditor",
     );
-    dojo.event.connect(this.wgtButtonUpdate, "onClick", this, "updateField");
-    dojo.event.connect(this.wgtButtonClose, "onClick", this, "_onDialogClose");
+    ps.event.connect(this.wgtButtonUpdate, "onClick", this, "updateField");
+    ps.event.connect(this.wgtButtonClose, "onClick", this, "_onDialogClose");
     var edfrm = document.getElementById("EditForm");
     edfrm.setAttribute("onsubmit", "");
     var ceurl = this.ceUrl.split("?")[0];

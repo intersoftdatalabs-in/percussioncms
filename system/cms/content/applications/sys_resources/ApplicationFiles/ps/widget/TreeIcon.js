@@ -26,13 +26,13 @@ dojo.widget.defineWidget(
      * @see {#_getNodeType}
      */
     getnodeDocType: function (node) {
-      //dojo.debug("getnodeDocType called with Node: " + node);
+      // console.debug("getnodeDocType called with Node: " + node);
       ps.assert(node);
       ps.assertType(node, dojo.widget.TreeNodeV3);
       var oid = node.modelId;
       ps.assert(oid, "node does not have model id attached to it.");
       var nodeDocType = this._getNodeType(oid);
-      //dojo.debug("TreeIcon - doc type is: " + nodeDocType);
+      // console.debug("TreeIcon - doc type is: " + nodeDocType);
       return nodeDocType;
     },
 

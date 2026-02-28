@@ -76,7 +76,7 @@ ps.workflow.WorkflowActions = function () {
     this.wfDlg.closeWindow = function () {
       _this.wfDlg.hide();
     };
-    dojo.event.connect(this.wfDlg, "onLoad", function () {
+    ps.event.connect(this.wfDlg, "onLoad", function () {
       _this.parseControls();
       if (_this._isUserAuthorized()) {
         _this.onWfActionChanged();
@@ -115,25 +115,25 @@ ps.workflow.WorkflowActions = function () {
       }
 
       //Event Connectors
-      dojo.event.connect(
+      ps.event.connect(
         this.wfActionSelector,
         "onchange",
         this,
         "onWfActionChanged"
       );
       if (this.wgtAdhocSearch) {
-        dojo.event.connect(
+        ps.event.connect(
           this.wgtAdhocSearch,
           "onClick",
           this,
           "openAdhocSearchDialog"
         );
       }
-      dojo.event.connect(submit, "onClick", this, "executeWorkflowAction");
-      dojo.event.connect(cancel, "onClick", this, "onWfActionCancelled");
+      ps.event.connect(submit, "onClick", this, "executeWorkflowAction");
+      ps.event.connect(cancel, "onClick", this, "onWfActionCancelled");
     } else {
       this.wgtButtonClose = dojo.widget.byId("ps.workflow.wgtButtonClose");
-      dojo.event.connect(
+      ps.event.connect(
         this.wgtButtonClose,
         "onClick",
         this,
@@ -223,7 +223,7 @@ ps.workflow.WorkflowActions = function () {
     );
     this.adhocSearchPane.cacheContent = false;
     var _this = this;
-    dojo.event.connect(this.adhocSearchPane, "onLoad", function () {
+    ps.event.connect(this.adhocSearchPane, "onLoad", function () {
       _this.adhocRoleSelect = document.getElementById("ps.workflow.adhocRole");
       _this.nameFilterText = document.getElementById("ps.workflow.nameFilter");
       _this.wgtButtonSearch = dojo.widget.byId("ps.workflow.wgtButtonSearch");
@@ -235,14 +235,14 @@ ps.workflow.WorkflowActions = function () {
       if (!_this.wgtButtonAdd.domNode.classList.contains("dojoButtonDisabled"))
         _this.wgtButtonAdd.setDisabled(true);
 
-      dojo.event.connect(
+      ps.event.connect(
         _this.wgtButtonSearch,
         "onClick",
         _this,
         "onSearchClicked"
       );
-      dojo.event.connect(_this.wgtButtonAdd, "onClick", _this, "onAddClicked");
-      dojo.event.connect(
+      ps.event.connect(_this.wgtButtonAdd, "onClick", _this, "onAddClicked");
+      ps.event.connect(
         _this.wgtButtonClose,
         "onClick",
         _this,
@@ -391,7 +391,7 @@ ps.workflow.WorkflowActions = function () {
     var results = ps.aa.controller.treeModel.getAllIdsByContentId(
       this.contentId
     );
-    ps.assertType(results, dojo.collections.ArrayList);
+    ps.assertType(results, ps.collections.ArrayList);
     var oldIds = new Array();
     var newIds = new Array();
     var slotIds = new Array();
@@ -449,7 +449,7 @@ ps.workflow.WorkflowActions = function () {
       "%" + this.nameFilterText.value + "%"
     );
     var mm = this;
-    dojo.event.connect(this.adhocResultsPane, "onLoad", function () {
+    ps.event.connect(this.adhocResultsPane, "onLoad", function () {
       var count = document.getElementById("ps.workflow.adhocusercount").value;
       mm.adhocUsersChk = new Array();
       for (var i = 0; i < count; i++) {

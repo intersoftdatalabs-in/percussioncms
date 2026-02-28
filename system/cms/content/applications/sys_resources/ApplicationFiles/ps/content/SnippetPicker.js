@@ -57,7 +57,7 @@ ps.content.SnippetPicker = function () {
       this.hide();
     };
 
-    dojo.event.connect(this.wgtDlg, "onLoad", function () {
+    ps.event.connect(this.wgtDlg, "onLoad", function () {
       _this.parseControls();
     });
   };
@@ -165,7 +165,7 @@ ps.content.SnippetPicker = function () {
     ).filter(function (el) { return el.className === "PSAASnippetPickerItem"; });
     //Connect onclick event to snippets
     for (var i = 0; (node = this.snippetNodes[i]); i++) {
-      dojo.event.connect(node, "onclick", _this, "toggleSingleSelection");
+      ps.event.connect(node, "onclick", _this, "toggleSingleSelection");
     }
     //If dialog type is create then select the first snippet
     if (this.dlgType == this.CREATE_SNIPPET_DLG) {
@@ -272,7 +272,7 @@ ps.content.SnippetPicker = function () {
     var _this = this;
     //Connect onclick event to snippets/titles
     for (var i = 0; (node = nodes[i]); i++) {
-      dojo.event.connect(node, "onclick", _this, "toggleSingleSelection");
+      ps.event.connect(node, "onclick", _this, "toggleSingleSelection");
     }
   };
 

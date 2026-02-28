@@ -1,4 +1,4 @@
-dojo.declare(
+ps.declare(
   "ps.content.FoldersTabPanel",
   ps.content.FolderSitesBaseTabPanel,
   function (_parent) {

@@ -1,4 +1,4 @@
-dojo.declare(
+ps.declare(
   "ps.content.FolderSitesBaseTabPanel",
   ps.content.BrowseTabPanel,
   function (_parent) {
@@ -18,10 +18,10 @@ dojo.declare(
       this.clientPanel = this._getWidgetById("clientpanel");
       this.addressbarPanel = this._getWidgetById("addressbarpanel");
 
-      dojo.event.connect(this.pathText, "onchange", this, "_onPathTextChanged");
-      dojo.event.connect(this.refreshButton, "onClick", this, "_onRefresh");
-      dojo.event.connect(this.backButton, "onClick", this, "_onBack");
-      dojo.event.connect(this.upButton, "onClick", this, "_onUp");
+      ps.event.connect(this.pathText, "onchange", this, "_onPathTextChanged");
+      ps.event.connect(this.refreshButton, "onClick", this, "_onRefresh");
+      ps.event.connect(this.backButton, "onClick", this, "_onBack");
+      ps.event.connect(this.upButton, "onClick", this, "_onUp");
     },
 
     /**
@@ -34,7 +34,7 @@ dojo.declare(
       // initial conent table columns
       this.contentTableColumns = this._cloneColumns(this.contentTable.columns);
       this._parseAddressbarPanelControls();
-      dojo.event.connect(
+      ps.event.connect(
         this.contentTable,
         "onSelect",
         this,
@@ -51,16 +51,16 @@ dojo.declare(
       this.filteringTable = this._getWidgetById("FilteringTable");
       this.filterText = this._getElemById("filterText");
 
-      dojo.event.connect(this.filterText, "onkeyup", this, "_onFilterTyped");
+      ps.event.connect(this.filterText, "onkeyup", this, "_onFilterTyped");
 
       this._ctypeList = this._getElemById("ctypeList");
-      dojo.event.connect(
+      ps.event.connect(
         this.getContentTypeList(),
         "onchange",
         this,
         "_onCTypeChanged"
       );
-      dojo.event.connectBefore(
+      ps.event.connectBefore(
         this.getContentTypeList(),
         "onfocus",
         this,

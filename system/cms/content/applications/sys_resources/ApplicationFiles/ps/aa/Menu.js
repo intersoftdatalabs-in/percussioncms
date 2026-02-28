@@ -992,7 +992,7 @@ ps.aa.Menu = new (function () {
   /**
    * Bind the context menus to its related href <a...> element.
    *
-   * @param {dojo.collections.ArrayList} ids The list of {ps.aa.ObjectId} ids.
+   * @param {ps.collections.ArrayList} ids The list of {ps.aa.ObjectId} ids.
    */
   (this._initContextMenu = function (ids) {
     var _this = this;
@@ -1181,7 +1181,7 @@ ps.aa.Menu = new (function () {
     /**
      * Binds the specified image elements to ids related context menu.
      *
-     * @param {dojo.collections.ArrayList} ids The list of {ps.aa.ObjectId} ids
+     * @param {ps.collections.ArrayList} ids The list of {ps.aa.ObjectId} ids
      *    of the specified image elements.
      */
     (this.bindContextMenu = function (ids, special) {
@@ -1205,7 +1205,7 @@ ps.aa.Menu = new (function () {
   /**
    * Unbinds the specified image elements from ids related context menu.
    *
-   * @param {dojo.collections.ArrayList} ids The list of {ps.aa.ObjectId} ids
+   * @param {ps.collections.ArrayList} ids The list of {ps.aa.ObjectId} ids
    *    of the specified image elements.
    */
   this.unBindContextMenu = function (ids, special) {

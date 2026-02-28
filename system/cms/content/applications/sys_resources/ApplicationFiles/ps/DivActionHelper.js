@@ -207,7 +207,7 @@ ps.DivActionHelper._initFloatingActionBar = function () {
   // Destroy existing bar
   ps.DivActionHelper._destroyFloatingActionBar();
 
-  ps.DivActionHelper.mouseOverInfo.boundIds = new dojo.collections.ArrayList();
+  ps.DivActionHelper.mouseOverInfo.boundIds = new ps.collections.ArrayList();
   var stack = ps.DivActionHelper._copyArray(
     ps.DivActionHelper.mouseOverInfo.stack
   );
@@ -345,5 +345,5 @@ ps.DivActionHelper._copyArray = function (arr) {
 };
 
 // Subscribe to DND topics so we know when DND starts and finishes
-dojo.event.topic.subscribe("dragStart", null, ps.DivActionHelper._onDNDStart);
-dojo.event.topic.subscribe("dragEnd", null, ps.DivActionHelper._onDNDStop);
+ps.event.topic.subscribe("dragStart", null, ps.DivActionHelper._onDNDStart);
+ps.event.topic.subscribe("dragEnd", null, ps.DivActionHelper._onDNDStop);
