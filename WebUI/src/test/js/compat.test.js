@@ -50,11 +50,19 @@ let ps;
 function installDojoStub() {
   const stub = {
     widget: {
-      defineWidget: vi.fn(function () { return "defineWidget-result"; }),
-      createWidget: vi.fn(function () { return "createWidget-result"; }),
-      byId: vi.fn(function (id) { return { widgetId: id }; }),
+      defineWidget: vi.fn(function () {
+        return "defineWidget-result";
+      }),
+      createWidget: vi.fn(function () {
+        return "createWidget-result";
+      }),
+      byId: vi.fn(function (id) {
+        return { widgetId: id };
+      }),
       manager: {
-        getWidgetById: vi.fn(function (id) { return { widgetId: id }; }),
+        getWidgetById: vi.fn(function (id) {
+          return { widgetId: id };
+        }),
       },
       // Base-class constructors referenced via lazy accessors
       Button: function Button() {},
@@ -78,8 +86,12 @@ function installDojoStub() {
       DragEvent: function DragEvent() {},
     },
     uri: {
-      moduleUri: vi.fn(function () { return "/resolved/module/path"; }),
-      dojoUri: vi.fn(function () { return "/resolved/dojo/path"; }),
+      moduleUri: vi.fn(function () {
+        return "/resolved/module/path";
+      }),
+      dojoUri: vi.fn(function () {
+        return "/resolved/dojo/path";
+      }),
     },
   };
   globalThis.dojo = stub;
@@ -322,9 +334,7 @@ describe("ps.util._createNodesFromText", () => {
   });
 
   it("parses multiple sibling nodes", () => {
-    const nodes = ps.util._createNodesFromText(
-      "<span>A</span><span>B</span>",
-    );
+    const nodes = ps.util._createNodesFromText("<span>A</span><span>B</span>");
     expect(nodes.length).toBe(2);
     expect(nodes[0].textContent).toBe("A");
     expect(nodes[1].textContent).toBe("B");
@@ -526,11 +536,18 @@ describe("ps.declare", () => {
 
   it("sets up single inheritance via prototype chain", () => {
     globalThis.TestNs = {};
-    ps.declare("TestNs.Base", null, function () {
-      this.base = true;
-    }, {
-      greet: function () { return "hello"; },
-    });
+    ps.declare(
+      "TestNs.Base",
+      null,
+      function () {
+        this.base = true;
+      },
+      {
+        greet: function () {
+          return "hello";
+        },
+      },
+    );
     ps.declare("TestNs.Child", TestNs.Base, function () {
       this.child = true;
     });
@@ -544,7 +561,9 @@ describe("ps.declare", () => {
     globalThis.TestNs = {};
     ps.declare("TestNs.Simple", null, {
       value: 42,
-      getValue: function () { return this.value; },
+      getValue: function () {
+        return this.value;
+      },
     });
     const obj = new TestNs.Simple();
     expect(obj.getValue()).toBe(42);
@@ -553,7 +572,9 @@ describe("ps.declare", () => {
   it("mixes proto methods into the prototype", () => {
     globalThis.TestNs = {};
     ps.declare("TestNs.WithProto", null, function () {}, {
-      foo: function () { return "bar"; },
+      foo: function () {
+        return "bar";
+      },
     });
     const obj = new TestNs.WithProto();
     expect(obj.foo()).toBe("bar");
@@ -567,7 +588,9 @@ describe("ps.event.connect", () => {
   it("calls the listener after the original method (3-arg form)", () => {
     const calls = [];
     const src = {
-      doStuff: function () { calls.push("original"); },
+      doStuff: function () {
+        calls.push("original");
+      },
     };
     ps.event.connect(src, "doStuff", function () {
       calls.push("listener");
@@ -579,10 +602,14 @@ describe("ps.event.connect", () => {
   it("calls scope[handler] after the original method (4-arg form)", () => {
     const calls = [];
     const src = {
-      doStuff: function () { calls.push("original"); },
+      doStuff: function () {
+        calls.push("original");
+      },
     };
     const scope = {
-      myHandler: function () { calls.push("scoped"); },
+      myHandler: function () {
+        calls.push("scoped");
+      },
     };
     ps.event.connect(src, "doStuff", scope, "myHandler");
     src.doStuff();
@@ -590,7 +617,11 @@ describe("ps.event.connect", () => {
   });
 
   it("returns the original method's return value", () => {
-    const src = { getValue: function () { return 42; } };
+    const src = {
+      getValue: function () {
+        return 42;
+      },
+    };
     ps.event.connect(src, "getValue", function () {});
     expect(src.getValue()).toBe(42);
   });
@@ -598,7 +629,9 @@ describe("ps.event.connect", () => {
   it("forwards arguments to both original and listener", () => {
     const receivedArgs = [];
     const src = {
-      act: function (a, b) { return a + b; },
+      act: function (a, b) {
+        return a + b;
+      },
     };
     ps.event.connect(src, "act", function (a, b) {
       receivedArgs.push(a, b);
@@ -610,7 +643,9 @@ describe("ps.event.connect", () => {
   it("works when the original method does not exist yet", () => {
     const src = {};
     const calls = [];
-    ps.event.connect(src, "newMethod", function () { calls.push("called"); });
+    ps.event.connect(src, "newMethod", function () {
+      calls.push("called");
+    });
     src.newMethod();
     expect(calls).toEqual(["called"]);
   });
@@ -644,7 +679,9 @@ describe("ps.event.connectAround", () => {
 
   it("provides invocation.args and invocation.object", () => {
     const src = {
-      add: function (a, b) { return a + b; },
+      add: function (a, b) {
+        return a + b;
+      },
     };
     let capturedArgs, capturedObj;
     const advisor = {
@@ -661,7 +698,11 @@ describe("ps.event.connectAround", () => {
   });
 
   it("allows skipping the original method", () => {
-    const src = { risky: function () { throw new Error("should not run"); } };
+    const src = {
+      risky: function () {
+        throw new Error("should not run");
+      },
+    };
     const advisor = {
       guard: function (_invocation) {
         return "safe";
@@ -679,7 +720,9 @@ describe("ps.event.connectBefore", () => {
   it("calls the listener before the original method", () => {
     const calls = [];
     const src = {
-      action: function () { calls.push("original"); },
+      action: function () {
+        calls.push("original");
+      },
     };
     ps.event.connectBefore(src, "action", function () {
       calls.push("before");
@@ -691,10 +734,14 @@ describe("ps.event.connectBefore", () => {
   it("supports the 4-arg scope/handler form", () => {
     const calls = [];
     const src = {
-      action: function () { calls.push("original"); },
+      action: function () {
+        calls.push("original");
+      },
     };
     const scope = {
-      prep: function () { calls.push("prep"); },
+      prep: function () {
+        calls.push("prep");
+      },
     };
     ps.event.connectBefore(src, "action", scope, "prep");
     src.action();
@@ -722,16 +769,26 @@ describe("ps.event.topic", () => {
   });
 
   it("supports the scope/handler subscribe form", () => {
-    const scope = { messages: [], handler: function (msg) { this.messages.push(msg); } };
+    const scope = {
+      messages: [],
+      handler: function (msg) {
+        this.messages.push(msg);
+      },
+    };
     ps.event.topic.subscribe("scoped", scope, "handler");
     ps.event.topic.publish("scoped", "test");
     expect(scope.messages).toEqual(["test"]);
   });
 
   it("publishes to multiple subscribers", () => {
-    const a = [], b = [];
-    ps.event.topic.subscribe("multi", function (d) { a.push(d); });
-    ps.event.topic.subscribe("multi", function (d) { b.push(d); });
+    const a = [],
+      b = [];
+    ps.event.topic.subscribe("multi", function (d) {
+      a.push(d);
+    });
+    ps.event.topic.subscribe("multi", function (d) {
+      b.push(d);
+    });
     ps.event.topic.publish("multi", 42);
     expect(a).toEqual([42]);
     expect(b).toEqual([42]);
