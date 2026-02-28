@@ -12,39 +12,38 @@ Phases 1 and 2 of the WebUI Bundling Fix Plan have been successfully completed. 
 
 ### Updates Applied
 
-| Library | Old Version | New Version | Action | CVE/Issue |
-|---------|-------------|-------------|--------|-----------|
-| **Handlebars** | 4.0.12 | 4.7.8 | Updated | Prototype pollution CVE |
-| **Bootstrap** | 4.5.1 | 4.6.2 | Updated | Security patches (v4 LTS) |
-| **Popper.js** | 1.14.4 | 2.11.8 | Migrated | v1 unmaintained since 2019 |
-| **Uploadify** | 2.1.0 | - | **Removed** | Flash-based, EOL Dec 2020 |
+|    Library     | Old Version | New Version |   Action    |         CVE/Issue          |
+|----------------|-------------|-------------|-------------|----------------------------|
+| **Handlebars** | 4.0.12      | 4.7.8       | Updated     | Prototype pollution CVE    |
+| **Bootstrap**  | 4.5.1       | 4.6.2       | Updated     | Security patches (v4 LTS)  |
+| **Popper.js**  | 1.14.4      | 2.11.8      | Migrated    | v1 unmaintained since 2019 |
+| **Uploadify**  | 2.1.0       | -           | **Removed** | Flash-based, EOL Dec 2020  |
 
 ### Files Modified
 
 1. **jslib/profiles/3x/libraries/handlebars/**
    - Added: `handlebars-v4.7.8.js` (198KB)
    - Kept: `handlebars-v4.0.12.js` as reference
-
 2. **jslib/profiles/3x/libraries/bootstrap/**
    - Replaced entire directory with Bootstrap 4.6.2 distribution
    - JS: bootstrap.js, bootstrap.bundle.js (with source maps)
    - CSS: bootstrap.css, bootstrap-grid.css, bootstrap-reboot.css
-
 3. **jslib/profiles/3x/libraries/popper/**
    - Replaced: `popper.js` (v1.14.4.js.bak → v2.11.8)
    - Size: 62KB (v2.11.8 UMD build)
-
 4. **jslib/profiles/3x/jquery/plugins/jquery-uploadify/**
    - **Removed completely** (Flash-based, completely unused)
 
 ### Bundle Configuration Updates
 
 **common-bundles.json** (line 35):
+
 ```json
 "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js"
 ```
 
 **common-minuet-bundles.json** (line 35):
+
 ```json
 "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js"
 ```
@@ -139,9 +138,9 @@ npm install
 ✅ **Bundle Generation with npm Sources:**
 - All JavaScript bundles successfully include npm-managed jQuery, Bootstrap, etc.
 - Bundle sizes increased (4-5MB for page bundles) due to unminified npm sources
-  - Note: Original minify plugin used Google Closure Compiler with WHITESPACE_ONLY level
-  - Current bundles are concatenated but not further minified
-  - Compression via gzip on wire will reduce size similar to original
+- Note: Original minify plugin used Google Closure Compiler with WHITESPACE_ONLY level
+- Current bundles are concatenated but not further minified
+- Compression via gzip on wire will reduce size similar to original
 - All CSS bundles include Bootstrap CSS from npm
 
 ✅ **Maven Integration:**
@@ -150,6 +149,7 @@ npm install
 - 16 JS bundles + 16 CSS bundles verified in WAR
 
 **Bundle File Examples:**
+
 ```
 cm/jslibMin/perc_dashboard.packed.min.js (3968KB)
 cm/jslibMin/perc_dashboard.packed.js (alias, 3968KB)
@@ -164,23 +164,23 @@ cm/cssMin/perc_dashboard.packed.css (alias)
 
 These libraries are retained in jslib/ (no npm equivalent):
 
-| Library | Version | Status |
-|---------|---------|--------|
-| jquery-percutils | custom | Percussion's own jQuery extensions |
-| jquery-perc-retiredjs/* | ~10 libs | Legacy jQuery plugins (intentionally retired) |
-| jquery-layout | unmaintained | No modern npm package |
-| jquery-dropdown (claviska) | unmaintained | No npm package |
-| jquery-collapser | unmaintained | No npm package |
-| jquery-jeditable | custom build | Low-activity npm package, using vendored |
-| jquery-ui-multiselect-widget | custom | No official npm |
-| perc-retiredjs/* | ~10 libs | Legacy shims (json2, rAF, date.js, etc.) |
-| qunit | 2.6.2 | Vendored (npm installed but not used in bundle) |
-| requirejs | 2.3.2 | Vendored (legacy module loader) |
-| modernizr | custom | Built custom version (npm installed) |
-| Dynatree | 1.1.0 | Still heavily used (not removed) |
-| Fancytree | 2.38.3 | Replaces Dynatree (NOT using npm yet) |
-| Backgrid | ~0.3.x | Abandoned library (low priority for refactor) |
-| FontAwesome | 5.6.1 | Vendored (npm installed, plan v6 for Phase 3) |
+|           Library            |   Version    |                     Status                      |
+|------------------------------|--------------|-------------------------------------------------|
+| jquery-percutils             | custom       | Percussion's own jQuery extensions              |
+| jquery-perc-retiredjs/*      | ~10 libs     | Legacy jQuery plugins (intentionally retired)   |
+| jquery-layout                | unmaintained | No modern npm package                           |
+| jquery-dropdown (claviska)   | unmaintained | No npm package                                  |
+| jquery-collapser             | unmaintained | No npm package                                  |
+| jquery-jeditable             | custom build | Low-activity npm package, using vendored        |
+| jquery-ui-multiselect-widget | custom       | No official npm                                 |
+| perc-retiredjs/*             | ~10 libs     | Legacy shims (json2, rAF, date.js, etc.)        |
+| qunit                        | 2.6.2        | Vendored (npm installed but not used in bundle) |
+| requirejs                    | 2.3.2        | Vendored (legacy module loader)                 |
+| modernizr                    | custom       | Built custom version (npm installed)            |
+| Dynatree                     | 1.1.0        | Still heavily used (not removed)                |
+| Fancytree                    | 2.38.3       | Replaces Dynatree (NOT using npm yet)           |
+| Backgrid                     | ~0.3.x       | Abandoned library (low priority for refactor)   |
+| FontAwesome                  | 5.6.1        | Vendored (npm installed, plan v6 for Phase 3)   |
 
 ---
 
@@ -212,15 +212,15 @@ WebUI/pom.xml
 
 ### Test Build Stats
 
-| Metric | Value |
-|--------|-------|
-| WAR file size | 343MB |
-| Build time | ~2 minutes |
-| JS bundles in WAR | 16 (8 .min + 8 aliases) |
-| CSS bundles in WAR | 16 (8 .min + 8 aliases) |
-| npm packages installed | 298 |
-| npm-managed libraries | 18 |
-| Vendored-only libraries | 15+ |
+|         Metric          |          Value          |
+|-------------------------|-------------------------|
+| WAR file size           | 343MB                   |
+| Build time              | ~2 minutes              |
+| JS bundles in WAR       | 16 (8 .min + 8 aliases) |
+| CSS bundles in WAR      | 16 (8 .min + 8 aliases) |
+| npm packages installed  | 298                     |
+| npm-managed libraries   | 18                      |
+| Vendored-only libraries | 15+                     |
 
 ---
 
@@ -304,14 +304,11 @@ Dynatree (v1.1.0) is heavily used (~80+ references in code) but unmaintained sin
 1. **WebUI/package.json**
    - Added 18 npm dependencies
    - Updated scripts section (unchanged from Phase 0)
-
 2. **WebUI/scripts/build-legacy-bundles.js**
    - Added NPM_LIBRARY_MAPPINGS object (18 entries)
    - Updated resolvePath() function to check npm first
-
 3. **WebUI/src/main/resources/minify/common-bundles.json**
    - Line 35: Updated Handlebars path (4.0.12 → 4.7.8)
-
 4. **WebUI/src/main/resources/minify/common-minuet-bundles.json**
    - Line 35: Updated Handlebars path (4.0.12 → 4.7.8)
 
@@ -319,13 +316,10 @@ Dynatree (v1.1.0) is heavily used (~80+ references in code) but unmaintained sin
 
 1. **jslib/profiles/3x/libraries/handlebars/**
    - Added: `handlebars-v4.7.8.js`
-
 2. **jslib/profiles/3x/libraries/bootstrap/**
    - Replaced all files with Bootstrap 4.6.2 distribution
-
 3. **jslib/profiles/3x/libraries/popper/**
    - Replaced: `popper.js` (v2.11.8, renamed old to `.bak`)
-
 4. **jslib/profiles/3x/jquery/plugins/jquery-uploadify/**
    - **Deleted entirely**
 
@@ -401,11 +395,11 @@ All npm packages have compatible licenses (MIT, BSD, Apache 2.0):
 
 ### Bundle Size Comparison
 
-| Bundle | Phase 0 | Phase 1 | Change | Reason |
-|--------|---------|---------|--------|--------|
-| shared-common.js | 2612KB | 2808KB | +196KB | Full npm jQuery + plugins (unminified) |
-| perc_dashboard.js | 3773KB | 3968KB | +195KB | Combined with full Bootstrap, Popper from npm |
-| Average page bundle | 4.0MB | 4.2MB | +5% | Unminified npm sources vs. vendored |
+|       Bundle        | Phase 0 | Phase 1 | Change |                    Reason                     |
+|---------------------|---------|---------|--------|-----------------------------------------------|
+| shared-common.js    | 2612KB  | 2808KB  | +196KB | Full npm jQuery + plugins (unminified)        |
+| perc_dashboard.js   | 3773KB  | 3968KB  | +195KB | Combined with full Bootstrap, Popper from npm |
+| Average page bundle | 4.0MB   | 4.2MB   | +5%    | Unminified npm sources vs. vendored           |
 
 **Wire size (gzip):**
 - Original minified: ~1MB per page bundle

@@ -19,6 +19,7 @@
 ### 1. Plugin Initialization
 
 **Dynatree:**
+
 ```javascript
 $("#perc-finder-tree").dynatree({
     selectMode: 1,
@@ -31,6 +32,7 @@ $("#perc-finder-tree").dynatree({
 ```
 
 **Fancytree:**
+
 ```javascript
 $("#perc-finder-tree").fancytree({
     selectMode: 1,
@@ -57,6 +59,7 @@ $("#perc-finder-tree").fancytree({
 ### 2. Getting the Tree Instance
 
 **Dynatree:**
+
 ```javascript
 $("#perc-finder-tree").dynatree("getTree")
 $("#perc-finder-tree").dynatree("getRoot")
@@ -64,6 +67,7 @@ $("#perc-finder-tree").dynatree("getSelectedNodes")
 ```
 
 **Fancytree:**
+
 ```javascript
 $("#perc-finder-tree").fancytree("getTree")
 $("#perc-finder-tree").fancytree("getRoot")
@@ -75,6 +79,7 @@ var tree = $.ui.fancytree.getTree("#perc-finder-tree");
 ### 3. Node Methods
 
 **Dynatree Node Methods:**
+
 ```javascript
 dtnode.expand(true/false)
 dtnode.addChild(dtobj)
@@ -86,6 +91,7 @@ dtnode.setLazyNodeStatus(DTNodeStatus_Ok|Error)
 ```
 
 **Fancytree Node Methods (SAME NAMES - Good news!):**
+
 ```javascript
 node.setExpanded(true/false)    // (rename: expand → setExpanded)
 node.addChild(dtobj)            // (SAME)
@@ -112,6 +118,7 @@ node.render()                   // (SAME)
 ### 4. Node Data Structure
 
 **Both use same data format:**
+
 ```javascript
 {
     title: "Node Title",
@@ -133,12 +140,14 @@ node.render()                   // (SAME)
 **Pattern Change:**
 
 Dynatree callbacks receive just the node:
+
 ```javascript
 onLazyRead: function(dtnode) { ... }
 onClick: function(dtnode) { ... }
 ```
 
 Fancytree callbacks receive event object first:
+
 ```javascript
 lazyLoad: function(event, data) {
     var node = data.node;
@@ -152,12 +161,12 @@ click: function(event, data) {
 
 **Key Events & Mappings:**
 
-| Dynatree | Fancytree | Signature Change |
-|----------|-----------|------------------|
-| `onLazyRead` | `lazyLoad` | `onLazyRead(dtnode)` → `lazyLoad(event, data)` where `data.node` is the node |
-| `onClick` | `click` | `onClick(dtnode)` → `click(event, data)` where `data.node` is the node |
-| `onExpand` | `expand` | `onExpand(flag, dtnode)` → `expand(event, data)` where `data.flag` is expand/collapse |
-| `onRender` | `renderNode` | `onRender(dtnode)` → `renderNode(event, data)` where `data.node` is the node |
+|   Dynatree   |  Fancytree   |                                   Signature Change                                    |
+|--------------|--------------|---------------------------------------------------------------------------------------|
+| `onLazyRead` | `lazyLoad`   | `onLazyRead(dtnode)` → `lazyLoad(event, data)` where `data.node` is the node          |
+| `onClick`    | `click`      | `onClick(dtnode)` → `click(event, data)` where `data.node` is the node                |
+| `onExpand`   | `expand`     | `onExpand(flag, dtnode)` → `expand(event, data)` where `data.flag` is expand/collapse |
+| `onRender`   | `renderNode` | `onRender(dtnode)` → `renderNode(event, data)` where `data.node` is the node          |
 
 ### 6. CSS Classes & Styling
 
@@ -166,6 +175,7 @@ click: function(event, data) {
 - Fancytree uses classes like: `fancytree-container`, `fancytree-nodes`, `fancytree-node`
 
 **Class Mapping:**
+
 ```
 dynatree- → fancytree-
 ```
@@ -177,6 +187,7 @@ All existing CSS changes from `dynatree-*` to `fancytree-*` in span styling.
 **Dynatree:** `icon: "/path/to/icon.gif"`
 
 **Fancytree:** Same format supported, but also:
+
 ```javascript
 icon: "material-folder"  // Uses icon fonts/classes
 // or
@@ -188,6 +199,7 @@ Current usage (explicit icon paths) works identically.
 ### 8. Tree Mode Settings
 
 **Dynatree:**
+
 ```javascript
 selectMode: 1,      // Single select
 selectMode: 2,      // Multi-select (checkbox)
@@ -196,6 +208,7 @@ clickFolderMode: 3  // Click behavior for folders
 ```
 
 **Fancytree:** (SAME - fully compatible)
+
 ```javascript
 selectMode: 1,      // Single select
 selectMode: 2,      // Multi-select (checkbox)
@@ -208,57 +221,54 @@ clickFolderMode: 3  // Click behavior for folders
 ## File Refactoring Checklist
 
 ### Tier 1: Core Widget (highest priority)
+
 - [ ] **PercFinderTree.js** (443 lines)
   - Primary tree widget used by all pages
   - Updates: `.dynatree()` → `.fancytree()`, callback renames, event handler params
   - Impact: All 12 JSP pages depend on this
 
 ### Tier 2: Data Trees & Dialogs
+
 - [ ] **PercDataTree.js** (407 lines)
   - Workflow tree with checkboxes
   - Updates: Similar callback changes, node operations
-
 - [ ] **PercSectionTreeDialog.js**
   - Updates: Event handler changes
-
 - [ ] **PercCopySiteDialog.js**
   - Updates: Event handler changes
-
 - [ ] **perc_assign_workflow_sites_folder_dialog.js**
   - Updates: Event handler changes
 
 ### Tier 3: Views & Components
+
 - [ ] **PercFinderTree.js** (Core widget - do first!)
 - [ ] **PercCategoryView.js**
   - DynatingTree initialization in view
-
 - [ ] **PercWorkflowView.js**
   - DynatingTree initialization in view
 
 ### Tier 4: Page Wizards
+
 - [ ] **assetwizard.viewmodel.js**
   - Updates: Tree initialization in module
-
 - [ ] **pagewizard.js**
   - Updates: Tree initialization in module
-
 - [ ] **pagewizard.viewmodel.js**
   - Updates: Tree initialization in module
 
 ### Tier 5: Bootstrap & JSP
+
 - [ ] **cui/pages/_bootstrap.js**
   - Register any dynatree-specific code
-
 - [ ] **siteArchitecture.jsp**
   - May have dynatree-specific includes
 
 ### Tier 6: Delivery Tier (External Module)
+
 - [ ] **modules/perc-common-ui-bundle/src/main/js/views/PercCategoryListView.js**
   - Separate module build
-
 - [ ] **system/cms/content/applications/** (2 files)
   - Widget files, may be dynamically loaded
-
 - [ ] **system/Packages/perc.widget.categoryList/** (2 files)
   - Plugin package files
 
@@ -269,6 +279,7 @@ clickFolderMode: 3  // Click behavior for folders
 ### Step 1: Update PercFinderTree.js (Core)
 
 **Changes needed:**
+
 ```javascript
 // OLD: $("#perc-finder-tree").dynatree({
 // NEW:
@@ -307,31 +318,23 @@ Find/Replace patterns:
 1. **Plugin method:**
    - Find: `\.dynatree\(`
    - Replace: `.fancytree(`
-
 2. **Children → source:**
    - Find: `children:\s*rootChildren`
    - Replace: `source: rootChildren`
-
 3. **Callback renames:**
    - Find: `onLazyRead:`
    - Replace: `lazyLoad:`
-
    - Find: `onClick:`
    - Replace: `click:`
-
    - Find: `onExpand:`
    - Replace: `expand:`
-
    - Find: `onRender:`
    - Replace: `renderNode:`
-
 4. **Node methods:**
    - Find: `\.expand\(`
    - Replace: `.setExpanded(`
-
    - Find: `\.activateSilently\(\)`
    - Replace: `.setActive(true)`
-
 5. **Event handler params:**
    - Find: `function(dtnode)` in callbacks
    - Replace: `function(event, data)` and use `data.node`
@@ -356,6 +359,7 @@ Find/Replace patterns:
 ### 1. DTNodeStatus Constants
 
 **Dynatree used constants:**
+
 ```javascript
 DTNodeStatus_Ok
 DTNodeStatus_Error
@@ -368,6 +372,7 @@ DTNodeStatus_Error
 ### 2. imagePath Property
 
 **Dynatree:**
+
 ```javascript
 imagePath: " "  // Empty string or path to icon folder
 ```
@@ -377,6 +382,7 @@ imagePath: " "  // Empty string or path to icon folder
 ### 3. addClass/removeClass properties
 
 **Dynatree supported:**
+
 ```javascript
 {
     title: "Node",
@@ -397,6 +403,7 @@ All callbacks must be updated to accept `(event, data)` and extract `data.node`.
 ### 5. Lazy Load Node Status
 
 **Dynatree:**
+
 ```javascript
 dtnode.setLazyNodeStatus(DTNodeStatus_Ok);
 ```
@@ -408,6 +415,7 @@ dtnode.setLazyNodeStatus(DTNodeStatus_Ok);
 ## Quick Reference: Before & After
 
 ### Before (Dynatree)
+
 ```javascript
 $("#tree").dynatree({
     selectMode: 1,
@@ -433,6 +441,7 @@ selected[0].expand(true);
 ```
 
 ### After (Fancytree)
+
 ```javascript
 $("#tree").fancytree({
     selectMode: 1,
@@ -479,17 +488,17 @@ selected[0].setExpanded(true);
 ### Regex Patterns for Find/Replace
 
 1. **Replace plugin calls:**
+
    ```
    Find: \.dynatree\(
    Replace: .fancytree(
    ```
-
 2. **Replace children → source:**
+
    ```
    Find: children:\s*
    Replace: source:
    ```
-
 3. **Replace callback names (automated):**
    Scripts can be run in VS Code find/replace to batch update files.
 

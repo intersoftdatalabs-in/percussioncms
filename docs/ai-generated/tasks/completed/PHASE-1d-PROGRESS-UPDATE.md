@@ -8,6 +8,7 @@
 ## Completed Widgets (Phase 1d)
 
 ### 1. ProcessMonitorWidget ✅ [commit: 283f1a5c86]
+
 - **Endpoint:** `GET /services/monitor/all`
 - **Features:** Real-time system monitoring status display with emoji indicators
 - **Status Icons:** ✅ running, 🟡 paused, ❌ error
@@ -15,6 +16,7 @@
 - **Files:** ProcessMonitorWidget.tsx (220 lines) + test (312 lines)
 
 ### 2. EffectivenessWidget ✅ [commit: b52623999c]
+
 - **Endpoint:** `POST /services/activity/effectiveness`
 - **Features:** Performance metrics with trends and color-coded percentages
 - **Trend Icons:** 📈 up, 📉 down, ➡️ stable
@@ -23,6 +25,7 @@
 - **Files:** EffectivenessWidget.tsx (190 lines) + test (322 lines)
 
 ### 3. AssetsStatusWidget ✅ [commit: b3210b4175]
+
 - **Endpoint:** `GET /services/asset/workflow-status`
 - **Features:** Asset distribution by workflow status with progress bars
 - **Status Distribution:** Draft, Review, Published, Archived, Rejected
@@ -31,6 +34,7 @@
 - **Files:** AssetsStatusWidget.tsx (220 lines) + test (290 lines)
 
 ### 4. BulkUploadWidget ✅ [commit: c27f001be7] - JUST COMPLETED
+
 - **Endpoint:** `GET /services/bulk-upload/jobs`
 - **Features:** Bulk upload job status tracking with progress and file counts
 - **Status Icons:** ⏳ pending, ⚙️ in-progress, ✅ completed, ❌ failed
@@ -42,11 +46,11 @@
 
 **User-Identified Most-Used Gadgets (Phase 1d Focus):**
 
-| Gadget | Status | Widget | Endpoint |
-|--------|--------|--------|----------|
-| Assets By Status | ✅ COMPLETE | AssetsStatusWidget | GET `/services/asset/workflow-status` |
-| Pages By Status | ✅ COMPLETE | WorkflowStatusWidget (Phase 1b) | GET `/services/workflow/status` |
-| Bulk Upload | ✅ COMPLETE | BulkUploadWidget | GET `/services/bulk-upload/jobs` |
+|      Gadget      |   Status   |             Widget              |               Endpoint                |
+|------------------|------------|---------------------------------|---------------------------------------|
+| Assets By Status | ✅ COMPLETE | AssetsStatusWidget              | GET `/services/asset/workflow-status` |
+| Pages By Status  | ✅ COMPLETE | WorkflowStatusWidget (Phase 1b) | GET `/services/workflow/status`       |
+| Bulk Upload      | ✅ COMPLETE | BulkUploadWidget                | GET `/services/bulk-upload/jobs`      |
 
 **All top 3 most-used gadgets now implemented with full feature parity! 🎉**
 
@@ -66,13 +70,13 @@
 
 ## Test Coverage Summary
 
-| Widget | Tests | Coverage |
-|--------|-------|----------|
-| ProcessMonitorWidget | 13 | Rendering, loading, error, API, refresh, response formats |
-| EffectivenessWidget | 12 | Rendering, metrics, trends, colors, API, refresh |
-| AssetsStatusWidget | 13 | Rendering, status breakdown, colors, API, refresh, grouping |
-| BulkUploadWidget | 14 | Rendering, job display, status icons, progress, API, refresh |
-| **Phase 1d Total** | **52** | **Comprehensive** |
+|        Widget        | Tests  |                           Coverage                           |
+|----------------------|--------|--------------------------------------------------------------|
+| ProcessMonitorWidget | 13     | Rendering, loading, error, API, refresh, response formats    |
+| EffectivenessWidget  | 12     | Rendering, metrics, trends, colors, API, refresh             |
+| AssetsStatusWidget   | 13     | Rendering, status breakdown, colors, API, refresh, grouping  |
+| BulkUploadWidget     | 14     | Rendering, job display, status icons, progress, API, refresh |
+| **Phase 1d Total**   | **52** | **Comprehensive**                                            |
 
 ## Remaining Phase 1d Widgets
 
@@ -82,12 +86,10 @@
    - Endpoint: `POST /services/activity/contenttraffic`
    - Requires: Recharts library, date range selector
    - High-value: Analytics critical for users
-
 2. **Reports Widget** (📋 simple list, ~3 hours)
    - Endpoint: `GET /services/reports/list`
    - Features: List display, filtering
    - Low complexity: Foundational for reports dashboard
-
 3. **Additional Gadget Widgets** (4+ more, various complexity)
    - Search-related gadgets
    - Custom report gadgets
@@ -104,16 +106,19 @@
 ## Next Steps
 
 ### Immediate (Ready to Start):
+
 1. **Install Recharts:** `npm install recharts date-fns`
 2. **Implement Traffic Widget:** Chart-based analytics widget
 3. **Run Full Test Suite:** `npm test` to verify all 60+ tests pass
 
 ### Follow-up (Phase 1e):
+
 1. **Feature Parity UI:** Add/Remove/Drag-drop widget management
 2. **Dashboard Persistence:** Save user's widget layout
 3. **Additional Widgets:** Remaining gadgets from registry
 
 ### Quality Gates Achieved:
+
 ✅ All 3 top user-valued gadgets implemented
 ✅ Consistent widget architecture and patterns
 ✅ 52 new test cases with comprehensive coverage

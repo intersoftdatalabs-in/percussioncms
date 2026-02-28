@@ -10,39 +10,36 @@
 ## Implementation Priority & Breakdown
 
 ### Tier 1: Content Management (High Priority) - 4 gadgets
+
 1. **Blogs Widget** - Blog listings and management
    - File: `PercBlogsGadget.xml`
    - REST Endpoint: `/services/blogs/list` (inferred)
    - Complexity: **LOW**
    - Similar to: ReportsWidget (list display pattern)
-
 2. **Comments Widget** - Latest comments feed
    - File: `perc_comments_gadget.xml`
    - REST Endpoint: `/services/comments/latest` (inferred)
    - Complexity: **LOW**
    - Similar to: ActivityWidget (timeline pattern)
-
 3. **Forms Tracker Widget** - Form submission tracking
    - File: `PercFormTrackerGadget.xml`
    - REST Endpoint: `/services/forms/tracker` (inferred)
    - Complexity: **MEDIUM**
    - Features: Submission count, status breakdown, trending
-
 4. **Bulk Upload Widget** - ✅ ALREADY DONE (Phase 1d)
 
 ### Tier 2: Compliance & Analytics (Medium Priority) - 3 gadgets
+
 5. **Cookie Consent Widget** - Compliance tracking
    - File: `perc_cookie_consent_gadget.xml`
    - REST Endpoint: `/services/compliance/cookie-consent` (inferred)
    - Complexity: **LOW**
    - Status display, consent metrics
-
 6. **SEO Audit Widget** - SEO metrics and recommendations
    - File: `perc_seo_status_gadget.xml`
    - REST Endpoint: `/services/seo/audit` (inferred)
    - Complexity: **MEDIUM**
    - Score display, key metrics, issues list
-
 7. **Google Setup Widget** - Google integration config
    - File: `perc_google_setup_gadget.xml`
    - REST Endpoint: Need to verify
@@ -50,18 +47,17 @@
    - Config status, integration controls
 
 ### Tier 3: System/Admin (Lower Priority) - 3 gadgets
+
 8. **Global Variables Widget** - Admin configuration
    - File: `PercGlobalVariablesGadget.xml`
    - REST Endpoint: `/services/admin/variables` (inferred)
    - Complexity: **MEDIUM**
    - Key-value pair display, edit controls
-
 9. **Membership Widget** - User/membership management
    - File: `perc_membership_gadget.xml`
    - REST Endpoint: `/services/membership/list` (inferred)
    - Complexity: **LOW-MEDIUM**
    - Status display, member count
-
 10. **Sitewide Framework Widget** - Framework config
     - File: `perc_sitewide_framework_gadget.xml`
     - REST Endpoint: `/services/framework/config` (inferred)
@@ -69,18 +65,17 @@
     - Configuration display, status checks
 
 ### Tier 4: Integration/Utility (Lowest Priority) - 3 gadgets
+
 11. **Siteimprove Widget** - Third-party integration
     - File: `perc_site_improve_gadget.xml`
     - REST Endpoint: Need to verify
     - Complexity: **LOW**
     - Status display, link to external service
-
 12. **Iframe Widget** - Generic iframe loader
     - File: `perc_iframe_gadget.xml`
     - REST Endpoint: N/A (custom URL)
     - Complexity: **LOW**
     - Configuration: URL, dimensions, sandbox options
-
 13. **Widget Configuration Widget** - Dashboard management UI
     - File: `PercWidgetConfigGadget.xml`
     - REST Endpoint: `/services/gadget/` (GET/POST/DELETE)
@@ -92,6 +87,7 @@
 ## Implementation Strategy
 
 ### Phase 1f-1a: Content Management (Blogs, Comments, Forms, Bulk) - 4 gadgets
+
 **Goal:** 4 gadgets handling content-related data display
 **Estimated Time:** 8-12 hours
 **Build Cycles:** 2-3 incremental builds
@@ -104,6 +100,7 @@
 6. Build & commit after each gadget pair
 
 ### Phase 1f-1b: Compliance & Analytics (Cookie, SEO, Google) - 3 gadgets
+
 **Goal:** 3 gadgets for monitoring and integration setup
 **Estimated Time:** 6-8 hours
 **Build Cycles:** 1-2 incremental builds
@@ -115,6 +112,7 @@
 5. Build & commit after each gadget
 
 ### Phase 1f-1c: System/Admin (Global, Membership, Framework) - 3 gadgets
+
 **Goal:** 3 gadgets for system administration
 **Estimated Time:** 6-8 hours
 **Build Cycles:** 1-2 incremental builds
@@ -126,6 +124,7 @@
 5. Build & commit after gadget trio
 
 ### Phase 1f-1d: Integration & Utility (Siteimprove, Iframe) - 2 gadgets
+
 **Goal:** 2 gadgets for third-party integration
 **Estimated Time:** 3-4 hours
 **Build Cycles:** 1 incremental build
@@ -136,6 +135,7 @@
 4. Single build & commit
 
 ### Phase 1f-1e: Meta Widget (Widget Configuration) - 1 gadget
+
 **Goal:** 1 meta-widget for dashboard management
 **Estimated Time:** 4-6 hours
 **Note:** Similar to AddGadgetModal, may reuse components

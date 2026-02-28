@@ -7,6 +7,7 @@
 ## Completed
 
 ### ✅ ProcessMonitorWidget (MERGED)
+
 - **Location**: [WebUI/src/main/ts/dashboard/ProcessMonitorWidget.tsx](WebUI/src/main/ts/dashboard/ProcessMonitorWidget.tsx)
 - **Tests**: [WebUI/src/test/ts/dashboard/ProcessMonitorWidget.test.tsx](WebUI/src/test/ts/dashboard/ProcessMonitorWidget.test.tsx)
 - **REST Endpoint**: `GET /services/monitor/all`
@@ -26,10 +27,10 @@
 - **Complexity**: LOW
 - **REST Endpoint**: `GET /services/dashboardmanagement/dashboard/{userId}`
 - **Features**:
-  - Display current user dashboard configuration
-  - Add/remove widgets UI
-  - Drag-drop reordering (using react-beautiful-dnd)
-  - Save preferences
+- Display current user dashboard configuration
+- Add/remove widgets UI
+- Drag-drop reordering (using react-beautiful-dnd)
+- Save preferences
 - **Estimated Effort**: 4-5 hours
 - **Blockers**: None
 - **Notes**: Core infrastructure that enables full feature parity
@@ -38,9 +39,9 @@
 - **Complexity**: LOW
 - **REST Endpoint**: `GET /services/reports/list`
 - **Features**:
-  - List available reports
-  - Launch buttons
-  - Report icons/descriptions
+- List available reports
+- Launch buttons
+- Report icons/descriptions
 - **Estimated Effort**: 2-3 hours
 - **Blockers**: Need to verify actual Reports REST service
 
@@ -48,10 +49,10 @@
 - **Complexity**: LOW-MEDIUM
 - **REST Endpoint**: `POST /services/activity/effectiveness`
 - **Features**:
-  - Performance metrics timeline
-  - Trend indicators (↑ ↓ →)
-  - Response time graphs (Recharts)
-  - Sparklines for quick insights
+- Performance metrics timeline
+- Trend indicators (↑ ↓ →)
+- Response time graphs (Recharts)
+- Sparklines for quick insights
 - **Estimated Effort**: 3-4 hours
 - **Blockers**: Recharts library setup
 
@@ -59,17 +60,18 @@
 - **Complexity**: MEDIUM-HIGH
 - **REST Endpoint**: `POST /services/activity/contenttraffic` + `POST /services/activity/trafficdetails`
 - **Features**:
-  - Traffic timeline (Recharts LineChart)
-  - Date range selector (last 7 days, 30 days, custom)
-  - Traffic breakdown by content type
-  - Peak traffic indicators
-  - Hourly/daily/weekly granularity
+- Traffic timeline (Recharts LineChart)
+- Date range selector (last 7 days, 30 days, custom)
+- Traffic breakdown by content type
+- Peak traffic indicators
+- Hourly/daily/weekly granularity
 - **Estimated Effort**: 5-6 hours
 - **Blockers**: Date picker UI, Recharts configuration
 
 ## Pending Features (Phase 1e+)
 
 ### Add/Remove Widget Functionality
+
 - Add button to Dashboard component
 - Modal/dropdown to select widgets to add
 - Delete button on each widget
@@ -77,12 +79,14 @@
 - Undo/restore functionality
 
 ### Drag-Drop Layout
+
 - Integrate react-beautiful-dnd library
 - Enable drag-drop reordering on Dashboard
 - Save layout preferences
 - Responsive grid adjustment
 
 ### Additional Specialized Widgets (13 more)
+
 1. Unpublished Items Widget
 2. Recent Cache Keywords Widget
 3. System Performance Widget
@@ -100,6 +104,7 @@
 ## Technical Setup
 
 ### Dependencies Already Available
+
 ✅ React 19.1.0
 ✅ TypeScript 5.8.3
 ✅ Vitest 3.2.1
@@ -107,12 +112,14 @@
 ✅ Vite 6.3.5
 
 ### Dependencies Needed for Phase 1d
+
 - **react-beautiful-dnd** (drag-drop): v13.1.1
 - **recharts** (charts): v2.12.7
 - **date-fns** (date handling): v3.18.0
 - **react-calendar** or **react-datepicker** (optional): for date range picker
 
 ### Installation Command
+
 ```bash
 npm install react-beautiful-dnd recharts date-fns
 npm install -D @types/react-beautiful-dnd
@@ -122,21 +129,22 @@ npm install -D @types/react-beautiful-dnd
 
 All endpoints verified from Java source code:
 
-| Endpoint | Method | Description | Location |
-|:---------|:-------|:------------|:---------|
-| `/services/monitor/all` | GET | All system monitors | PSMonitorService ✅ |
-| `/services/monitor/list` | GET | Monitor designators | PSMonitorService ✅ |
-| `/services/activity/contentactivity` | POST | Recent content activity | PSContentActivityService ✅ |
-| `/services/activity/effectiveness` | POST | Performance metrics | PSContentActivityService ✅ |
-| `/services/activity/contenttraffic` | POST | Traffic metrics | PSContentActivityService ✅ |
-| `/services/activity/trafficdetails` | POST | Detailed traffic data | PSContentActivityService ✅ |
-| `/services/dashboardmanagement/dashboard/{userId}` | GET/PUT | User dashboard config | PSUserProfileRestService |
-| `/services/gadget/` | GET/POST/DELETE | Gadget CRUD | PSGadgetRestService ✅ |
-| `/services/reports/list` | GET | Available reports | TBD - Needs verification |
+| Endpoint                                           | Method          | Description             | Location                   |
+|:---------------------------------------------------|:----------------|:------------------------|:---------------------------|
+| `/services/monitor/all`                            | GET             | All system monitors     | PSMonitorService ✅         |
+| `/services/monitor/list`                           | GET             | Monitor designators     | PSMonitorService ✅         |
+| `/services/activity/contentactivity`               | POST            | Recent content activity | PSContentActivityService ✅ |
+| `/services/activity/effectiveness`                 | POST            | Performance metrics     | PSContentActivityService ✅ |
+| `/services/activity/contenttraffic`                | POST            | Traffic metrics         | PSContentActivityService ✅ |
+| `/services/activity/trafficdetails`                | POST            | Detailed traffic data   | PSContentActivityService ✅ |
+| `/services/dashboardmanagement/dashboard/{userId}` | GET/PUT         | User dashboard config   | PSUserProfileRestService   |
+| `/services/gadget/`                                | GET/POST/DELETE | Gadget CRUD             | PSGadgetRestService ✅      |
+| `/services/reports/list`                           | GET             | Available reports       | TBD - Needs verification   |
 
 ## Code Quality Standards
 
 ### Widget Template
+
 Each Phase 1d widget should follow this pattern:
 
 ```typescript
@@ -176,6 +184,7 @@ export default MyWidget;
 ```
 
 ### Test Template
+
 - Use vitest + React Testing Library
 - Mock API client with vi.mock('@/api/client')
 - Test: loading state, error state, empty state, data display
@@ -224,12 +233,12 @@ npm run lint
 
 ## Known Issues & Workarounds
 
-| Issue | Status | Workaround |
-|:------|:-------|:-----------|
-| Inline styles linting warnings | Known | Existing codebase pattern - can ignore |
-| Recharts peer dependencies | Pending | Install dev dependencies if needed |
-| Date picker library choice | TBD | react-datepicker easier to integrate |
-| Drag-drop accessibility | TBD | react-beautiful-dnd widely tested |
+| Issue                          | Status  | Workaround                             |
+|:-------------------------------|:--------|:---------------------------------------|
+| Inline styles linting warnings | Known   | Existing codebase pattern - can ignore |
+| Recharts peer dependencies     | Pending | Install dev dependencies if needed     |
+| Date picker library choice     | TBD     | react-datepicker easier to integrate   |
+| Drag-drop accessibility        | TBD     | react-beautiful-dnd widely tested      |
 
 ## References
 

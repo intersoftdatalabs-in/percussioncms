@@ -112,6 +112,7 @@ Each widget needs:
 **Success Criteria**: All tests pass, zero regressions
 
 ### Commands
+
 ```bash
 # Test single widget
 npm test -- [Widget].test.tsx

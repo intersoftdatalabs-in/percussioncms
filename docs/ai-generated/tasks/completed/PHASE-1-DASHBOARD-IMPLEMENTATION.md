@@ -1,6 +1,7 @@
 # Phase 1: Dashboard React Component Implementation Plan
 
 ## Objective
+
 Replace the retired Apache Shindig 3.0.0-beta4 gadget container with modern React/TypeScript dashboard widgets that call existing REST endpoints.
 
 **Security Impact:** Removes high-risk dependencies (Guice 2.0, Google Collections 1.0-rc2, Caja, ancient OAuth).
@@ -26,12 +27,14 @@ WebUI/src/main/ts/
 ## Component Details
 
 ### 1. Dashboard.tsx (Main Container)
+
 - Renders two-column layout with drag-and-drop grid
 - Loads user's saved dashboard configuration via `useDashboardConfig`
 - Renders widget components based on config
 - Fallback: feature flag (`?legacyDashboard=true`) to load old Shindig dashboard
 
 ### 2. DashboardLayout.tsx
+
 - Two-column responsive grid layout
 - Optional: `react-grid-layout` for drag-and-drop support
 - Otherwise: CSS Grid with fixed widget positions
@@ -39,16 +42,17 @@ WebUI/src/main/ts/
 
 ### 3. Widget Components
 
-| Widget | Purpose | REST Endpoint | Priority |
-|--------|---------|---|----------|
-| WelcomeWidget | Static welcome + links | None | 1 |
-| WorkflowStatusWidget | Show pending workflow tasks | `/services/dashboardmanagement/gadget/workflow-status` | 2 |
-| ActivityWidget | Recent content activities | `/services/activity/contentactivity` | 2 |
-| ContentTrafficWidget | Traffic metrics | `/services/activity/contenttraffic` | 3 |
-| ProcessMonitorWidget | Active processes | `/services/dashboardmanagement/gadget/process-monitor` | 3 |
-| ReportsWidget | Quick reports | `/services/dashboardmanagement/gadget/reports` | 3 |
+|        Widget        |           Purpose           |                     REST Endpoint                      | Priority |
+|----------------------|-----------------------------|--------------------------------------------------------|----------|
+| WelcomeWidget        | Static welcome + links      | None                                                   | 1        |
+| WorkflowStatusWidget | Show pending workflow tasks | `/services/dashboardmanagement/gadget/workflow-status` | 2        |
+| ActivityWidget       | Recent content activities   | `/services/activity/contentactivity`                   | 2        |
+| ContentTrafficWidget | Traffic metrics             | `/services/activity/contenttraffic`                    | 3        |
+| ProcessMonitorWidget | Active processes            | `/services/dashboardmanagement/gadget/process-monitor` | 3        |
+| ReportsWidget        | Quick reports               | `/services/dashboardmanagement/gadget/reports`         | 3        |
 
 ### 4. useDashboardConfig Hook
+
 ```typescript
 interface DashboardConfig {
   widgets: {
@@ -66,6 +70,7 @@ interface DashboardConfig {
 ## Implementation Phases
 
 ### Phase 1a: Foundation (Weeks 1-2)
+
 - [ ] Create Dashboard.tsx + DashboardLayout.tsx
 - [ ] Create WelcomeWidget (static, no API calls)
 - [ ] Register Dashboard in component registry
@@ -73,12 +78,14 @@ interface DashboardConfig {
 - [ ] Test locally with `npm run dev`
 
 ### Phase 1b: Widgets (Weeks 2-3)
+
 - [ ] Create WorkflowStatusWidget + ActivityWidget
 - [ ] Test REST API calls with CSRF token injection
 - [ ] Add mock data for offline development
 - [ ] Error handling + loading states
 
 ### Phase 1c: Config & Features (Weeks 3-4)
+
 - [ ] Implement useDashboardConfig hook
 - [ ] Add feature flag for legacy fallback
 - [ ] Drag-and-drop (optional: skip if CSS Grid sufficient)
@@ -87,6 +94,7 @@ interface DashboardConfig {
 ## REST Endpoints to Call
 
 ### Existing Endpoints (from sitemanage)
+
 ```
 GET  /services/dashboardmanagement/dashboard/{userId}
 PUT  /services/dashboardmanagement/dashboard/{userId}
@@ -98,21 +106,25 @@ GET  /services/activity/contenttraffic
 ```
 
 ### CSRF Token Injection
+
 All requests automatically include OWASP CSRFGuard token via the typed API client (Phase 0: `src/api/client.ts`).
 
 ## Testing Strategy
 
 ### Unit Tests (Vitest)
+
 - Widget rendering with mock data
 - Layout responsiveness
 - Hook behavior (useDashboardConfig)
 
 ### Integration Tests
+
 - Real API calls (mock/stub services)
 - Feature flag behavior
 - Dashboard.jsp mounting
 
 ### Manual Testing
+
 - Local dev: `npm run dev`
 - Build: `./mvn-env.sh clean install -pl WebUI`
 - Browser: Load `/cm/app/dashboard.jsp` (feature flag to toggle old/new)
@@ -142,3 +154,4 @@ Target: **Complete by end of sprint**
 - Use existing REST endpoints; do NOT create new ones
 - Reuse typed API client from Phase 0
 - No external UI libraries yet (use CSS Grid instead of react-grid-layout for now)
+

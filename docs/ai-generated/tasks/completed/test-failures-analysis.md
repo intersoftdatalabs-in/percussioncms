@@ -17,9 +17,11 @@ The test failures fall into **three distinct categories**:
 ## Category 1: Hibernate Path Expression Errors (Code Bugs)
 
 ### Issue Type
+
 Query path syntax error in HQL that Hibernate 6.x cannot interpret.
 
 ### Affected Tests (21 total)
+
 All tests with error: `Could not interpret attribute 'name' of basic-valued path 'com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry(me).properties(p0).{element}.id'`
 
 Including:
@@ -73,20 +75,24 @@ inClauseTemplate = " lower(p{0}.name) = lower(:{4}) and p{0}.{1} {2} (:{3})";
 ## Category 2: Data Logic Issues (Code Bugs)
 
 ### Issue Type
+
 Incorrect data being saved or counted - logic problems in the service code.
 
 ### Affected Tests (9 total)
 
 #### A. `PSMetadataIndexerServiceTest`
+
 - `testSaveDeleteSingle`: Expected 3 entries, got 2
 - `testSave_MultipleValueProperties`: Expected 66.0, got 4.0
 
 #### B. `PSMetadataQueryServiceTest`
+
 - `testCriteria_Single_EntryField_*`: Expected 5 entries, various results (1, 3, 10, 15)
 - `testOrderBy_Folder`: Folder path ordering logic broken
 - `testOrderBy_PagePath`: Expected 5 results, got 3
 
 #### C. Test Data Not Being Persisted Correctly
+
 The `addTestEntries()` method creates test data, but some tests are:
 - Getting fewer results than expected (suggests some entries aren't being saved)
 - Getting more results than expected on certain fields (suggests data from previous tests leaking)
@@ -98,12 +104,9 @@ The `addTestEntries()` method creates test data, but some tests are:
 
 1. **Duplicate Key Prevention**: The test data creation may have entries with duplicate keys that aren't being inserted
    - Location: [PSMetadataQueryServiceTest.java - addTestEntries() method](PSMetadataQueryServiceTest.java#L1437)
-
 2. **Entry Cleanup Between Tests**: The `before()` method calls `indexer.deleteAllMetadataEntries()` but may not be working correctly
    - Location: [PSMetadataQueryServiceTest.java - before() method](PSMetadataQueryServiceTest.java#L63)
-
 3. **Property Grouping/Aggregation**: For tests expecting specific counts (e.g., expecting 66.0), there may be aggregation logic in the service that's not handling duplicates correctly
-
 4. **Folder Path Traversal**: The `testOrderBy_Folder` test expects folder ordering but the actual value returned suggests it's not being sorted properly
 
 ### Investigation Steps
@@ -118,15 +121,18 @@ The `addTestEntries()` method creates test data, but some tests are:
 ## Category 3: Test Data and Assertion Issues (Test Logic)
 
 ### Issue Type
+
 Tests may have incorrect expectations or test data may be configured wrong.
 
 ### Affected Tests (5 total)
 
 #### A. Jersey Test Setup Error
+
 **Tests:**
 - `PSBaseMetadataRestServiceTest` (2 tests)
 
 **Error:**
+
 ```
 Cannot invoke "org.glassfish.jersey.server.ApplicationHandler.getConfiguration()"
 because "applicationHandler" is null
@@ -140,6 +146,7 @@ because "applicationHandler" is null
 - Runtime dependencies for Jersey testing are included in test classpath
 
 #### B. String Transformation Test (`PSMostReadServiceTest.testG`)
+
 - Expected: `"should equal test"`
 - Got: `"test"`
 
@@ -148,6 +155,7 @@ because "applicationHandler" is null
 - The test expectation is wrong
 
 #### C. Count/Sum Expectation Issues
+
 - `testSave_MultipleValueProperties`: Expects 66.0 but gets 4.0
 - `testOrderBy_PagePath`: Expects 5 results but gets 3
 
@@ -157,11 +165,11 @@ These likely fall into Category 2 (data issues) but could also be test assertion
 
 ## Summary Table
 
-| Category | Issue Type | Test Count | Severity | Fix Location | Effort |
-|----------|-----------|-----------|----------|---|---|
-| 1 | Hibernate Path Bug | 21 | 🔴 CRITICAL | PSMetadataQueryService.java:437-438 | Low (1 line change) |
-| 2 | Data Logic/Persistence | 9 | 🟡 IMPORTANT | PSMetadataIndexerService, Test Setup | Medium-High |
-| 3 | Test Infrastructure | 5 | 🟢 SUGGESTION | Test bean configuration, Test assertions | Medium |
+| Category |       Issue Type       | Test Count |   Severity    |               Fix Location               |       Effort        |
+|----------|------------------------|------------|---------------|------------------------------------------|---------------------|
+| 1        | Hibernate Path Bug     | 21         | 🔴 CRITICAL   | PSMetadataQueryService.java:437-438      | Low (1 line change) |
+| 2        | Data Logic/Persistence | 9          | 🟡 IMPORTANT  | PSMetadataIndexerService, Test Setup     | Medium-High         |
+| 3        | Test Infrastructure    | 5          | 🟢 SUGGESTION | Test bean configuration, Test assertions | Medium              |
 
 ---
 

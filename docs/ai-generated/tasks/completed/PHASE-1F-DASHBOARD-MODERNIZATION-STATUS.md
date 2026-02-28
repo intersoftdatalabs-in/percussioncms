@@ -32,7 +32,6 @@
   - Displays SEO metrics, recommendations, check status
   - Template: 200-220 lines, ~12-15 tests
   - Features: Score display (1-100), key metrics, recommendations list
-
 - **GoogleSetupWidget** - Endpoint TBD
   - Displays Google integration status
   - Template: 180-200 lines, ~12-15 tests
@@ -54,6 +53,7 @@
 - **WidgetConfigurationWidget** - Dashboard gadget management
 
 All widgets follow consistent structure:
+
 ```tsx
 // File: [Widget]Widget.tsx
 import React, { useEffect, useState } from 'react';
@@ -91,6 +91,7 @@ export const [Widget]Widget: React.FC<Props> = ({ title, refreshInterval, ... })
 ## Implementation Quickstart for Remaining 9 Gadgets
 
 ### Creation Template (10-15 min per widget)
+
 1. Create `[Widget]Widget.tsx` (~200 lines) using pattern above
 2. Create `[Widget]Widget.test.tsx` in src/test/ts/dashboard (~12-15 tests)
 3. Update Dashboard.tsx: Add import + AVAILABLE_GADGETS entry
@@ -100,6 +101,7 @@ export const [Widget]Widget: React.FC<Props> = ({ title, refreshInterval, ... })
 7. Commit
 
 ### REST Endpoint Mapping (Verify)
+
 - SEO: `/services/seo/audit`
 - Google: Need endpoint (check Google integration endpoint)
 - Global: `/services/admin/variables`

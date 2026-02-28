@@ -1924,10 +1924,8 @@
                             <include>**/*Test.java</include>
                         </includes>
                         <!-- Needed for Mockito on Java 21+ -->
-                        <argLine>
-                            -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-                            -Xshare:off
-                        </argLine>
+                        <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                            -Xshare:off</argLine>
                     </configuration>
                     <dependencies/>
                 </plugin>
@@ -2335,13 +2333,6 @@
                                 <exclude>**/system/Docs/Rhythmyx_Publishing_Design_Help/dhtml_search.js</exclude>
                                 <exclude>**/*.min.js</exclude>
                                 <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
-                                <exclude>**/dojo/tests/**</exclude>
-                                <!-- Specific legacy Dojo files that Prettier can't parse -->
-                                <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
-                                <!-- Module-relative and generic patterns to ensure hostenv_jsc.js is ignored where it appears -->
-                                <exclude>**/cms/content/applications/sys_resources/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
-                                <exclude>**/ApplicationFiles/dojo/src/hostenv_jsc.js</exclude>
-                                <exclude>**/hostenv_jsc.js</exclude>
                             </excludes>
                             <prettier>
                                 <prettierVersion>2.8.8</prettierVersion>
@@ -2671,10 +2662,8 @@
                         <include>**/*Test.java</include>
                     </includes>
                     <!-- Needed for Mockito on Java 21+ -->
-                    <argLine>
-                        -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-                        -Xshare:off
-                    </argLine>
+                    <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                        -Xshare:off</argLine>
                 </configuration>
             </plugin>
             <!-- Modern Failsafe plugin for JUnit5 -->

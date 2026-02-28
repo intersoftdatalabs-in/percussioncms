@@ -128,7 +128,8 @@
 			</fileset>
 		</copy>
 
-		<!-- Duplicate rx_resources copy removed: identical operation already performed above (line ~109). -->
+		<!-- Duplicate rx_resources copy removed: identical operation already performed
+			above (line ~109). -->
 		<copy todir="${assembly-directory}">
 			<fileset
 				dir="${rxapps-directory}/perc-rxapps-${project.version}/RxApp/rxAppSupport">
@@ -282,7 +283,8 @@
 		</if>
 
 
-		<!-- Common UI bundles — read directly from the perc-common-ui-bundle module output. -->
+		<!-- Common UI bundles — read directly from the perc-common-ui-bundle module
+			output. -->
 		<!-- This mirrors the perc-tinymce pattern: copy from target/classes/META-INF/resources. -->
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/common/js/perc_common_ui.js"

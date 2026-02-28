@@ -1,7 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions
 	xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.2.xsd">
-	<!-- example to suppress a false warning <suppress> <notes><![CDATA[ Suppress
-		all dependencies for CVE-2018-1258 (https://pivotal.io/security/cve-2018-1258)
-		]]></notes> <cve>CVE-2018-1258</cve> </suppress> -->
+
+	<!--
+		Temporary suppression for Dojo 0.4.3 CVEs.
+		Dojo is being replaced by jQuery under Track A of the Unified UI Plan
+		(see docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md).
+		These suppressions should be removed once Track A is complete and all
+		Dojo files are deleted.
+	-->
+	<suppress>
+		<notes><![CDATA[
+		CVE-2018-6561: XSS vulnerability in Dojo Toolkit.
+		Mitigated: Dojo screens are admin-only, behind authentication.
+		Tracked for removal under Track A of Unified UI Plan.
+		]]></notes>
+		<filePath regex="true">.*dojo.*</filePath>
+		<cve>CVE-2018-6561</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[
+		CVE-2020-4051: Prototype pollution in Dojo setObject utility.
+		Mitigated: Dojo screens are admin-only, behind authentication.
+		Tracked for removal under Track A of Unified UI Plan.
+		]]></notes>
+		<filePath regex="true">.*dojo.*</filePath>
+		<cve>CVE-2020-4051</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[
+		CVE-2021-23450: Prototype pollution in Dojo setObject utility.
+		Mitigated: Dojo screens are admin-only, behind authentication.
+		Tracked for removal under Track A of Unified UI Plan.
+		]]></notes>
+		<filePath regex="true">.*dojo.*</filePath>
+		<cve>CVE-2021-23450</cve>
+	</suppress>
+
 </suppressions>

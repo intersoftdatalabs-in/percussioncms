@@ -47,7 +47,6 @@ If you see `[ERROR] Failed to execute goal com.github.eirslett:frontend-maven-pl
 
 1. **Enable long path support** (critical for Windows):
    * See [WINDOWS-BUILD-GUIDE.md](../../WINDOWS-BUILD-GUIDE.md#enable-long-paths)
-
 2. **Clear npm cache:**
 
 ```cmd

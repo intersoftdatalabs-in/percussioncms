@@ -10,6 +10,7 @@
 ## Part 1: Pre-Testing Setup
 
 ### Environment Verification
+
 - [ ] Java 21 configured (`JAVA_HOME` points to JDK 21)
 - [ ] Maven available and working (`mvn -v` succeeds)
 - [ ] Git branch correct: `feature/639-bootstrap-5-migration`
@@ -17,12 +18,14 @@
 - [ ] Bootstrap 5 vendored in `/cm/jslib/` (from Phase 2)
 
 ### Browser Preparation
+
 - [ ] Chrome/Chromium latest version (primary browser)
 - [ ] Firefox latest version (secondary browser)
 - [ ] Developer Tools console visible for error checking
 - [ ] Network tab ready to monitor requests
 
 ### Test Environment
+
 - [ ] Fresh deployment with WAR file built from feature branch
 - [ ] Database populated with test data (existing test data OK)
 - [ ] Logs cleared before starting tests
@@ -33,6 +36,7 @@
 ## Part 2: CSS & Styling Verification
 
 ### CSS Utility Classes
+
 **Objective:** Verify CSS class migrations display correctly
 
 - [ ] **Margin/Padding Utilities**
@@ -42,24 +46,20 @@
   - [ ] Elements with `pe-` (end padding) display correctly
   - [ ] No visual misalignment in layouts
   - [ ] Responsive spacing works on mobile view
-
 - [ ] **Text Alignment**
   - [ ] `text-start` elements align left (LTR) ✓
   - [ ] `text-end` elements align right (LTR) ✓
   - [ ] `text-center` elements centered ✓
   - [ ] Alignment consistent across pages
-
 - [ ] **Button Utilities**
   - [ ] `d-block w-100` buttons display full width ✓
   - [ ] Button sizes all correct ✓
   - [ ] Button colors apply correctly ✓
   - [ ] Active/disabled states show properly ✓
-
 - [ ] **Float Utilities**
   - [ ] `float-start` elements float left (LTR) ✓
   - [ ] `float-end` elements float right (LTR) ✓
   - [ ] Text wrapping around floated elements works ✓
-
 - [ ] **Grid System**
   - [ ] Grid columns display (col-md-4, col-sm-6, etc.) ✓
   - [ ] Responsive breakpoints work ✓
@@ -69,6 +69,7 @@
   - [ ] Desktop view (> 1024px) responsive ✓
 
 ### Visual Regression Check
+
 - [ ] Page header displays with correct styling
 - [ ] Navigation bar properly styled and positioned
 - [ ] Sidebar layout preserved and styled
@@ -83,6 +84,7 @@
 ## Part 3: Component API Testing
 
 ### Modal Components
+
 **Objective:** Verify modal open/close lifecycle works
 
 **Test Page:** Site Management or similar page with modals
@@ -92,7 +94,6 @@
   - [ ] Bootstrap 5 compatibility layer loads (check console for "Bootstrap 5 Compatibility Layer loaded")
   - [ ] No "undefined" errors in console
   - [ ] jQuery modal API available: `$.fn.modal` exists
-
 - [ ] **Modal Opening (Test 1: Click Button)**
   - [ ] Click "Add Item" or similar modal-triggering button
   - [ ] Modal dialog appears on screen ✓
@@ -100,13 +101,11 @@
   - [ ] Modal backdrop (overlay) appears ✓
   - [ ] Page behind modal is dimmed/disabled ✓
   - [ ] Console: No errors ✓
-
 - [ ] **Modal Content**
   - [ ] Modal title displays correctly
   - [ ] Modal body content renders properly
   - [ ] Form fields in modal are editable
   - [ ] Buttons in modal footer visible and clickable
-
 - [ ] **Modal Closing (Test 1: Cancel Button)**
   - [ ] Click "Cancel" button in modal footer
   - [ ] Modal closes/disappears ✓
@@ -114,17 +113,14 @@
   - [ ] Page is re-enabled ✓
   - [ ] Focus returns to page ✓
   - [ ] Console: No errors ✓
-
 - [ ] **Modal Closing (Test 2: X Button)**
   - [ ] Click X button in modal header
   - [ ] Modal closes smoothly ✓
   - [ ] No console errors ✓
-
 - [ ] **Modal Closing (Test 3: Backdrop Click)**
   - [ ] Click outside modal (on backdrop)
   - [ ] Modal closes (if backdrop-dismissible in B5) ✓
   - [ ] Console: No errors ✓
-
 - [ ] **Modal with Form Submission**
   - [ ] Fill in modal form
   - [ ] Click Submit/Save button
@@ -134,6 +130,7 @@
   - [ ] Success message appears (if applicable)
 
 ### Tooltip Components
+
 **Objective:** Verify tooltip initialization and display
 
 **Test Pages:** Any page with help icons or tooltips
@@ -142,31 +139,28 @@
   - [ ] jQuery tooltip API available: `$.fn.tooltip` exists
   - [ ] No initialization errors in console
   - [ ] data-bs-toggle="tooltip" attributes recognized
-
 - [ ] **Tooltip Display (Test 1: Hover)**
   - [ ] Hover over element with tooltip (help icon, etc.)
   - [ ] Tooltip appears after short delay (~500ms) ✓
   - [ ] Tooltip displays in correct position ✓
   - [ ] Tooltip text is readable ✓
   - [ ] Tooltip styling is Bootstrap 5 (dark background, white text typical) ✓
-
 - [ ] **Tooltip Content Variations**
   - [ ] Tooltip with plain text works ✓
   - [ ] Tooltip with HTML content renders (if applicable) ✓
   - [ ] Multiple tooltips on page work independently ✓
-
 - [ ] **Tooltip Positioning**
   - [ ] Tooltip appears above element (if data-bs-placement="top") ✓
   - [ ] Tooltip appears below element (if data-bs-placement="bottom") ✓
   - [ ] Tooltip appears left/right as specified ✓
   - [ ] Tooltip repositions if near edge of viewport ✓
-
 - [ ] **Tooltip Dismissal**
   - [ ] Move mouse away from element
   - [ ] Tooltip disappears ✓
   - [ ] No console errors ✓
 
 ### Dropdown Components
+
 **Objective:** Verify dropdown menus trigger and display
 
 **Test Pages:** Pages with dropdown menus (user menu, action menus, etc.)
@@ -175,25 +169,23 @@
   - [ ] jQuery dropdown API available: `$.fn.dropdown` exists
   - [ ] No initialization errors
   - [ ] data-bs-toggle="dropdown" attributes recognized
-
 - [ ] **Dropdown Triggering**
   - [ ] Click dropdown trigger button
   - [ ] Dropdown menu appears ✓
   - [ ] Menu items visible ✓
   - [ ] Menu positioning correct (below button) ✓
-
 - [ ] **Dropdown Menu Interaction**
   - [ ] Click menu item
   - [ ] Menu closes ✓
   - [ ] Action triggers correctly (navigation, form change, etc.) ✓
   - [ ] No console errors ✓
-
 - [ ] **Dropdown Dismissal**
   - [ ] Click outside menu to close
   - [ ] Menu closes ✓
   - [ ] Page returns to normal state ✓
 
 ### Popover Components
+
 **Objective:** Verify popovers work if used
 
 **Test Pages:** Any pages with popover components
@@ -202,17 +194,16 @@
   - [ ] Click/hover element with popover
   - [ ] Popover appears with content ✓
   - [ ] Popover positioned correctly ✓
-
 - [ ] **Popover Dismissal**
   - [ ] Click outside popover to dismiss
   - [ ] Popover closes ✓
 
 ### Carousel/Slider Components
+
 **Objective:** Verify carousel if used in WebUI
 
 - [ ] **Auto-cycle** (if applicable)
   - [ ] Carousel auto-advances slides ✓
-
 - [ ] **Manual Navigation**
   - [ ] Previous/Next buttons work ✓
   - [ ] Indicators/dots work ✓
@@ -222,6 +213,7 @@
 ## Part 4: Functional Testing of Key Pages
 
 ### Test Page 1: Site Management Page
+
 **URL:** `/Rhythmyx/cm/sitearchitecture` (or similar)
 **Expected:** Site tree, modals for creating/editing sites
 
@@ -251,6 +243,7 @@ Checklist:
 ---
 
 ### Test Page 2: Content Explorer
+
 **URL:** `/Rhythmyx/cm/contentuiexplorer` (or similar)
 **Expected:** Content tree, folder/item operations
 
@@ -271,6 +264,7 @@ Checklist:
 ---
 
 ### Test Page 3: Asset Wizard
+
 **URL:** `/Rhythmyx/cm/assetwizard` (or similar)
 **Expected:** Multi-step form wizard with Bootstrap styling
 
@@ -292,6 +286,7 @@ Checklist:
 ---
 
 ### Test Page 4: Page Wizard
+
 **URL:** `/Rhythmyx/cm/pagewizard` (or similar)
 **Expected:** Page creation wizard with templates
 
@@ -307,6 +302,7 @@ Checklist:
 ---
 
 ### Test Page 5: Workflow Assignment
+
 **URL:** Workflow assignment page (varies)
 **Expected:** Tree with checkboxes, multi-select
 
@@ -321,6 +317,7 @@ Checklist:
 ---
 
 ### Test Page 6-12: Additional JSP Pages (Choose 7 more key pages)
+
 For each page, verify:
 - [ ] Loads without CSS/styling errors
 - [ ] All buttons styled consistently
@@ -335,12 +332,14 @@ For each page, verify:
 ## Part 5: Browser Compatibility Testing
 
 ### Chrome/Chromium (Primary)
+
 - [ ] All tests from Part 2-4 pass
 - [ ] No console errors or warnings
 - [ ] Performance acceptable (page load < 3 seconds)
 - [ ] Responsive design works (test at 320px, 768px, 1024px widths)
 
 ### Firefox (Secondary)
+
 - [ ] All core functionality works
 - [ ] Modals open/close properly
 - [ ] Tooltips display (may have slight rendering differences)
@@ -348,6 +347,7 @@ For each page, verify:
 - [ ] Performance acceptable
 
 ### Safari (Optional - if available)
+
 - [ ] Core functionality works
 - [ ] No major visual differences from Chrome
 
@@ -368,6 +368,7 @@ For each page, verify:
 - [ ] Any failed resource loads (log which resources)
 
 ### Network Tab Check
+
 - [ ] All JavaScript files load successfully
 - [ ] `bootstrap5-compat.js` loads (check for file in Network tab)
 - [ ] No 404 errors for CSS/JS resources
@@ -378,12 +379,14 @@ For each page, verify:
 ## Part 7: Data Integrity Testing
 
 ### Database Consistency
+
 - [ ] Create new site through wizard - data saves correctly
 - [ ] Edit existing item - changes persist after reload
 - [ ] Delete item - removal confirmed and persisted
 - [ ] No data corruption in database
 
 ### State Management
+
 - [ ] Modal state doesn't persist incorrectly on navigation
 - [ ] Tree expansion state preserved correctly
 - [ ] Form field values clear between operations
@@ -394,6 +397,7 @@ For each page, verify:
 ## Part 8: Regression Testing
 
 ### Dynatree → Fancytree Migration (Verify Not Broken)
+
 - [ ] Tree displays all items correctly
 - [ ] Tree expand/collapse functions
 - [ ] Icons display (folder, file, etc.)
@@ -401,6 +405,7 @@ For each page, verify:
 - [ ] No console errors related to tree operations
 
 ### Previous Bootstrap 4 Features (Verify Still Work)
+
 - [ ] Responsive grid layouts work at all breakpoints
 - [ ] Button states (active, disabled, hover) display correctly
 - [ ] Form validation styling displays (Bootstrap form feedback)
@@ -412,6 +417,7 @@ For each page, verify:
 ## Part 9: Performance Testing
 
 ### Page Load Times
+
 - [ ] Home/dashboard: < 3 seconds
 - [ ] Content Explorer: < 4 seconds
 - [ ] Wizards: < 3 seconds
@@ -419,6 +425,7 @@ For each page, verify:
 - [ ] Tree interaction (expand): < 100ms
 
 ### Memory & Resource Usage
+
 - [ ] Page memory footprint reasonable (no memory leaks)
 - [ ] JavaScript file sizes acceptable
 - [ ] CSS load times reasonable
@@ -453,6 +460,7 @@ For each page, verify:
 ## Part 11: Sign-Off
 
 ### Testing Complete Verification
+
 - [ ] All "CRITICAL" tests passed
 - [ ] All "High" severity issues resolved or logged
 - [ ] All 12 key pages tested and functional
@@ -461,12 +469,14 @@ For each page, verify:
 - [ ] Documentation updated (if needed)
 
 ### Ready for Code Review
+
 - [ ] All testing complete
 - [ ] Issues documented and tracked
 - [ ] Branch pushed to origin: `feature/639-bootstrap-5-migration`
 - [ ] Code review requested from team lead
 
 ### Ready for Merge
+
 - [ ] Code review approved
 - [ ] All PR comments addressed
 - [ ] Testing signed off by QA/team
@@ -478,15 +488,19 @@ For each page, verify:
 ## Test Execution Notes
 
 ### Tester Name:
+
 ### Test Date:
+
 ### Start Time:
+
 ### End Time:
+
 ### Total Duration:
 
 ### Notes & Observations:
 
-
 ### Screenshots (Recommended):
+
 - [ ] Home page (before/after comparison if possible)
 - [ ] Modal dialog open
 - [ ] Tooltip displayed

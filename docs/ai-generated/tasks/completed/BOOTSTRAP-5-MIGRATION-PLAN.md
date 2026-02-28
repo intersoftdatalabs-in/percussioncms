@@ -15,14 +15,14 @@ The Percussion CMS WebUI requires migration from Bootstrap 4.6.2 (end-of-life) t
 
 ### Key Metrics
 
-| Category | Count | Complexity |
-|----------|-------|-----------|
-| **CSS Utility Changes** | 2,254 | Automatable (~1hr) |
-| **Component API Changes** | 378 | Manual review (~3-4hrs) |
-| **Total Files Affected** | 146 | Sequential |
-| **WebUI JSP Pages** | 50 | Primary target |
-| **WebUI HTML Templates** | 71 | Supporting files |
-| **Modules/External** | 25 | Integration point |
+|         Category          | Count |       Complexity        |
+|---------------------------|-------|-------------------------|
+| **CSS Utility Changes**   | 2,254 | Automatable (~1hr)      |
+| **Component API Changes** | 378   | Manual review (~3-4hrs) |
+| **Total Files Affected**  | 146   | Sequential              |
+| **WebUI JSP Pages**       | 50    | Primary target          |
+| **WebUI HTML Templates**  | 71    | Supporting files        |
+| **Modules/External**      | 25    | Integration point       |
 
 ### Risk Assessment: MODERATE
 
@@ -38,14 +38,15 @@ The Percussion CMS WebUI requires migration from Bootstrap 4.6.2 (end-of-life) t
 
 Bootstrap 5 renamed margin/padding utilities to support better LTR/RTL support and CSS Logical Properties.
 
-| B4 Class | B5 Class | Occurrences | File Type | Automation |
-|----------|----------|------------|-----------|-----------|
-| `ml-*` (left margin) | `ms-*` (start margin) | 1,406 | JSP, HTML, CSS | ✅ Regex |
-| `pl-*` (left padding) | `ps-*` (start padding) | 566 | JSP, HTML, CSS | ✅ Regex |
-| `mr-*` (right margin) | `me-*` (end margin) | Subset of above | All | ✅ Regex |
-| `pr-*` (right padding) | `pe-*` (end padding) | Subset of above | All | ✅ Regex |
+|        B4 Class        |        B5 Class        |   Occurrences   |   File Type    | Automation |
+|------------------------|------------------------|-----------------|----------------|------------|
+| `ml-*` (left margin)   | `ms-*` (start margin)  | 1,406           | JSP, HTML, CSS | ✅ Regex    |
+| `pl-*` (left padding)  | `ps-*` (start padding) | 566             | JSP, HTML, CSS | ✅ Regex    |
+| `mr-*` (right margin)  | `me-*` (end margin)    | Subset of above | All            | ✅ Regex    |
+| `pr-*` (right padding) | `pe-*` (end padding)   | Subset of above | All            | ✅ Regex    |
 
 **Example Transformation:**
+
 ```html
 <!-- Before (Bootstrap 4) -->
 <div class="ml-3 pr-2">Content</div>
@@ -55,6 +56,7 @@ Bootstrap 5 renamed margin/padding utilities to support better LTR/RTL support a
 ```
 
 **Automation Strategy:** Use regex replacement across all JSP/HTML/CSS files:
+
 ```regex
 Find:  \b(ml|mr|pl|pr|mt|mb|pt|pb)-(\d|auto|sm|md|lg|xl|xxl)\b
 Find:  (ml|mr) → (ms|me)
@@ -69,14 +71,15 @@ Find:  (pl|pr) → (ps|pe)
 
 Bootstrap 5 aligns with CSS Logical Properties, replacing directional terms with semantic terms where appropriate.
 
-| B4 Class | B5 Class | Occurrences | Migration Path |
-|----------|----------|------------|-----------------|
-| `text-left` | `text-start` | 46 | Direct rename |
-| `text-right` | `text-end` | 28 | Direct rename |
-| `text-center` | `text-center` | — | No change |
-| `text-justify` | `text-justify` | — | No change |
+|    B4 Class    |    B5 Class    | Occurrences | Migration Path |
+|----------------|----------------|-------------|----------------|
+| `text-left`    | `text-start`   | 46          | Direct rename  |
+| `text-right`   | `text-end`     | 28          | Direct rename  |
+| `text-center`  | `text-center`  | —           | No change      |
+| `text-justify` | `text-justify` | —           | No change      |
 
 **Example Transformation:**
+
 ```html
 <!-- Before -->
 <p class="text-left">Left-aligned</p>
@@ -91,12 +94,13 @@ Bootstrap 5 aligns with CSS Logical Properties, replacing directional terms with
 
 ### 1.3 Button & Display Utilities (137 total occurrences)
 
-| B4 Class | B5 Class | Occurrences | Notes |
-|----------|----------|------------|-------|
-| `btn-block` | `d-block w-100` | 105 | Requires two classes |
-| `no-gutters` | `g-0` | 32 | Grid gutter removal |
+|   B4 Class   |    B5 Class     | Occurrences |        Notes         |
+|--------------|-----------------|-------------|----------------------|
+| `btn-block`  | `d-block w-100` | 105         | Requires two classes |
+| `no-gutters` | `g-0`           | 32          | Grid gutter removal  |
 
 **Example Transformation:**
+
 ```html
 <!-- Before -->
 <button class="btn btn-primary btn-block">Full Width</button>
@@ -111,12 +115,13 @@ Bootstrap 5 aligns with CSS Logical Properties, replacing directional terms with
 
 ### 1.4 Flexbox & Float Utilities (95 total occurrences)
 
-| B4 Class | B5 Class | Occurrences | Notes |
-|----------|----------|------------|-------|
-| `float-left` | `float-start` | 24 | LTR/RTL aware |
-| `float-right` | `float-end` | 47 | LTR/RTL aware |
+|   B4 Class    |   B5 Class    | Occurrences |     Notes     |
+|---------------|---------------|-------------|---------------|
+| `float-left`  | `float-start` | 24          | LTR/RTL aware |
+| `float-right` | `float-end`   | 47          | LTR/RTL aware |
 
 **Example Transformation:**
+
 ```html
 <!-- Before -->
 <img class="float-left mr-2" src="..." />
@@ -138,6 +143,7 @@ Bootstrap 5 transitions from jQuery Plugin API to standalone JavaScript API. The
 #### 2.1 Modal Component (133 occurrences) — HIGHEST PRIORITY
 
 **Bootstrap 4 (jQuery Plugin):**
+
 ```javascript
 // Open modal
 $('#myModal').modal('show');
@@ -150,6 +156,7 @@ $('#myModal').on('shown.bs.modal', function() { /* ... */ });
 ```
 
 **Bootstrap 5 (Standalone JS):**
+
 ```javascript
 // Open modal
 const modal = new bootstrap.Modal(document.getElementById('myModal'));
@@ -169,6 +176,7 @@ modalElement.addEventListener('shown.bs.modal', function() { /* ... */ });
 
 **Recommended Pattern:**
 Create a wrapper layer to bridge jQuery and Bootstrap 5 APIs:
+
 ```javascript
 // utils/bootstrap-compat.js
 window.BootstrapCompat = {
@@ -191,12 +199,14 @@ window.BootstrapCompat = {
 #### 2.2 Tooltip Component (183 occurrences) — HIGHEST VOLUME
 
 **Bootstrap 4:**
+
 ```javascript
 $('[data-toggle="tooltip"]').tooltip();
 $('#myElement').tooltip('show');
 ```
 
 **Bootstrap 5:**
+
 ```javascript
 // Initialize tooltips
 document.querySelectorAll('[data-bs-toggle="tooltip"]')
@@ -208,6 +218,7 @@ tooltip.show();
 ```
 
 **HTML Attribute Changes:**
+
 ```html
 <!-- Before -->
 <button data-toggle="tooltip" data-placement="top" title="Help">?</button>
@@ -225,11 +236,13 @@ tooltip.show();
 #### 2.3 Popover Component (42 occurrences)
 
 **Bootstrap 4:**
+
 ```javascript
 $('#myPopover').popover('show');
 ```
 
 **Bootstrap 5:**
+
 ```javascript
 const popover = new bootstrap.Popover(document.getElementById('myPopover'));
 popover.show();
@@ -253,26 +266,23 @@ popover.show();
 ## Part 2: Migration Phases
 
 ### Phase 1: CSS Utility Classes (Automated + Bulk Replacement)
+
 **Timeline:** 2-3 hours | **Risk:** LOW
 
 1. **Margin/Padding Utilities (1,972 occurrences)**
    - Use multi-file regex replacement for `ml-*` → `ms-*`, `mr-*` → `me-*`, `pl-*` → `ps-*`, `pr-*` → `pe-*`
    - Command-line tooling or IDE find-replace
    - No manual review needed (mechanical transformation)
-
 2. **Text Alignment (74 occurrences)**
    - `text-left` → `text-start`
    - `text-right` → `text-end`
    - Bulk replacement
-
 3. **Button Utilities (105 `btn-block` occurrences)**
    - `btn-block` → `d-block w-100`
    - Requires two-class replacement (automatable)
-
 4. **Gutter Classes (32 `no-gutters` occurrences)**
    - `no-gutters` → `g-0`
    - Direct replacement
-
 5. **Float/Align Utilities (71 occurrences)**
    - `float-left` → `float-start`
    - `float-right` → `float-end`
@@ -282,6 +292,7 @@ popover.show();
 ---
 
 ### Phase 2: HTML Attribute Renaming (Data Attributes)
+
 **Timeline:** 1-2 hours | **Risk:** LOW
 
 Bootstrap 5 prefixes data attributes with `data-bs-` to avoid conflicts.
@@ -296,6 +307,7 @@ Bootstrap 5 prefixes data attributes with `data-bs-` to avoid conflicts.
 **Automation:** Bulk regex replacement
 
 **Example:**
+
 ```html
 <!-- Before -->
 <button data-toggle="modal" data-target="#myModal">Open</button>
@@ -309,6 +321,7 @@ Bootstrap 5 prefixes data attributes with `data-bs-` to avoid conflicts.
 ---
 
 ### Phase 3: Component API Migration (Manual with Testing)
+
 **Timeline:** 5-7 hours | **Risk:** MEDIUM
 
 #### Priority Order (by occurrence count):
@@ -318,16 +331,13 @@ Bootstrap 5 prefixes data attributes with `data-bs-` to avoid conflicts.
    - Create Bootstrap 5 tooltip initializer
    - Update event bindings
    - Test visual appearance
-
 2. **Modal API (133 occurrences)** - 2-3 hours
    - Identify all `.modal('show')` / `.modal('hide')` calls
    - Refactor to `new bootstrap.Modal()` API
    - Update event listeners
    - Test modal open/close functionality
-
 3. **Popover API (42 occurrences)** - 1 hour
    - Similar approach as tooltips
-
 4. **Dropdown API (20 occurrences)** - 0.5 hour
    - Update `.dropdown()` calls
 
@@ -367,6 +377,7 @@ Create a compatibility layer to minimize code changes:
 ---
 
 ### Phase 4: Testing & Validation
+
 **Timeline:** 2-3 hours | **Risk:** DEPENDS ON PHASES 1-3
 
 **Test Coverage Strategy:**
@@ -375,7 +386,6 @@ Create a compatibility layer to minimize code changes:
    - Verify tree widget rendering (Fancytree integration)
    - Verify modal functionality
    - Verify form validation
-
 2. **Manual Functional Testing**
    - **Site Management Page** (uses modals, tooltips) — 30 min
    - **Content Explorer** (uses tree, dialogs) — 30 min
@@ -383,11 +393,9 @@ Create a compatibility layer to minimize code changes:
    - **Page Wizard** (Bootstrap forms, validation) — 20 min
    - **Workflow Assignment Page** (tree with checkboxes) — 20 min
    - 3 other JSP pages — 20 min total
-
 3. **Visual Regression Testing**
    - Screenshot baseline comparison (if tools available)
    - Compare B4 vs B5 rendering
-
 4. **Browser Compatibility Testing**
    - Chrome/Edge (latest)
    - Firefox (latest)
@@ -452,17 +460,17 @@ Create a compatibility layer to minimize code changes:
 
 ### Developer Effort Breakdown
 
-| Phase | Task | Hours | Notes |
-|-------|------|-------|-------|
-| **1** | Margin/Padding utilities (1,972 changes) | 1.0 | Bulk regex replacement |
-| **1** | Text/Button/Float utilities (282 changes) | 1.0 | Bulk regex replacement |
-| **2** | Data attribute renaming (50+ pages) | 1.5 | Bulk regex replacement |
-| **3a** | Tooltip API (183 occurrences) | 2.5 | Review + compatibility layer + testing |
-| **3b** | Modal API (133 occurrences) | 2.5 | Review + compatibility layer + testing |
-| **3c** | Popover + Dropdown (62 occurrences) | 1.0 | Review + compatibility layer |
-| **4** | Testing & validation | 2.5 | Manual functional testing across pages |
-| | **Build & QA verification** | 1.0 | War file generation + basic UI tests |
-| | **TOTAL** | **13 hours** | ~2 developer-days |
+| Phase  |                   Task                    |    Hours     |                 Notes                  |
+|--------|-------------------------------------------|--------------|----------------------------------------|
+| **1**  | Margin/Padding utilities (1,972 changes)  | 1.0          | Bulk regex replacement                 |
+| **1**  | Text/Button/Float utilities (282 changes) | 1.0          | Bulk regex replacement                 |
+| **2**  | Data attribute renaming (50+ pages)       | 1.5          | Bulk regex replacement                 |
+| **3a** | Tooltip API (183 occurrences)             | 2.5          | Review + compatibility layer + testing |
+| **3b** | Modal API (133 occurrences)               | 2.5          | Review + compatibility layer + testing |
+| **3c** | Popover + Dropdown (62 occurrences)       | 1.0          | Review + compatibility layer           |
+| **4**  | Testing & validation                      | 2.5          | Manual functional testing across pages |
+|        | **Build & QA verification**               | 1.0          | War file generation + basic UI tests   |
+|        | **TOTAL**                                 | **13 hours** | ~2 developer-days                      |
 
 ### Calendar Timeline (Assuming 6 hr/day dev time)
 
@@ -479,14 +487,14 @@ Create a compatibility layer to minimize code changes:
 
 ### Risk Matrix
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| **CSS class renames break styling** | LOW | MEDIUM | Automated review + visual testing |
-| **Component APIs change unexpectedly** | LOW | HIGH | Use compatibility layer; thorough review |
-| **JavaScript errors in production** | MEDIUM | HIGH | Unit tests + manual testing on all JSP pages |
-| **Third-party plugin incompatibility** | MEDIUM | MEDIUM | Audit Fancytree compatibility with B5 (done ✅) |
-| **Performance degradation** | LOW | MEDIUM | No heavy computation changes; profile if needed |
-| **Form validation breaks** | MEDIUM | HIGH | Test all WebUI forms thoroughly |
+|                  Risk                  | Probability | Impact |                   Mitigation                    |
+|----------------------------------------|-------------|--------|-------------------------------------------------|
+| **CSS class renames break styling**    | LOW         | MEDIUM | Automated review + visual testing               |
+| **Component APIs change unexpectedly** | LOW         | HIGH   | Use compatibility layer; thorough review        |
+| **JavaScript errors in production**    | MEDIUM      | HIGH   | Unit tests + manual testing on all JSP pages    |
+| **Third-party plugin incompatibility** | MEDIUM      | MEDIUM | Audit Fancytree compatibility with B5 (done ✅)  |
+| **Performance degradation**            | LOW         | MEDIUM | No heavy computation changes; profile if needed |
+| **Form validation breaks**             | MEDIUM      | HIGH   | Test all WebUI forms thoroughly                 |
 
 ### Mitigation Strategies
 
@@ -503,6 +511,7 @@ Create a compatibility layer to minimize code changes:
 ### If Migration Fails
 
 **Scenario 1: CSS changes break styling**
+
 ```bash
 # Revert CSS changes only
 git diff origin/development -- "*.css" "*.jsp" "*.html" | git apply --reverse
@@ -510,6 +519,7 @@ git diff origin/development -- "*.css" "*.jsp" "*.html" | git apply --reverse
 ```
 
 **Scenario 2: Component APIs cause JS errors**
+
 ```bash
 # Revert to feature branch
 git reset --hard origin/development
@@ -519,6 +529,7 @@ git checkout -b feature/bootstrap-5-migration-v2
 ```
 
 **Scenario 3: Production issue detected post-merge**
+
 ```bash
 # Fast revert
 git revert <commit-hash>
@@ -532,6 +543,7 @@ git revert <commit-hash>
 ## Part 8: Implementation Checklist
 
 ### Pre-Migration
+
 - [ ] Review this plan with team
 - [ ] Create `feature/bootstrap-5-migration` branch from `development`
 - [ ] Ensure all changes from Phases 0-3a (Dynatree migration) are committed
@@ -539,6 +551,7 @@ git revert <commit-hash>
 - [ ] Take git snapshot: `git tag pre-bootstrap5-migration`
 
 ### Phase 1: CSS Utilities
+
 - [ ] Create regex patterns for m/p utilities (1,972 changes)
 - [ ] Create regex patterns for text/button utilities (282 changes)
 - [ ] Apply changes to all JSP/HTML files
@@ -546,6 +559,7 @@ git revert <commit-hash>
 - [ ] Visual spot-check: Load 3 JSP pages in browser
 
 ### Phase 2: Data Attributes
+
 - [ ] Update all `data-toggle` → `data-bs-toggle` attributes
 - [ ] Update all `data-placement` → `data-bs-placement` attributes
 - [ ] Update all other data-* attributes to data-bs-* prefix
@@ -553,6 +567,7 @@ git revert <commit-hash>
 - [ ] Test modal/dropdown click interactions
 
 ### Phase 3: Component APIs
+
 - [ ] Create `bootstrap5-compat.js` compatibility layer
 - [ ] Migrate tooltips (183 occurrences)
   - [ ] Update initialization code
@@ -569,6 +584,7 @@ git revert <commit-hash>
   - [ ] Test popover content display
 
 ### Phase 4: Testing
+
 - [ ] Run WebUI build
 - [ ] Manual testing: Site Management page
 - [ ] Manual testing: Content Explorer
@@ -579,12 +595,14 @@ git revert <commit-hash>
 - [ ] Visual comparison: Bootstrap 4 vs Bootstrap 5 rendering
 
 ### Pre-Merge
+
 - [ ] All tests passing
 - [ ] No JS console errors
 - [ ] Code review completed
 - [ ] Update release notes with Bootstrap 5 migration info
 
 ### Post-Merge (Monitoring)
+
 - [ ] Watch error logs for CSS/JS issues
 - [ ] Monitor user feedback on UI interactions
 - [ ] Be ready to revert if critical issues found
@@ -628,17 +646,14 @@ git revert <commit-hash>
    - [ ] Update README.md with Bootstrap 5 version
    - [ ] Document component API migration in developer docs
    - [ ] Create Bootstrap 5 migration guide for future contributors
-
 2. **Dependency Cleanup** (0.5 hours)
    - [ ] Verify Bootstrap 4 lib can be removed from jslib/
    - [ ] Update Maven/npm dependency declarations
    - [ ] Remove B4-specific CSS customizations if any
-
 3. **Future Maintenance** (ongoing)
    - [ ] Monitor Bootstrap 5.x releases for security updates
    - [ ] Plan upgrade to newer B5 minor versions quarterly
    - [ ] Watch for Bootstrap 6.x planning (future consideration)
-
 4. **Monitoring** (1 week)
    - [ ] Daily check of error logs
    - [ ] Weekly user feedback review

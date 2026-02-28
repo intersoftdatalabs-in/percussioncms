@@ -15,18 +15,20 @@ All 21 gadgets from `/WebUI/src/main/resources/com/percussion/webui/gadget/servl
 ## Phase Analysis: Legacy → React Migration
 
 ### Phase 1a - COMPLETE ✅ (Core Dashboard & Welcome)
+
 Gadgets converted to React:
 - ✅ **Welcome** → `WelcomeWidget.tsx`
 - ✅ **Dashboard Container** → `Dashboard.tsx`
 - ✅ **Layout** → `DashboardLayout.tsx`
 
 ### Phase 1b - COMPLETE ✅ (REST-Connected Widgets)
+
 Gadgets converted:
 - ✅ **Activity** → `ActivityWidget.tsx`
-  - File: `perc_activity_gadget.xml`
-  - REST Endpoint: `/services/activity/contentactivity`
-  - Config Options: site selection, duration (days/weeks/months/years), row count
-  - Status: **Converted** (basic timeline display, no config UI yet)
+- File: `perc_activity_gadget.xml`
+- REST Endpoint: `/services/activity/contentactivity`
+- Config Options: site selection, duration (days/weeks/months/years), row count
+- Status: **Converted** (basic timeline display, no config UI yet)
 
 - ✅ **Pages By Status (Workflow)** → `WorkflowStatusWidget.tsx`
   - File: `perc_workflow_status_gadget.xml`
@@ -36,12 +38,13 @@ Gadgets converted:
   - Status: **Converted** (basic status display, no bulk operations yet)
 
 ### Phase 1c - COMPLETE ✅ (Configuration Management)
+
 Infrastructure for managing widget configs:
 - ✅ **useDashboardConfig Hook** → Configuration management
-  - REST Endpoints:
-    - `GET /services/dashboardmanagement/dashboard/{userId}`
-    - `PUT /services/dashboardmanagement/dashboard/{userId}`
-  - Features: CRUD operations on widget configurations
+- REST Endpoints:
+- `GET /services/dashboardmanagement/dashboard/{userId}`
+- `PUT /services/dashboardmanagement/dashboard/{userId}`
+- Features: CRUD operations on widget configurations
 
 ---
 
@@ -50,6 +53,7 @@ Infrastructure for managing widget configs:
 ### High Priority
 
 #### 1. **Traffic Widget**
+
 - File: `perc_traffic_gadget.xml`
 - baseuri: `/cm/gadgets/repository/perc_traffic_gadget`
 - REST Endpoint: `/services/dashboard/traffic` (inferred)
@@ -73,6 +77,7 @@ Infrastructure for managing widget configs:
   - No user preference UI in Phase 1d (deferred to Phase 2)
 
 #### 2. **Process Monitor Widget**
+
 - File: `PercProcessorMonitorGadget.xml`
 - baseuri: `/cm/gadgets/repository/PercProcessorMonitorGadget`
 - REST Endpoint: `/services/processor/status` (inferred)
@@ -85,6 +90,7 @@ Infrastructure for managing widget configs:
   - Basic auto-refresh (30-60s)
 
 #### 3. **Reports Widget**
+
 - File: `perc_reports_gadget.xml`
 - baseuri: `/cm/gadgets/repository/perc_reports_gadget`
 - REST Endpoint: `/services/reports/list` (inferred)
@@ -97,6 +103,7 @@ Infrastructure for managing widget configs:
   - No report execution in MVP
 
 #### 4. **What's Working / Effectiveness Widget**
+
 - File: `perc_effectiveness_gadget.xml`
 - baseuri: `/cm/gadgets/repository/perc_effectiveness_gadget`
 - REST Endpoint: `/services/effectiveness/summary` (inferred)
@@ -110,32 +117,38 @@ Infrastructure for managing widget configs:
 ### Medium Priority
 
 #### 5. **Assets By Status Widget**
+
 - File: `PercAssetStatusGadget.xml`
 - REST Endpoint: `/services/asset/status` (inferred)
 - Similar to Pages By Status
 - Status/state display logic
 
 #### 6. **Blogs Widget**
+
 - File: `PercBlogsGadget.xml`
 - REST Endpoint: `/services/blogs/list` (inferred)
 - Blog listings and status
 
 #### 7. **Bulk Upload Widget**
+
 - File: `perc_bulk_file_upload_gadget.xml`
 - REST Endpoint: `/services/upload/status` (inferred)
 - Upload progress tracking
 
 #### 8. **Comments Widget**
+
 - File: `perc_comments_gadget.xml`
 - REST Endpoint: `/services/comments/latest` (inferred)
 - Comment feed display
 
 #### 9. **Cookie Consent Widget**
+
 - File: `perc_cookie_consent_gadget.xml`
 - REST Endpoint: `/services/compliance/cookie-consent` (inferred)
 - Compliance status display
 
 #### 10. **Forms Tracker Widget**
+
 - File: `PercFormTrackerGadget.xml`
 - REST Endpoint: `/services/forms/tracker` (inferred)
 - Form submission tracking
@@ -143,35 +156,43 @@ Infrastructure for managing widget configs:
 ### Low Priority / Admin-Specific
 
 #### 11. **Global Variables Widget**
+
 - File: `PercGlobalVariablesGadget.xml`
 - Admin-specific, may not need React version initially
 
 #### 12. **Google Setup Widget**
+
 - File: `perc_google_setup_gadget.xml`
 - Integration configuration
 
 #### 13. **Iframe Widget**
+
 - File: `perc_iframe_gadget.xml`
 - Generic iframe loader
 
 #### 14. **Membership Widget**
+
 - File: `perc_membership_gadget.xml`
 - User/membership management
 
 #### 15. **Siteimprove Widget**
+
 - File: `perc_site_improve_gadget.xml`
 - Third-party integration
 
 #### 16. **SEO Audit Widget**
+
 - File: `perc_seo_status_gadget.xml`
 - REST Endpoint: `/services/seo/audit` (inferred)
 - SEO metrics display
 
 #### 17. **Sitewide Framework Widget**
+
 - File: `perc_sitewide_framework_gadget.xml`
 - Framework-level configuration
 
 #### 18. **Widget Configuration Widget**
+
 - File: `PercWidgetConfigGadget.xml`
 - Meta-widget for managing dashboard itself
 - High complexity for React implementation
@@ -181,25 +202,27 @@ Infrastructure for managing widget configs:
 ## REST Endpoint Mapping (Verified)
 
 ### Confirmed & Verified ✅
-| Widget | Endpoint | Method | Purpose |
-|--------|----------|--------|---------|
-| Activity | `/services/activity/contentactivity` | POST | Recent activity timeline |
-| Workflow | `/services/dashboardmanagement/gadget/workflow-status` | GET | Workflow statuses |
-| Dashboard Config | `/services/dashboardmanagement/dashboard/{userId}` | GET/PUT | Load/save user preferences |
-| Effectiveness | `/services/activity/effectiveness` | POST | Performance metrics |
-| Traffic | `/services/activity/contenttraffic` | POST | Traffic metrics |
-| Traffic Details | `/services/activity/trafficdetails` | POST | Detailed traffic data |
-| Process Monitor (All) | `/services/monitor/all` | GET | All system monitors |
-| Process Monitor (List) | `/services/monitor/list` | GET | List of monitor designators |
-| Process Monitor (Single) | `/services/monitor/{monitorDesignator}` | GET | Single monitor status |
-| Gadget Registry | `/services/gadget/` | GET/POST/DELETE | Gadget CRUD operations |
+
+|          Widget          |                        Endpoint                        |     Method      |           Purpose           |
+|--------------------------|--------------------------------------------------------|-----------------|-----------------------------|
+| Activity                 | `/services/activity/contentactivity`                   | POST            | Recent activity timeline    |
+| Workflow                 | `/services/dashboardmanagement/gadget/workflow-status` | GET             | Workflow statuses           |
+| Dashboard Config         | `/services/dashboardmanagement/dashboard/{userId}`     | GET/PUT         | Load/save user preferences  |
+| Effectiveness            | `/services/activity/effectiveness`                     | POST            | Performance metrics         |
+| Traffic                  | `/services/activity/contenttraffic`                    | POST            | Traffic metrics             |
+| Traffic Details          | `/services/activity/trafficdetails`                    | POST            | Detailed traffic data       |
+| Process Monitor (All)    | `/services/monitor/all`                                | GET             | All system monitors         |
+| Process Monitor (List)   | `/services/monitor/list`                               | GET             | List of monitor designators |
+| Process Monitor (Single) | `/services/monitor/{monitorDesignator}`                | GET             | Single monitor status       |
+| Gadget Registry          | `/services/gadget/`                                    | GET/POST/DELETE | Gadget CRUD operations      |
 
 ### Inferred (Not Yet Verified)
-| Widget | Endpoint | Method | Purpose |
-|--------|----------|--------|---------|
-| Reports | `/services/reports/list` | GET | Available reports list |
-| Assets Status | `/services/asset/status` | GET | Asset workflow status |
-| SEO Audit | `/services/seo/audit` | GET | SEO metrics |
+
+|    Widget     |         Endpoint         | Method |        Purpose         |
+|---------------|--------------------------|--------|------------------------|
+| Reports       | `/services/reports/list` | GET    | Available reports list |
+| Assets Status | `/services/asset/status` | GET    | Asset workflow status  |
+| SEO Audit     | `/services/seo/audit`    | GET    | SEO metrics            |
 
 ---
 
@@ -208,6 +231,7 @@ Infrastructure for managing widget configs:
 ### For Phase 1d Implementation
 
 1. **Widget Component Pattern**
+
    ```typescript
    // Standardized widget structure:
    - Loading state display
@@ -218,17 +242,14 @@ Infrastructure for managing widget configs:
    - Typed API client for all REST calls
    - Optional: Widget-specific preferences (stored via useDashboardConfig)
    ```
-
 2. **Configuration Strategy**
    - Phase 1d: Hard-coded default configs (5-10 item defaults)
    - Phase 2: User preference UI in widget menu
    - Phase 2+: Drag-and-drop layout with persistence via useDashboardConfig
-
 3. **REST Endpoint Strategy**
    - Verify all inferred endpoints exist
    - Check query parameter support (site, duration, granularity, etc.)
    - Ensure CSRF token injection (automatic via apiClient)
-
 4. **Chart/Visualization Library**
    - Add Recharts (already used in modern React projects)
    - For Traffic: Bar/Line charts
@@ -240,16 +261,19 @@ Infrastructure for managing widget configs:
 ## Implementation Priority Order
 
 ### Tier 1 (Phase 1d) - Most Used Gadgets
+
 1. **Traffic** (HIGH complexity) - Heavily used, complex charts
 2. **Process Monitor** (MEDIUM) - Essential for operations
 3. **Reports** (MEDIUM) - Common workflow
 
 ### Tier 2 (Phase 2) - Specialized Gadgets
+
 4. **Effectiveness** (MEDIUM)
 5. **Assets By Status** (MEDIUM)
 6. **Blogs** (LOW)
 
 ### Tier 3 (Phase 2+) - Admin/Integration
+
 7. All others (integrate as needed)
 
 ---
@@ -277,6 +301,7 @@ WebUI/src/main/ts/dashboard/
 ## Testing Strategy
 
 ### Unit Tests for Each Widget
+
 - Rendering with mock API data
 - Loading/error state handling
 - Empty data display
@@ -284,12 +309,14 @@ WebUI/src/main/ts/dashboard/
 - Configuration prop validation
 
 ### Integration Tests
+
 - Dashboard loads multiple widgets
 - useDashboardConfig provides config to widgets
 - CSRF tokens injected correctly
 - Performance under load (multiple widgets refreshing)
 
 ### E2E Tests (Phase 2)
+
 - User preferences saved and persisted
 - Widgets update when config changes
 - Drag-and-drop reordering works
@@ -315,3 +342,4 @@ WebUI/src/main/ts/dashboard/
 - **Remaining:** 13 specialized/admin widgets (Phase 2+)
 - **REST Endpoints:** 4 confirmed, 6+ inferred (need verification)
 - **Build Status:** All Phase 1 code compiling cleanly ✅
+

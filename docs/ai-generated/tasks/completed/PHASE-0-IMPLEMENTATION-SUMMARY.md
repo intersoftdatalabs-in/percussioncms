@@ -14,7 +14,6 @@ Phase 0 of the WebUI Bundling Fix Plan has been successfully completed. The lega
    - Creates final page-specific bundles (perc_dashboard, perc_webmgt, etc.)
    - Generates compatibility aliases (non-.min versions for PercProcessMonitor.jsp)
    - No external dependencies beyond Node.js built-in modules
-
 2. **`WebUI/vite.legacy.config.ts`** (44 lines, not currently used)
    - Created as part of exploring Vite-based bundling (before switching to concatenation approach)
    - Kept for future reference or alternative approaches
@@ -25,12 +24,10 @@ Phase 0 of the WebUI Bundling Fix Plan has been successfully completed. The lega
    - Updated `build` script: Now runs `npm run build:modern && npm run build:legacy` (was just modern build)
    - Added `build:legacy` script: Calls the new Node.js bundle builder script
    - No new dependencies added
-
 2. **`WebUI/pom.xml`**
    - Removed `<exclude>cssMin</exclude>` and `<exclude>jslibMin</exclude>` from the war plugin configuration (lines 579-580)
    - This allows the generated bundles to be included in the final WAR package
    - No other changes to the build pipeline
-
 3. **`plans/WEBUI-BUNDLING-FIX-PLAN.md`**
    - Updated with implementation status showing Phase 0 is complete
    - Documented the specific changes made
@@ -99,6 +96,7 @@ The build now generates the following files in the WAR:
 3. **No source maps** — Debug source maps are not generated. Could be added in future phases if needed.
 
 4. **Phases 1-3 not yet implemented:**
+
    - Phase 1: Manage third-party libraries via npm (not attempted yet)
    - Phase 2: Address security issues (Handlebars CVE, etc.) (not attempted yet)
    - Phase 3: Modernization / React migration (not attempted yet)

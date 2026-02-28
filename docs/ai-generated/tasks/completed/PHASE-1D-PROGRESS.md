@@ -7,6 +7,7 @@
 ## Completed Widgets (2/7 Phase 1d)
 
 ### 1. ProcessMonitorWidget ✅
+
 - **Package**: [WebUI/src/main/ts/dashboard/ProcessMonitorWidget.tsx](WebUI/src/main/ts/dashboard/ProcessMonitorWidget.tsx)
 - **Tests**: [WebUI/src/test/ts/dashboard/ProcessMonitorWidget.test.tsx](WebUI/src/test/ts/dashboard/ProcessMonitorWidget.test.tsx) (13 cases)
 - **REST**: `GET /services/monitor/all` (verified ✅)
@@ -15,6 +16,7 @@
 - **Commit**: [283f1a5c86](commit-link)
 
 ### 2. EffectivenessWidget ✅
+
 - **Package**: [WebUI/src/main/ts/dashboard/EffectivenessWidget.tsx](WebUI/src/main/ts/dashboard/EffectivenessWidget.tsx)
 - **Tests**: [WebUI/src/test/ts/dashboard/EffectivenessWidget.test.tsx](WebUI/src/test/ts/dashboard/EffectivenessWidget.test.tsx) (12 cases)
 - **REST**: `POST /services/activity/effectiveness` (verified ✅)
@@ -25,6 +27,7 @@
 ## Remaining Phase 1d Widgets (5/7)
 
 ### 3. Reports Widget (NEXT - Simplest)
+
 - **Estimated Complexity**: LOW
 - **REST**: `GET /services/reports/list` (needs verification)
 - **Time Estimate**: 2-3 hours
@@ -32,6 +35,7 @@
 - **Status**: Ready to start
 
 ### 4. Traffic Widget
+
 - **Estimated Complexity**: MEDIUM-HIGH
 - **REST**: `POST /services/activity/contenttraffic` + `POST /services/activity/trafficdetails`
 - **Time Estimate**: 5-6 hours
@@ -39,6 +43,7 @@
 - **Status**: Needs library setup
 
 ### 5. Content Activity Widget
+
 - **Estimated Complexity**: LOW-MEDIUM
 - **REST**: `POST /services/activity/contentactivity`
 - **Time Estimate**: 2-3 hours
@@ -46,6 +51,7 @@
 - **Status**: Partially implemented (ActivityWidget exists)
 
 ### 6-7. Dashboard Feature Parity
+
 - **Add/Remove Widget UI**: 2-3 hours
 - **Drag-Drop Layout**: 2-3 hours
 - **Estimated Total**: 4-6 hours
@@ -53,16 +59,16 @@
 
 ## Statistics
 
-| Metric | Value |
-|:-------|:------|
-| Components Created | 2 |
-| Test Cases Written | 25 |
-| REST Endpoints Verified | 6 |
-| Commits | 2 |
-| Build Time | 21.6s |
-| Estimated Phase 1d Time | 18-22 hours |
-| Time Completed | ~2 hours |
-| Progress | 10% (2/20 hours estimated) |
+| Metric                  | Value                      |
+|:------------------------|:---------------------------|
+| Components Created      | 2                          |
+| Test Cases Written      | 25                         |
+| REST Endpoints Verified | 6                          |
+| Commits                 | 2                          |
+| Build Time              | 21.6s                      |
+| Estimated Phase 1d Time | 18-22 hours                |
+| Time Completed          | ~2 hours                   |
+| Progress                | 10% (2/20 hours estimated) |
 
 ## Module Registrations
 
@@ -89,17 +95,14 @@
    - Search for ReportService or similar
    - Confirm GET /services/reports/list exists
    - Check response format
-
 2. **Create Reports Widget** (2-3 hours)
    - Simple list display with launch buttons
    - No chart dependencies
    - 10+ test cases
-
 3. **Optional: Add Library Dependencies** (before Traffic widget)
    - `npm install recharts date-fns`
    - Optional: `react-beautiful-dnd` for drag-drop
    - Optional: `react-datepicker` for date range selection
-
 4. **Continue with Remaining Phase 1d Widgets**
 
 ## Code Quality Checklist
@@ -118,13 +121,13 @@ Per Phase 1d requirements, each widget includes:
 
 ## Performance Notes
 
-| Operation | Time | Status |
-|:----------|:-----|:-------|
-| TypeScript Compilation | <5s | ✅ Fast |
-| Vite Build | ~15s | ✅ Acceptable |
-| Total Build | 21.6s | ✅ Same as baseline |
-| Jest Test Run | Pending | - |
-| Development Rebuild | Should be <10s | Expected |
+| Operation              | Time           | Status             |
+|:-----------------------|:---------------|:-------------------|
+| TypeScript Compilation | <5s            | ✅ Fast             |
+| Vite Build             | ~15s           | ✅ Acceptable       |
+| Total Build            | 21.6s          | ✅ Same as baseline |
+| Jest Test Run          | Pending        | -                  |
+| Development Rebuild    | Should be <10s | Expected           |
 
 ## Architecture Review
 
@@ -146,12 +149,12 @@ Per Phase 1d requirements, each widget includes:
 
 ## Issues & Resolutions
 
-| Issue | Resolution | Status |
-|:------|:-----------|:-------|
-| Test file location | Moved to src/test/ts/dashboard/ | ✅ Fixed |
-| API client imports | Updated to use @/api/client path alias | ✅ Fixed |
-| Mock references | Changed from apiClient to clientModule | ✅ Fixed |
-| Inline styles | Follows existing widget pattern | ⚠️ Acceptable |
+| Issue              | Resolution                             | Status        |
+|:-------------------|:---------------------------------------|:--------------|
+| Test file location | Moved to src/test/ts/dashboard/        | ✅ Fixed       |
+| API client imports | Updated to use @/api/client path alias | ✅ Fixed       |
+| Mock references    | Changed from apiClient to clientModule | ✅ Fixed       |
+| Inline styles      | Follows existing widget pattern        | ⚠️ Acceptable |
 
 ## Deployment Notes
 
