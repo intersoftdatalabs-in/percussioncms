@@ -9,14 +9,14 @@
  *****************************************************************************/
 
 /**
- * Comments from Dojo (dojo.widget.TreeV3):
+ * Comments from Dojo (ps.widget.TreeV3):
  * Tree model does all the drawing, visual node management etc.
  * Throws events about clicks on it, so someone may catch them and process
  */
 
 // ps.widget.Tree — dojo.provide/require removed (jQuery + ps/compat.js)
 
-dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
+ps.widget.defineWidget("ps.widget.Tree", ps.widget.TreeV3, {
   /**
    * Selector helps activate the nodes (selects) them.
    */
@@ -41,7 +41,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
   /**
    * Load custom css
    */
-  templateCssPath: dojo.uri.moduleUri("ps", "widget/Tree.css"),
+  templateCssPath: ps.uri.moduleUri("ps", "widget/Tree.css"),
 
   /**
    * Slot nodes, for which initialization is not completed yet.
@@ -62,14 +62,14 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    *
    * @param {ps.aa.TreeNode} modelNode
    *
-   * @return {dojo.widget.TreeNodeV3}
+   * @return {ps.widget.TreeNodeV3}
    */
   createWidgetFromModelNode: function (modelNode) {
     // console.debug("Creating widget node from model " + modelNode.toString());
     ps.assertType(modelNode, ps.aa.TreeNode);
     var title = modelNode.getLabel();
     var widgetId = modelNode.objId.getTreeNodeWidgetId();
-    var widgetNode = dojo.widget.createWidget("TreeNodeV3", {
+    var widgetNode = ps.widget.createWidget("TreeNodeV3", {
       title: title,
       tree: this.widgetId,
       id: widgetId,
@@ -109,7 +109,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
   /**
    * Binds the context menu to a node widget.
    *
-   * @param {dojo.widget.TreeNodeV3}
+   * @param {ps.widget.TreeNodeV3}
    */
   _bindContextMenu: function (widget) {
     var objId = widget.modelId;
@@ -142,7 +142,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
   /**
    * Unbinds the context menu from the node widget.
    *
-   * @param {dojo.widget.TreeNodeV3}
+   * @param {ps.widget.TreeNodeV3}
    */
   _unBindContextMenu: function (widget) {
     var objId = widget.modelId;
@@ -159,7 +159,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * @param {ps.aa.Tree} model
    */
   loadFromModel: function (model) {
-    this.treeController = dojo.widget.manager.getWidgetById("treeController");
+    this.treeController = ps.widget.manager.getWidgetById("treeController");
     this.actionsDisabled.push("ADDCHILD");
     this.model = model;
 
@@ -190,11 +190,11 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
       ps.assertType(this.children, Array);
       if (this.children.length > 0) {
         var child = this.children[0];
-        ps.assertType(child, dojo.widget.TreeNodeV3);
+        ps.assertType(child, ps.widget.TreeNodeV3);
         this.removeChild(child);
         child.destroy();
       }
-      var treeDnd = dojo.widget.manager.getWidgetById("treeDndController");
+      var treeDnd = ps.widget.manager.getWidgetById("treeDndController");
       if (treeDnd) {
         treeDnd.reset();
       }
@@ -212,11 +212,11 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * Initializes the tree Drag-and-Drop functionality.
    */
   dndInit: function () {
-    if (dojo.widget.manager.getWidgetById("treeDndController")) {
+    if (ps.widget.manager.getWidgetById("treeDndController")) {
       return;
     }
 
-    var dndController = dojo.widget.createWidget("ps:TreeDndController", {
+    var dndController = ps.widget.createWidget("ps:TreeDndController", {
       id: "treeDndController",
       controller: "treeController",
     });
@@ -227,9 +227,9 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * Updates a tree node from a model node.
    *
    * @param {ps.aa.TreeNode} modelNode
-   * @param {dojo.widget.TreeNodeV3} treeNodeWidget
+   * @param {ps.widget.TreeNodeV3} treeNodeWidget
    *
-   * @return {dojo.widget.TreeNodeV3}
+   * @return {ps.widget.TreeNodeV3}
    */
   _updateWidgetFromModelNode: function (modelNode, parentWidget) {
     // console.debug("Trying to update an existing tree " +
@@ -299,7 +299,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
   /**
    * Removes a node and its decendent nodes from the tree.
    *
-   * @param {dojo.widget.TreeNodeV3} node The to be removed node, which may
+   * @param {ps.widget.TreeNodeV3} node The to be removed node, which may
    *    contain child node.
    */
   _removeNodes: function (node) {
@@ -377,7 +377,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
       this._updateIsFolderFromModel(w, m);
     }
     this.loaded = true;
-    var treeDnd = dojo.widget.manager.getWidgetById("treeDndController");
+    var treeDnd = ps.widget.manager.getWidgetById("treeDndController");
     if (treeDnd) {
       treeDnd.reset();
     }
@@ -389,7 +389,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    * Insures that tree node widget folder indicator value corresponds to
    * the model.
    *
-   * @param {dojo.widget.TreeNodeV3} nodeWidget the node widget to set folder
+   * @param {ps.widget.TreeNodeV3} nodeWidget the node widget to set folder
    * status value for.
    * Assumed not null.
    * @param {ps.aa.TreeNode} modelNode the corresponding model.
@@ -417,7 +417,7 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
    */
   getWidgetFromModelId: function (objId) {
     var widgetId = objId.getTreeNodeWidgetId();
-    var widget = dojo.widget.manager.getWidgetById(widgetId);
+    var widget = ps.widget.manager.getWidgetById(widgetId);
     return widget;
   },
 
@@ -450,15 +450,15 @@ dojo.widget.defineWidget("ps.widget.Tree", dojo.widget.TreeV3, {
     var treeNode = this.model.getNodeById(treeNodeId);
     expandTo(treeNode);
     var widget = this.getWidgetFromModelId(treeNode.objId);
-    var selector = dojo.widget.manager.getWidgetById(this.selector);
+    var selector = ps.widget.manager.getWidgetById(this.selector);
     selector.deselectAll();
     selector.select(widget);
   },
 
   /**
    * doMove is used to move snippets within a slot or to a new slot.
-   * @see {dojo.widget.TreeV3#doMove}
-   * @Override dojo.widget.TreeV3#doMove
+   * @see {ps.widget.TreeV3#doMove}
+   * @Override ps.widget.TreeV3#doMove
    */
   doMove: function (child, newParent, index) {
     // console.debug("Tree move: "+child+" to "+newParent+" at "+index);

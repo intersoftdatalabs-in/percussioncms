@@ -10,9 +10,9 @@
 
 // ps.widget.TreeDndController — dojo.provide/require removed (jQuery + ps/compat.js)
 
-dojo.widget.defineWidget(
+ps.widget.defineWidget(
   "ps.widget.TreeDndController",
-  dojo.widget.TreeDndControllerV3,
+  ps.widget.TreeDndControllerV3,
   function () {
     this.dragSources = {};
     this.dropTargets = {};
@@ -37,7 +37,7 @@ dojo.widget.defineWidget(
      */
     makeDropTarget: function (node) {
       var target =
-        dojo.widget.TreeDndControllerV3.prototype.makeDropTarget.apply(
+        ps.widget.TreeDndControllerV3.prototype.makeDropTarget.apply(
           this,
           arguments
         );

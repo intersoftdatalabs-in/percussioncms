@@ -10,9 +10,9 @@
 
 // ps.widget.TreeSelector — dojo.provide/require removed (jQuery + ps/compat.js)
 
-dojo.widget.defineWidget(
+ps.widget.defineWidget(
   "ps.widget.TreeSelector",
-  dojo.widget.TreeSelectorV3,
+  ps.widget.TreeSelectorV3,
   function () {
     ps.event.connect(this, "processNode", this, "_nodeActivated");
   },

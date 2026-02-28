@@ -73,7 +73,7 @@ ps.aa.Field = function () {
     div.style.border = "0px";
     document.body.appendChild(div);
 
-    this.inplaceDlg = dojo.widget.createWidget(
+    this.inplaceDlg = ps.widget.createWidget(
       "ModalFloatingPane",
       {
         id: "ps.field.inplaceTextBoxDiv",
@@ -112,9 +112,9 @@ ps.aa.Field = function () {
       this,
       "_onInplaceTextTyped",
     );
-    var updateButton = dojo.widget.byId("ps.field.inplaceUpdateButton");
+    var updateButton = ps.widget.byId("ps.field.inplaceUpdateButton");
     ps.assert(updateButton, "Update button could not be found");
-    var cancelButon = dojo.widget.byId("ps.field.inplaceCancelButton");
+    var cancelButon = ps.widget.byId("ps.field.inplaceCancelButton");
     ps.assert(cancelButon, "Cancel button could not be found");
 
     ps.event.connect(updateButton, "onClick", this, "updateField");
@@ -126,9 +126,9 @@ ps.aa.Field = function () {
    * events.
    */
   this.parseControls = function () {
-    this.wgtButtonFullEditor = dojo.widget.byId("ps.Field.wgtButtonFullEditor");
-    this.wgtButtonUpdate = dojo.widget.byId("ps.Field.wgtButtonUpdate");
-    this.wgtButtonClose = dojo.widget.byId("ps.Field.wgtButtonClose");
+    this.wgtButtonFullEditor = ps.widget.byId("ps.Field.wgtButtonFullEditor");
+    this.wgtButtonUpdate = ps.widget.byId("ps.Field.wgtButtonUpdate");
+    this.wgtButtonClose = ps.widget.byId("ps.Field.wgtButtonClose");
     //Handle the buttons
     this.divRegularButtons = document.getElementById("psRegularButtons");
     this.divDojoButtons = document.getElementById("psDojoButtons");

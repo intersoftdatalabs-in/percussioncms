@@ -1,5 +1,5 @@
 // ps.widget.PSImageGallery — dojo.provide/require removed (jQuery + ps/compat.js)
-dojo.widget.defineWidget(
+ps.widget.defineWidget(
   // widget name and class
   "ps.widget.PSImageGallery",
   // superclass

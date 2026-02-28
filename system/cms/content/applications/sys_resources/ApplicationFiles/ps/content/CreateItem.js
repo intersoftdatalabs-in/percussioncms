@@ -64,12 +64,12 @@ ps.content.CreateItem = function () {
     (this._parseControls = function () {
       var _this = this;
       //Controls
-      this.wgtButtonSelect = dojo.widget.byId("ps.createitem.wgtButtonSelect");
-      this.wgtButtonCancel = dojo.widget.byId("ps.createitem.wgtButtonCancel");
-      this.wgtTemplateGallery = dojo.widget.byId(
+      this.wgtButtonSelect = ps.widget.byId("ps.createitem.wgtButtonSelect");
+      this.wgtButtonCancel = ps.widget.byId("ps.createitem.wgtButtonCancel");
+      this.wgtTemplateGallery = ps.widget.byId(
         "ps.createitem.templateGallery"
       );
-      this.selectContentTypes = dojo.widget.byId("ps.createitem.contentType");
+      this.selectContentTypes = ps.widget.byId("ps.createitem.contentType");
       this.itemTitle = document.getElementById("ps.createitem.itemTitle");
       this.folderPath = document.getElementById("ps.createitem.folderPath");
       //Connect events

@@ -11,14 +11,14 @@
 // ps.widget.MenuBar2 — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
- * Override dojo.widget.PopupMenu2.closeSubmenu() function to avoid gain
+ * Override ps.widget.PopupMenu2.closeSubmenu() function to avoid gain
  * focus on the original window instead of the popup window.
  */
-dojo.widget.defineWidget("ps.widget.MenuBar2", dojo.widget.MenuBar2, {
+ps.widget.defineWidget("ps.widget.MenuBar2", dojo.widget.MenuBar2, {
   /**
-   * Override dojo.widget.PopupMenu2.closeSubmenu() function, so that
+   * Override ps.widget.PopupMenu2.closeSubmenu() function, so that
    * we can avoid the following statement of, this.parent.domNode.focus(),
-   * which is called inside dojo.widget.PopupContainerBase.close() function.
+   * which is called inside ps.widget.PopupContainerBase.close() function.
    * The above statement will always make the current Window gain focus and
    * push any popup Window behind (the popup window is invoked by a menu item
    * from the menubar).
@@ -34,7 +34,7 @@ dojo.widget.defineWidget("ps.widget.MenuBar2", dojo.widget.MenuBar2, {
     }
 
     // set the parent property to null to avoid a statement of
-    // this.parent.domNode.focus() in the dojo.widget.PopupContainerBase.close()
+    // this.parent.domNode.focus() in the ps.widget.PopupContainerBase.close()
     if (this.currentSubmenu.parent) this.currentSubmenu.parent = null;
 
     this.currentSubmenu.close(force);

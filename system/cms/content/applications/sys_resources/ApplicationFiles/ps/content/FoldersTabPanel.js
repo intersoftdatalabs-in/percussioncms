@@ -10,7 +10,7 @@ ps.declare(
   {
     init: function () {
       this.tabId = this.prefix + ".tab";
-      this.tab = dojo.widget.byId(this.tabId);
+      this.tab = ps.widget.byId(this.tabId);
       ps.assert(this.tab, "Tab for " + this.prefix + " should exist");
       this.url =
         this.parent.rxroot + "/ui/content/sitesfolderpanel.jsp?mode=folders";

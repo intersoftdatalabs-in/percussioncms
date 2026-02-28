@@ -191,7 +191,7 @@ ps.util.getScreenSize = function (win, useInner) {
  * preferred sizes. If the preferred sizes don't fit
  * in the screen then they are adjusted to fit within the
  * screen.
- * @param {dojo.widget.FloatingPane} dialog the dialog to be
+ * @param {ps.widget.FloatingPane} dialog the dialog to be
  * sized.
  * @param {int} width the preferred width for the dialog.
  * @param {int} height the preferred height for the dialog.
@@ -210,7 +210,7 @@ ps.util.setDialogSize = function (dialog, width, height) {
 /**
  * Returns the size of the passed in dialog as an object with
  * a width and height property.
- * @param {dojo.widget.FloatingPane} dialog the dialog to return
+ * @param {ps.widget.FloatingPane} dialog the dialog to return
  * its size.
  */
 ps.util.getDialogSize = function (dialog) {
@@ -223,7 +223,7 @@ ps.util.getDialogSize = function (dialog) {
 /**
  * Forces the passed in dialog to resize. This is used to
  * get around a layout issues with browsers.
- * @param {dojo.widget.FloatingPane} dialog the dialog
+ * @param {ps.widget.FloatingPane} dialog the dialog
  * @param {number} preferredWidth the preferred width,
  *  used if get dialog size returns zero.
  * @param {number} preferredHeight the preferred height,
@@ -337,7 +337,7 @@ ps.util.createDialog = function (params, width, height, isResizable) {
   };
   Object.assign(p, params);
 
-  return dojo.widget.createWidget("ModalFloatingPane", p, div);
+  return ps.widget.createWidget("ModalFloatingPane", p, div);
 };
 
 /**
@@ -373,7 +373,7 @@ ps.util.ShowPageLinkDialog = function (text) {
   div.style.border = "0px";
   document.body.appendChild(div);
 
-  var dlg = dojo.widget.createWidget(
+  var dlg = ps.widget.createWidget(
     "ModalFloatingPane",
     {
       id: "ps.pageLinkDiv",
@@ -448,7 +448,7 @@ ps.util.CreatePromptDialog = function (options) {
   div.style.border = "0px";
   document.body.appendChild(div);
 
-  this.wgtDlg = dojo.widget.createWidget(
+  this.wgtDlg = ps.widget.createWidget(
     "ModalFloatingPane",
     {
       id: "ps.promptDiv",
@@ -464,8 +464,8 @@ ps.util.CreatePromptDialog = function (options) {
   );
 
   ps.event.connect(this.wgtDlg, "onLoad", function () {
-    _this.wgtButtonOk = dojo.widget.byId("ps.util.promptButtonSelect");
-    _this.wgtButtonCancel = dojo.widget.byId("ps.util.promptButtonCancel");
+    _this.wgtButtonOk = ps.widget.byId("ps.util.promptButtonSelect");
+    _this.wgtButtonCancel = ps.widget.byId("ps.util.promptButtonCancel");
     _this.wgtPromptText = document.getElementById("ps.util.promptInput");
     _this.wgtButtonCancel.onClick = function () {
       if (_this.cancelBtnCallBack) {

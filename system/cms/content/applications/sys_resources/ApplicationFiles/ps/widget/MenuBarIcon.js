@@ -14,7 +14,7 @@
  * This widget is used to display an icon at the menubar. It supports the onClick
  * event.
  */
-dojo.widget.defineWidget("ps.widget.MenuBarIcon", dojo.widget.MenuBarItem2, {
+ps.widget.defineWidget("ps.widget.MenuBarIcon", dojo.widget.MenuBarItem2, {
   templateString:
     '<span class="dojoMenuItem2" dojoAttachEvent="onClick: _onClick;">' +
     '<img src="../sys_resources/images/aa/page_1.gif" alt="Icon" title="" verticalAlign="middle"/>' +

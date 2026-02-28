@@ -16,7 +16,7 @@
  * When rendered, it puts a little down arrow at the end of the caption.
  * If method createSubmenu is specified, calls it to create a submenu on demand.
  */
-dojo.widget.defineWidget(
+ps.widget.defineWidget(
   "ps.widget.MenuBarItemDropDown",
   dojo.widget.MenuBarItem2,
   function () {
@@ -43,7 +43,7 @@ dojo.widget.defineWidget(
       '<span class="dojoMenuItem2" dojoAttachEvent="onMouseOver: onHover; ' +
       'onMouseOut: onUnhover; onClick: _onClick;">' +
       '${this.caption} <span><img src="' +
-      dojo.uri.dojoUri("../ps/widget/images/dropdownButtonsArrow.gif") +
+      ps.uri.dojoUri("../ps/widget/images/dropdownButtonsArrow.gif") +
       '" verticalAlign="middle"/></span></span>',
 
     // a function, which creates submenu.

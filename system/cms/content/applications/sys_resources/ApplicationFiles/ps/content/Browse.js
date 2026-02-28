@@ -133,7 +133,7 @@ ps.content.Browse = function (mode) {
     setTimeout(function () {
       searchtab.init();
     }, 1000);
-    var tabContainer = dojo.widget.byId("ps.content.mainTabContainer");
+    var tabContainer = ps.widget.byId("ps.content.mainTabContainer");
   };
 
   /**
@@ -180,7 +180,7 @@ ps.content.Browse = function (mode) {
     }
 
     // simulate selection
-    var tabContainer = dojo.widget.byId("ps.content.mainTabContainer");
+    var tabContainer = ps.widget.byId("ps.content.mainTabContainer");
     var tab0 = tabContainer.children[0];
     tabContainer.selectChild(tab0, tabContainer);
 

@@ -12,7 +12,7 @@ ps.declare(
   {
     init: function () {
       this.tabId = this.prefix + ".tab";
-      this.tab = dojo.widget.byId(this.tabId);
+      this.tab = ps.widget.byId(this.tabId);
       ps.assert(this.tab, "Tab for " + this.prefix + " should exist");
       this.url = this.parent.rxroot + "/ui/content/searchpanel.jsp";
       ps.content.SearchTabPanel.superclass.init.apply(this);
@@ -295,8 +295,8 @@ ps.declare(
         return;
       }
 
-      this.advancedButton = dojo.widget.byId("ps.search.advanced");
-      this.simpleButton = dojo.widget.byId("ps.search.simple");
+      this.advancedButton = ps.widget.byId("ps.search.advanced");
+      this.simpleButton = ps.widget.byId("ps.search.simple");
       this.ftquery = document.getElementById("searchfor");
 
       this._loadSearchScript();

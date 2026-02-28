@@ -311,7 +311,7 @@ ps.declare(
     /**
      * Sets the button's caption or disabled state only if different
      * from what it is currently set to.
-     * @param {dojo.widget.Button} button the button to be modified.
+     * @param {ps.widget.Button} button the button to be modified.
      * @param {string} caption the button caption to be set.
      * @param {boolean} disabled the flag indicating if the button
      *  should be disabled.
@@ -462,7 +462,7 @@ ps.declare(
     /**
      * Special function to switch the disabled image for the address
      * bar buttons.
-     * @param {dojo.widget.Button} button the button to be disabled.
+     * @param {ps.widget.Button} button the button to be disabled.
      * @param {boolean} disabled <code>true</code> if disabled.
      */
     _setButtonDisabledSpecial: function (button, disabled) {
@@ -1049,7 +1049,7 @@ ps.declare(
         cacheContent: false,
       };
 
-      this.templatesPanel = dojo.widget.createWidget(
+      this.templatesPanel = ps.widget.createWidget(
         "ContentPane",
         params,
         div,
@@ -1078,7 +1078,7 @@ ps.declare(
         cacheContent: false,
       };
 
-      this.templatesSiteFolderParam = dojo.widget.createWidget(
+      this.templatesSiteFolderParam = ps.widget.createWidget(
         "ContentPane",
         params,
         div,
@@ -1209,7 +1209,7 @@ ps.declare(
      */
     _getWidgetById: function (id) {
       ps.assertType(id, String);
-      return dojo.widget.byId(this._getQId(id));
+      return ps.widget.byId(this._getQId(id));
     },
 
     /**

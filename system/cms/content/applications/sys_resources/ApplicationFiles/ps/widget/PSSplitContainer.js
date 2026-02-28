@@ -13,9 +13,9 @@
 /**
  * The SplitContainer class overriden to allow disabling of the sizer bar
  */
-dojo.widget.defineWidget(
+ps.widget.defineWidget(
   "ps.widget.PSSplitContainer",
-  dojo.widget.SplitContainer,
+  ps.widget.SplitContainer,
   {
     /**
      * Sizer enabled flag, if <code>true</code> which is the default then the
@@ -31,7 +31,7 @@ dojo.widget.defineWidget(
 
     /**
      * Overridden method to control when sizing is allowed.
-     * @see dojo.widget.SplitContainer#beginSizing for more detail
+     * @see ps.widget.SplitContainer#beginSizing for more detail
      */
     beginSizing: function (e, i) {
       if (this.sizerEnabled) {

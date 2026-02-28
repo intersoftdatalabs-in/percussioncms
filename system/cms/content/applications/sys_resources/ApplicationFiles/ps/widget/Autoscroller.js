@@ -26,13 +26,13 @@ ps.widget.Autoscroller = function () {
     var _this = this;
     this.scrollableNodes.init(nodes);
 
-    // listen on dojo.dnd.dragManager methods instead of concreate targets
+    // listen on ps.dnd.dragManager methods instead of concreate targets
     // and objects to provide autoscroll for all DnD
-    ps.event.connect(dojo.dnd.dragManager, "onMouseUp", function () {
+    ps.event.connect(ps.dnd.dragManager, "onMouseUp", function () {
       _this._stopScroll();
     });
     ps.event.connectAround(
-      dojo.dnd.dragManager,
+      ps.dnd.dragManager,
       "onMouseMove",
       this,
       "_onMouseMove"
@@ -40,13 +40,13 @@ ps.widget.Autoscroller = function () {
   };
 
   /**
-   * Around advice for {@link dojo.dnd.dragManager#onMouseMove}.
+   * Around advice for {@link ps.dnd.dragManager#onMouseMove}.
    * Autoscrolls if necessary.
    */
   this._onMouseMove = function (invocation) {
     ps.assert(invocation, "Invocation must be defined");
     invocation.proceed();
-    if (dojo.dnd.dragManager.dragObjects.length) {
+    if (ps.dnd.dragManager.dragObjects.length) {
       var e = invocation.args[0];
       var contentNode = this.scrollableNodes.getOverNode(e);
       this._maybeAutoscroll(contentNode, e);
@@ -120,7 +120,7 @@ ps.widget.Autoscroller = function () {
       scrollTop !== this.element.scrollTop;
 
     if (moved) {
-      dojo.dnd.dragManager.onScroll();
+      ps.dnd.dragManager.onScroll();
     }
     return moved;
   };

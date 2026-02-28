@@ -108,17 +108,17 @@ ps.content.SelectTemplates = function () {
     this.wgtTemplates = document.getElementById(
       "ps.select.templates.wgtTemplates"
     );
-    this.wgtPreviewPane = dojo.widget.byId(
+    this.wgtPreviewPane = ps.widget.byId(
       "ps.select.templates.wgtPreviewPane"
     );
     this.wgtTemplates.onchange = function () {
       _this.onTemplateChoice();
     };
     if (this.isAsDialog) {
-      this.wgtButtonSelect = dojo.widget.byId(
+      this.wgtButtonSelect = ps.widget.byId(
         "ps.select.templates.wgtButtonSelect"
       );
-      this.wgtButtonCancel = dojo.widget.byId(
+      this.wgtButtonCancel = ps.widget.byId(
         "ps.select.templates.wgtButtonCancel"
       );
       this.wgtButtonCancel.onClick = function () {
