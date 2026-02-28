@@ -8,14 +8,6 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.aa.Page");
-
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.lang.common");
-dojo.require("dojo.html");
-
-dojo.require("ps.aa");
-
 /**
  * The page (view) controller. It manages the viewable element of the Active
  * Assembly page.
@@ -41,7 +33,7 @@ ps.aa.Page = new (function () {
      * otherwise returns <code>false</code>.
      */
     (this.activate = function (div) {
-      dojo.lang.assert(div);
+      ps.assert(div);
       if (div === this.activeDiv) return false;
 
       // reset it back the previous activated div element if any
@@ -55,7 +47,8 @@ ps.aa.Page = new (function () {
       }
 
       // activate the specified div element
-      var pxSize = dojo.render.html.ie ? "3" : "2";
+      // IE-specific border width removed (IE is EOL)
+      var pxSize = "2";
       div.style.border = pxSize + "px dotted";
       div.style.borderColor = "gray";
 
@@ -78,11 +71,11 @@ ps.aa.Page = new (function () {
       var childNode = snippetNode;
       while (parentNode == null) {
         var node = childNode.parentNode;
-        if (node == null || dojo.lang.isUndefined(node)) break;
+        if (node == null || node === undefined) break;
 
         if (
-          dojo.html.getClass(node) === ps.aa.SLOT_CLASS &&
-          dojo.html.isTag(node, "div")
+          node.className === ps.aa.SLOT_CLASS &&
+          node.tagName && node.tagName.toLowerCase() === "div"
         )
           parentNode = node;
 
@@ -108,17 +101,17 @@ ps.aa.Page = new (function () {
      * @return the ps.aa.ObjectId if it contains one; null otherwise.
      */
     (this.getObjectId = function (htmlElem) {
-      if (dojo.lang.isUndefined(htmlElem) || htmlElem == null) return null;
+      if (htmlElem === undefined || htmlElem == null) return null;
 
       var idString = null;
 
       // the object id is specified in the <a ...> tag at 'id' attribute with "img." prefix
       // it is also specified in <div ...> tag at 'id' attribute
-      idString = dojo.html.getAttribute(htmlElem, "id");
+      idString = htmlElem.getAttribute("id");
 
-      if (idString != null && dojo.lang.isString(idString)) {
+      if (idString != null && typeof idString === "string") {
         var objId = new ps.aa.ObjectId(idString);
-        if (objId != null && !dojo.lang.isUndefined(objId)) return objId;
+        if (objId != null && objId !== undefined) return objId;
       }
       return null;
     }),
@@ -130,9 +123,9 @@ ps.aa.Page = new (function () {
      * @return {HTMLElement}
      */
     (this.getElement = function (objectId) {
-      dojo.lang.assertType(objectId, ps.aa.ObjectId);
+      ps.assertType(objectId, ps.aa.ObjectId);
       var element = document.getElementById(objectId.toString());
-      dojo.lang.assert(
+      ps.assert(
         element,
         "No element found for id " + objectId.toString()
       );

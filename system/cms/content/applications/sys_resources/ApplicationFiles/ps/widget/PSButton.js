@@ -8,9 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.PSButton");
-
-dojo.require("dojo.widget.Button");
+// ps.widget.PSButton — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * The Button class overriden to customize style sheet

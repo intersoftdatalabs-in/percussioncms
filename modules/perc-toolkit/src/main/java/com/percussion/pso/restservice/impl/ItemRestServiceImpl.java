@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,12 +141,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -169,10 +174,6 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.logging.log4j.LogManager;
@@ -1720,29 +1721,32 @@ public class ItemRestServiceImpl implements IItemRestService {
               }
             } else {
 
-              HttpClient client = new HttpClient();
-
-              // Set up the proxy server if there is one.
-              HTTPProxyClientConfig proxy = new HTTPProxyClientConfig();
-
-              if (!proxy.getProxyServer().equals("")) {
-                log.debug(
-                    "Setting Proxy server to {}:{}", proxy.getProxyServer(), proxy.getProxyPort());
-                client
-                    .getHostConfiguration()
-                    .setProxy(proxy.getProxyServer(), Integer.parseInt(proxy.getProxyPort()));
-              }
-              client.getParams().setConnectionManagerTimeout(2000);
-
-              GetMethod get = null;
               PSPurgableTempFile tmp = null;
               try {
+                HTTPProxyClientConfig proxy = new HTTPProxyClientConfig();
+                HttpClient.Builder clientBuilder =
+                  HttpClient.newBuilder().connectTimeout(Duration.ofMillis(2000));
 
-                get = new GetMethod(ref.toURL().toString());
+                if (proxy.getProxyServer() != null
+                  && !proxy.getProxyServer().isBlank()
+                  && proxy.getProxyPort() != null
+                  && !proxy.getProxyPort().isBlank()) {
+                  log.debug(
+                    "Setting Proxy server to {}:{}", proxy.getProxyServer(), proxy.getProxyPort());
+                  clientBuilder.proxy(
+                    ProxySelector.of(
+                      new InetSocketAddress(
+                        proxy.getProxyServer(), Integer.parseInt(proxy.getProxyPort()))));
+                }
 
-                int code = client.executeMethod(get);
+                HttpClient client = clientBuilder.build();
+                HttpRequest request =
+                  HttpRequest.newBuilder(ref).timeout(Duration.ofMillis(2000)).GET().build();
+                HttpResponse<InputStream> response =
+                  client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                int code = response.statusCode();
 
-                if (code != HttpStatus.SC_OK) {
+                if (code != 200) {
                   log.error("Unable to fetch remote resource, status code: {}", code);
                   throw new ItemRestException(
                       "Error processing " + binValue.getHref() + " HTTP request failed.");
@@ -1754,8 +1758,7 @@ public class ItemRestServiceImpl implements IItemRestService {
                 int count = -1;
                 try (FileOutputStream out = new FileOutputStream((File) tmp)) {
 
-                  try (DigestInputStream in =
-                      new DigestInputStream(get.getResponseBodyAsStream(), md)) {
+                  try (DigestInputStream in = new DigestInputStream(response.body(), md)) {
 
                     while ((count = in.read(buffer)) != -1) {
                       out.write(buffer, 0, count);
@@ -1796,10 +1799,8 @@ public class ItemRestServiceImpl implements IItemRestService {
                   }
                 }
 
-              } catch (MalformedURLException e) {
-                log.debug(e, e);
-                throw new ItemRestException("Error processing " + binValue.getHref(), e);
-              } catch (HttpException e) {
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 log.debug(e, e);
                 throw new ItemRestException("Error processing " + binValue.getHref(), e);
               } catch (IOException e) {
@@ -1807,8 +1808,6 @@ public class ItemRestServiceImpl implements IItemRestService {
                 throw new ItemRestException("Error processing " + binValue.getHref(), e);
               } catch (NoSuchAlgorithmException e) {
                 log.debug(e, e);
-              } finally {
-                if (get != null) get.releaseConnection();
               }
             }
 

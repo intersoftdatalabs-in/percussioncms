@@ -8,20 +8,6 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.workflow.WorkflowActions");
-
-dojo.require("dojo.collections.ArrayList");
-dojo.require("dojo.event");
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.json");
-dojo.require("dojo.widget.Manager");
-
-dojo.require("ps.aa");
-dojo.require("ps.aa.controller");
-dojo.require("ps.io.Actions");
-dojo.require("ps.io.Response");
-dojo.require("ps.util");
-
 /**
  * The workflow object. Manages the workflow actions of an item.
  */
@@ -106,11 +92,11 @@ ps.workflow.WorkflowActions = function () {
     var _this = this;
     //Workflow Action Pane Stuff
     //Form elements
-    this.wfActionPane = dojo.byId("ps.workflow.actionPane");
+    this.wfActionPane = document.getElementById("ps.workflow.actionPane");
     if (this._isUserAuthorized()) {
-      this.wfActionSelector = dojo.byId("ps.workflow.workflowActionSelect");
-      this.wfCommentText = dojo.byId("ps.workflow.commentText");
-      this.wfAdhocUsers = dojo.byId("ps.workflow.adhocUsers");
+      this.wfActionSelector = document.getElementById("ps.workflow.workflowActionSelect");
+      this.wfCommentText = document.getElementById("ps.workflow.commentText");
+      this.wfAdhocUsers = document.getElementById("ps.workflow.adhocUsers");
 
       //Buttons
       this.wgtAdhocSearch = dojo.widget.byId(
@@ -184,7 +170,7 @@ ps.workflow.WorkflowActions = function () {
     // update comment UI
     if (this.wfCommentText) {
       if (!this.wfCommentRequiredStar) {
-        this.wfCommentRequiredStar = dojo.byId("ps.workflow.commentStar");
+        this.wfCommentRequiredStar = document.getElementById("ps.workflow.commentStar");
       }
 
       if (this.actionId.isCommentBoxNeeded()) {
@@ -223,7 +209,7 @@ ps.workflow.WorkflowActions = function () {
   this.openAdhocSearchDialog = function () {
     this._maybeCreateAdhocSearchDialog();
 
-    dojo.html.hide(this.wfActionPane);
+    this.wfActionPane.style.display = "none";
     this.adhocResultsPane.hide();
     var wfurl = ps.util.addParamToUrl(
       this.adhocSearchUrl,
@@ -238,15 +224,15 @@ ps.workflow.WorkflowActions = function () {
     this.adhocSearchPane.cacheContent = false;
     var _this = this;
     dojo.event.connect(this.adhocSearchPane, "onLoad", function () {
-      _this.adhocRoleSelect = dojo.byId("ps.workflow.adhocRole");
-      _this.nameFilterText = dojo.byId("ps.workflow.nameFilter");
+      _this.adhocRoleSelect = document.getElementById("ps.workflow.adhocRole");
+      _this.nameFilterText = document.getElementById("ps.workflow.nameFilter");
       _this.wgtButtonSearch = dojo.widget.byId("ps.workflow.wgtButtonSearch");
       _this.wgtButtonAdd = dojo.widget.byId("ps.workflow.wgtButtonAdd");
       _this.wgtButtonClose = dojo.widget.byId("ps.workflow.wgtButtonClose");
       //If the button exists already setting the disabled multiple times
       //causing multiple dojoButtonDisabled classes to be added to the element
       //and enable code is not working properly.
-      if (!dojo.html.hasClass(_this.wgtButtonAdd.domNode, "dojoButtonDisabled"))
+      if (!_this.wgtButtonAdd.domNode.classList.contains("dojoButtonDisabled"))
         _this.wgtButtonAdd.setDisabled(true);
 
       dojo.event.connect(
@@ -316,9 +302,9 @@ ps.workflow.WorkflowActions = function () {
     );
 
     this.adhocSearchPane = dojo.widget.byId("ps.workflow.adhocSearchPane");
-    dojo.lang.assert(this.adhocSearchPane, "Expected adhocSearchPane");
+    ps.assert(this.adhocSearchPane, "Expected adhocSearchPane");
     this.adhocResultsPane = dojo.widget.byId("ps.workflow.adhocResultsPane");
-    dojo.lang.assert(this.adhocResultsPane, "Expected adhocResultsPane");
+    ps.assert(this.adhocResultsPane, "Expected adhocResultsPane");
   };
 
   /**
@@ -394,7 +380,7 @@ ps.workflow.WorkflowActions = function () {
    * ids. Replaces the old ids with the new ids.
    */
   this.handleObjectIdModifications = function (checkOutStatus) {
-    dojo.lang.assert(
+    ps.assert(
       checkOutStatus === "0" ||
         checkOutStatus === "1" ||
         checkOutStatus === "2",
@@ -405,13 +391,13 @@ ps.workflow.WorkflowActions = function () {
     var results = ps.aa.controller.treeModel.getAllIdsByContentId(
       this.contentId
     );
-    dojo.lang.assertType(results, dojo.collections.ArrayList);
+    ps.assertType(results, dojo.collections.ArrayList);
     var oldIds = new Array();
     var newIds = new Array();
     var slotIds = new Array();
     for (var i = 0; i < results.count; i++) {
       var result = results.item(i);
-      dojo.lang.assertType(result, ps.aa.ObjectId);
+      ps.assertType(result, ps.aa.ObjectId);
       oldIds[i] = result;
       var newId = result.clone();
       newId.setCheckoutStatus(checkOutStatus);
@@ -464,10 +450,10 @@ ps.workflow.WorkflowActions = function () {
     );
     var mm = this;
     dojo.event.connect(this.adhocResultsPane, "onLoad", function () {
-      var count = dojo.byId("ps.workflow.adhocusercount").value;
+      var count = document.getElementById("ps.workflow.adhocusercount").value;
       mm.adhocUsersChk = new Array();
       for (var i = 0; i < count; i++) {
-        mm.adhocUsersChk[i] = dojo.byId("ps.workflow.adhocusercheckbox_" + i);
+        mm.adhocUsersChk[i] = document.getElementById("ps.workflow.adhocusercheckbox_" + i);
       }
     });
     this.adhocResultsPane.cacheContent = false;
@@ -528,7 +514,7 @@ ps.workflow.WorkflowActions = function () {
 
     // Reset to new value
     this.wfAdhocUsers.value = newval;
-    dojo.html.show(this.wfActionPane);
+    this.wfActionPane.style.display = "";
     this.wfAdhocPane.hide();
   };
 
@@ -536,7 +522,7 @@ ps.workflow.WorkflowActions = function () {
    * Show the workflow actions pane and hide the adhoc pane.
    */
   this.onSearchClosed = function () {
-    dojo.html.show(this.wfActionPane);
+    this.wfActionPane.style.display = "";
     this.wfAdhocPane.hide();
   };
 
@@ -569,7 +555,7 @@ ps.workflow.WorkflowActions = function () {
    * or "" if the comment field does not exist.
    */
   this._getComment = function () {
-    return this.wfCommentText ? dojo.string.trim(this.wfCommentText.value) : "";
+    return this.wfCommentText ? this.wfCommentText.value.trim() : "";
   };
 
   /**
@@ -577,7 +563,7 @@ ps.workflow.WorkflowActions = function () {
    * or "" if the adhoc users field does not exist.
    */
   this._getAdhocUsers = function () {
-    return this.wfAdhocUsers ? dojo.string.trim(this.wfAdhocUsers.value) : "";
+    return this.wfAdhocUsers ? this.wfAdhocUsers.value.trim() : "";
   };
 
   /**
@@ -611,7 +597,7 @@ ps.workflow.ActionId = function (idString) {
   /**
    * Stores the list of values into array.
    */
-  this.idobj = dojo.json.evalJson(idString);
+  this.idobj = JSON.parse(idString);
 
   /**
    * Determines if the specified object equals this object.

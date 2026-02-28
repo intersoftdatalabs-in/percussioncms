@@ -1,6 +1,4 @@
-dojo.provide("ps.widget.PSImageGallery");
-dojo.require("sos.widget.ImageGallery");
-dojo.require("dojo.style");
+// ps.widget.PSImageGallery — dojo.provide/require removed (jQuery + ps/compat.js)
 dojo.widget.defineWidget(
   // widget name and class
   "ps.widget.PSImageGallery",
@@ -25,7 +23,7 @@ dojo.widget.defineWidget(
      */
     postCreate: function () {
       sos.widget.ImageGallery.prototype.postCreate.call(this);
-      dojo.style.hide(this.slideshowNode);
+      this.slideshowNode.style.display = "none";
     },
 
     /**
@@ -37,9 +35,9 @@ dojo.widget.defineWidget(
      * @param titles optional titles if provided must be an Array object.
      */
     setImages: function (thumbUrls, fullUrls, titles) {
-      dojo.lang.assertType(thumbUrls, Array);
-      dojo.lang.assertType(fullUrls, Array);
-      if (titles) dojo.lang.assertType(titles, Array);
+      ps.assertType(thumbUrls, Array);
+      ps.assertType(fullUrls, Array);
+      if (titles) ps.assertType(titles, Array);
       var imageData = [];
       for (var i = 0; i < thumbUrls.length; i++) {
         imageData[imageData.length] = {

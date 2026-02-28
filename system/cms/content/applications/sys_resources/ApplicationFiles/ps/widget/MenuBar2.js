@@ -8,9 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.MenuBar2");
-
-dojo.require("dojo.widget.Menu2");
+// ps.widget.MenuBar2 — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * Override dojo.widget.PopupMenu2.closeSubmenu() function to avoid gain

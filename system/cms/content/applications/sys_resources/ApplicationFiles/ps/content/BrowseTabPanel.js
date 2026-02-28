@@ -1,13 +1,4 @@
-dojo.provide("ps.content.BrowseTabPanel");
-
-dojo.require("ps.content.History");
-dojo.require("ps.content.SelectTemplates");
-dojo.require("ps.widget.ContentPaneProgress");
-dojo.require("ps.util");
-dojo.require("dojo.collections.Dictionary");
-dojo.require("dojo.lang.declare");
-dojo.require("dojo.json");
-dojo.require("dojo.string");
+// ps.content.BrowseTabPanel — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * <p>An individual tab in the browser dialog</p>.
@@ -20,7 +11,7 @@ dojo.declare(
   "ps.content.BrowseTabPanel",
   null,
   function (_parent) {
-    dojo.lang.assert(_parent, "Parent must be specified");
+    ps.assert(_parent, "Parent must be specified");
 
     this.parent = _parent;
     this.isSearchForm = true;
@@ -36,7 +27,7 @@ dojo.declare(
       dojo.event.topic.subscribe(
         this.tab.parent.domNode.id + "-selectChild",
         this,
-        "_onTabSelected"
+        "_onTabSelected",
       );
       this.tab.setUrl(this.url);
 
@@ -48,7 +39,7 @@ dojo.declare(
           try {
             _this._initOnLoad();
           } catch (e) {
-            dojo.debug(e);
+            console.debug(e);
           }
         });
       }
@@ -60,7 +51,7 @@ dojo.declare(
      */
     _redoLayout: function () {
       var _this = this;
-      dojo.lang.setTimeout(function () {
+      setTimeout(function () {
         var p = _this.tab.parent;
         var w = p.width;
         w = w % 2 ? w + 1 : w - 1;
@@ -87,9 +78,9 @@ dojo.declare(
      */
     _initOnLoad: function () {
       this.rootContentActions = this._defineRootContentActions();
-      dojo.lang.assert(
+      ps.assert(
         this._isTabLoaded(),
-        "Tab " + this.prefix + " should be loaded already"
+        "Tab " + this.prefix + " should be loaded already",
       );
 
       this.parseControls();
@@ -135,7 +126,7 @@ dojo.declare(
       ps.util.forceDialogResize(
         this.parent.wgtDlg,
         this.parent.preferredWidth,
-        this.parent.preferredHeight
+        this.parent.preferredHeight,
       );
       //
     },
@@ -183,8 +174,8 @@ dojo.declare(
      * Not <code>null</code>.
      */
     _addContentTableColumn: function (field, label) {
-      dojo.lang.assertType(field, String);
-      dojo.lang.assertType(label, String);
+      ps.assertType(field, String);
+      ps.assertType(label, String);
 
       var col = this._cloneColumn(this.contentTableColumns[0]);
       col.field = field;
@@ -213,8 +204,8 @@ dojo.declare(
      * does not exist.
      */
     _mustById: function (id) {
-      var node = dojo.byId(id);
-      dojo.lang.assert(node, "Could not find node " + id);
+      var node = document.getElementById(id);
+      ps.assert(node, "Could not find node " + id);
       return node;
     },
 
@@ -222,7 +213,7 @@ dojo.declare(
       var snippetId = this.templatesPanelObj.getSelectedId();
       var response = ps.io.Actions.resolveSiteFolders(
         this._getUISiteName(),
-        this._getUIFolderPath()
+        this._getUIFolderPath(),
       );
       if (response.isSuccess()) {
         var temp = response.getValue();
@@ -245,7 +236,7 @@ dojo.declare(
           snippetId,
           slotId,
           this._getUIFolderPath(),
-          this._getUISiteName()
+          this._getUISiteName(),
         );
         if (response1.isSuccess()) {
           this.parent.okCallback(slotId);
@@ -261,7 +252,7 @@ dojo.declare(
               slotId,
               refRelId,
               newRelId,
-              position
+              position,
             );
             //Reset the reference to new rel id and position to "after"
             this.parent.refRelId = newRelId;
@@ -364,7 +355,7 @@ dojo.declare(
       this.lastFilterValue = this.filterText.value;
 
       // delay the execution until this.filterText.value is updated
-      dojo.lang.setTimeout(function () {
+      setTimeout(function () {
         _this._filterContentTable();
       }, 10);
     },
@@ -381,10 +372,11 @@ dojo.declare(
           var str = value.toLowerCase();
           var filter = _this.filterText.value.toLowerCase();
           return (
-            dojo.string.isBlank(filter) ||
+            !filter ||
+            !filter.trim() ||
             _this._getCellText(str).indexOf(filter) !== -1
           );
-        }
+        },
       );
     },
 
@@ -396,7 +388,7 @@ dojo.declare(
       this._maybeSetButton(
         this.okButton,
         this.okButton.caption,
-        !this.contentTable.getSelectedData()
+        !this.contentTable.getSelectedData(),
       );
     },
 
@@ -449,18 +441,18 @@ dojo.declare(
 
       this._setButtonDisabledSpecial(
         this.backButton,
-        !this.pathHistory.canGoBack()
+        !this.pathHistory.canGoBack(),
       );
       this._setButtonDisabledSpecial(
         this.upButton,
-        this.getPath() === this.ROOT
+        this.getPath() === this.ROOT,
       );
 
       this._maybeRestoreButtonState("okButton");
       this._maybeSetButton(
         this.okButton,
         psxGetLocalMessage("javascript.ps.content.browse@Open"),
-        true
+        true,
       );
 
       this._scrollPathText();
@@ -480,7 +472,7 @@ dojo.declare(
       // replace button image
       var node = button.containerNode ? button.containerNode : button.domNode;
       var img = node.getElementsByTagName("img")[0];
-      dojo.lang.assert(img, "Expected to find an image in a button content.");
+      ps.assert(img, "Expected to find an image in a button content.");
       var from, to;
       if (disabled) {
         from = /16\.gif/;
@@ -521,7 +513,7 @@ dojo.declare(
             false,
             false,
             32,
-            32
+            32,
           );
           this.pathText.dispatchEvent(e);
 
@@ -537,7 +529,7 @@ dojo.declare(
             false,
             false,
             8,
-            0
+            0,
           );
           this.pathText.dispatchEvent(e1);
         } catch (ignore) {}
@@ -555,7 +547,7 @@ dojo.declare(
      * Not <code>null</code>.
      */
     _goTo: function (path, row) {
-      dojo.lang.assertType(path, String);
+      ps.assertType(path, String);
       var _this = this;
       var response;
 
@@ -574,9 +566,9 @@ dojo.declare(
 
       if (path === this.ROOT) {
         var action = this.rootContentActions[this.prefix];
-        dojo.lang.assert(
+        ps.assert(
           action,
-          "Root content action for " + this.prefix + " should be specified"
+          "Root content action for " + this.prefix + " should be specified",
         );
         response = action();
         maybeSetContent(response);
@@ -597,10 +589,10 @@ dojo.declare(
           "okButton",
           this.okButton,
           psxGetLocalMessage("javascript.ps.content.browse@Select"),
-          false
+          false,
         );
         this.cancelButton.setCaption(
-          psxGetLocalMessage("javascript.ps.content.browse@Back")
+          psxGetLocalMessage("javascript.ps.content.browse@Back"),
         );
 
         // See _handleTemplateOk as this is the callback that
@@ -612,7 +604,7 @@ dojo.declare(
         maybeSetContent(response);
       }
 
-      dojo.lang.assert(response, "Response should be defined");
+      ps.assert(response, "Response should be defined");
       ps.io.Actions.maybeReportActionError(response);
       if (response.isSuccess()) this._onPathChanged();
     },
@@ -622,15 +614,11 @@ dojo.declare(
      * @param {Array} columns the array to copy.
      */
     _cloneColumns: function (columns) {
-      dojo.lang.assertType(columns, Array);
+      ps.assertType(columns, Array);
       var newColumns = [];
-      dojo.lang.forEach(
-        columns,
-        function (column) {
-          newColumns.push(this._cloneColumn(column));
-        },
-        this
-      );
+      columns.forEach(function (column) {
+        newColumns.push(this._cloneColumn(column));
+      }, this);
       return newColumns;
     },
 
@@ -639,7 +627,7 @@ dojo.declare(
      * @param {Array} columns the array to copy.
      */
     _cloneColumn: function (column) {
-      return dojo.lang.shallowCopy(column, false);
+      return Object.assign({}, column);
     },
 
     /**
@@ -650,7 +638,7 @@ dojo.declare(
     parseContentIdFromPath: function (path) {
       var temp = path.split("|");
       if (temp.length < 2) return "";
-      return dojo.string.trim(temp[1]);
+      return temp[1].trim();
     },
 
     /**
@@ -674,9 +662,9 @@ dojo.declare(
     _assertValidRow: function (row) {
       // Do not validate the ID column since it can be a number (simple id for
       // a site/folder child) or a string (complex id in case of search results)
-      dojo.lang.assertType(row.Name, String);
-      dojo.lang.assertType(row.Description, String);
-      dojo.lang.assertType(row.Type, Number);
+      ps.assertType(row.Name, String);
+      ps.assertType(row.Description, String);
+      ps.assertType(row.Type, Number);
     },
 
     /**
@@ -710,7 +698,7 @@ dojo.declare(
         path = this.ROOT;
       }
 
-      dojo.lang.assert(path);
+      ps.assert(path);
 
       // make sure the path is valid
       if (!this._isValidPath(path)) {
@@ -724,7 +712,7 @@ dojo.declare(
      * cookie.
      */
     _getLastStoredPath: function () {
-      return dojo.io.cookie.getCookie(this.LAST_PATH_COOKIE);
+      return ps.util._getCookie(this.LAST_PATH_COOKIE);
     },
 
     /**
@@ -733,9 +721,9 @@ dojo.declare(
      * Not <code>null</code>.
      */
     _setLastStoredPath: function (path) {
-      dojo.lang.assertType(path, String);
+      ps.assertType(path, String);
       var daysStoreCookie = 100;
-      dojo.io.cookie.setCookie(this.LAST_PATH_COOKIE, path, daysStoreCookie);
+      ps.util._setCookie(this.LAST_PATH_COOKIE, path, daysStoreCookie);
     },
 
     /**
@@ -755,28 +743,24 @@ dojo.declare(
       if (this.mode != ps.util.BROWSE_MODE_ACTIVE_ASSEMBLY) return this.ROOT;
       var path;
       var siteId = ps.aa.controller.pageId.getSiteId();
-      dojo.lang.assert(dojo.lang.isNumeric(siteId), "Can't get site id");
+      ps.assert(ps.isNumeric(siteId), "Can't get site id");
 
       var response = ps.io.Actions.getSites();
       ps.io.Actions.maybeReportActionError(response);
       if (response.isSuccess()) {
         var sites = response.getValue();
         var siteName;
-        dojo.lang.forEach(
-          sites,
-          function (row) {
-            if (row.Id == siteId) {
-              siteName = row.Name;
-            }
-          },
-          this
-        );
-        dojo.lang.assert(siteName, "Site name was not found");
+        sites.forEach(function (row) {
+          if (row.Id == siteId) {
+            siteName = row.Name;
+          }
+        }, this);
+        ps.assert(siteName, "Site name was not found");
         path = this.ROOT + this._getCellText(siteName);
       } else {
         path = this.ROOT;
       }
-      dojo.lang.assert(path, "path must be defined at this point");
+      ps.assert(path, "path must be defined at this point");
       return path;
     },
 
@@ -787,12 +771,12 @@ dojo.declare(
      * @return a response from {@link ps.io.Actions#getFolderChildren}.
      */
     _getFolderChildren: function (path) {
-      dojo.lang.assertType(path, String);
+      ps.assertType(path, String);
       return ps.io.Actions.getFolderChildren(
         path,
         this._getContentType(),
         this.parent.slotId.getSlotId(),
-        this.isSiteTab()
+        this.isSiteTab(),
       );
     },
 
@@ -830,7 +814,7 @@ dojo.declare(
      * Not <code>null</code>, can be empty.
      */
     setContent: function (rows) {
-      dojo.lang.assertType(rows, Array);
+      ps.assertType(rows, Array);
       if (rows.length > 0) {
         this._assertValidRow(rows[0]);
       }
@@ -847,7 +831,7 @@ dojo.declare(
      * Not <code>null</code>, can be empty.
      */
     _setNameImages: function (rows) {
-      dojo.lang.assertType(rows, Array);
+      ps.assertType(rows, Array);
       if (rows.length > 0) {
         this._assertValidRow(rows[0]);
       }
@@ -862,7 +846,7 @@ dojo.declare(
         this.parent.rxroot +
         '/sys_resources/images/item.gif"/>&nbsp;';
       var _this = this;
-      dojo.lang.forEach(rows, function (row) {
+      rows.forEach(function (row) {
         var img = row.Type === _this.ITEM_TYPE ? itemImg : folderImg;
         if (row.IconPath && row.IconPath.length > 0) {
           var iPath = row.IconPath;
@@ -882,7 +866,7 @@ dojo.declare(
      * Not <code>null</code>, can be empty.
      */
     _addContentClickHandlers: function (rows) {
-      dojo.lang.assertType(rows, Array);
+      ps.assertType(rows, Array);
       if (rows.length > 0) this._assertValidRow(rows[0]);
 
       var path = this.getPath();
@@ -897,28 +881,24 @@ dojo.declare(
       this.includeFoldersChecked =
         this.includeFoldersCheckbox && this.includeFoldersCheckbox.checked;
 
-      dojo.lang.forEach(
-        rows,
-        function (row) {
-          var a = this._getRowA(row);
-          var newPath;
-          if (row.Type === this.ITEM_TYPE) {
-            var idComponents = (row.Id + "").split(":");
-            newPath = path + this.ITEM_SEPARATOR + idComponents[0];
-          } else {
-            newPath = path + dojo.html.renderedTextContent(a);
-          }
-          dojo.lang.assert(newPath);
-          var _this = this;
-          var wrapper = {
-            myClickFunc: function () {
-              _this._goTo(newPath, row);
-            },
-          };
-          dojo.event.connect(a, "onclick", wrapper, "myClickFunc");
-        },
-        this
-      );
+      rows.forEach(function (row) {
+        var a = this._getRowA(row);
+        var newPath;
+        if (row.Type === this.ITEM_TYPE) {
+          var idComponents = (row.Id + "").split(":");
+          newPath = path + this.ITEM_SEPARATOR + idComponents[0];
+        } else {
+          newPath = path + a.textContent;
+        }
+        ps.assert(newPath);
+        var _this = this;
+        var wrapper = {
+          myClickFunc: function () {
+            _this._goTo(newPath, row);
+          },
+        };
+        dojo.event.connect(a, "onclick", wrapper, "myClickFunc");
+      }, this);
     },
 
     /**
@@ -929,11 +909,11 @@ dojo.declare(
       this._assertValidRow(row);
 
       var tr = this.contentTable.getRow(row);
-      dojo.lang.assert(tr, "Table row should exist for this data");
+      ps.assert(tr, "Table row should exist for this data");
       var nameTd = tr.getElementsByTagName("td")[0];
-      dojo.lang.assert(nameTd, "Name cell should exist");
+      ps.assert(nameTd, "Name cell should exist");
       var a = nameTd.getElementsByTagName("a")[0];
-      dojo.lang.assert(a, "Name should be a hyperlink to open it");
+      ps.assert(a, "Name should be a hyperlink to open it");
       return a;
     },
 
@@ -944,7 +924,7 @@ dojo.declare(
      * template mode.
      */
     setSelectTemplateMode: function (isTemplateMode) {
-      dojo.lang.assertType(isTemplateMode, Boolean);
+      ps.assertType(isTemplateMode, Boolean);
 
       this.isSelectTemplateMode = isTemplateMode;
       if (isTemplateMode) {
@@ -952,14 +932,14 @@ dojo.declare(
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.templatesPanel,
-          true
+          true,
         );
         if (!this.isFolderTab()) {
           this._maybeCreateTemplatesSiteFolderParam();
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.templatesSiteFolderParam,
-            true
+            true,
           );
         }
         // We first remove the command panel then add it
@@ -967,30 +947,30 @@ dojo.declare(
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.commandPanel,
-          false
+          false,
         );
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.commandPanel,
-          true
+          true,
         );
         if (this.isSearchTab()) {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.contentSplitPane,
-            false
+            false,
           );
           this.searchBackButton.hide();
         } else {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.addressbarPanel,
-            false
+            false,
           );
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.clientPanel,
-            false
+            false,
           );
         }
       } // !isTemplateMode
@@ -999,19 +979,19 @@ dojo.declare(
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.contentSplitPane,
-            true
+            true,
           );
           if (!this.isSearchForm) this.searchBackButton.show();
         } else {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.addressbarPanel,
-            true
+            true,
           );
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.clientPanel,
-            true
+            true,
           );
         }
         // We first remove the command panel then add it
@@ -1019,32 +999,32 @@ dojo.declare(
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.commandPanel,
-          false
+          false,
         );
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.commandPanel,
-          true
+          true,
         );
         if (this.templatesPanel) {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.templatesPanel,
-            false
+            false,
           );
         }
         if (this.templatesSiteFolderParam) {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.templatesSiteFolderParam,
-            false
+            false,
           );
         }
       }
       ps.util.forceDialogResize(
         this.parent.wgtDlg,
         this.parent.preferredWidth,
-        this.parent.preferredHeight
+        this.parent.preferredHeight,
       );
     },
 
@@ -1072,7 +1052,7 @@ dojo.declare(
       this.templatesPanel = dojo.widget.createWidget(
         "ContentPane",
         params,
-        div
+        div,
       );
       new ps.widget.ContentPaneProgress(this.templatesPanel);
     },
@@ -1101,7 +1081,7 @@ dojo.declare(
       this.templatesSiteFolderParam = dojo.widget.createWidget(
         "ContentPane",
         params,
-        div
+        div,
       );
       new ps.widget.ContentPaneProgress(this.templatesSiteFolderParam);
     },
@@ -1113,7 +1093,7 @@ dojo.declare(
      * @return the template panel, never <code>null</code>.
      */
     _loadTemplatesPanel: function (snippetId) {
-      dojo.lang.assertType(snippetId, ps.aa.ObjectId);
+      ps.assertType(snippetId, ps.aa.ObjectId);
       var newUrl;
       if (!this.isFolderTab()) {
         this._maybeCreateTemplatesSiteFolderParam();
@@ -1124,11 +1104,11 @@ dojo.declare(
           escape("ps.select.templates.") +
           "&includeSitesLabel=" +
           escape(
-            psxGetLocalMessage("javascript.ps.content.browse@Include_Site")
+            psxGetLocalMessage("javascript.ps.content.browse@Include_Site"),
           ) +
           "&includeFoldersLabel=" +
           escape(
-            psxGetLocalMessage("javascript.ps.content.browse@Include_Folder")
+            psxGetLocalMessage("javascript.ps.content.browse@Include_Folder"),
           );
         this.templatesSiteFolderParam.setUrl(newUrl);
         dojo.event.connect(
@@ -1136,7 +1116,7 @@ dojo.declare(
           "onLoad",
           function () {
             _this._onTemplatesSiteFolderParamLoaded();
-          }
+          },
         );
       }
 
@@ -1189,20 +1169,20 @@ dojo.declare(
       //Set the default values for include site id and folder id check boxes
       var inclSitesFlag = ps.util.getServerProperty(
         "slotContentIncludeSiteDefaultValue",
-        ""
+        "",
       );
       var inclFoldersFlag = ps.util.getServerProperty(
         "slotContentIncludeFolderDefaultValue",
-        ""
+        "",
       );
       var includeSites = this._mustById(
-        "ps.select.templates.includeSitesCheckbox"
+        "ps.select.templates.includeSitesCheckbox",
       );
       includeSites.checked = inclSitesFlag == "true" ? true : false;
       includeSites.disabled = false;
 
       var includeFolders = this._mustById(
-        "ps.select.templates.includeFoldersCheckbox"
+        "ps.select.templates.includeFoldersCheckbox",
       );
       includeFolders.checked = inclFoldersFlag == "true" ? true : false;
       includeFolders.disabled = false;
@@ -1216,8 +1196,8 @@ dojo.declare(
      * Not <code>null</code>.
      */
     _getElemById: function (id) {
-      dojo.lang.assertType(id, String);
-      return dojo.byId(this._getQId(id));
+      ps.assertType(id, String);
+      return document.getElementById(this._getQId(id));
     },
 
     /**
@@ -1228,7 +1208,7 @@ dojo.declare(
      * Not <code>null</code>.
      */
     _getWidgetById: function (id) {
-      dojo.lang.assertType(id, String);
+      ps.assertType(id, String);
       return dojo.widget.byId(this._getQId(id));
     },
 
@@ -1248,7 +1228,7 @@ dojo.declare(
     _getContentType: function () {
       var ctype = this.getContentTypeList().value;
       if (ctype) {
-        return dojo.string.trim(ctype);
+        return ctype.trim();
       } else {
         return "-1";
       }
@@ -1259,7 +1239,7 @@ dojo.declare(
      * content list field, because the getter provides additional assertions.
      */
     getContentTypeList: function () {
-      dojo.lang.assert(!this.isSearchTab());
+      ps.assert(!this.isSearchTab());
       return this._ctypeList;
     },
 
@@ -1297,7 +1277,7 @@ dojo.declare(
      */
     isItemPath: function (path) {
       if (path) {
-        dojo.lang.assertType(path, String);
+        ps.assertType(path, String);
       } else {
         path = this.getPath();
       }
@@ -1311,13 +1291,13 @@ dojo.declare(
      */
     getParentFolder: function (path) {
       if (path) {
-        dojo.lang.assertType(path, String);
+        ps.assertType(path, String);
       } else {
         path = this.getPath();
       }
-      dojo.lang.assert(
+      ps.assert(
         path !== this.ROOT,
-        "Tried to get parent folder for a root directory"
+        "Tried to get parent folder for a root directory",
       );
       var separator = this.isItemPath(path) ? this.ITEM_SEPARATOR : "/";
       var lastIdx = path.lastIndexOf(separator);
@@ -1335,7 +1315,7 @@ dojo.declare(
      */
     getFolder: function (path) {
       if (path) {
-        dojo.lang.assertType(path, String);
+        ps.assertType(path, String);
       } else {
         path = this.getPath();
       }
@@ -1350,9 +1330,9 @@ dojo.declare(
       var beforeStr = '<a href="#">';
       var from = html.lastIndexOf(beforeStr) + beforeStr.length;
       var to = html.lastIndexOf("</a>");
-      dojo.lang.assert(
+      ps.assert(
         from > 0 && to > 0 && from <= to,
-        "Unexpected html of the string: " + html
+        "Unexpected html of the string: " + html,
       );
       return html.substring(from, to);
     },
@@ -1398,5 +1378,5 @@ dojo.declare(
      * Constant for the Ok button.
      */
     OK_LABEL: psxGetLocalMessage("javascript.ps.content.browse@Ok"),
-  }
+  },
 );

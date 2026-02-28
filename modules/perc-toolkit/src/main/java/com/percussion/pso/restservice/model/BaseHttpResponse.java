@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
  */
 package com.percussion.pso.restservice.model;
 
-import org.apache.commons.httpclient.Header;
+import java.net.http.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class BaseHttpResponse {
 
   private Item existingItem;
-  private Header[] headers;
+  private HttpHeaders headers;
 
   /***
    * Sets the HTTP Headers collection for this response.
    * @param headers
    */
-  public void setHeaders(Header[] headers) {
+  public void setHeaders(HttpHeaders headers) {
     this.headers = headers;
   }
 
@@ -36,7 +36,7 @@ public abstract class BaseHttpResponse {
    * Gets the HTTP Headers collection for this response.
    * @return
    */
-  public Header[] getHeaders() {
+  public HttpHeaders getHeaders() {
     return headers;
   }
 
@@ -45,16 +45,10 @@ public abstract class BaseHttpResponse {
    * @return
    */
   public String getETag() {
-    String ret = "";
-
-    for (int i = 0; i < headers.length; i++) {
-      if (headers[i].getName().equals("ETag")) {
-        ret = headers[i].getValue();
-        break;
-      }
+    if (headers == null) {
+      return "";
     }
-
-    return ret;
+    return headers.firstValue("ETag").orElse("");
   }
 
   /***
@@ -64,20 +58,14 @@ public abstract class BaseHttpResponse {
   public String getLastModified() {
     String ret = "";
 
-    for (int i = 0; i < headers.length; i++) {
-      if (headers[i].getName().equals("Last-Modified")) {
-        ret = headers[i].getValue();
-        break;
-      }
+    if (headers != null) {
+      ret = headers.firstValue("Last-Modified").orElse("");
     }
 
     // If the last modified header isn't set, we'll use the date of the response.
     if (StringUtils.isEmpty(ret)) {
-      for (int i = 0; i < headers.length; i++) {
-        if (headers[i].getName().equals("Date")) {
-          ret = headers[i].getValue();
-          break;
-        }
+      if (headers != null) {
+        ret = headers.firstValue("Date").orElse("");
       }
     }
 

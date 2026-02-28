@@ -244,12 +244,6 @@
         </dependency>
         <!-- Build-time only: not imported by preinstall Java code -->
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Build-time only: not imported by preinstall Java code -->
-        <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <scope>provided</scope>

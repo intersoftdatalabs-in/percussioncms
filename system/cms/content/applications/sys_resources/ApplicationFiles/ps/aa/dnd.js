@@ -8,9 +8,8 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.aa.dnd");
+// ps.aa.dnd — dojo.provide/require removed (jQuery + ps/compat.js)
 
-dojo.require("ps.aa");
 
 /**
  * The Drag and Drop (view) controller.
@@ -43,12 +42,12 @@ ps.aa.dnd = new (function () {
    * A listener on {@link ps.aa.Tree#onBeforeDomChange}.
    */
   this._onBeforeDomChange = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
 
     // unregisters old sources and targets
     function unregisterAll(ids, objects) {
-      dojo.lang.forEach(ids, function (id) {
-        dojo.lang.assert(
+      ids.forEach(function (id) {
+        ps.assert(
           id.serialize() in objects,
           "Following id is not registered: " + id.serialize()
         );
@@ -66,20 +65,20 @@ ps.aa.dnd = new (function () {
    * A listener on {@link ps.aa.Tree#onDomChanged}.
    */
   this._onDomChanged = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
     var _this = this;
 
     // drag sources
-    dojo.lang.forEach(this._getSnippetIds(id), function (id) {
-      dojo.lang.assert(!(id.serialize() in _this.dragSources));
+    this._getSnippetIds(id).forEach(function (id) {
+      ps.assert(!(id.serialize() in _this.dragSources));
       var node = ps.aa.Page.getElement(id);
       var source = new dojo.dnd.HtmlDragSource(node, ps.aa.SNIPPET_CLASS);
       _this.dragSources[id.serialize()] = source;
     });
 
     // drop targets
-    dojo.lang.forEach(this._getSlotIds(id), function (id) {
-      dojo.lang.assert(!(id.serialize() in _this.dropTargets));
+    this._getSlotIds(id).forEach(function (id) {
+      ps.assert(!(id.serialize() in _this.dropTargets));
       var node = ps.aa.Page.getElement(id);
       var target = new dojo.dnd.HtmlDropTarget(node, ps.aa.SNIPPET_CLASS);
       _this.dropTargets[id.serialize()] = target;
@@ -92,7 +91,7 @@ ps.aa.dnd = new (function () {
       );
 
       dojo.event.connectAround(target, "onDragOver", _this, "_onDragOver");
-      dojo.lang.assert(target.insert);
+      ps.assert(target.insert);
       dojo.event.connectAround(target, "insert", _this, "_dropTargetInsert");
       dojo.event.connectAround(
         target,
@@ -111,22 +110,22 @@ ps.aa.dnd = new (function () {
    * @return <code>true</code> if the drop operation was successful.
    */
   this._onDragOver = function (invocation) {
-    dojo.lang.assert(invocation, "Invocation must be defined");
+    ps.assert(invocation, "Invocation must be defined");
 
     if (!invocation.proceed()) {
       return false;
     }
 
     var event = invocation.args[0];
-    dojo.lang.assert(event, "Event must be specified.");
+    ps.assert(event, "Event must be specified.");
 
     var dragObject = event.dragObjects[0];
     var slotId = this._getParentSlotId(dragObject.domNode);
     var dropTarget = invocation.object;
 
     var targetSlotId = this._getDropTargetId(dropTarget);
-    dojo.lang.assert(slotId);
-    dojo.lang.assert(targetSlotId);
+    ps.assert(slotId);
+    ps.assert(targetSlotId);
 
     if (!slotId.belongsToTheSameItem(targetSlotId)) {
       return false;
@@ -146,7 +145,7 @@ ps.aa.dnd = new (function () {
   this._resetDropTargetVertical = function (invocation) {
     var dropTarget = invocation.object;
     var slotId = this._getDropTargetId(dropTarget);
-    dojo.lang.assert(
+    ps.assert(
       slotId,
       "Object id should be specified on the drop target"
     );
@@ -162,7 +161,7 @@ ps.aa.dnd = new (function () {
    * @param dropTarget the current drop target. Not null.
    */
   this._resetTargetChildBoxes = function (dropTarget) {
-    dojo.lang.assert(dropTarget, "Drop target expected");
+    ps.assert(dropTarget, "Drop target expected");
 
     var boxes = dropTarget.childBoxes;
 
@@ -174,22 +173,21 @@ ps.aa.dnd = new (function () {
     var targetSlotId = this._getDropTargetId(dropTarget);
 
     // exclude snippets inside of snippets
-    var snippetIds = dojo.lang.filter(
-      this._getSnippetIds(targetSlotId),
+    var snippetIds = this._getSnippetIds(targetSlotId).filter(
       function (id) {
         return id.getSlotId() === targetSlotId.getSlotId();
       }
     );
-    var snippetIdStrings = dojo.lang.map(snippetIds, function (id) {
+    var snippetIdStrings = snippetIds.map(function (id) {
       return id.serialize();
     });
 
     var divs = dropTarget.domNode.getElementsByTagName("div");
-    var snippetNodes = dojo.lang.filter(divs, function (div) {
+    var snippetNodes = Array.from(divs).filter(function (div) {
       return (
         div.id &&
         div.className == ps.aa.SNIPPET_CLASS &&
-        dojo.lang.inArray(snippetIdStrings, div.id)
+        snippetIdStrings.indexOf(div.id) !== -1
       );
     });
 
@@ -202,7 +200,7 @@ ps.aa.dnd = new (function () {
 
     boxes.length = 0;
     var _this = this;
-    dojo.lang.forEach(snippetNodes, function (child) {
+    snippetNodes.forEach(function (child) {
       boxes.push(_this._getDropTargetChildBox(child));
     });
     this._fillDropTargetChildBoxesGaps(boxes);
@@ -216,10 +214,10 @@ ps.aa.dnd = new (function () {
    * touch and all the gaps are closed.
    */
   this._fillDropTargetChildBoxesGaps = function (boxes) {
-    dojo.lang.forEach(boxes, function (box) {
+    boxes.forEach(function (box) {
       var leftmost = null;
       var topmost = null;
-      dojo.lang.forEach(boxes, function (box2) {
+      boxes.forEach(function (box2) {
         // skip itself
         if (box === box2) {
           return;
@@ -267,15 +265,15 @@ ps.aa.dnd = new (function () {
    * @return <code>true</code> if the drop operation was successful.
    */
   this._dropTargetInsert = function (invocation) {
-    dojo.lang.assert(invocation);
+    ps.assert(invocation);
 
     var event = invocation.args[0];
     var refNode = invocation.args[1];
     var position = invocation.args[2];
 
-    dojo.lang.assert(event, "Event must be specified.");
-    dojo.lang.assert(refNode, "Reference node must be specified.");
-    dojo.lang.assert(position, "Position must be specified.");
+    ps.assert(event, "Event must be specified.");
+    ps.assert(refNode, "Reference node must be specified.");
+    ps.assert(position, "Position must be specified.");
     this._assertValidPosition(position);
 
     var snippetNode = event.dragObject.domNode;
@@ -287,7 +285,7 @@ ps.aa.dnd = new (function () {
     var index = this._getDropIndex(dropTarget, snippetId, refNode, position);
 
     if (snippetId.getSlotId() !== targetSlotId.getSlotId()) {
-      dojo.lang.assert(!this._m_move);
+      ps.assert(!this._m_move);
       this._m_move = new ps.aa.SnippetMove(
         snippetId,
         slotId,
@@ -299,7 +297,7 @@ ps.aa.dnd = new (function () {
     }
     // source and target slots are the same
     else if (ps.aa.controller.reorderSnippetInSlot(snippetId, index)) {
-      dojo.lang.assert(!this._m_move);
+      ps.assert(!this._m_move);
       // used later to refresh the slot
       this._m_move = new ps.aa.SnippetMove(
         snippetId,
@@ -318,7 +316,7 @@ ps.aa.dnd = new (function () {
     // clear drop indicator again, in case it was created by mistake,
     // e.g. during error handling user interactions
     if (dropTarget.dropIndicator) {
-      dojo.html.removeNode(dropTarget.dropIndicator);
+      dropTarget.dropIndicator.parentNode.removeChild(dropTarget.dropIndicator);
       delete dropTarget.dropIndicator;
     }
 
@@ -331,7 +329,7 @@ ps.aa.dnd = new (function () {
    */
   this._onDropEnd = function () {
     if (this._m_move) {
-      dojo.lang.assertType(this._m_move.isSuccess(), Boolean);
+      ps.assertType(this._m_move.isSuccess(), Boolean);
       // page still can be updated, e.g. in template selection
       this._m_move.setDontUpdatePage(false);
       if (this._m_move.isUiUpdateNeeded() && this._m_move.isSuccess()) {
@@ -359,9 +357,9 @@ ps.aa.dnd = new (function () {
    * @see #_dropTargetInsert
    */
   this._getDropIndex = function (dropTarget, snippetId, refNode, position) {
-    dojo.lang.assert(dropTarget, "Target must be specified");
-    dojo.lang.assertType(snippetId, ps.aa.ObjectId);
-    dojo.lang.assert(refNode, "Reference node must be specified");
+    ps.assert(dropTarget, "Target must be specified");
+    ps.assertType(snippetId, ps.aa.ObjectId);
+    ps.assert(refNode, "Reference node must be specified");
     this._assertValidPosition(position);
 
     var childrenLen = dropTarget.childBoxes.length;
@@ -384,8 +382,8 @@ ps.aa.dnd = new (function () {
       return refNodeIdx;
     }
 
-    dojo.debug(refNode);
-    dojo.lang.assert(
+    console.debug(refNode);
+    ps.assert(
       false,
       "Could not find reference node in the list of nodes"
     );
@@ -406,7 +404,7 @@ ps.aa.dnd = new (function () {
    * @return true if the slot is considered vertical. False otherwise.
    */
   this._isDropIndicatorVertical = function (dropTarget) {
-    dojo.lang.assert(dropTarget, "Drop target must be specified");
+    ps.assert(dropTarget, "Drop target must be specified");
 
     if (dropTarget.childBoxes.length < 2) {
       return false;
@@ -425,10 +423,10 @@ ps.aa.dnd = new (function () {
    * Not <code>null</code>.
    */
   this._createDropIndicator = function (invocation) {
-    dojo.lang.assert(invocation);
+    ps.assert(invocation);
     invocation.proceed();
     var target = invocation.object;
-    dojo.lang.assert(target.dropIndicator);
+    ps.assert(target.dropIndicator);
     var style = target.dropIndicator.style;
     var color = "gray";
     var borderWidth = "3px";
@@ -450,11 +448,11 @@ ps.aa.dnd = new (function () {
    * Returns <code>null</code> if a slot node can't be found.
    */
   this._getParentSlotId = function (domNode) {
-    dojo.lang.assert(domNode, "Dom node is not specified");
+    ps.assert(domNode, "Dom node is not specified");
     var node = domNode;
     while (node) {
       if (
-        node.nodeType === dojo.dom.ELEMENT_NODE &&
+        node.nodeType === Node.ELEMENT_NODE &&
         node.className === ps.aa.SLOT_CLASS
       ) {
         return new ps.aa.ObjectId(node.id);
@@ -470,7 +468,7 @@ ps.aa.dnd = new (function () {
    * in {@link dojo.dnd.HtmlDropTarget#insert}.
    */
   this._assertValidPosition = function (position) {
-    dojo.lang.assert(
+    ps.assert(
       position === this.POS_BEFORE ||
         position === this.POS_AFTER ||
         position === this.POS_APPEND,
@@ -486,15 +484,16 @@ ps.aa.dnd = new (function () {
    * @see _resetTargetChildBoxes
    */
   this._getDropTargetChildBox = function (child) {
-    var pos = dojo.html.getAbsolutePosition(child, true);
-    var inner = dojo.html.getBorderBox(child);
+    var $child = $(child);
+    var offset = $child.offset();
+    var rect = child.getBoundingClientRect();
     return {
-      top: pos.y,
-      bottom: pos.y + inner.height,
-      left: pos.x,
-      right: pos.x + inner.width,
-      height: inner.height,
-      width: inner.width,
+      top: offset.top,
+      bottom: offset.top + rect.height,
+      left: offset.left,
+      right: offset.left + rect.width,
+      height: rect.height,
+      width: rect.width,
       node: child,
     };
   };
@@ -503,9 +502,9 @@ ps.aa.dnd = new (function () {
    * Returns an array of slot ids under ther provided id.
    */
   this._getSlotIds = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
     var ids = ps.aa.controller.treeModel.getIdsFromNodeId(id).toArray();
-    return dojo.lang.filter(ids, function (id) {
+    return ids.filter(function (id) {
       return id.isSlotNode();
     });
   };
@@ -514,9 +513,9 @@ ps.aa.dnd = new (function () {
    * Returns an array of snippet ids under the provided id.
    */
   this._getSnippetIds = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
     var ids = ps.aa.controller.treeModel.getIdsFromNodeId(id).toArray();
-    return dojo.lang.filter(ids, function (id) {
+    return ids.filter(function (id) {
       return id.isSnippetNode();
     });
   };
@@ -527,7 +526,7 @@ ps.aa.dnd = new (function () {
    * @return the object id of the target.
    */
   this._getDropTargetId = function (dropTarget) {
-    dojo.lang.assert(dropTarget, "Expected dropTarget");
+    ps.assert(dropTarget, "Expected dropTarget");
     return new ps.aa.ObjectId(dropTarget.domNode.id);
   };
 

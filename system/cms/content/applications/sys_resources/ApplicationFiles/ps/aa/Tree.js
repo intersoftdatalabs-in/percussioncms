@@ -8,14 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.aa.Tree");
-
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.lang.type");
-dojo.require("dojo.dom");
-dojo.require("dojo.collections.ArrayList");
-
-dojo.require("ps.aa");
+// ps.aa.Tree — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * <p>The tree model contains the id of all managed DOM nodes in the page panel.
@@ -41,10 +34,10 @@ ps.aa.Tree = function () {
    * This must be  called before calling any other methods of this class.
    */
   this.init = function () {
-    var startElement = dojo.byId("ps.aa.ContentPane");
-    dojo.lang.assert(
+    var startElement = document.getElementById("ps.aa.ContentPane");
+    ps.assert(
       startElement != null,
-      "Cannot find DOM element id='ps.aa.ContentPane'"
+      "Cannot find DOM element id='ps.aa.ContentPane'",
     );
     this._createNodes(startElement, null);
     this._sort(this.root);
@@ -89,7 +82,7 @@ ps.aa.Tree = function () {
         }
         return 0;
       });
-      dojo.lang.forEach(treeNode.childNodes.toArray(), this._sort, this);
+      treeNode.childNodes.toArray().forEach(this._sort, this);
     }
   };
   /**
@@ -127,12 +120,12 @@ ps.aa.Tree = function () {
    *    an existing tree node. Not <code>null</code>.
    */
   this._resetChildNodes = function (element) {
-    dojo.lang.assert(element);
+    ps.assert(element);
     var id = ps.aa.Page.getObjectId(element);
-    dojo.lang.assert(id, "Cannot find object id");
+    ps.assert(id, "Cannot find object id");
 
     var node = this.getNodeById(id);
-    dojo.lang.assert(node, "Cannot find node");
+    ps.assert(node, "Cannot find node");
 
     node.removeChildNodes();
     this._createNodes(element, node);
@@ -149,7 +142,7 @@ ps.aa.Tree = function () {
    * @see #fireDomChanged
    */
   this.fireBeforeDomChange = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
 
     this.onBeforeDomChange(id);
   };
@@ -162,7 +155,7 @@ ps.aa.Tree = function () {
    * @see #onDomChanged
    */
   this.onBeforeDomChange = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
   };
 
   /**
@@ -179,8 +172,8 @@ ps.aa.Tree = function () {
    * @see #fireBeforeDomChange
    */
   this.fireDomChanged = function (notChangedId, id) {
-    id && dojo.lang.assertType(id, ps.aa.ObjectId);
-    notChangedId && dojo.lang.assert(notChangedId, ps.aa.ObjectId);
+    id && ps.assertType(id, ps.aa.ObjectId);
+    notChangedId && ps.assert(notChangedId, ps.aa.ObjectId);
 
     if (id && id.equals(this.root.objId)) {
       // root node can be reset
@@ -210,7 +203,7 @@ ps.aa.Tree = function () {
    * @see #onBeforeDomChange
    */
   this.onDomChanged = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
   };
 
   /**
@@ -224,7 +217,7 @@ ps.aa.Tree = function () {
   this._addPageNode = function (div) {
     if (this.root != null) {
       ps.util.error(
-        "Unknown page node, already got a root: " + this.root.objId.toString()
+        "Unknown page node, already got a root: " + this.root.objId.toString(),
       );
       return null;
     }
@@ -248,9 +241,9 @@ ps.aa.Tree = function () {
     if (node == null) node = this._getNodeRqd(div);
 
     var parentNode = this._getParentPageSnippet(node, lastParent);
-    dojo.lang.assert(
+    ps.assert(
       parentNode != null,
-      "Cannot find parent node for slot node: " + node.toString()
+      "Cannot find parent node for slot node: " + node.toString(),
     );
 
     parentNode.addChildNode(node);
@@ -308,7 +301,7 @@ ps.aa.Tree = function () {
     }
 
     ps.util.error(
-      "Cannot find parent node for snippet node: " + node.toString()
+      "Cannot find parent node for snippet node: " + node.toString(),
     );
     return null;
   };
@@ -355,9 +348,9 @@ ps.aa.Tree = function () {
   this._addFieldNode = function (div, lastParent) {
     var node = this._getNodeRqd(div);
     var parentNode = this._getParentPageSnippet(node, lastParent);
-    dojo.lang.assert(
+    ps.assert(
       parentNode != null,
-      "Cannot find parent node for field node: " + node.toString()
+      "Cannot find parent node for field node: " + node.toString(),
     );
 
     parentNode.addChildNode(node);
@@ -374,9 +367,9 @@ ps.aa.Tree = function () {
    */
   this._getNodeRqd = function (div) {
     var objId = ps.aa.Page.getObjectId(div);
-    dojo.lang.assert(
+    ps.assert(
       objId != null,
-      "Malformed objectId for a node of class=" + div.className
+      "Malformed objectId for a node of class=" + div.className,
     );
 
     return new ps.aa.TreeNode(objId);
@@ -399,7 +392,7 @@ ps.aa.Tree = function () {
    * @return {ps.aa.TreeNode} object. It may be null if cannot find the node.
    */
   this.getNodeById = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
     return this._getNodeById(id, this.root);
   };
 
@@ -412,8 +405,8 @@ ps.aa.Tree = function () {
    * @return {ps.aa.TreeNode} object. It may be null if cannot find the node.
    */
   this._getNodeById = function (id, pnode) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
-    pnode && dojo.lang.assertType(pnode, ps.aa.TreeNode);
+    ps.assertType(id, ps.aa.ObjectId);
+    pnode && ps.assertType(pnode, ps.aa.TreeNode);
 
     if (pnode.equals(id)) {
       return pnode;
@@ -454,7 +447,7 @@ ps.aa.Tree = function () {
     if (this.root.isLeafNode()) return result;
 
     var result = null;
-    if (dojo.lang.isString(fieldName)) {
+    if (typeof fieldName === "string") {
       result = new dojo.collections.ArrayList();
       this._getFieldIdsByContentIdName(contentId, fieldName, this.root, result);
     } else {
@@ -492,7 +485,7 @@ ps.aa.Tree = function () {
    *    Never null, but may be empty.
    */
   this.getIdsFromNodeId = function (objId) {
-    dojo.lang.assertType(objId, ps.aa.ObjectId);
+    ps.assertType(objId, ps.aa.ObjectId);
     var ids = new dojo.collections.ArrayList();
     var node = this.getNodeById(objId);
     if (node != null) this._getIdsFromNode(node, ids);
@@ -557,7 +550,7 @@ ps.aa.Tree = function () {
     contentId,
     fieldName,
     pnode,
-    result
+    result,
   ) {
     if (pnode.isLeafNode()) return;
 
@@ -647,7 +640,7 @@ ps.aa.Tree = function () {
    */
   this.getNextSiblingId = function (id) {
     var node = this.getNodeById(id);
-    dojo.lang.assert(node, "Cannot find node id=" + id.serialize());
+    ps.assert(node, "Cannot find node id=" + id.serialize());
 
     var pnode = node.parentNode;
     if (pnode == null) return null;
@@ -674,7 +667,7 @@ ps.aa.Tree = function () {
    * @return serialized string of the node or the whole tree.
    */
   this.toString = function (node) {
-    if (dojo.lang.isUndefined(node)) {
+    if (typeof node === "undefined") {
       return this.toString(this.root);
     } else {
       var text = node.toString() + "\n";
@@ -700,8 +693,8 @@ ps.aa.Tree = function () {
  * @constructor
  */
 ps.aa.TreeNode = function (objectId, pNode, childNodes) {
-  dojo.lang.assertType(objectId, ps.aa.ObjectId);
-  pNode && dojo.lang.assertType(pNode, ps.aa.TreeNode);
+  ps.assertType(objectId, ps.aa.ObjectId);
+  pNode && ps.assertType(pNode, ps.aa.TreeNode);
 
   /**
    * The object id of this node (ps.aa.ObjectId}.
@@ -711,13 +704,13 @@ ps.aa.TreeNode = function (objectId, pNode, childNodes) {
   /**
    * The object id of this node (ps.aa.TreeNode}.
    */
-  if (dojo.lang.isUndefined(pNode)) this.parentNode = null;
+  if (typeof pNode === "undefined") this.parentNode = null;
   else this.parentNode = pNode;
 
   /**
    * The immidiate child nodes. {dojo.collections.ArrayList}.
    */
-  if (dojo.lang.isUndefined(childNodes)) this.childNodes = null;
+  if (typeof childNodes === "undefined") this.childNodes = null;
   else this.childNodes = childNodes;
 
   /**
@@ -742,9 +735,9 @@ ps.aa.TreeNode = function (objectId, pNode, childNodes) {
         this.nodeLabel = this.objId.getFieldLabel().replace(/\:$/g, "");
       } else {
         var id = this.objId.serialize();
-        var divElem = dojo.byId(id);
-        dojo.lang.assert(divElem, "Cannot find DIV element with id=" + id);
-        this.nodeLabel = dojo.html.getAttribute(divElem, "psAaLabel");
+        var divElem = document.getElementById(id);
+        ps.assert(divElem, "Cannot find DIV element with id=" + id);
+        this.nodeLabel = divElem.getAttribute("psAaLabel");
       }
     }
     return this.nodeLabel;
@@ -759,7 +752,7 @@ ps.aa.TreeNode = function (objectId, pNode, childNodes) {
    * @return true if the object ids are equal; false otherwise.
    */
   this.equals = function (id) {
-    dojo.lang.assertType(id, ps.aa.ObjectId);
+    ps.assertType(id, ps.aa.ObjectId);
     return this.objId.serialize() == id.serialize();
   };
 
@@ -850,7 +843,7 @@ ps.aa.TreeNode = function (objectId, pNode, childNodes) {
    * or if it can't find the node.
    */
   this.getIndex = function () {
-    dojo.lang.assert(this.parentNode);
+    ps.assert(this.parentNode);
     var siblings = this.parentNode.childNodes.toArray();
     for (var i in siblings) {
       var node = siblings[i];
@@ -858,9 +851,9 @@ ps.aa.TreeNode = function (objectId, pNode, childNodes) {
         return parseInt(i);
       }
     }
-    dojo.lang.assert(
+    ps.assert(
       false,
-      "Inconsistent tree structure, could not find this node in the parent"
+      "Inconsistent tree structure, could not find this node in the parent",
     );
   };
 

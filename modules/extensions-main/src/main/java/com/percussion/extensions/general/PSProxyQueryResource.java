@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,25 +31,19 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 import com.percussion.utils.request.PSRequestInfo;
 import java.io.IOException;
-import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthPolicy;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -95,7 +89,7 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
       String host = "";
       int port = -1;
       String scheme = "http";
-      URI uri = null;
+      URI requestUri = null;
 
       boolean internalRequest = false;
       String prepend = null;
@@ -121,14 +115,24 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         port = PSServer.getListenerPort();
 
         try {
-          uri = new URI(scheme, null, host, port, url);
+          requestUri = URI.create(scheme + "://" + host + ":" + port + url);
 
           // This is an internal request so pass the jsessionid
           String sessionid = (String) PSRequestInfo.getRequestInfo(KEY_JSESSIONID);
+          if (StringUtils.isNotBlank(sessionid)) {
+            String sessionPath = requestUri.getRawPath() + ";jsessionid=" + sessionid;
+            requestUri =
+                new URI(
+                    requestUri.getScheme(),
+                    requestUri.getRawUserInfo(),
+                    requestUri.getHost(),
+                    requestUri.getPort(),
+                    sessionPath,
+                    requestUri.getRawQuery(),
+                    requestUri.getRawFragment());
+          }
 
-          uri.setPath(uri.getPath() + ";jsessionid=" + sessionid);
-
-        } catch (URIException e) {
+        } catch (URISyntaxException | IllegalArgumentException e) {
           log.error(
               "Error parsing supplied url: {} Error: {}",
               url,
@@ -137,9 +141,9 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         }
       } else {
         try {
-          uri = new URI(url, true);
+          requestUri = URI.create(url);
 
-        } catch (URIException e) {
+        } catch (IllegalArgumentException e) {
           log.error(
               "Error parsing supplied url: {} Error: {}",
               url,
@@ -151,43 +155,28 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
       String repr = "url = " + url + " user = " + user + " password = " + password;
       log.debug("Trying to get document with: {}", repr);
 
-      HttpClient client = new HttpClient();
-
-      HttpMethod method = new GetMethod(url);
-      method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-      method
-          .getParams()
-          .setParameter(
-              HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+      HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+      HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(requestUri).GET();
 
       if (!internalRequest && !StringUtils.isEmpty(user)) {
-        // Enable authentication for the request
-        method.setDoAuthentication(true);
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
-        client.getState().setCredentials(AuthScope.ANY, credentials);
-        List<String> authPrefs = new ArrayList<>(1);
-        authPrefs.add(AuthPolicy.BASIC);
-        client.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
+        String credentials = user + ":" + StringUtils.defaultString(password);
+        String encoded = Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+        requestBuilder.header("Authorization", "Basic " + encoded);
       }
 
       try {
-        method.setURI(uri);
-      } catch (URIException e1) {
-        log.error("Failed to parse url as a valid URI: {}", url);
-        throw new RuntimeException(e1);
-      }
-      try {
-        // Execute the method.
-        int statusCode = client.executeMethod(method);
+        HttpResponse<String> response =
+            client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        int statusCode = response.statusCode();
 
-        if (statusCode != HttpStatus.SC_OK) {
+        if (statusCode != 200) {
           log.error("Remote request to url: {} failed with status code: {}", url, statusCode);
           throw new RuntimeException(
               "Remote request to url: " + url + " failed with status code: " + statusCode);
         }
 
         // Read the response body.
-        String results = method.getResponseBodyAsString();
+        String results = response.body();
         results = results.replaceFirst("<\\?xml.*\\?>", "");
 
         try {
@@ -197,15 +186,13 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
           log.error(message, e);
           throw new Exception(message, e);
         }
-      } catch (HttpException e) {
-        log.error("Fatal protocol violation: {}", PSExceptionUtils.getMessageForLog(e));
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        log.error("HTTP request interrupted: {}", PSExceptionUtils.getMessageForLog(e));
         throw new Exception(e);
       } catch (IOException e) {
         log.error("Fatal transport error: {}", PSExceptionUtils.getMessageForLog(e));
         throw new Exception(e);
-      } finally {
-        // Release the connection.
-        method.releaseConnection();
       }
     } catch (Exception e) {
       log.debug("PSProxyQueryResource attempt failed. Returning null to caller.", e);
@@ -215,7 +202,7 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
 
   @SuppressWarnings({"unused", "unchecked"})
   private String buildUrlQueryString(IPSRequestContext request, List<String> ignore) {
-    Iterator it = request.getParametersIterator();
+    Iterator<?> it = request.getParametersIterator();
     List<String> params = new ArrayList<>();
     while (it.hasNext()) {
       Entry<String, Object> element = (Entry<String, Object>) it.next();

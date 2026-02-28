@@ -4,7 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="ivylib/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="ivylib/commons-collections.jar"/>
-	<classpathentry kind="lib" path="ivylib/commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="ivylib/commons-lang.jar"/>
 	<classpathentry kind="lib" path="ivylib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="ivylib/ezmorph.jar"/>

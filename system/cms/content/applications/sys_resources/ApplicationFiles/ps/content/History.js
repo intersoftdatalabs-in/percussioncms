@@ -7,9 +7,6 @@
  * work including confidential and proprietary information of Percussion.
  *
  *****************************************************************************/
-dojo.provide("ps.content.History");
-
-dojo.require("dojo.collections.Stack");
 
 /**
  * A history data object. Acts as a stack of string entries.
@@ -19,13 +16,13 @@ dojo.require("dojo.collections.Stack");
  * @constructor
  */
 ps.content.History = function (initialEntry) {
-  dojo.lang.assertType(initialEntry, String);
+  ps.assertType(initialEntry, String);
 
   /**
    * Stack of string paths visited by the user. The current path is on the top
    * of the stack. Never <code>null</code> or empty.
    */
-  this._m_stack = new dojo.collections.Stack([initialEntry]);
+  this._m_stack = new ps.Stack([initialEntry]);
 
   /**
    * Adds new entry to the history.
@@ -35,7 +32,7 @@ ps.content.History = function (initialEntry) {
    * Not <code>null</code>.
    */
   this.add = function (newEntry) {
-    dojo.lang.assertType(newEntry, String);
+    ps.assertType(newEntry, String);
     if (newEntry !== this.getCurrent()) {
       this._m_stack.push(newEntry);
     }
@@ -48,7 +45,7 @@ ps.content.History = function (initialEntry) {
    * @return the next history entry. Not <code>null</code>.
    */
   this.back = function () {
-    dojo.lang.assert(this.canGoBack());
+    ps.assert(this.canGoBack());
     return this._m_stack.pop();
   };
 

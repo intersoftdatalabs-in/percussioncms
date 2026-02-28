@@ -8,13 +8,8 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.aa");
-
-dojo.require("dojo.json");
-dojo.require("dojo.event");
-
-// call the ps.aa.controller.init() after dojo has passed the HTML content
-dojo.event.connect(dojo, "loaded", init);
+// Initialize ps.aa.controller when the DOM is ready
+$(document).ready(init);
 
 function init() {
   djConfig.isDebug = true;
@@ -24,40 +19,20 @@ function init() {
   }
 }
 
-/**
- * The constructor and the place holder for the singleton ps object.
- */
-ps = new (function () {})();
+// Extend (not replace) the ps namespace initialized by compat.js
+ps = ps || {};
+ps.aa = ps.aa || {};
 
-/**
- * The constructor for the singleton ps.aa object.
- */
-ps.aa = new (function () {
-  /**
-   * The 'class' attribute for a page node.
-   */
-  this.PAGE_CLASS = "PsAaPage";
-
-  /**
-   * The 'class' attribute for a slot node
-   */
-  this.SLOT_CLASS = "PsAaSlot";
-
-  /**
-   * The 'class' attribute for a snippet node.
-   */
-  this.SNIPPET_CLASS = "PsAaSnippet";
-
-  /**
-   * The 'class' attribute for a field node
-   */
-  this.FIELD_CLASS = "PsAaField";
-
-  /**
-   * The name of the attribute of <a> tag element that has the object id.
-   */
-  this.OBJECTID_ATTR = "PsAaObjectId";
-})();
+/** The 'class' attribute for a page node. */
+ps.aa.PAGE_CLASS = "PsAaPage";
+/** The 'class' attribute for a slot node. */
+ps.aa.SLOT_CLASS = "PsAaSlot";
+/** The 'class' attribute for a snippet node. */
+ps.aa.SNIPPET_CLASS = "PsAaSnippet";
+/** The 'class' attribute for a field node. */
+ps.aa.FIELD_CLASS = "PsAaField";
+/** The name of the attribute of <a> tag element that has the object id. */
+ps.aa.OBJECTID_ATTR = "PsAaObjectId";
 
 /**
  * Constructs an object from a JSON string.
@@ -80,14 +55,14 @@ ps.aa.ObjectId = function (idString) {
   //FIXME: make this more generic.
   this.idString = idString;
   // gets the real id if has image marker.
-  if (dojo.string.startsWith(idString, ps.aa.ObjectId.IMG_PREFIX, false)) {
+  if (idString.startsWith(ps.aa.ObjectId.IMG_PREFIX)) {
     this.idString = idString.substring(
       ps.aa.ObjectId.IMG_PREFIX.length,
       idString.length
     );
     this.widget = ps.aa.ObjectId.IMG_PREFIX;
   } else if (
-    dojo.string.startsWith(idString, ps.aa.ObjectId.TREE_NODE_WIDGET, false)
+    idString.startsWith(ps.aa.ObjectId.TREE_NODE_WIDGET)
   ) {
     this.idString = idString.substring(
       ps.aa.ObjectId.TREE_NODE_WIDGET.length,
@@ -99,7 +74,7 @@ ps.aa.ObjectId = function (idString) {
   /**
    * Stores the list of values into array.
    */
-  this.idobj = dojo.json.evalJson(this.idString);
+  this.idobj = JSON.parse(this.idString);
 
   /**
    * Determines if the specified object equals this object.
@@ -146,12 +121,12 @@ ps.aa.ObjectId = function (idString) {
    * @return 'true' if both ids describe objects belonging to the same item.
    */
   this.belongsToTheSameItem = function (otherId) {
-    dojo.lang.assertType(otherId, ps.aa.ObjectId);
-    dojo.lang.assert(
+    ps.assertType(otherId, ps.aa.ObjectId);
+    ps.assert(
       otherId.isSlotNode(),
       "Expected slot node, but got " + otherId
     );
-    dojo.lang.assert(
+    ps.assert(
       this.isSlotNode(),
       "Can be called only on a slot node, not on " + this
     );
@@ -211,7 +186,7 @@ ps.aa.ObjectId = function (idString) {
    * @param {Number} status the new status, which must be 0, 1, or 2.
    */
   this.setCheckoutStatus = function (status) {
-    dojo.lang.assert(
+    ps.assert(
       status === "0" || status === "1" || status === "2",
       "status must be 0, 1, or 2"
     );
@@ -247,7 +222,7 @@ ps.aa.ObjectId = function (idString) {
   };
 
   this._resetIdString = function () {
-    this.idString = dojo.json.serialize(this.idobj);
+    this.idString = JSON.stringify(this.idobj);
   };
 
   this.getRelationshipId = function () {

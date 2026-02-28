@@ -152,6 +152,49 @@ function buildBundlesFromConfig(configFile, processingPhase = 1) {
 }
 
 /**
+ * Standalone npm library files that should be copied to the WAR directory
+ * for direct <script> loading (outside of bundles). The build always
+ * overwrites these so the WAR stays in sync with the npm versions.
+ */
+const STANDALONE_NPM_COPIES = [
+  {
+    src: "jquery/dist/jquery.min.js",
+    dest: "jslib/profiles/3x/jquery/jquery.min.js",
+  },
+  {
+    src: "jquery-migrate/dist/jquery-migrate.min.js",
+    dest: "jslib/profiles/3x/jquery/jquery-migrate.min.js",
+  },
+];
+
+/**
+ * Copy standalone npm library files to the WAR directory so they can be
+ * loaded individually via <script> tags (e.g., from the AA page header).
+ */
+function syncStandaloneNpmLibraries() {
+  console.log("📋 Phase 0: Syncing standalone npm libraries to war/...");
+
+  STANDALONE_NPM_COPIES.forEach(({ src, dest }) => {
+    const srcPath = path.join(NODE_MODULES_DIR, src);
+    const destPath = path.join(WAR_DIR, dest);
+    const destDir = path.dirname(destPath);
+
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+
+    if (!fs.existsSync(srcPath)) {
+      console.warn(`  ⚠️  npm file not found: ${srcPath}`);
+      return;
+    }
+
+    fs.copyFileSync(srcPath, destPath);
+    const sizeKb = (fs.statSync(destPath).size / 1024).toFixed(2);
+    console.log(`  ✓ ${dest} (${sizeKb}KB from npm)`);
+  });
+}
+
+/**
  * Main build process
  */
 function main() {
@@ -160,6 +203,9 @@ function main() {
   console.log(`   Configs:       ${BUNDLE_CONFIG_DIR}\n`);
 
   try {
+    // Phase 0: Copy standalone npm libraries to war/ for direct <script> loading
+    syncStandaloneNpmLibraries();
+
     // Phase 1: Build intermediate common bundles (shared-common.js, shared-finder.js, etc.)
     buildBundlesFromConfig("common-bundles.json", 1);
     buildBundlesFromConfig("common-minuet-bundles.json", 1);

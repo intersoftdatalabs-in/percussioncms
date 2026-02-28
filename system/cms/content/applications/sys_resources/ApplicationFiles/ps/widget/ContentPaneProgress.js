@@ -7,7 +7,7 @@
  * work including confidential and proprietary information of Percussion.
  *
  *****************************************************************************/
-dojo.provide("ps.widget.ContentPaneProgress");
+// ps.widget.ContentPaneProgress — dojo.provide removed (jQuery + ps/compat.js)
 
 /**
  * Shows "wait" cursor while {@link dojo.widget.ContentPane} loads.
@@ -18,7 +18,7 @@ dojo.provide("ps.widget.ContentPaneProgress");
  * @constructor
  */
 ps.widget.ContentPaneProgress = function (contentPane) {
-  dojo.lang.assert(
+  ps.assert(
     contentPane && contentPane.onDownloadStart && contentPane.onDownloadEnd,
     "Content pane must be defined"
   );

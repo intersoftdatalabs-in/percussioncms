@@ -58,9 +58,9 @@
 			<head>
 				<!-- <xsl:copy-of select="/*/UserStatus"/> -->
 				<script src="../tmx/tmx.jsp?sys_lang={$lang}">;</script>
-				<script src="../cm/jslib/profiles/3x/jquery/jquery-3.6.0.js">;</script>
+				<script src="../cm/jslib/profiles/3x/jquery/jquery.min.js">;</script>
 				<script src="../cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js">;</script>
-				<script src="../cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js">;</script>
+				<script src="../cm/jslib/profiles/3x/jquery/jquery-migrate.min.js">;</script>
 				<script src="../sys_resources/js/browser.js">;</script>
 				<script src="../cm/jslib/profiles/3x/libraries/perc-retiredjs/json2.js">;</script>
 				<script src="../sys_resources/js/href.js">;</script>

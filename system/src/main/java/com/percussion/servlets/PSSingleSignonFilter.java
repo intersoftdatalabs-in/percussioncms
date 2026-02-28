@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,14 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -138,22 +141,25 @@ public class PSSingleSignonFilter implements Filter {
   private boolean validateSession(String pssessid, String baseUrl) {
     // make call to server
     boolean valid = false;
-    HttpMethod method = null;
     try {
-      HttpClient hc = new HttpClient();
-      method =
-          new GetMethod(
-              baseUrl
-                  + "/"
-                  + SSOSERVER_APPCONTEXT_ROOT
-                  + "/__validateSession__?pssessionid="
-                  + pssessid);
-      int respCode = hc.executeMethod(method);
+      HttpRequest request =
+          HttpRequest.newBuilder(
+                  URI.create(
+                      baseUrl
+                          + "/"
+                          + SSOSERVER_APPCONTEXT_ROOT
+                          + "/__validateSession__?pssessionid="
+                          + URLEncoder.encode(pssessid, StandardCharsets.UTF_8)))
+              .GET()
+              .timeout(Duration.ofSeconds(10))
+              .build();
+      int respCode = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.discarding()).statusCode();
       if (respCode == 200) valid = true;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      ms_log.error("Interrupted while validating single sign-on session", e);
     } catch (Exception e) {
       ms_log.error(e);
-    } finally {
-      if (method != null) method.releaseConnection();
     }
     return valid;
   }
@@ -187,4 +193,7 @@ public class PSSingleSignonFilter implements Filter {
 
   /** Context name of Rhythmyx server application context */
   private static final String SSOSERVER_APPCONTEXT_ROOT = "Rhythmyx";
+
+  private static final HttpClient HTTP_CLIENT =
+      HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 }

@@ -8,12 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.aa.Field");
-
-dojo.require("ps.aa");
-dojo.require("dojo.event");
-dojo.require("ps.io.Actions");
-dojo.require("dojo.widget.Manager");
+// ps.aa.Field — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * The field object. Manages the field editing.
@@ -48,7 +43,7 @@ ps.aa.Field = function () {
         title: "Edit Field",
       },
       "200px",
-      "100px"
+      "100px",
     );
 
     var _this = this;
@@ -88,7 +83,7 @@ ps.aa.Field = function () {
         executeScripts: true,
         resizable: false,
       },
-      div
+      div,
     );
     this.inplaceDlg.setContent(
       '<input type="text" style="border:0px; padding:0px; margin-top:1px"' +
@@ -107,20 +102,20 @@ ps.aa.Field = function () {
         "</td>\n" +
         "</tr>\n" +
         "</table>\n" +
-        "</div>"
+        "</div>",
     );
 
-    this.inplaceTextBox = dojo.byId("ps.field.inplaceTextBox");
+    this.inplaceTextBox = document.getElementById("ps.field.inplaceTextBox");
     dojo.event.connect(
       this.inplaceTextBox,
       "onkeyup",
       this,
-      "_onInplaceTextTyped"
+      "_onInplaceTextTyped",
     );
     var updateButton = dojo.widget.byId("ps.field.inplaceUpdateButton");
-    dojo.lang.assert(updateButton, "Update button could not be found");
+    ps.assert(updateButton, "Update button could not be found");
     var cancelButon = dojo.widget.byId("ps.field.inplaceCancelButton");
-    dojo.lang.assert(cancelButon, "Cancel button could not be found");
+    ps.assert(cancelButon, "Cancel button could not be found");
 
     dojo.event.connect(updateButton, "onClick", this, "updateField");
     dojo.event.connect(cancelButon, "onClick", this, "onInplaceCancel");
@@ -135,8 +130,8 @@ ps.aa.Field = function () {
     this.wgtButtonUpdate = dojo.widget.byId("ps.Field.wgtButtonUpdate");
     this.wgtButtonClose = dojo.widget.byId("ps.Field.wgtButtonClose");
     //Handle the buttons
-    this.divRegularButtons = dojo.byId("psRegularButtons");
-    this.divDojoButtons = dojo.byId("psDojoButtons");
+    this.divRegularButtons = document.getElementById("psRegularButtons");
+    this.divDojoButtons = document.getElementById("psDojoButtons");
     this.divRegularButtons.style.visibility = "hidden";
     this.divDojoButtons.style.visibility = "visible";
 
@@ -144,11 +139,11 @@ ps.aa.Field = function () {
       this.wgtButtonFullEditor,
       "onClick",
       this,
-      "openFullEditor"
+      "openFullEditor",
     );
     dojo.event.connect(this.wgtButtonUpdate, "onClick", this, "updateField");
     dojo.event.connect(this.wgtButtonClose, "onClick", this, "_onDialogClose");
-    var edfrm = dojo.byId("EditForm");
+    var edfrm = document.getElementById("EditForm");
     edfrm.setAttribute("onsubmit", "");
     var ceurl = this.ceUrl.split("?")[0];
     var suburl =
@@ -191,7 +186,7 @@ ps.aa.Field = function () {
    * Calls content editor url server action to get the content editor url
    * Opens the editor dialog with the URL.
    */
-  (this.editField = function (divElem, e) {
+  ((this.editField = function (divElem, e) {
     if (this.checkClickEvent(e)) return true;
     ps.aa.controller.activate(divElem);
     //From the div element get the new objectid
@@ -241,7 +236,7 @@ ps.aa.Field = function () {
       return false;
     }
     var value = response.getValue();
-    dojo.lang.assert(dojo.lang.has(value, "url"));
+    ps.assert("url" in value);
     this.ceUrl = value.url;
 
     var dlgw = value.dlg_width ? value.dlg_width : this.DEFAULT_CONTROL_WIDTH;
@@ -278,7 +273,7 @@ ps.aa.Field = function () {
       this.psCeFieldWindow = window.open(
         this.ceUrl,
         ps.aa.controller.CE_EDIT_ITEM_WINDOW,
-        wstyle
+        wstyle,
       );
       this.psCeFieldWindow.focus();
       return false;
@@ -294,16 +289,17 @@ ps.aa.Field = function () {
         //For ctrl and shift keys simply return
         if (e.ctrlKey || e.shiftKey) return true;
         //Stop the propagation of event
-        dojo.event.browser.stopEvent(e);
+        e.preventDefault();
+        e.stopPropagation();
         //Handle the alt key clicks
         if (e.altKey) {
           var tgt = e.target;
           if (typeof tgt == "undefined") tgt = e.srcElement;
-          if (dojo.html.isTag(tgt, "a")) {
+          if (tgt.tagName && tgt.tagName.toLowerCase() === "a") {
             window.location.href = tgt.href;
             return true;
-          } else if (dojo.html.isTag(tgt, "div")) {
-            var fieldLink = dojo.html.getAttribute(tgt, "fieldLink");
+          } else if (tgt.tagName && tgt.tagName.toLowerCase() === "div") {
+            var fieldLink = tgt.getAttribute("fieldLink");
             if (typeof fieldLink != "undefined" && fieldLink.length > 0) {
               window.location.href = fieldLink;
               return true;
@@ -313,7 +309,7 @@ ps.aa.Field = function () {
         }
       }
       return false;
-    });
+    }));
 
   /**
    * Is called when on onkeyup event for the inline editing text box.
@@ -337,7 +333,7 @@ ps.aa.Field = function () {
   this.onInplaceCancel = function () {
     this.inplaceEditing = false;
     this.inplaceDlg.hide();
-    dojo.html.show(this.divElem);
+    this.divElem.style.display = "";
   };
 
   /**
@@ -352,12 +348,13 @@ ps.aa.Field = function () {
     var dn = this.inplaceDlg.domNode;
 
     // place the editor over the editing element
-    var elemPos = dojo.html.getAbsolutePosition(this.divElem);
+    var $elem = $(this.divElem);
+    var elemPos = $elem.offset();
     var dlgPadding = 0;
     dn.style.left = elemPos.left - dlgPadding + "px";
     dn.style.top = elemPos.top - dlgPadding + "px";
 
-    var width = dojo.html.getBorderBox(this.divElem).width;
+    var width = this.divElem.getBoundingClientRect().width;
     this.inplaceTextBox.style.width = width + "px";
 
     // to disable automatic dialog placement at the center of the page
@@ -367,12 +364,12 @@ ps.aa.Field = function () {
 
     if (!this.inplaceDlgHeight) {
       this.inplaceDlgHeight =
-        dojo.html.getBorderBox(this.inplaceDlg.domNode).height + 10;
+        this.inplaceDlg.domNode.getBoundingClientRect().height + 10;
     }
     this.inplaceDlg.resizeTo(width, this.inplaceDlgHeight);
     this.inplaceTextBox.focus();
 
-    dojo.html.hide(this.divElem);
+    this.divElem.style.display = "none";
   };
 
   /**
@@ -391,13 +388,13 @@ ps.aa.Field = function () {
       }
       var value = response.getValue();
       //Check for the cmsErrors first and warn the user about it.
-      if (dojo.lang.has(value, "cmsError")) {
+      if ("cmsError" in value) {
         alert(value.cmsError);
         return false;
-      } else if (dojo.lang.has(value, "validationError")) {
+      } else if ("validationError" in value) {
         if (
           !confirm(
-            value.validationError + this.FIELD_VALIDATION_CONFIRM_MSG_PART2
+            value.validationError + this.FIELD_VALIDATION_CONFIRM_MSG_PART2,
           )
         )
           return false;
@@ -410,7 +407,7 @@ ps.aa.Field = function () {
     } else if (this.renderer == this.FIELD_RENDERER_INPLACE_TEXT) {
       let response = ps.io.Actions.setContentEditorFieldValue(
         this.objectId,
-        this.inplaceTextBox.value
+        this.inplaceTextBox.value,
       );
       if (!response.isSuccess()) {
         ps.io.Actions.maybeReportActionError(response);
@@ -418,13 +415,13 @@ ps.aa.Field = function () {
       }
       let value = response.getValue();
       //Check for the cmsErrors first and warn the user about it.
-      if (dojo.lang.has(value, "cmsError")) {
+      if ("cmsError" in value) {
         alert(value.cmsError);
         return false;
-      } else if (dojo.lang.has(value, "validationError")) {
+      } else if ("validationError" in value) {
         if (
           !confirm(
-            value.validationError + this.FIELD_VALIDATION_CONFIRM_MSG_PART2
+            value.validationError + this.FIELD_VALIDATION_CONFIRM_MSG_PART2,
           )
         )
           return false;
@@ -437,7 +434,7 @@ ps.aa.Field = function () {
     ps.aa.controller.refreshFieldsOnPage(
       this.objectId.getContentId(),
       this.objectId.getFieldName(),
-      this.psCeFieldWindow
+      this.psCeFieldWindow,
     );
   };
 

@@ -8,26 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.aa.controller");
-
-dojo.require("dojo.json");
-dojo.require("dojo.lang.assert");
-dojo.require("dojo.lang.type");
-dojo.require("dojo.html");
-dojo.require("dojo.widget.FloatingPane");
-
-dojo.require("ps.aa");
-dojo.require("ps.aa.dnd");
-dojo.require("ps.aa.Menu");
-dojo.require("ps.UserInfo");
-dojo.require("ps.aa.Page");
-dojo.require("ps.aa.Tree");
-dojo.require("ps.aa.SnippetMove");
-dojo.require("ps.content.Browse");
-dojo.require("ps.util");
-dojo.require("ps.widget.Autoscroller");
-dojo.require("ps.widget.PSButton");
-dojo.require("ps.workflow.WorkflowActions");
+// ps.aa.controller — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * The Active Assembly controler is responsible to manage all activities, which
@@ -126,7 +107,7 @@ ps.aa.controller = new (function () {
    * Initialize the controller and other AA objects.
    * Should be called right after the dojo is done passing the HTML content.
    */
-  (this.init = function () {
+  ((this.init = function () {
     // Be careful when adding any new code to initialization, especially
     // dojo widget creation.
     // New code can visibly affect performance old systems (especially IE6).
@@ -143,7 +124,7 @@ ps.aa.controller = new (function () {
       this.treeModel,
       "onBeforeDomChange",
       this,
-      "_onBeforeDomChange"
+      "_onBeforeDomChange",
     );
     dojo.event.connect(this.treeModel, "onDomChanged", this, "_onDomChanged");
 
@@ -164,8 +145,8 @@ ps.aa.controller = new (function () {
     this.activate(ps.aa.Page.getElement(this.pageId));
     this.updateBodyStyles();
     // do these actions asynchroniously, so they won't delay page loading
-    var timeout = dojo.render.html.ie55 || dojo.render.html.ie60 ? 500 : 600;
-    dojo.lang.setTimeout(function () {
+    var timeout = 600;
+    setTimeout(function () {
       _this.asynchInit(ids);
     }, timeout);
   }),
@@ -176,7 +157,7 @@ ps.aa.controller = new (function () {
      */
     (this.updateBodyStyles = function () {
       var bodyElem = document.getElementsByTagName("body")[0];
-      var pageDivElem = dojo.byId("ps.aa.PageContent");
+      var pageDivElem = document.getElementById("ps.aa.PageContent");
       //Get and clear the body element inline styles
       var ilStyles = ps.util.trim(bodyElem.style.cssText);
       bodyElem.style.cssText = "";
@@ -195,11 +176,11 @@ ps.aa.controller = new (function () {
       //Move the class name
       pageDivElem.className = bodyElem.className;
       //Move the id attribute
-      var idAttrib = dojo.html.getAttribute(bodyElem, "id");
+      var idAttrib = bodyElem.getAttribute("id");
       bodyElem.setAttribute("id", idAttrib);
       //Set the body class to the predefined class.
       bodyElem.className = "PsAabody";
-    });
+    }));
 
   /**
    * Run this method with a delay for initialization, which can be done much
@@ -223,7 +204,7 @@ ps.aa.controller = new (function () {
     this.treeWidget.dndInit();
 
     this.contentBrowser = new ps.content.Browse(
-      ps.util.BROWSE_MODE_ACTIVE_ASSEMBLY
+      ps.util.BROWSE_MODE_ACTIVE_ASSEMBLY,
     );
     this.contentBrowser.init(__rxroot);
 
@@ -244,23 +225,18 @@ ps.aa.controller = new (function () {
 
     // init autoscroller
     var nodes = [];
-    nodes.push(dojo.byId("ps.aa.ContentPane"));
+    nodes.push(document.getElementById("ps.aa.ContentPane"));
     nodes.push(dojo.widget.byId("pageTree").domNode);
     this.autoscroller.init(nodes);
 
     // these take long time, so interleave them with main flow
     // to make IE6 more responsive
-    dojo.lang.delayThese(
-      [
-        function () {
-          _this.wfActions.maybeCreateWorkflowDialog();
-        },
-        function () {
-          _this.contentBrowser.maybeCreateBrowseDialog();
-        },
-      ],
-      100
-    );
+    setTimeout(function () {
+      _this.wfActions.maybeCreateWorkflowDialog();
+      setTimeout(function () {
+        _this.contentBrowser.maybeCreateBrowseDialog();
+      }, 100);
+    }, 100);
   };
 
   /**
@@ -270,7 +246,7 @@ ps.aa.controller = new (function () {
    */
   this.adjustLayout = function () {
     var mainPane = dojo.widget.byId("ps.aa.mainSplitPane");
-    var viewport = dojo.html.getViewport();
+    var viewport = { width: window.innerWidth, height: window.innerHeight };
     mainPane.resizeTo(viewport.width, viewport.height);
   };
 
@@ -281,17 +257,20 @@ ps.aa.controller = new (function () {
    * Not <code>null</code>.
    */
   this.activate = function (htmlElem) {
-    dojo.lang.assert(htmlElem);
+    ps.assert(htmlElem);
     var id = null;
     var divElem = null;
-    if (dojo.lang.isOfType(htmlElem, ps.aa.ObjectId)) {
+    if (htmlElem instanceof ps.aa.ObjectId) {
       id = htmlElem;
       divElem = ps.aa.Page.getElement(id);
     } //if (htmlElem.nodeType == Node.ELEMENT_NODE)
     else {
       id = ps.aa.Page.getObjectId(htmlElem);
       //If the id was created from a widget get the page div element.
-      if (id.widget != null || dojo.html.isTag(htmlElem, "a")) {
+      if (
+        id.widget != null ||
+        (htmlElem.tagName && htmlElem.tagName.toLowerCase() === "a")
+      ) {
         divElem = ps.aa.Page.getElement(id);
       } else {
         divElem = htmlElem;
@@ -300,7 +279,7 @@ ps.aa.controller = new (function () {
     var parentId = null;
     if (id.isSnippetNode() && !this.treeModel.root.equals(id)) {
       parentId = ps.aa.Page.getParentId(divElem, id);
-      dojo.lang.assert(parentId);
+      ps.assert(parentId);
     }
 
     this.activeId = id;
@@ -309,7 +288,7 @@ ps.aa.controller = new (function () {
     }
     if (this.treeWidget) this.treeWidget.activate(id);
 
-    //dojo.debug("activate id: " + id.toString());
+    //console.debug("activate id: " + id.toString());
   };
 
   /**
@@ -323,7 +302,7 @@ ps.aa.controller = new (function () {
   /**
    * Is called when the user resized the tree.
    */
-  (this._endTreeSizing = function () {
+  ((this._endTreeSizing = function () {
     var wg = dojo.widget.byId("pageTree");
     if (wg.sizeShare > this.MIN_TREE_WIDTH && !this.isShowTree) {
       // became visible because of resizing
@@ -336,7 +315,7 @@ ps.aa.controller = new (function () {
     (this.showTree = function () {
       this.isShowTree = true;
       this._maybeShowTree();
-    });
+    }));
 
   this.hideTree = function () {
     this.isShowTree = false;
@@ -384,13 +363,13 @@ ps.aa.controller = new (function () {
    * Not <code>null</code>.
    */
   this.toggleTreePane = function (treePaneShowing) {
-    dojo.lang.assert(dojo.lang.isBoolean(treePaneShowing));
+    ps.assert(ps.isBoolean(treePaneShowing));
 
     var wg = dojo.widget.byId("pageTree");
 
     if (!treePaneShowing) {
       this.lastShowingTreePaneWidth = wg.sizeShare;
-      //         dojo.debug(wg.sizeShare);
+      //         console.debug(wg.sizeShare);
       wg.sizeShare = 0;
     } else if (wg.sizeShare < 1) {
       wg.sizeShare =
@@ -410,8 +389,8 @@ ps.aa.controller = new (function () {
    * Not <code>null</code>.
    */
   this._saveTreePaneShowing = function (showing) {
-    dojo.lang.assert(dojo.lang.isBoolean(showing));
-    dojo.io.cookie.setCookie(this._TREE_PANE_SHOWING_COOKIE, showing);
+    ps.assert(ps.isBoolean(showing));
+    ps.util._setCookie(this._TREE_PANE_SHOWING_COOKIE, showing, 365);
   };
 
   /**
@@ -420,7 +399,7 @@ ps.aa.controller = new (function () {
    */
   this._loadTreePaneShowing = function () {
     var wg = dojo.widget.byId("pageTree");
-    var ck = dojo.io.cookie.getCookie(this._TREE_PANE_SHOWING_COOKIE);
+    var ck = ps.util._getCookie(this._TREE_PANE_SHOWING_COOKIE);
     return ck ? eval(ck) : wg.sizeShare > 0;
   };
 
@@ -439,7 +418,7 @@ ps.aa.controller = new (function () {
       undefined,
       false,
       ps.io.Actions,
-      "getSlotContent"
+      "getSlotContent",
     );
   };
 
@@ -476,7 +455,7 @@ ps.aa.controller = new (function () {
       undefined,
       true,
       ps.io.Actions,
-      "getFieldContent"
+      "getFieldContent",
     );
   };
 
@@ -505,18 +484,18 @@ ps.aa.controller = new (function () {
   this._refreshX = function (id, newId, onlyContent, actionObject, action) {
     var notChangedId = null;
 
-    dojo.lang.assertType(id, ps.aa.ObjectId);
-    newId && dojo.lang.assertType(newId, ps.aa.ObjectId);
-    dojo.lang.assertType(onlyContent, Boolean);
-    dojo.lang.assert(actionObject);
-    dojo.lang.assertType(action, String);
+    ps.assertType(id, ps.aa.ObjectId);
+    newId && ps.assertType(newId, ps.aa.ObjectId);
+    ps.assertType(onlyContent, Boolean);
+    ps.assert(actionObject);
+    ps.assertType(action, String);
 
     if (!newId) {
       var newId = id;
     }
 
     var node = ps.aa.Page.getElement(id);
-    var response = dojo.lang.hitch(actionObject, action)(newId, true);
+    var response = actionObject[action].call(actionObject, newId, true);
     ps.io.Actions.maybeReportActionError(response);
     if (response.isSuccess()) {
       var treeModel = this.treeModel;
@@ -532,7 +511,7 @@ ps.aa.controller = new (function () {
           node,
           newId,
           response.getValue(),
-          newId.isSnippetNode()
+          newId.isSnippetNode(),
         );
       } else {
         this._refreshNode(node, newId, response.getValue());
@@ -548,7 +527,7 @@ ps.aa.controller = new (function () {
         // whole page is being changed
         notChangedId = null;
       }
-      dojo.lang.assert(!dojo.lang.isUndefined(notChangedId));
+      ps.assert(typeof notChangedId !== "undefined");
 
       treeModel.fireDomChanged(notChangedId, newId);
     }
@@ -573,23 +552,23 @@ ps.aa.controller = new (function () {
    *    Not <code>null</code>.
    */
   this._refreshNode = function (node, objId, htmlContent) {
-    dojo.lang.assert(node);
-    dojo.lang.assert(node.nodeType === dojo.dom.ELEMENT_NODE);
-    dojo.lang.assertType(objId, ps.aa.ObjectId);
-    dojo.lang.assertType(htmlContent, String);
+    ps.assert(node);
+    ps.assert(node.nodeType === Node.ELEMENT_NODE);
+    ps.assertType(objId, ps.aa.ObjectId);
+    ps.assertType(htmlContent, String);
 
-    var newNodes = dojo.html.createNodesFromText(htmlContent, true);
+    var newNodes = ps.util._createNodesFromText(htmlContent);
     var newNode = ps.util.findNodeById(newNodes, objId.serialize());
-    dojo.lang.assert(
+    ps.assert(
       newNode,
       "Expected html to contain a node with id " +
         objId.serialize() +
         ".\nThe html: " +
-        htmlContent
+        htmlContent,
     );
 
-    var unUsedNode = dojo.dom.replaceNode(node, newNode);
-    dojo.dom.destroyNode(unUsedNode);
+    node.parentNode.replaceChild(newNode, node);
+    node.remove();
   };
 
   /**
@@ -605,12 +584,12 @@ ps.aa.controller = new (function () {
    *    child nodes with the specified HTML content.
    */
   this._refreshNodeContent = function (pnode, id, htmlContent, skipAnchor) {
-    dojo.lang.assert(id, ps.aa.ObjectId);
+    ps.assert(id, ps.aa.ObjectId);
     if (___sys_aamode == 0 && skipAnchor) {
-      var anchorElem = dojo.byId(id.getAnchorId());
-      dojo.lang.assert(
+      var anchorElem = document.getElementById(id.getAnchorId());
+      ps.assert(
         anchorElem,
-        "Could not find anchor with id " + id.getAnchorId()
+        "Could not find anchor with id " + id.getAnchorId(),
       );
       var container = anchorElem.parentNode;
     } else {
@@ -622,19 +601,19 @@ ps.aa.controller = new (function () {
     var childNodes = new Array();
     while (container.hasChildNodes()) {
       childNodes.push(container.firstChild);
-      dojo.dom.removeNode(container.firstChild);
+      container.removeChild(container.firstChild);
     }
 
     // remove all child nodes, except the anchor node if there is one
     for (var i = 0; i < childNodes.length; i++) {
-      if (childNodes[i] != anchorElem) dojo.dom.destroyNode(childNodes[i]);
+      if (childNodes[i] != anchorElem) childNodes[i].remove();
     }
 
     // add the anchor node if there was one
     if (anchorElem != null) container.appendChild(anchorElem);
 
     // append the new nodes to the parent node
-    var newNodes = dojo.html.createNodesFromText(htmlContent, true);
+    var newNodes = ps.util._createNodesFromText(htmlContent);
     for (var i = 0; i < newNodes.length; i++) {
       container.appendChild(newNodes[i]);
     }
@@ -644,13 +623,9 @@ ps.aa.controller = new (function () {
     var _this = this;
     switch (source) {
       case ps.aa.Menu.INSERT_FROM_SLOT:
-        var snippets = dojo.html.getElementsByClass(
-          "PsAaSnippet",
-          document.getElementById(this.activeId.toString()),
-          "div",
-          dojo.html.classMatchType.IsOnly,
-          false
-        );
+        var snippets = Array.from(
+          document.getElementById(this.activeId.toString()).getElementsByTagName("div")
+        ).filter(function (el) { return el.className === "PsAaSnippet"; });
         if (snippets.length < 1) {
           this._openBrowseDlg(this.activeId, null, "before");
         } else {
@@ -660,7 +635,7 @@ ps.aa.controller = new (function () {
             },
             function () {},
             this.activeId,
-            1
+            1,
           );
         }
         break;
@@ -675,7 +650,7 @@ ps.aa.controller = new (function () {
           snSlotId,
           1,
           "before",
-          this.activeId.getRelationshipId()
+          this.activeId.getRelationshipId(),
         );
         break;
     }
@@ -698,7 +673,7 @@ ps.aa.controller = new (function () {
       },
       slotId,
       refRelId,
-      position
+      position,
     );
   };
 
@@ -707,13 +682,9 @@ ps.aa.controller = new (function () {
    * is not empty.
    */
   this.openRemoveSnippetsDlg = function () {
-    var snippets = dojo.html.getElementsByClass(
-      "PsAaSnippet",
-      document.getElementById(this.activeId.toString()),
-      "div",
-      dojo.html.classMatchType.IsOnly,
-      false
-    );
+    var snippets = Array.from(
+      document.getElementById(this.activeId.toString()).getElementsByTagName("div")
+    ).filter(function (el) { return el.className === "PsAaSnippet"; });
     if (snippets.length < 1) {
       alert("The slot is empty.");
       return;
@@ -725,7 +696,7 @@ ps.aa.controller = new (function () {
       },
       function () {},
       this.activeId,
-      0
+      0,
     );
   };
 
@@ -766,13 +737,9 @@ ps.aa.controller = new (function () {
     var _this = this;
     switch (source) {
       case ps.aa.Menu.NEW_FROM_SLOT: //From Slot
-        var snippets = dojo.html.getElementsByClass(
-          "PsAaSnippet",
-          document.getElementById(this.activeId.toString()),
-          "div",
-          dojo.html.classMatchType.IsOnly,
-          false
-        );
+        var snippets = Array.from(
+          document.getElementById(this.activeId.toString()).getElementsByTagName("div")
+        ).filter(function (el) { return el.className === "PsAaSnippet"; });
         if (snippets.length < 1) {
           this._openNewItemDlg(this.activeId, null, "before");
         } else {
@@ -781,12 +748,12 @@ ps.aa.controller = new (function () {
               _this._openNewItemDlg(
                 slotId,
                 _this._getSnippetIdFromRelId(slotId, relId),
-                position
+                position,
               );
             },
             function () {},
             this.activeId,
-            1
+            1,
           );
         }
         break;
@@ -799,14 +766,14 @@ ps.aa.controller = new (function () {
             _this._openNewItemDlg(
               slotId,
               _this._getSnippetIdFromRelId(slotId, relId),
-              position
+              position,
             );
           },
           function () {},
           slotId,
           1,
           "before",
-          this.activeId.getRelationshipId()
+          this.activeId.getRelationshipId(),
         );
         break;
       case ps.aa.Menu.REPLACE_FROM_SNIPPET: //Replace from snippet
@@ -821,7 +788,7 @@ ps.aa.controller = new (function () {
           slotId,
           1,
           "replace",
-          this.activeId.getRelationshipId()
+          this.activeId.getRelationshipId(),
         );
         break;
       case ps.aa.Menu.COPY_FROM_CONTENT: //Copy from Page
@@ -861,12 +828,12 @@ ps.aa.controller = new (function () {
     var okCallBack = function (resultText) {
       newData.itemTitle = resultText;
       var response = ps.io.Actions.getIdByPath(
-        newData.folderPath + "/" + resultText
+        newData.folderPath + "/" + resultText,
       );
       if (response.isSuccess()) {
         alert(
           "Title should be unique under the specified folder.\n" +
-            newData.folderPath
+            newData.folderPath,
         );
         _this.dlg.hide();
         _this._handleCopyItem(itemId, newData);
@@ -903,13 +870,9 @@ ps.aa.controller = new (function () {
     if (!relId) return null;
     var snippetId = null;
     if (relId != null) {
-      var snippets = dojo.html.getElementsByClass(
-        "PsAaSnippet",
-        document.getElementById(slotId.toString()),
-        "div",
-        dojo.html.classMatchType.IsOnly,
-        false
-      );
+      var snippets = Array.from(
+        document.getElementById(slotId.toString()).getElementsByTagName("div")
+      ).filter(function (el) { return el.className === "PsAaSnippet"; });
       for (var i = 0; i < snippets.length; i++) {
         var id = ps.aa.Page.getObjectId(snippets[i]);
         if (id.getRelationshipId() == relId) {
@@ -944,7 +907,7 @@ ps.aa.controller = new (function () {
       function () {},
       slotId,
       itemId,
-      position
+      position,
     );
   };
 
@@ -971,26 +934,26 @@ ps.aa.controller = new (function () {
       newData.sys_contenttypeid,
       newData.folderPath,
       newData.itemPath,
-      newData.itemTitle
+      newData.itemTitle,
     );
     if (!response.isSuccess()) {
       ps.io.Actions.maybeReportActionError(response);
       return;
     }
     var obj = response.getValue();
-    if (dojo.lang.has(obj, "validationError")) {
+    if ("validationError" in obj) {
       if (
         !confirm(
           "The following errors occured while creating the new item\n" +
             obj.validationError +
-            "\nClick OK to open the full editor."
+            "\nClick OK to open the full editor.",
         )
       )
         return;
       var iuresp = ps.io.Actions.getCreateItemUrl(
         newData.folderPath,
         newData.sys_contenttypeid,
-        false
+        false,
       );
       ps.io.Actions.maybeReportActionError(iuresp);
       if (iuresp.isSuccess()) {
@@ -999,7 +962,7 @@ ps.aa.controller = new (function () {
         if (!idresp.isSuccess) {
           alert(
             "Failed to get the folderid for the supplied folder path." +
-              "\nSkipping adding item to folder action."
+              "\nSkipping adding item to folder action.",
           );
         } else {
           url += "&sys_folderid=" + idresp.getValue().id;
@@ -1015,7 +978,7 @@ ps.aa.controller = new (function () {
         parent.newItemWindow = window.open(
           url,
           "PsAaCreateItem",
-          this.PREVIEW_WINDOW_STYLE
+          this.PREVIEW_WINDOW_STYLE,
         );
         parent.newItemWindow.focus();
       }
@@ -1026,7 +989,7 @@ ps.aa.controller = new (function () {
     if (fid == -1) {
       alert(
         "Created the new item but failed to add it to the " +
-          "folder. \n See console.log for more details."
+          "folder. \n See console.log for more details.",
       );
     }
     this.postCreateItem(slotId, itemId, position, newData, cid);
@@ -1062,7 +1025,7 @@ ps.aa.controller = new (function () {
         return;
       }
       var value = response.getValue();
-      dojo.lang.assert(dojo.lang.has(value, "url"));
+      ps.assert("url" in value);
       var newUrl = value.url + "&sys_command=editrc";
       window.location.href = newUrl;
     } else {
@@ -1106,24 +1069,15 @@ ps.aa.controller = new (function () {
     }
     if (position == null) position = "before";
     if (!(position == "before" || position == "after" || position == "replace"))
-      dojo.lang.assert(
-        false,
-        "position must be either before or after or relace"
-      );
-    dojo.lang.assert(
-      slotId,
-      "Slot id must be provided for reposition of snippet"
-    );
-    dojo.lang.assert(
-      slotId.isSlotNode(),
-      "slotId must represent a slot object id"
-    );
-    dojo.lang.assert(newRelId);
+      ps.assert(false, "position must be either before or after or relace");
+    ps.assert(slotId, "Slot id must be provided for reposition of snippet");
+    ps.assert(slotId.isSlotNode(), "slotId must represent a slot object id");
+    ps.assert(newRelId);
 
     var newSnippetId = this._getSnippetIdFromRelId(slotId, newRelId);
-    dojo.lang.assert(newRelId, "Invalid relationship id of new snippet");
+    ps.assert(newRelId, "Invalid relationship id of new snippet");
     var oldSnippetId = this._getSnippetIdFromRelId(slotId, refRelId);
-    dojo.lang.assert(refRelId, "Invalid relationship id of reference snippet");
+    ps.assert(refRelId, "Invalid relationship id of reference snippet");
 
     var oldItemIndex = oldSnippetId.getSortRank();
     var newItemIndex = newSnippetId.getSortRank();
@@ -1147,7 +1101,7 @@ ps.aa.controller = new (function () {
     //Remove the item id from slot if position is replace
     if (position == "replace") {
       var response = ps.io.Actions.removeSnippet(
-        oldSnippetId.getRelationshipId()
+        oldSnippetId.getRelationshipId(),
       );
       ps.io.Actions.maybeReportActionError(response);
     }
@@ -1173,7 +1127,7 @@ ps.aa.controller = new (function () {
       "TOOL_LINK_TO_PAGE",
       this.PREVIEW_WINDOW_STYLE,
       this.activeId,
-      "PSAaSnippetWindow"
+      "PSAaSnippetWindow",
     );
   };
 
@@ -1182,7 +1136,7 @@ ps.aa.controller = new (function () {
    */
   this.refreshBrowseWindow = function () {
     if (!this.contentBrowser.wgtDlg.isShowing()) {
-      dojo.debug("No need to refresh, the content browser is closed.");
+      console.debug("No need to refresh, the content browser is closed.");
       return;
     }
     this.contentBrowser.currentTab.refreshBrowser();
@@ -1200,7 +1154,7 @@ ps.aa.controller = new (function () {
       "PREVIEW_PAGE",
       this.PREVIEW_WINDOW_STYLE,
       this._previewObjIdFromParamMap(paramMap),
-      this.PREVIEW_WINDOW_NAME
+      this.PREVIEW_WINDOW_NAME,
     );
   };
 
@@ -1222,7 +1176,7 @@ ps.aa.controller = new (function () {
       this.PREVIEW_WINDOW_STYLE,
       this._previewObjIdFromParamMap(paramMap),
       this.PREVIEW_WINDOW_NAME,
-      additionalParams
+      additionalParams,
     );
   };
 
@@ -1249,7 +1203,7 @@ ps.aa.controller = new (function () {
     objId[ps.aa.ObjectId.PARENT_ID] = "";
     objId[ps.aa.ObjectId.FIELD_LABEL] = "";
     objId[ps.aa.ObjectId.SORT_RANK] = "";
-    return new ps.aa.ObjectId(dojo.json.serialize(objId));
+    return new ps.aa.ObjectId(JSON.stringify(objId));
   };
 
   /**
@@ -1285,7 +1239,7 @@ ps.aa.controller = new (function () {
   this.showItemRelationships = function () {
     this.openWindow(
       "TOOL_SHOW_AA_RELATIONSHIPS",
-      this._getSizedStyle(null, null, 500)
+      this._getSizedStyle(null, null, 500),
     );
   };
 
@@ -1306,7 +1260,7 @@ ps.aa.controller = new (function () {
   this.createVersion = function () {
     this.openWindow(
       "ACTION_Edit_PromotableVersion",
-      this._getSizedStyle(null, 800, 700)
+      this._getSizedStyle(null, 800, 700),
     );
   };
 
@@ -1318,8 +1272,8 @@ ps.aa.controller = new (function () {
     var tmpId = this.activeId;
     var url = this._getUrl("TOOL_LINK_TO_PAGE", tmpId);
     if (url == null) {
-      dojo.debug(
-        "Failed to get link for item id = " + this.activeId.getContentId()
+      console.debug(
+        "Failed to get link for item id = " + this.activeId.getContentId(),
       );
       return;
     }
@@ -1422,12 +1376,12 @@ ps.aa.controller = new (function () {
     wStyle,
     objectId,
     wName,
-    additionalParams
+    additionalParams,
   ) {
     var url = this._getUrl(windowType, objectId);
     if (url == null) return;
     if (additionalParams != null && additionalParams != undefined) {
-      dojo.lang.forEach(additionalParams, function (param) {
+      additionalParams.forEach(function (param) {
         url = url + "&" + param.name + "=" + param.value;
       });
     }
@@ -1459,7 +1413,7 @@ ps.aa.controller = new (function () {
         _this._handleTemplateChange(newSnippetId, snippetId);
       },
       function () {},
-      this.activeId
+      this.activeId,
     );
   };
 
@@ -1524,7 +1478,7 @@ ps.aa.controller = new (function () {
    */
   this._handleTemplateChange = function (newSnippetId, snippetId) {
     var response = ps.io.Actions.getItemSortRank(
-      newSnippetId.getRelationshipId()
+      newSnippetId.getRelationshipId(),
     );
     if (response.isSuccess()) {
       var rank = parseInt(response.getValue());
@@ -1533,7 +1487,7 @@ ps.aa.controller = new (function () {
         newSnippetId,
         newSnippetId.getSlotId(),
         newSnippetId.getTemplateId(),
-        rank
+        rank,
       );
       if (!resp.isSuccess()) {
         ps.io.Actions.maybeReportActionError(resp);
@@ -1630,13 +1584,13 @@ ps.aa.controller = new (function () {
         return false;
       }
       var value = response.getValue();
-      dojo.lang.assert(dojo.lang.has(value, "url"));
+      ps.assert("url" in value);
       ceurl = value.url;
     }
     this.psCeWindow = window.open(
       ceurl,
       this.CE_EDIT_ITEM_WINDOW,
-      this.PREVIEW_WINDOW_STYLE
+      this.PREVIEW_WINDOW_STYLE,
     );
     this.psCeWindow.focus();
   };
@@ -1649,7 +1603,7 @@ ps.aa.controller = new (function () {
     this.refreshFieldsOnPage(
       this.editObjectId.getContentId(),
       null,
-      this.psCeWindow
+      this.psCeWindow,
     );
     //Reset the tree label
     this._resetTreeLabel(sysTitle);
@@ -1678,7 +1632,7 @@ ps.aa.controller = new (function () {
       return null;
     }
     var value = response.getValue();
-    dojo.lang.assert(dojo.lang.has(value, "url"));
+    ps.assert("url" in value);
     return value.url;
   };
 
@@ -1700,9 +1654,9 @@ ps.aa.controller = new (function () {
     if (this.editObjectId.isFieldNode()) parentNd = parentNd.parentNode;
     parentNd.clearLabel();
     var id = parentNd.objId.serialize();
-    var divElem = dojo.byId(id);
-    dojo.lang.assert(divElem, "Cannot find DIV element with id=" + id);
-    var oldtitle = dojo.html.getAttribute(divElem, "psAaLabel");
+    var divElem = document.getElementById(id);
+    ps.assert(divElem, "Cannot find DIV element with id=" + id);
+    var oldtitle = divElem.getAttribute("psAaLabel");
     if (newtitle != oldtitle) {
       divElem.setAttribute("psAaLabel", newtitle);
       this.updateTreeWidget();
@@ -1737,7 +1691,7 @@ ps.aa.controller = new (function () {
     // gets the affected parent/owner nodes
     var response = ps.io.Actions.getInlinelinkParentIds(
       contentId,
-      allContentIds.toArray()
+      allContentIds.toArray(),
     );
     ps.io.Actions.maybeReportActionError(response);
     if (response.isSuccess()) {
@@ -1767,7 +1721,7 @@ ps.aa.controller = new (function () {
     // refresh the related nodes
     for (var i = 0; i < results.count; i++) {
       var result = results.item(i);
-      dojo.lang.assertType(result, ps.aa.ObjectId);
+      ps.assertType(result, ps.aa.ObjectId);
       if (result.isFieldNode()) {
         this.refreshField(result, null);
       } else if (result.isSnippetNode()) {
@@ -1805,7 +1759,7 @@ ps.aa.controller = new (function () {
     var snippet = this._getSnippetNode(ps.aa.Page.activeDiv);
     if (snippet) {
       var snippetId = ps.aa.Page.getObjectId(snippet);
-      dojo.lang.assert(snippetId);
+      ps.assert(snippetId);
 
       var treeNode = this.treeModel.getNodeById(snippetId);
       var nodeIndex = treeNode.getIndex();
@@ -1837,7 +1791,7 @@ ps.aa.controller = new (function () {
     var snippet = this._getSnippetNode(ps.aa.Page.activeDiv);
     if (snippet) {
       var snippetId = ps.aa.Page.getObjectId(snippet);
-      dojo.lang.assert(snippetId);
+      ps.assert(snippetId);
 
       var treeNode = this.treeModel.getNodeById(snippetId);
       var nodeIndex = treeNode.getIndex();
@@ -1879,13 +1833,13 @@ ps.aa.controller = new (function () {
    * this method returns, e.g. if user cancels template selection dialog.
    */
   this.moveToSlot = function (move) {
-    dojo.lang.assertType(move, ps.aa.SnippetMove);
+    ps.assertType(move, ps.aa.SnippetMove);
 
     var response = ps.io.Actions.moveToSlot(
       move.getSnippetId(),
       move.getTargetSlotId().getSlotId(),
       move.getTargetSnippetId().getTemplateId(),
-      move.getTargetIndex()
+      move.getTargetIndex(),
     );
 
     var success = this._handleMoveToSlotResponse(response, move);
@@ -1904,8 +1858,8 @@ ps.aa.controller = new (function () {
    * @see #moveToSlot
    */
   this._handleMoveToSlotResponse = function (response, move) {
-    dojo.lang.assertType(response, ps.io.Response);
-    dojo.lang.assertType(move, ps.aa.SnippetMove);
+    ps.assertType(response, ps.io.Response);
+    ps.assertType(move, ps.aa.SnippetMove);
 
     if (response.isSuccess()) {
       this.maybeRefreshMovedSnippetNode(move, true);
@@ -1919,7 +1873,7 @@ ps.aa.controller = new (function () {
         return false;
       }
       var response = ps.io.Actions.getAllowedSnippetTemplates(
-        move.getTargetSnippetId()
+        move.getTargetSnippetId(),
       );
 
       // handle failure
@@ -1929,22 +1883,22 @@ ps.aa.controller = new (function () {
       }
 
       var value = response.getValue();
-      dojo.lang.assert(dojo.lang.has(value, "count"));
-      dojo.lang.assert(dojo.lang.has(value, "templateHtml"));
+      ps.assert("count" in value);
+      ps.assert("templateHtml" in value);
 
       if (value.count == 0) {
         ps.error("There are no templates, configured for the target slot!");
         return false;
       } else if (value.count == 1) {
-        var nodes = dojo.html.createNodesFromText(value.templateHtml, true);
+        var nodes = ps.util._createNodesFromText(value.templateHtml);
         // 1 extra node is for the "Cancel" button
-        dojo.lang.assert(
+        ps.assert(
           nodes.length - 1 === 1,
-          "Got more than 1 node from " + value.templateHtml
+          "Got more than 1 node from " + value.templateHtml,
         );
         var snippetDiv = nodes[0];
         move.setTargetSnippetId(ps.aa.Page.getObjectId(snippetDiv));
-        dojo.dom.destroyNode(snippetDiv);
+        snippetDiv.remove();
         delete snippetDiv;
 
         var result = this.moveToSlot(move);
@@ -1956,7 +1910,7 @@ ps.aa.controller = new (function () {
         this.templatesDlg.open(
           this._onMoveToSlotTemplateSelected,
           this._onSnippetTemplateSelectionDialogCancelled,
-          move.getTargetSnippetId()
+          move.getTargetSnippetId(),
         );
 
         // *do not* refresh snippet from backend, because the snippet
@@ -1969,7 +1923,7 @@ ps.aa.controller = new (function () {
       ps.io.Actions.maybeReportActionError(response);
       return false;
     }
-    dojo.lang.assert(false, "Should not reach here");
+    ps.assert(false, "Should not reach here");
   };
 
   /**
@@ -1982,7 +1936,7 @@ ps.aa.controller = new (function () {
    * Not <code>null</code>.
    */
   this.maybeRefreshMovedSnippetNode = function (move, moved) {
-    dojo.lang.assertType(move, ps.aa.SnippetMove);
+    ps.assertType(move, ps.aa.SnippetMove);
 
     if (moved) {
       if (move.getDontUpdatePage()) {
@@ -2010,11 +1964,11 @@ ps.aa.controller = new (function () {
    * @param {ps.aa.ObjectId} the objectId of the old snippet.
    */
   this._onMoveToSlotTemplateSelected = function (newSnippetId, snippetId) {
-    dojo.lang.assert(newSnippetId, ps.aa.ObjectId);
-    dojo.lang.assert(snippetId, ps.aa.ObjectId);
+    ps.assert(newSnippetId, ps.aa.ObjectId);
+    ps.assert(snippetId, ps.aa.ObjectId);
 
     var move = this.snippetMove;
-    dojo.lang.assert(move);
+    ps.assert(move);
     move.setTargetSnippetId(newSnippetId);
     var result = this.controller.moveToSlot(move);
     if (!result) {
@@ -2035,7 +1989,7 @@ ps.aa.controller = new (function () {
     // notes, 'this' is in the context of 'ps.content.SelectTemplates', but
     // not in the context of 'ps.aa.controller'
     var move = this.snippetMove;
-    dojo.lang.assert(move);
+    ps.assert(move);
 
     this.controller.refreshSlot(move.getSlotId());
     this.controller.refreshSlot(move.getTargetSlotId());
@@ -2063,10 +2017,10 @@ ps.aa.controller = new (function () {
    * Otherwise returns <code>false</code>.
    */
   this.reorderSnippetInSlot = function (snippetId, targetIndex) {
-    dojo.lang.assertType(snippetId, ps.aa.ObjectId);
-    dojo.lang.assert(
-      dojo.lang.isNumeric(targetIndex),
-      "Can't be interpreted as number: \"" + targetIndex + '"'
+    ps.assertType(snippetId, ps.aa.ObjectId);
+    ps.assert(
+      ps.isNumeric(targetIndex),
+      "Can't be interpreted as number: \"" + targetIndex + '"',
     );
     var response = ps.io.Actions.move(snippetId, "reorder", targetIndex);
     ps.io.Actions.maybeReportActionError(response);
@@ -2080,8 +2034,8 @@ ps.aa.controller = new (function () {
    * @param {ps.aa.ObjectId} newId The new id.
    */
   this.replaceId = function (oldId, newId) {
-    dojo.lang.assert(dojo.lang.isOfType(oldId, ps.aa.ObjectId));
-    dojo.lang.assert(dojo.lang.isOfType(newId, ps.aa.ObjectId));
+    ps.assert(oldId instanceof ps.aa.ObjectId);
+    ps.assert(newId instanceof ps.aa.ObjectId);
 
     var oldIds = new Array();
     oldIds[0] = oldId;
@@ -2098,9 +2052,9 @@ ps.aa.controller = new (function () {
    * @param {Array of ps.aa.ObjectId} newIds The new ids.
    */
   this.replaceIds = function (oldIds, newIds) {
-    dojo.lang.assert(dojo.lang.isArray(oldIds));
-    dojo.lang.assert(dojo.lang.isArray(newIds));
-    dojo.lang.assert(oldIds.length === newIds.length);
+    ps.assert(Array.isArray(oldIds));
+    ps.assert(Array.isArray(newIds));
+    ps.assert(oldIds.length === newIds.length);
 
     // use function instead of a var, because it can change
     var _this = this;
@@ -2147,8 +2101,8 @@ ps.aa.controller = new (function () {
    */
   this._replaceDomId = function (oldId, newId) {
     function changeElementId(id1, id2) {
-      var elem = dojo.byId(id1);
-      dojo.lang.assert(elem != null);
+      var elem = document.getElementById(id1);
+      ps.assert(elem != null);
       elem.id = id2;
     }
 
@@ -2160,7 +2114,7 @@ ps.aa.controller = new (function () {
     //    tree Model, which is to avoid rebuild treeModel
     //         this._replaceDomId(oldId.getTreeNodeWidgetId(), newId.getTreeNodeWidgetId());
     //         var node = this.treeModel.getNodeById(oldId);
-    //         dojo.lang.assert(node != null);
+    //         ps.assert(node != null);
     //         node.objId = newId;;
   };
 
@@ -2193,13 +2147,15 @@ ps.aa.controller = new (function () {
    * @param objId objectid of the managed object, must not be null.
    */
   this.refreshImageForObject = function (objId) {
-    dojo.lang.assertType(objId, ps.aa.ObjectId);
+    ps.assertType(objId, ps.aa.ObjectId);
     if (___sys_aamode == 1) return;
-    var anchor = dojo.byId(objId.getAnchorId());
-    var imgElem = dojo.dom.getFirstChildElement(anchor);
+    var anchor = document.getElementById(objId.getAnchorId());
+    var imgElem = anchor.firstElementChild;
     if (imgElem == null) {
-      dojo.debug(
-        "Image element for the objectid = " + objId.serialize() + "is not found"
+      console.debug(
+        "Image element for the objectid = " +
+          objId.serialize() +
+          "is not found",
       );
       return;
     } else {
@@ -2333,11 +2289,11 @@ ps.aa.controller = new (function () {
    * AAAbout -- opens the Active Assembly About Dialog.
    */
   this.openHelpWindow = function (windowName) {
-    dojo.lang.assert(
+    ps.assert(
       windowName === ps.aa.Menu.AAHELP ||
         windowName === ps.aa.Menu.AATUTORIAL ||
         windowName === ps.aa.Menu.AAABOUT,
-      "Unexpected windowName " + windowName
+      "Unexpected windowName " + windowName,
     );
     if (windowName == ps.aa.Menu.AAHELP) {
       var hwin = window.open(this.helpUrl, windowName);
@@ -2353,11 +2309,11 @@ ps.aa.controller = new (function () {
           href: this.helpAboutUrl,
         },
         "510px",
-        "400px"
+        "400px",
       );
       dlg.show();
     } else {
-      dojo.lang.assert(false, "Unhandled window " + windowName);
+      ps.assert(false, "Unhandled window " + windowName);
     }
   };
 
@@ -2370,8 +2326,7 @@ ps.aa.controller = new (function () {
   this.enableConflictStyleSheets = function (enabled) {
     if (this._aaConflictStyleSheets == null) {
       var ss = ps.util.getServerProperty("AaConflictStyleSheets", "");
-      this._aaConflictStyleSheets =
-        ss == "" ? [] : dojo.string.splitEscaped(ss, ",");
+      this._aaConflictStyleSheets = ss == "" ? [] : ss.split(",");
     }
     for (var i = 0; i < this._aaConflictStyleSheets.length; i++) {
       ps.util.enableStyleSheet(this._aaConflictStyleSheets[i], enabled);

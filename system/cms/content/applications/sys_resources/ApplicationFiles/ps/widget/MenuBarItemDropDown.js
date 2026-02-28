@@ -8,9 +8,7 @@
  *
  *****************************************************************************/
 
-dojo.provide("ps.widget.MenuBarItemDropDown");
-
-dojo.require("dojo.widget.Menu2");
+// ps.widget.MenuBarItemDropDown — dojo.provide/require removed (jQuery + ps/compat.js)
 
 /**
  * Extends the dojo MenuBarItem2 to add the the decoration to indicate it is a

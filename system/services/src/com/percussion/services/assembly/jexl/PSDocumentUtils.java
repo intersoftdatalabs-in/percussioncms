@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,6 @@ import com.percussion.util.PSCharSets;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.utils.timing.PSStopwatchStack;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.BasicScheme;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -48,14 +41,20 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Base64;
 
 /**
  * Utilities to make document requests from a velocity macro
- * 
+ *
  * @author dougrand
  */
 public class PSDocumentUtils extends PSJexlUtilBase
@@ -63,17 +62,16 @@ public class PSDocumentUtils extends PSJexlUtilBase
    /**
     * Calls the specified URL and returns the result document data or an empty
     * string on error.
-    * 
+    *
     * @param url The url, must not be <code>null</code> or empty
     * @return the result document data
-    * @throws HttpException
     * @throws IOException
-    * @throws ServletException 
+    * @throws ServletException
     */
    @IPSJexlMethod(description = "Calls the specified URL and returns the "
          + "result document data or an empty string on error.", params =
    {@IPSJexlParam(name = "url", description = "The url, must not be null or empty.")})
-   public String getDocument(String url) throws HttpException, IOException, ServletException
+   public String getDocument(String url) throws IOException, ServletException
    {
       return getDocument(url, null, null);
    }
@@ -81,14 +79,13 @@ public class PSDocumentUtils extends PSJexlUtilBase
    /**
     * Calls the specified URL and returns the result document data or an empty
     * string on error.
-    * 
+    *
     * @param url The url, must not be <code>null</code> or empty
     * @param user The username, may be <code>null</code> or empty
     * @param password The password, may be <code>null</code> or empty
     * @return the result document
-    * @throws HttpException
     * @throws IOException
-    * @throws ServletException 
+    * @throws ServletException
     */
    @IPSJexlMethod(description = "Calls the specified URL and returns the "
          + "result document data or an empty string on error.", params =
@@ -97,7 +94,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
          @IPSJexlParam(name = "user", description = "The user name, may be null or empty."),
          @IPSJexlParam(name = "password", description = "The password, may be null or empty.")})
    public String getDocument(String url, String user, String password)
-         throws HttpException, IOException, ServletException
+         throws IOException, ServletException
    {
       PSStopwatchStack sws = PSStopwatchStack.getStack();
       sws.start(getClass().getCanonicalName() + "#getDocument");
@@ -128,7 +125,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
     * Rhythmyx web application. This should only be called if the url starts
     * with the context for Rhythmyx. The context will be set on the called
     * request, along with the parsed out parameters and such.
-    * 
+    *
     * @param url the url, never <code>null</code> or empty
     * @return the resulting document, never <code>null</code>
     * @throws IOException
@@ -140,16 +137,16 @@ public class PSDocumentUtils extends PSJexlUtilBase
       try
       {
          PSRequest psreq = PSThreadRequestUtils.changeToInternalRequest(true);
-         PSServletRequestWrapper reqwrapper = (PSServletRequestWrapper) 
+         PSServletRequestWrapper reqwrapper = (PSServletRequestWrapper)
             psreq.getServletRequest();
-         MockHttpServletRequest req = 
+         MockHttpServletRequest req =
             (MockHttpServletRequest) reqwrapper.getRequest();
          if (!PSRequestInfo.isInited())
          {
             PSRequestInfo.initRequestInfo(req);
          }
          PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, psreq);
-         
+
          req.setMethod("GET");
          String rxroot = PSServer.getRequestRoot();
          req.setContextPath(rxroot);
@@ -180,7 +177,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
             req.setParameter(name, value);
          }
          // Invoke and return
-         
+
          MockHttpServletResponse resp = (MockHttpServletResponse) PSServletUtils
                .callServlet(req);
          resp.setCharacterEncoding(PSCharSets.rxStdEnc());
@@ -193,9 +190,9 @@ public class PSDocumentUtils extends PSJexlUtilBase
    }
 
    /**
-    * Call an external url for a document using the given user name and 
-    * password. 
-    * 
+    * Call an external url for a document using the given user name and
+    * password.
+    *
     * @param url the url of the request, assumed not <code>null</code>
     * @param user the user name, may be <code>null</code>
     * @param password the password, may be <code>null</code>
@@ -203,31 +200,39 @@ public class PSDocumentUtils extends PSJexlUtilBase
     * @throws UnknownHostException
     * @throws MalformedURLException
     * @throws IOException
-    * @throws HttpException
     */
-   private String getExternalDocument(String url, String user, String password) throws UnknownHostException, MalformedURLException, IOException, HttpException
+   private String getExternalDocument(String url, String user, String password)
+         throws UnknownHostException, MalformedURLException, IOException
    {
-      HttpClient client = new HttpClient();
-      client.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+      HttpClient client =
+            HttpClient.newBuilder()
+                  .followRedirects(HttpClient.Redirect.NORMAL)
+                  .connectTimeout(Duration.ofSeconds(30))
+                  .build();
 
-      HttpMethod method = new GetMethod(url);
+      HttpRequest.Builder requestBuilder =
+            HttpRequest.newBuilder(URI.create(url))
+                  .GET()
+                  .timeout(Duration.ofSeconds(60));
+
       if (user != null && password != null)
       {
-         UsernamePasswordCredentials cred = new UsernamePasswordCredentials(
-               user, password);
-         String header = BasicScheme.authenticate(cred);
-         method.addRequestHeader("Authorization", header);
+         String token = Base64.getEncoder().encodeToString(
+               (user + ":" + password).getBytes(StandardCharsets.UTF_8));
+         requestBuilder.header("Authorization", "Basic " + token);
       }
-      int stat = client.executeMethod(method);
-      if (stat == 200)
+
+      try
       {
-         String rval = method.getResponseBodyAsString();
-         method.releaseConnection();
-         return rval;
+         HttpResponse<String> response = client.send(
+               requestBuilder.build(),
+               HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+         return response.statusCode() == 200 ? response.body() : "";
       }
-      else
+      catch (InterruptedException e)
       {
-         return "";
+         Thread.currentThread().interrupt();
+         throw new IOException("Interrupted while retrieving document from " + url, e);
       }
    }
 
@@ -239,7 +244,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
     * Note that the input document does not need to be xml compliant. The
     * underlying implementation simply looks for start and end body tags,
     * without regard for syntactical correctness.
-    * 
+    *
     * @param rval the original result data, never <code>null</code>
     * @return the body content or the entire content if there is no body element
     * @throws IOException
@@ -291,7 +296,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
 
    /**
     * Extract the body from the byte stream from the text.
-    * 
+    *
     * @param input an html document
     * @return the body content or the entire document if there is no body
     *         element

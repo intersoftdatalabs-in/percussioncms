@@ -14,9 +14,9 @@
  * While changing this file consider moving functions to separate modules.
  */
 
-dojo.provide("ps.util");
+// ps.util — dojo.provide removed (jQuery + ps/compat.js)
 
-ps.util = new (function () {})();
+ps.util = ps.util || {};
 
 /**
  * Utility method to add a parameter to the URL.
@@ -67,13 +67,13 @@ ps.util.error = function (error) {
   var debugObj;
   if (!error) {
     var message = "An Error Occured!";
-  } else if (dojo.lang.isString(error)) {
+  } else if (typeof error === "string") {
     var message = error;
   } else if (error instanceof ps.io.Response) {
-    dojo.lang.assert(
+    ps.assert(
       !error.isSuccess(),
       "error() was called with ps.io.Response indicating success. " +
-        "It should be called on an error only."
+        "It should be called on an error only.",
     );
     ps.util.error(error.getValue());
     return;
@@ -84,9 +84,9 @@ ps.util.error = function (error) {
     debugObj = true;
     var message = "An Unrecognized Error Occured!";
   }
-  dojo.debug(message);
+  console.debug(message);
   if (debugObj) {
-    dojo.debug(error);
+    console.debug(error);
   }
   alert(message);
 };
@@ -100,13 +100,15 @@ ps.util.error = function (error) {
  * id was not found.
  */
 ps.util.findNodeById = function (nodes, id) {
-  dojo.lang.assert(dojo.lang.isArrayLike(nodes));
-  dojo.lang.assertType(id, String);
+  ps.assert(
+    Array.isArray(nodes) || (nodes && typeof nodes.length === "number"),
+  );
+  ps.assertType(id, String);
 
   // check nodes of this level
   for (var i in nodes) {
     var node = nodes[i];
-    if (node.id === id && node.nodeType === dojo.html.ELEMENT_NODE) {
+    if (node.id === id && node.nodeType === Node.ELEMENT_NODE) {
       return node;
     }
   }
@@ -114,7 +116,7 @@ ps.util.findNodeById = function (nodes, id) {
   // recursively check each of the children
   for (var i in nodes) {
     var node = nodes[i];
-    if (node.nodeType === dojo.html.ELEMENT_NODE) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
       var foundNode = ps.util.findNodeById(node.childNodes, id);
       if (foundNode) {
         return foundNode;
@@ -132,20 +134,20 @@ ps.util.findNodeById = function (nodes, id) {
  * Not <code>null</code>.
  */
 ps.util.swapNodes = function (node1, node2) {
-  dojo.lang.assert(node1);
-  dojo.lang.assert(node2);
+  ps.assert(node1);
+  ps.assert(node2);
 
   var parent1 = node1.parentNode;
   var parent2 = node2.parentNode;
-  dojo.lang.assert(parent1);
-  dojo.lang.assert(parent2);
+  ps.assert(parent1);
+  ps.assert(parent2);
 
   var marker = document.createElement("div");
   parent1.insertBefore(marker, node1);
   parent2.insertBefore(node1, node2);
   parent1.insertBefore(node2, marker);
 
-  dojo.html.destroyNode(marker);
+  marker.remove();
 };
 
 /**
@@ -195,7 +197,8 @@ ps.util.getScreenSize = function (win, useInner) {
  * @param {int} height the preferred height for the dialog.
  */
 ps.util.setDialogSize = function (dialog, width, height) {
-  dojo.lang.assertType(dialog, dojo.widget.FloatingPane);
+  // FloatingPane type check kept for A5 widget migration
+  ps.assert(dialog, "Dialog must be specified");
   var scrSize = ps.util.getScreenSize();
   var pHeight = height * 0.96;
   var pWidth = width * 0.96;
@@ -211,8 +214,10 @@ ps.util.setDialogSize = function (dialog, width, height) {
  * its size.
  */
 ps.util.getDialogSize = function (dialog) {
-  dojo.lang.assertType(dialog, dojo.widget.FloatingPane);
-  return dojo.html.getMarginBox(dialog.domNode);
+  // FloatingPane type check kept for A5 widget migration
+  ps.assert(dialog, "Dialog must be specified");
+  var dn = dialog.domNode;
+  return { width: $(dn).outerWidth(true), height: $(dn).outerHeight(true) };
 };
 
 /**
@@ -225,7 +230,8 @@ ps.util.getDialogSize = function (dialog) {
  *  used if get dialog size returns zero.
  */
 ps.util.forceDialogResize = function (dialog, preferredWidth, preferredHeight) {
-  dojo.lang.assertType(dialog, dojo.widget.FloatingPane);
+  // FloatingPane type check kept for A5 widget migration
+  ps.assert(dialog, "Dialog must be specified");
   var size = ps.util.getDialogSize(dialog);
   var width = size.width > 0 ? size.width : preferredWidth;
   var height = size.height > 0 ? size.height : preferredHeight;
@@ -243,9 +249,8 @@ ps.util.forceDialogResize = function (dialog, preferredWidth, preferredHeight) {
  * mouse is currently hovering over this div tag.
  */
 ps.util.handleIE6FieldDivHover = function (div, isHovering) {
-  if (!dojo.render.html.ie || dojo.render.html.ie70) return;
-  var color = isHovering ? "#ffc" : "";
-  div.style.backgroundColor = color;
+  // IE6/7 workaround removed — modern browsers handle CSS :hover
+  return;
 };
 
 /**
@@ -255,9 +260,9 @@ ps.util.handleIE6FieldDivHover = function (div, isHovering) {
  * Not <code>null</code>
  */
 ps.util.getVisibleSides = function (element) {
-  dojo.lang.assert(element, "Element must be specified");
+  ps.assert(element, "Element must be specified");
 
-  var box = dojo.html.getBorderBox(element);
+  var box = element.getBoundingClientRect();
   var visible = ps.util.getVisiblePosition(element);
 
   var top = visible.y;
@@ -278,7 +283,7 @@ ps.util.getVisiblePosition = function (node) {
     var result = 0;
     var n = node;
     while (n) {
-      var dpixels = dojo.html.getPixelValue(n, styleAttr);
+      var dpixels = parseInt(getComputedStyle(n)[styleAttr], 10) || 0;
       if (dpixels) {
         result += dpixels;
       }
@@ -302,7 +307,7 @@ ps.util.getVisiblePosition = function (node) {
  * dialog as not resizable otherwise resizable.
  */
 ps.util.createDialog = function (params, width, height, isResizable) {
-  dojo.lang.assert(params, "Parameters should be specifed");
+  ps.assert(params, "Parameters should be specifed");
   var isRes = true;
   if (isResizable == false) {
     isRes = false;
@@ -330,7 +335,7 @@ ps.util.createDialog = function (params, width, height, isResizable) {
     executeScripts: true,
     cacheContent: false,
   };
-  dojo.lang.mixin(p, params);
+  Object.assign(p, params);
 
   return dojo.widget.createWidget("ModalFloatingPane", p, div);
 };
@@ -380,19 +385,19 @@ ps.util.ShowPageLinkDialog = function (text) {
       executeScripts: true,
       resizable: false,
     },
-    div
+    div,
   );
 
   //couldn't use Dojo's dojo.event.connect, it wouldn't work for onfocus (??)
   dlg.setContent(
     '<input onfocus="ps.util.selectAll(event)" id="ps.util.wgtShowPageLink" type="text" size="60" readonly="true" value="' +
       text +
-      '" />'
+      '" />',
   );
   ps.util.setDialogSize(dlg, 440, 70);
   dlg.show();
 
-  var foo = dojo.byId("ps.util.wgtShowPageLink");
+  var foo = document.getElementById("ps.util.wgtShowPageLink");
   foo.focus();
 };
 
@@ -407,11 +412,11 @@ ps.util.ShowPageLinkDialog = function (text) {
  * textRequired: (boolean) alerts user for non empty text on OK click., Default:false
  * okBtnText: (String)Text to show on OK button, Default : OK
  * cancelBtnText: (String)Text to show on Cancel button, Default: Cancel
- * okBtnCallBack: (function)Callback function for Ok button pressed, 
+ * okBtnCallBack: (function)Callback function for Ok button pressed,
  *    Default:does nothing
- * cancelBtnCallBack: (function)Callback function for Cancel button pressed, 
- * if not 
- * It is callers responsibility to close the dialog by calling hide method. 
+ * cancelBtnCallBack: (function)Callback function for Cancel button pressed,
+ * if not
+ * It is callers responsibility to close the dialog by calling hide method.
  * @param options array of options, if provided must be an object of array.
 
  * @return dojo dialog object.
@@ -455,13 +460,13 @@ ps.util.CreatePromptDialog = function (options) {
       executeScripts: true,
       resizable: false,
     },
-    div
+    div,
   );
 
   dojo.event.connect(this.wgtDlg, "onLoad", function () {
     _this.wgtButtonOk = dojo.widget.byId("ps.util.promptButtonSelect");
     _this.wgtButtonCancel = dojo.widget.byId("ps.util.promptButtonCancel");
-    _this.wgtPromptText = dojo.byId("ps.util.promptInput");
+    _this.wgtPromptText = document.getElementById("ps.util.promptInput");
     _this.wgtButtonCancel.onClick = function () {
       if (_this.cancelBtnCallBack) {
         _this.cancelBtnCallBack(_this.wgtPromptText.value);
@@ -536,7 +541,7 @@ ps.util.compareIgnoreCase = function (s1, s2) {
  */
 ps.util.trim = function (str) {
   if (!str) return "";
-  dojo.lang.assertType(str, String);
+  ps.assertType(str, String);
   return str.replace(/^\s\s*/, "").replace(/\s\s*$/, "");
 };
 
@@ -551,7 +556,7 @@ ps.util.trim = function (str) {
  */
 ps.util.getElementStyleSheetCss = function (elemName, clearStyle) {
   if (!elemName || ps.util.trim(elemName).length < 1) return "";
-  dojo.lang.assertType(elemName, String);
+  ps.assertType(elemName, String);
   var clrStyle = clearStyle && clearStyle == true;
   var elemStyles = "";
   elemName = ps.util.trim(elemName).toLowerCase();
@@ -583,13 +588,13 @@ ps.util.getElementStyleSheetCss = function (elemName, clearStyle) {
  */
 ps.util.enableStyleSheet = function (fileName, enabled) {
   if (!fileName || ps.util.trim(fileName).length < 1) return;
-  dojo.lang.assertType(fileName, String);
+  ps.assertType(fileName, String);
   var sheets = document.styleSheets;
   fileName = fileName.toLowerCase();
   for (var i = 0; i < sheets.length; i++) {
     var sheet = sheets[i];
     var href = ps.util.trim(sheet.href).toLowerCase();
-    if (dojo.string.endsWith(href, fileName)) {
+    if (href.endsWith(fileName)) {
       sheet.disabled = !enabled;
     }
   }
@@ -636,7 +641,7 @@ ps.util.addPlaceholders = function (doc) {
  * @return the property value or default value. May be empty.
  */
 ps.util.getServerProperty = function (propertyName, defaultValue) {
-  dojo.lang.assertType(propertyName, String);
+  ps.assertType(propertyName, String);
   if (!defaultValue) defaultValue = "";
   if (ps.util._serverProperties == null) {
     var response = ps.io.Actions.getServerProperties();
@@ -729,4 +734,4 @@ ps.util.BROWSE_MODE_RTE_INLINE_LINK = "rteInlineLink";
  */
 ps.util.BROWSE_MODE_RTE_INLINE_IMAGE = "rteInlineImage";
 
-dojo.lang.mixin(ps, ps.util);
+Object.assign(ps, ps.util);

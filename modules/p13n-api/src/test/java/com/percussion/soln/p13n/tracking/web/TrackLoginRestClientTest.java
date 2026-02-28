@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class TrackLoginRestClientTest extends TrackRestClientTest {
         w.put("bar", 200);
         client = loginClient;
     }
-    
+
     @Test
     public void testLoginInitial() throws Exception {
 
@@ -44,26 +44,26 @@ public class TrackLoginRestClientTest extends TrackRestClientTest {
         assertNotNull(r);
         assertRequestBody(
                 "GET /soln-p13n/track/track?userId=agent&actionName=login&segmentWeights%5Bfoo%5D=100&segmentWeights%5Bbar%5D=200 HTTP/1.1" +
-        		"User-Agent: Jakarta Commons-HttpClient/3.1" +
+        "User-Agent: Percussion-TrackRestClient/1.0" +
         		"Host: localhost:9990");
     }
-    
+
     @Test
     public void testLoginWithProfileId() throws Exception {
         loginClient.login("100", "agent", w);
         assertRequestBody(
                 "GET /soln-p13n/track/track?userId=agent&visitorProfileId=100&actionName=login&segmentWeights%5Bfoo%5D=100&segmentWeights%5Bbar%5D=200 HTTP/1.1" +
-        		"User-Agent: Jakarta Commons-HttpClient/3.1" +
+        "User-Agent: Percussion-TrackRestClient/1.0" +
         		"Host: localhost:9990");
     }
-    
+
     @Test
     public void testLoginWithServlet() throws Exception {
         loginClient.login(servletRequest, servletResponse, "agent", w);
         assertRequestBody(
                 "GET /soln-p13n/track/track?address=127.0.0.1&hostname=localhost&locale=en&userId=agent&actionName=login&segmentWeights%5Bfoo%5D=100&segmentWeights%5Bbar%5D=200 HTTP/1.1" +
-        		"User-Agent: Jakarta Commons-HttpClient/3.1" +
+        "User-Agent: Percussion-TrackRestClient/1.0" +
         		"Host: localhost:9990");
     }
-    
+
 }
