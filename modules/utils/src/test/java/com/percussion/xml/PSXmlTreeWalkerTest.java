@@ -252,7 +252,7 @@ public class PSXmlTreeWalkerTest {
           + "      <isbn>623456789</isbn>\n"
           + "      <author id=\"4\">Erich Maria Remarque</author>\n"
           + "   </Book>\n"
-          + "</BookList>";
+          + "</BookList>\n";
 
   /**
    * Test the serialization

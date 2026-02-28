@@ -679,11 +679,19 @@ public class PSXmlTreeWalker implements Serializable {
       serializer.setOutputProperty(OutputKeys.ENCODING, encoding);
       serializer.setOutputProperty(OutputKeys.METHOD, "xml");
       serializer.setOutputProperty(OutputKeys.INDENT, indentFlag ? "yes" : "no");
-      serializer.setOutputProperty(
-          OutputKeys.OMIT_XML_DECLARATION, omitXMLDeclaration ? "yes" : "no");
-      // This is ignored by saxon but used by xalan - which makes this
-      // code work correctly in Eclipse
-      serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+      // Indent amount of 3 matches the historical Saxon default that the
+      // codebase has relied on.  The old value of "2" was ignored by Saxon.
+      serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+
+      // Write the XML declaration ourselves so we can guarantee a trailing
+      // newline.  The JDK XSLTC serializer omits the newline after the
+      // declaration while the legacy Saxon serializer included one.  Writing
+      // it manually also avoids the XSLTC default of emitting
+      // standalone="no", preserving backward-compatible output.
+      if (!omitXMLDeclaration) {
+        out.write("<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>\n");
+      }
+      serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
       if (!omitDocumentType && m_doc != null) {
         DocumentType type = m_doc.getDoctype();
@@ -1213,8 +1221,24 @@ public class PSXmlTreeWalker implements Serializable {
    * initialized when the current class is loaded. Only one instance of the transformer is needed
    * per JVM, but need to be used in a sychronized block since it is not thread safe.
    */
-  private static TransformerFactory ms_transformerFactory =
-      PSSecureXMLUtils.getSecuredTransformerFactory();
+  private static TransformerFactory ms_transformerFactory = createTransformerFactory();
+
+  /**
+   * Creates the secured TransformerFactory, falling back to the JDK default if
+   * the secured factory creation fails.  This prevents a static-initializer
+   * failure from permanently poisoning the class.
+   */
+  private static TransformerFactory createTransformerFactory() {
+    try {
+      return PSSecureXMLUtils.getSecuredTransformerFactory();
+    } catch (Exception | LinkageError e) {
+      log.warn(
+          "Failed to create secured TransformerFactory, falling back to JDK default: {}",
+          e.getMessage());
+      return TransformerFactory.newInstance(
+          "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl", null);
+    }
+  }
 
   static {
     try {

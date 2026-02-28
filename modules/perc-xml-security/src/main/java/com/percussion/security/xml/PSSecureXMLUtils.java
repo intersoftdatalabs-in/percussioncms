@@ -236,7 +236,12 @@ public class PSSecureXMLUtils {
    * @return a secured TransformerFactory instance
    */
   public static TransformerFactory getSecuredTransformerFactory() {
-    TransformerFactory tf = TransformerFactory.newInstance();
+    // Explicitly request the JDK implementation to avoid picking up legacy
+    // Saxon 6.5.3 via SPI — its TransformerFactoryImpl is too old and does
+    // not implement JAXP 1.5+ methods like setFeature().
+    TransformerFactory tf =
+        TransformerFactory.newInstance(
+            "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl", null);
     return enableTFFeatures(tf);
   }
 
@@ -264,17 +269,17 @@ public class PSSecureXMLUtils {
   private static TransformerFactory enableTFFeatures(TransformerFactory tf) {
     try {
       tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | AbstractMethodError e) {
       log.debug("TransformerFactory does not support ACCESS_EXTERNAL_DTD attribute");
     }
     try {
       tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | AbstractMethodError e) {
       log.debug("TransformerFactory does not support ACCESS_EXTERNAL_STYLESHEET attribute");
     }
     try {
       tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    } catch (javax.xml.transform.TransformerConfigurationException e) {
+    } catch (javax.xml.transform.TransformerConfigurationException | AbstractMethodError e) {
       log.debug("TransformerFactory does not support FEATURE_SECURE_PROCESSING");
     }
     return tf;

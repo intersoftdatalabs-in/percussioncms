@@ -29,7 +29,6 @@
 			<include name="rxwebservices" />
 			<include name="rxclient" />
 			<include name="rxutils" />
-			<exclude name="commons-httpclient" />
 		</dependency>
 		<dependency org="com.percussion.soln.segment"
 			name="soln-segment-api" rev="latest.${status}" conf="default" />

@@ -728,10 +728,6 @@
                                 <artifactId>ant</artifactId>
                             </exclusion>
                             <exclusion>
-                                <groupId>commons-httpclient</groupId>
-                                <artifactId>commons-httpclient</artifactId>
-                            </exclusion>
-                            <exclusion>
                                 <groupId>org.apache.ivy</groupId>
                                 <artifactId>ivy</artifactId>
                             </exclusion>
