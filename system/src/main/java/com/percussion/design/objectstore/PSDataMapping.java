@@ -17,10 +17,12 @@
 
 package com.percussion.design.objectstore;
 
+import com.percussion.security.validation.SerializationValidation;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.io.ObjectInputFilter;
 import java.util.List;
 import java.util.Objects;
 import org.w3c.dom.Document;
@@ -496,6 +498,9 @@ public class PSDataMapping extends PSComponent {
             bOut.close(); // don't need this anymore
 
             java.io.ObjectInputStream objIn = new java.io.ObjectInputStream(bIn);
+            // Set deserialization filter to prevent gadget chain attacks (CWE-502)
+            String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
+            objIn.setObjectInputFilter(ObjectInputFilter.Config.createFilter(filterSpec));
             m_textFormatter = (java.text.Format) objIn.readObject();
 
             bIn.close();

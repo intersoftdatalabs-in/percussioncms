@@ -26,11 +26,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectInputFilter.Config;
 import java.io.ObjectOutputStream;
 import java.net.ProtocolException;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.percussion.security.validation.SerializationValidation;
 
 /**
  * This module handles Netscape cookies (also called Version 0 cookies) and Version 1 cookies.
@@ -106,6 +109,11 @@ public class CookieModule implements HTTPClientModule {
     cookie_jar = new File(getCookieJarName());
     if (cookie_jar.isFile() && cookie_jar.canRead()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(cookie_jar))) {
+        // Set deserialization filter to prevent gadget chain attacks (CWE-502)
+        // Allow standard Java safe classes and all Percussion framework classes
+        String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
+        ois.setObjectInputFilter(Config.createFilter(filterSpec));
+
         cookie_cntxt_list.put(
             HTTPConnection.getDefaultContext(), (ConcurrentHashMap) ois.readObject());
       } catch (IOException | ClassNotFoundException e) {

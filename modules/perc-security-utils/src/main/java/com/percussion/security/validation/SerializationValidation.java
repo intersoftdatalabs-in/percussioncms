@@ -76,12 +76,21 @@ public class SerializationValidation {
               "java.util.Collections",
               "java.util.Date",
               "java.util.Calendar",
+              "java.util.Locale",
+              "java.util.TimeZone",
+              "java.text.SimpleDateFormat",
+              "java.text.DecimalFormat",
+              "java.text.Format",
               "java.math.BigDecimal",
               "java.math.BigInteger",
               "java.io.File",
               "java.net.URI",
               "java.net.URL",
-              "java.util.UUID"));
+              "java.util.UUID",
+              // Array support for collections
+              "[Ljava.lang.String;",
+              "[Ljava.lang.Object;",
+              "[Ljava.util.Map.Entry;"));
 
   // Percussion framework classes commonly used in serialization
   private static final Set<String> PERCUSSION_SAFE_CLASSES =
@@ -180,10 +189,12 @@ public class SerializationValidation {
    *
    * <p>Example:
    * <pre>
-   * String filter = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
+   * String filter = SerializationValidation.buildPackageFilterSpec("com.percussion.*");
    * </pre>
    *
-   * @param packagePatterns package patterns to allow (e.g., "com.percussion.**")
+   * <p>Note: Uses JEP 290 filter syntax where * matches any class in that package.
+   *
+   * @param packagePatterns package patterns to allow (e.g., "com.percussion.*")
    * @return filter specification string
    * @throws IllegalArgumentException if packagePatterns is null or empty
    */
@@ -194,14 +205,24 @@ public class SerializationValidation {
 
     StringBuilder spec = new StringBuilder();
 
-    // Add all standard safe classes
+    // Add safe JDK package patterns that allow serialization of standard classes
+    spec.append("java.lang.*;");
+    spec.append("java.util.*;");
+    spec.append("java.text.*;");
+    spec.append("java.io.*;");
+    spec.append("java.net.*;");
+    spec.append("java.math.*;");
+
+    // Add explicitly safe classes
     for (String cls : JAVA_SAFE_CLASSES) {
       spec.append(cls).append(";");
     }
 
-    // Add package patterns
+    // Add package patterns, converting ** to * for JEP 290 compatibility
     for (String pattern : packagePatterns) {
-      spec.append(pattern).append(";");
+      // Convert ** wildcard to * for proper JEP 290 syntax
+      String normalizedPattern = pattern.replace(".**", ".*");
+      spec.append(normalizedPattern).append(";");
     }
 
     // Reject all others
