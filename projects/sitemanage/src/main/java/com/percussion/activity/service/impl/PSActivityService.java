@@ -42,6 +42,7 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.IPSContentPropertyConstants;
+import com.percussion.security.validation.PSJCRQueryValidator;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.sitemgr.IPSSite;
@@ -443,11 +444,16 @@ public class PSActivityService implements IPSActivityService {
     }
   }
 
+  /**
+   * Creates a safe JCR query for content retrieval by path and content type.
+   * Validates inputs to prevent JCR query injection attacks (CWE-89).
+   *
+   * @param path the JCR path to query (will be validated and escaped)
+   * @param contentTypes optional collection of content type names to filter by
+   * @return a safe JCR query string
+   * @throws IllegalArgumentException if path is invalid or contains injection attempts
+   */
   private String createJCRQuery(String path, Collection<String> contentTypes) {
-    if (contentTypes == null || contentTypes.isEmpty()) {
-      return "select rx:sys_contentid from nt:base where jcr:path like '" + path + "/%'";
-    }
-    var joined = contentTypes.stream().map(name -> "rx:" + name).collect(Collectors.joining(", "));
-    return "select rx:sys_contentid from " + joined + " where jcr:path like '" + path + "/%'";
+    return PSJCRQueryValidator.buildSafeJCRQuery(path, contentTypes);
   }
 }
