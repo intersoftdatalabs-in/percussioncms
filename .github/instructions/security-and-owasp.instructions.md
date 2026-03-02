@@ -63,10 +63,10 @@ Your primary directive is to ensure all code you generate, review, or refactor i
 
 ## Repository Libraries
 ### perc-xml-security
-The perc-xml-security library provides utilities for secure XML processing, including XML signature validation and XML encryption. When generating Java code that deals with XML, you should leverage this library to ensure that XML data is handled securely and in compliance with best practices. New utility functions should be added to this library when common XML security patterns are identified in the codebase. Always refer to the documentation of perc-xml-security for the latest features and usage guidelines.
+The modules/perc-xml-security library provides utilities for secure XML processing, including XML signature validation and XML encryption. When generating Java code that deals with XML, you should leverage this library to ensure that XML data is handled securely and in compliance with best practices. New utility functions should be added to this library when common XML security patterns are identified in the codebase. Always refer to the documentation of perc-xml-security for the latest features and usage guidelines.
 
 ### perc-security-utils
-The perc-security-utils library provides a collection of secure coding utilities and best practices for Java code in the project. It includes functions for secure password hashing, input validation, and secure configuration management. When generating Java code, you should leverage this library to ensure that security best practices are followed consistently across the codebase. New utility functions should be added to this library when common security patterns are identified in the codebase. Always refer to the documentation of perc-security-utils for the latest features and usage guidelines.
+The modules/perc-security-utils library provides a collection of secure coding utilities and best practices for Java code in the project. It includes functions for secure password hashing, input validation, and secure configuration management. When generating Java code, you should leverage this library to ensure that security best practices are followed consistently across the codebase. New utility functions should be added to this library when common security patterns are identified in the codebase. Always refer to the documentation of perc-security-utils for the latest features and usage guidelines.
 
 
 
