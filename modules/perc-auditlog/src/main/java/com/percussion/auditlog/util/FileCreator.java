@@ -18,29 +18,82 @@
 package com.percussion.auditlog.util;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FileCreator {
+  private static final Logger log = LogManager.getLogger(FileCreator.class);
 
+  /**
+   * Generates a file with the specified parameters.
+   * 
+   * <p>Security: This method validates the filePath to prevent path traversal attacks. The
+   * resolved path must be within the base audit directory to prevent writing files outside the
+   * intended location.
+   *
+   * @param filePath the base directory path where the file will be created, never
+   *     <code>null</code> or empty
+   * @param fileName the name of the file without extension, never <code>null</code> or empty
+   * @param filePattern the date format pattern for the timestamp, never <code>null</code>
+   * @param extension the file extension, never <code>null</code>
+   * @return the absolute path of the created file, or empty string if an error occurs
+   */
   public static String generateFile(
       String filePath, String fileName, String filePattern, String extension) {
     String finalFileName = "";
     try {
-      FastDateFormat simpleDateFormat = FastDateFormat.getInstance(filePattern);
-
-      String formatted = simpleDateFormat.format(new Date());
-      finalFileName = filePath + File.separator + fileName + "_" + formatted + "." + extension;
-      File directory = new File(filePath);
-      if (!directory.exists()) {
-        directory.mkdir();
+      // Validate input parameters
+      if (filePath == null || filePath.isEmpty()) {
+        log.error("File path cannot be null or empty");
+        return finalFileName;
       }
-      File file = new File(finalFileName);
-      file.createNewFile();
-    } catch (Exception e) {
-      finalFileName = "";
-      // throw new AuditException("Exception occurred in creating of File ",e);
+      if (fileName == null || fileName.isEmpty()) {
+        log.error("File name cannot be null or empty");
+        return finalFileName;
+      }
+      if (filePattern == null || extension == null) {
+        log.error("File pattern and extension cannot be null");
+        return finalFileName;
+      }
 
+      // Security: Validate the file path to prevent path traversal attacks
+      Path basePath = Paths.get(filePath).toAbsolutePath().normalize();
+      
+      FastDateFormat simpleDateFormat = FastDateFormat.getInstance(filePattern);
+      String formatted = simpleDateFormat.format(new Date());
+      
+      // Construct the final file name with normalized components
+      String safeFileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+      String safeExtension = extension.replaceAll("[^a-zA-Z0-9]", "");
+      String fileNameWithTimestamp = safeFileName + "_" + formatted + "." + safeExtension;
+      
+      // Create the final path and verify it doesn't escape the base directory
+      Path finalPath = basePath.resolve(fileNameWithTimestamp).normalize();
+      
+      // Security check: Ensure the final path is within the base directory
+      if (!finalPath.startsWith(basePath)) {
+        log.error("Path traversal attempt detected. File path attempted to escape base directory.");
+        return finalFileName;
+      }
+
+      // Create directory if it doesn't exist
+      if (!Files.exists(basePath)) {
+        Files.createDirectories(basePath);
+      }
+
+      // Create the file
+      Files.createFile(finalPath);
+      finalFileName = finalPath.toString();
+      log.debug("File created successfully: {}", finalFileName);
+      
+    } catch (Exception e) {
+      log.error("Exception occurred while creating file: {}", e.getMessage(), e);
+      finalFileName = "";
     }
 
     return finalFileName;

@@ -157,4 +157,4 @@ docker/dev-data
 docker/logs
 
 .env
-
+.envrc
