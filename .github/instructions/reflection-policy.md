@@ -38,7 +38,3 @@ m.invoke(processor, owner, dependents);
 // explicit, typed helper added to the processor
 processor.deleteDependents(owner, dependents);
 ```
-
----
-
-If you need, I can open issues for the top candidates to remove reflection (TLSSocketFactory, PSWebServicesBaseHandler, etc.).

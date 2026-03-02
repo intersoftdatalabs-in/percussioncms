@@ -149,4 +149,69 @@ public class PSJCRQueryValidator {
 
     return "select rx:sys_contentid from " + fromClause + " where jcr:path like '" + safePath + "/%'";
   }
+
+  /**
+   * Validates and escapes a JCR property name to prevent injection attacks.
+   * Property names must be valid identifiers (CMS property references like "rx:propertyName").
+   *
+   * @param propertyName the property name to validate (may include namespace prefix like "rx:")
+   * @return the validated property name (unchanged if valid)
+   * @throws IllegalArgumentException if the property name contains invalid characters
+   */
+  public static String validateAndEscapePropertyName(String propertyName) {
+    if (StringUtils.isBlank(propertyName)) {
+      throw new IllegalArgumentException("Property name cannot be null or empty");
+    }
+
+    // Reject null bytes
+    if (propertyName.contains(NULL_BYTE)) {
+      throw new IllegalArgumentException("Property name contains null bytes");
+    }
+
+    // Property names can contain alphanumerics, underscores, and colons (for namespace)
+    // Pattern allows: alphanumeric, underscores, colons for rx:propertyName format
+    if (!Pattern.compile("^[a-zA-Z0-9:_]+$").matcher(propertyName).matches()) {
+      throw new IllegalArgumentException(
+          "Invalid property name. Only alphanumeric, underscores, and colons are allowed");
+    }
+
+    return propertyName;
+  }
+
+  /**
+   * Escapes a value for use in a JCR query WHERE clause.
+   * Handles single quote escaping to prevent injection attacks.
+   *
+   * @param value the value to escape
+   * @return the escaped value (safe for use in WHERE clause)
+   * @throws IllegalArgumentException if value contains null bytes
+   */
+  public static String escapeQueryValue(String value) {
+    if (StringUtils.isBlank(value)) {
+      throw new IllegalArgumentException("Query value cannot be null or empty");
+    }
+
+    // Reject null bytes
+    if (value.contains(NULL_BYTE)) {
+      throw new IllegalArgumentException("Query value contains null bytes");
+    }
+
+    // Escape single quotes by doubling them (JCR/SQL standard)
+    return value.replace("'", "''");
+  }
+
+  /**
+   * Builds a safe WHERE clause for JCR property matching.
+   * Validates and escapes both the property name and value to prevent injection.
+   *
+   * @param propertyName the JCR property name (e.g., "rx:propertyName")
+   * @param value the value to match
+   * @return a safe WHERE clause fragment
+   * @throws IllegalArgumentException if property name or value is invalid
+   */
+  public static String buildSafeWhereClause(String propertyName, String value) {
+    String safeProperty = validateAndEscapePropertyName(propertyName);
+    String safeValue = escapeQueryValue(value);
+    return safeProperty + "='" + safeValue + "'";
+  }
 }

@@ -43,6 +43,7 @@ import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.pso.restservice.IItemRestService;
+import com.percussion.security.validation.PSJCRQueryValidator;
 import com.percussion.pso.restservice.exception.ItemRestException;
 import com.percussion.pso.restservice.exception.ItemRestNotModifiedException;
 import com.percussion.pso.restservice.model.AclItem;
@@ -1236,7 +1237,7 @@ public class ItemRestServiceImpl implements IItemRestService {
           return;
         }
         String query = "select rx:sys_contentid from nt:base";
-        String where = "rx:" + keyField + "='" + value + "'";
+        String where = PSJCRQueryValidator.buildSafeWhereClause("rx:" + keyField, value);
         String path = item.getContextRoot();
 
         PagedResult res = jcrSearch(query, 1, where, null);
@@ -1523,7 +1524,8 @@ public class ItemRestServiceImpl implements IItemRestService {
           where += " and " + w + " ";
         }
         if (path != null && path.length() > 1 && path.startsWith("/")) {
-          where += " and jcr:path like '" + path + "%" + "'";
+          String safePath = PSJCRQueryValidator.validateAndEscapePath(path);
+          where += " and jcr:path like '" + safePath + "%'";
         }
         log.debug("Starting query {} {}", q, where);
         query = contentMgr.createQuery(q + where + " order by rx:sys_contentid", Query.SQL);
