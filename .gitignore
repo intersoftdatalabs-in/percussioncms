@@ -156,3 +156,5 @@ fabric.properties
 docker/dev-data
 docker/logs
 
+.env
+
