@@ -404,4 +404,168 @@ class PSJCRQueryValidatorTest {
         () -> PSJCRQueryValidator.validateAndEscapePath(maliciousPath),
         "Should prevent XPATH injection");
   }
-}
+  // ============================================================================
+  // PROPERTY NAME VALIDATION TESTS
+  // ============================================================================
+
+  @Test
+  @DisplayName("Should accept valid property name with namespace")
+  void testValidPropertyNameWithNamespace() {
+    String result = PSJCRQueryValidator.validateAndEscapePropertyName("rx:propertyName");
+    assertEquals("rx:propertyName", result);
+  }
+
+  @Test
+  @DisplayName("Should accept property name with underscores")
+  void testValidPropertyNameWithUnderscores() {
+    String result = PSJCRQueryValidator.validateAndEscapePropertyName("rx:proxy_name");
+    assertEquals("rx:proxy_name", result);
+  }
+
+  @Test
+  @DisplayName("Should accept property name with numbers")
+  void testValidPropertyNameWithNumbers() {
+    String result = PSJCRQueryValidator.validateAndEscapePropertyName("rx:field123");
+    assertEquals("rx:field123", result);
+  }
+
+  @Test
+  @DisplayName("Should reject null property name")
+  void testNullPropertyName() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.validateAndEscapePropertyName(null));
+  }
+
+  @Test
+  @DisplayName("Should reject empty property name")
+  void testEmptyPropertyName() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.validateAndEscapePropertyName(""));
+  }
+
+  @Test
+  @DisplayName("Should reject property name with spaces")
+  void testPropertyNameWithSpaces() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.validateAndEscapePropertyName("rx: propertyName"));
+  }
+
+  @Test
+  @DisplayName("Should reject property name with hyphens")
+  void testPropertyNameWithHyphens() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.validateAndEscapePropertyName("rx-property"));
+  }
+
+  @Test
+  @DisplayName("Should reject property name with slashes")
+  void testPropertyNameWithSlashes() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.validateAndEscapePropertyName("rx/property"));
+  }
+
+  @Test
+  @DisplayName("Should reject property name with null bytes")
+  void testPropertyNameWithNullBytes() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.validateAndEscapePropertyName("rx:property\0name"));
+  }
+
+  // ============================================================================
+  // VALUE ESCAPING TESTS
+  // ============================================================================
+
+  @Test
+  @DisplayName("Should escape single quotes in value")
+  void testEscapeQuotesInValue() {
+    String result = PSJCRQueryValidator.escapeQueryValue("O'Reilly");
+    assertEquals("O''Reilly", result);
+  }
+
+  @Test
+  @DisplayName("Should escape multiple single quotes")
+  void testEscapeMultipleQuotes() {
+    String result = PSJCRQueryValidator.escapeQueryValue("It's a 'test' value");
+    assertEquals("It''s a ''test'' value", result);
+  }
+
+  @Test
+  @DisplayName("Should accept value with special characters (non-injection)")
+  void testValueWithSpecialCharacters() {
+    String result = PSJCRQueryValidator.escapeQueryValue("value-with-hyphens_and_underscores");
+    assertEquals("value-with-hyphens_and_underscores", result);
+  }
+
+  @Test
+  @DisplayName("Should reject null value")
+  void testNullValue() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.escapeQueryValue(null));
+  }
+
+  @Test
+  @DisplayName("Should reject empty value")
+  void testEmptyValue() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.escapeQueryValue(""));
+  }
+
+  @Test
+  @DisplayName("Should reject value with null bytes")
+  void testValueWithNullBytes() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.escapeQueryValue("value\0injection"));
+  }
+
+  @Test
+  @DisplayName("Should accept value with numeric content")
+  void testValueWithNumbers() {
+    String result = PSJCRQueryValidator.escapeQueryValue("12345");
+    assertEquals("12345", result);
+  }
+
+  // ============================================================================
+  // WHERE CLAUSE BUILDING TESTS
+  // ============================================================================
+
+  @Test
+  @DisplayName("Should build safe WHERE clause")
+  void testBuildSafeWhereClause() {
+    String result = PSJCRQueryValidator.buildSafeWhereClause("rx:content_id", "12345");
+    assertEquals("rx:content_id='12345'", result);
+  }
+
+  @Test
+  @DisplayName("Should escape quotes in WHERE clause value")
+  void testBuildSafeWhereClauseWithQuotes() {
+    String result = PSJCRQueryValidator.buildSafeWhereClause("rx:title", "O'Reilly");
+    assertEquals("rx:title='O''Reilly'", result);
+  }
+
+  @Test
+  @DisplayName("Should reject WHERE clause with invalid property")
+  void testBuildSafeWhereClauseInvalidProperty() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSJCRQueryValidator.buildSafeWhereClause("rx-invalid", "value"),
+        "Should reject invalid property name");
+  }
+
+  @Test
+  @DisplayName("Should prevent SQL injection in WHERE clause")
+  void testBuildSafeWhereClausePreventSQLInjection() {
+    // The value will be escaped, but the property name validation will protect against
+    // injection in the property name itself
+    String result =
+        PSJCRQueryValidator.buildSafeWhereClause("rx:content_id", "123' OR '1'='1");
+    assertEquals("rx:content_id='123'' OR ''1''=''1'", result);
+  }}
