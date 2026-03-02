@@ -16,11 +16,14 @@
  */
 package com.percussion.rxverify.data;
 
+import com.percussion.security.validation.SerializationValidation;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectInputFilter;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +39,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * @author dougrand
- * 
+ *
  * This class represents the information about an installation. It can be
  * serialized to an external stream using the methods from
  * {@link java.io.Externalizable}
@@ -44,7 +47,7 @@ import org.apache.logging.log4j.Logger;
 public class PSInstallation implements Externalizable
 {
    /**
-    * 
+    *
     */
    private static final long serialVersionUID = 1L;
 
@@ -74,7 +77,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Get the list of files associated with a given category.
-    * 
+    *
     * @param category a category, must never be <code>null</code> or empty
     * @return a {@link List}of {@link PSFileInfo}associated with the category,
     *         may be <code>null</code> but never empty.
@@ -90,7 +93,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Get the list of exit categories.
-    * 
+    *
     * @return the {@link Iterator}for the key values of extensions, this allows
     *         the caller to iterate over a list of category strings.
     */
@@ -101,7 +104,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Get the file categories
-    * 
+    *
     * @return an {@link Iterator}that walks over the categories. The categories
     *         are all {@link String}s.
     */
@@ -112,7 +115,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Add a file to the list of files associated with a given category.
-    * 
+    *
     * @param category a category, must never be <code>null</code> or empty
     * @param info a pathname, must never be <code>null</code>
     */
@@ -137,7 +140,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Get the set of tables
-    * 
+    *
     * @return a set of tables, never <code>null</code> but could be empty. The
     *         returned set is unmodifiable.
     */
@@ -148,7 +151,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Add a table to the set of known tables
-    * 
+    *
     * @param tablename the table information, must never be <code>null</code>
     */
    public void addTable(PSTableInfo table)
@@ -163,7 +166,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Gets the dtm when this information was created originally
-    * 
+    *
     * @return a {@link Date}representing the date time created of this
     *         information, never <code>null</code>
     */
@@ -174,13 +177,19 @@ public class PSInstallation implements Externalizable
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
     */
    @SuppressWarnings("unchecked")
    public void readExternal(ObjectInput in) throws IOException,
          ClassNotFoundException
    {
+      // Set deserialization filter to prevent gadget chain attacks (CWE-502)
+      if (in instanceof ObjectInputStream) {
+         ObjectInputStream objIn = (ObjectInputStream) in;
+         String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
+         objIn.setObjectInputFilter(ObjectInputFilter.Config.createFilter(filterSpec));
+      }
       // Read dtm
       m_dtm = in.readLong();
       // Read table set
@@ -198,7 +207,7 @@ public class PSInstallation implements Externalizable
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
     */
    public void writeExternal(ObjectOutput out) throws IOException
@@ -220,7 +229,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Output the contents of the installation into the log
-    * 
+    *
     * @param logger a {@link Logger}, must never be <code>null</code>
     */
    public void list(Logger logger)
@@ -269,7 +278,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Return the extensions for the given category.
-    * 
+    *
     * @param category the category, assumed not <code>null</code> or empty
     * @return the list of extensions, expressed as strings. May be empty.
     */
@@ -284,7 +293,7 @@ public class PSInstallation implements Externalizable
 
    /**
     * Add the given extension to the known extensions for the given category.
-    * 
+    *
     * @param category The category, must never be <code>null</code> or empty
     * @param exit The exit name, must never be <code>null</code> or empty
     */

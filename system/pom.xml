@@ -980,6 +980,9 @@
 		</resources>
 		<testResources>
 			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+			<testResource>
 				<directory>Tools/ImageWidgetService/test</directory>
 				<excludes>
 					<exclude>**/*.java</exclude>
@@ -989,19 +992,6 @@
 				<directory>webservices/test</directory>
 				<excludes>
 					<exclude>**/*.java</exclude>
-				</excludes>
-			</testResource>
-			<testResource>
-				<directory>Testing/src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</testResource>
-			<testResource>
-				<directory>UnitTestResources</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-					<exclude>ant</exclude>
 				</excludes>
 			</testResource>
 		</testResources>
@@ -1056,7 +1046,7 @@
 						<phase>generate-test-sources</phase>
 						<configuration>
 							<sources>
-								<source>Testing/src</source>
+								<source>src/test/java</source>
 								<source>FastForward/SiteFolderPublishing/Exits/src/test/java</source>
 								<!-- <source>webservices/test</source> -->
 								<source>Tools/RxFix/test</source>
@@ -1073,6 +1063,9 @@
 						<phase>generate-test-resources</phase>
 						<configuration>
 							<resources>
+                <resource>
+                  <directory>src/test/resources</directory>
+                </resource>
 								<resource>
 									<directory>UnitTestResources</directory>
 									<excludes>
@@ -1186,7 +1179,7 @@
 			</plugin>
 		</plugins>
 		<sourceDirectory>src/main/java</sourceDirectory>
-		<testSourceDirectory>Testing/src</testSourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
 		<!-- <extensions> <extension> <groupId>org.apache.maven.extensions</groupId>
 			<artifactId>maven-build-cache-extension</artifactId> <version>1.0.0-SNAPSHOT</version>
 			</extension> </extensions> -->

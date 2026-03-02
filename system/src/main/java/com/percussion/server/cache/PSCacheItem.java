@@ -17,6 +17,7 @@
 
 package com.percussion.server.cache;
 
+import com.percussion.security.validation.SerializationValidation;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.util.PSCacheException;
 import com.percussion.util.PSPurgableTempFile;
@@ -26,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.io.ObjectInputFilter.Config;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -356,16 +358,26 @@ class PSCacheItem {
   /**
    * Gets this item's object from disk.
    *
+   * <p>SECURITY: Deserialization is protected with an ObjectInputFilter to prevent gadget chain
+   * attacks (CWE-502). Only standard Java safe classes and Percussion framework classes are
+   * allowed.
+   *
    * @param file The file containing the object on disk. Assumed not <code>null</code> and to exist.
    * @return The object, never <code>null</code>.
    * @throws FileNotFoundException if file does not exist.
    * @throws ClassNotFoundException if the object's class cannot be found.
    * @throws IOException if there are any other errors.
+   * @throws InvalidClassException if the deserialized class is not in the allow-list
    */
   private Object getObjectFromDisk(File file)
       throws FileNotFoundException, IOException, ClassNotFoundException {
     Object o = null;
     try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+      // Set deserialization filter to prevent gadget chain attacks (CWE-502)
+      // Allow standard Java safe classes and all Percussion framework classes
+      String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
+      in.setObjectInputFilter(Config.createFilter(filterSpec));
+
       o = in.readObject();
       return o;
     }

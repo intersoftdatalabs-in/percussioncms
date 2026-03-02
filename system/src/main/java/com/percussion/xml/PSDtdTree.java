@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputFilter.Config;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -43,6 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
+import com.percussion.security.validation.SerializationValidation;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -160,6 +163,10 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
 
       ByteArrayInputStream inStream = new ByteArrayInputStream(data);
       ObjectInputStream objInStream = new ObjectInputStream(inStream);
+      // Set deserialization filter to prevent gadget chain attacks (CWE-502)
+      String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
+      objInStream.setObjectInputFilter(Config.createFilter(filterSpec));
+
       clone = objInStream.readObject();
 
       objInStream.close();

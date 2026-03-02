@@ -23,12 +23,14 @@ import com.percussion.rxverify.modules.PSVerifyExtensions;
 import com.percussion.rxverify.modules.PSVerifyInstalledFiles;
 import com.percussion.rxverify.modules.PSVerifyInstallerLogs;
 import com.percussion.rxverify.modules.PSVerifyXSLVersion;
+import com.percussion.security.validation.SerializationValidation;
 import com.percussion.utils.tools.PSParseArguments;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectInputFilter;
 import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Optional;
@@ -245,6 +247,9 @@ public class PSVerify
       PSInstallation installation;
       try (var inputStream = new FileInputStream(bomFile);
            var objectInput = new ObjectInputStream(inputStream)) {
+         // Set deserialization filter to prevent gadget chain attacks (CWE-502)
+         String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
+         objectInput.setObjectInputFilter(ObjectInputFilter.Config.createFilter(filterSpec));
          installation = (PSInstallation) objectInput.readObject();
       }
 
