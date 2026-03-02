@@ -304,27 +304,31 @@ public class HibernateNodeDAO implements NodeDAO {
   @SuppressWarnings("unchecked")
   public Collection<Related_node> getRelatedNodes(int nodeID) {
     String queryString =
-        "select r from Related_node r where r.node.id = " + nodeID + " and r.relationship.id = 1";
-    return (Collection<Related_node>) executeQuery(queryString);
+        "select r from Related_node r where r.node.id = :nodeId and r.relationship.id = 1";
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Related_node>) session.createQuery(queryString, Related_node.class)
+        .setParameter("nodeId", nodeID)
+        .list();
   }
 
   /** Return all related nodes 'that reference' the given node */
   @SuppressWarnings("unchecked")
   public Collection<Related_node> getRelatedNodeReferences(int nodeID) {
-    String queryString =
-        "select r from Related_node r where r.related_node.id = "
-            + nodeID
-            + " and r.relationship.id = 1";
-    return (Collection<Related_node>) executeQuery(queryString);
+    String queryString = "select r from Related_node r where r.related_node.id = :nodeId and r.relationship.id = 1";
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Related_node>) session.createQuery(queryString, Related_node.class)
+        .setParameter("nodeId", nodeID)
+        .list();
   }
 
   /** Return all nodes 'similar to' the given node */
   @SuppressWarnings("unchecked")
   public Collection<Related_node> getSimilarNodes(int nodeID) {
-    String queryString =
-        "select r from Related_node r where r.node.id = " + nodeID + " and r.relationship.id = 2";
-
-    return (Collection<Related_node>) executeQuery(queryString);
+    String queryString = "select r from Related_node r where r.node.id = :nodeId and r.relationship.id = 2";
+    Session session = sessionFactory.getCurrentSession();
+    return (Collection<Related_node>) session.createQuery(queryString, Related_node.class)
+        .setParameter("nodeId", nodeID)
+        .list();
   }
 
   /** Return all child nodes of the given node */
@@ -418,10 +422,12 @@ public class HibernateNodeDAO implements NodeDAO {
   public void changeParent(int nodeID, int newParentID) {
 
     Session session = sessionFactory.getCurrentSession();
-    String queryString =
-        "select n from Node n where n.id = " + nodeID + " or n.id = " + newParentID;
+    String queryString = "select n from Node n where n.id = :nodeId or n.id = :newParentId";
 
-    Collection<Node> nodes = session.createQuery(queryString, Node.class).list();
+    Collection<Node> nodes = session.createQuery(queryString, Node.class)
+        .setParameter("nodeId", nodeID)
+        .setParameter("newParentId", newParentID)
+        .list();
 
     Node[] tmp = nodes.toArray(new Node[nodes.size()]);
 

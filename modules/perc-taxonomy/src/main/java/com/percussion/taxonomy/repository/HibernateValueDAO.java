@@ -324,7 +324,8 @@ public class HibernateValueDAO implements ValueDAO {
           value.setLang(
               (Language)
                   session
-                      .createQuery("select l from Language l where l.id = " + langID, Language.class)
+                      .createQuery("select l from Language l where l.id = :langId", Language.class)
+                      .setParameter("langId", langID)
                       .uniqueResult());
           value.setCreated_by_id(userName);
           value.setCreated_at(new Timestamp(System.currentTimeMillis()));
@@ -376,7 +377,8 @@ public class HibernateValueDAO implements ValueDAO {
           value.setLang(
               (Language)
                   session
-                      .createQuery("select l from Language l where l.id = " + langID, Language.class)
+                      .createQuery("select l from Language l where l.id = :langId", Language.class)
+                      .setParameter("langId", langID)
                       .uniqueResult());
           value.setCreated_by_id(userName);
           value.setCreated_at(new Timestamp(System.currentTimeMillis()));
