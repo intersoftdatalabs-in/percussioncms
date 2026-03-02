@@ -180,6 +180,11 @@ public class PSWebResourcesRestService {
           return Response.ok().entity("An error occurred when uploading the file.").build();
         }
         fileSystemService.fileUpload(path, pageContent);
+      } catch (SecurityException e) {
+        log.warn("Security violation detected during file upload: {}", e.getMessage());
+        return Response.status(Status.BAD_REQUEST)
+            .entity("Invalid file path: " + e.getMessage())
+            .build();
       } catch (PSFileOperationException | IOException e) {
         response = e.getMessage();
         return Response.ok().entity(response).build();
@@ -213,6 +218,11 @@ public class PSWebResourcesRestService {
       try {
         var decodedPath = getDecodedPath(path);
         fileSystemService.validateFileUpload(decodedPath);
+      } catch (SecurityException e) {
+        log.warn("Security violation detected during file validation: {}", e.getMessage());
+        return Response.status(Status.BAD_REQUEST)
+            .entity("Invalid file path: " + e.getMessage())
+            .build();
       } catch (PSFileAlreadyExistsException e) {
         response = e.getMessage();
         return Response.ok().entity(response).build();
@@ -236,22 +246,87 @@ public class PSWebResourcesRestService {
    * that encoding is not supported (cannot happen), it calls {@link URLDecoder#decode(String)}
    * (that is deprecated).
    *
+   * <p>Security: This method decodes the path and validates it against path traversal attacks
+   * (CWE-22). The path must be relative and cannot contain sequences that would escape the web
+   * resources directory.
+   *
    * @param path the encoded Path. Assumed not blank.
    * @return a {@link String}. Never <code>null</code>
+   * @throws SecurityException if the path contains traversal attacks
    */
-  private String getDecodedPath(String path) {
+  private String getDecodedPath(String path) throws SecurityException {
     try {
-      return URLDecoder.decode(path, PSCharSets.rxJavaEnc());
+      var decodedPath = URLDecoder.decode(path, PSCharSets.rxJavaEnc());
+      return validatePath(decodedPath);
     } catch (UnsupportedEncodingException e1) {
       // charset provided by PSCharSets should always be available; fallback
       // to UTF-8 using the Charset overload.  Guard the fall-back in its own
       // try/catch in case the compiler binds to the legacy String overload.
       try {
-        return URLDecoder.decode(path, java.nio.charset.StandardCharsets.UTF_8.name());
+        var decodedPath = URLDecoder.decode(path, java.nio.charset.StandardCharsets.UTF_8.name());
+        return validatePath(decodedPath);
       } catch (UnsupportedEncodingException e2) {
         // impossibility, rethrow as runtime
         throw new RuntimeException(e2);
       }
+    }
+  }
+
+  /**
+   * Validates the provided file path to prevent path traversal attacks (CWE-22).
+   *
+   * <p>Security Checks:
+   * <ul>
+   *   <li>Path must not be absolute (cannot start with / or drive letter)
+   *   <li>Path must not contain .. sequences (path traversal)
+   *   <li>Path must not contain null bytes
+   *   <li>Path is normalized to canonical form before validation
+   * </ul>
+   *
+   * @param path the path to validate
+   * @return the validated path
+   * @throws SecurityException if the path contains traversal attacks or invalid characters
+   */
+  private String validatePath(String path) throws SecurityException {
+    if (StringUtils.isBlank(path)) {
+      throw new SecurityException("Path cannot be null or empty");
+    }
+
+    // Prevent null byte injection
+    if (path.contains("\0") || path.contains("%00")) {
+      log.warn("Null byte injection attempt detected in path: {}", path);
+      throw new SecurityException("Invalid characters in path");
+    }
+
+    // Prevent absolute paths
+    if (path.startsWith("/") || (path.length() > 2 && path.charAt(1) == ':')) {
+      log.warn("Absolute path traversal attempt detected: {}", path);
+      throw new SecurityException("Absolute paths are not allowed");
+    }
+
+    // Normalize the path using Java NIO
+    try {
+      java.nio.file.Path normalizedPath = Paths.get(path).normalize();
+      String normalizedStr = normalizedPath.toString();
+
+      // Prevent .. sequences even after normalization
+      if (normalizedStr.contains("..")) {
+        log.warn("Path traversal attempt detected: {}", path);
+        throw new SecurityException("Path traversal is not allowed");
+      }
+
+      // Additional check: ensure normalized path doesn't go above root
+      if (normalizedPath.isAbsolute()) {
+        log.warn("Normalization resulted in absolute path: {}", path);
+        throw new SecurityException("Invalid path");
+      }
+
+      return normalizedStr;
+    } catch (SecurityException e) {
+      throw e;
+    } catch (Exception e) {
+      log.warn("Exception during path validation: {}", e.getMessage());
+      throw new SecurityException("Invalid path: " + e.getMessage());
     }
   }
 
