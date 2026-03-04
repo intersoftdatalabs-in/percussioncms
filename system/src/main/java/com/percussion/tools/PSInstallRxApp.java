@@ -17,6 +17,7 @@
 
 package com.percussion.tools;
 
+import com.percussion.security.validation.PathValidation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -80,15 +81,21 @@ public class PSInstallRxApp {
     while (e.hasMoreElements()) {
       entry = (ZipEntry) e.nextElement();
       name = entry.getName();
-      // skip all files with name starting with 'com/'!
+      // skip all files with name starting with 'com/'
       if (name.indexOf(appFilter) == -1) {
         continue;
       }
-      System.out.println("Extracting file: " + name + "...");
       try {
+        // CWE-22: Validate zip entry path to prevent ZipSlip attacks
+        File targetDir = new File(targetRoot);
+        File safeFile = PathValidation.constructSafePath(targetDir, entry.getName());
+        System.out.println("Extracting file: " + name + "...");
         is = m_JF.getInputStream(entry);
-        copyInputStreamToFile(is, targetRoot, name);
+        copyInputStreamToFileWithoutValidation(is, safeFile);
         is.close();
+      } catch (SecurityException se) {
+        // ZipSlip attack detected - skip malicious entry
+        System.out.println("Security: Rejected malicious zip entry: " + name);
       } catch (IOException ioe) {
         System.out.println("Error: " + ioe.getMessage());
       }
@@ -109,7 +116,22 @@ public class PSInstallRxApp {
     File parent = file.getParentFile();
     if (null != parent && !parent.exists()) parent.mkdirs();
 
-    FileOutputStream fos = new FileOutputStream(file);
+    copyData(is, file);
+  }
+
+  /**
+   * Copy pre-validated input stream to already-validated target file (no path validation).
+   */
+  private void copyInputStreamToFileWithoutValidation(InputStream is, File targetFile)
+      throws IOException {
+    File parent = targetFile.getParentFile();
+    if (null != parent && !parent.exists()) parent.mkdirs();
+
+    copyData(is, targetFile);
+  }
+
+  private void copyData(InputStream is, File targetFile) throws IOException {
+    FileOutputStream fos = new FileOutputStream(targetFile);
     byte[] buffer = new byte[1024];
     int nRead = -1;
     while (true) {

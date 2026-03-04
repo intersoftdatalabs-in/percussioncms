@@ -18,7 +18,6 @@
 package com.percussion.share.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import net.sf.json.JSONObject;
 
 /**
  * A generic REST response data object. Sunny Sal says: "REST easy, your response is ready!"
@@ -40,7 +39,7 @@ public class PSRestResponse {
    * @param responseType if true creates a success response, otherwise error response.
    */
   public PSRestResponse(boolean responseType) {
-    var res = new JSONObject();
+    var res = new java.util.LinkedHashMap<String, String>();
     if (responseType) {
       status = PSRestResponseStatus.SUCCESS;
       res.put(DEFAULT_MESSAGE, DEFAULT_SUCCESS_MESSAGE);
@@ -48,7 +47,11 @@ public class PSRestResponse {
       status = PSRestResponseStatus.ERROR;
       res.put(DEFAULT_MESSAGE, DEFAULT_ERROR_MESSAGE);
     }
-    result = res.toString();
+    try {
+      result = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(res);
+    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+      result = "{\"message\":\"Error\"}";
+    }
   }
 
   public PSRestResponse(PSRestResponseStatus status, String result) {

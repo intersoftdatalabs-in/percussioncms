@@ -17,14 +17,13 @@
 
 package com.percussion.widgets.image.web.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.widgets.image.data.CachedImageMetaData;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.services.ImageCacheManager;
 import com.percussion.widgets.image.services.ImageResizeManager;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -79,18 +78,20 @@ public class ImageResizeController {
     @PostMapping
     public ModelAndView handle(@ModelAttribute("results") ResizeImageBean bean, BindingResult result) {
         var mav = new ModelAndView(viewName);
+        var mapper = new ObjectMapper();
 
         try {
             var validationError = validateResizeBean(bean);
             if (validationError.isPresent()) {
                 log.error("Validation failed: {}", validationError.get());
-                var errorJson = new JSONObject().accumulate("error", validationError.get());
+                var errorJson = new java.util.HashMap<String, Object>();
+                errorJson.put("error", validationError.get());
                 mav.addObject(getModelObjectName(), errorJson);
                 return mav;
             }
 
             var cachedMetadata = resizeImage(bean);
-            var json = JSONSerializer.toJSON(cachedMetadata);
+            var json = mapper.convertValue(cachedMetadata, java.util.Map.class);
             mav.addObject(getModelObjectName(), json);
 
             log.debug("Successfully processed resize request for image key: {}", bean.getImageKey());
@@ -99,7 +100,8 @@ public class ImageResizeController {
             var errorMessage = "Unexpected exception during image resize: " + PSExceptionUtils.getMessageForLog(ex);
             log.error(errorMessage, ex);
 
-            var errorJson = new JSONObject().accumulate("error", errorMessage);
+            var errorJson = new java.util.HashMap<String, Object>();
+            errorJson.put("error", errorMessage);
             mav.addObject(getModelObjectName(), errorJson);
         }
 

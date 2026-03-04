@@ -113,23 +113,35 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
 
   // see base class method for details
   public void makeDirectories(File path) throws PSProcessException {
+    // Validate path to prevent traversal attacks (CWE-22)
+    try {
+      validatePath(path, "makeDirectories");
+    } catch (IOException e) {
+      throw new PSProcessException(e);
+    }
     // let the called method perform the contract check on the param
     doMakeDirectories(path);
   }
 
   // see base class method for details
   public void saveTextFile(File path, String content) throws IOException {
+    // Validate path to prevent traversal attacks (CWE-22)
+    validatePath(path, "saveTextFile");
     // let the called method perform the contract check on the param
     doSaveTextFile(path, content);
   }
 
   // see base class method for details
   public void saveBinaryFile(File path, InputStream content) throws IOException {
+    // Validate path to prevent traversal attacks (CWE-22)
+    validatePath(path, "saveBinaryFile");
     doSaveBinaryFile(path, content);
   }
 
   // see base class method for details
   public String getTextFile(File path) throws IOException {
+    // Validate path to prevent traversal attacks (CWE-22)
+    validatePath(path, "getTextFile");
     // let the called method perform the contract check on the param
     return doGetTextFile(path);
   }
@@ -377,6 +389,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * @throws IOException If any problems writing to file.
    */
   static void doSaveTextFile(File path, String content) throws IOException {
+    validatePath(path, "doSaveTextFile");
     if (null == content) content = "";
     InputStream src = new ByteArrayInputStream(content.getBytes());
     saveFile(path, src);
@@ -391,6 +404,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * @throws IOException If any problems writing to file.
    */
   static void doSaveBinaryFile(File path, InputStream content) throws IOException {
+    validatePath(path, "doSaveBinaryFile");
     if (null == content) content = new ByteArrayInputStream(new byte[0]);
     saveFile(path, content);
   }
@@ -435,6 +449,8 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     if (null == path) {
       throw new IllegalArgumentException("path cannot be null");
     }
+    // Validate path to prevent traversal attacks (CWE-22)
+    validatePath(path, "doGetTextFile");
 
     InputStream fis = null;
     ByteArrayOutputStream bos = null;
@@ -464,6 +480,37 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
       else throw new RuntimeException("****** Unexpected stream *****");
     } catch (IOException e) {
       // ignore
+    }
+  }
+
+  /**
+   * Validates file path to prevent path traversal (CWE-22) and other path-based attacks.
+   *
+   * @param path The file path to validate. Must not be null.
+   * @param methodName The calling method name for logging/error messages.
+   * @throws IOException If path contains traversal patterns (CWE-22).
+   * @throws IllegalArgumentException If path is null.
+   */
+  private static void validatePath(File path, String methodName) throws IOException {
+    if (null == path) {
+      throw new IllegalArgumentException("path cannot be null");
+    }
+
+    String pathString = path.getPath();
+
+    // Reject absolute paths - only relative paths within configured boundaries are allowed
+    if (path.isAbsolute()) {
+      throw new SecurityException(
+          "Invalid path - absolute paths not allowed (CWE-22) in " + methodName + ": " + pathString);
+    }
+
+    // Reject path traversal patterns - reject ".." sequences
+    if (pathString.contains("..") || pathString.contains("./..") || pathString.contains("../")) {
+      throw new SecurityException(
+          "Invalid path - path traversal pattern detected (CWE-22) in "
+              + methodName
+              + ": "
+              + pathString);
     }
   }
 

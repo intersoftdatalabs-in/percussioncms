@@ -38,6 +38,7 @@ import com.percussion.security.IPSSecurityErrors;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
@@ -320,12 +321,21 @@ public class PSUpdateHandler extends PSDataHandler {
         String psredirect = request.getParameter(IPSHtmlParameters.DYNAMIC_REDIRECT_URL);
 
         if (psredirect != null && psredirect.trim().length() > 0) {
-          // run extensions for side effects and possibly trace
-          Document doc = null;
-          doc = processResultDocExtensions(execData, doc);
+          // CWE-601 Prevention: Validate redirect URL to prevent open redirect attacks
+          String validatedRedirect = PSRedirectValidation.validateInternalRedirectUrl(psredirect);
 
-          // send the redirect
-          request.getResponse().sendRedirect(psredirect, request);
+          if (validatedRedirect != null) {
+            // run extensions for side effects and possibly trace
+            Document doc = null;
+            doc = processResultDocExtensions(execData, doc);
+
+            // send the redirect
+            request.getResponse().sendRedirect(validatedRedirect, request);
+          } else {
+            // Log potential open redirect attack and proceed with normal response
+            log.warn("Rejected potential open redirect attempt with URL: {}", psredirect);
+            // Continue with normal response processing below
+          }
         } else if (m_outputGenerator != null) { // redirect to a query
           /* we may still want to run the processors for any side
           effects that would be generated.  Bug Id: Rx-00-09-0046

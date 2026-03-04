@@ -16,6 +16,7 @@
  */
 package com.percussion.comments.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
@@ -57,9 +58,9 @@ import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
-import net.sf.json.JSONNull;
-import net.sf.json.JSONObject;
+import java.util.Map;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -125,9 +126,9 @@ public class PSCommentsService implements IPSCommentsService {
     var queryParamQMark = (!maxParamString.isBlank() || !startParamString.isBlank()) ? "?" : "";
     var queryParamAmper = (!maxParamString.isBlank() && !startParamString.isBlank()) ? "&" : "";
 
-    var postJson = new JSONObject();
-    postJson.element("maxResults", max);
-    postJson.elementOpt("startIndex", start);
+    var postJson = new java.util.LinkedHashMap<String, Object>();
+    if (max != null) postJson.put("maxResults", max);
+    if (start != null) postJson.put("startIndex", start);
     var actionUrl = COMMENT_GET_PAGES_WITH_COMMENTS + site;
 
     return new PSCommentsSummaryList(getCommentsSummaries(site, actionUrl, false, postJson));
@@ -200,38 +201,41 @@ public class PSCommentsService implements IPSCommentsService {
         throw new RuntimeException(
             "Cannot find server with service of: " + PSDeliveryInfo.SERVICE_COMMENTS);
       }
-      var postJson = new JSONObject();
-      postJson.element("site", site);
-      postJson.elementOpt("pagepath", pagePath);
+      var postJson = new java.util.LinkedHashMap<String, Object>();
+      postJson.put("site", site);
+      if (!pagePath.isEmpty()) postJson.put("pagepath", pagePath);
 
       try {
         var deliveryClient = new PSDeliveryClient();
         deliveryClient.setLicenseOverride(licenseId);
-        var commentsOnPage =
-            deliveryClient
-                .getJsonObject(
-                    new PSDeliveryActionOptions(
-                        server, COMMENT_GET_COMMENTS_ON_PAGE, HttpMethodType.POST, true),
-                    postJson.toString())
-                .getJSONArray("comments");
+        var mapper = new ObjectMapper();
+        var responseMapObj = deliveryClient
+            .getJsonObject(
+                new PSDeliveryActionOptions(
+                    server, COMMENT_GET_COMMENTS_ON_PAGE, HttpMethodType.POST, true),
+                mapper.writeValueAsString(postJson));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseMap = (Map<String, Object>) responseMapObj;
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> commentsOnPage = (List<Map<String, Object>>) responseMap.get("comments");
 
-        for (var i = 0; i < commentsOnPage.size(); i++) {
-          var jsonComment = commentsOnPage.getJSONObject(i);
+        for (var jsonComment : commentsOnPage) {
           var currentComment = new PSComment();
-          currentComment.setPagePath(jsonComment.getString("pagePath"));
-          currentComment.setSiteName(jsonComment.getString("site"));
-          if (!(jsonComment.get("username") instanceof JSONNull)) {
-            currentComment.setUserName(jsonComment.getString("username"));
+          currentComment.setPagePath((String) jsonComment.get("pagePath"));
+          currentComment.setSiteName((String) jsonComment.get("site"));
+          var userNameObj = jsonComment.get("username");
+          if (userNameObj != null && !"null".equals(userNameObj.toString())) {
+            currentComment.setUserName((String) userNameObj);
           }
-          currentComment.setCommentCreateDate(jsonComment.getString("createdDate"));
-          currentComment.setCommentTitle(jsonComment.getString("title"));
-          currentComment.setCommentText(jsonComment.getString("text"));
-          currentComment.setUserEmail(jsonComment.getString("email"));
-          currentComment.setUserLinkUrl(jsonComment.getString("url"));
-          currentComment.setCommentApprovalState(jsonComment.getString("approvalState"));
-          currentComment.setCommentModerated(jsonComment.getBoolean("moderated"));
-          currentComment.setCommentViewed(jsonComment.getBoolean("viewed"));
-          currentComment.setCommentId(jsonComment.getString("id"));
+          currentComment.setCommentCreateDate((String) jsonComment.get("createdDate"));
+          currentComment.setCommentTitle((String) jsonComment.get("title"));
+          currentComment.setCommentText((String) jsonComment.get("text"));
+          currentComment.setUserEmail((String) jsonComment.get("email"));
+          currentComment.setUserLinkUrl((String) jsonComment.get("url"));
+          currentComment.setCommentApprovalState((String) jsonComment.get("approvalState"));
+          currentComment.setCommentModerated(Boolean.parseBoolean(String.valueOf(jsonComment.get("moderated"))));
+          currentComment.setCommentViewed(Boolean.parseBoolean(String.valueOf(jsonComment.get("viewed"))));
+          currentComment.setCommentId((String) jsonComment.get("id"));
           aggregatedComments.add(currentComment);
         }
       } catch (Exception e) {
@@ -301,13 +305,13 @@ public class PSCommentsService implements IPSCommentsService {
       var deliveryClient = new PSDeliveryClient();
       deliveryClient.setLicenseOverride(licenseId);
 
-      var setState = new JSONObject();
+      var setState = new java.util.LinkedHashMap<String, Object>();
       setState.put("site", data.getSite());
       setState.put("state", data.getState());
       deliveryClient.push(
           new PSDeliveryActionOptions(
               server, COMMENT_DEFAULT_MODERATION_STATE_PATH, HttpMethodType.PUT, true),
-          setState.toString());
+          new ObjectMapper().writeValueAsString(setState));
     } catch (Exception e) {
       log.error(
           "An unknown error occurred while retrieving the default moderation setting. Error: {}",
@@ -337,9 +341,9 @@ public class PSCommentsService implements IPSCommentsService {
                   true));
 
       if ("APPROVED".equals(moderationState) || "REJECTED".equals(moderationState)) {
-        var returnObject = new JSONObject();
+        var returnObject = new java.util.LinkedHashMap<String, Object>();
         returnObject.put("defaultModerationState", moderationState);
-        return returnObject.toString();
+        return new ObjectMapper().writeValueAsString(returnObject);
       } else {
         log.error("Unknown default moderation state: {}", moderationState);
         throw new WebApplicationException(Response.serverError().build());
@@ -392,14 +396,14 @@ public class PSCommentsService implements IPSCommentsService {
    * @return PSCommentsSummary for the page
    */
   private PSCommentsSummary getCommentSummary(
-      String siteName, JSONObject pageObj, boolean countsOnly) {
+      String siteName, Map<String, Object> pageObj, boolean countsOnly) {
     var sum = new PSCommentsSummary();
     PSPage page = null;
 
-    sum.setCommentCount(pageObj.getInt("commentCount"));
-    sum.setApprovedCount(pageObj.getInt("approvedCount"));
-    sum.setNewCount(pageObj.getInt("newCommentCount"));
-    sum.setPagePath(pageObj.getString("pagePath"));
+    sum.setCommentCount(((Number) pageObj.get("commentCount")).intValue());
+    sum.setApprovedCount(((Number) pageObj.get("approvedCount")).intValue());
+    sum.setNewCount(((Number) pageObj.get("newCommentCount")).intValue());
+    sum.setPagePath((String) pageObj.get("pagePath"));
 
     var fullPagePath = SITES + siteName + sum.getPagePath();
 
@@ -446,11 +450,11 @@ public class PSCommentsService implements IPSCommentsService {
    * @return list of comment summaries for the site.
    */
   private List<PSCommentsSummary> getCommentsSummaries(
-      String name, String url, boolean countsOnly, JSONObject postJson) {
+      String name, String url, boolean countsOnly, Map<String, Object> postJson) {
     if (postJson == null) {
-      postJson = new JSONObject();
-      postJson.element("maxResults", "");
-      postJson.elementOpt("startIndex", "");
+      postJson = new LinkedHashMap<>();
+      postJson.put("maxResults", "");
+      postJson.put("startIndex", "");
     }
     var summaries = new ArrayList<PSCommentsSummary>();
     String adminUrl;
@@ -466,14 +470,17 @@ public class PSCommentsService implements IPSCommentsService {
     try {
       var deliveryClient = new PSDeliveryClient();
       deliveryClient.setLicenseOverride(licenseId);
-      var siteInfo =
-          deliveryClient
-              .getJsonObject(
-                  new PSDeliveryActionOptions(server, url, HttpMethodType.POST, true),
-                  postJson.toString())
-              .getJSONArray("summaries");
+      var mapper = new ObjectMapper();
+      @SuppressWarnings("unchecked")
+      Map<String, Object> responseMap = (Map<String, Object>) deliveryClient
+          .getJsonObject(
+              new PSDeliveryActionOptions(server, url, HttpMethodType.POST, true),
+              mapper.writeValueAsString(postJson));
+      @SuppressWarnings("unchecked")
+      List<Object> siteInfo = (List<Object>) responseMap.get("summaries");
       for (var i = 0; i < siteInfo.size(); i++) {
-        var pageObj = siteInfo.getJSONObject(i);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> pageObj = (Map<String, Object>) siteInfo.get(i);
         summaries.add(getCommentSummary(name, pageObj, countsOnly));
       }
     } catch (Exception e) {

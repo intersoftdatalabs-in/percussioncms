@@ -40,9 +40,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,22 +186,22 @@ public class PSPubServerRestService {
   @GET
   @Path("/availableDrivers")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailableDrivers() {
-    return JSONObject.fromObject(service.getAvailableDrivers()).toString();
+  public String getAvailableDrivers() throws com.fasterxml.jackson.core.JsonProcessingException {
+    return new ObjectMapper().writeValueAsString(service.getAvailableDrivers());
   }
 
   /** Gets available EC2 bucket regions. */
   @GET
   @Path("/availableRegions")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailableRegions() {
+  public String getAvailableRegions() throws com.fasterxml.jackson.core.JsonProcessingException {
     var regions = Regions.values();
     if (regions != null) {
       var regionNames = new String[regions.length];
       for (int i = 0; i < regions.length; i++) {
         regionNames[i] = regions[i].getName();
       }
-      return JSONArray.fromObject(regionNames).toString();
+      return new ObjectMapper().writeValueAsString(regionNames);
     }
     return null;
   }
@@ -211,12 +210,12 @@ public class PSPubServerRestService {
   @GET
   @Path("/availablePublishingServer/{publishServerType}")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailablePublishingServer(@PathParam("publishServerType") String publishServer) {
+  public String getAvailablePublishingServer(@PathParam("publishServerType") String publishServer) throws com.fasterxml.jackson.core.JsonProcessingException {
     var psDeliveryInfoService =
         (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
     var serverList = psDeliveryInfoService.getAdminUrls(publishServer);
     serverList.add(IPSPubServerService.DEFAULT_DTS);
-    return JSONArray.fromObject(serverList.toArray()).toString();
+    return new ObjectMapper().writeValueAsString(serverList.toArray());
   }
 
   /** Checks if the current instance is an EC2 instance. */
@@ -260,8 +259,8 @@ public class PSPubServerRestService {
   @GET
   @Path("/availableDeliveryServers")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailableDeliveryServers() {
+  public String getAvailableDeliveryServers() throws com.fasterxml.jackson.core.JsonProcessingException {
     IPSDeliveryInfoService svc = PSDeliveryInfoServiceLocator.getDeliveryInfoService();
-    return JSONObject.fromObject(svc.findAll()).toString();
+    return new ObjectMapper().writeValueAsString(svc.findAll());
   }
 }

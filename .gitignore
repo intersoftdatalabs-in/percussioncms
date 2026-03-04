@@ -12,6 +12,8 @@ system/.settings/*
 spotless-index-file
 bin/
 target/
+.codeql-db/
+.codeql-results/
 node_modules/
 *.iml
 *.ipr
@@ -158,3 +160,6 @@ docker/logs
 
 .env
 .envrc
+
+# Local Agents file
+AGENTS.local.md

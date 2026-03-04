@@ -20,7 +20,6 @@ package com.percussion.pagemanagement.assembler;
 import jakarta.servlet.ServletException;
 import java.util.*;
 import java.util.stream.Collectors;
-import net.sf.json.JSONException;
 
 /** Helper for processing metadata tags and their occurrences. */
 public class PSMetadataTagsHelper {
@@ -87,7 +86,7 @@ public class PSMetadataTagsHelper {
     }
   }
 
-  private Map<String, Integer> sortByAlphaOrder(Map<String, Integer> tagsMap) throws JSONException {
+  private Map<String, Integer> sortByAlphaOrder(Map<String, Integer> tagsMap) {
     return tagsMap.entrySet().stream()
         .sorted(Map.Entry.comparingByKey())
         .collect(
@@ -95,8 +94,7 @@ public class PSMetadataTagsHelper {
                 Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
   }
 
-  private Map<String, Integer> sortByCountOrder(Map<String, Integer> tagObjects)
-      throws JSONException {
+  private Map<String, Integer> sortByCountOrder(Map<String, Integer> tagObjects) {
     return tagObjects.entrySet().stream()
         .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
         .collect(

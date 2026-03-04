@@ -17,9 +17,9 @@
 
 package com.percussion.widgets.image.web.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.widgets.image.data.CachedImageMetaData;
 import com.percussion.widgets.image.services.ImageCacheManager;
-import net.sf.json.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,7 +83,8 @@ public class ImageRequestController extends ParameterizableViewController implem
 
             var imageData = imageDataOpt.get();
             var cachedMetadata = new CachedImageMetaData(imageData, imageKey);
-            var json = JSONSerializer.toJSON(cachedMetadata);
+            var mapper = new ObjectMapper();
+            var json = mapper.convertValue(cachedMetadata, java.util.Map.class);
 
             mav.addObject(modelObjectName, json);
             log.debug("Successfully processed image request for key: {}", imageKey);

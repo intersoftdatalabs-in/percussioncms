@@ -19,6 +19,7 @@ package com.percussion.xml;
 
 import com.percussion.error.PSCatalogException;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.validation.URLValidation;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
@@ -208,6 +209,13 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
         charSet = PSCharSets.rxStdEnc();
       } else {
         // open the URL and get the content and its character set
+        // Validate URL to prevent SSRF attacks (CWE-918)
+        try {
+          URLValidation.validateURL(dtdURL);
+        } catch (SecurityException e) {
+          throw new IOException("SSRF validation failed: " + e.getMessage(), e);
+        }
+
         URLConnection conn = dtdURL.openConnection();
 
         String contentType = conn.getHeaderField("Content-Type");

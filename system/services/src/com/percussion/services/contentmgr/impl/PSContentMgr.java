@@ -676,6 +676,12 @@ public class PSContentMgr  implements IPSContentMgr
       String columnName = beColumn.getColumn();
       org.hibernate.Session sess = getSession();
 
+      // Validate columnName to prevent SQL injection (CWE-89)
+      // Note: columnName comes from PSBackEndColumn domain model
+      // which is a trusted source, but we validate for defense-in-depth
+      if (!isValidColumnName(columnName)) {
+         throw new RuntimeException("Invalid column name: " + columnName);
+      }
 
       String sql = null;
       try {
@@ -683,11 +689,13 @@ public class PSContentMgr  implements IPSContentMgr
                         PSSqlHelper.qualifyTableName("CONTENTSTATUS") + " c, " +
                         PSSqlHelper.qualifyTableName(tableName) +
                         " t WHERE c.CONTENTID=t.CONTENTID AND c.CURRENTREVISION=t.REVISIONID AND t." +
-                        columnName + " = '" + fieldValue + "'";
+                        columnName + " = :fieldValue";
       } catch (SQLException e) {
          throw new RuntimeException(e);
       }
-      org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
+      org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql, Object.class);
+      // Parameterize fieldValue to prevent SQL injection (CWE-89)
+      query.setParameter("fieldValue", fieldValue);
       List<?> rows = query.list();
 
          for (Object row : rows)
@@ -697,6 +705,23 @@ public class PSContentMgr  implements IPSContentMgr
 
 
       return contentIds;
+   }
+
+   /**
+    * Validates that a column name contains only safe characters (CWE-89 SQL Injection prevention).
+    * Allows: alphanumeric characters, underscores, dots (for qualified names like "table.column")
+    * Rejects: quotes, dashes, semicolons, comment markers, and other SQL special characters.
+    *
+    * @param columnName the column name to validate
+    * @return true if the column name is safe, false otherwise
+    */
+   private static boolean isValidColumnName(String columnName) {
+      if (columnName == null || columnName.trim().isEmpty()) {
+         return false;
+      }
+      // Allow alphanumeric, underscore, and dot (for qualified names)
+      // Pattern: [a-zA-Z0-9_.]+ - no spaces, no quotes, no special SQL chars
+      return columnName.matches("^[a-zA-Z0-9_.]+$");
    }
 
 }

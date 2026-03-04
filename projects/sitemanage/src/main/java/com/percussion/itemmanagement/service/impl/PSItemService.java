@@ -100,6 +100,7 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.publishing.IPSPublishingWs;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -122,12 +123,11 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -481,14 +481,14 @@ public class PSItemService implements IPSItemService {
   @Path("siteimpact/asset/{assetId}")
   @Produces(MediaType.TEXT_PLAIN)
   public String getAssetSiteImpact(@PathParam("assetId") String assetId) {
-    JSONObject result = new JSONObject();
+    Map<String, Object> result = new LinkedHashMap<>();
     Set<String> ownerPages = new HashSet<>();
     Set<String> ownerTemplates = new HashSet<>();
     try {
       fillOwners(assetId, ownerPages, ownerTemplates);
 
       getManagedLinkOwners(assetId, ownerPages, ownerTemplates, MAX_PAGES_SITEIMPACT);
-      JSONArray pageArray = new JSONArray();
+      List<Object> pageArray = new ArrayList<>();
       for (String page : ownerPages) {
         PSItemProperties itemProps = null;
         try {
@@ -505,7 +505,7 @@ public class PSItemService implements IPSItemService {
           pageArray.add(itemProps);
         }
       }
-      JSONArray templateArray = new JSONArray();
+      List<Object> templateArray = new ArrayList<>();
       for (String templateId : ownerTemplates) {
         PSTemplateSummary template = null;
         try {
@@ -520,7 +520,7 @@ public class PSItemService implements IPSItemService {
 
         List<IPSSite> sites = folderHelper.getItemSites(templateId);
         if (sites != null && !sites.isEmpty()) {
-          JSONObject templateItem = new JSONObject();
+          Map<String, Object> templateItem = new LinkedHashMap<>();
 
           if (template != null) {
             templateItem.put("template", template);
@@ -531,7 +531,7 @@ public class PSItemService implements IPSItemService {
           }
           templateArray.add(templateItem);
         } else {
-          JSONObject templateItem = new JSONObject();
+          Map<String, Object> templateItem = new LinkedHashMap<>();
 
           if (null != template) {
             templateItem.put("template", template);
@@ -554,7 +554,13 @@ public class PSItemService implements IPSItemService {
       throw new WebApplicationException(
           "An unexpected error occurred while fetching the site impact details for the asset.", e);
     }
-    return result.toString();
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      return mapper.writeValueAsString(result);
+    } catch (Exception e) {
+      log.error("Error serializing site impact data: {}", PSExceptionUtils.getMessageForLog(e));
+      return "{}";
+    }
   }
 
   /**

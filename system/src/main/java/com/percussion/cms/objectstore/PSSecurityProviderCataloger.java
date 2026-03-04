@@ -19,6 +19,7 @@ package com.percussion.cms.objectstore;
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.validation.URLValidation;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,6 +44,8 @@ public class PSSecurityProviderCataloger {
   public PSSecurityProviderCataloger(URL urlBase) throws PSCmsException {
     try {
       URL url = new URL(urlBase, RESOURCE);
+      // Validate URL to prevent SSRF attacks (CWE-918)
+      URLValidation.validateURL(url);
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
       fromXml(doc.getDocumentElement());
     } catch (Exception e) {

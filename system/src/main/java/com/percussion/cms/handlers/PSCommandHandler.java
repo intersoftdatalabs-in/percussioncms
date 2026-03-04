@@ -63,6 +63,7 @@ import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
@@ -758,7 +759,17 @@ public abstract class PSCommandHandler extends PSDataHandler {
     if (isUpdate()) {
       String psredirect = data.getRequest().getParameter(IPSHtmlParameters.DYNAMIC_REDIRECT_URL);
 
-      if (psredirect != null && psredirect.trim().length() > 0) url = psredirect;
+      if (psredirect != null && psredirect.trim().length() > 0) {
+        // CWE-601 Prevention: Validate redirect URL to prevent open redirect attacks
+        String validatedUrl = PSRedirectValidation.validateInternalRedirectUrl(psredirect);
+        if (validatedUrl != null) {
+          url = validatedUrl;
+        } else {
+          // Log potential open redirect attack
+          log.warn("Rejected potential open redirect attempt with URL: {}", psredirect);
+          // Continue with stored requests below
+        }
+      }
     }
 
     // if we didn't get a redirect from the params, use the stored requests.

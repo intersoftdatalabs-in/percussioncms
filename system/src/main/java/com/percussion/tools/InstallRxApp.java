@@ -17,6 +17,7 @@
 
 package com.percussion.tools;
 
+import com.percussion.security.validation.PathValidation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -84,14 +85,20 @@ public class InstallRxApp {
       entry = (ZipEntry) e.nextElement();
       name = entry.getName();
 
-      // skip all files with name starting with 'com/'!
+      // skip all files with name starting with 'com/'
       if (-1 == name.indexOf(appFilter)) continue;
 
-      System.out.println("Extracting file: " + name + "...");
       try {
+        // CWE-22: Validate zip entry path to prevent ZipSlip attacks
+        File targetDir = new File(sTargetRoot);
+        File safeFile = PathValidation.constructSafePath(targetDir, entry.getName());
+        System.out.println("Extracting file: " + name + "...");
         is = m_JF.getInputStream(entry);
-        copyInputStreamToFile(is, sTargetRoot, name);
+        copyInputStreamToFileWithoutValidation(is, safeFile);
         is.close();
+      } catch (SecurityException se) {
+        // ZipSlip attack detected - skip malicious entry
+        System.out.println("Security: Rejected malicious zip entry: " + name);
       } catch (IOException ioe) {
         System.out.println("Error: " + ioe.getMessage());
       }
@@ -113,6 +120,24 @@ public class InstallRxApp {
     if (null != parent && !parent.exists()) parent.mkdirs();
 
     FileOutputStream fos = new FileOutputStream(file);
+    copyData(is, fos);
+    fos.close();
+  }
+
+  /**
+   * Copy pre-validated input stream to already-validated target file (no path validation).
+   */
+  private void copyInputStreamToFileWithoutValidation(InputStream is, File targetFile)
+      throws IOException {
+    File parent = targetFile.getParentFile();
+    if (null != parent && !parent.exists()) parent.mkdirs();
+
+    FileOutputStream fos = new FileOutputStream(targetFile);
+    copyData(is, fos);
+    fos.close();
+  }
+
+  private void copyData(InputStream is, FileOutputStream fos) throws IOException {
     byte[] buffer = new byte[1024];
     int nRead = -1;
     while (true) {

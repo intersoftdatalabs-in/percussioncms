@@ -33,15 +33,15 @@ import com.smartgwt.client.widgets.layout.HLayout;
  * A generic status dialog. Shows the message and title with OK button. Usage,
  * create an instance of this class and call open method with the message and
  * title.
- * 
+ *
  * @author bjoginipally
- * 
+ *
  */
 public class PSStatusDialog extends Dialog
 {
    /**
     * Ctor, Creates a label and a button and adds them to this dialog.
-    * 
+    *
     */
    public PSStatusDialog()
    {
@@ -66,17 +66,13 @@ public class PSStatusDialog extends Dialog
       hlBtn.setHeight100();
       hlBtn.setWidth100();
       hlBtn.setAlign(Alignment.RIGHT);
-      
-      IButton okBtn = new IButton("OK");
-      okBtn.addClickHandler(new ClickHandler()
-      {
-         public void onClick(ClickEvent event)
-         {
-            hide();
-         }
-      });
+
+      // Do not add a click handler here — adding an anonymous inner
+      // ClickHandler in the constructor would allow `this` to escape
+      // before the object is fully initialized. The handler is added
+      // lazily in `open()` to avoid that warning/risk.
       hlLabel.addMember(m_label);
-      hlBtn.addMember(okBtn);
+      hlBtn.addMember(m_okBtn);
       addItem(hlLabel);
       addItem(hlBtn);
    }
@@ -89,7 +85,7 @@ public class PSStatusDialog extends Dialog
 
    /**
     * Sets the title and message of the dialog and shows it.
-    * 
+    *
     * @param title The title of the message dialog.
     * @param message The message that needs to be shown.
     */
@@ -100,6 +96,17 @@ public class PSStatusDialog extends Dialog
       setAutoCenter(true);
       setTitle(title);
       m_label.setContents(message);
+      if (!m_okHandlerAdded)
+      {
+         m_okBtn.addClickHandler(new ClickHandler()
+         {
+            public void onClick(ClickEvent event)
+            {
+               hide();
+            }
+         });
+         m_okHandlerAdded = true;
+      }
       super.show();
    }
 
@@ -107,6 +114,11 @@ public class PSStatusDialog extends Dialog
     * The label element in which the message is shown.
     */
    private HTMLPane m_label = new HTMLPane();
+
+   // OK button is created as a field so we can add its handler after
+   // construction (in open()) to avoid exposing `this` during ctor.
+   private final IButton m_okBtn = new IButton("OK");
+   private boolean m_okHandlerAdded = false;
 
    private static final String MESSAGE_BORDER_STYLE = "1px solid #D4D4D4";
    private static final int DIALOG_HEIGHT = 300;

@@ -29,11 +29,11 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
 /**
- * This class contains functionality that was embedded in the workflow system. 
+ * This class contains functionality that was embedded in the workflow system.
  * This listens for email messages to be delivered and uses the configured
  * mail plugin to deliver them. The plugin is resolved on construction, so
  * changes to the configuration require a server restart.
- * 
+ *
  * @author dougrand
  *
  */
@@ -44,14 +44,14 @@ public class PSEmailMessageHandler implements MessageListener
     */
    private static final Logger ms_logger = LogManager.getLogger(
          PSEmailMessageHandler.class);
-   
+
    /**
     * Mailing program to use. Resolved during contruction. If <code>null</code>
     * after construction, email cannot be delivered and errors will be logged
     * to the console.
     */
    private IPSMailProgram m_mailPlugin = null;
-   
+
    /**
     * Ctor
     */
@@ -80,7 +80,7 @@ public class PSEmailMessageHandler implements MessageListener
          ms_logger.error("Cannot instantiate email plugin" , e);
       }
    }
-   
+
    public void onMessage(Message message)
    {
       try
@@ -88,9 +88,26 @@ public class PSEmailMessageHandler implements MessageListener
          if (message instanceof ObjectMessage)
          {
             ObjectMessage om = (ObjectMessage) message;
-            
-            IPSMailMessageContext email = (IPSMailMessageContext) om.getObject();
-         
+            Object deserializedObj;
+            try {
+               // JMS deserialization - validate message type (CWE-502)
+               deserializedObj = om.getObject();
+               if (deserializedObj == null) {
+                  ms_logger.error("Received null email message from queue");
+                  return;
+               }
+               if (!(deserializedObj instanceof IPSMailMessageContext)) {
+                  ms_logger.error("Invalid message type: expected IPSMailMessageContext, got {}",
+                     deserializedObj.getClass().getName());
+                  return;
+               }
+            } catch (JMSException e) {
+               ms_logger.error("Failed to deserialize email message: {}", e.getMessage());
+               return;
+            }
+
+            IPSMailMessageContext email = (IPSMailMessageContext) deserializedObj;
+
             if (m_mailPlugin == null)
             {
                ms_logger.error("Plugin not configured. " +
@@ -106,10 +123,9 @@ public class PSEmailMessageHandler implements MessageListener
       {
          ms_logger.error("Cannot deliver email", e);
       }
-      catch (JMSException e)
+      catch (Exception e)
       {
-         ms_logger.error("Cannot deliver email - jms failure",
-               e);
+         ms_logger.error("Cannot deliver email - message failure", e);
       }
       finally
       {
@@ -123,7 +139,7 @@ public class PSEmailMessageHandler implements MessageListener
          }
       }
    }
-   
+
    /**
     * When this bean is being destroyed, Spring will call this method. Cleanup
     * the mail plugin here if it is present.

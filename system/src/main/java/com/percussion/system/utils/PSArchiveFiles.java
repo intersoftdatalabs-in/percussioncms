@@ -18,6 +18,7 @@
 package com.percussion.system.utils;
 
 import com.percussion.cms.IPSConstants;
+import com.percussion.security.validation.PathValidation;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -372,10 +373,9 @@ public class PSArchiveFiles {
 
         if (!extractDir.endsWith(File.separator)) extractDir += File.separator;
 
-        File file = new File(extractDir, entry.getName());
-        if (!file.toPath().normalize().startsWith(extractDir))
-          throw new IllegalArgumentException(
-              "Archive file to extract from is not having correct path.");
+        // CWE-22: Prevent ZipSlip attacks by validating the extracted path
+        File baseDir = new File(extractDir);
+        File file = PathValidation.constructSafePath(baseDir, entry.getName());
         out = new FileOutputStream(file);
 
         byte[] buf = new byte[1024];

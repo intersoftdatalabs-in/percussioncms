@@ -40,10 +40,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * 
+ *
  * Dispatches to an implementation of {@link IPSMessageQueueListener} based
  * on the instance class of the message.
- * 
+ *
  * @author adamgent
  * @see #addListener(Class, IPSMessageQueueListener)
  */
@@ -55,16 +55,16 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
     */
    private static final Logger ms_logger = LogManager.getLogger(
          PSMessageQueueService.class);
-   
+
    private IPSQueueSender m_queueSender;
    private ConcurrentHashMap<String, IPSMessageQueueListener<?>> queueMap = new ConcurrentHashMap<>();
-   
+
    /**
     * Associates a Class with a single listener replacing any existing listener bound for that message
     * class.
-    * 
+    *
     * @param <T> The type of message.
-    * @param messageType objects of this type will be sent to 
+    * @param messageType objects of this type will be sent to
     *  listener {@link IPSMessageQueueListener#onMessage(Serializable)}, not null.
     * @param listener the listener that will be called for objects of messageType, not null.
     * {@inheritDoc}
@@ -73,14 +73,14 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
       notNull(listener);
       queueMap.put(messageType.getCanonicalName(), listener);
    }
-   
+
    /**
     * {@inheritDoc}
     */
    public <T extends Serializable> void removeListener(Class<T> messageType) {
       queueMap.remove(messageType.getCanonicalName());
    }
-   
+
    /**
     * {@inheritDoc}
     */
@@ -90,7 +90,7 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
       IPSMessageQueueListener<T> listener = (IPSMessageQueueListener<T>) queueMap.get(messageType.getCanonicalName());
       return Optional.ofNullable(listener);
    }
-   
+
    /**
     * {@inheritDoc}
     */
@@ -103,7 +103,7 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
          getQueueSender().sendMessage(message, priority);
       }
    }
-   
+
    /**
     * {@inheritDoc}
     */
@@ -119,19 +119,39 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
          if (message instanceof ObjectMessage)
          {
             ObjectMessage om = (ObjectMessage) message;
-            Serializable object = om.getObject();
+            Serializable object;
+            try {
+               // JMS deserialization - validate message type (CWE-502)
+               object = om.getObject();
+               if (object == null) {
+                  ms_logger.error("Received null message from queue");
+                  return;
+               }
+            } catch (JMSException e) {
+               ms_logger.error("Failed to deserialize message from queue: {}", e.getMessage());
+               return;
+            }
             String name = object.getClass().getCanonicalName();
-            IPSMessageQueueListener<Serializable> ql = (IPSMessageQueueListener<Serializable>) 
+            IPSMessageQueueListener<Serializable> ql = (IPSMessageQueueListener<Serializable>)
                queueMap.get(name);
             if (ql == null) {
                ms_logger.error("No listener for type: " + name);
             }
             else {
-               ql.onMessage(om.getObject());   
+               try {
+                  Serializable queueMessage = om.getObject();
+                  if (queueMessage != null) {
+                     ql.onMessage(queueMessage);
+                  } else {
+                     ms_logger.error("Queue message is null for listener: {}", name);
+                  }
+               } catch (JMSException e) {
+                  ms_logger.error("Failed to deserialize message for listener {}: {}", name, e.getMessage());
+               }
             }
          }
       }
-      catch (JMSException e)
+      catch (Exception e)
       {
          ms_logger.error("Cannot handle jms message", e);
       }
@@ -149,7 +169,7 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
          }
       }
    }
-   
+
    /**
     *  See setter.
     * @return never null.

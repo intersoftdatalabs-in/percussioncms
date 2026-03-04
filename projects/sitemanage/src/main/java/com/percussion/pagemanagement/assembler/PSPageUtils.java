@@ -115,6 +115,7 @@ import com.percussion.utils.jsr170.PSValueFactory;
 import com.percussion.utils.timing.PSStopwatchStack;
 import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.content.IPSContentWs;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -128,6 +129,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -147,9 +149,6 @@ import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -983,15 +982,22 @@ public class PSPageUtils extends PSJexlUtilBase {
       params = {@IPSJexlParam(name = "metadata", description = "Metadata string")},
       returns = "Map of key/value pairs")
   public Map<String, String> parseSoProMetadata(String metadata) {
-    JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(metadata);
-    Map<String, String> map = new ConcurrentHashMap<>();
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      @SuppressWarnings("unchecked")
+      Map<String, String> jsonObject = mapper.readValue(metadata, Map.class);
+      Map<String, String> map = new ConcurrentHashMap<>();
 
-    for (Object key : jsonObject.keySet()) {
-      Object value = jsonObject.get(key);
-      map.put(key.toString(), value.toString());
+      for (Map.Entry<String, String> entry : jsonObject.entrySet()) {
+        map.put(entry.getKey(), entry.getValue());
+      }
+
+      return map;
+    } catch (Exception e) {
+      log.error("Error parsing metadata: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return new ConcurrentHashMap<>();
     }
-
-    return map;
   }
 
   /**
@@ -1650,11 +1656,11 @@ public class PSPageUtils extends PSJexlUtilBase {
   @IPSJexlMethod(
       description = "Gets the processed list of pages that have set supplied calendar.",
       params = {@IPSJexlParam(name = "calendarName", description = "The name of the calendar")},
-      returns = "JSONArray object")
-  public JSONArray getPagesForCalendar(String calendarName)
+      returns = "List of page calendar items")
+  public List<Map<String, Object>> getPagesForCalendar(String calendarName)
       throws RepositoryException, ParseException {
     try {
-      JSONArray pagesForCal = new JSONArray();
+      List<Map<String, Object>> pagesForCal = new ArrayList<>();
       List<Integer> ids = pageDao.getPageIdsByFieldNameAndValue("page_calendar", calendarName);
 
       // Convert input string into a date
@@ -1699,7 +1705,7 @@ public class PSPageUtils extends PSJexlUtilBase {
         if (fields.get("page_end_date") != null) {
           endDate = inputFormat.parse((String) fields.get("page_end_date"));
         }
-        JSONObject pageCalItem = new JSONObject();
+        Map<String, Object> pageCalItem = new LinkedHashMap<>();
         pageCalItem.put("title", title);
         pageCalItem.put("summary", summary);
         pageCalItem.put(
@@ -1718,7 +1724,7 @@ public class PSPageUtils extends PSJexlUtilBase {
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return new JSONArray();
+      return new ArrayList<>();
     }
   }
 
@@ -1980,7 +1986,8 @@ public class PSPageUtils extends PSJexlUtilBase {
 
       // Get the persisted drop down field value.
 
-      JSONArray jsonArray = JSONArray.fromObject(fieldValue);
+      var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+      List<Map<String, Object>> jsonArray = mapper.readValue(fieldValue, java.util.ArrayList.class);
 
       // Get the categories from the category xml, so that the relevant
       // map can be populated.
@@ -1989,11 +1996,11 @@ public class PSPageUtils extends PSJexlUtilBase {
       if (category.getTopLevelNodes() != null && !category.getTopLevelNodes().isEmpty()) {
         List<PSCategoryNode> nodes = category.getTopLevelNodes();
         for (int n = 0; n < jsonArray.size(); n++) {
-          JSONObject jObj = jsonArray.getJSONObject(n);
+          Map<String, Object> jObj = jsonArray.get(n);
 
           for (Object key : jObj.keySet()) {
             if (((String) key).equalsIgnoreCase("id")) {
-              parentNode = getParentNode(nodes, jObj.getString((String) key), parentNode);
+              parentNode = getParentNode(nodes, (String) jObj.get((String) key), parentNode);
               if (parentNode != null) {
                 nodes = parentNode.getChildNodes();
                 if (!parentNode.equals(prevParentNode)) {
@@ -2001,14 +2008,14 @@ public class PSPageUtils extends PSJexlUtilBase {
                 }
                 prevParentNode = parentNode;
               }
-              nodeList = getCategoryList(nodes, jObj.getString((String) key));
+              nodeList = getCategoryList(nodes, (String) jObj.get((String) key));
               templateMap.put(fieldName + fieldCounter, nodeList);
             }
           }
         }
       }
       return new TreeMap<>(templateMap);
-    } catch (PSDataServiceException e) {
+    } catch (PSDataServiceException | com.fasterxml.jackson.core.JsonProcessingException e) {
       log.error(
           LOG_ERROR_DEFAULT, "getCategoryDropDownValues", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -2309,29 +2316,39 @@ public class PSPageUtils extends PSJexlUtilBase {
    * @return
    */
   @IPSJexlMethod(
-      description = "createJsonObject can be used to convert a JSON string into a JSONObject.",
+      description = "createJsonObject can be used to convert a JSON string into a Map.",
       params = {@IPSJexlParam(name = "jsonString", description = "A valid JSON string")},
-      returns = "A net.sf.json.JSONObject instance ")
-  public JSONObject createJsonObject(String jsonString) {
+      returns = "A Map instance")
+  public Map<String, Object> createJsonObject(String jsonString) {
     try {
-      return (JSONObject) JSONSerializer.toJSON(jsonString);
+      ObjectMapper mapper = new ObjectMapper();
+      @SuppressWarnings("unchecked")
+      Map<String, Object> result = mapper.readValue(jsonString, Map.class);
+      return result;
     } catch (Exception e) {
       log.error("Error processing json string: {}", jsonString);
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return null;
+      return new LinkedHashMap<>();
     }
   }
 
-  public JSONArray createJsonArray(JSONObject jsonObj, String name) {
+  public List<Object> createJsonArray(Map<String, Object> jsonObj, String name) {
     if (name == null || name.trim().isEmpty()) {
       throw new IllegalArgumentException("name is required");
     }
-    var ret = new JSONArray();
+    List<Object> ret = new ArrayList<>();
     if (jsonObj != null) {
       try {
-        ret = jsonObj.getJSONArray(name);
+        Object value = jsonObj.get(name);
+        if (value instanceof List<?>) {
+          @SuppressWarnings("unchecked")
+          List<Object> castedValue = (List<Object>) value;
+          ret = castedValue;
+        } else if (value != null) {
+          ret.add(value);
+        }
       } catch (Exception e) {
-        log.error("Error processing json string: {}", PSExceptionUtils.getMessageForLog(e));
+        log.error("Error processing json: {}", PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
     }

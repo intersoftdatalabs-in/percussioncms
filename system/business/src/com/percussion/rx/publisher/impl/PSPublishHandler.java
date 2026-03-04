@@ -103,7 +103,7 @@ import static org.apache.commons.lang3.Validate.notNull;
  * <p>
  * This processor receives messages from the publishing queue and feeds output
  * messages to the result queue.
- * 
+ *
  * @author dougrand
  */
 @PSBaseBean("sys_publishQueueListener")
@@ -113,8 +113,8 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
     * Logger used for publishing handler service.
     */
    private static final Logger log = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
-   
-   
+
+
    /**
     * The item states assigned on the particular delivery outcomes.
     */
@@ -127,48 +127,48 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       m.put(Outcome.DELIVERY_QUEUED, ItemState.DELIVERY_QUEUED);
       OUTCOME_STATE = m;
    }
-   
+
    /**
     * Cancellations are held in this list. Code using this list must synchronize
-    * access. Cancellations are removed from this list when a new cancellation 
+    * access. Cancellations are removed from this list when a new cancellation
     * is received and old messages have expired.
     */
-   private static List<PSCancelPublishingMessage> ms_cancellations 
+   private static List<PSCancelPublishingMessage> ms_cancellations
       = new CopyOnWriteArrayList<>();
 
    /**
     * Map whose key is a delivery type name and value is a flag which indicates
-    * whether or not empty delivery locations are allowed. 
+    * whether or not empty delivery locations are allowed.
     */
    private static Map<String, Boolean> ms_deliveryTypeToAllowsEmptyLocation
       = new ConcurrentHashMap<>();
-   
+
    /**
     * The delivery manager to actually deliver the content. Set via spring.
     */
    private IPSDeliveryManager m_deliveryManager = null;
-   
+
    private IPSAssemblyResultExpander m_paginationAssemblyResultExpander = null;
-   
+
    /**
     * The delivery manager to actually deliver the content. (auto) wired by spring.
     */
-   private Map<String, IPSAssemblyResultExpander> m_assemblyResultExpanders = 
+   private Map<String, IPSAssemblyResultExpander> m_assemblyResultExpanders =
       new ConcurrentHashMap<>();
 
    /**
     * The rx publish service, (auto) wired by spring
     */
    private IPSRxPublisherServiceInternal m_rxPubService = null;
-   
+
    /**
     * Constructor, auto wired via spring
-    * 
+    *
     * @param deliveryMgr the delivery manager, not <code>null</code>.
     * @param rxPubService the publish service, not <code>null</code>.
     */
    @Autowired
-   public PSPublishHandler(IPSDeliveryManager deliveryMgr, 
+   public PSPublishHandler(IPSDeliveryManager deliveryMgr,
       IPSRxPublisherServiceInternal rxPubService,
                            PSQueueErrorHandler errorHandler)
    {
@@ -179,7 +179,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       //register a listener for JMS Queue errors
       errorHandler.addListener(this);
    }
-   
+
 
    public IPSAssemblyResultExpander getPaginationAssemblyResultExpander()
    {
@@ -192,11 +192,11 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
    {
       m_paginationAssemblyResultExpander = paginationAssemblyResultExpander;
    }
-   
+
    /**
     * Custom assembly result expanders that are from spring.
     * The name of the bean is the key.
-    * 
+    *
     * @return expanders never <code>null</code>.
     */
    public Map<String, IPSAssemblyResultExpander> getAssemblyResultExpanders()
@@ -210,7 +210,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
    {
       m_assemblyResultExpanders = assemblyResultExpanders;
    }
-   
+
    public void onMessage(Message message)
    {
       try
@@ -221,14 +221,22 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
             Object objectMessage;
             try
             {
+               // JMS deserialization - validate message type (CWE-502)
                objectMessage = om.getObject();
+               // Whitelist: Only accept known safe message types from internal queue
+               if (!(objectMessage instanceof PSCancelPublishingMessage ||
+                     objectMessage instanceof PSJobControlMessage ||
+                     objectMessage instanceof IPSAssemblyItem)) {
+                  log.error("Invalid message type from queue: {}", objectMessage.getClass().getName());
+                  return;
+               }
             }
             catch (JMSException e)
             {
                log.error("Problem getting message", e);
                return;
             }
-   
+
             if (objectMessage instanceof PSCancelPublishingMessage)
             {
                onCancellation(objectMessage);
@@ -282,7 +290,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
     * <p>
     * Note that while one assembly item is being processed that with pagination
     * it is possible that many results will be returned.
-    * 
+    *
     * @param work the assembly work item, assumed never <code>null</code>.
     */
    private void onWorkItem(IPSAssemblyItem work)
@@ -316,12 +324,12 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       }
 
    }
-   
+
    /**
     * The same as {@link #onWorkItem(IPSAssemblyItem)}, except this will not reset
-    * the server information, {@link PSRequest}. 
-    * 
-    * @param work the to be processed work item, assumed not <code>null</code>. 
+    * the server information, {@link PSRequest}.
+    *
+    * @param work the to be processed work item, assumed not <code>null</code>.
     */
    @SuppressWarnings("unchecked")
    private void processWorkItem(IPSAssemblyItem work)
@@ -331,13 +339,13 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
          IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
          IPSPublisherService psvc = PSPublisherServiceLocator
                .getPublisherService();
-         IPSRxPublisherServiceInternal rxpsvc = 
+         IPSRxPublisherServiceInternal rxpsvc =
                PSRxPubServiceInternalLocator.getRxPublisherService();
          List<IPSAssemblyResult> results = Collections.emptyList();
          try
          {
-          
-           
+
+
             // Check cancellation
             if (!ms_cancellations.isEmpty())
             {
@@ -354,8 +362,8 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
                   }
                }
             }
-         
-            
+
+
             PSPublishingJob job = rxpsvc.getPublishingJob(work.getJobId());
             if (job == null)
             {
@@ -365,7 +373,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
                // ignore/discard
                return;
             }
-            
+
             if (StringUtils.isEmpty(work.getDeliveryPath()) && !isEmptyLocationAllowed(psvc, work.getDeliveryType()))
             {
                results = handleEmptyLocation(work);
@@ -426,30 +434,30 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       catch (Exception th)
       {
          String msg = "Problem while handling assembly: ";
-         setEncodedResultData(work, msg + th.getMessage()); 
-         
+         setEncodedResultData(work, msg + th.getMessage());
+
 
             handleFailedResult((IPSAssemblyResult) work);
 
-         
+
          log.error(msg, th);
       }
    }
 
    /**
     * Handle a given failed result.
-    * 
+    *
     * @param result the failed result, assumed not <code>null</code>.
     */
    private void handleFailedResult(IPSAssemblyResult result)
    {
       ItemState state = IPSPublisherJobStatus.ItemState.FAILED;
       long pubServerId = result.getPubServerId() == null ? -1 : result.getPubServerId();
-      
+
       PSPubItemStatus status = new PSPubItemStatus(result.getReferenceId(),
             result.getJobId(), pubServerId, result.getDeliveryContext(), state);
       status.extractInfo(result);
-      
+
       // On failure, the result data is the message
       if (result.getResultData() != null)
       {
@@ -459,11 +467,11 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       {
          status.addMessage("Failed");
       }
-      
+
       updateItemStatus(status);
-      
+
    }
-   
+
    /**
     * Handle the given pagenated result.
     * @param result the pagenated result, assumed not <code>null</code>.
@@ -471,10 +479,10 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
     */
    private void expandAssemblyResult(IPSAssemblyResult result, IPSAssemblyResultExpander expander) throws Exception
    {
-      IPSRxPublisherServiceInternal rxpsvc = 
+      IPSRxPublisherServiceInternal rxpsvc =
          PSRxPubServiceInternalLocator.getRxPublisherService();
 
-      
+
       Long original = result.getReferenceId();
       List<IPSAssemblyItem> results;
       results = expander.expand(result);
@@ -493,12 +501,12 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
             iter.remove();
          }
       }
-      
-      
+
+
       // add the new items to the job, must be done before updating
       // current job status
       rxpsvc.addWorksForJob(result.getJobId(), addedItems);
-      
+
       // update the job status for the current work item.
       ItemState state = IPSPublisherJobStatus.ItemState.PAGED;
       PSPubItemStatus status = new PSPubItemStatus(result
@@ -512,7 +520,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
 
       if(originalItem != null)
          processWorkItem(originalItem); // TODO - this line may not work for CM system, paginated items
-      
+
       // process the new expanded items.
       for (IPSAssemblyItem i : addedItems)
       {
@@ -520,36 +528,36 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       }
    }
    /**
-    * Handles un-publish previous (published) locations for the specified 
-    * paginated items if the items have changed the publishing location. 
-    * The process can only be enabled if the parameter, 
+    * Handles un-publish previous (published) locations for the specified
+    * paginated items if the items have changed the publishing location.
+    * The process can only be enabled if the parameter,
     * {@link IPSHtmlParameters#SYS_UNPUBLISH_CHANGED_LOCATION} equals <code>true</code>,
     * is specified in the given paginated items; otherwise do nothing.
-    * 
-    * @param pagedItems the paginated items, assumed all items are based on one 
+    *
+    * @param pagedItems the paginated items, assumed all items are based on one
     * content item, so that the content IDs are the same. Assumed it is not
-    * <code>null</code>, but may be empty. Assumed the 1st element is the 1st 
+    * <code>null</code>, but may be empty. Assumed the 1st element is the 1st
     * page of the item.
     */
    private void handleChangedLocations(List<IPSAssemblyItem> pagedItems) throws PSNotFoundException {
       if (pagedItems.isEmpty())
          return;
-      
+
       IPSAssemblyItem item1 = pagedItems.get(0);
       String handleUnpublish = item1.getParameterValue(SYS_UNPUBLISH_CHANGED_LOCATION, "false");
       if (! "true".equals(handleUnpublish))
          return;
-      
+
       // do nothing if is not originated from an paginated item
       if (item1.getPage() == null)
-         return; 
-      
+         return;
+
       PSPublishingJob job = m_rxPubService.getPublishingJob(item1.getJobId());
       if (job == null)
          return;
-      
+
       Collection<IPSAssemblyItem> unpubItems = job.getUnpublishPaginatedItems(pagedItems);
-      
+
       if (!unpubItems.isEmpty())
       {
           log.debug("Unpublished list size = {} path={}",
@@ -557,7 +565,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
                   unpubItems.iterator().next().getDeliveryPath());
       }
    }
-   
+
    /**
     * Get the expander from the assembly result.
     * @param result never <code>null</code>.
@@ -570,12 +578,12 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
             IPSAssemblyResultExpander.ASSEMBLY_RESULT_EXPANDER_PARAM, null);
       return getAssemblyResultExpanders().get(expanderName);
    }
-   
+
    /**
     * Handle a job control message. The only current actions are initializing
     * site information on the delivery manager for job start, and commit
     * on job end.
-    * 
+    *
     * @param objectMessage the job control message, assumed never
     *           <code>null</code>.
     */
@@ -589,7 +597,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
          IPSGuid siteguid = (IPSGuid) jc.getData();
          IPSSite site;
          IPSPubServerDao psmgr = PSSiteManagerLocator.getPubServerDao();
-         
+
          IPSPubServer server;
          try
          {
@@ -605,13 +613,13 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
                     PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
          }
-      } 
+      }
       else // jc.getType() == END
       {
          boolean isCommitWithError = false;
          try
          {
-            Collection<IPSDeliveryResult> results = 
+            Collection<IPSDeliveryResult> results =
                m_deliveryManager.commit(jc.getJobId());
 
             for(IPSDeliveryResult result : results)
@@ -646,21 +654,21 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             isCommitWithError = true;
          }
-       
+
          m_rxPubService.acknowledgeJobCommit(jc.getJobId(), isCommitWithError);
       }
    }
 
    /**
     * Handle cancellation message by recording it in the static list of such
-    * messages. The list is synchronized for thread safety, and expired 
+    * messages. The list is synchronized for thread safety, and expired
     * messages are removed from the list.
     * <p>
     * After recording the cancellation message, the delivery manager is told to
-    * roll back pending work for the job and the message is passed on to the 
+    * roll back pending work for the job and the message is passed on to the
     * results processor.
-    * 
-    * @param objectMessage cancellation message, assumed never 
+    *
+    * @param objectMessage cancellation message, assumed never
     * <code>null</code>.
     */
    private void onCancellation(Object objectMessage)
@@ -682,7 +690,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       try
       {
          m_deliveryManager.rollback(cancel.getJobId());
-         
+
          IPSPublisherService psvc = PSPublisherServiceLocator
                .getPublisherService();
          psvc.cancelUnfinishedJobItems(cancel.getJobId());
@@ -692,26 +700,26 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
          log.error("Failed to abort delivery manager", e);
       }
    }
-   
+
    /**
     * Updates the status of the given item.
     * @param status the status of the item, assumed not <code>null</code>.
     */
    private void updateItemStatus(PSPubItemStatus status)
    {
-      m_rxPubService.updateItemState(status);      
+      m_rxPubService.updateItemState(status);
    }
-   
+
    /**
     * Handle the assembly part of the processing. This method always assembles
     * the work item for publishing and conditionally assembles it for unpublish
     * subject to the configuration of the delivery location.
-    * 
+    *
     * @param asm the assembly service, assumed never <code>null</code>.
     * @param psvc the publishing service, assumed never <code>null</code>.
     * @param work the assembly work item, assumed never <code>null</code>.
     * @return the results, never <code>null</code> and never empty.
-    * 
+    *
     * @throws RepositoryException
     * @throws PSTemplateNotImplementedException
     * @throws PSAssemblyException
@@ -748,7 +756,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
     * Handle creating the result for an assembly work item which has an empty
     * delivery location.  The item is marked as a failure and an appropriate
     * error message is specified in the item's result data.
-    * 
+    *
     * @param work the assembly work item, assumed never <code>null</code>.
     * @return the results, never <code>null</code> and never empty.
     */
@@ -757,15 +765,15 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       // mark as failed, set error message
       work.setStatus(Status.FAILURE);
       setEncodedResultData(work, "No delivery location found for this item - skipping");
-                        
+
       return Collections.singletonList((IPSAssemblyResult) work);
    }
-   
+
    /**
     * Sets the result data for the specified assembly work item.  The
     * result data will be set to the specified message, UTF8 encoded.
     * The mimetype of the work item is also set.
-    * 
+    *
     * @param work the assembly item, assumed not <code>null</code>.
     * @param msg the new result data, assumed not <code>null</code>.
     */
@@ -778,17 +786,17 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
          }
          work.setMimeType("text/plain; charset=utf8");
    }
-   
+
    /**
-    * Handle the delivery of the work item. This sends two messages to the 
-    * results processor. The first is the fact that the item has been 
+    * Handle the delivery of the work item. This sends two messages to the
+    * results processor. The first is the fact that the item has been
     * assembled. Then after it has been delivered, the status of the delivery
     * is used to send a second message with the results from delivery. The last
-    * thing this method does is to clear the results from the work item to 
+    * thing this method does is to clear the results from the work item to
     * reduce memory usage.
-    * 
+    *
     * @param work the work item, never <code>null</code>.
-    * 
+    *
     * @return the item state after delivery.
     */
    private ItemState handleDelivery(IPSAssemblyResult work)
@@ -845,7 +853,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
 
    /**
     * Handle an assembly exception by creating a new failure assembly result.
-    * 
+    *
     * @param item the assembly work item, modified by this method to show a
     *           failed result.
     * @param e the exception that is being reported, never <code>null</code>.
@@ -871,16 +879,16 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       }
       return Collections.singletonList(work);
    }
-   
+
    /**
     * Determines if empty delivery locations are allowed by the specified delivery type.
-    * 
+    *
     * @param psvc the publisher service, assumed not <code>null</code>.
     * @param deliveryType assumed to be the name of a valid delivery type.
-    * 
+    *
     * @return <code>true</code> if empty delivery locations are allowed by the delivery
     * type, <code>false</code> otherwise.
-    * 
+    *
     * @throws InvocationTargetException if an error occurs.
     * @throws IllegalAccessException if an error occurs.
     */
@@ -890,9 +898,9 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
       {
          return ms_deliveryTypeToAllowsEmptyLocation.get(deliveryType);
       }
-      
+
       boolean isEmptyLocationAllowed = false;
-      
+
       IPSDeliveryType dType = psvc.loadDeliveryType(deliveryType);
       IPSDeliveryHandler dHandler =
          (IPSDeliveryHandler) PSBaseServiceLocator.getBean(dType.getBeanName());
@@ -905,9 +913,9 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
             break;
          }
       }
-      
+
       ms_deliveryTypeToAllowsEmptyLocation.put(deliveryType, isEmptyLocationAllowed);
-      
+
       return isEmptyLocationAllowed;
    }
 

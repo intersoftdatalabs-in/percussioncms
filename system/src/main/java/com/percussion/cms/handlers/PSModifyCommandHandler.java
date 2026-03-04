@@ -75,6 +75,7 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
@@ -783,12 +784,19 @@ public class PSModifyCommandHandler extends PSCommandHandler {
         if (doc != null) {
           String psredirect = request.getParameter(IPSHtmlParameters.DYNAMIC_REDIRECT_URL);
           if (psredirect != null && psredirect.trim().length() > 0) {
-            // add the empty psredirect control to propigate its value.
-            // The mergeParameters method will populate it for us.
-            Element dispNode =
-                PSSingleValueBuilder.createHiddenField(
-                    doc, m_hiddenControlName, IPSHtmlParameters.DYNAMIC_REDIRECT_URL, "", false);
-            PSEditorDocumentBuilder.appendDisplayNode(doc, dispNode);
+            // CWE-601 Prevention: Validate redirect URL before propagating
+            String validatedRedirect = PSRedirectValidation.validateInternalRedirectUrl(psredirect);
+            if (validatedRedirect != null) {
+              // add the empty psredirect control to propigate its value.
+              // The mergeParameters method will populate it for us.
+              Element dispNode =
+                  PSSingleValueBuilder.createHiddenField(
+                      doc, m_hiddenControlName, IPSHtmlParameters.DYNAMIC_REDIRECT_URL, "", false);
+              PSEditorDocumentBuilder.appendDisplayNode(doc, dispNode);
+            } else {
+              // Validation failed - don't propagate potentially malicious redirect
+              // The redirect parameter is silently ignored for this operation
+            }
           }
 
           mergeParameters(doc, request);

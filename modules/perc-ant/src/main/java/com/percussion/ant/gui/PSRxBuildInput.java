@@ -18,6 +18,7 @@
 package com.percussion.ant.gui;
 
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.validation.PathValidation;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -729,14 +730,20 @@ public class PSRxBuildInput {
     while (entries.hasMoreElements()) {
       ZipEntry entry = (ZipEntry) entries.nextElement();
       String entryName = entry.getName();
-      if (entry.isDirectory()) {
-        dirs.add(FilenameUtils.separatorsToUnix((new File(entryName)).getPath()));
-      } else {
-        File tmp = new File(entryName);
-        String tmpParent = tmp.getParent();
-        dirs.remove(tmpParent);
-
-        backupTask += createBackupTask(tmp.getName(), dir + "/" + tmpParent);
+      try {
+        // CWE-22: Validate zip entry path to prevent ZipSlip attacks
+        File validatedPath = PathValidation.constructSafePath(new File(dir), entryName);
+        if (entry.isDirectory()) {
+          dirs.add(FilenameUtils.separatorsToUnix(validatedPath.getPath()));
+        } else {
+          File tmp = validatedPath;
+          String tmpParent = tmp.getParent();
+          dirs.remove(tmpParent);
+          backupTask += createBackupTask(tmp.getName(), dir + "/" + tmpParent);
+        }
+      } catch (SecurityException se) {
+        // ZipSlip attack detected - skip malicious entry
+        log.warn("Rejected malicious zip entry in backup: {} - {}", entryName, se.getMessage());
       }
     }
 
@@ -803,14 +810,20 @@ public class PSRxBuildInput {
     while (entries.hasMoreElements()) {
       ZipEntry entry = (ZipEntry) entries.nextElement();
       String entryName = entry.getName();
-      if (entry.isDirectory()) {
-        dirs.add(FilenameUtils.separatorsToUnix((new File(entryName)).getPath()));
-      } else {
-        File tmp = new File(entryName);
-        String tmpParent = tmp.getParent();
-        dirs.remove(tmpParent);
-
-        uninstallTask += createZipEntryUninstallTask(tmp.getName(), dir + "/" + tmpParent);
+      try {
+        // CWE-22: Validate zip entry path to prevent ZipSlip attacks
+        File validatedPath = PathValidation.constructSafePath(new File(dir), entryName);
+        if (entry.isDirectory()) {
+          dirs.add(FilenameUtils.separatorsToUnix(validatedPath.getPath()));
+        } else {
+          File tmp = validatedPath;
+          String tmpParent = tmp.getParent();
+          dirs.remove(tmpParent);
+          uninstallTask += createZipEntryUninstallTask(tmp.getName(), dir + "/" + tmpParent);
+        }
+      } catch (SecurityException se) {
+        // ZipSlip attack detected - skip malicious entry
+        log.warn("Rejected malicious zip entry in uninstall: {} - {}", entryName, se.getMessage());
       }
     }
 

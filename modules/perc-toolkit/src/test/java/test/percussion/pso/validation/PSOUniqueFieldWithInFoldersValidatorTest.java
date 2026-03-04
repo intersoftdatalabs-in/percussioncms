@@ -119,7 +119,8 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
   public void testGetFolderId() {
     final IPSRequestContext req = mock(IPSRequestContext.class);
 
-    final String psredirect = "http://base123?ps1=2&sys_folderid=1234&foo=bar";
+    // Use relative URL which passes internal redirect validation
+    final String psredirect = "/path/to/page?ps1=2&sys_folderid=1234&foo=bar";
 
     when(req.getParameter("psredirect")).thenReturn(psredirect);
 

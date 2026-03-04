@@ -56,9 +56,9 @@ import static org.apache.commons.lang3.Validate.notEmpty;
 /**
  * Responsible for extracting the metadata from a given page and returning a
  * PSMetadataEntry with its properties (PSMetadataProperty).
- * 
+ *
  * @author miltonpividori
- * 
+ *
  */
 public class PSMetadataExtractorService implements IPSMetadataExtractorService {
 
@@ -87,25 +87,25 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
         // Get the pagepath
         String pagePath = PSPagepathUtils.processPath(fileToScan.getAbsolutePath().substring(
                 tomcatHomeDirectory.getAbsolutePath().length()));
-        
+
         // Get the site directory
         File siteDirectory = new File(tomcatHomeDirectory, pagePath.split("/")[1]);
-        
+
         // Get folder
         String folder = getEntryFolder(siteDirectory, fileToScan);
-        
+
         // Get site
-        String site = getEntrySite(siteDirectory.getName()); 
-        
+        String site = getEntrySite(siteDirectory.getName());
+
         return runExtraction(new PSFileDocumentSource(fileToScan), pagePath,
                 fileToScan.getName(), folder, site);
     }*/
-    
+
     public static class PathSplit {
         private String site;
         private String folder;
         private String pageName;
-        
+
         public PathSplit(String pathToSite, String fullPath) {
             if (pathToSite == null) {
                 pathToSite = "/";
@@ -117,7 +117,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
             isTrue(startsWith(fullPath, pathToSite), "Path to site should be in full path.");
             if (! endsWith(pathToSite, "/"))
                 pathToSite = pathToSite + "/";
-            
+
             pageName = FilenameUtils.getName(fullPath);
             notEmpty(pageName, "filename (page name) is blank");
             String subPath = removeStart(fullPath, pathToSite);
@@ -126,7 +126,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
             notEmpty(site, "site cannot be resolved");
             folder = "/" + FilenameUtils.getPath(substringAfter(subPath, "/"));
         }
-        
+
         public String getPagePath() {
             return "/" + getSite() + getFolder() + getPageName();
         }
@@ -148,8 +148,8 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
         {
             return "PathSplit [site=" + site + ", folder=" + folder + ", pageName=" + pageName + "]";
         }
-        
-        
+
+
     }
     /*
      * (non-Javadoc)
@@ -190,18 +190,18 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
             }
         }
     }
-    
+
     /**
      * Runs an extraction process. Creates an RDF4J RDFa parser with the specified
-     * IPSDocumentSource (using Semargl's RDF4J implementation) and sets to the PSMetadataEntry returned 
+     * IPSDocumentSource (using Semargl's RDF4J implementation) and sets to the PSMetadataEntry returned
      * the pagepath, pagename, folder and site specified.
-     * 
+     *
      * @param documentSource An IPSDocumentSource to parse.
      * @param pagePath The pagepath of the page.
      * @param pageName The name of the page.
      * @param folder The folder of the page.
      * @param site The site of the page.
-     * @param additional 
+     * @param additional
      * @return A PSMetadataEntry object with the page information along with its metadata
      * properties.
      */
@@ -210,7 +210,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
    {
       RDFParser parser = null;
       PSTripleHandler handler = null;
-      
+
       try
       {
          // Create metadata entry
@@ -223,14 +223,14 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
              // Create RDF4J RDFa parser (Semargl implementation)
              parser = Rio.createParser(RDFFormat.RDFA);
              handler = new PSTripleHandler();
-             
+
              // Configure parser settings for lenient parsing
              parser.getParserConfig().set(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES, false);
              parser.getParserConfig().set(BasicParserSettings.FAIL_ON_UNKNOWN_LANGUAGES, false);
              parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
              parser.getParserConfig().set(BasicParserSettings.VERIFY_LANGUAGE_TAGS, false);
              parser.getParserConfig().set(BasicParserSettings.VERIFY_RELATIVE_URIS, false);
-             
+
              parser.setRDFHandler(handler);
 
              // Parse the document to extract RDF triples (RDFa metadata)
@@ -247,7 +247,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
                         .charset("UTF-8")
                         .syntax(Document.OutputSettings.Syntax.xml); // XHTML-like output
                  sanitizedHtml = doc.outerHtml();
-                 
+
                  // Regex replace named entities that are NOT XML predefined (lt, gt, amp, apos, quot)
                  // to numeric entities, because the SAX parser used by RDF4J/Semargl doesn't know HTML entities.
                  java.util.regex.Pattern entityPattern = java.util.regex.Pattern.compile("&(?!(?:lt|gt|amp|apos|quot);)([a-zA-Z0-9]+);");
@@ -256,7 +256,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
                  while (matcher.find()) {
                      String entityName = matcher.group(1);
                      // Use StringEscapeUtils to resolve the entity to a character
-                     String resolved = org.apache.commons.lang.StringEscapeUtils.unescapeHtml("&" + entityName + ";");
+                     String resolved = org.apache.commons.text.StringEscapeUtils.unescapeHtml4("&" + entityName + ";");
                      if (resolved.length() == 1) {
                          // Replace with numeric entity
                          matcher.appendReplacement(sb, "&#" + (int) resolved.charAt(0) + ";");
@@ -361,7 +361,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
      * Creates the 'folder' value for a metadata entry, according to the site
      * directory and file given. Some special cases are considered (for example,
      * the special folder 'ROOT').
-     * 
+     *
      * @param siteDirectory The site directory of the file.
      * @param fileToScan The file to extract the folder from.
      * @return A 'folder' value ready to be stored in the metadata entry.
@@ -373,25 +373,25 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
                 fileToScan.getAbsolutePath()
                     .substring(siteDirectory.getAbsolutePath().length())
         );
-        
+
         // Remove the ROOT folder from the folder field value
         if (folderWithFileName.startsWith("/ROOT"))
             folderWithFileName = folderWithFileName.substring(5);
-        
+
         // Remove the file name to get the folder
         String folder = folderWithFileName
                     .substring(0, folderWithFileName.length() - fileToScan.getName().length());
-        
+
         if (StringUtils.isEmpty(folder))
             return "/";
-        
+
         return folder;
     }*/
-    
+
     /**
      * Creates the 'site' value for a metadata entry, according to the site
      * directory. It removes the "apps" suffix from the site directory name.
-     * 
+     *
      * @param siteDirectory A site directory name to extract the 'site'
      * field value from.
      * @return A 'site' value ready to be stored in the metadata entry.
@@ -406,7 +406,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
 
     /**
      * Logs all fields of the given metadata entry, along with its properties.
-     * 
+     *
      * @param metadataEntry A metadata object to log. Should never be
      *            <code>null</code>.
      */
@@ -414,7 +414,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
     {
         if (!log.isTraceEnabled())
             return;
-        
+
         log.trace("Metadata entry info: " +
                 new ToStringBuilder(metadataEntry, ToStringStyle.SHORT_PREFIX_STYLE)
                     .append("pagepath", metadataEntry.getPagepath())
@@ -429,7 +429,7 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
 
     /**
      * Checks if a PSMetadataEntry has the minimum required fields present.
-     * 
+     *
      * @param metadataEntry A PSMetadataEntry to check. Should never be
      *            <code>null</code>.
      * @return 'true' if the metadata entry has the minimum required fields.

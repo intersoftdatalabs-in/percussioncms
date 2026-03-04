@@ -14,6 +14,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import org.w3c.dom.Element;
 import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.validation.URLValidation;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import javax.xml.transform.dom.DOMSource;
@@ -37,6 +38,8 @@ public class SOAPHTTPConnection
     public void send(URL target, String soapAction, Hashtable headers, Envelope env, Object unused, SOAPContext ctx) throws org.apache.soap.SOAPException
     {
         try {
+            // Validate URL to prevent SSRF attacks (CWE-918)
+            URLValidation.validateURL(target);
             HttpURLConnection conn = (HttpURLConnection) target.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");

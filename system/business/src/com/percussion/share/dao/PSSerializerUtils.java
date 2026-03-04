@@ -17,12 +17,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.security.error.PSExceptionUtils;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONNull;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,16 +40,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.apache.commons.lang3.StringUtils.removeEnd;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Various serializing/marshalling static methods.
  * <p>
- * Also has utilities for data conversion and copying of data 
+ * Also has utilities for data conversion and copying of data
  * from one object to another.
- *  
+ *
  * @author adamgent
  *
  */
@@ -77,7 +71,7 @@ public class PSSerializerUtils
             return null;
         }
     }
-    
+
     /**
      * See {@link #marshal(Object)}.
      * This should be used lightly as it does not have validation.
@@ -98,8 +92,8 @@ public class PSSerializerUtils
             return null;
         }
     }
-    
-    
+
+
     /**
      * Unmarshal an XML stream into an Object validating against its schema.
      * <p>
@@ -107,10 +101,10 @@ public class PSSerializerUtils
      * with the same name but ending in <code>.xsd</code>
      * <p>
      * <b>Example:</b>
-     * <p> 
+     * <p>
      * <b>Class:</b> <code>com.percussion.Stuff.class</code><p><b>Schema:</b> <code>com.percussion.Stuff.xsd</code>
      * <p>
-     * Note: This requires the schema file to be put into the jar when deployed. 
+     * Note: This requires the schema file to be put into the jar when deployed.
      * @param <T> type to unmarshal
      * @param stream never <code>null</code>.
      * @param type never <code>null</code>.
@@ -129,14 +123,14 @@ public class PSSerializerUtils
         T result = (T) unmarshaller.unmarshal(stream);
         return result;
     }
-    
+
     /**
      * Will convert an object into an XML representation but in JSON format.
      * This is useful for determining what the REST services JSON output of an object is.
      * <p>
      * This is <strong>not</strong> a object->JSON conversion but rather a
      * object->XML->JSON conversion.
-     * 
+     *
      * @param <T> object type.
      * @param object
      * @return a JSON object representing an XML document.
@@ -151,7 +145,7 @@ public class PSSerializerUtils
         marshaller.marshal(object, xw);
         return sw.getBuffer().toString();
     }
-    
+
     public static <T> List<T> copyFullToSummaries(List<? extends T> froms, Class<T> type) {
         var newList = new ArrayList<T>();
         for (var from : froms) {
@@ -166,7 +160,7 @@ public class PSSerializerUtils
         }
         return newList;
     }
-    
+
     public static <T> void copyFullToSummary(T from, T to) {
         try {
             BeanUtils.copyProperties(to, from);
@@ -174,7 +168,7 @@ public class PSSerializerUtils
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Does a clone of an object using bean reflection.
      * <p>
@@ -194,7 +188,7 @@ public class PSSerializerUtils
             throw new RuntimeException(err, e);
         }
     }
-    
+
     /**
      * Parses a simple JSON string turning it into a native Java object.
      * Example valid JSON:
@@ -207,49 +201,63 @@ public class PSSerializerUtils
      * <strong>Blank and empty strings will return null</strong>
      * <em>
      * This should be used for simple JSON values and not complex objects.
-     * Use either JAXB or json-lib for complex values.
+     * Use either JAXB or jackson for complex values.
      * </em>
      * @param json either a JSON string, number, array or object.
      * @return either a list, number, string, map or <code>null</code>.
      */
-    @SuppressWarnings("unchecked")
     public static Object getObjectFromJson(String json) {
         try {
-            var obj = JSONArray.fromObject('[' + json + ']');
-            if (obj.isEmpty()) return null;
-            var pre = obj.get(0);
-            Object data;
-            if (pre instanceof JSONArray) {
-                data = new ArrayList<Object>((JSONArray) pre);
-            } else if (pre instanceof JSONObject) {
-                data = JSONObject.toBean((JSONObject) pre);
-            } else if (pre instanceof JSONNull) {
-                data = null;
-            } else {
-                data = pre;
+            if (json == null || json.isBlank()) {
+                return null;
             }
-            return data;
-        } catch (JSONException e) {
-            if (log.isDebugEnabled()) log.warn("Bad json string: {}", json);
+            var mapper = new ObjectMapper();
+            String wrappedJson = '[' + json + ']';
+            var array = mapper.readValue(wrappedJson, List.class);
+            if (array.isEmpty()) {
+                return null;
+            }
+            var first = array.get(0);
+            if (first instanceof List<?>) {
+                return first;
+            } else if (first instanceof java.util.Map<?, ?>) {
+                return first;
+            } else if (first == null) {
+                return null;
+            } else {
+                return first;
+            }
+        } catch (Exception e) {
+            if (log.isDebugEnabled()) {
+                log.warn("Bad json string: {}", json);
+            }
             return json;
         }
     }
-    
+
     /**
      * The inverse of {@link #getObjectFromJson(String)}.
      * @param obj a bean, list, number, or string, never <code>null</code>.
      * @return never <code>null</code>.
      */
     public static String getJsonFromObject(Object obj) {
-        var data = JSONSerializer.toJSON(Collections.singletonList(obj)).toString();
-        data = removeStart(data, "[");
-        data = removeEnd(data, "]");
-        return data;
+        try {
+            var mapper = new ObjectMapper();
+            var wrappedList = Collections.singletonList(obj);
+            String jsonList = mapper.writeValueAsString(wrappedList);
+            // Remove surrounding [ and ]
+            String data = jsonList.substring(1, jsonList.length() - 1);
+            return data;
+        } catch (Exception e) {
+            log.error("Error serializing object to JSON: {}", PSExceptionUtils.getMessageForLog(e));
+            // Fallback to toString
+            return obj.toString();
+        }
     }
 
     /**
      * The log instance to use for this class, never <code>null</code>.
      */
     private static final Logger log = LogManager.getLogger(PSSerializerUtils.class);
-    
+
 }
