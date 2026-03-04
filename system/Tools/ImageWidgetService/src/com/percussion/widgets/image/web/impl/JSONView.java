@@ -17,7 +17,8 @@
 
 package com.percussion.widgets.image.web.impl;
 
-import net.sf.json.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -216,20 +217,15 @@ public class JSONView extends AbstractView implements View {
      * @return the JSON string
      */
     private String extractNamedJsonObject(Map<String, Object> model, RenderContext context) {
-        var jsonObj = model.get(modelObjectName);
-        if (jsonObj instanceof JSON) {
-            JSON json = (JSON) jsonObj;
-            return formatJson(json, context.debug());
+        var obj = model.get(modelObjectName);
+        if (obj == null) {
+            return "{}";
         }
-
-        log.warn("Model object '{}' is not a JSON instance: {}",
-            modelObjectName,
-            jsonObj != null ? jsonObj.getClass().getSimpleName() : "null");
-        return "{}";
+        return convertToJson(obj, context.debug());
     }
 
     /**
-     * Extracts the first JSON object found in the model.
+     * Extracts the first JSON-serializable object found in the model.
      *
      * @param model the model map
      * @param context the render context
@@ -237,22 +233,30 @@ public class JSONView extends AbstractView implements View {
      */
     private String extractFirstJsonObject(Map<String, Object> model, RenderContext context) {
         return model.values().stream()
-            .filter(JSON.class::isInstance)
-            .map(JSON.class::cast)
+            .filter(Objects::nonNull)
             .findFirst()
-            .map(json -> formatJson(json, context.debug()))
+            .map(obj -> convertToJson(obj, context.debug()))
             .orElse("{}");
     }
 
     /**
-     * Formats JSON with optional debug indentation.
+     * Converts an object to JSON string using Jackson.
      *
-     * @param json the JSON object
+     * @param obj the object to convert
      * @param debug whether to use debug formatting
-     * @return the formatted JSON string
+     * @return the JSON string
      */
-    private String formatJson(JSON json, boolean debug) {
-        return debug ? json.toString(DEBUG_INDENT_LEVEL) : json.toString();
+    private String convertToJson(Object obj, boolean debug) {
+        try {
+            var mapper = new ObjectMapper();
+            if (debug) {
+                mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            }
+            return mapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            log.warn("Error converting object to JSON: {}", e.getMessage());
+            return "{}";
+        }
     }
 
     // Getters and setters with validation

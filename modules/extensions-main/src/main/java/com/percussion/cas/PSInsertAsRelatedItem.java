@@ -23,6 +23,7 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.io.File;
 import java.net.URLEncoder;
@@ -62,6 +63,10 @@ public class PSInsertAsRelatedItem implements IPSResultDocumentProcessor {
     }
 
     String psredirect = request.getParameter(IPSHtmlParameters.DYNAMIC_REDIRECT_URL);
+    // CWE-601 Prevention: Validate redirect URL before processing
+    if (psredirect != null && psredirect.trim().length() > 0) {
+      psredirect = PSRedirectValidation.validateInternalRedirectUrl(psredirect);
+    }
     // This is the key that decides whether to continue processing or not.
     if (psredirect == null
         || psredirect.trim().length() == 0

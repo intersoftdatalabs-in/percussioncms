@@ -17,6 +17,7 @@
 package com.percussion.preinstall;
 
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.validation.PathValidation;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.utils.io.PathUtils;
@@ -253,18 +254,25 @@ public class Main {
         String name = entryName.substring(folderPrefix.length() + 1);
         if (name.length() == 0) continue;
 
-        Path entryDest = destPath.resolve(name);
-        File newFile = new File(entryDest.toString());
-        System.out.println("Unzipping to " + newFile.getAbsolutePath());
-        // create directories for sub directories in zip
-        new File(newFile.getParent()).mkdirs();
+        try {
+          // CWE-22: Validate zip entry path to prevent ZipSlip attacks
+          File safeFile = PathValidation.constructSafePath(destPath.toFile(), name);
+          Path entryDest = safeFile.toPath();
+          File newFile = new File(entryDest.toString());
+          System.out.println("Unzipping to " + newFile.getAbsolutePath());
+          // create directories for sub directories in zip
+          new File(newFile.getParent()).mkdirs();
 
-        if (entry.isDirectory()) {
-          Files.createDirectory(entryDest);
-          continue;
+          if (entry.isDirectory()) {
+            Files.createDirectory(entryDest);
+            continue;
+          }
+          System.out.println("Creating file " + entryDest);
+          Files.copy(archive.getInputStream(entry), entryDest);
+        } catch (SecurityException se) {
+          // ZipSlip or path traversal attack detected
+          log.warn("Rejected malicious zip entry: {} - {}", entryName, se.getMessage());
         }
-        System.out.println("Creating file " + entryDest);
-        Files.copy(archive.getInputStream(entry), entryDest);
       }
     } catch (Exception ex) {
       log.error(ex.getMessage());

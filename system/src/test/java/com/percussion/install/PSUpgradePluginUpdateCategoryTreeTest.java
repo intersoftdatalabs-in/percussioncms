@@ -20,8 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -34,13 +33,15 @@ public class PSUpgradePluginUpdateCategoryTreeTest
    @Test
    public void test() throws Exception
    {
-      FileInputStream in = null;
+      InputStream in = null;
       try
       {
          PSUpgradePluginUpdateCategoryTree plugin = new PSUpgradePluginUpdateCategoryTree();
          plugin.setLogger(System.out);
-         File catFile = new File("UnitTestResources/com/percussion/rxupgrade/CategoryTree.xml");
-         in = new FileInputStream(catFile);
+         in = getClass().getResourceAsStream("/com/percussion/rxupgrade/CategoryTree.xml");
+         if (in == null) {
+            throw new IllegalArgumentException("CategoryTree.xml not found in classpath");
+         }
          Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
          doc = plugin.updateDocument(doc);
          NodeList nodes = doc.getElementsByTagName("Node");
@@ -50,7 +51,7 @@ public class PSUpgradePluginUpdateCategoryTreeTest
             String label = StringUtils.defaultString(node.getAttribute("label"));
             String id = StringUtils.defaultString(node.getAttribute("id"));
             assertTrue(label.equals(id));
-         }  
+         }
       }
       finally
       {
@@ -60,5 +61,5 @@ public class PSUpgradePluginUpdateCategoryTreeTest
          }
       }
    }
-   
+
 }

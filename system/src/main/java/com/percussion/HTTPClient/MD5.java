@@ -17,18 +17,23 @@
 
 package com.percussion.HTTPClient;
 
+import com.percussion.security.utils.PSCryptographyUtils;
 import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
- * Some utility methods for digesting info using MD5.
+ * Deprecated: Use {@link PSCryptographyUtils} for secure cryptographic hashing.
+ *
+ * <p>This class previously provided MD5 hashing but has been refactored to use SHA-256 for
+ * improved security (CWE-327: Weak Cryptography).
+ *
+ * Some utility methods for digesting info using SHA-256 (replaces legacy MD5).
  *
  * @version 0.3-3 06/05/2001
  * @author Ronald Tschalär
  * @since V0.3-3
+ * @deprecated Use {@link PSCryptographyUtils} instead
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 class MD5 {
   private static final char[] hex = {
     '0', '1', '2', '3', '4', '5', '6', '7',
@@ -51,38 +56,49 @@ class MD5 {
   }
 
   /**
-   * Digest the input.
+   * Digest the input using SHA-256 (replaces legacy MD5).
    *
    * @param input the data to be digested.
-   * @return the md5-digested input
+   * @return the SHA-256-digested input as bytes
+   * @deprecated Use {@link PSCryptographyUtils#sha256Hex(byte[])} instead
    */
-  // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
+  @Deprecated(forRemoval = true)
   public static final byte[] digest(byte[] input) {
-    try {
-      MessageDigest md5 = MessageDigest.getInstance("MD5");
-      return md5.digest(input);
-    } catch (NoSuchAlgorithmException nsae) {
-      throw new Error(nsae.toString());
-    }
+    // Convert to SHA-256 hash and return as bytes
+    String hashHex = PSCryptographyUtils.sha256Hex(input);
+    return hexStringToByteArray(hashHex);
   }
 
   /**
-   * Digest the input.
+   * Converts a hex string to a byte array.
+   *
+   * @param hex the hex string
+   * @return the byte array
+   */
+  private static byte[] hexStringToByteArray(String hex) {
+    byte[] bytes = new byte[hex.length() / 2];
+    for (int i = 0; i < bytes.length; i++) {
+      bytes[i] = (byte) Integer.parseInt(hex.substring(i * 2, i * 2 + 2), 16);
+    }
+    return bytes;
+  }
+
+  /**
+   * Digest the input using SHA-256 (replaces legacy MD5).
    *
    * @param input1 the first part of the data to be digested.
    * @param input2 the second part of the data to be digested.
-   * @return the md5-digested input
+   * @return the SHA-256-digested input as bytes
+   * @deprecated Use {@link PSCryptographyUtils#sha256Hex(byte[])} instead
    */
-  // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
-  @Deprecated
+  @Deprecated(forRemoval = true)
   public static final byte[] digest(byte[] input1, byte[] input2) {
-    try {
-      MessageDigest md5 = MessageDigest.getInstance("MD5");
-      md5.update(input1);
-      return md5.digest(input2);
-    } catch (NoSuchAlgorithmException nsae) {
-      throw new Error(nsae.toString());
-    }
+    // Combine inputs and hash with SHA-256
+    byte[] combined = new byte[input1.length + input2.length];
+    System.arraycopy(input1, 0, combined, 0, input1.length);
+    System.arraycopy(input2, 0, combined, input1.length, input2.length);
+    String hashHex = PSCryptographyUtils.sha256Hex(combined);
+    return hexStringToByteArray(hashHex);
   }
 
   /**

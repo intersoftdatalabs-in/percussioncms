@@ -32,11 +32,13 @@ import com.percussion.server.PSServer;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.data.PSItemProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
-import net.sf.json.JSONObject;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,6 +53,7 @@ public class PSCloudService implements IPSCloudService {
   protected static final String PAGE_THUMB_ROOT = "/rx_resources/images/TemplateImages/";
   protected static final String PAGE_THUMB_SUFFIX = "-page.jpg";
   protected static final String CLOUD_SERVICE_TYPE_CM1 = "CM1";
+  protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   protected IPSFolderHelper folderHelper;
   protected IPSRenderService renderService;
@@ -94,12 +97,17 @@ public class PSCloudService implements IPSCloudService {
   @Path("/activestates")
   @Produces(MediaType.TEXT_PLAIN)
   public String getActiveState() {
-    var states = new JSONObject();
+    Map<String, Boolean> states = new LinkedHashMap<>();
     for (var type : PSCloudLicenseType.values()) {
       boolean valid = isValidLicense(type);
       states.put(type.toString(), valid);
     }
-    return states.toString();
+    try {
+      return OBJECT_MAPPER.writeValueAsString(states);
+    } catch (Exception e) {
+      log.error("Failed to serialize states", e);
+      return "{}";
+    }
   }
 
   @Override
@@ -204,11 +212,16 @@ public class PSCloudService implements IPSCloudService {
    * @return stringified JSON object of client identity.
    */
   public String generateClientIdentity(PSModuleLicense poLic) {
-    var ci = new JSONObject();
-    ci.put("id", poLic.getKey());
+    Map<String, Object> ci = new LinkedHashMap<>();
+    ci.put("id", poLic.getKey().orElse(""));
     ci.put("type", CLOUD_SERVICE_TYPE_CM1);
-    ci.put("token", poLic.getHandshake());
-    return ci.toString();
+    ci.put("token", poLic.getHandshake().orElse(""));
+    try {
+      return OBJECT_MAPPER.writeValueAsString(ci);
+    } catch (Exception e) {
+      log.error("Failed to serialize client identity", e);
+      return "{}";
+    }
   }
 
   /**

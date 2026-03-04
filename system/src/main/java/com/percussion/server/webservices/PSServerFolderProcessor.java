@@ -83,6 +83,7 @@ import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.server.PSServer;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.cache.IPSFolderRelationshipCache;
 import com.percussion.server.cache.PSFolderEntry;
 import com.percussion.server.cache.PSFolderRelationshipCache;
@@ -5115,11 +5116,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         String folderId = null;
         String psredirect = request.getParameter(IPSHtmlParameters.DYNAMIC_REDIRECT_URL);
         if (psredirect != null && psredirect.trim().length() > 0) {
-          int index = psredirect.indexOf(IPSHtmlParameters.SYS_FOLDERID);
-          if (index >= 0) {
-            folderId = psredirect.substring(index + IPSHtmlParameters.SYS_FOLDERID.length() + 1);
-            index = folderId.indexOf('&');
-            if (index > -1) folderId = folderId.substring(0, index);
+          // CWE-601 Prevention: Validate redirect URL before extracting folder ID
+          String validatedRedirect = PSRedirectValidation.validateInternalRedirectUrl(psredirect);
+          if (validatedRedirect != null) {
+            int index = validatedRedirect.indexOf(IPSHtmlParameters.SYS_FOLDERID);
+            if (index >= 0) {
+              folderId = validatedRedirect.substring(index + IPSHtmlParameters.SYS_FOLDERID.length() + 1);
+              index = folderId.indexOf('&');
+              if (index > -1) folderId = folderId.substring(0, index);
+            }
           }
         }
 

@@ -27,6 +27,7 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.extensions.utils.PSExtensionParamsHelper;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.validation.URLValidation;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 import com.percussion.utils.request.PSRequestInfo;
@@ -154,6 +155,16 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
 
       String repr = "url = " + url + " user = " + user + " password = " + password;
       log.debug("Trying to get document with: {}", repr);
+
+      // Validate URL to prevent SSRF attacks (CWE-918)
+      if (!internalRequest) {
+        try {
+          URLValidation.validateURLString(url);
+        } catch (SecurityException e) {
+          log.error("URL validation failed for external request: {}", PSExceptionUtils.getMessageForLog(e));
+          throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
+        }
+      }
 
       HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
       HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(requestUri).GET();

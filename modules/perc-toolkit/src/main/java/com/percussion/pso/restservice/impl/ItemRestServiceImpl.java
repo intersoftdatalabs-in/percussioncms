@@ -44,6 +44,7 @@ import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.pso.restservice.IItemRestService;
 import com.percussion.security.validation.PSJCRQueryValidator;
+import com.percussion.security.validation.XSSValidation;
 import com.percussion.pso.restservice.exception.ItemRestException;
 import com.percussion.pso.restservice.exception.ItemRestNotModifiedException;
 import com.percussion.pso.restservice.model.AclItem;
@@ -1939,7 +1940,9 @@ public class ItemRestServiceImpl implements IItemRestService {
 
     ResponseBuilder builder = Response.status(Status.OK);
     builder.type("text/plain");
-    builder.entity(target + " deleted successfully");
+    // CWE-79: Escape user-provided path parameter to prevent XSS injection
+    String escapedTarget = XSSValidation.escapeHtml(target);
+    builder.entity(escapedTarget + " deleted successfully");
 
     return builder.build();
   }
@@ -2014,12 +2017,20 @@ public class ItemRestServiceImpl implements IItemRestService {
           try {
             items = updateItems(output);
           } catch (Exception e) {
-            items.addError(ErrorCode.ASSEMBLY_ERROR, "Error importing item" + assemblyResult, e);
+            // CWE-79: Use generic error message instead of concatenating assembly result
+            // which may contain user-controlled XML from body parameter
+            items.addError(ErrorCode.ASSEMBLY_ERROR, "Error importing items from assembly", e);
+            log.error("Assembly import error. Assembly result length: {}",
+                     assemblyResult != null ? assemblyResult.length() : 0, e);
           }
         }
       }
     } catch (Exception e) {
-      items.addError(ErrorCode.ASSEMBLY_ERROR, "Assembly output xml invalid:" + assemblyResult, e);
+      // CWE-79: Use generic error message instead of concatenating assembly result
+      // which may contain user-controlled XML from body parameter
+      items.addError(ErrorCode.ASSEMBLY_ERROR, "Assembly output processing failed", e);
+      log.error("Assembly output processing error. Result length: {}",
+               assemblyResult != null ? assemblyResult.length() : 0, e);
     }
     return items;
   }

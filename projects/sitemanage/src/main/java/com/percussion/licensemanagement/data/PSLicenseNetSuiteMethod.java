@@ -21,7 +21,7 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
-import net.sf.json.JSONObject;
+import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -44,12 +44,12 @@ public class PSLicenseNetSuiteMethod {
     // Default constructor
   }
 
-  public PSLicenseNetSuiteMethod(JSONObject methodInfo) {
+  public PSLicenseNetSuiteMethod(Map<String, Object> methodInfo) {
     Validate.notNull(methodInfo, "methodInfo must not be null");
-    id = methodInfo.getString("id");
-    methodName = methodInfo.getString("methodName");
-    methodType = methodInfo.getString("methodType");
-    url = methodInfo.getString("url");
+    id = (String) methodInfo.get("id");
+    methodName = (String) methodInfo.get("methodName");
+    methodType = (String) methodInfo.get("methodType");
+    url = (String) methodInfo.get("url");
   }
 
   public String getId() {

@@ -17,16 +17,13 @@
 
 package com.percussion.widgets.image.web.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.widgets.image.data.CachedImageMetaData;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.data.MimeUtils;
 import com.percussion.widgets.image.services.ImageCacheManager;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,12 +40,14 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import javax.imageio.ImageIO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Spring REST controller for handling binary image file uploads.
@@ -132,11 +131,12 @@ public class BinaryUploadController {
      * Builds the results array from multipart request files.
      *
      * @param request the HTTP request
-     * @return JSONArray containing upload results
+     * @return List containing upload results
      * @throws PSBinaryUploadException if processing fails
      */
-    protected JSONArray buildResults(HttpServletRequest request) throws PSBinaryUploadException {
-        var results = new JSONArray();
+    protected List<Object> buildResults(HttpServletRequest request) throws PSBinaryUploadException {
+        var results = new ArrayList<Object>();
+        var mapper = new ObjectMapper();
 
         if (!(request instanceof MultipartHttpServletRequest)) {
             throw new PSBinaryUploadException("Request is not a multipart request");
@@ -166,7 +166,7 @@ public class BinaryUploadController {
                 }
 
                 var cachedData = storeImage(mpFile);
-                var json = JSONSerializer.toJSON(cachedData);
+                var json = mapper.convertValue(cachedData, Map.class);
                 results.add(json);
 
                 log.debug("Successfully processed file: {}", filename);
@@ -224,13 +224,13 @@ public class BinaryUploadController {
      * Creates an error JSON object.
      *
      * @param message the error message
-     * @return JSON error object
+     * @return Map error object
      */
-    protected JSON buildError(String message) {
-        var json = new JSONObject();
-        json.element("error", message);
-        json.element("success", false);
-        json.element("timestamp", System.currentTimeMillis());
+    protected Map<String, Object> buildError(String message) {
+        var json = new HashMap<String, Object>();
+        json.put("error", message);
+        json.put("success", false);
+        json.put("timestamp", System.currentTimeMillis());
         return json;
     }
 
@@ -238,10 +238,10 @@ public class BinaryUploadController {
      * Creates an error response for the entire request.
      *
      * @param message the error message
-     * @return JSON error response
+     * @return Map error response
      */
-    private JSON createErrorResponse(String message) {
-        var errorJson = new JSONObject();
+    private Map<String, Object> createErrorResponse(String message) {
+        var errorJson = new HashMap<String, Object>();
         errorJson.put("error", message);
         errorJson.put("success", false);
         errorJson.put("timestamp", System.currentTimeMillis());

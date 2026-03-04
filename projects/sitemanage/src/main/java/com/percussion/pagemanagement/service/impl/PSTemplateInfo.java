@@ -9,18 +9,15 @@ import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSExtractHTMLException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-// ServletRequestContext unnecessary; using parseRequest(HttpServletRequest)
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,15 +58,16 @@ public class PSTemplateInfo extends HttpServlet {
     }
 
     PSTemplate templateImported = null;
-    boolean isMultipart = ServletFileUpload.isMultipartContent(req);
+    boolean isMultipart =
+        req.getContentType() != null && req.getContentType().startsWith("multipart/form-data");
 
     if (isMultipart) {
       try {
-        List<FileItem> items =
-            new ServletFileUpload(new DiskFileItemFactory()).parseRequest(req);
-        for (FileItem item : items) {
-          if (!item.isFormField()) {
-            templateImported = importTemplate(siteId, item);
+        // Use Jakarta Servlet native multipart support (no need for Commons FileUpload)
+        for (Part part : req.getParts()) {
+          if (!part.getName().startsWith("form")) {
+            templateImported = importTemplate(siteId, part);
+            break;
           }
         }
         if (templateImported != null && templateImported.getName() != null) {
@@ -94,12 +92,12 @@ public class PSTemplateInfo extends HttpServlet {
    * Imports a template from the uploaded file.
    *
    * @param siteId the site ID, not null
-   * @param item the uploaded file item, not null
+   * @param part the uploaded file part, not null
    * @return the imported template, never null
    * @throws PSExtractHTMLException if extraction fails
    */
-  private PSTemplate importTemplate(String siteId, FileItem item) throws PSExtractHTMLException {
-    try (var fileInput = item.getInputStream();
+  private PSTemplate importTemplate(String siteId, Part part) throws PSExtractHTMLException {
+    try (var fileInput = part.getInputStream();
         var br = new BufferedReader(new InputStreamReader(fileInput))) {
       var sb = new StringBuilder();
       String line;

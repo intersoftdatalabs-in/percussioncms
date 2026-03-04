@@ -34,11 +34,13 @@ import com.percussion.membership.service.IPSMembershipService;
 import com.percussion.pubserver.IPSPubServerService;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
-import net.sf.json.JSONObject;
+import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,14 +74,16 @@ public class PSMembershipService implements IPSMembershipService {
       var url = "/" + PSDeliveryInfo.SERVICE_MEMBERSHIP + MEMBERSHIP + ADMIN_USERS;
       var summaries = new ArrayList<PSUserSummary>();
       var deliveryClient = new PSDeliveryClient();
-      var users = deliveryClient.getJsonArray(new PSDeliveryActionOptions(server, url));
+      @SuppressWarnings("unchecked")
+      List<Object> users = (List<Object>) deliveryClient.getJsonArray(new PSDeliveryActionOptions(server, url));
       for (var i = 0; i < users.size(); i++) {
-        var userSum = users.getJSONObject(i);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> userSum = (Map<String, Object>) users.get(i);
         var userSummary = new PSUserSummary();
-        userSummary.setEmail(userSum.getString("email"));
-        userSummary.setCreatedDate(userSum.getString("createdDate"));
-        userSummary.setStatus(userSum.getString("status"));
-        userSummary.setGroups(userSum.getString("groups"));
+        userSummary.setEmail((String) userSum.get("email"));
+        userSummary.setCreatedDate((String) userSum.get("createdDate"));
+        userSummary.setStatus((String) userSum.get("status"));
+        userSummary.setGroups((String) userSum.get("groups"));
         summaries.add(userSummary);
       }
       return new PSUserSummaries(summaries);
@@ -107,12 +111,12 @@ public class PSMembershipService implements IPSMembershipService {
 
       var url = "/" + PSDeliveryInfo.SERVICE_MEMBERSHIP + MEMBERSHIP + ADMIN_ACCOUNT;
       var deliveryClient = new PSDeliveryClient();
-      var accountJson = new JSONObject();
+      var accountJson = new java.util.LinkedHashMap<String, Object>();
       accountJson.put("email", account.getEmail().orElse(""));
       accountJson.put("action", account.getAction().orElse(""));
       deliveryClient.push(
           new PSDeliveryActionOptions(server, url, HttpMethodType.PUT, true),
-          accountJson.toString());
+          new ObjectMapper().writeValueAsString(accountJson));
 
       return getUsers(site);
     } catch (Exception e) {
@@ -168,15 +172,16 @@ public class PSMembershipService implements IPSMembershipService {
       var url =
           "/" + PSDeliveryInfo.SERVICE_MEMBERSHIP + MEMBERSHIP + ADMIN_USER_GROUP + "/" + site;
       var deliveryClient = new PSDeliveryClient();
-      var accountJson = new JSONObject();
+      var accountJson = new java.util.LinkedHashMap<String, Object>();
       accountJson.put("email", userGroup.getEmail().orElse(""));
       accountJson.put("groups", userGroup.getGroups().orElse(""));
       deliveryClient.push(
           new PSDeliveryActionOptions(server, url, HttpMethodType.PUT, true),
-          accountJson.toString());
+          new ObjectMapper().writeValueAsString(accountJson));
 
       return getUsers(site);
-    } catch (IPSPubServerService.PSPubServerServiceException | PSNotFoundException e) {
+    } catch (IPSPubServerService.PSPubServerServiceException | PSNotFoundException |
+        com.fasterxml.jackson.core.JsonProcessingException e) {
       log.warn("Error updating group account.  Error: {}", e.getMessage());
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e, Response.serverError().build());

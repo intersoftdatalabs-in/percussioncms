@@ -20,6 +20,7 @@ import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;
 import com.percussion.security.PSThreadRequestUtils;
+import com.percussion.security.validation.URLValidation;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.services.assembly.IPSAssemblyResult;
@@ -204,6 +205,13 @@ public class PSDocumentUtils extends PSJexlUtilBase
    private String getExternalDocument(String url, String user, String password)
          throws UnknownHostException, MalformedURLException, IOException
    {
+      // Validate URL to prevent SSRF attacks (CWE-918)
+      try {
+         URLValidation.validateURLString(url);
+      } catch (SecurityException e) {
+         throw new IOException("SSRF validation failed: " + e.getMessage(), e);
+      }
+
       HttpClient client =
             HttpClient.newBuilder()
                   .followRedirects(HttpClient.Redirect.NORMAL)

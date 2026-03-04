@@ -47,6 +47,7 @@ import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.notification.PSNotificationServiceLocator;
 import com.percussion.services.notification.filemonitor.IPSFileMonitorService;
 import com.percussion.services.notification.filemonitor.PSFileMonitorServiceLocator;
+import com.percussion.security.utils.PSCryptographyUtils;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
@@ -972,25 +973,14 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Creates an SHA-1 string of the supplied text.
+   * Creates a SHA-256 hash string of the supplied text. Previously used SHA-1 but upgraded
+   * to SHA-256 for stronger cryptographic security (CWE-327: Weak Cryptography).
    *
    * @param text Assumed not <code>null</code>.
-   * @return The 40 char string representing the SHA-1.
+   * @return The 64 char string representing the SHA-256 hash.
    */
   private static String ShaSum(String text) {
-    try {
-      MessageDigest md = MessageDigest.getInstance("SHA-1");
-      byte[] sha1hash = new byte[40];
-      md.update(text.getBytes("UTF-8"), 0, text.length());
-      sha1hash = md.digest();
-      return byteArray2Hex(md.digest(sha1hash));
-    } catch (NoSuchAlgorithmException e) {
-      // shouldn't happen
-      throw new RuntimeException(e);
-    } catch (UnsupportedEncodingException e) {
-      // shouldn't happen
-      throw new RuntimeException(e);
-    }
+    return PSCryptographyUtils.sha256Hex(text);
   }
 
   /**

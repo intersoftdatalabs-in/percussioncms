@@ -95,6 +95,30 @@ Editor / IDE tip: To avoid your IDE (for example, VS Code) writing build outputs
 
 These settings disable automatic Java builds, exclude `target/` from file watchers and search, and optionally direct VS Code output to `.vscode/out` to avoid collisions with Maven's `target/`.
 
+### Local CodeQL Scanning
+
+If CodeQL CLI is installed locally and available in `PATH`, you can run scans from the repository root using Maven.
+
+* Create CodeQL databases only:
+
+  ```bash
+  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-create-db
+  ```
+
+* Analyze existing databases only (faster for re-runs):
+
+  ```bash
+  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-analyze
+  ```
+
+* Full create + analyze scan:
+
+  ```bash
+  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-scan
+  ```
+
+Output is written to `.codeql-results/` as SARIF files.
+
 ## Interested in Contributing?
 
 Check out our [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md) for more information.

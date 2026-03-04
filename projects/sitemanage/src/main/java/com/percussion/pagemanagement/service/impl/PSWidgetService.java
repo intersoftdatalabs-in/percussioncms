@@ -36,13 +36,13 @@ import com.percussion.share.service.exception.PSSpringValidationException;
 import com.percussion.share.validation.PSAbstractPropertiesValidator;
 import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.sf.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -125,9 +125,14 @@ public class PSWidgetService implements IPSWidgetService {
       if (md != null) {
         var data = md.getData();
         if (StringUtils.isNotBlank(data)) {
-          var jsonArray = JSONArray.fromObject(data);
-          for (var iter = jsonArray.iterator(); iter.hasNext(); ) {
-            disabledWidgets.add((String) iter.next());
+          var mapper = new ObjectMapper();
+          try {
+            var jsonArray = mapper.readValue(data, java.util.ArrayList.class);
+            for (var item : jsonArray) {
+              disabledWidgets.add((String) item);
+            }
+          } catch (IOException e) {
+            log.warn("Error parsing disabled widgets configuration", e);
           }
         }
       }

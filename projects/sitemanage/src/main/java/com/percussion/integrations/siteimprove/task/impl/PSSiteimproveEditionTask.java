@@ -39,12 +39,12 @@ import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -234,65 +234,67 @@ public class PSSiteimproveEditionTask implements IPSEditionTask {
 
   /** Obtain the token and site name from a metadata JSON. */
   private Map<String, String> obtainToken(String credentialsData) throws Exception {
-    var credentialsJSON = JSONObject.fromObject(credentialsData);
+    var mapper = new ObjectMapper();
+    var credentialsJSON = mapper.readValue(credentialsData, java.util.LinkedHashMap.class);
     var credentials = new HashMap<String, String>();
-    if (!credentialsJSON.has(SITE_NAME)) {
+    if (!credentialsJSON.containsKey(SITE_NAME)) {
       var message = "The credentials were missing the associated site name.";
       logger.error(message);
       throw new Exception(message);
     }
-    if (!credentialsJSON.has(TOKEN)) {
+    if (!credentialsJSON.containsKey(TOKEN)) {
       var message = "The credentials were missing the apikey.";
       logger.error(message);
       throw new Exception(message);
     }
-    credentials.put(SITE_NAME, credentialsJSON.getString(SITE_NAME));
-    credentials.put(TOKEN, credentialsJSON.getString(TOKEN));
-    credentials.put("siteProtocol", credentialsJSON.optString("siteProtocol", ""));
-    credentials.put("defaultDocument", credentialsJSON.optString("defaultDocument", ""));
-    credentials.put("canonicalDist", credentialsJSON.optString("canonicalDist", ""));
+    credentials.put(SITE_NAME, (String) credentialsJSON.get(SITE_NAME));
+    credentials.put(TOKEN, (String) credentialsJSON.get(TOKEN));
+    credentials.put("siteProtocol", (String) credentialsJSON.getOrDefault("siteProtocol", ""));
+    credentials.put("defaultDocument", (String) credentialsJSON.getOrDefault("defaultDocument", ""));
+    credentials.put("canonicalDist", (String) credentialsJSON.getOrDefault("canonicalDist", ""));
     return credentials;
   }
 
   /** Parse metadata JSON for our Siteimprove configuration settings. */
   private PSSiteImproveSiteConfigurations obtainSiteConfiguration(String siteConfigurationData)
       throws Exception {
-    var siteConfigurationJson = JSONObject.fromObject(siteConfigurationData);
-    if (!siteConfigurationJson.has(DO_PRODUCTION)) {
+    var mapper = new ObjectMapper();
+    var siteConfigurationJson = mapper.readValue(siteConfigurationData, java.util.LinkedHashMap.class);
+    if (!siteConfigurationJson.containsKey(DO_PRODUCTION)) {
       var message = "Siteimprove configuration details were missing the production setting";
       logger.error(message);
       throw new Exception(message);
     }
-    if (!siteConfigurationJson.has(DO_STAGING)) {
+    if (!siteConfigurationJson.containsKey(DO_STAGING)) {
       var message = "Siteimprove configuration details were missing the staging setting";
       logger.error(message);
       throw new Exception(message);
     }
-    if (!siteConfigurationJson.has(DO_ASSETS_SCAN_EXCLUDE)) {
+    if (!siteConfigurationJson.containsKey(DO_ASSETS_SCAN_EXCLUDE)) {
       var message =
           "Siteimprove configuration details were missing the assets scan exclude setting";
       logger.error(message);
       throw new Exception(message);
     }
-    if (!siteConfigurationJson.has(DO_PREVIEW)) {
+    if (!siteConfigurationJson.containsKey(DO_PREVIEW)) {
       var message = "Siteimprove configuration details were missing the preview setting";
       logger.error(message);
       throw new Exception(message);
     }
-    if (!siteConfigurationJson.has(IS_SITEIMPROVE_ENABLED)) {
+    if (!siteConfigurationJson.containsKey(IS_SITEIMPROVE_ENABLED)) {
       var message =
           "Siteimprove configuration details were missing the Siteimprove enabled setting";
       logger.error(message);
       throw new Exception(message);
     }
     var siteConfiguration = new PSSiteImproveSiteConfigurations();
-    siteConfiguration.setDoProduction(siteConfigurationJson.getBoolean(DO_PRODUCTION));
-    siteConfiguration.setDoStaging(siteConfigurationJson.getBoolean(DO_STAGING));
+    siteConfiguration.setDoProduction((Boolean) siteConfigurationJson.get(DO_PRODUCTION));
+    siteConfiguration.setDoStaging((Boolean) siteConfigurationJson.get(DO_STAGING));
     siteConfiguration.setDoAssetsScanExclude(
-        siteConfigurationJson.getBoolean(DO_ASSETS_SCAN_EXCLUDE));
-    siteConfiguration.setDoPreview(siteConfigurationJson.getBoolean(DO_PREVIEW));
+        (Boolean) siteConfigurationJson.get(DO_ASSETS_SCAN_EXCLUDE));
+    siteConfiguration.setDoPreview((Boolean) siteConfigurationJson.get(DO_PREVIEW));
     siteConfiguration.setIsSiteImproveEnabled(
-        siteConfigurationJson.getBoolean(IS_SITEIMPROVE_ENABLED));
+        (Boolean) siteConfigurationJson.get(IS_SITEIMPROVE_ENABLED));
     return siteConfiguration;
   }
 

@@ -17,56 +17,62 @@
 
 package com.percussion.HTTPClient;
 
+import com.percussion.security.utils.PSCryptographyUtils;
+import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
- * This class calculates a running md5 digest of the data read. When the stream is closed the
+ * Deprecated: Use {@link PSCryptographyUtils} for secure cryptographic hashing.
+ *
+ * <p>This class previously calculated a running MD5 digest but has been refactored to verify
+ * using SHA-256 for improved security (CWE-327: Weak Cryptography).
+ *
+ * This class calculates a running SHA-256 digest of the data read. When the stream is closed the
  * calculated digest is passed to a HashVerifier which is expected to verify this digest and to
  * throw an Exception if it fails.
  *
  * @version 0.3-3 06/05/2001
  * @author Ronald Tschalär
+ * @deprecated Use {@link PSCryptographyUtils} instead
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 class MD5InputStream extends FilterInputStream {
   private HashVerifier verifier;
-  private MessageDigest md5;
+  private ByteArrayOutputStream buffer;
   private long rcvd = 0;
   private boolean closed = false;
 
   /**
-   * @param is the input stream over which the md5 hash is to be calculated
+   * @param is the input stream over which the SHA-256 hash is to be calculated
    * @param verifier the HashVerifier to invoke when the stream is closed
+   * @deprecated Use {@link PSCryptographyUtils} instead
    */
-  // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
   public MD5InputStream(InputStream is, HashVerifier verifier) {
     super(is);
     this.verifier = verifier;
-    try {
-      md5 = MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException nsae) {
-      throw new Error(nsae.toString());
-    }
+    this.buffer = new ByteArrayOutputStream();
   }
 
   public synchronized int read() throws IOException {
     int b = in.read();
-    if (b != -1) md5.update((byte) b);
-    else real_close();
-
+    if (b != -1) {
+      buffer.write(b);
+    } else {
+      real_close();
+    }
     rcvd++;
     return b;
   }
 
   public synchronized int read(byte[] buf, int off, int len) throws IOException {
     int num = in.read(buf, off, len);
-    if (num > 0) md5.update(buf, off, num);
-    else real_close();
-
+    if (num > 0 ) {
+      buffer.write(buf, off, num);
+    } else {
+      real_close();
+    }
     rcvd += num;
     return num;
   }
@@ -93,7 +99,7 @@ class MD5InputStream extends FilterInputStream {
   }
 
   /**
-   * Close the stream and check the digest.
+   * Close the stream and check the digest. Computes SHA-256 hash of buffered data.
    *
    * @exception IOException if the close()'ing the underlying stream throws an IOException, or if
    *     the expected digest and the calculated digest don't match.
@@ -103,6 +109,24 @@ class MD5InputStream extends FilterInputStream {
     closed = true;
 
     in.close();
-    verifier.verifyHash(md5.digest(), rcvd);
+    // Compute SHA-256 hash of buffered data and convert to bytes
+    byte[] data = buffer.toByteArray();
+    String hashHex = PSCryptographyUtils.sha256Hex(data);
+    byte[] hashBytes = hexStringToByteArray(hashHex);
+    verifier.verifyHash(hashBytes, rcvd);
+  }
+
+  /**
+   * Converts a hex string to a byte array.
+   *
+   * @param hex the hex string
+   * @return the byte array
+   */
+  private static byte[] hexStringToByteArray(String hex) {
+    byte[] bytes = new byte[hex.length() / 2];
+    for (int i = 0; i < bytes.length; i++) {
+      bytes[i] = (byte) Integer.parseInt(hex.substring(i * 2, i * 2 + 2), 16);
+    }
+    return bytes;
   }
 }

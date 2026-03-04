@@ -682,10 +682,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.json-lib</groupId>
-			<artifactId>json-lib-ext-spring</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>

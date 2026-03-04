@@ -1592,4 +1592,101 @@ public class SecureStringUtils {
   public static String escapeLDAPConnectionString(String str) {
     return str;
   }
+
+  /**
+   * Escapes special regex metacharacters in a string so it can be safely used as a literal string
+   * in regex patterns.
+   *
+   * <p>This method prevents Regex Injection attacks by escaping all regex special characters:
+   * <code>. ^ $ | ? * + ( ) [ ] { } \</code>
+   *
+   * <p><b>CWE-94: Improper Control of Generation of Code ('Code Injection')</b> <br>
+   * <b>OWASP A03:2021 – Injection</b>
+   *
+   * <p><b>Security Principle:</b> User-supplied input should never be directly used in regex
+   * patterns without escaping. This method treats user input as a literal string, preventing
+   * attackers from injecting regex metacharacters to alter pattern behavior.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>
+   * // VULNERABLE: User input directly in Pattern.compile
+   * String userInput = "test.*";  // malicious input
+   * Pattern p = Pattern.compile(userInput);  // this would match unintended strings
+   *
+   * // SECURE: User input escaped with this method
+   * String userInput = "test.*";
+   * String escaped = escapeRegexString(userInput);  // returns "test\\.\\*"
+   * Pattern p = Pattern.compile(escaped);  // safe, matches literal "test.*"
+   * </pre>
+   *
+   * @param input The string to escape, may be null
+   * @return The escaped string safe for use in regex patterns, or the original string if null
+   * @see java.util.regex.Pattern#quote(String)
+   */
+  public static String escapeRegexString(final String input) {
+    if (input == null) {
+      return null;
+    }
+    // Use Pattern.quote which is the standard Java method for this purpose
+    // It escapes all regex special characters and wraps the result in \Q...\E
+    return Pattern.quote(input);
+  }
+
+  /**
+   * Safely creates a regex Pattern from user-supplied input by treating the input as a literal
+   * string.
+   *
+   * <p>This method is a convenience wrapper around {@link #escapeRegexString(String)} and {@link
+   * Pattern#compile(String)} for common use cases.
+   *
+   * <p><b>Security:</b> User input is safely escaped and cannot inject regex metacharacters or
+   * alter pattern behavior.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>
+   * String userSearch = "test.*";  // from user
+   * // This will match only the literal string "test.*", not as regex pattern
+   * Pattern safePattern = createSafeRegexPattern(userSearch);
+   * </pre>
+   *
+   * @param input The string to create a pattern from, may be null
+   * @return A compiled Pattern that matches the literal string, or null if input is null
+   * @throws PatternSyntaxException if the input contains an invalid pattern (unlikely since
+   *     characters are escaped)
+   * @see #escapeRegexString(String)
+   */
+  public static Pattern createSafeRegexPattern(final String input) {
+    if (input == null) {
+      return null;
+    }
+    return Pattern.compile(escapeRegexString(input));
+  }
+
+  /**
+   * Safely creates a regex Pattern from user-supplied input with flags.
+   *
+   * <p>This method applies safety escaping to user input while preserving regex compilation flags
+   * for case-insensitive matching, multiline mode, etc.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>
+   * String userSearch = "Test";
+   * // Case-insensitive literal match
+   * Pattern p = createSafeRegexPattern(userSearch, Pattern.CASE_INSENSITIVE);
+   * Matcher m = p.matcher("test");  // matches
+   * </pre>
+   *
+   * @param input The string to create a pattern from, may be null
+   * @param flags Regex compilation flags (Pattern.CASE_INSENSITIVE, Pattern.MULTILINE, etc.)
+   * @return A compiled Pattern that matches the literal string, or null if input is null
+   */
+  public static Pattern createSafeRegexPattern(final String input, final int flags) {
+    if (input == null) {
+      return null;
+    }
+    return Pattern.compile(escapeRegexString(input), flags);
+  }
 }

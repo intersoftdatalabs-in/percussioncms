@@ -43,9 +43,12 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.*;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,12 +115,16 @@ public class PSFormDataService implements IPSFormDataService {
           deliveryClient.getJsonObject(
               new PSDeliveryActionOptions(
                   server, FORM_INFO_URL + "list", HttpMethodType.GET, true));
-      var formInfo = (JSONArray) getJson.get("formsInfo");
+      @SuppressWarnings("unchecked")
+      Map<String, Object> jsonMap = (Map<String, Object>) getJson;
+      @SuppressWarnings("unchecked")
+      List<Object> formInfo = (List<Object>) jsonMap.get("formsInfo");
 
       for (var i = 0; i < formInfo.size(); i++) {
         PSFormSummary sum;
-        var formObj = formInfo.getJSONObject(i);
-        var name = formObj.getString(NAME_FIELD);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> formObj = (Map<String, Object>) formInfo.get(i);
+        var name = (String) formObj.get(NAME_FIELD);
         if (!formDataMap.containsKey(name)) {
           sum = new PSFormSummary();
           sum.setName(name);
@@ -165,11 +172,16 @@ public class PSFormDataService implements IPSFormDataService {
           deliveryClient.getJsonObject(
               new PSDeliveryActionOptions(
                   processor, FORM_INFO_URL + name, HttpMethodType.GET, true));
-      var formInfo = (JSONArray) getJson.get("formsInfo");
+      @SuppressWarnings("unchecked")
+      Map<String, Object> jsonMap = (Map<String, Object>) getJson;
+      @SuppressWarnings("unchecked")
+      List<Object> formInfo = (List<Object>) jsonMap.get("formsInfo");
       if (!formInfo.isEmpty()) {
         sum = new PSFormSummary();
         sum.setName(name);
-        mergeFormData(formInfo.getJSONObject(0), sum);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> firstFormObj = (Map<String, Object>) formInfo.get(0);
+        mergeFormData(firstFormObj, sum);
       }
       return sum;
     } catch (PSValidationException
@@ -234,15 +246,16 @@ public class PSFormDataService implements IPSFormDataService {
   }
 
   /**
-   * Merges the submission data from a form json object into a form summary.
+   * Merges the submission data from a form object into a form summary.
    *
-   * @param obj form json object.
+   * @param obj form object map.
    * @param sum form summary.
    */
-  private void mergeFormData(JSONObject obj, PSFormSummary sum) {
-    var totalSubmissions = obj.getInt(TOTALFORMS_FIELD);
+  private void mergeFormData(Map<String, Object> obj, PSFormSummary sum) {
+    var totalSubmissions = ((Number) obj.getOrDefault(TOTALFORMS_FIELD, 0)).intValue();
+    var exportedForms = ((Number) obj.getOrDefault(EXPORTEDFORMS_FIELD, 0)).intValue();
     sum.setNewSubmissions(
-        sum.getNewSubmissions() + (totalSubmissions - obj.getInt(EXPORTEDFORMS_FIELD)));
+        sum.getNewSubmissions() + (totalSubmissions - exportedForms));
     sum.setTotalSubmissions(sum.getTotalSubmissions() + totalSubmissions);
   }
 

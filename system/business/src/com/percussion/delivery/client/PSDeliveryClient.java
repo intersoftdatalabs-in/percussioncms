@@ -17,16 +17,13 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.delivery.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.proxyconfig.data.PSProxyConfig;
 import com.percussion.proxyconfig.service.IPSProxyConfigService;
 import com.percussion.proxyconfig.service.PSProxyConfigServiceLocator;
 import com.percussion.server.PSServer;
 import com.percussion.error.PSMissingBeanConfigurationException;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONNull;
-import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -228,11 +225,23 @@ public class PSDeliveryClient implements IPSDeliveryClient
     }
 
     /**
-     * @return A JSON of the received data.
+     * Parses JSON string response into a generic Object (Map or List).
+     * @return A parsed JSON object or array as Object. Never null.
      */
-    private JSON getJson()
+    private Object parseJson()
     {
-        return net.sf.json.JSONSerializer.toJSON(pushOrGet(MediaType.APPLICATION_JSON));
+        String jsonStr = pushOrGet(MediaType.APPLICATION_JSON);
+        if (isBlank(jsonStr)) {
+            return new java.util.HashMap<String, Object>();
+        }
+        try {
+            var mapper = new ObjectMapper();
+            return mapper.readValue(jsonStr, Object.class);
+        }
+        catch (Exception ex) {
+            log.error("Error parsing JSON response: {}", ex.getMessage());
+            throw new PSDeliveryClientException("Error parsing JSON response: " + ex.getMessage(), ex);
+        }
     }
 
     /**
@@ -280,38 +289,41 @@ public class PSDeliveryClient implements IPSDeliveryClient
      * Requests a JSON Object from a delivery server. Requires that
      * <code>this.url</code> is already set.
      *
-     * @return A JSONObject of the response from the server. If there is no data
-     *         returned, returns an empty JSONObject. Will never be
+     * @return An Object representing the JSON response from the server. If there is no data
+     *         returned, returns an empty map. Will never be
      *         <code>null</code>, may be empty.
      * @throws PSDeliveryClientException if the remote server did not return
      *             JSON of the expected type.
      *
      */
-    private JSONObject getJsonObject()
+    private Object getJsonObject()
     {
-        JSON obj;
         try
         {
-            obj = getJson();
+            Object obj = parseJson();
+            if (obj == null) {
+                return new java.util.HashMap<String, Object>();
+            }
+            if (!(obj instanceof Map<?, ?>)) {
+                throw new PSDeliveryClientException("Expected JSON object (Map), got " + obj.getClass().toString());
+            }
+            return obj;
+        }
+        catch (PSDeliveryClientException ex)
+        {
+            throw ex;
         }
         catch (Exception ex)
         {
-            throw new PSDeliveryClientException("Error in executing the HTTP method: " + ex.getMessage());
+            throw new PSDeliveryClientException("Error in executing the HTTP method: " + ex.getMessage(), ex);
         }
-
-        if (obj instanceof JSONNull)
-            obj = new JSONObject();
-        else if (!(obj instanceof JSONObject))
-            throw new PSDeliveryClientException("Expected JSONObject, got ".concat(obj.getClass().toString()));
-
-        return (JSONObject) obj;
     }
 
     /*
      * (non-Javadoc)
      * @see com.percussion.delivery.client.IPSDeliveryClient#getJsonObject(com.percussion.delivery.client.IPSDeliveryClient.PSDeliveryActionOptions)
      */
-    public JSONObject getJsonObject(PSDeliveryActionOptions actionOptions)
+    public Object getJsonObject(PSDeliveryActionOptions actionOptions)
     {
         prepare(actionOptions, null);
         return getJsonObject();
@@ -321,7 +333,7 @@ public class PSDeliveryClient implements IPSDeliveryClient
      * (non-Javadoc)
      * @see com.percussion.delivery.client.IPSDeliveryClient#getJsonObject(com.percussion.delivery.client.IPSDeliveryClient.PSDeliveryActionOptions, java.lang.Object)
      */
-    public JSONObject getJsonObject(PSDeliveryActionOptions actionOptions,Object requestMessageBody)
+    public Object getJsonObject(PSDeliveryActionOptions actionOptions,Object requestMessageBody)
     {
         prepare(actionOptions, requestMessageBody);
         return getJsonObject();
@@ -331,38 +343,41 @@ public class PSDeliveryClient implements IPSDeliveryClient
      * Requests a JSON Array from a delivery server. Requires that
      * <code>this.url</code> is already set.
      *
-     * @return A JSONArray of the response from the server. If there is no data
-     *         returned, returns an empty JSONArray. Will never be
+     * @return An Object representing the JSON array response from the server. If there is no data
+     *         returned, returns an empty list. Will never be
      *         <code>null</code>, may be empty.
      * @throws PSDeliveryClientException if the remote server did not return
      *             JSON of the expected type.
      *
      */
-    private JSONArray getJsonArray()
+    private Object getJsonArray()
     {
-        JSON obj;
         try
         {
-            obj = getJson();
+            Object obj = parseJson();
+            if (obj == null) {
+                return new java.util.ArrayList<Object>();
+            }
+            if (!(obj instanceof List<?>)) {
+                throw new PSDeliveryClientException("Expected JSON array (List), got " + obj.getClass().toString());
+            }
+            return obj;
+        }
+        catch (PSDeliveryClientException ex)
+        {
+            throw ex;
         }
         catch (Exception ex)
         {
-            throw new PSDeliveryClientException("Error in executing the HTTP method: " + ex.getMessage());
+            throw new PSDeliveryClientException("Error in executing the HTTP method: " + ex.getMessage(), ex);
         }
-
-        if (obj instanceof JSONNull)
-            obj = new JSONArray();
-        else if (!(obj instanceof JSONArray))
-            throw new PSDeliveryClientException("Expected JSONArray, got ".concat(obj.getClass().toString()));
-
-        return (JSONArray) obj;
     }
 
     /*
      * (non-Javadoc)
      * @see com.percussion.delivery.client.IPSDeliveryClient#getJsonArray(com.percussion.delivery.client.IPSDeliveryClient.PSDeliveryActionOptions)
      */
-    public JSONArray getJsonArray(PSDeliveryActionOptions actionOptions)
+    public Object getJsonArray(PSDeliveryActionOptions actionOptions)
     {
         prepare(actionOptions, null);
         return getJsonArray();
@@ -372,7 +387,7 @@ public class PSDeliveryClient implements IPSDeliveryClient
      * (non-Javadoc)
      * @see com.percussion.delivery.client.IPSDeliveryClient#getJsonArray(com.percussion.delivery.client.IPSDeliveryClient.PSDeliveryActionOptions, java.lang.Object)
      */
-    public JSONArray getJsonArray(PSDeliveryActionOptions actionOptions, Object requestMessageBody)
+    public Object getJsonArray(PSDeliveryActionOptions actionOptions, Object requestMessageBody)
     {
         prepare(actionOptions, requestMessageBody);
         return getJsonArray();

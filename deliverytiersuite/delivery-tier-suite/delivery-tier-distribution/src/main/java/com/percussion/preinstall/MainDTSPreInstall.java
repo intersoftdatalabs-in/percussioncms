@@ -17,6 +17,7 @@
 
 package com.percussion.preinstall;
 
+import com.percussion.security.validation.PathValidation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -203,14 +204,22 @@ public class MainDTSPreInstall {
           continue;
         }
 
-        var entryDest = destPath.resolve(name);
+        try {
+          // CWE-22: Validate zip entry path to prevent ZipSlip attacks
+          File baseDir = destPath.toFile();
+          File safeFile = PathValidation.constructSafePath(baseDir, name);
+          Path entryDest = safeFile.toPath();
 
-        if (entry.isDirectory()) {
-          Files.createDirectory(entryDest);
-          continue;
+          if (entry.isDirectory()) {
+            Files.createDirectory(entryDest);
+            continue;
+          }
+          System.out.println("Creating file " + entryDest);
+          Files.copy(archive.getInputStream(entry), entryDest);
+        } catch (SecurityException se) {
+          // ZipSlip attack detected - skip malicious entry
+          System.out.println("Security: Rejected malicious zip entry: " + entryName);
         }
-        System.out.println("Creating file " + entryDest);
-        Files.copy(archive.getInputStream(entry), entryDest);
       }
     }
   }

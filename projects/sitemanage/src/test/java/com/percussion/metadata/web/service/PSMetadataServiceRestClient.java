@@ -25,11 +25,13 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.test.PSDataServiceRestClient;
 import jakarta.ws.rs.core.MediaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import net.sf.json.JSONObject;
 
 /** REST client for metadata service. Sunny Sal says: "Metadata management, Java 11 style!" */
 public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetadata> {
@@ -41,8 +43,8 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
     super(PSMetadata.class, url, "/Rhythmyx/services/metadatamanagement/metadata/");
   }
 
-  public void save(JSONObject obj) {
-    POST(getPath(), obj.toString());
+  public void save(Map<String, Object> obj) throws com.fasterxml.jackson.core.JsonProcessingException {
+    POST(getPath(), new ObjectMapper().writeValueAsString(obj));
   }
 
   public List<PSGadget> getCurrentGadgets() {
@@ -50,13 +52,10 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
     try {
       var response = GET(concatPath(getPath(), GADGETS_KEY));
       var metadata = PSSerializerUtils.unmarshal(response, PSMetadata.class);
-      var jsonObject =
-          (JSONObject) JSONObject.fromObject(metadata.getData()).get("DashboardConfig");
-      var classMap = new HashMap<String, Class<?>>();
-      classMap.put("gadgets", PSGadget.class);
-      config =
-          (PSDashboardConfiguration)
-              JSONObject.toBean(jsonObject, PSDashboardConfiguration.class, classMap);
+      var mapper = new ObjectMapper();
+      var dataMap = mapper.readValue(metadata.getData(), java.util.Map.class);
+      var dashboardConfigMap = (java.util.Map<String, Object>) dataMap.get("DashboardConfig");
+      config = mapper.convertValue(dashboardConfigMap, PSDashboardConfiguration.class);
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -84,32 +83,34 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
     }
   }
 
-  private JSONObject getMetadataJsonForSpecificGadgetSettings(
-      PSDashboardConfiguration dashboardConfig) {
-    var userConfig = new JSONObject();
+  private Map<String, Object> getMetadataJsonForSpecificGadgetSettings(
+      PSDashboardConfiguration dashboardConfig) throws com.fasterxml.jackson.core.JsonProcessingException {
+    var userConfig = new LinkedHashMap<String, Object>();
     for (var gad : dashboardConfig.getGadgets()) {
-      var specificGadgetSettings = new JSONObject();
+      var specificGadgetSettings = new LinkedHashMap<String, Object>();
       for (var prefName : gad.getSettings().keySet()) {
         specificGadgetSettings.put(prefName, gad.getSettings().get(prefName));
       }
       userConfig.put("mid_" + gad.getInstanceId(), specificGadgetSettings);
     }
-    var userPrefJson = new JSONObject();
+    var userPrefJson = new LinkedHashMap<String, Object>();
     userPrefJson.put("userprefs", userConfig);
 
-    var metadata = new PSMetadata(GADGETS_PREFS_KEY, "\"" + userPrefJson.toString() + "\"");
-    var metadataJson = new JSONObject();
-    metadataJson.put("metadata", JSONObject.fromObject(metadata));
+    var mapper = new ObjectMapper();
+    var metadata = new PSMetadata(GADGETS_PREFS_KEY, "\"" + mapper.writeValueAsString(userPrefJson) + "\"");
+    var metadataJson = new LinkedHashMap<String, Object>();
+    metadataJson.put("metadata", mapper.convertValue(metadata, Object.class));
     return metadataJson;
   }
 
-  private JSONObject getMetadataJson(PSDashboardConfiguration dashboardConfig) {
-    var dashboardConfigJson = new JSONObject();
-    dashboardConfigJson.put("DashboardConfig", JSONObject.fromObject(dashboardConfig));
+  private Map<String, Object> getMetadataJson(PSDashboardConfiguration dashboardConfig) throws com.fasterxml.jackson.core.JsonProcessingException {
+    var dashboardConfigJson = new LinkedHashMap<String, Object>();
+    var mapper = new ObjectMapper();
+    dashboardConfigJson.put("DashboardConfig", mapper.convertValue(dashboardConfig, Object.class));
 
-    var metadata = new PSMetadata(GADGETS_KEY, "\"" + dashboardConfigJson.toString() + "\"");
-    var metadataJson = new JSONObject();
-    metadataJson.put("metadata", JSONObject.fromObject(metadata));
+    var metadata = new PSMetadata(GADGETS_KEY, "\"" + mapper.writeValueAsString(dashboardConfigJson) + "\"");
+    var metadataJson = new LinkedHashMap<String, Object>();
+    metadataJson.put("metadata", mapper.convertValue(metadata, Object.class));
     return metadataJson;
   }
 

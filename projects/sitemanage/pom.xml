@@ -292,18 +292,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/net.sf.json-lib/json-lib -->
-        <dependency>
-            <groupId>net.sf.json-lib</groupId>
-            <artifactId>json-lib</artifactId>
-            <classifier>jdk15</classifier>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>

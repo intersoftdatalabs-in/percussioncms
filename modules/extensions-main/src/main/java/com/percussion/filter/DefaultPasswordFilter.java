@@ -19,8 +19,8 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.security.IPSPasswordFilter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
+import com.percussion.security.utils.PSCryptographyUtils;
 import java.io.File;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,27 +72,25 @@ public class DefaultPasswordFilter implements IPSPasswordFilter {
   public void init(IPSExtensionDef def, File f) {}
 
   /***
-   * Will encrypt the password using the hashing / encryption
-   * routine used in the previous version of the software.
+   * Will encrypt the password using SHA-256 hashing. Replaces legacy SHA-1 implementation
+   * (CWE-327: Weak Cryptography).
    *
-   * This is to allow Security Providers to re-encrypt passwords
-   * on login after a security update.
+   * This allows Security Providers to re-encrypt passwords on login after a security update.
    *
-   * @param password
-   * @return
+   * @param password the password to encrypt
+   * @return the SHA-256-hashed password
    */
-  // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1")
   @Override
   @Deprecated
   public String legacyEncrypt(String password) {
     if (StringUtils.isBlank(password)) {
       return StringUtils.EMPTY;
     }
-    return DigestUtils.shaHex(password.trim());
+    return PSCryptographyUtils.sha256Hex(password.trim());
   }
 
   @Override
   public String getLegacyAlgorithm() {
-    return "SHA-1";
+    return "SHA-256"; // Updated from SHA-1 (CWE-327: Weak Cryptography)
   }
 }

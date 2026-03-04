@@ -16,6 +16,7 @@
 
 package com.percussion.pso.jexl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.extension.IPSJexlExpression;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
@@ -28,7 +29,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,6 +49,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   private static final int SC_NOT_MODIFIED = 304;
   private static final HttpClient HTTP_CLIENT =
       HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   public PSORemoteContentTools() {
     super();
@@ -163,14 +164,14 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API method for
   // returning remote JSON content in a template.
   @IPSJexlMethod(
-      description = "Returns JSONObject based on a URL.",
+      description = "Returns parsed JSON content (object or array) from a URL.",
       params = {
         @IPSJexlParam(
             name = "urlString",
             description = "url to pull content from, include query params if desired")
       },
-      returns = "Returns a net.sf.json.JSONObject")
-  public JSONObject getRemoteJSONContent(String urlString)
+      returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
+  public Object getRemoteJSONContent(String urlString)
       throws IllegalArgumentException, IOException {
     HttpResponse<String> response = executeGet(urlString, null, null, null);
     int statusCode = response.statusCode();
@@ -180,7 +181,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
           urlString,
           statusCode);
     }
-    return JSONObject.fromObject(response.body());
+    try {
+      return OBJECT_MAPPER.readValue(response.body(), Object.class);
+    } catch (IOException e) {
+      log.error("Failed to parse JSON from URL: {}", urlString, e);
+      throw e;
+    }
   }
 
   /**
@@ -195,7 +201,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
    */
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API
   @IPSJexlMethod(
-      description = "Returns JSONObject based on a URL.",
+      description = "Returns parsed JSON content (object or array) from a URL with basic auth.",
       params = {
         @IPSJexlParam(
             name = "urlString",
@@ -203,8 +209,8 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "username", description = "username"),
         @IPSJexlParam(name = "password", description = "password")
       },
-      returns = "Returns a net.sf.json.JSONObject")
-  public JSONObject getRemoteJSONContent(String urlString, String username, String password)
+      returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
+  public Object getRemoteJSONContent(String urlString, String username, String password)
       throws IllegalArgumentException, IOException {
     HttpResponse<String> response = executeGet(urlString, null, username, password);
     int statusCode = response.statusCode();
@@ -214,7 +220,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
           urlString,
           statusCode);
     }
-    return JSONObject.fromObject(response.body());
+    try {
+      return OBJECT_MAPPER.readValue(response.body(), Object.class);
+    } catch (IOException e) {
+      log.error("Failed to parse JSON from URL: {}", urlString, e);
+      throw e;
+    }
   }
 
   /**
@@ -227,21 +238,26 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
    * @throws IOException
    */
   @IPSJexlMethod(
-      description = "Returns JSONObject based on a URL.",
+      description = "Returns parsed JSON content (object or array) from a URL with headers.",
       params = {
         @IPSJexlParam(
             name = "urlString",
             description = "url to pull content from, include query params if desired"),
         @IPSJexlParam(name = "headers", description = "map of headers to set")
       },
-      returns = "Returns a net.sf.json.JSONObject")
-  public JSONObject getRemoteJSONContent(String urlString, Map<String, String> headers)
+      returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
+  public Object getRemoteJSONContent(String urlString, Map<String, String> headers)
       throws IllegalArgumentException, IOException {
     HttpResponse<String> response = executeGet(urlString, headers, null, null);
     if (response.statusCode() != SC_OK) {
       log.debug("Get failed for URL {}. Status code: {}", urlString, response.statusCode());
     }
-    return JSONObject.fromObject(response.body());
+    try {
+      return OBJECT_MAPPER.readValue(response.body(), Object.class);
+    } catch (IOException e) {
+      log.error("Failed to parse JSON from URL: {}", urlString, e);
+      throw e;
+    }
   }
 
   /**
@@ -258,7 +274,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") // Is an api method for getting
   // remote data by url
   @IPSJexlMethod(
-      description = "Returns JSONObject based on a URL.",
+      description = "Returns parsed JSON content (object or array) from a URL with headers and basic auth.",
       params = {
         @IPSJexlParam(
             name = "urlString",
@@ -267,8 +283,8 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "username", description = "username"),
         @IPSJexlParam(name = "password", description = "password")
       },
-      returns = "Returns a net.sf.json.JSONObject")
-  public JSONObject getRemoteJSONContent(
+      returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
+  public Object getRemoteJSONContent(
       String urlString, Map<String, String> headers, String username, String password)
       throws IllegalArgumentException, IOException {
     HttpResponse<String> response = executeGet(urlString, headers, username, password);
@@ -279,7 +295,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
           urlString,
           statusCode);
     }
-    return JSONObject.fromObject(response.body());
+    try {
+      return OBJECT_MAPPER.readValue(response.body(), Object.class);
+    } catch (IOException e) {
+      log.error("Failed to parse JSON from URL: {}", urlString, e);
+      throw e;
+    }
   }
 
   private HttpResponse<String> executeGet(

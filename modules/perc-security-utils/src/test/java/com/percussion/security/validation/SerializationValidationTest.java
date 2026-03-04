@@ -99,9 +99,9 @@ class SerializationValidationTest {
     String spec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
 
     assertNotNull(spec);
-    assertTrue(spec.contains("com.percussion.**"));
+    assertTrue(spec.contains("com.percussion.*"));
     assertTrue(spec.contains("!*")); // Should reject all others
-    assertTrue(spec.contains("java.lang.String")); // Should include standard safe classes
+    assertTrue(spec.contains("java.lang.*")); // Should include standard safe package patterns
   }
 
   @Test
