@@ -145,7 +145,7 @@ span.ui-icon.ui-icon-closethick {
   display: block;
   width: 16px;
   height: 16px;
-  background-image: url(/cm/themes/smoothness/images/ui-icons_222222_256x240.png);
+  background-image: url(/cm/app/app/vendor/css/legacy/themes/smoothness/images/ui-icons_222222_256x240.png);
 }
 .ui-multiselect-checkboxes input[type="checkbox"] {
   margin: 0px 5px;

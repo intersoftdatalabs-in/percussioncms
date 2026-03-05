@@ -629,12 +629,12 @@ textarea {
 .perc-pagingbar-navigator
   .perc-pagingbar-previous.perc-disabled-navigator:hover,
 .perc-pagingbar-navigator .perc-pagingbar-previous.perc-disabled-navigator {
-  background: url(/cm/images/images/FinderPageArrowLeft_disabled.png) no-repeat
+  background: url(/cm/app/app/images/images/FinderPageArrowLeft_disabled.png) no-repeat
     scroll 0 0 transparent;
 }
 .perc-pagingbar-navigator .perc-pagingbar-next.perc-disabled-navigator:hover,
 .perc-pagingbar-navigator .perc-pagingbar-next.perc-disabled-navigator {
-  background: url(/cm/images/images/FinderPageArrowRight_disabled.png) no-repeat
+  background: url(/cm/app/app/images/images/FinderPageArrowRight_disabled.png) no-repeat
     scroll 0 0 transparent;
 }
 
@@ -643,16 +643,16 @@ textarea {
     scroll 0 0 transparent;
 }
 .perc-pagingbar-navigator .perc-pagingbar-next {
-  background: url(/cm/images/images/FinderPageArrowRight_enabled.png) no-repeat
+  background: url(/cm/app/app/images/images/FinderPageArrowRight_enabled.png) no-repeat
     scroll 0 0 transparent;
 }
 
 .perc-pagingbar-navigator .perc-pagingbar-previous:hover {
-  background: url(/cm/images/images/FinderPageArrowLeft_over.png) no-repeat
+  background: url(/cm/app/app/images/images/FinderPageArrowLeft_over.png) no-repeat
     scroll 0 0 transparent;
 }
 .perc-pagingbar-navigator .perc-pagingbar-next:hover {
-  background: url(/cm/images/images/FinderPageArrowRight_over.png) no-repeat
+  background: url(/cm/app/app/images/images/FinderPageArrowRight_over.png) no-repeat
     scroll 0 0 transparent;
 }
 

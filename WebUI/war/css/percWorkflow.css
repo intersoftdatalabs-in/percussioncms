@@ -1287,7 +1287,7 @@ li.ui-tabs-active #perc-tab-workflow,
 }
 
 .perc-itemname-treelist .dynatree-has-children span.dynatree-expander {
-  background-image: url(/cm/images/images/buttonBlueSmallPlus.gif);
+  background-image: url(/cm/app/app/images/images/buttonBlueSmallPlus.gif);
   background-position: 3px 2px;
   background-repeat: no-repeat;
   display: inline-block;
@@ -1297,7 +1297,7 @@ li.ui-tabs-active #perc-tab-workflow,
 }
 
 .perc-itemname-treelist .dynatree-expanded span.dynatree-expander {
-  background-image: url(/cm/images/images/buttonBlueSmallMinus.gif);
+  background-image: url(/cm/app/app/images/images/buttonBlueSmallMinus.gif);
   background-position: 3px 2px;
   background-repeat: no-repeat;
   display: inline-block;

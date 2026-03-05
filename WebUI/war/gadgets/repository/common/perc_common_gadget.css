@@ -55,7 +55,7 @@
   border: 0px;
 }
 .perc-gadget-list-container table thead tr {
-  background-image: url(/cm/gadgets/repository/common/dashboardListHeaderLine.png);
+  background-image: url(/cm/app/app/gadgets/repository/common/dashboardListHeaderLine.png);
   background-repeat: repeat;
   height: 18px;
 }
@@ -169,7 +169,7 @@
   font-size: 11px;
   font-weight: normal;
   color: #000000;
-  background: white url(/cm/images/images/buttonDeleteSmall.png) no-repeat top
+  background: white url(/cm/app/app/images/images/buttonDeleteSmall.png) no-repeat top
     right;
   z-index: 10000;
   /* FF3.5+ */
@@ -209,7 +209,7 @@
   border-collapse: separate;
   border-spacing: 0px;
   padding: 1px 0px 0px 20px;
-  background-image: url(/cm/gadgets/repository/common/images/loading_white.gif);
+  background-image: url(/cm/app/app/gadgets/repository/common/images/loading_white.gif);
   background-repeat: no-repeat;
 }
 

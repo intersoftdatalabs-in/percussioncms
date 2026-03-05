@@ -446,7 +446,7 @@ del {
 
 /* style for object placeholder*/
 .perc-object-placeholder {
-  background: transparent url(/cm/images/images/objectPlaceholder.png) no-repeat
+  background: transparent url(/cm/app/app/images/images/objectPlaceholder.png) no-repeat
     scroll center center;
   border: 1px solid #858690;
   position: relative;
@@ -715,7 +715,7 @@ img.perc-notpubliclink {
   width: 16px;
   height: 16px;
   margin-left: 1px;
-  background-image: url(/cm/images/images/brokenlink.png);
+  background-image: url(/cm/app/app/images/images/brokenlink.png);
 }
 
 .perc-notpubliclink:after {
@@ -724,7 +724,7 @@ img.perc-notpubliclink {
   width: 18px;
   height: 16px;
   margin-left: 1px;
-  background-image: url(/cm/images/images/iconAlert.gif);
+  background-image: url(/cm/app/app/images/images/iconAlert.gif);
 }
 body * {
   font-family: "Open Sans", sans-serif, "FontAwesome", "Font Awesome\ 5 Free";

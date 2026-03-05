@@ -1,7 +1,7 @@
 /* TODO: this was taken from the autolist widget and has references to it. Remove these references and only keep style specific to the tree */
 
 #perc-finder-tree {
-  background-image: url(/cm/images/finderTreeBackground.jpg);
+  background-image: url(/cm/app/app/images/finderTreeBackground.jpg);
   background-repeat: repeat;
   display: inline-block;
   min-width: 100%;
@@ -55,13 +55,13 @@ div.dynatree-container {
 
 .dynatree-exp-el span.dynatree-expander,
 .dynatree-exp-edl span.dynatree-expander {
-  background-image: url(/cm/images/images/buttonBlueSmallMinus.gif);
+  background-image: url(/cm/app/app/images/images/buttonBlueSmallMinus.gif);
   background-position: 3px 2px;
 }
 
 .dynatree-exp-cl span.dynatree-expander,
 span.dynatree-expander {
-  background-image: url(/cm/images/images/buttonBlueSmallPlus.gif);
+  background-image: url(/cm/app/app/images/images/buttonBlueSmallPlus.gif);
   background-position: 3px 2px;
 }
 
@@ -77,17 +77,17 @@ span.dynatree-active a {
 
 .dynatree-exp-e span.dynatree-expander,
 .dynatree-exp-ed span.dynatree-expander {
-  background-image: url(/cm/images/images/buttonBlueSmallMinus.gif);
+  background-image: url(/cm/app/app/images/images/buttonBlueSmallMinus.gif);
   background-position: 3px 2px;
 }
 
 .dynatree-exp-cdl span.dynatree-expander {
-  background-image: url(/cm/images/images/buttonBlueSmallPlus.gif);
+  background-image: url(/cm/app/app/images/images/buttonBlueSmallPlus.gif);
   background-position: 3px 2px;
 }
 
 .dynatree-exp-cd span.dynatree-expander {
-  background-image: url(/cm/images/images/buttonBlueSmallPlus.gif);
+  background-image: url(/cm/app/app/images/images/buttonBlueSmallPlus.gif);
   background-position: 3px 2px;
 }
 
@@ -228,7 +228,7 @@ span.dynatree-folder a {
 }
 .dynatree-loading span.dynatree-expander  /* 'Loading' status overrides all others */ {
   background-position: -6px -3px;
-  background-image: url("/cm/css/dynatree/skin/loading.gif");
+  background-image: url("/cm/app/css/legacy/dynatree/skin/loading.gif");
   height: 15px;
   width: 16px;
 }

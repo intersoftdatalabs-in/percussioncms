@@ -41,13 +41,13 @@
 }
 
 .dataTables_wrapper .sorting_asc span {
-  background-image: url(/cm/gadgets/repository/common/images/perc-datatable-sort-ascending.png);
+  background-image: url(/cm/app/app/gadgets/repository/common/images/perc-datatable-sort-ascending.png);
   background-repeat: no-repeat;
   background-position: 3px 15px;
 }
 
 .dataTables_wrapper .sorting_desc span {
-  background-image: url(/cm/gadgets/repository/common/images/perc-datatable-sort-descending.png);
+  background-image: url(/cm/app/app/gadgets/repository/common/images/perc-datatable-sort-descending.png);
   background-repeat: no-repeat;
   background-position: 3px 15px;
 }
