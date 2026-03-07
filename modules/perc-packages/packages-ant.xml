@@ -3,7 +3,7 @@
 <project name="packages" default="preparePackages" basedir=".">
 
 	<property name="packages.dir"
-		value="${basedir}/../../system/Packages" />
+		value="${basedir}/src/main/resources/Packages" />
 	<property name="outputdir" value="${basedir}/target" />
 
 	<property name="pkg.tmp.dir"
