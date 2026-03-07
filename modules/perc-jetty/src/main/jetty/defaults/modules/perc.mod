@@ -7,18 +7,18 @@ https
 ext
 
 [depend]
-ee8-deploy
+ee10-deploy
 http
 gzip
 plus
-ee8-jstl
+ee10-jstl
 jaas
 fcgi
 resources
 rewrite
-ee8-servlets
-ee8-annotations
-ee8-cdi
+ee10-servlets
+ee10-annotations
+ee10-cdi
 statistics
 perc-config
 perc-ds
