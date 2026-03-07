@@ -1,13 +1,4 @@
-# Copilot Instructions for Percussion CMS
-
-## Project Overview
-
-Percussion CMS is a Java-based content management system focusing on XML applications, modern security (OWASP compliance), and modular architecture. It uses Java 17, Maven, Spring, Hibernate, Commons Lang3, Guava, and JUnit5. Prioritize maintainability, backward compatibility, and performance.
-
-# Role
-
-You are expert Java Developer ("Sunny Sal") with a professional, friendly, humorous, positive tone.
-Use clear, concise communication with occasional humor.
+Read @AGENTS.md
 
 ## Coding Style
 
@@ -53,29 +44,9 @@ docs/: Markdown documentation and API specs.
 plans/: Contains plans for tasks and issues. New plans should be added here in ISSUE-#<number>-<plan name>.md format.
 ```
 
-Always work with the #codebase directory as the root for all file paths.
-Always use the #codebase context when resolving missing interfaces or classes.
 
-## Dependency Management
 
-- This is not a Spring Boot application; avoid Spring Boot dependencies.
-- Use Maven for dependency management; ensure all dependencies are defined in the `pom.xml`.
-- Use the parent POM to manage shared dependencies and plugin versions.
-- Use the `maven-enforcer-plugin` to enforce dependency versions and prevent conflicts.
-- Use `maven-dependency-plugin` to analyze and manage dependencies.
-- Use `maven-surefire-plugin` for running tests; ensure JUnit5 is used.
-- Use `maven-compiler-plugin` to set the Java version to 17.
-- Use `maven-jar-plugin` to package the application; ensure resources are included.
-- Use `maven-resources-plugin` to filter and copy resources.
-- Use `maven-assembly-plugin` for creating distribution packages.
-- Use `maven-shade-plugin` for creating shaded JARs if needed.
-- Use `maven-toolchains-plugin` to ensure the correct Java version is used during builds.
-- Use `maven-enforcer-plugin` to enforce upper bound dependencies and prevent transitive dependency drifts.
-- Use `maven-spotless-plugin` and `maven-checkstyle-plugin` to ensure code style consistency.
-- The parent POM (`pom.xml`) has a dependencyManagement section to manage versions of dependencies used in child modules.
-- The parent POM (`pom.xml`) has a pluginManagement section to manage versions of plugins used in child modules.
-- The deliverytiersuite/delivery-tier-suite module has its own POM file to manage its child dependencies and plugins.
-- The deliverytiersuite/delivery-tier-suite module may override dependency versions defined in the parent POM but should do so only if absolutely necessary.
+
 
 ## Git Workflow
 
@@ -89,29 +60,16 @@ Always use the #codebase context when resolving missing interfaces or classes.
 - Only push commits after user has reviewed and approved changes
 - All changes must be tested locally before pushing
 
-## Branch Information
 
-- Branch Name: development
-- This branch is intended to maintain compatibility with the JDK 21
-- All code changes in this branch must be compatible with JDK 21
-- All changes must preserve existing functionality and not introduce any features that require a higher Java version.
-- Maintaining backward compatibility with existing functionality is the highest priority behind security and accessibility defects.
 
 ## Java Version
 
-- Ensure all code is compatible with JDK 21
-- Build and test the project using JDK 21
-- **ALWAYS set JAVA_HOME to a Java 21 JRE before running any build or shell commands**
-- Use the provided environment scripts to ensure Maven uses JDK 21 when running locally:
-  - Linux/macOS: `./mvn-env.sh <maven-args>`
-  - Windows: `mvn-env.bat <maven-args>`
-  - These scripts set `JAVA_HOME` from `JAVA_HOME_21`.
-- **Before committing:** run `./mvn-env.sh spotless:check` and, if it fails, run `./mvn-env.sh spotless:apply` and re-run the check before pushing changes. (Spotless enforces code formatting/style; `google-java-format` used by Spotless requires JDK 21, so run Spotless via the wrapper scripts.)
-- Example: `export JAVA_HOME=/usr/lib/jvm/java-1.21.0-amazon-corretto` before running `mvn` commands
+
+
 
 ## Dependencies
 
-- Upgrade dependencies to their latest versions that are compatible with JDK 21.0
+
 - Dependency versions are managed in the parent pom.xml file
 - Axis:
   - Axis 1.x is retired; remove any axis dependencies and refactor code that uses axis to not use it.
