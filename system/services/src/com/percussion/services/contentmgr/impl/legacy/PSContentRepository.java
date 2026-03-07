@@ -2010,7 +2010,7 @@ public class PSContentRepository
      *
      * @throws InvalidQueryException if failed to prepare the query.
      */
-    @SuppressWarnings("unchecked")
+
     private Query prepareQuery(PSQuery psquery, Long typeid, Session s,
                                IPSQueryNode internalwhere, int maxresults,
                                Map<String, ? extends Object> params) throws InvalidQueryException
@@ -2126,7 +2126,7 @@ public class PSContentRepository
      * @param rval the current result set to be collected, assumed
      * not <code>null</code>.
      */
-    @SuppressWarnings("unchecked")
+
     private void gatherQueryResults(List<Map> results, PSQueryResult rval)
     {
         // The results are a map. Create a row for each result

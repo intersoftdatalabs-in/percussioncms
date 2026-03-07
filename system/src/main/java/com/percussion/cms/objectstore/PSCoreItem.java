@@ -63,7 +63,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    *
    * @param child - assumed not <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   private void addChild(PSItemChild child) {
     m_childNameChildMap.put(child.getName(), child);
   }
@@ -96,7 +96,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    *
    * @param field assumed not <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   private void addField(PSItemField field) {
     m_fieldNameFieldMap.put(field.getName(), field);
   }
@@ -106,7 +106,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    *
    * @param item assumed not <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   private void addRelatedItem(PSItemRelatedItem item) {
     int rId = item.getRelationshipId();
     if (rId == -1) {
@@ -249,7 +249,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   // see interface for description
-  @SuppressWarnings("unchecked")
+
   public Object clone() {
     PSCoreItem copy = null;
     copy = (PSCoreItem) super.clone();
@@ -361,7 +361,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     loadXmlData(sourceNode, false);
   }
 
-  @SuppressWarnings("unchecked")
+
   void loadXmlData(Element sourceNode, boolean clearValues) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode must not be null");
 
@@ -460,7 +460,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    *
    * @param item the core item from which to merge, may not be <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void loadData(PSCoreItem item) {
     if (item == null) throw new IllegalArgumentException("item must not be null");
 

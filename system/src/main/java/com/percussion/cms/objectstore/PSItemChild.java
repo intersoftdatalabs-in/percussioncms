@@ -201,7 +201,7 @@ public class PSItemChild extends PSItemComponent {
    * @param upDown -1 is up and 1 is down etc. The result of this + <code>childEntryCount()</code>,
    *     must be > 0 and < <code>childEntryCount()</code>
    */
-  @SuppressWarnings("unchecked")
+
   public void move(PSItemChildEntry childEntry, int upDown) {
     int currentPos = m_entryList.indexOf(childEntry);
 
@@ -257,7 +257,7 @@ public class PSItemChild extends PSItemComponent {
    * @param childEntry the object to add. Must not be <code>null</code> must have valid <code>
    *     PSItemField</code> objects.
    */
-  @SuppressWarnings("unchecked")
+
   public void addEntry(PSItemChildEntry childEntry) {
     if (childEntry == null) throw new IllegalArgumentException("child entry must not be null");
 

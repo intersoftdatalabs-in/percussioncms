@@ -46,6 +46,18 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
+            <version>${derby.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyshared</artifactId>
+            <version>${derby.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
             <scope>provided</scope>
@@ -157,26 +169,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unpack-perc-war</id>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.percussion</groupId>
-                                    <artifactId>perc-web-ui</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <includes>**</includes>
-                                    <outputDirectory>${assembly-directory}/base/webapps/Rhythmyx</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>copy</id>
                         <goals>
                             <goal>copy</goal>
@@ -203,6 +195,22 @@
                                 <artifactItem>
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbyclient</artifactId>
+                                    <version>${derby.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbytools</artifactId>
+                                    <version>${derby.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbyshared</artifactId>
                                     <version>${derby.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -258,14 +266,9 @@
                                 <copy todir="${assembly-directory}/upstream">
                                     <fileset dir="${jetty-directory}/jetty-home-${jetty.version}/"/>
                                 </copy>
-                                <!--Copying the Jetty jar having fix from jetty project for bug CMS-6724 -->
-                                <copy todir="${assembly-directory}/upstream/lib/">
-                                    <fileset dir="${basedir}/../../system/Tools/jetty/upstream/lib/"/>
-                                </copy>
+                                <!-- Copy custom Jetty overlays from Maven standard location -->
                                 <copy todir="${assembly-directory}">
-                                    <fileset dir="${basedir}/../../system/Tools/jetty">
-                                        <exclude name="jetty-distribution-*"/>
-                                    </fileset>
+                                    <fileset dir="${basedir}/src/main/jetty"/>
                                 </copy>
                             </target>
                         </configuration>
@@ -321,6 +324,10 @@
                         <phase>package</phase>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

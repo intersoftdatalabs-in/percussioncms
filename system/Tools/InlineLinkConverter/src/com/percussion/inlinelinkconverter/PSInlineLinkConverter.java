@@ -358,7 +358,7 @@ public class PSInlineLinkConverter {
      * @param community the community containing workflows, must not be null
      * @throws PSRemoteException if an error occurs during workflow retrieval
      */
-    @SuppressWarnings("unchecked")
+
     private void initWorkflowIdMap(PSEntry community) throws PSRemoteException {
         Objects.requireNonNull(community, "community must not be null");
 

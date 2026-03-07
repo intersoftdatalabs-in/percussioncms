@@ -67,7 +67,7 @@ class PSInstallationDeserializationTest {
 
     assertNotNull(result);
     assertInstanceOf(Map.class, result);
-    @SuppressWarnings("unchecked")
+
     Map<String, java.util.ArrayList<String>> deserializedMap =
         (Map<String, java.util.ArrayList<String>>) result;
     assertTrue(deserializedMap.containsKey("libs"));
@@ -126,7 +126,7 @@ class PSInstallationDeserializationTest {
     }
 
     assertNotNull(result);
-    @SuppressWarnings("unchecked")
+
     Map<String, java.util.ArrayList<String>> deserializedMap =
         (Map<String, java.util.ArrayList<String>>) result;
     assertEquals(2, deserializedMap.size());

@@ -68,7 +68,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /** Construct an empty legacy server configuration object. */
-  @SuppressWarnings("unchecked")
+
   PSLegacyServerConfig() {
     super();
     m_backEndConnections = new PSCollection(PSLegacyBackEndConnection.class);

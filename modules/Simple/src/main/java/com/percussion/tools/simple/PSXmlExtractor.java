@@ -262,7 +262,7 @@ public class PSXmlExtractor {
       } catch (SAXException e) {
         if (e instanceof PSSaxParseException) {
           result = "Document has failed to validate: \n";
-          @SuppressWarnings("unchecked")
+
           Iterator<SAXParseException> errors = ((PSSaxParseException) e).getExceptions();
           while (errors.hasNext()) {
             SAXParseException spe = errors.next();

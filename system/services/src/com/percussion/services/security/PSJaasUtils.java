@@ -65,18 +65,18 @@ public class PSJaasUtils
    public static final String ROLE_GROUP_NAME = "Roles";
 
    public static final String ROLE_DEFAULT = "Default";
-   
+
    /**
     * Predicate for filtering an iterater to return only group entries.
     */
    private static class PSGroupNamePredicate implements Predicate
    {
       /**
-       * The name of the principal that contains groups, never 
+       * The name of the principal that contains groups, never
        * <code>null</code>.
        */
       String mi_name = null;
-      
+
       /**
        * Ctor
        * @param n name, assumed not <code>null</code>
@@ -85,12 +85,12 @@ public class PSJaasUtils
       {
          mi_name = n;
       }
-      
+
       public boolean evaluate(Object principal)
       {
          if (principal instanceof Principal)
          {
-            return principal instanceof Group && 
+            return principal instanceof Group &&
                ((Principal) principal).getName().equals(mi_name);
          }
          else
@@ -103,7 +103,7 @@ public class PSJaasUtils
     * Find the group that represents the roles for the subject, or create a new
     * group with the appropriate name. If a group is created, it will be
     * appended to the collection of principals.
-    * 
+    *
     * @param coll
     *           the collection of principals for the subject, must never be
     *           <code>null</code>
@@ -134,7 +134,7 @@ public class PSJaasUtils
 
    /**
     * Find a principal of the class <code>PSPrincipal</code>
-    * 
+    *
     * @param coll
     *           the collection of principals for the subject, must never be
     *           <code>null</code>
@@ -151,7 +151,7 @@ public class PSJaasUtils
             return principal instanceof PSPrincipal;
          }
       });
-      
+
       if (iter.hasNext())
          return (Principal) iter.next();
       else
@@ -160,26 +160,26 @@ public class PSJaasUtils
 
    /**
     * Convert the supplied subject to a user entry.
-    * 
+    *
     * @param subject The subject to convert, may not be <code>null</code>.
-    * @param username The user name of the subject, may not be <code>null</code> 
+    * @param username The user name of the subject, may not be <code>null</code>
     * or empty.
     * @param pw The user's password, may be <code>null</code> or empty.
-    * 
+    *
     * @return The user entry, never <code>null</code>.
     */
-   public static PSUserEntry subjectToUserEntry(Subject subject, 
+   public static PSUserEntry subjectToUserEntry(Subject subject,
       String username, String pw)
    {
       if (subject == null)
          throw new IllegalArgumentException("subject may not be null");
-      
+
       if (StringUtils.isBlank(username))
          throw new IllegalArgumentException(
             "username may not be null or empty");
-      
+
       int accessLvl = 0;
-   
+
       // Handle Groups Roles and attributes
       Collection<PSGroupEntry> gentries = new ArrayList<>();
       Collection<PSRoleEntry> roles = new ArrayList<>();
@@ -216,8 +216,8 @@ public class PSJaasUtils
       if (attList.size() > 0)
          userAttributes = new PSUserAttributes(attList);
       PSRoleEntry[] rolearr = roles.toArray(new PSRoleEntry[roles.size()]);
-      
-      PSUserEntry entry = new PSUserEntry(username, accessLvl, grouparr, 
+
+      PSUserEntry entry = new PSUserEntry(username, accessLvl, grouparr,
          rolearr, userAttributes, PSUserEntry.createSignature(username, pw));
       return entry;
    }
@@ -225,9 +225,9 @@ public class PSJaasUtils
    /**
     * Recursively creates and returns role entries for each principal member of
     * the supplied group.
-    * 
+    *
     * @param g The group, assumed not <code>null</code>.
-    * 
+    *
     * @return The role entries, never <code>null</code>, may be empty.
     */
    private static Collection<PSRoleEntry> getRoleEntries(Group g)
@@ -248,10 +248,10 @@ public class PSJaasUtils
 
    /**
     * Convert the supplied user entry to a JAAS Subject.
-    * 
+    *
     * @param userEntry The entry, may not be <code>null</code>.
     * @param pwd The password, may be <code>null</code> or empty.
-    * 
+    *
     * @return The subject, never <code>null</code>.
     */
    @SuppressWarnings(value={"unchecked"})
@@ -259,33 +259,33 @@ public class PSJaasUtils
    {
       if (userEntry == null)
          throw new IllegalArgumentException("userEntry may not be null");
-      
+
       Subject subject = new Subject();
-      // add subject name      
+      // add subject name
       Principal userprincipal = PSTypedPrincipal.createSubject(
          userEntry.getName());
       Set<Principal> principals = subject.getPrincipals();
       principals.add(userprincipal);
-      Group rolegrp = findOrCreateGroup(principals, 
+      Group rolegrp = findOrCreateGroup(principals,
          PSJaasUtils.ROLE_GROUP_NAME);
-      
+
       // add caller principal
       Group credgrp = findOrCreateGroup(principals,
             "CallerPrincipal");
       credgrp.addMember(userprincipal);
-      
+
       // add groups
       PSGroupEntry[] groups = userEntry.getGroups();
       if (groups != null)
       {
          for (int i = 0; i < groups.length; i++)
          {
-            IPSTypedPrincipal group = new PSTypedPrincipal(groups[i].getName(), 
+            IPSTypedPrincipal group = new PSTypedPrincipal(groups[i].getName(),
                IPSTypedPrincipal.PrincipalTypes.GROUP);
             principals.add(group);
          }
       }
-   
+
       // add roles
       PSRoleEntry[] roles = userEntry.getRoles();
       if (roles != null)
@@ -297,7 +297,7 @@ public class PSJaasUtils
             rolegrp.addMember(roleprincipal);
          }
       }
-   
+
       // add attributes
       PSUserAttributes attrs = userEntry.getAttributes();
       if (attrs != null)
@@ -313,80 +313,80 @@ public class PSJaasUtils
             principals.add(attr);
          }
       }
-      
+
       subject.getPrivateCredentials().add(pwd);
       subject.getPublicCredentials().add(userEntry.getName());
-      
+
       return subject;
    }
 
    /**
-    * Convenience method that calls 
+    * Convenience method that calls
     * {@link #convertSubject(PSSubject, String) convertSubject(psSub, null)}.
     */
-   @SuppressWarnings("unchecked")
+
    public static Subject convertSubject(PSSubject psSub)
    {
       return convertSubject(psSub, null);
    }
-   
+
    /**
     * Converts the supplied {@link PSSubject} to a JAAS {@link Subject}.
-    * 
+    *
     * @param psSub The subject to convert, may not be <code>null</code>.
     * @param emailAttrName The name of the attribute designating the email
     * address, may be <code>null</code> or empty if not known.
-    * 
+    *
     * @return The converted subject, never <code>null</code>.
     */
-   @SuppressWarnings("unchecked")
+
    public static Subject convertSubject(PSSubject psSub, String emailAttrName)
    {
       if (psSub == null)
          throw new IllegalArgumentException("psSub may not be null");
-      
+
       Subject sub = new Subject();
       sub.getPublicCredentials().add(psSub.getName());
-      
+
       Set<Principal> principals = sub.getPrincipals();
       principals.add(subjectToPrincipal(psSub));
-      
+
       Iterator attrs = psSub.getAttributes().iterator();
       while (attrs.hasNext())
          principals.add(PSJaasUtils.convertAttribute(
             (PSAttribute) attrs.next(), emailAttrName));
-      
+
       return sub;
-   }   
+   }
 
    /**
-    * Convenience method that calls 
-    * {@link #convertAttribute(PSAttribute, String) 
+    * Convenience method that calls
+    * {@link #convertAttribute(PSAttribute, String)
     * convertAttribute(attr, null)}.
     */
-   @SuppressWarnings("unchecked")
+
    public static IPSPrincipalAttribute convertAttribute(PSAttribute attr)
    {
       return convertAttribute(attr, null);
    }
-   
+
    /**
     * Convert the {@link PSAttribute} to an {@link IPSPrincipalAttribute}
-    * 
+    *
     * @param attr The attribute to convert, may not be <code>null</code>.
     * @param emailAttrName The name of the attribute designating the email
     * address, may be <code>null</code> or empty if not known.  Used to set the
     * type of the returned attribute.
-    * 
+    *
     * @return The converted attribute, never <code>null</code>.
     */
-   @SuppressWarnings("unchecked")
-   public static IPSPrincipalAttribute convertAttribute(PSAttribute attr, 
+
+   public static IPSPrincipalAttribute convertAttribute(PSAttribute attr,
       String emailAttrName)
    {
       if (attr == null)
          throw new IllegalArgumentException("attr may not be null");
-      
+
       List<String> values = new ArrayList<>();
       Iterator valItr = attr.getValues().iterator();
       while (valItr.hasNext())
@@ -395,20 +395,20 @@ public class PSJaasUtils
          if (val != null)
             values.add(val.toString());
       }
-      
-      PrincipalAttributes attrType = attr.getName().equals(emailAttrName) ? 
+
+      PrincipalAttributes attrType = attr.getName().equals(emailAttrName) ?
          PrincipalAttributes.EMAIL_ADDRESS : PrincipalAttributes.ANY;
-      
+
       PSPrincipalAttribute principalAttr = new PSPrincipalAttribute(
          attr.getName(), attrType, attr.getValues());
       return principalAttr;
    }
-   
+
    /**
     * Converts the supplied subject to a typed principal
-    * 
+    *
     * @param subject The subject to convert, may not be <code>null</code>.
-    * 
+    *
     * @return The principal, never <code>null</code>.
     */
    public static IPSTypedPrincipal subjectToPrincipal(PSSubject subject)
@@ -418,40 +418,40 @@ public class PSJaasUtils
 
    /**
     * Converts the supplied subject to a typed principal
-    * 
-    * @param subjectName The name of the subject, may not be <code>null</code> 
-    * or empty. 
-    * @param subjectType The type of subject, one of the 
+    *
+    * @param subjectName The name of the subject, may not be <code>null</code>
+    * or empty.
+    * @param subjectType The type of subject, one of the
     * <code>PSSubject.SUBJECT_TYPE_XXX</code> values.  If 0 is supplied, a type
-    * of user is assumed. 
-    * 
+    * of user is assumed.
+    *
     * @return The principal, never <code>null</code>.
     */
-   public static IPSTypedPrincipal subjectToPrincipal(String subjectName, 
+   public static IPSTypedPrincipal subjectToPrincipal(String subjectName,
       int subjectType)
    {
       if (StringUtils.isBlank(subjectName))
          throw new IllegalArgumentException(
             "subjectName may not be null or empty");
-      
+
       return new PSTypedPrincipal(subjectName, getPrincipalType(subjectType));
-   }   
-   
+   }
+
    /**
     * Converts the supplied subject to a typed principal
-    * 
+    *
     * @param subject The subject to convert, may not be <code>null</code>.
-    * 
+    *
     * @return The principal, may be <code>null</code> if the name cannot be
     * determined.
     */
    public static IPSTypedPrincipal subjectToPrincipal(Subject subject)
    {
       boolean isUser = true;
-      
+
       String userName = getUserNameFromTypedPrincipals(subject.getPrincipals(
          IPSTypedPrincipal.class), IPSTypedPrincipal.PrincipalTypes.SUBJECT);
-      
+
       // now try as group
       if (StringUtils.isBlank(userName))
       {
@@ -466,15 +466,15 @@ public class PSJaasUtils
          userName = getUserNameFromPrincipalAttributes(subject.getPrincipals(
             IPSPrincipalAttribute.class));
       }
-      
+
       // try to find CallerPrincipal group
       if (StringUtils.isBlank(userName))
       {
          userName = getUserNameFromCallerPrincipal(subject.getPrincipals());
       }
-      
+
       IPSTypedPrincipal principal = null;
-      
+
       if (!StringUtils.isBlank(userName))
       {
          if (isUser)
@@ -482,23 +482,23 @@ public class PSJaasUtils
          else
             principal = PSTypedPrincipal.createGroup(userName);
       }
-      
+
       return principal;
    }
-   
+
    /**
     * Tries to determine the user name from the supplied principal using the
     * "CallerPrincipal" group.
-    * 
+    *
     * @param principals The principals to check, assumed not <code>null</code>.
-    * 
+    *
     * @return The user name, may be <code>null</code> or empty.
     */
    private static String getUserNameFromCallerPrincipal(
       Set<Principal> principals)
    {
       String username = null;
-      Iterator principalGroups = new FilterIterator(principals.iterator(), 
+      Iterator principalGroups = new FilterIterator(principals.iterator(),
          new PSGroupNamePredicate("CallerPrincipal"));
       if (principalGroups.hasNext())
       {
@@ -509,20 +509,20 @@ public class PSJaasUtils
             username = userPrincipal.getName();
          }
       }
-      
+
       return username;
    }
 
    /**
     * Get the appropriate principal type from the specified subject type.
-    * 
-    * @param subjectType The type of subject, one of the 
+    *
+    * @param subjectType The type of subject, one of the
     * <code>PSSubject.SUBJECT_TYPE_XXX</code> values.  If 0 is supplied, a type
     * of user is assumed.
-    *  
+    *
     * @return The principal type, never <code>null</code>.
     */
-   public static IPSTypedPrincipal.PrincipalTypes 
+   public static IPSTypedPrincipal.PrincipalTypes
       getPrincipalType(int subjectType)
    {
       if (subjectType == PSSubject.SUBJECT_TYPE_GROUP)
@@ -530,19 +530,19 @@ public class PSJaasUtils
       else
          return IPSTypedPrincipal.PrincipalTypes.SUBJECT;
    }
-   
+
    /**
     * Gets the principals representing the subjects groups.
-    * 
+    *
     * @param subject The subject to check, may not be <code>null</code>.
-    * 
+    *
     * @return The list of groups, never <code>null</code>, may be empty.
     */
    public static List<IPSTypedPrincipal> getSubjectGroups(Subject subject)
    {
       if (subject == null)
          throw new IllegalArgumentException("subject may not be null");
-      
+
       List<IPSTypedPrincipal> groups = new ArrayList<>();
       for (Principal principal : subject.getPrincipals(
          IPSTypedPrincipal.class))
@@ -559,9 +559,9 @@ public class PSJaasUtils
 
    /**
     * Converts the supplied JAAS {@link Subject} to a {@link PSSubject}.
-    * 
+    *
     * @param subject The subject to convert, may not be <code>null</code>.
-    * 
+    *
     * @return The subject, or <code>null</code> if the user's name cannot be
     * determined from the subjects principals.
     */
@@ -570,10 +570,10 @@ public class PSJaasUtils
       // first try for typed principal
       boolean isUser = true;
       String userName = null;
-      
+
       userName = getUserNameFromTypedPrincipals(subject.getPrincipals(
          IPSTypedPrincipal.class), IPSTypedPrincipal.PrincipalTypes.SUBJECT);
-      
+
       // now try as group
       if (StringUtils.isBlank(userName))
       {
@@ -588,24 +588,24 @@ public class PSJaasUtils
          userName = getUserNameFromPrincipalAttributes(subject.getPrincipals(
             IPSPrincipalAttribute.class));
       }
-         
+
       if (StringUtils.isBlank(userName))
          return null;
-      
+
       PSAttributeList attList = convertPrincipalAttributes(
          subject.getPrincipals(IPSPrincipalAttribute.class));
-      
-      int subType = isUser ? PSSubject.SUBJECT_TYPE_USER : 
+
+      int subType = isUser ? PSSubject.SUBJECT_TYPE_USER :
          PSSubject.SUBJECT_TYPE_GROUP;
-      
+
       return new PSGlobalSubject(userName, subType, attList);
    }
-   
+
    /**
     * Determine if the supplied subject represents a group.
-    * 
+    *
     * @param subject The subject to check, may not be <code>null</code>.
-    *  
+    *
     * @return <code>true</code> if the subject's principals contains an
     * {@link IPSTypedPrincipal} of type <code>GROUP</code>, <code>false</code>
     * otherwise.
@@ -614,19 +614,19 @@ public class PSJaasUtils
    {
       if (subject == null)
          throw new IllegalArgumentException("subject may not be null");
-      
+
       return !StringUtils.isBlank(getUserNameFromTypedPrincipals(
-         subject.getPrincipals(IPSTypedPrincipal.class), 
+         subject.getPrincipals(IPSTypedPrincipal.class),
          IPSTypedPrincipal.PrincipalTypes.GROUP));
    }
 
    /**
     * Convert the supplied principals attributes to an attribute list, sorted by
     * attribute name, case-insensitive, ascending.
-    * 
-    * @param principals The set of principals to convert, assumed not 
+    *
+    * @param principals The set of principals to convert, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return The attribute list, never <code>null</code>, will not include
     * the principal attribute of type <code>SUBJECT_NAME</code>.
     */
@@ -643,7 +643,7 @@ public class PSJaasUtils
                return c.compare(o1.getName(), o2.getName());
             }});
       sorted.addAll(principals);
-      
+
       PSAttributeList attList = new PSAttributeList();
       for (IPSPrincipalAttribute pAttr : sorted)
       {
@@ -658,12 +658,12 @@ public class PSJaasUtils
    }
 
    /**
-    * Check the supplied principals for a principal attribute of type 
+    * Check the supplied principals for a principal attribute of type
     * <code>SUBJECT_NAME</code> and return it's first value if found.
-    * 
-    * @param principals The set of principals to check, assumed not 
+    *
+    * @param principals The set of principals to check, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return The name, may be <code>null</code> or empty.
     */
    private static String getUserNameFromPrincipalAttributes(
@@ -683,19 +683,19 @@ public class PSJaasUtils
             }
          }
       }
-      
+
       return userName;
    }
 
    /**
     * Check the supplied principals for a typed principal of type
     * <code>SUBJECT</code> and return the name of the first one found.
-    * 
-    * @param principals The set of principals to check, assumed not 
+    *
+    * @param principals The set of principals to check, assumed not
     * <code>null</code>.
-    * @param type The type of principal to locate, assumed not 
+    * @param type The type of principal to locate, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return The name, may be <code>null</code> or empty.
     */
    private static String getUserNameFromTypedPrincipals(
@@ -710,22 +710,22 @@ public class PSJaasUtils
             break;
          }
       }
-      
+
       return userName;
    }
 
    /**
     * Get the appropriate subject type from the supplied principal type
-    *  
+    *
     * @param principalType The type to convert, may not be <code>null</code>.
-    * 
+    *
     * @return The subject type.  Undefined principal types are treated as users.
     */
    public static int getSubjectType(PrincipalTypes principalType)
    {
       if (principalType == null)
          throw new IllegalArgumentException("principalType may not be null");
-      
+
       if (principalType.equals(IPSTypedPrincipal.PrincipalTypes.GROUP))
          return PSSubject.SUBJECT_TYPE_GROUP;
       else
@@ -734,9 +734,9 @@ public class PSJaasUtils
 
    /**
     * Convert the supplied principal attribute to a {@link PSAttribute}
-    * 
+    *
     * @param attribute The attribute to convert, may not be <code>null</code>.
-    * 
+    *
     * @return The converted attribute, never <code>null</code>.
     */
    public static PSAttribute convertAttribute(IPSPrincipalAttribute attribute)
@@ -744,17 +744,17 @@ public class PSJaasUtils
       PSAttribute attr = new PSAttribute(attribute.getName());
       List<String> vals = new ArrayList<>(attribute.getValues());
       attr.setValues(vals);
-      
+
       return attr;
    }
-   
+
    /**
     * Get the first value of the specified attribute from the supplied subject.
-    * 
+    *
     * @param subject The subject to check, may not be <code>null</code>.
     * @param name The attribute name to find, may not be <code>null</code> or
     * empty.
-    * 
+    *
     * @return The value, may be <code>null</code> or empty if not found or if
     * the attribute value is <code>null</code> or empty.
     */
@@ -764,7 +764,7 @@ public class PSJaasUtils
          throw new IllegalArgumentException("subject may not be null");
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name may not be null or empty");
-      
+
       String value = null;
       Set<IPSPrincipalAttribute> attrs = subject.getPrincipals(
          IPSPrincipalAttribute.class);
@@ -777,29 +777,29 @@ public class PSJaasUtils
                value = values.get(0);
          }
       }
-      
+
       return value;
    }
 
    /**
     * Get the first value of the specified attribute from the supplied subject.
-    * 
+    *
     * @param subject The subject to check, may not be <code>null</code>.
     * @param type The attribute type to find, may not be <code>null</code>.
-    * 
+    *
     * @return The value, may be <code>null</code> or empty if not found or if
     * the attribute value is <code>null</code> or empty.
-    */   
-   public static String getSubjectAttributeValue(Subject subject, 
+    */
+   public static String getSubjectAttributeValue(Subject subject,
       PrincipalAttributes type)
    {
       if (subject == null)
          throw new IllegalArgumentException("subject may not be null");
       if (type == null)
          throw new IllegalArgumentException("type may not be null");
-      
+
       String value = null;
-      
+
       Set<IPSPrincipalAttribute> attrs = subject.getPrincipals(
          IPSPrincipalAttribute.class);
       for (IPSPrincipalAttribute attribute : attrs)
@@ -811,15 +811,15 @@ public class PSJaasUtils
                value = values.get(0);
          }
       }
-      
+
       return value;
    }
 
    /**
     * Converts the supplied principal to a subject.
-    * 
+    *
     * @param principal The principal to convert, may not be <code>null</code>.
-    * 
+    *
     * @return The subject, never <code>null</code>, will have empty attribute
     * list.
     */
@@ -830,27 +830,27 @@ public class PSJaasUtils
          subjectType = PSSubject.SUBJECT_TYPE_GROUP;
       else
          subjectType = PSSubject.SUBJECT_TYPE_USER;
-      
+
       return new PSGlobalSubject(principal.getName(), subjectType, null);
    }
-   
+
    /**
-    * Loads the supplied subject's roles.  If that subject has had roles set on 
-    * it, only roles defined in the Rhythmyx backend are added, otherwise roles 
+    * Loads the supplied subject's roles.  If that subject has had roles set on
+    * it, only roles defined in the Rhythmyx backend are added, otherwise roles
     * are added from all catalogers.
-    * 
-    * @param subject The subject, assumed not <code>null</code>. 
-    * @param username The username of the subject, may be <code>null</code> 
+    *
+    * @param subject The subject, assumed not <code>null</code>.
+    * @param username The username of the subject, may be <code>null</code>
     * or empty in which case the user's name is retrieved from the supplied
     * subject.
-    *   
+    *
     * @throws LoginException If there are any errors.
     */
-   public static void loadSubjectRoles(Subject subject, String username) 
+   public static void loadSubjectRoles(Subject subject, String username)
       throws LoginException
    {
       IPSRoleMgr roleMgr = PSRoleMgrLocator.getRoleManager();
-      
+
       IPSTypedPrincipal user;
       if (StringUtils.isBlank(username))
       {
@@ -860,11 +860,11 @@ public class PSJaasUtils
       }
       else
          user = PSTypedPrincipal.createSubject(username);
-      
+
       Group rolegrp = PSJaasUtils.findOrCreateGroup(
          subject.getPrincipals(), PSJaasUtils.ROLE_GROUP_NAME);
       List<IPSTypedPrincipal> groups = PSJaasUtils.getSubjectGroups(subject);
-      
+
       try
       {
          Set<String> roles;
@@ -891,9 +891,9 @@ public class PSJaasUtils
             for (IPSTypedPrincipal group : groups)
             {
                roles.addAll(roleMgr.getUserRoles(group));
-            }         
+            }
          }
-         
+
          for (String roleName : roles)
          {
             rolegrp.addMember(new PSPrincipal(roleName));
@@ -903,5 +903,5 @@ public class PSJaasUtils
       {
          throw new LoginException(e.getLocalizedMessage());
       }
-   }   
+   }
 }

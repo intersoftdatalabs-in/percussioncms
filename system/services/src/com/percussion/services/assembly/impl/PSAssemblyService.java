@@ -2099,7 +2099,7 @@ public class PSAssemblyService implements IPSAssemblyService
          throw new IllegalArgumentException("contenttype may not be null");
       try
       {
-         @SuppressWarnings("unchecked")
+
          var ids = (List<Long>) entityManager.createNamedQuery("template.findByType").setParameter("ctype", contenttype.longValue()).getResultList();
          List<IPSAssemblyTemplate> results = new ArrayList<>();
          for (Long id : ids)

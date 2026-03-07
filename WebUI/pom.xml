@@ -557,25 +557,22 @@
                 <configuration>
                     <webResources>
                         <resource>
-                            <directory>war</directory>
+                            <directory>src/main/webapp</directory>
                             <!-- override the destination directory for this resource -->
-                            <targetPath>cm</targetPath>
+                            <targetPath>.</targetPath>
                             <!-- enable filtering -->
                             <filtering>false</filtering>
-                            <excludes>
-                                <exclude>WEB-INF</exclude>
-                                <exclude>META-INF</exclude>
-                            </excludes>
                         </resource>
-                        <!-- cui content is now in war/cui/ and copied via the war/ resource above -->
+                        <!-- META-INF files with property filtering enabled -->
                         <resource>
-                            <directory>war/WEB-INF</directory>
-                            <targetPath>WEB-INF</targetPath>
-                            <filtering>false</filtering>
-                        </resource>
-                        <resource>
-                            <directory>war/META-INF</directory>
+                            <directory>src/main/webapp/META-INF</directory>
                             <targetPath>META-INF</targetPath>
+                            <filtering>true</filtering>
+                        </resource>
+                        <!-- Generated frontend outputs (React, legacy bundles) overlaid at package time -->
+                        <resource>
+                            <directory>${project.build.directory}/generated-webui</directory>
+                            <targetPath>.</targetPath>
                             <filtering>false</filtering>
                         </resource>
                         <resource>
@@ -584,17 +581,6 @@
                             <targetPath>WEB-INF/config/spring/projects</targetPath>
                             <excludes/>
                         </resource>
-                        <resource>
-                            <directory>../system/ear/config</directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath>WEB-INF/config</targetPath>
-                            <!-- enable filtering -->
-                            <filtering>false</filtering>
-                            <excludes>
-                                <exclude>**/trinidad/*</exclude>
-                                <exclude>**/hibernate/*</exclude>
-                            </excludes>
-                        </resource>
                         <!-- deployer beans file -->
                         <resource>
                             <directory>../deployer/src/main/webapp/WEB-INF/config</directory>
@@ -602,60 +588,6 @@
                             <targetPath>WEB-INF/config</targetPath>
                             <!-- enable filtering -->
                             <filtering>false</filtering>
-                        </resource>
-                        <resource>
-                            <directory>../system/ear/config/hibernate</directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath>WEB-INF/classes</targetPath>
-                            <!-- enable filtering -->
-                            <filtering>false</filtering>
-                        </resource>
-                        <resource>
-                            <directory>../system/ear/config/trinidad</directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath>WEB-INF/trinidad</targetPath>
-                            <!-- enable filtering -->
-                            <filtering>false</filtering>
-                        </resource>
-                        <resource>
-                            <directory>../system/ear/metadata</directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath>META-INF</targetPath>
-                            <!-- enable filtering -->
-                            <filtering>true</filtering>
-                            <excludes/>
-                        </resource>
-                        <resource>
-                            <directory>../system/ear/WEB-INF</directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath>WEB-INF</targetPath>
-                            <!-- enable filtering -->
-                            <filtering>false</filtering>
-                            <excludes/>
-                        </resource>
-                        <resource>
-                            <!--We need to pass in build property for version of ContentExplorer
-								jar -->
-                            <directory>../system/ear/jsps</directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath/>
-                            <!-- enable filtering -->
-                            <filtering>true</filtering>
-                            <excludes>
-                                <exclude>favicon.ico</exclude>
-                            </excludes>
-                        </resource>
-                        <resource>
-                            <directory>../system/ear/jsps</directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath/>
-                            <!-- disable filtering -->
-                            <filtering>false</filtering>
-                            <excludes>
-                                <exclude>**/*.jsp</exclude>
-                                <exclude>**/*.jnlp</exclude>
-                                <exclude>**/*.html</exclude>
-                            </excludes>
                         </resource>
                     </webResources>
                     <packagingExcludes>jsps,
@@ -781,7 +713,7 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <configuration>
                     <nodeVersion>v22.22.0</nodeVersion>
-                    <workingDirectory>${project.basedir}</workingDirectory>
+                    <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
                     <installDirectory>${user.home}/.m2/frontend</installDirectory>
                 </configuration>
                 <executions>
@@ -813,6 +745,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
             </plugin>
         </plugins>
         <sourceDirectory>src/main/java</sourceDirectory>

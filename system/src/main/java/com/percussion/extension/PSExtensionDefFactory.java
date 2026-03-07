@@ -60,52 +60,52 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
     e.setAttribute(
         "restoreRequestParamsOnError", def.isRestoreRequestParamsOnError() ? "yes" : "no");
 
-    for (Iterator params = def.getInitParameterNames(); params.hasNext(); ) {
-      String paramName = params.next().toString();
+    for (Iterator<String> params = def.getInitParameterNames(); params.hasNext(); ) {
+      String paramName = params.next();
       String paramValue = def.getInitParameter(paramName);
       Element paramEl = PSXmlDocumentBuilder.addElement(doc, e, "initParam", paramValue);
 
       paramEl.setAttribute("name", paramName);
     }
 
-    for (Iterator URLs = def.getResourceLocations(); URLs.hasNext(); ) {
-      URL u = (URL) (URLs.next());
+    for (Iterator<URL> URLs = def.getResourceLocations(); URLs.hasNext(); ) {
+      URL u = URLs.next();
 
       Element resEl = PSXmlDocumentBuilder.addEmptyElement(doc, e, "resource");
 
       resEl.setAttribute("href", u.toString());
     }
 
-    for (Iterator interfaces = def.getInterfaces(); interfaces.hasNext(); ) {
-      String iface = (String) interfaces.next();
+    for (Iterator<String> interfaces = def.getInterfaces(); interfaces.hasNext(); ) {
+      String iface = interfaces.next();
 
       Element resEl = PSXmlDocumentBuilder.addEmptyElement(doc, e, "interface");
 
       resEl.setAttribute("name", iface);
     }
 
-    for (Iterator rParams = def.getRuntimeParameterNames(); rParams.hasNext(); ) {
-      IPSExtensionParamDef paramDef = def.getRuntimeParameter((String) rParams.next());
+    for (Iterator<String> rParams = def.getRuntimeParameterNames(); rParams.hasNext(); ) {
+      IPSExtensionParamDef paramDef = def.getRuntimeParameter(rParams.next());
 
       paramDef.toXml(e);
     }
 
-    Iterator resources = def.getSuppliedResources();
+    Iterator<URL> resources = def.getSuppliedResources();
     if (resources != null) {
       Element resourcesEl = PSXmlDocumentBuilder.addEmptyElement(doc, e, "suppliedResources");
       while (resources.hasNext()) {
-        URL u = (URL) resources.next();
+        URL u = resources.next();
         Element resEl = PSXmlDocumentBuilder.addEmptyElement(doc, resourcesEl, "suppliedResource");
 
         resEl.setAttribute("href", u.toExternalForm());
       }
     }
 
-    Iterator apps = def.getRequiredApplications();
+    Iterator<PSExtensionRef> apps = def.getRequiredApplications();
     if (apps.hasNext()) {
       Element appsEl = PSXmlDocumentBuilder.addEmptyElement(doc, e, "requiredApplications");
       while (apps.hasNext()) {
-        String appName = (String) apps.next();
+        String appName = apps.next().toString();
         Element appEl = PSXmlDocumentBuilder.addEmptyElement(doc, appsEl, "requiredApplication");
 
         appEl.setAttribute("name", appName);
@@ -126,7 +126,7 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
   /* (non-Javadoc)
    * @see IPSExtensionDefFactory#fromXml(Element)
    */
-  @SuppressWarnings("unchecked")
+
   public IPSExtensionDef fromXml(Element defElement) throws PSExtensionException {
     if (defElement == null) throw new IllegalArgumentException("defElement cannot be null");
 
@@ -173,7 +173,7 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
     }
 
     // for this extension: get all resource URLs
-    Collection resURLs = new LinkedList<>();
+    Collection<URL> resURLs = new LinkedList<>();
     try {
       // reset so we don't have to worry about order
       tree.setCurrent(defElement);
@@ -205,7 +205,7 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
     }
 
     // for this extension: get all implemented interfaces
-    Collection interfaces = new LinkedList();
+    Collection<String> interfaces = new LinkedList<>();
     // reset so we don't have to worry about order
     tree.setCurrent(defElement);
     Element interfaceEl = tree.getNextElement("interface", firstFlag);
@@ -220,14 +220,14 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
     }
 
     // for this extension: get all required runtime params
-    Collection rParams = new LinkedList();
+    Collection<PSExtensionParamDef> rParams = new LinkedList<>();
 
     // reset so we don't have to worry about order
     tree.setCurrent(defElement);
     Element rParamEl = tree.getNextElement(PSExtensionParamDef.ms_NodeType, firstFlag);
     while (rParamEl != null) {
       try {
-        IPSExtensionParamDef pDef = new PSExtensionParamDef(rParamEl, null, null);
+        PSExtensionParamDef pDef = new PSExtensionParamDef(rParamEl, null, null);
 
         rParams.add(pDef);
 
@@ -241,13 +241,13 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
     /* Get all supplied resources.  These are the class and jar files used
      * by the extension.
      */
-    ArrayList resources = null;
+    ArrayList<URL> resources = null;
     try {
       // reset so we don't have to worry about order
       tree.setCurrent(defElement);
       Element resourcesEl = tree.getNextElement("suppliedResources", firstFlag);
       if (resourcesEl != null) {
-        resources = new ArrayList();
+        resources = new ArrayList<>();
         Element resEl = tree.getNextElement("suppliedResource", firstFlag);
         while (resEl != null) {
           String resURL = resEl.getAttribute("href");
@@ -256,13 +256,12 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
         }
       }
     } catch (MalformedURLException mfue) {
-      // TODO: i18n and code
-      throw new PSExtensionException(0, mfue.toString());
+      throw new PSExtensionException(0, mfue.getMessage());
     }
 
     /* Get all required apps.
      */
-    List apps = new ArrayList();
+    List<String> apps = new ArrayList<>();
 
     // reset so we don't have to worry about order
     tree.setCurrent(defElement);
@@ -272,7 +271,8 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
       Element appEl = tree.getNextElement("requiredApplication", firstFlag);
       while (appEl != null) {
         String appName = appEl.getAttribute("name");
-        if (appName != null && appName.trim().length() > 0) apps.add(appName);
+        if (appName != null && appName.trim().length() > 0)
+          apps.add(appName);
         appEl = tree.getNextElement("requiredApplication", nextFlag);
       }
     }
@@ -288,7 +288,7 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
             isDeprecated,
             isRestoreRequestParamsOnError);
 
-    def.setRequiredApplications(apps.iterator());
+    def.setRequiredApplicationNames(apps.iterator());
 
     // reset so we don't have to worry about order
     tree.setCurrent(defElement);

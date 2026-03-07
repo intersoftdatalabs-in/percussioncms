@@ -52,7 +52,7 @@ public class PSLocationSchemeSetterTest extends PSConfigurationTest {
    * @return the extension reference. It may be <code>null</code> if there is no such
    *     generator/exist.
    */
-  @SuppressWarnings("unchecked")
+
   private PSExtensionRef getExtensionRef(String extName) {
     PSExtensionManager mgr = (PSExtensionManager) PSServer.getExtensionManager(null);
     try {

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-public class TestErrorCoverage 
+public class TestErrorCoverage
 {
 
    private static final Logger log = LogManager.getLogger(TestErrorCoverage.class);
@@ -44,11 +44,11 @@ public class TestErrorCoverage
     * this test run.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/7/21
-    * 
+    *
     * @param   args Command line arguments.
-    * 
+    *
     */
    public static void main(String[] args)
    {
@@ -72,11 +72,11 @@ public class TestErrorCoverage
     * Prints a help message to the given stream.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/7/21
-    * 
+    *
     * @param   out
-    * 
+    *
     */
    public static void printUsage(PrintStream out)
    {
@@ -88,13 +88,13 @@ public class TestErrorCoverage
     * given name.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/7/21
-    * 
+    *
     * @param   filename
-    * 
+    *
     * @throws   IOException
-    * 
+    *
     */
    private static void loadProperties(Properties props, String filename)
       throws IOException
@@ -114,9 +114,9 @@ public class TestErrorCoverage
     * Main testing loop.
     *
     * @author   chad loder
-    * 
+    *
     * @version 1.0 1999/7/21
-    * 
+    *
     */
    private static void runTests()
       throws IOException, ClassNotFoundException, IllegalAccessException
@@ -134,7 +134,7 @@ public class TestErrorCoverage
 
       StringTokenizer classesTok = new StringTokenizer(classes, ";");
       StringTokenizer bundTok = new StringTokenizer(bundles, ";");
-      
+
       // load ALL of the bundles, making each default to the previous
       Properties allProps = new Properties();
       while (bundTok.hasMoreTokens())
@@ -149,7 +149,7 @@ public class TestErrorCoverage
       }
    }
 
-   @SuppressWarnings("unchecked")
+
    private static void testCoverage(String errorCodesClassName, Properties props)
       throws ClassNotFoundException, IllegalAccessException
    {

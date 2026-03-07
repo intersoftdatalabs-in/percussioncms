@@ -307,7 +307,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
    * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
    * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
-  @SuppressWarnings("unchecked")
+
   public void doInstallDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException, PSNotFoundException {

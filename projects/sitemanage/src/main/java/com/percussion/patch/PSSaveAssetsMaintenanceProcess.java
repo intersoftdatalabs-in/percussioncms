@@ -284,7 +284,7 @@ public class PSSaveAssetsMaintenanceProcess
     log.info("Finished Loading Assets for type {}", typeName);
   }
 
-  @SuppressWarnings("unchecked")
+
   public void loadFailedAssetsFromFile(File f) {
     assetListSet = new HashSet<>();
     var objectMapper = new ObjectMapper();

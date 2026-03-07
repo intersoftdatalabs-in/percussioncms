@@ -111,7 +111,7 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
   /**
    * @param relationships
    */
-  @SuppressWarnings("unchecked")
+
   private Collection<PSRelationship> filterRelationships(Collection<PSRelationship> relationships)
       throws PSAssemblyException, PSException {
     Collection<PSRelationship> filteredRelationships = new ArrayList<PSRelationship>();
@@ -241,7 +241,7 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
   /* (non-Javadoc)
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#createEmptyRelationshipCollection()
    */
-  @SuppressWarnings("unchecked")
+
   protected Collection<PSRelationship> createEmptyRelationshipCollection() {
     PSRelationshipSet relationshipSet = new PSRelationshipSet();
     return relationshipSet;

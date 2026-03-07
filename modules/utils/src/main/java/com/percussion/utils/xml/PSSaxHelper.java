@@ -74,7 +74,7 @@ public class PSSaxHelper {
    * @throws IOException
    * @throws XMLStreamException
    */
-  @SuppressWarnings("unchecked")
+
   public static String parseWithXMLWriter(
       String source, Class<? extends DefaultHandler> handler, Object... args)
       throws SAXException, IOException, XMLStreamException {

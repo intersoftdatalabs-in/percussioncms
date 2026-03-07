@@ -37,7 +37,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author dougrand
- * 
+ *
  * Verify that all the proper extensions are present
  */
 public class PSVerifyExtensions implements IPSVerify
@@ -45,7 +45,7 @@ public class PSVerifyExtensions implements IPSVerify
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rxverify.IPSVerify#generate(java.io.File,
     *      com.percussion.rxverify.PSInstallation)
     */
@@ -57,7 +57,7 @@ public class PSVerifyExtensions implements IPSVerify
       {
          throw new IOException("Extensions.xml file not found");
       }
-      
+
       Reader r = new FileReader(extensionfile);
       Document doc = PSXmlDocumentBuilder.createXmlDocument(r, false);
 
@@ -79,7 +79,7 @@ public class PSVerifyExtensions implements IPSVerify
    /**
     * Look for the <code>Extensions.xml</code> file in the appropriate
     * directory. Scans through until the file is found.
-    * 
+    *
     * @param rxdir the rhythmyx directory, assumed never <code>null</code>
     * @return a {@link File}representing the extensions file or
     *         <code>null</code> if that file simply doesn't exist
@@ -112,11 +112,11 @@ public class PSVerifyExtensions implements IPSVerify
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rxverify.IPSVerify#verify(java.io.File,
     *      com.percussion.rxverify.PSInstallation)
     */
-   @SuppressWarnings("unchecked")
+
    public void verify(File rxdir, File originalRxDir, PSInstallation installation) throws Exception
    {
       Logger l = LogManager.getLogger(getClass());

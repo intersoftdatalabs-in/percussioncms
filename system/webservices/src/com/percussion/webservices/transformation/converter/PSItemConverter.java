@@ -126,7 +126,7 @@ public class PSItemConverter extends PSConverter
                }
                else if (foldersObj instanceof List)
                {
-                  @SuppressWarnings("unchecked")
+
                   List<PSItemFolders> tmp = (List<PSItemFolders>) foldersObj;
                   folderList = tmp;
                }

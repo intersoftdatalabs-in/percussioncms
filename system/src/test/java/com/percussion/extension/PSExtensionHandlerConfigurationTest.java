@@ -25,16 +25,16 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for class <code>PSExtensionHandlerConfiguration</code>.
  */
-public class PSExtensionHandlerConfigurationTest 
+public class PSExtensionHandlerConfigurationTest
 {
    /**
     * Loads the extenstion file and stores it to the users temp directory.
     * The stored file is then reloaded and compared to the original.
-    * 
+    *
     * @throws Exception for any error.
     */
-   @SuppressWarnings("unchecked")
-   
+
+
    public void testConfiguration() throws Exception
    {
       // load the extensions configuration
@@ -45,25 +45,25 @@ public class PSExtensionHandlerConfigurationTest
       File tempExtensions = File.createTempFile("tempExtensions", ".xml");
       tempExtensions.deleteOnExit();
       config.store(tempExtensions, false);
-      
+
       // reload the temp file
       PSExtensionHandlerConfiguration tempConfig =
          new PSExtensionHandlerConfiguration(tempExtensions, null);
-      
+
       Iterator<PSExtensionRef> refs = config.getExtensionNames();
       while (refs.hasNext())
       {
          PSExtensionRef ref = refs.next();
-         
+
          IPSExtensionDef tempDef = tempConfig.getExtensionDef(ref);
          assertTrue(tempDef != null);
       }
    }
-   
+
    /**
     * The extensions file to use for testing.
     */
-   private static final File ms_extensions = 
+   private static final File ms_extensions =
       new File("Exits/Java/Extensions.xml");
 }
 

@@ -594,11 +594,11 @@ public class PSSiteManager implements IPSSiteManager {
      *
      * @return the map, never <code>null</code>
      */
-    @SuppressWarnings("unchecked")
+
     ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>> getLocationSchemeMap() {
         var cacheResult = m_cache.get(LOCATION_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE);
 
-        @SuppressWarnings("unchecked")
+
         ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>> locationSchemeMap =
                 cacheResult.filter(ConcurrentHashMap.class::isInstance)
                            .map(obj -> (ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>>) obj)
@@ -1028,7 +1028,7 @@ public class PSSiteManager implements IPSSiteManager {
      * @see com.percussion.services.sitemgr.IPSSiteManager#getItemSites(com.percussion.utils.guid.IPSGuid)
      */
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<IPSSite> getItemSites(IPSGuid contentId)
    {
       if (contentId == null)
@@ -1188,7 +1188,7 @@ public class PSSiteManager implements IPSSiteManager {
    }
 
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<IPSPublishingContext> findAllContexts() throws PSNotFoundException {
       return findAllContexts(true);
    }
@@ -1199,7 +1199,7 @@ public class PSSiteManager implements IPSSiteManager {
     * @param includeChildren <code>true</code> if include child components.
     * @return the loaded Context, never <code>null</code>, may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    private List<IPSPublishingContext> findAllContexts(boolean includeChildren) throws PSNotFoundException {
       List<IPSPublishingContext> result = getSession()
               .createQuery("from PSPublishingContext", IPSPublishingContext.class).list();
@@ -1214,14 +1214,14 @@ public class PSSiteManager implements IPSSiteManager {
    }
 
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<IPSLocationScheme> findAllSchemes()
    {
       return getSession().createQuery("from PSLocationScheme", IPSLocationScheme.class).list();
    }
 
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<String> findDistinctSiteVariableNames()
    {
       List<String> names =
@@ -1300,7 +1300,7 @@ public class PSSiteManager implements IPSSiteManager {
    }
 
    @Override
-   @SuppressWarnings("unchecked")
+
    public Map<Integer, String> getContextNameMap()
    {
       List<Object[]> values = getSession()
@@ -1368,7 +1368,7 @@ public class PSSiteManager implements IPSSiteManager {
     * Note, we cannot use HQL here because the PSX_VARIANT_SITE table is not
     * map to a "hibernated" object.
     */
-   @SuppressWarnings("unchecked")
+
    private Map<PSPair<IPSGuid, String>, Collection<IPSGuid>> getSiteTemplateAssociation(
          Session sess)
    {
@@ -1390,7 +1390,7 @@ public class PSSiteManager implements IPSSiteManager {
            .addScalar("SITENAME", StandardBasicTypes.STRING)
            .addScalar("VARIANTID", StandardBasicTypes.LONG);
 
-      @SuppressWarnings("unchecked")
+
       List<Object[]> results = (List<Object[]>) query.list();
 
       for (Object[] row : results)

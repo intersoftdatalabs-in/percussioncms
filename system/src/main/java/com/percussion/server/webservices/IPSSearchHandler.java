@@ -38,7 +38,7 @@ public interface IPSSearchHandler extends IPSPortActionHandler {
 
   void search(PSRequest request, PSWSSearchRequest searchReq, Document parent) throws PSException;
 
-  @SuppressWarnings("unchecked")
+
   void executeKeyFieldSearch(PSRequest request, PSServerItem updateItem) throws PSException;
 
   /**

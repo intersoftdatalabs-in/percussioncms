@@ -58,12 +58,12 @@ public class PSLocationSchemeEditor extends PSBaseValidator
     * The outcome of the Location Scheme Editor
     */
    public final static String SCHEME_EDITOR = "pub-design-location-scheme-editor";
-   
+
    /**0
     * The outcome of the Legacy Location Scheme Editor
     */
    public final static String LEGACY_SCHEME_EDITOR = "pub-design-location-scheme-legacy-editor";
-   
+
    /**
     * The name of the parameter for JEXL expression.
     */
@@ -75,16 +75,16 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    public static final String JEXL_GENERATOR = "Java/global/percussion/contentassembler/sys_JexlAssemblyLocation";
 
    /**
-    * The outcome of the warning page when there is selected no parameter.   
+    * The outcome of the warning page when there is selected no parameter.
     */
    private static final String NO_PARAM_SELECTION = "no-scheme-parameter-selection-warning";
-   
+
    /**
     * The cloned Location Scheme object, never <code>null</code> after
     * the constructor. It is used to hold the UI data.
     */
    private IPSLocationScheme m_clonedScheme;
-   
+
    /**
     * The original Location Scheme. It needs to be updated from
     * {@link #m_clonedScheme} when it is done; but don't update this
@@ -92,46 +92,46 @@ public class PSLocationSchemeEditor extends PSBaseValidator
     * never <code>null</code> after that.
     */
    private PSLocationSchemeWrapper m_srcScheme;
-   
+
    /**
     * The node definition of the {@link #m_clonedScheme}. It is set
     * by  if has not been set yet.
     */
    private IPSNodeDefinition m_nodeDef;
-   
+
    /**
     * A list of parameters. It is used for editing Legacy Location Scheme.
     */
    private List<SchemeParam> m_parameters;
-   
+
    /**
-    * The place holder for adding a parameter. Created/Initialized by 
+    * The place holder for adding a parameter. Created/Initialized by
     * .
     */
    private SchemeParam m_createdParam;
-   
+
    /**
     * Determines if the {@link #m_srcScheme} is a created instance or not.
-    * If it is a created one, then it should be appended into the 
+    * If it is a created one, then it should be appended into the
     * Location Scheme list when user is {@link #done()} with it.
     */
    private boolean m_isCreated;
-   
+
    /**
     * The parent / context node instance, never <code>null</code> after ctor.
     */
    private PSContextNode m_ctxNode;
-   
+
    /**
-    * The filter all the predefined JEXL methods and variables. 
+    * The filter all the predefined JEXL methods and variables.
     */
    private String m_jexlFilter = "";
-   
+
    /**
-    * The constructor. 
-    * 
+    * The constructor.
+    *
     * @param cxtNode the parent/context node, never <code>null</code>.
-    * @param scheme the to be edited Location Scheme wrapper, never 
+    * @param scheme the to be edited Location Scheme wrapper, never
     *    <code>null</code>.
     * @param isCreated <code>true</code> if the Location Scheme is created
     *    and has not be added into  yet.
@@ -143,10 +143,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          throw new IllegalArgumentException("cxtNode may not be null.");
       if (scheme == null)
          throw new IllegalArgumentException("scheme may not be null.");
-      
+
       m_ctxNode = cxtNode;
       m_isCreated = isCreated;
-      
+
       m_srcScheme = scheme;
       try
       {
@@ -160,7 +160,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          throw new RuntimeException("Failed to clone IPSLocationScheme"
                + e.getLocalizedMessage());
       }
-      
+
       // init parameters
       m_parameters = new ArrayList<>();
       for (String pname : m_clonedScheme.getParameterNames())
@@ -179,16 +179,16 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       return m_isCreated;
    }
-   
+
    /**
-    * @return the parent node (on the tree) of the Location Scheme Editor, 
+    * @return the parent node (on the tree) of the Location Scheme Editor,
     *    never <code>null</code>.
     */
    PSContextNode getParentNode()
    {
       return m_ctxNode;
    }
-   
+
    /**
     * The backing bean for the parameter of the edited Location Scheme.
     */
@@ -198,7 +198,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       private String mi_type;
       private String mi_value;
       private boolean mi_selected;
-      
+
       /**
        * Create an instance of the Scheme Parameter.
        * @param name the name of the parameter, assumed not <code>null</code>
@@ -215,7 +215,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          mi_value = value;
          mi_selected = false;
       }
-      
+
       /**
        * @return the name of the parameter, never <code>null</code> or empty.
        */
@@ -223,7 +223,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       {
          return mi_name;
       }
-      
+
       /**
        * Set the name of the parameter.
        * @param name the new name of the parameter, never <code>null</code> or
@@ -233,18 +233,18 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       {
          if (name == null || name.trim().length() == 0)
             throw new IllegalArgumentException("name must not be null or empty.");
-         
+
          mi_name = name;
       }
-      
+
       /**
-       * @return the type of the parameter, never <code>null</code> or empty. 
+       * @return the type of the parameter, never <code>null</code> or empty.
        */
       public String getType()
       {
          return mi_type;
       }
-      
+
       /**
        * Set the type of the parameter.
        * @param type the new type of the paramter, never <code>null</code> or
@@ -254,10 +254,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       {
          if (type == null || type.trim().length() == 0)
             throw new IllegalArgumentException("type may not be null or empty.");
-         
+
          mi_type = type;
       }
-      
+
       /**
        * @return the value of the parameter, may be <code>null</code> or empty.
        */
@@ -265,7 +265,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       {
          return mi_value;
       }
-      
+
       /**
        * Set the value of the parameter.
        * @param value the new value of the parameter, never <code>null</code> or
@@ -275,10 +275,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       {
          if (value == null || value.trim().length() == 0)
             throw new IllegalArgumentException("value may not be null or empty.");
-         
+
          mi_value = value;
       }
-      
+
       /**
        * @return <code>true</code> of the parameter is selected.
        */
@@ -286,7 +286,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       {
          return mi_selected;
       }
-      
+
       /**
        * Set selected state
        * @param selected the new selected state.
@@ -295,18 +295,18 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       {
          mi_selected = selected;
       }
-      
+
       /**
        * Get the actual help file name for the parameter editor page.
-       * 
+       *
        * @return  the help file name, never <code>null</code> or empty.
        */
       public String getHelpFile()
       {
-         return PSHelpTopicMapping.getFileName("LocationSchemeParamEditor");   
+         return PSHelpTopicMapping.getFileName("LocationSchemeParamEditor");
       }
    }
-   
+
    /**
     * @return the filtered JEXL methods and variables, never <code>null</code>
     *    may be empty.
@@ -315,7 +315,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       return PSJexlMethodsForScheme.getFilteredJexlMethods(m_jexlFilter);
    }
-   
+
    /**
     * @return the JEXL filter pattern, never <code>null</code>.
     */
@@ -323,7 +323,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       return m_jexlFilter;
    }
-   
+
    /**
     * Set the JEXL filter.
     * @param filter the new filter pattern, never <code>null</code>, may be
@@ -333,13 +333,13 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       if (filter == null)
          throw new IllegalArgumentException("filter may not be null.");
-      
+
       m_jexlFilter = filter;
    }
-   
+
    /**
     * Clear the JEXL filter.
-    * @return outcome of the current Location Scheme Editor, never 
+    * @return outcome of the current Location Scheme Editor, never
     *    <code>null</code> or empty.
     */
    public String clearJexlFilter()
@@ -347,10 +347,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       setJexlFilter("");
       return perform();
    }
-   
+
    /**
     * Remove a selected parameter.
-    * 
+    *
     * @return outcome of the next page. It may be <code>null</code> if
     *    successfully removed a parameter.
     */
@@ -359,11 +359,11 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       int i = getSelectedParameter();
       if (i == -1)
          return NO_PARAM_SELECTION;
-      
+
       m_parameters.remove(i);
       return null;
    }
-   
+
    /**
     * @return the index of the selected parameter. It is <code>-1</code> if
     *    there is no selected parameter.
@@ -381,60 +381,60 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       }
       return -1;
    }
-   
+
    /**
     * Moves the selected parameter up one, switch position with the previous
     * element.
-    * 
+    *
     * @return the outcome of the no selection warning page if no parameter
-    *    is selected, or <code>null</code> if successfully done the switch. 
+    *    is selected, or <code>null</code> if successfully done the switch.
     */
    public String moveUpParameter()
    {
       int i = getSelectedParameter();
       if (i == -1)
          return NO_PARAM_SELECTION;
-      
+
       if (i == 0)
          return null; // do nothing if already at the top
-      
+
       SchemeParam p1 = m_parameters.get(i-1);
       SchemeParam p2 = m_parameters.get(i);
-      
+
       m_parameters.set(i-1, p2);
       m_parameters.set(i, p1);
-      
+
       return null;
    }
-   
+
    /**
     * Moves the selected parameter down one, switch position with the next
     * element.
-    * 
+    *
     * @return the outcome of the no selection warning page if no parameter
-    *    is selected, or <code>null</code> if successfully done the switch. 
+    *    is selected, or <code>null</code> if successfully done the switch.
     */
    public String moveDownParameter()
    {
       int i = getSelectedParameter();
       if (i == -1)
          return NO_PARAM_SELECTION;
-      
+
       if (i == (m_parameters.size()-1))
          return null; // no nothing if already at the bottom
-      
+
       SchemeParam p1 = m_parameters.get(i);
       SchemeParam p2 = m_parameters.get(i+1);
-      
+
       m_parameters.set(i, p2);
       m_parameters.set(i+1, p1);
-      
-      return null;         
+
+      return null;
    }
 
    /**
     * Creates a parameter for the edited Location Scheme.
-    * @return the outcome of the parameter editor, never <code>null</code> 
+    * @return the outcome of the parameter editor, never <code>null</code>
     *    or empty.
     */
    public String createParameter() throws PSNotFoundException {
@@ -451,7 +451,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       m_createdParam = new SchemeParam(pname, "String", "");
       return "pub-design-location-scheme-param-editor";
    }
-   
+
    /**
     * Add the created parameter to the edited Location Scheme.
     * @return outcome of the Location Scheme Editor.
@@ -460,12 +460,12 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       if (m_createdParam == null)
          throw new IllegalStateException("m_createdParam must not be null");
-      
+
       m_parameters.add(m_createdParam);
       m_createdParam = null;
       return this.perform();
    }
-   
+
    /**
     * @return the created Parameter, never <code>null</code>.
     */
@@ -474,9 +474,9 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       if (m_createdParam == null)
          throw new IllegalStateException("m_createdParam must not be null");
 
-      return m_createdParam;         
+      return m_createdParam;
    }
-   
+
    /**
     * @return the parameters, never <code>null</code>, may be empty.
     */
@@ -484,32 +484,32 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       return m_parameters;
    }
-   
+
    /*
     * //see base class method for details
-    * This is used to make sure the name of the edited Location Scheme is 
+    * This is used to make sure the name of the edited Location Scheme is
     * unique among its siblings.
     */
-   public void validate(@SuppressWarnings("unused")FacesContext context, 
+   public void validate(@SuppressWarnings("unused")FacesContext context,
          @SuppressWarnings("unused")UIComponent component,
          Object value)
    {
       if (! (value instanceof String))
          throw new IllegalArgumentException("value must be instanceof String");
-      
+
       String svalue = (String) value;
       for (PSLocationSchemeWrapper w : m_ctxNode.getLocationSchemes())
       {
          if (w.getScheme() != m_srcScheme.getScheme() &&
                w.getScheme().getName().equalsIgnoreCase(svalue))
          {
-            fail(FacesMessage.SEVERITY_ERROR, "jsf@non_unique_value"); 
+            fail(FacesMessage.SEVERITY_ERROR, "jsf@non_unique_value");
          }
       }
    }
-   
+
    /**
-    * See {@link IPSLocationScheme#getName()} for detail. 
+    * See {@link IPSLocationScheme#getName()} for detail.
     */
    public String getName()
    {
@@ -517,15 +517,15 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    }
 
    /**
-    * See {@link IPSLocationScheme#setName(String)} for detail. 
+    * See {@link IPSLocationScheme#setName(String)} for detail.
     */
    public void setName(String name)
    {
       m_clonedScheme.setName(name);
    }
-   
+
    /**
-    * See {@link IPSLocationScheme#getDescription()} for detail. 
+    * See {@link IPSLocationScheme#getDescription()} for detail.
     */
    public String getDescription()
    {
@@ -539,7 +539,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       m_clonedScheme.setDescription(name);
    }
-   
+
    /**
     * @return the value of expression parameter, may be <code>null</code> or
     *    empty. This is also the JEXL expression.
@@ -548,19 +548,19 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       return m_clonedScheme.getParameterValue(EXPRESSION_PARAM);
    }
-   
+
    /**
-    * Set the JEXL expression. 
+    * Set the JEXL expression.
     * @param exp the expression, never <code>null</code> or empty.
     */
    public void setExpression(String exp)
    {
       if (exp == null || exp.trim().length() == 0)
          throw new IllegalArgumentException("exp may not be null or empty.");
-      
+
       m_clonedScheme.setParameter(EXPRESSION_PARAM, "String", exp);
    }
-   
+
    /**
     * @return <code>true</code> if it is legacy location scheme.
     */
@@ -568,10 +568,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       List<String> params = m_clonedScheme.getParameterNames();
       return !(params.size() == 1
-            && (EXPRESSION_PARAM.equalsIgnoreCase(params.get(0))) 
+            && (EXPRESSION_PARAM.equalsIgnoreCase(params.get(0)))
             && JEXL_GENERATOR.equalsIgnoreCase(getGenerator()));
    }
-   
+
    /**
     * @return the name of all Content Types, never <code>null</code>, but
     *    may be empty.
@@ -584,7 +584,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       {
          ctNames.add(new SelectItem(ctName));
       }
-      
+
       Collections.sort(ctNames, new Comparator<SelectItem>()
       {
          public int compare(SelectItem o1, SelectItem o2)
@@ -604,7 +604,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       Long ctId = m_clonedScheme.getContentTypeId();
       if (ctId == null)
          return null;
-      
+
       IPSGuid ctGuid = PSGuidUtils.makeGuid(ctId, PSTypeEnum.NODEDEF);
       return m_ctxNode.catalogContentTypes().get(ctGuid);
    }
@@ -612,7 +612,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    /**
     * Set the Content Type of the Location Scheme from a given Content Type
     * name.
-    * 
+    *
     * @param ctName the name of the Content Type, never <code>null</code> or
     *    empty.
     */
@@ -636,21 +636,21 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    /**
     * Content Type changed event listener. It is called by the JFS framework
     * whenever user select different Content Type.
-    * 
+    *
     * @param event the change event object.
     */
    public void contentTypeChanged(ValueChangeEvent event)
    {
       FacesContext ctx = FacesContext.getCurrentInstance();
-      
+
       // always set the new Content Type here. This is because the new
       // Content Type may not be set if one of other required fields
       // (such as, name or JEXL Expression) failed its validation.
       String newContentType = (String) event.getNewValue();
       setContentType(newContentType);
-      
-      // flush this cached Content Type object.  
-      m_nodeDef = null; 
+
+      // flush this cached Content Type object.
+      m_nodeDef = null;
 
       // reset the template choice without Trinidad dependency
       UIComponent c = ctx.getViewRoot().findComponent("templateName");
@@ -658,7 +658,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          c.getAttributes().remove("value");
       }
    }
-   
+
    /**
     * Get the template name.
     * @return template name, may be <code>null</code> or empty.
@@ -667,10 +667,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       if (m_clonedScheme.getTemplateId() == null)
          return null;
-      
+
       IPSGuid id = PSGuidUtils.makeGuid(m_clonedScheme.getTemplateId(),
             PSTypeEnum.TEMPLATE);
-      
+
       return m_ctxNode.catalogTemplates().get(id);
    }
 
@@ -681,10 +681,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       if (m_clonedScheme == null)
          throw new IllegalStateException("m_cloneScheme must not be null.");
-      
+
       return m_clonedScheme;
    }
-   
+
    /**
     * Set the template name.
     * @param tpName the template name, never <code>null</code> or empty.
@@ -693,7 +693,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       if (tpName == null || tpName.trim().length() == 0)
          throw new IllegalArgumentException("tpName may not be null or empty");
-      
+
       for (Map.Entry<IPSGuid, String> entry : m_ctxNode.catalogTemplates()
             .entrySet())
       {
@@ -704,7 +704,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          }
       }
    }
-   
+
    /**
     * @return the name of all Content Types, never <code>null</code>, but
     *    may be empty.
@@ -728,25 +728,25 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          retval[i] = new SelectItem(tpNames.get(i));
       return retval;
    }
-   
+
    /**
-    * @return a list of Template names which are registered for the 
+    * @return a list of Template names which are registered for the
     *    Content Type of the Location Scheme and these Templates are not
-    *    used by other Location Schemes (in the current Context). Never 
+    *    used by other Location Schemes (in the current Context). Never
     *    <code>null</code>, may be empty if the Content Type is unknown.
     */
-   @SuppressWarnings("unchecked")
+
    private List<String> getTemplateList()
    {
       List<IPSGuid> usedTemplateIds = getUsedTemplateIds(m_clonedScheme
             .getContentTypeId());
-      
+
       IPSNodeDefinition ct = getCachedNodeDef();
-      
+
       List<String> tpNames = new ArrayList<>();
       if (ct == null)
          return Collections.emptyList();
-      
+
       Map<IPSGuid, String> tps = m_ctxNode.catalogTemplates();
       for (IPSGuid tpId : ct.getVariantGuids())
       {
@@ -757,18 +757,18 @@ public class PSLocationSchemeEditor extends PSBaseValidator
                tpNames.add(name);
          }
       }
-      
+
       // gather templates used by other Location Schemes
       return tpNames;
    }
-   
+
    /**
-    * Get a list of Template IDs which are registered by the given 
+    * Get a list of Template IDs which are registered by the given
     * Content Type and they are also used by other sibling Location Schemes,
     * not including the edited Location Scheme.
-    * 
+    *
     * @param ctId the ID of the Content Type, assumed not <code>null</code>.
-    * 
+    *
     * @return the list of Template IDs, never <code>null</code>, may be empty.
     */
    private List<IPSGuid> getUsedTemplateIds(Long ctId)
@@ -781,11 +781,11 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          {
             tpIds.add(PSGuidUtils.makeGuid(wrapper.getScheme()
                   .getTemplateId(), PSTypeEnum.TEMPLATE));
-         }                  
+         }
       }
       return tpIds;
    }
-   
+
    /**
     * @return the Node Definition of the {@link #m_clonedScheme}.
     */
@@ -793,10 +793,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       if (m_nodeDef != null)
          return m_nodeDef;
-      
+
       if (m_clonedScheme.getContentTypeId() == null)
          return null;
-      
+
       IPSGuid ctId = PSGuidUtils.makeGuid(m_clonedScheme.getContentTypeId(),
             PSTypeEnum.NODEDEF);
 
@@ -805,11 +805,11 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    }
 
    /**
-    * @return a list of Extension names, which implemented 
-    *    {@link com.percussion.extension.IPSAssemblyLocation}, never 
+    * @return a list of Extension names, which implemented
+    *    {@link com.percussion.extension.IPSAssemblyLocation}, never
     *    <code>null</code>, but may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    public SelectItem[] getGenerators()
    {
       PSExtensionManager mgr = (PSExtensionManager) PSServer
@@ -823,17 +823,17 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       catch (PSExtensionException e)
       {
          return new SelectItem[0];
-         
+
       }
 
       List<SelectItem> extNames = new ArrayList<>();
       while (iterator.hasNext())
       {
          PSExtensionRef exit = (PSExtensionRef) iterator.next();
-         // skip JEXL generator, which should not be used by legacy 
+         // skip JEXL generator, which should not be used by legacy
          if (! JEXL_GENERATOR.equalsIgnoreCase(exit.getFQN()))
          {
-            extNames.add(new SelectItem(exit.getFQN(), 
+            extNames.add(new SelectItem(exit.getFQN(),
                   exit.getExtensionName()));
          }
       }
@@ -842,28 +842,28 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    }
 
    /**
-    * See {@link IPSLocationScheme#setGenerator(String)} for detail. 
+    * See {@link IPSLocationScheme#setGenerator(String)} for detail.
     */
    public void setGenerator(String gen)
    {
       m_clonedScheme.setGenerator(gen);
    }
-   
+
    /**
-    * See {@link IPSLocationScheme#getGenerator()} for detail. 
+    * See {@link IPSLocationScheme#getGenerator()} for detail.
     */
    public String getGenerator()
    {
       return m_clonedScheme.getGenerator();
    }
-   
+
    /**
     * Have done editing current Location Scheme, navigate to Context Editor.
     * @return the outcome of the Context Editor.
     */
    public String done()
    {
-      m_srcScheme.getScheme().copy(m_clonedScheme);      
+      m_srcScheme.getScheme().copy(m_clonedScheme);
       if (isLegacy())
       {
          setParameters(m_srcScheme.getScheme(), m_parameters);
@@ -873,10 +873,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          m_ctxNode.addScheme(m_srcScheme);
       }
       m_srcScheme.setModified(true);
-      
+
       return PSContextNode.DONE_OUTCOME;
    }
-   
+
    /**
     * @return the outcome of the editor.
     */
@@ -887,10 +887,10 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       else
          return SCHEME_EDITOR;
    }
-   
+
    /**
     * Set the parameters of the given Location Scheme.
-    * 
+    *
     * @param scheme the Location Scheme, assumed not <code>null</code>.
     * @param ps the new list of parameters, assumed not <code>null</code>,
     *    but may be empty.
@@ -898,7 +898,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    private void setParameters(IPSLocationScheme scheme, List<SchemeParam> ps)
    {
       List<String> pnames = scheme.getParameterNames();
-      
+
       // merge parameters
       int i = 0;
       for (SchemeParam p : ps)
@@ -906,14 +906,14 @@ public class PSLocationSchemeEditor extends PSBaseValidator
          scheme.addParameter(p.mi_name, i++, p.mi_type, p.mi_value);
          pnames.remove(p.mi_name);
       }
-      
+
       // remove remaining ones
       for (String name : pnames)
       {
          scheme.removeParameter(name);
       }
    }
-   
+
    /**
     * Cancel the Location Scheme editor and navigate to Context Editor.
     * @return the outcome of the Context Editor.
@@ -922,7 +922,7 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       return PSContextNode.DONE_OUTCOME;
    }
- 
+
    /**
     * @return the backing bean for the test panel, never <code>null</code>.
     */
@@ -930,28 +930,28 @@ public class PSLocationSchemeEditor extends PSBaseValidator
    {
       return m_testPanel;
    }
-   
+
    /**
     * Get the actual help file name for the Location Scheme Editor page.
-    * 
+    *
     * @return  the help file name, never <code>null</code> or empty.
     */
    public String getHelpFile()
    {
       String topic = isLegacy() ? "LocationSchemeLegacyEditor"
             : "LocationSchemeEditor";
-      return PSHelpTopicMapping.getFileName(topic);   
+      return PSHelpTopicMapping.getFileName(topic);
    }
-   
+
    /**
     * The place holder for the Test Panel.
     */
    private PSSchemeJexlTestPanel m_testPanel = new PSSchemeJexlTestPanel(this);
-   
+
    /**
     * The class log.
     */
    private final static Logger log = LogManager.getLogger(PSLocationSchemeEditor.class);
-   
+
 }
 

@@ -128,7 +128,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the stylesheet is <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void setDefaultStylesheet(String name, PSStylesheet stylesheet) {
     validate(name);
     if (stylesheet == null) throw new IllegalArgumentException("the stylesheet cannot be null");
@@ -173,7 +173,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the stylesheet collection is <code>null</code> or empty.
    */
-  @SuppressWarnings("unchecked")
+
   public void addStylesheets(String name, PSCollection stylesheets) {
     validate(name);
     validate(stylesheets);
@@ -192,7 +192,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    *     empty or if the stylesheet collection is <code>null</code> or if no command handler was
    *     found for the provided name.
    */
-  @SuppressWarnings("unchecked")
+
   public void addConditionalStylesheets(String name, PSCollection stylesheets) {
     validate(name);
     if (stylesheets == null) throw new IllegalArgumentException("the stylesheets cannot be null");
@@ -255,7 +255,7 @@ public class PSCommandHandlerStylesheets extends PSComponent {
    *
    * @param c a valid PSCommandHandlerStylesheets, not <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void copyFrom(PSCommandHandlerStylesheets c) {
     try {
       super.copyFrom(c);

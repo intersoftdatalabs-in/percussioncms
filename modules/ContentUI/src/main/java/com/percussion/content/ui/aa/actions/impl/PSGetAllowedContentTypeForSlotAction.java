@@ -55,7 +55,7 @@ public class PSGetAllowedContentTypeForSlotAction extends PSAAActionBase {
    *
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */
-  @SuppressWarnings("unchecked")
+
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     String objectIdStr = (String) getParameter(params, OBJECT_ID_PARAM);
     String results = null;

@@ -90,7 +90,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
+
   @Override
   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {

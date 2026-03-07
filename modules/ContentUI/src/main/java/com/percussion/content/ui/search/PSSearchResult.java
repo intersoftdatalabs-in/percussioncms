@@ -302,7 +302,7 @@ public class PSSearchResult {
    *     String</code> and the value is the parameter value as <code>String</code>.
    * @throws PSAssemblyException
    */
-  @SuppressWarnings("unchecked")
+
   private Map parseParameters(Iterator params, Map<String, SearchField> searchFields)
       throws PSAssemblyException, PSNotFoundException {
     if (params == null) throw new IllegalArgumentException("params cannpt be null");
@@ -410,7 +410,7 @@ public class PSSearchResult {
      *
      * @param value the value to add to this field, not <code>null</code>, may be empty.
      */
-    @SuppressWarnings("unchecked")
+
     public void addValue(String value) {
       if (value == null) throw new IllegalArgumentException("value cannot be null");
 
@@ -426,7 +426,7 @@ public class PSSearchResult {
      *     either be a <code>String</code> or <code>List</code> object.
      * @throws IndexOutOfBoundsException if the index is out of range <code>index &lt; 0</code>.
      */
-    @SuppressWarnings("unchecked")
+
     public void addValue(int index, Object value) {
       if (value == null) throw new IllegalArgumentException("value cannot be null");
 
@@ -491,7 +491,7 @@ public class PSSearchResult {
      * @return a list of search field values as <code>String</code> objects, never <code>null</code>
      *     , may be empty. The caller takes ownership of the returned list.
      */
-    @SuppressWarnings("unchecked")
+
     public List getValues(PSSearchField field) {
       if (field == null) throw new IllegalArgumentException("field cannot be null");
 

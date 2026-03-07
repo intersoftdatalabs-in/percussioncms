@@ -56,7 +56,7 @@ import org.xml.sax.SAXException;
  * Class that manges all search related actions. Executes and loads search results for a particular
  * search criteria defined in search nodes and saves the new searches.
  */
-@SuppressWarnings("unchecked")
+
 public class PSSearchViewActionManager {
   static Logger log = LogManager.getLogger(PSSearchViewActionManager.class);
 

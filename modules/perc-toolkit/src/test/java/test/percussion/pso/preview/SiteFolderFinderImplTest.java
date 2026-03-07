@@ -175,7 +175,7 @@ public class SiteFolderFinderImplTest {
   /**
    * Test method for {@link SiteFolderFinderImpl#findSiteFolderLocations(String, String, String)}.
    */
-  @SuppressWarnings("unchecked")
+
   @Test
   public final void testFindSiteFolderLocationsCommunityFiltering() {
     log.debug("testing site folder with community filtering");

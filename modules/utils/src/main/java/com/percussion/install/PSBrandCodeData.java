@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /** This class stores the data for generating the brand code. */
-@SuppressWarnings("unchecked")
+
 public class PSBrandCodeData {
   /**
    * Constructor

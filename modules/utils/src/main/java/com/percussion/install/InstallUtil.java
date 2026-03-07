@@ -1078,6 +1078,37 @@ public class InstallUtil {
 
     if (className == null)
       throw new SQLException("Driver " + driver + " is not supported by the current installer.");
+
+    // First, attempt to load the driver using the system ClassLoader.
+    // This handles built-in drivers like Derby that are bundled with the installer.
+    try {
+      Class<?> systemDriver = Class.forName(className);
+      logInfo("Successfully loaded driver " + className + " from system classpath");
+      try {
+        Object driverObj = systemDriver.newInstance();
+        if (driverObj instanceof Driver) {
+          DriverManager.registerDriver((Driver) driverObj);
+          logInfo("Registered driver " + className);
+          // Successfully loaded and registered, now create connection
+          String dbUrl = PSJdbcUtils.getJdbcUrl(driver, server);
+          Properties props = PSSqlHelper.makeConnectProperties(dbUrl, db, uid, pw);
+          logInfo("Connecting to: URL= " + dbUrl + " UID =" + uid);
+          Connection conn = DriverManager.getConnection(dbUrl, props);
+          if (conn != null) {
+            if (db != null) conn.setCatalog(db);
+          } else {
+            logError("Unable to establish database connection.");
+          }
+          return conn;
+        }
+      } catch (Exception ex) {
+        logInfo("Could not instantiate driver from system classpath, will continue with other methods: " + ex.getMessage());
+      }
+    } catch (ClassNotFoundException ex) {
+      logInfo("Driver not found on system classpath, attempting other loading methods");
+    }
+
+    // If system ClassLoader approach didn't work, proceed with custom driver loading
     try {
       if (driver.equalsIgnoreCase(PSJdbcUtils.MYSQL)) {
         if (m_extDriver == null) {
@@ -1211,11 +1242,11 @@ public class InstallUtil {
         }
       }
     } catch (ClassNotFoundException cls) {
-      log.error(cls.getMessage());
+      log.warn("Driver class " + className + " could not be loaded via explicit Class.forName");
       log.debug(cls.getMessage(), cls);
-      logError("Could not find the driver class : " + className);
-      logError("Exception : " + cls.getMessage());
-      throw new SQLException("JDBC driver class not found. " + cls);
+      logInfo("Attempting to use automatic JDBC driver discovery via DriverManager (JDBC 4.0+)");
+      // Don't throw - allow DriverManager.getConnection() to automatically discover the driver
+      // using ServiceLoader mechanism if available on the classpath
     } catch (LinkageError link) {
       log.error(link.getMessage());
       log.debug(link.getMessage(), link);

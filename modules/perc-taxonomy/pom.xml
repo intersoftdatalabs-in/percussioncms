@@ -122,5 +122,7 @@
                 <directory>src/test/resources</directory>
             </testResource>
         </testResources>
+        <plugins>
+        </plugins>
     </build>
 </project>

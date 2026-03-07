@@ -45,9 +45,9 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Edition container, contains actions for edition creation.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSEditionContainerNode extends PSEditableNodeContainer
 {
@@ -55,10 +55,10 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
     * The outcome of views all editions of a site.
     */
    public static final String EDITION_VIEWS = "pub-design-edition-views";
-   
+
    /**
     * Ctor.
-    * 
+    *
     * @param title the node title
     * @param parent the parent site, used when creating an edition, never
     *            <code>null</code>
@@ -74,7 +74,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
 
    /**
     * Create a new edition and navigate to it for editing.
-    * 
+    *
     * @return the outcome
     */
    public String createEdition() throws PSNotFoundException {
@@ -84,45 +84,45 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
 
    /**
     * Creates an edition node from the given edition object.
-    *  
+    *
     * @param edition the edition object, assumed not <code>null</code>.
-    * @param eclists the edition/contentList association. It may be 
+    * @param eclists the edition/contentList association. It may be
     *    <code>null</code> or empty.
     * @param isCopyFrom <code>true</code> if the created edition will be cloned
     *    from an existing one.
-    * @param baseName the base name for the created edition, assumed not 
+    * @param baseName the base name for the created edition, assumed not
     *    <code>null</code>.
-    * 
+    *
     * @return the outcome.
     */
    private String createEdition(IPSEdition edition,
          List<PSEditionContentListWrapper> eclists, String baseName,
          boolean isCopyFrom) throws PSNotFoundException {
       edition.setSiteId(m_siteParent.getGUID());
-      edition.setName(getUniqueName(baseName, isCopyFrom)); 
-      
+      edition.setName(getUniqueName(baseName, isCopyFrom));
+
       final PSEditionNode node = new PSEditionNode(edition);
       return node.handleNewEdition(this, edition, node, eclists);
-      
+
    }
-   
+
    /**
     * Create a new edition and navigate to it for editing.
-    * 
+    *
     * @return the outcome
     */
    public String copyEditionFromOtherSite() throws PSNotFoundException {
       String slctEditionName = getSelectedEditionName();
       if (slctEditionName == null)
          return null;
-      
+
       IPSEdition copiedEdition = new PSEdition();
       IPSEdition slctEdition = getPublisherService().findEditionByName(
             slctEditionName);
       copiedEdition.copy(slctEdition);
       ((PSEdition ) copiedEdition).setGUID(PSGuidHelper.generateNext(
             PSTypeEnum.EDITION));
-      
+
       return createEdition(copiedEdition, cloneEditionContentList(slctEdition,
             copiedEdition), slctEdition.getName(), true);
    }
@@ -132,17 +132,17 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
     * @param srcEdition the edition object, assumed not <code>null</code>.
     * @return the copied association, never <code>null</code>, but may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    private List<PSEditionContentListWrapper> cloneEditionContentList(
          IPSEdition srcEdition, IPSEdition copiedEdition) throws PSNotFoundException {
       if (!m_isDeepClone)
          return null;
-      
+
       // get the source association
-      IPSPublisherService psvc = getPublisherService(); 
+      IPSPublisherService psvc = getPublisherService();
       List<IPSEditionContentList> associations = psvc
             .loadEditionContentLists(srcEdition.getGUID());
-      
+
       // deep clone both association and ContentList
       List<PSEditionContentListWrapper> eclists = new ArrayList<>();
       PSEditionContentListWrapper ecWrapper;
@@ -154,7 +154,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       Collections.sort(eclists);
       return eclists;
    }
-   
+
    /**
     * Clone a association from a given instance.
     * @param src the source association, assumed not <code>null</code>.
@@ -163,7 +163,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
     */
    private PSEditionContentListWrapper cloneEditionContentList(
          IPSEditionContentList src, IPSEdition tgtEdition) throws PSNotFoundException {
-      
+
       IPSContentList tgtClist = cloneContentList(src.getContentListId());
       IPSEditionContentList dest = getPublisherService()
             .createEditionContentList();
@@ -172,7 +172,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       eclPK.setEditionid(tgtEdition.getGUID().longValue());
       eclPK.setContentlistid(tgtClist.getGUID().longValue());
       dest.copy(src);
-      
+
       return new PSEditionContentListWrapper(dest, m_siteParent.getGUID());
    }
 
@@ -186,22 +186,22 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       IPSContentList tgtClist = clist.clone();
       tgtClist.setName(getUniqueContentListName(clist.getName()));
       getPublisherService().saveContentList(tgtClist);
-      
+
       return tgtClist;
    }
-   
+
    /**
-    * Get the unique Content List name from a base name. 
+    * Get the unique Content List name from a base name.
     * @param baseName the base name, assumed not <code>null</code>.
     * @return the unique name, never <code>null</code> or empty.
     */
    private String getUniqueContentListName(String baseName) throws PSNotFoundException {
       PSContentListViewNode tmpNode = new PSContentListViewNode("dummy",
             PSContentListViewNode.Type.UNUSED, getSiteParent(), "dummyKey");
-      
+
       return tmpNode.getUniqueName(baseName, true);
    }
-   
+
    /**
     * @return the name of the selected Edition, may be <code>null</code> if
     *    there is no selected Edition.
@@ -210,7 +210,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
    {
       if (m_slctEditions == null)
          return null;
-      
+
       for (CandidateEdition edition : m_slctEditions)
       {
          if (edition.isSelected())
@@ -218,10 +218,10 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       }
       return null;
    }
-   
+
    /**
     * Create a new edition and navigate to it for editing.
-    * 
+    *
     * @return the outcome
     */
    public String selectEditionFromOtherSite()
@@ -241,18 +241,18 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
        * The edition instance, never <code>null</code> after initialized.
        */
       private IPSEdition mi_edition;
-      
+
       /**
-       * The site instance of the edition, never <code>null</code> after 
+       * The site instance of the edition, never <code>null</code> after
        * initialized.
        */
       private IPSSite mi_site;
-      
+
       /**
        * See {@link #isSelected()}
        */
       private boolean mi_isSelected = false;
-      
+
       /**
        * Create an instance from the given edition.
        * @param ed the source edition, assumed not <code>null</code>.
@@ -270,17 +270,17 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       {
          return mi_edition.getName();
       }
-      
+
       /**
        * @return the string with name and id, see
        * {@link PSDesignNode#getNameWithId(String, long)}.
        */
       public String getNameWithId()
       {
-         return PSDesignNode.getNameWithId(mi_edition.getName(), 
+         return PSDesignNode.getNameWithId(mi_edition.getName(),
                ((PSEdition) mi_edition).getId());
       }
-      
+
       /**
        * @return the site name, never <code>null</code> or empty.
        */
@@ -288,7 +288,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       {
          return mi_site.getName();
       }
-      
+
       /**
        * @return the name and id of the site. Never <code>null</code> or empty.
        * @see PSDesignNode#getNameWithId(String, long)
@@ -297,7 +297,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       {
          return PSDesignNode.getNameWithId(mi_site.getName(), mi_site.getSiteId());
       }
-      
+
       /**
        * @return the comment of the edition, may be <code>null</code> or empty.
        */
@@ -305,7 +305,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       {
          return mi_edition.getComment();
       }
-      
+
       /**
        * @return the edition type.
        */
@@ -313,7 +313,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       {
          return mi_edition.getEditionType().getDisplayTitle();
       }
-      
+
       /**
        * Determines if this edition is selected.
        * @return <code>true</code> if the edition is selected; otherwise
@@ -323,10 +323,10 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
       {
          return mi_isSelected;
       }
-      
+
       /**
        * Set the selected state from the given flag.
-       * 
+       *
        * @param selected <code>true</code> if the edition is selected.
        */
       public void setSelected(boolean selected)
@@ -334,12 +334,12 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
          mi_isSelected = selected;
       }
    }
-   
+
    private List<CandidateEdition> m_slctEditions = null;
-   
+
    /**
     * Gets all edition names from different sites
-    * 
+    *
     * @return the list of names, never <code>null</code>, may be empty.
     */
    public CandidateEdition[] getEditionsFromOtherSites()
@@ -358,16 +358,16 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
                edList.add(new CandidateEdition(ed, site));
          }
       }
-      
+
       m_slctEditions = edList;
       CandidateEdition[] rval = new CandidateEdition[edList.size()];
       edList.toArray(rval);
       if (rval.length > 0)
          rval[0].setSelected(true);
-      
+
       return rval;
    }
-   
+
    /**
     * Get the (destination) Site of the given Edition.
     * @param edition the Edition instance, assumed not <code>null</code>.
@@ -377,7 +377,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
    {
       if (edition.getSiteId() == null)
          return null;
-      
+
       IPSSiteManager smgr = PSSiteManagerLocator.getSiteManager();
       try
       {
@@ -388,7 +388,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
          return null;
       }
    }
-   
+
    // see base
    @Override
    protected boolean findObjectByName(String name)
@@ -430,14 +430,14 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
 
    /**
     * Get the edition list filter.
-    * 
+    *
     * @return the filter, never <code>null</code>, but may be empty.
     */
    public String getEditionListFilter()
    {
       return m_editionListFilter;
    }
-   
+
    /**
     * Set the edition list filter.
     * @param filter the filter, it may be <code>null</code> or empty. The
@@ -447,7 +447,7 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
    {
       m_editionListFilter = filter == null ? "" : filter;
    }
-   
+
    /**
     * Convenience method to access the publisher service.
     * @return the publisher service. Never <code>null</code>.
@@ -471,20 +471,20 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
    {
       m_isDeepClone = isDeepClone;
    }
-   
+
    /**
-    * Determines if deep clone the selected Edition, including its 
+    * Determines if deep clone the selected Edition, including its
     * ContentLists (from different site), or not to copy the ContentList and
     * the Edition/ContentLists association.
-    * 
-    * @return <code>true</code> if deep copy; otherwise the copied Edition will 
+    *
+    * @return <code>true</code> if deep copy; otherwise the copied Edition will
     *    have empty ContentLists.
     */
    public boolean isDeepClone()
    {
       return m_isDeepClone;
    }
-   
+
    @Override
    public String getHelpTopic()
    {
@@ -496,12 +496,12 @@ public class PSEditionContainerNode extends PSEditableNodeContainer
     * Default to <code>false</code>.
     */
    private boolean m_isDeepClone = false;
-   
+
    /**
     * The parent site, set in the ctor, never <code>null</code>.
     */
    private IPSSite m_siteParent = null;
-   
+
    /**
     * If set, this string should filter the content lists we can select from in
     * the association page. Default to empty string, never <code>null</code>.

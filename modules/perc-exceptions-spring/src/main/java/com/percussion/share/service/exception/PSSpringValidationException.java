@@ -75,7 +75,6 @@ public abstract class PSSpringValidationException extends PSValidationException
     reject(exception.getClass().getCanonicalName(), defaultMessage);
   }
 
-  @SuppressWarnings("unchecked")
   protected void convert(PSValidationErrors v, org.springframework.validation.Errors errors) {
     v.setMethodName(errors.getObjectName());
     List<org.springframework.validation.FieldError> fes = errors.getFieldErrors();
@@ -127,7 +126,6 @@ public abstract class PSSpringValidationException extends PSValidationException
     springValidationErrors.addAllErrors(arg0);
   }
 
-  @SuppressWarnings("unchecked")
   public List<ObjectError> getAllErrors() {
     return springValidationErrors.getAllErrors();
   }
@@ -152,18 +150,15 @@ public abstract class PSSpringValidationException extends PSValidationException
     return springValidationErrors.getFieldErrorCount(arg0);
   }
 
-  @SuppressWarnings("unchecked")
   public List<FieldError> getFieldErrors() {
     return springValidationErrors.getFieldErrors();
   }
 
-  @SuppressWarnings("unchecked")
   public List<FieldError> getFieldErrors(String arg0) {
     return springValidationErrors.getFieldErrors(arg0);
   }
 
-  @SuppressWarnings("unchecked")
-  public Class<?> getFieldType(String arg0) {
+   public Class<?> getFieldType(String arg0) {
     return springValidationErrors.getFieldType(arg0);
   }
 
@@ -179,7 +174,6 @@ public abstract class PSSpringValidationException extends PSValidationException
     return springValidationErrors.getGlobalErrorCount();
   }
 
-  @SuppressWarnings("unchecked")
   public List<ObjectError> getGlobalErrors() {
     return springValidationErrors.getGlobalErrors();
   }

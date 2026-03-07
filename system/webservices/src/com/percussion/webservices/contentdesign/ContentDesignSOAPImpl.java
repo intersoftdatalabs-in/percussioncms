@@ -634,7 +634,7 @@ public class ContentDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see ContentDesign#saveKeywords(SaveKeywordsRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveKeywords(SaveKeywordsRequest saveKeywordsRequest)
       throws com.percussion.webservices.contentdesign.ContractViolationFaultMessage, com.percussion.webservices.contentdesign.InvalidSessionFaultMessage, com.percussion.webservices.contentdesign.NotAuthorizedFaultMessage, com.percussion.webservices.contentdesign.ErrorsFaultMessage
    {

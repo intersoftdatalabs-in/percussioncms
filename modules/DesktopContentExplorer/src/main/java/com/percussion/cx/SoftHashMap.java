@@ -43,7 +43,7 @@ public class SoftHashMap<K, V> extends AbstractMap<K, V> {
     map = new HashMap<K, SoftValue<V>>();
   }
 
-  @SuppressWarnings("unchecked")
+
   private void processQueue() {
     while (true) {
       Reference<? extends V> o = queue.poll();

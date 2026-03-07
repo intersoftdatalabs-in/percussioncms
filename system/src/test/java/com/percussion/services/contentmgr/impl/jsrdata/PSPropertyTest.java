@@ -197,7 +197,7 @@ public class PSPropertyTest
     * Test multi property
     * @throws Exception
     */
-   @SuppressWarnings("unchecked")
+
    @Test
    public void testMulti() throws Exception
    {

@@ -53,9 +53,9 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * This class provides various helper methods for relationship content finders.
- * <p> 
- * Note, The revision that is included in the dependent ID 
- * {@link IPSFilterItem#getItemId()} is directly from the relationship which 
+ * <p>
+ * Note, The revision that is included in the dependent ID
+ * {@link IPSFilterItem#getItemId()} is directly from the relationship which
  * may be <code>-1</code>. It is up to the caller (or filter) to re-adjust the
  * reversion.
  *
@@ -65,9 +65,9 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
       implements
          IPSNotificationListener
 {
-   
+
    private ConcurrentMap<IPSGuid, IPSGuid> locks = new ConcurrentHashMap<>();
-   
+
    /**
     * Initialize the finder, set up notification for evicting cached
     * relationships.
@@ -80,19 +80,19 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
    }
 
    /**
-    * Evict cache in "slot" region where the owner is the key of the 
+    * Evict cache in "slot" region where the owner is the key of the
     * owner of the modified relationships.
     */
-   @SuppressWarnings("unchecked")
+
    public void notifyEvent(PSNotificationEvent notify)
    {
       if (!EventType.RELATIONSHIP_CHANGED.equals(notify.getType()))
          return;
-            
+
       PSRelationshipChangeEvent event = (PSRelationshipChangeEvent) notify
             .getTarget();
       PSRelationshipSet rset = event.getRelationships();
-      
+
       Iterator it = rset.iterator();
       // de-dup owner IDs
       Set<PSLegacyGuid> ownerIds = new HashSet<>();
@@ -114,31 +114,31 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
             cache.evict(id, CONTENT_FINDER_RELS);
       }
    }
-      
+
    /**
     * Gets get the related items for the specified "owner" item, where the
     * relationship type is active assembly and the "sys_slotid" property (of the
     * relationship) equals specified value.
-    * 
+    *
     * @param sourceItem the source assembly item,never <code>null</code>. for
     *            the default method, it is the owner of the related (returned)
     *            items.
     * @param slotId the ID of the container. It is the value of the "sys_slotid"
     *            property of the active assembly relationships.
     * @param params the parameters passed to this finder, it may be <code>null</code> or empty if there is no parameters.
-    * 
+    *
     * @return a set of related items. It can never be <code>null</code>,
-    *         but may be empty. The revision in {@link IPSFilterItem#getItemId()} 
-    *         is directly from the relationship which may be <code>-1</code>. 
+    *         but may be empty. The revision in {@link IPSFilterItem#getItemId()}
+    *         is directly from the relationship which may be <code>-1</code>.
     *         It is up to the caller (or filter) to re-adjust the version.
-    */   
+    */
    private Set<ContentItem> getContentItemsInner(IPSAssemblyItem sourceItem, T slot, Map<String, Object> params)
    {
       notNull(sourceItem, "sourcItem may not be null.");
 
       List<PSRelationship> rels = getRelationships(sourceItem.getId());
       Set<ContentItem> rval = new HashSet<>();
-      
+
       // Now get the relevant relationships for the particular slot. These
       // will have properties that match the slot id for the given template
       // slot we've been passed. The variant id's are used to lookup the
@@ -151,7 +151,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
             rval.add(item);
          }
       }
-      
+
       return rval;
    }
 
@@ -162,7 +162,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
     * @return <code>true</code> if the relationship matches the given slot.
     */
    abstract protected boolean isTargetRelationship(PSRelationship rel, T slot, Map<String, Object> params);
-   
+
    /**
     * Determines if the specified relationship matches the given slot.
     * @param rel the relationship in question, not <code>null</code>.
@@ -173,7 +173,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
    {
       if (!rel.getConfig().isActiveAssemblyRelationship())
          return false;
-      
+
       String slotid = rel.getProperty("sys_slotid");
       return (!StringUtils.isBlank(slotid) && Long.parseLong(slotid) == slotId.longValue());
    }
@@ -190,7 +190,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
       PSLocator dep = rel.getDependent();
       int contentid = dep.getId();
       int revision = dep.getRevision();
-      // revision = -1 is possible here, but we are relying on the caller 
+      // revision = -1 is possible here, but we are relying on the caller
       // to re-adjust the revision according its needs, for example
       // it may be re-adjusted in sys_previewFilter (PSPreviewFilter)
       // and sys_publicFilter (PSPublicFilter)
@@ -218,7 +218,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
       }
       item.setWidgetName(rel.getProperty(PSRelationshipConfig.PDU_WIDGET_NAME));
       item.setOwnerId(new PSLegacyGuid(rel.getOwner()));
-      
+
       return item;
    }
 
@@ -226,7 +226,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
     * Gets the related items for the specified "owner" item, where the
     * relationship type is active assembly and the "sys_slotid" property (of the
     * relationship) equals specified value.
-    * 
+    *
     * @param sourceItem the source assembly item,never <code>null</code>. for
     * the default method, it is the owner of the related (returned) items.
     * @param slotId the ID of the container. It is the value of the "sys_slotid"
@@ -235,14 +235,14 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
     * optional parameter, {@link PSContentFinderBase#ORDER_BY}. The returned
     * items will be re-ordered according to the specified parameter; otherwise
     * the returned items are ordered by {@link PSContentFinderBase.ContentItem}.
-    * 
+    *
     * @return a set of related items, never <code>null</code>, but may be empty.
     * The items can be re-ordered with {@link ContentItemOrder}.
-    * <p> 
-    * Note, The revision in {@link IPSFilterItem#getItemId()} is directly from 
-    * the relationship which may be <code>-1</code>. It is up to the caller 
+    * <p>
+    * Note, The revision in {@link IPSFilterItem#getItemId()} is directly from
+    * the relationship which may be <code>-1</code>. It is up to the caller
     * (or filter) to re-adjust the version.
-    */   
+    */
    public Set<ContentItem> getContentItems(IPSAssemblyItem sourceItem,
          T slot, Map<String, Object> params)
    {
@@ -257,16 +257,16 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
 
       return items;
    }
-   
+
    /**
     * Find the active assembly relationships for the related content finder.
-    * 
+    *
     * @param sourceItem the assembly item, which contains current context,
     * never <code>null</code>.
-    * 
+    *
     * @return a set of matching relationships, never <code>null</code>
     */
-   @SuppressWarnings("unchecked")
+
    protected List<PSRelationship> getRelationships(IPSGuid id)
    {
       notNull(id, "id may not be null.");
@@ -295,27 +295,27 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
 
    /**
     * Gets the cache handler.
-    * 
+    *
     * @return the cache handler, never <code>null</code>.
     */
    private synchronized IPSCacheAccess getCacheAccess()
    {
       if (m_cache == null)
          m_cache = PSCacheAccessLocator.getCacheAccess();
-      
+
       return m_cache;
    }
 
    /**
-    * Retrieves the active assembly relationships from the repository, where 
-    * the owner is the given item. This is called by 
+    * Retrieves the active assembly relationships from the repository, where
+    * the owner is the given item. This is called by
     * {@link #getRelationships(IPSAssemblyItem)}.
-    * 
+    *
     * @param sourceItem the assembly item, which contains current context,
     * assumed not <code>null</code>.
     * @param ownerId the owner of the returned relationship, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return the related relationships, never <code>null</code>, may be
     * empty.
     */
@@ -343,7 +343,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
          return Collections.emptyList();
       }
    }
-   
+
    /**
     * Get id based object to only lock when trying to add the same id to the cache
     * @param id
@@ -352,7 +352,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
    private IPSGuid getCacheSyncObject(final IPSGuid id) {
       return locks.computeIfAbsent(id, k -> id);
    }
-   
+
    /** Remove the id from the cache sync.
     * @param id the GUID id
     */
@@ -364,12 +364,12 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
     * Logger
     */
    private static final Logger ms_log = LogManager.getLogger(PSRelationshipFinderUtils.class);
- 
+
    /**
     * Cache handler
     */
    private IPSCacheAccess m_cache = null;
 
-   
-   
+
+
 }

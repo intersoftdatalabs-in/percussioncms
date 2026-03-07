@@ -81,7 +81,7 @@ public class PSSchedulingService implements IPSSchedulingService {
    private Session getSession() {
       return entityManager.unwrap(Session.class);
    }
- 
+
    /**
     * {@inheritDoc}
     */
@@ -225,7 +225,7 @@ public class PSSchedulingService implements IPSSchedulingService {
       }
 
    }
-   
+
    /**
     * It fires a non-scheduled job in a separate thread.
     */
@@ -238,19 +238,19 @@ public class PSSchedulingService implements IPSSchedulingService {
       public PSRunNow(PSScheduledTask job)
       {
          super("RunNow");
-         
+
          if (job == null)
             throw new IllegalArgumentException("job may not be null.");
-         
+
          m_job = job;
       }
-      
+
       @Override
       public void run()
       {
          PSTaskAdapter.runJob(m_job, getScheduler(), true);
       }
-      
+
       /**
        * The executed job, init by ctor, never <code>null</code> after that.
        */
@@ -262,7 +262,7 @@ public class PSSchedulingService implements IPSSchedulingService {
     * @throws SchedulerException on Quartz error.
     * @throws ParseException on failure to parse the schedule cron
     * specification.
-    * @throws PSSchedulingException 
+    * @throws PSSchedulingException
     */
    private void apply(PSScheduledTask schedule) throws SchedulerException,
          ParseException, PSSchedulingException
@@ -274,7 +274,7 @@ public class PSSchedulingService implements IPSSchedulingService {
       final Trigger trigger = createTrigger(schedule);
       final JobDetail jobDetail = createJobDetail(schedule);
 
-      // save previous job/trigger for recovering in the case of failure 
+      // save previous job/trigger for recovering in the case of failure
       var previousSchedOpt = findScheduledTaskById(schedule.getId());
       PSScheduledTask previousSched = previousSchedOpt.orElse(null);
 
@@ -308,10 +308,10 @@ public class PSSchedulingService implements IPSSchedulingService {
    {
       SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
       final String id = schedule.getId().toString();
-      
+
       CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(id,TRIGGER_GROUP)
-            .withSchedule(CronScheduleBuilder.cronSchedule(schedule.getCronSpecification()).withMisfireHandlingInstructionDoNothing()).build(); 
-      
+            .withSchedule(CronScheduleBuilder.cronSchedule(schedule.getCronSpecification()).withMisfireHandlingInstructionDoNothing()).build();
+
       // Workaround bug http://jira.opensymphony.com/browse/QUARTZ-566
       final String d = "dummy";
       trigger.getJobDataMap().put(d, d);
@@ -330,13 +330,13 @@ public class PSSchedulingService implements IPSSchedulingService {
    {
       SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
       final String id = schedule.getId().toString();
-      
+
       //final JobDetail jobDetail =
       //      new JobDetail(id, JOB_GROUP, PSTaskAdapter.class);
-      
+
       JobDetail jobDetail = JobBuilder.newJob(PSTaskAdapter.class)
             .withIdentity(id, JOB_GROUP).build();
-      
+
       PSScheduleUtils.storeScheduleInJob(schedule, jobDetail);
       return jobDetail;
    }
@@ -358,7 +358,7 @@ public class PSSchedulingService implements IPSSchedulingService {
       {
          throw new PSSchedulingException(
                Error.SCHEDULER.ordinal(), e, e.getLocalizedMessage());
-      } 
+      }
    }
 
    // see base
@@ -386,18 +386,18 @@ public class PSSchedulingService implements IPSSchedulingService {
    }
 
    // see base
-   @SuppressWarnings("unchecked")
+
    public Optional<PSNotificationTemplate> findNotificationTemplateByName(String name)
    {
       final List<PSNotificationTemplate> results =
               getSession().createQuery(
                   "from PSNotificationTemplate where name = :name").setParameter(
                   "name", name).list();
-      return results.stream().findFirst(); 
+      return results.stream().findFirst();
    }
 
    // see base
-   @SuppressWarnings("unchecked")
+
    public Collection<PSNotificationTemplate> findAllNotificationTemplates()
    {
       return getSession().createQuery("from PSNotificationTemplate", PSNotificationTemplate.class).list();
@@ -464,8 +464,8 @@ public class PSSchedulingService implements IPSSchedulingService {
    /**
     * Sets the Quart scheduler used by the service. This should be called
     * be the Spring framework.
-    * 
-    * @param scheduler the scheduler to assign. Not <code>null</code>. 
+    *
+    * @param scheduler the scheduler to assign. Not <code>null</code>.
     */
    public void setScheduler(Scheduler scheduler)
    {
@@ -512,7 +512,7 @@ public class PSSchedulingService implements IPSSchedulingService {
 
       getSession().saveOrUpdate(taskLog);
    }
-   
+
    // see base
    @Transactional(noRollbackFor = Exception.class)
    public void deleteTaskLog(IPSGuid id)
@@ -522,7 +522,7 @@ public class PSSchedulingService implements IPSSchedulingService {
 
       deleteTaskLogEntries(Collections.singleton(id));
    }
-   
+
    /*
     * //see base class method for details
     */
@@ -531,7 +531,7 @@ public class PSSchedulingService implements IPSSchedulingService {
    {
       if (ids == null)
          throw new IllegalArgumentException("ids may not be null.");
-      
+
       deleteTaskLogEntries(ids);
    }
 
@@ -577,16 +577,16 @@ public class PSSchedulingService implements IPSSchedulingService {
          return retval;
 
    }
-   
+
    /**
     * Creates a task log entry from the given properties.
-    * 
+    *
     * @param props the properties of the created log entry, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return the created log entry, which does not include the problem
     * description property, e.i, {@link PSScheduledTaskLog#getProblemDesc()}
-    * will be <code>null</code> for the returned log entries. It is not 
+    * will be <code>null</code> for the returned log entries. It is not
     * <code>null</code>, but may be empty.
     */
    public PSScheduledTaskLog getScheduledTask(Object[] props)
@@ -600,11 +600,11 @@ public class PSSchedulingService implements IPSSchedulingService {
       Date startTime = (Date) props[2];
       Date endTime = (Date) props[3];
       boolean isSuccess = ((Character) props[4]) == 'Y';
-      
+
       return new PSScheduledTaskLog(logGuid, taskGuid,
             startTime, endTime, isSuccess);
    }
-   
+
    /*
     * //see base class method for details
     */
@@ -627,7 +627,7 @@ public class PSSchedulingService implements IPSSchedulingService {
    {
       if (beforeDate == null)
          throw new IllegalArgumentException("beforeDate may not be null");
-      
+
       Session session = getSession();
 
          String sql = "delete from PSScheduledTaskLog t where t.end_time < :endTime";
@@ -636,7 +636,7 @@ public class PSSchedulingService implements IPSSchedulingService {
 
 
    }
-   
+
    /**
     * Quartz job group name for the quartz jobs used by this class.
     */
@@ -656,9 +656,9 @@ public class PSSchedulingService implements IPSSchedulingService {
     * @see #setScheduler(Scheduler)
     */
    private Scheduler m_scheduler;
-   
+
    /**
     * The logger for this class.
     */
-   private static final Logger ms_log = LogManager.getLogger(PSSchedulingService.class);   
+   private static final Logger ms_log = LogManager.getLogger(PSSchedulingService.class);
 }

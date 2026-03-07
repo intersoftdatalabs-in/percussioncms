@@ -79,7 +79,7 @@ public interface IPSMetadataDao {
    * @return collection of matching metadata, never null
    * @throws IPSGenericDao.LoadException if load fails
    */
-  @SuppressWarnings("unchecked")
+
   @Transactional
   Collection<PSMetadata> findByPrefix(String prefix) throws IPSGenericDao.LoadException;
 }

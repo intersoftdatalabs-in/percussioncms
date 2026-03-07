@@ -64,7 +64,7 @@ class PSVerifyDeserializationTest {
 
     assertNotNull(result);
     assertInstanceOf(java.util.Map.class, result);
-    @SuppressWarnings("unchecked")
+
     java.util.HashMap<String, String> deserializedBOM =
         (java.util.HashMap<String, String>) result;
     assertEquals("8.1.6", deserializedBOM.get("version"));
@@ -95,7 +95,7 @@ class PSVerifyDeserializationTest {
 
     assertNotNull(result);
     assertInstanceOf(java.util.List.class, result);
-    @SuppressWarnings("unchecked")
+
     java.util.ArrayList<String> deserializedList = (java.util.ArrayList<String>) result;
     assertEquals(3, deserializedList.size());
   }
@@ -131,7 +131,7 @@ class PSVerifyDeserializationTest {
     }
 
     assertNotNull(result);
-    @SuppressWarnings("unchecked")
+
     java.util.HashMap<String, java.util.List<String>> deserializedMap =
         (java.util.HashMap<String, java.util.List<String>>) result;
     assertTrue(deserializedMap.containsKey("installed_files"));
@@ -177,7 +177,7 @@ class PSVerifyDeserializationTest {
     }
 
     assertNotNull(result);
-    @SuppressWarnings("unchecked")
+
     java.util.HashMap<String, java.util.ArrayList<String>> deserializedMap =
         (java.util.HashMap<String, java.util.ArrayList<String>>) result;
     assertEquals(100, deserializedMap.get("files").size());

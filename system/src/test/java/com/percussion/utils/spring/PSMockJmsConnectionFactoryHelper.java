@@ -32,9 +32,9 @@ import java.util.Map;
 /**
  * Create the connection factory for the mock JMS system. This bean registers
  * the created factory as <em>jdbc/ConnectionFactory</em>.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSMockJmsConnectionFactoryHelper
 {
@@ -79,7 +79,7 @@ public class PSMockJmsConnectionFactoryHelper
 
    /**
     * Create the instance
-    * 
+    *
     * @param helper the jndi helper, never <code>null</code>.
     * @throws NamingException
     */
@@ -107,7 +107,7 @@ public class PSMockJmsConnectionFactoryHelper
     * @throws JMSException
     * @throws NamingException
     */
-   @SuppressWarnings("unchecked")
+
    public void setDestinations(Map destinations)
          throws JMSException, NamingException
    {

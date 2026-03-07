@@ -36,18 +36,18 @@ import com.percussion.utils.jdbc.PSConnectionHelper;
 
 /***
  * Fix Allowed Sites folder properties that reference sites that do not exist on this system.  This is cleanup for bug:
- * 
+ *
  * @author natechadwick
  *
  */
 public class PSFixAllowedSitePropertiesWithBadSites extends PSFixDBBase implements IPSFix
 {
-   
+
    static final String SITESQL = "SELECT SITEID FROM RXSITES";
    static final String PROPERTYSQL = "SELECT CONTENTID, REVISIONID, SYSID, PROPERTYVALUE, DESCRIPTION FROM PSX_PROPERTIES WHERE PROPERTYNAME='sys_allowed_sites'";
    static final String UPDATESQL = "UPDATE PSX_PROPERTIES SET PROPERTYVALUE=?, DESCRIPTION=? WHERE CONTENTID=? AND REVISIONID=? AND SYSID=?";
-   
-   
+
+
    /**
     * The log4j logger used for this class.
     */
@@ -56,7 +56,7 @@ public class PSFixAllowedSitePropertiesWithBadSites extends PSFixDBBase implemen
    public PSFixAllowedSitePropertiesWithBadSites() throws NamingException, SQLException
    {
       super();
-      
+
    }
 
    @Override
@@ -64,39 +64,39 @@ public class PSFixAllowedSitePropertiesWithBadSites extends PSFixDBBase implemen
    {
       return "Fix invalid sites in Allowed Sites property of Folders";
    }
-   
+
    @Override
    public void fix(boolean preview) throws Exception
    {
       super.fix(preview);
-   
-     
+
+
       Connection c = PSConnectionHelper.getDbConnection();
-     
+
       try{
       PreparedStatement stSites = PSPreparedStatement.getPreparedStatement(c,SITESQL);
       PreparedStatement stProps = PSPreparedStatement.getPreparedStatement(c,PROPERTYSQL);
       ArrayList validSites = new ArrayList();
-      
-      //Get all current valid sites. 
+
+      //Get all current valid sites.
       ResultSet rsSites = stSites.executeQuery();
       while (rsSites.next())
       {
          validSites.add(Integer.toString(rsSites.getInt(1)));
-     
+
       }
       logPreview(null, "Found " + validSites.size() + " valid Sites.");
-     
+
       rsSites.close();
-      
+
       ResultSet rsProps = stProps.executeQuery();
-      
+
       Integer contentId = null;
       Integer revisionId = null;
       Integer sysId = null;
       String allowedSites = null;
       String description = null;
-      
+
       PreparedStatement update = PSPreparedStatement.getPreparedStatement(c, UPDATESQL);
       int correctCount = 0;
       int folderCount = 0;
@@ -106,14 +106,14 @@ public class PSFixAllowedSitePropertiesWithBadSites extends PSFixDBBase implemen
          sysId = rsProps.getInt(3);
          allowedSites = rsProps.getString(4);
          description = rsProps.getString(5);
-       
+
          log.debug("Checking folder "  + contentId + " for invalid sites...");
-         
+
          ArrayList<String> listOfSites =   new ArrayList<String>(Arrays.asList(allowedSites.split(",")));
-         @SuppressWarnings("unchecked")
+
          ArrayList<String> masterCopy = (ArrayList<String>) listOfSites.clone();
          listOfSites.removeAll(validSites);
-         
+
          if(!listOfSites.isEmpty()){
             folderCount++;
             //There are sites that don't belong in the list.
@@ -123,14 +123,14 @@ public class PSFixAllowedSitePropertiesWithBadSites extends PSFixDBBase implemen
                masterCopy.remove(site);
                log.warn("Allowed Site reference to invalid Site {} detected.", site);
             }
-         
+
             if(!preview){
                update.setString(1, StringUtils.join(masterCopy.toArray(), ","));
                update.setString(2, description);
                update.setInt(3, contentId);
                update.setInt(4, revisionId);
                update.setInt(5, sysId);
-               
+
                update.executeUpdate();
                log.info("Removed invalid Site references on Folder {}", contentId);
             }else{
@@ -138,7 +138,7 @@ public class PSFixAllowedSitePropertiesWithBadSites extends PSFixDBBase implemen
             }
          }
       }
-      
+
       if (correctCount == 0)
       {
          logInfo(null, "No problems found");
@@ -159,9 +159,9 @@ public class PSFixAllowedSitePropertiesWithBadSites extends PSFixDBBase implemen
      rsProps.close();
      stProps.close();
      stSites.close();
-     
+
       }finally{c.close();}
    }
 
-   
+
 }

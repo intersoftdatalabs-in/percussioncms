@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class NormalizeSegmentWeightsTest {
-    
+
     HashMap<String, Integer> weights;
     HashMap<String, Integer> expected;
 
@@ -44,21 +44,21 @@ public class NormalizeSegmentWeightsTest {
     public void shouldFailOnNullInput() {
         normalizeSegmentWeights(null);
     }
-    
+
     @Test
     public void shouldReturnAnEmptyMapIfGivenAnEmptyMap() {
         Map<String,Integer> actual = normalizeSegmentWeights(new HashMap<String, Integer>());
         assertTrue("Actual should be empty", actual.isEmpty());
     }
-    
+
     @Test
     public void shouldAlwaysReturnADifferentMapThenTheInputtedMap() {
         weights.put("a", 4);
         weights.put("b", 1);
         assertNotSame("Maps should be different", weights, normalizeSegmentWeights(weights));
     }
-    
-    @SuppressWarnings("unchecked")
+
+
     @Test
     public void shouldNotModifyOriginalMap() {
         weights.put("a", 4);
@@ -68,7 +68,7 @@ public class NormalizeSegmentWeightsTest {
         assertEquals(clone, weights);
         assertNotSame(clone, w);
     }
-    
+
     /*
      * Regression like Tests
      */
@@ -81,7 +81,7 @@ public class NormalizeSegmentWeightsTest {
         Map<String, Integer> actual = normalizeSegmentWeights(weights);
         assertEquals(expected, actual);
     }
-    
+
     @Test
     public void testNormalizeSegmentsWithEqualWeight() throws Exception {
         weights.put("a", 13);
@@ -94,10 +94,10 @@ public class NormalizeSegmentWeightsTest {
         Map<String, Integer> actual = normalizeSegmentWeights(weights);
         assertEquals(expected, actual);
     }
-    
+
     @Test
     public void testNormalizingMultipleTimesWillAlwaysReturnTheSame() throws Exception {
-        
+
         // We are not testing the general axiom that an already normalized map
         // will return an equal map if normalized again.
         weights.put("a", 2122120);

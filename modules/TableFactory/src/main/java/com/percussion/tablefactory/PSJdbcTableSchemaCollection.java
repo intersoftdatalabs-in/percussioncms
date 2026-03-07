@@ -247,7 +247,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     }
   }
 
-  @SuppressWarnings("unchecked")
+
   @Override
   public Iterator<PSJdbcTableSchema> iterator() {
     return super.iterator();

@@ -183,6 +183,10 @@
 					<mainClass>com.percussion.cx.PSContentExplorerApplication</mainClass>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>

@@ -64,7 +64,7 @@ public class PSConcurrentRegionsAssembler implements IPSRegionsAssembler {
   }
 
   /** {@inheritDoc} */
-  @SuppressWarnings("unchecked")
+
   @Override
   public void assembleRegions(
       IPSRegionAssembler regionAssembler,

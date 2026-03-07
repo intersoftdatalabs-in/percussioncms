@@ -117,10 +117,10 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
    @Transient
    private List<PSAgingTransition> agingTransitionsCache;
 
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogSummary#getGUID()
     */
    public IPSGuid getGUID()
@@ -130,7 +130,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
    public void setGUID(IPSGuid newguid) throws IllegalStateException
@@ -146,7 +146,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Set the state id
-    * 
+    *
     * @param id The id
     */
    public void setStateId(long id)
@@ -156,7 +156,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Get the state id.
-    * 
+    *
     * @return the id.
     */
    public long getStateId()
@@ -166,7 +166,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Get the workflow id of this state
-    * 
+    *
     * @param id The id.
     */
    public void setWorkflowId(long id)
@@ -176,7 +176,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Get the workflow id
-    * 
+    *
     * @return The id.
     */
    public long getWorkflowId()
@@ -186,7 +186,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogSummary#getName()
     */
    public String getName()
@@ -196,7 +196,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Set the name of the state
-    * 
+    *
     * @param stateName The name, may not be <code>null</code> or empty.
     */
    public void setName(String stateName)
@@ -209,7 +209,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogSummary#getLabel()
     */
    public String getLabel()
@@ -219,7 +219,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogSummary#getDescription()
     */
    public String getDescription()
@@ -229,7 +229,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Set the description
-    * 
+    *
     * @param desc the description, may be <code>null</code> or empty.
     */
    public void setDescription(String desc)
@@ -239,7 +239,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Get the sort order for this state.
-    * 
+    *
     * @return the sort order.
     */
    public Integer getSortOrder()
@@ -249,7 +249,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Set the sort order of this state.
-    * 
+    *
     * @param order The order.
     */
    public void setSortOrder(Integer order)
@@ -259,7 +259,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Is this a public state?
-    * 
+    *
     * @return <code>true</code> is it is, <code>false</code> otherwise.
     */
    public boolean isPublishable()
@@ -269,7 +269,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Set if content in this state is publishable
-    * 
+    *
     * @param isPublishable <code>true</code> to be publishable,
     *           <code>false</code> if not.
     */
@@ -280,17 +280,17 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Get the string representation of the {@link #isPublishable()} setting.
-    * 
+    *
     * @return the value.
     */
    public String getContentValidValue()
    {
       return contentValidValue;
    }
-   
+
    /**
     * Set the content valid value
-    * 
+    *
     * @param contentValidValue The content valid value
     */
    public void setContentValidValue(String  contentValid)
@@ -299,18 +299,18 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
    }
 
    /**
-    * Get all transitions defined for this state.  You MUST call {@link #setTransitions(List)} if you make any 
-    * modifications to the returned transitions that need to be persisted, otherwise the changes are ignored by 
+    * Get all transitions defined for this state.  You MUST call {@link #setTransitions(List)} if you make any
+    * modifications to the returned transitions that need to be persisted, otherwise the changes are ignored by
     * hibernate.
-    * 
+    *
     * @return all transitions, never <code>null</code>, may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSTransition> getTransitions()
    {
       if (transitionsCache != null)
          return transitionsCache;
-       
+
       transitionsCache = (List<PSTransition>) convertTransitions(transitionHibs, TransitionType.TRANSITION);
       return transitionsCache;
    }
@@ -319,11 +319,11 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
     * Scans all transitions that are part of this state, looking for one that
     * has a name that matches the supplied value. The name of a transition
     * is obtained by calling {@link PSTransitionBase#getTrigger()}.
-    * 
+    *
     * @param tname If blank, <code>null</code> is returned. Value is case-
     * insensitive.
-    * 
-    * @return If blank, or a matching transition is not found, 
+    *
+    * @return If blank, or a matching transition is not found,
     * <code>null</code> is returned.
     */
    public PSTransition findTransitionByName(String tname)
@@ -337,10 +337,10 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
       }
       return null;
    }
-   
+
    /**
     * Set the list of transitions.
-    * 
+    *
     * @param transitions The list, may be <code>null</code> or empty.
     */
    public void setTransitions(List<PSTransition> transitions)
@@ -349,7 +349,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
          transitions = new ArrayList<>();
 
       copyTransitions(transitions, transitionHibs);
-      
+
       // update the cache
       transitionsCache = null;
       getTransitions();
@@ -358,10 +358,10 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
    /**
     * Add a transition to the state's collection.
     * <p>
-    * Note, this method is required to support the underlying implementation of 
-    * {@link #toXML()} and {@link #fromXML(String)} methods for the list of 
+    * Note, this method is required to support the underlying implementation of
+    * {@link #toXML()} and {@link #fromXML(String)} methods for the list of
     * {@link PSTransition} objects.
-    * 
+    *
     * @param transition The transition to add, may not be <code>null</code>.
     */
    public void addTransition(PSTransition transition)
@@ -373,25 +373,25 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
       setTransitions(transList);
    }
 
-   
+
    /**
     * Get all aging transitions defined for this state.
-    * 
+    *
     * @return all aging transitions, never <code>null</code>, may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSAgingTransition> getAgingTransitions()
    {
       if (agingTransitionsCache != null)
          return agingTransitionsCache;
-      
+
       agingTransitionsCache = (List<PSAgingTransition>) convertTransitions(transitionHibs, TransitionType.AGING);
       return agingTransitionsCache;
    }
-   
+
    /**
     * Set the list of aging transitions.
-    * 
+    *
     * @param transitions The list, may be <code>null</code> or empty.
     */
    public void setAgingTransitions(List<PSAgingTransition> transitions)
@@ -408,10 +408,10 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
    /**
     * Add an aging transition to the aging transition list.
     * <p>
-    * Note, this method is required to support the underlying implementation of 
-    * {@link #toXML()} and {@link #fromXML(String)} methods for the list of 
+    * Note, this method is required to support the underlying implementation of
+    * {@link #toXML()} and {@link #fromXML(String)} methods for the list of
     * {@link PSAgingTransition} objects.
-    * 
+    *
     * @param transition The aging transition to add, may not be <code>null</code>.
     */
    public void addAgingTransition(PSAgingTransition transition)
@@ -422,21 +422,21 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
       transList.add(transition);
       setAgingTransitions(transList);
    }
-   
+
    /**
     * Add an assigned-role to this state's collection.
     * <p>
-    * Note, this method is required to support the underlying implementation of 
-    * {@link #toXML()} and {@link #fromXML(String)} methods for the list of 
+    * Note, this method is required to support the underlying implementation of
+    * {@link #toXML()} and {@link #fromXML(String)} methods for the list of
     * {@link PSAssignedRole} objects.
-    * 
+    *
     * @param role The assigned role to add, may not be <code>null</code> and
     * the role (of the ID) must not exist in current role list.
     */
    public void addAssignedRole(PSAssignedRole role)
    {
       notNull(role, "role may not be null");
-      
+
       // validate the added role does not exist
       for (PSAssignedRole r : assignedRoles)
       {
@@ -449,7 +449,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Get all assigned roles for this state.
-    * 
+    *
     * @return all assigend state roles, never <code>null</code>, may be
     *         empty.
     */
@@ -460,7 +460,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /**
     * Set the list of assigned roles.
-    * 
+    *
     * @param roleList the list, may be <code>null</code> or empty.
     */
    public void setAssignedRoles(List<PSAssignedRole> roleList)
@@ -503,7 +503,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogItem#fromXML(String)
     */
    public void fromXML(String xmlsource) throws IOException, SAXException
@@ -513,34 +513,34 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCatalogItem#toXML()
     */
    public String toXML() throws IOException, SAXException
    {
       return PSXmlSerializationHelper.writeToXml(this);
    }
-   
+
    /**
     * Determines if any of the state roles have adhoc assignment enabled
-    * 
-    * @return <code>true</code> if adhoc assignment is enabled, 
+    *
+    * @return <code>true</code> if adhoc assignment is enabled,
     * <code>false</code> otherwise.
     */
    public boolean isAdhocEnabled()
    {
       for (PSAssignedRole role : assignedRoles)
       {
-         if (role.getAssignmentType().getValue() >= 
-            PSAssignmentTypeEnum.ASSIGNEE.getValue() && 
+         if (role.getAssignmentType().getValue() >=
+            PSAssignmentTypeEnum.ASSIGNEE.getValue() &&
             !role.getAdhocType().equals(PSAdhocTypeEnum.DISABLED))
          {
             return true;
          }
       }
-      
+
       return false;
-   }   
+   }
 
    static
    {

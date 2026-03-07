@@ -99,7 +99,7 @@ public class PSContentActivityService implements IPSContentActivityService {
 
   @POST
   @Path("/effectiveness")
-  @SuppressWarnings("unchecked")
+
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Override

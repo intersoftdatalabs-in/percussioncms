@@ -153,7 +153,7 @@ public class PSLuceneTextConverterFactory {
    *
    * @return A Map of String and IPSLuceneTextConverter never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public Map<String, IPSLuceneTextConverter> getAllLuceneTextConverters() {
     return MapUtils.unmodifiableMap(m_converters);
   }

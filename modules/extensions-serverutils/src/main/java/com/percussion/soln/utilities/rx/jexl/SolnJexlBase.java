@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
  *
  * @author DavidBenua
  */
-@SuppressWarnings("unchecked")
+
 public class SolnJexlBase extends PSJexlUtilBase {
   /* (non-Javadoc)
    * @see java.lang.Object#toString()

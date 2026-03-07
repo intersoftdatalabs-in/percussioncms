@@ -269,7 +269,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
     *
     * @see SystemDesign#deleteSharedProperties(DeleteSharedPropertiesRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void deleteSharedProperties(com.percussion.webservices.systemdesign.DeleteSharedPropertiesRequest deleteSharedPropertiesRequest) throws com.percussion.webservices.systemdesign.InvalidSessionFaultMessage, com.percussion.webservices.systemdesign.ContractViolationFaultMessage, com.percussion.webservices.systemdesign.ErrorsFaultMessage, com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "deleteSharedProperties";
@@ -959,7 +959,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
     *
     * @see SystemDesign#saveRelationshipTypes(SaveRelationshipTypesRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveRelationshipTypes(SaveRelationshipTypesRequest request)
       throws com.percussion.webservices.systemdesign.InvalidSessionFaultMessage, com.percussion.webservices.systemdesign.ContractViolationFaultMessage, com.percussion.webservices.systemdesign.ErrorsFaultMessage, com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage
    {
@@ -999,7 +999,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
     *
     * @see SystemDesign#saveSharedProperties(SaveSharedPropertiesRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveSharedProperties(SaveSharedPropertiesRequest request)
       throws com.percussion.webservices.systemdesign.InvalidSessionFaultMessage, com.percussion.webservices.systemdesign.ContractViolationFaultMessage, com.percussion.webservices.systemdesign.ErrorsFaultMessage, com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage
    {
@@ -1239,7 +1239,7 @@ public class SystemDesignSOAPImpl extends PSBaseSOAPImpl implements SystemDesign
    /* (non-Javadoc)
     * @see SystemDesign#saveItemFilters(SaveItemFiltersRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveItemFilters(SaveItemFiltersRequest saveItemFiltersRequest) throws com.percussion.webservices.systemdesign.InvalidSessionFaultMessage, com.percussion.webservices.systemdesign.ContractViolationFaultMessage, com.percussion.webservices.systemdesign.ErrorsFaultMessage, com.percussion.webservices.systemdesign.NotAuthorizedFaultMessage
    {
       final String serviceName = "saveItemFilters";

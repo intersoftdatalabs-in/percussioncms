@@ -427,7 +427,7 @@ public class PSSiteConfigUtils {
    *     if the 'tch' file does not exist. <code>false</code> otherwise.
    * @throws IOException if an error occurs when reading the files.
    */
-  @SuppressWarnings("unchecked")
+
   public static boolean filesModifiedAfterPublished(String sitename, long serverId)
       throws IOException {
     File tchFile = getTouchedFile(sitename);

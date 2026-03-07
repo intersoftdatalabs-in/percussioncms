@@ -58,7 +58,7 @@ public class PSExitGetAllowedTransitions extends PSDefaultExtension
    *     null</code>.
    * @throws PSExtensionProcessingException if there are any errors.
    */
-  @SuppressWarnings("unchecked")
+
   public Document processResultDocument(
       @SuppressWarnings("unused") Object[] params, IPSRequestContext request, Document resultDoc)
       throws PSExtensionProcessingException {
@@ -123,7 +123,7 @@ public class PSExitGetAllowedTransitions extends PSDefaultExtension
    * @return The list of types, may be <code>null</code>if the expected param is not found.
    * @throws PSSystemException If there is an error calculating the assignment types.
    */
-  @SuppressWarnings("unchecked")
+
   private List<PSAssignmentTypeEnum> getAssignmentTypes(
       IPSRequestContext request, List<IPSGuid> contentIds) throws PSSystemException {
     List<PSAssignmentTypeEnum> assignmentTypes = new ArrayList<>();
@@ -152,7 +152,7 @@ public class PSExitGetAllowedTransitions extends PSDefaultExtension
    * @return The assignment types, never <code>null</code>.
    * @throws PSSystemException If there are any errors.
    */
-  @SuppressWarnings("unchecked")
+
   private List<PSAssignmentTypeEnum> calculateAssignmentTypes(
       IPSRequestContext request, List<IPSGuid> contentIds) throws PSSystemException {
     IPSSystemService sysSvc = PSSystemServiceLocator.getSystemService();

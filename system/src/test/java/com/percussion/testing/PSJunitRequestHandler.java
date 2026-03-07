@@ -158,7 +158,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
 
       // Appender to craft xml node's to display in the
       // result doc.
-      Logger l = LogManager.getLogger();
+      Logger l = LogManager.getLogger(PSJunitRequestHandler.class);
 
       try
       {
@@ -667,7 +667,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
       }
 
       //see base class
-      @SuppressWarnings("unchecked")
+
       protected Class loadClass (String name, boolean resolve)
          throws ClassNotFoundException
       {
@@ -776,7 +776,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
       /* (non-Javadoc)
        * @see java.lang.ClassLoader#findClass(java.lang.String)
        */
-      @SuppressWarnings("unchecked")
+
       protected Class findClass(String name) throws ClassNotFoundException
       {
          Class c = super.findClass(name);

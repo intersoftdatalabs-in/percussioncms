@@ -155,7 +155,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   // see base class
   @Override
-  @SuppressWarnings("unchecked")
+
   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -261,7 +261,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
    * @return iterator on a set of names
    * @throws PSDeployException
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator getContentListNames(String nameFilter) throws PSDeployException {
     init();
     return m_publisherHelper.getAllContentListNames(nameFilter).iterator();
@@ -289,7 +289,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   // see base class
   @Override
-  @SuppressWarnings("unchecked")
+
   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -438,7 +438,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   protected Iterator getContentListDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
@@ -460,7 +460,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   // see base class
   @Override
-  @SuppressWarnings("unchecked")
+
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
   }
@@ -495,7 +495,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
    * @param cList the actual ContentList may not be <code>null</code>
    * @return the ApplicationID Types for this dependency
    */
-  @SuppressWarnings("unchecked")
+
   private PSApplicationIDTypes getIdTypesForLegacyContentList(
       PSSecurityToken tok, PSDependency dep, IPSContentList cList) {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -532,7 +532,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
+
   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -637,7 +637,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   // see base class
   // Handles the url params in the case of legacy content lists
-  @SuppressWarnings("unchecked")
+
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");
@@ -858,7 +858,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
    * @throws IllegalArgumentException
    * @throws PSDeployException
    */
-  @SuppressWarnings("unchecked")
+
   public String getUniqueElementName(PSTypeEnum type, String currentName)
       throws IllegalArgumentException, PSDeployException {
     init();

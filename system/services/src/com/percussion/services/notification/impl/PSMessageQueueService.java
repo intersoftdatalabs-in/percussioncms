@@ -84,7 +84,7 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
+
    public <T extends Serializable> Optional<IPSMessageQueueListener<T>> getListener(Class<T> messageType) {
       notNull(messageType);
       IPSMessageQueueListener<T> listener = (IPSMessageQueueListener<T>) queueMap.get(messageType.getCanonicalName());
@@ -107,7 +107,7 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
    /**
     * {@inheritDoc}
     */
-   @SuppressWarnings("unchecked")
+
    public void onMessage(Message message)
    {
       try
@@ -189,7 +189,7 @@ public final class PSMessageQueueService implements MessageListener, IPSMessageQ
          try {
             Class<?> clazz = Class.forName(name);
             if (Serializable.class.isAssignableFrom(clazz)) {
-               @SuppressWarnings("unchecked")
+
                Class<? extends Serializable> sc = (Class<? extends Serializable>) clazz;
                types.add(sc);
             }

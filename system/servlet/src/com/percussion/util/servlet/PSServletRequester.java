@@ -173,7 +173,7 @@ public class PSServletRequester implements IPSRemoteRequesterEx
    /*
     * @see com.percussion.util.IPSRemoteRequesterEx#getBinary(java.lang.String, java.util.Map)
     */
-   @SuppressWarnings("unchecked")
+
    public byte[] getBinary(String resource, Map<String, Object> params) throws IOException
    {
       PSInternalRequestMultiPart irq = new PSInternalRequestMultiPart(m_request);
@@ -241,7 +241,7 @@ public class PSServletRequester implements IPSRemoteRequesterEx
    }
 
    // Implements IPSRemoteRequesterEx#sendBinary()
-   @SuppressWarnings("unchecked")
+
    public PSLocator updateBinary(
       PSBinaryFileData[] files,
       String resource,

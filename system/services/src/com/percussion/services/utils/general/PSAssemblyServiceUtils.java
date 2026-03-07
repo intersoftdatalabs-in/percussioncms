@@ -54,14 +54,14 @@ public class PSAssemblyServiceUtils
     * Empty ctor
     */
    private PSAssemblyServiceUtils()
-   {      
+   {
    }
-   
+
    /**
     * Utility method to make a call to the assembly service to assemble a
     * document based on the url passed in. This method expects there is
     * only one result for this url (non multi-page).
-    * 
+    *
     * @param url the url to retrieve the assembled document.
     * @param extraParams extra parameters that will be appended to the passed in
     *           url. . May be <code>null</code> or empty.
@@ -76,7 +76,7 @@ public class PSAssemblyServiceUtils
     * @throws PSFilterException
     * @throws ItemNotFoundException
     */
-   @SuppressWarnings("unchecked")
+
    public static IPSAssemblyResult getAssembledDocumentResult(
       String url, Map extraParams) throws PSRequestParsingException,
       PSAssemblyException, PSCmsException,
@@ -86,9 +86,9 @@ public class PSAssemblyServiceUtils
       IPSAssemblyService service = PSAssemblyServiceLocator
       .getAssemblyService();
       IPSAssemblyItem item = service.createAssemblyItem();
-      
+
       Map params;
-      
+
       /* The HashMap returned by the parseParameters method has an overridden
        * put method which creates ArrayLists for key values if the key already
        * exists in the map, so create a new HashMap with the mappings in order
@@ -97,7 +97,7 @@ public class PSAssemblyServiceUtils
       params = new HashMap(PSParseUrlQueryString.parseParameters(url));
       if(extraParams != null && !extraParams.isEmpty())
         params.putAll(extraParams);
-           
+
       Iterator iter = params.keySet().iterator();
       while (iter.hasNext())
       {
@@ -107,14 +107,14 @@ public class PSAssemblyServiceUtils
         if (!StringUtils.isBlank(value))
            item.setParameterValue(param.toString(), value);
       }
-      
+
       item.normalize();
       List<IPSAssemblyItem> listofitems = Collections.singletonList(item);
       List<IPSAssemblyResult> results = service.assemble(listofitems);
-     
-      
+
+
       return results.get(0);
-      
+
    }
    /**
     * Utility method to make a call to the assembly service to assemble a
@@ -125,13 +125,13 @@ public class PSAssemblyServiceUtils
     * passed in url. May be <code>null</code> or empty.
     * @return the assembly result for the url as a string, may be <code>null</code> if
     * an exception occurred when retrieving the result.
-    * @throws PSRequestParsingException 
-    * @throws PSCmsException 
-    * @throws PSAssemblyException 
-    * @throws PSTemplateNotImplementedException 
-    * @throws RepositoryException 
-    * @throws PSFilterException 
-    * @throws ItemNotFoundException 
+    * @throws PSRequestParsingException
+    * @throws PSCmsException
+    * @throws PSAssemblyException
+    * @throws PSTemplateNotImplementedException
+    * @throws RepositoryException
+    * @throws PSFilterException
+    * @throws ItemNotFoundException
     * @throws IllegalStateException if the result is not a textual piece of
     * content
     * @throws UnsupportedEncodingException if the charset is not supported

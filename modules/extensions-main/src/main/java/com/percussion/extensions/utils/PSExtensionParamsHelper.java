@@ -277,7 +277,7 @@ public class PSExtensionParamsHelper {
     this.log = log;
   }
 
-  @SuppressWarnings("unchecked")
+
   protected void doParameters() {
     extensionParameters = new HashMap<>();
 

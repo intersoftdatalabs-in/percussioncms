@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
 
 /**
@@ -42,7 +43,7 @@ public class PSExtensionDefFactoryTest
    /**
     * Does a round trip test, with all possible properties containing values.
     */
-   @SuppressWarnings("unchecked")
+
 
    @Test
    public void testFull() throws Exception
@@ -130,7 +131,7 @@ public class PSExtensionDefFactoryTest
     * Does a round trip test, using a def that has no URLs and no runtime
     * parameters defined..
     */
-   @SuppressWarnings("unchecked")
+
 
    @Test
    public void testNoUrlsNoRuntimeParams() throws Exception
@@ -190,7 +191,7 @@ public class PSExtensionDefFactoryTest
    /**
     * Does a round trip test, using a def that has no URLs defined.
     */
-   @SuppressWarnings("unchecked")
+
 
    @Test
    public void testNoUrls() throws Exception
@@ -260,7 +261,7 @@ public class PSExtensionDefFactoryTest
    /**
     * Does a round trip test, using a def that has no runtime params defined.
     */
-   @SuppressWarnings("unchecked")
+
 
    @Test
    public void testNoRuntimeParamst() throws Exception
@@ -318,6 +319,83 @@ public class PSExtensionDefFactoryTest
       }
 
       assertTrue(def.equals(def2), "Full def failed comparison");
+   }
+
+   /**
+    * Does a round trip test with required applications specified.
+    */
+   @Test
+   public void testRequiredApplications() throws Exception
+   {
+      // create an extension def with required applications
+      PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
+      ArrayList ifaces = new ArrayList();
+      ifaces.add("com.percussion.extension.IPSUdfProcessor");
+
+      ArrayList urls = new ArrayList();
+      urls.add(new URL("file", "", "archive1.jar"));
+
+      Properties javaInitParams = new Properties();
+      javaInitParams.setProperty("className", PSJavaExtensionHandler.class
+         .getName());
+      javaInitParams.setProperty(
+         IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
+         IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
+
+      ArrayList requiredApps = new ArrayList();
+      requiredApps.add("sys_searchSupport");
+      requiredApps.add("sys_publishingSupport");
+
+      PSExtensionDef def = new PSExtensionDef(ref, ifaces.iterator(), urls
+         .iterator(), javaInitParams, null);
+      def.setRequiredApplicationNames(requiredApps.iterator());
+
+      PSExtensionDefFactory factory = new PSExtensionDefFactory();
+
+      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+      Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
+
+      Element defElement = null;
+      try
+      {
+         defElement = factory.toXml(root, def);
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+         fail("Failed serialization: " + e.toString());
+         return;
+      }
+
+      IPSExtensionDef def2 = null;
+      try
+      {
+         def2 = factory.fromXml(defElement);
+      }
+      catch (Exception e)
+      {
+         PSXmlDocumentBuilder.write(doc, System.out);
+         e.printStackTrace();
+         fail("Failed de-serialization: " + e.toString());
+         return;
+      }
+
+      // Verify required applications are preserved in the deserialized object
+      Iterator<PSExtensionRef> apps1 = def.getRequiredApplications();
+      Iterator<PSExtensionRef> apps2 = def2.getRequiredApplications();
+
+      int count1 = 0, count2 = 0;
+      while (apps1.hasNext()) {
+         apps1.next();
+         count1++;
+      }
+      while (apps2.hasNext()) {
+         apps2.next();
+         count2++;
+      }
+
+      assertEquals(count1, count2, "Required applications count mismatch");
+      assertEquals(count1, 2, "Expected 2 required applications");
    }
 }
 

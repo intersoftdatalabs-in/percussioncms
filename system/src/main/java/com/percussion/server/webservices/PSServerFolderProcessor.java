@@ -1172,7 +1172,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @param locators The to be validated locators, assume not <code>null</code>.
    * @throws PSCmsException if one of the locator is not folder.
    */
-  @SuppressWarnings("unchecked")
+
   private void validateFolderType(PSKey[] locators) throws PSCmsException {
     PSItemSummaryCache cache = getItemCache();
     if (cache != null) // do validation from cache
@@ -1228,7 +1228,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * {@link #validateKey(PSKey)} for the requirement of the locators, <code>children</code> and
    * <code>targetParent</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void add(String componentType, List children, PSKey targetParent) throws PSCmsException {
     validateComponentType(componentType);
     validateKeys(children.iterator());
@@ -1278,7 +1278,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
      * @param summaries The summaries object, assume not <code>null</code>.
      * @throws PSCmsException if an error occurs.
      */
-    @SuppressWarnings("unchecked")
+
     public ComponentGroup(PSComponentSummaries summaries) throws PSCmsException {
       PSRelationshipProcessor relation = PSRelationshipProcessor.getInstance();
 
@@ -1362,7 +1362,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     otherwise it is used for move item/folder.
    * @throws PSCmsException if the test described above is successful.
    */
-  @SuppressWarnings("unchecked")
+
   private void validateTargetParentIsNotDescendent(
       PSLocator targetParent, List folderChildren, boolean copyItem) throws PSCmsException {
     Iterator childs = folderChildren.iterator();
@@ -1418,7 +1418,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     be empty.
    * @throws PSCmsException if the validation fails.
    */
-  @SuppressWarnings("unchecked")
+
   private PSComponentSummaries validateChildNames(PSComponentSummaries children, PSKey target)
       throws PSCmsException {
     PSComponentSummaries existingObjectSummaries = new PSComponentSummaries();
@@ -1904,7 +1904,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @deprecated Use {@link PSFolderProcessorProxy#removeChildren(PSLocator, List)}.
    */
-  @SuppressWarnings("unchecked")
+
   public void delete(String relType, PSKey sourceParent, List children) throws PSCmsException {
     validateRelType(relType);
     validateKeys(children.iterator());
@@ -2457,7 +2457,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return The component summaries object, never <code>null</code>.
    * @throws PSCmsException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private PSComponentSummaries getFolderChildren(
       PSLocator folderLocator,
       int doNotApplyFilters,
@@ -2519,7 +2519,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return Each entry is a PSLocator. Never <code>null</code>, may be empty.
    * @throws PSCmsException If any problems getting the relationships.
    */
-  @SuppressWarnings("unchecked")
+
   private static List getDependentLocators(
       PSRelationshipProcessor proc, PSKey folderId, int doNotApplyFilters, boolean recursive)
       throws PSCmsException {
@@ -2960,7 +2960,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @deprecated Use {@link PSFolderProcessorProxy#getParentSummaries(PSLocator)}.
    */
-  @SuppressWarnings("unchecked")
+
   @Deprecated
   public PSComponentSummary[] getParents(
       @SuppressWarnings("unused") String type, String relationshipType, PSKey locator)
@@ -3031,7 +3031,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws PSCmsException if any error occurs getting the component summaries for the specified
    *     locators
    */
-  @SuppressWarnings("unchecked")
+
   private PSKey[] getFolderLocators(List locators) throws PSCmsException {
     PSKey[] keys = new PSKey[0];
     PSItemSummaryCache cache = getItemCache();
@@ -3578,7 +3578,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return summaries for all the owners/children of the relationships supplied.
    * @throws PSCmsException if it could not fetch the summaries for any reason.
    */
-  @SuppressWarnings("unchecked")
+
   private PSComponentSummaries getSummaries(Iterator relationships, boolean owner)
       throws PSCmsException {
     List locators = new ArrayList();
@@ -3737,7 +3737,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   // see IPSFolderProcessor
-  @SuppressWarnings("unchecked")
+
   @Transactional
   public void removeChildren(PSLocator sourceFolderId, List children, boolean force)
       throws PSCmsException, PSNotFoundException {
@@ -3797,7 +3797,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   // see IPSFolderProcessor
-  @SuppressWarnings("unchecked")
+
   public void removeChildren(PSLocator sourceFolderId, List children)
       throws PSCmsException, PSNotFoundException {
     removeChildren(sourceFolderId, children, false);
@@ -4293,7 +4293,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   // see IPSFolderProcessor, additionally this method will throw
   // a PSCmsException if the current user does not have Admin access
   // to the target folder
-  @SuppressWarnings("unchecked")
+
   public void copyFolderSecurity(PSLocator source, PSLocator target) throws PSCmsException {
     notNull(source);
     notNull(target);
@@ -4417,7 +4417,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @param value the new value for the global error flag usd in the copy folder action.
    */
-  @SuppressWarnings("unchecked")
+
   private void setHadErrors(boolean value) {
     m_hadErrors.set(value ? Boolean.TRUE : Boolean.FALSE);
   }
@@ -4436,7 +4436,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   // see IPSFolderProcessor
-  @SuppressWarnings("unchecked")
+
   public Set getFolderCommunities(PSLocator source) throws PSCmsException {
     if (source == null) throw new IllegalArgumentException("source cannot be null");
 
@@ -4493,7 +4493,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     empty.
    * @throws PSException for any error.
    */
-  @SuppressWarnings("unchecked")
+
   private void cloneSiteFolderChildren(
       PSRequest request,
       IPSRequestContext context,
@@ -4717,7 +4717,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     community, <code>false</code> to calculate the workflow as when creating a new item.
    * @throws PSException for any error.
    */
-  @SuppressWarnings("unchecked")
+
   private void cloneNavItems(
       PSRequest request,
       PSComponentSummaries children,
@@ -4777,7 +4777,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     addChildren(childItems, target);
   }
 
-  @SuppressWarnings("unchecked")
+
   private void cloneItems(
       PSRequest request,
       PSComponentSummaries children,
@@ -4836,7 +4836,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     </code>.
    * @throws PSException for any error.
    */
-  @SuppressWarnings("unchecked")
+
   private void createRelatedContent(PSRequest request, PSCloningOptions options)
       throws PSException {
     getLogger().debug("Recreating relationships and fixup inline links...");
@@ -5040,7 +5040,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     the <code>parents</code>. Never <code>null</code>, may be empty.
    * @throws PSCmsException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private List getFolderLocatorPaths(PSLocator itemLocator, List parents) throws PSCmsException {
     // get immediate parents
     PSRelationshipFilter filter = new PSRelationshipFilter();
@@ -5083,7 +5083,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @param isInsert flag indicating that this is an insert action
    * @throws PSCmsException if an error occurs during the validation process.
    */
-  @SuppressWarnings("unchecked")
+
   public static void validateUniqueDepName(final IPSRequestContext request, final boolean isInsert)
       throws PSCmsException {
     // get the locator if exist
@@ -5331,7 +5331,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     contains a name (1st object) and its content id (2nd object).
    * @throws PSCmsException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private static List<Object[]> getChildItems(PSLocator owner, IPSRequestContext request)
       throws PSCmsException {
     IPSRelationshipProcessor relProxy = PSRelationshipProcessor.getInstance();

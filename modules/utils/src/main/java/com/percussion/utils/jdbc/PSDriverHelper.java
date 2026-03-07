@@ -40,7 +40,7 @@ public class PSDriverHelper {
    * @throws IllegalAccessException If an error occurs loading the driver.
    * @throws InstantiationException If an error occurs loading the driver.
    */
-  @SuppressWarnings("unchecked")
+
   public static Driver getDriver(String driverClass, String driverPath)
       throws MalformedURLException,
           ClassNotFoundException,

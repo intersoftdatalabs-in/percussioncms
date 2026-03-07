@@ -128,7 +128,7 @@ class PSExtensionHandlerConfiguration {
    *
    * @return An Iterator over 0 or more PSExtensionRef objects. Never <CODE>null</CODE>.
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator getExtensionNames() {
     Collection names = new LinkedList();
     for (Iterator i = getExtensionContexts(); i.hasNext(); ) {
@@ -176,7 +176,7 @@ class PSExtensionHandlerConfiguration {
    * @return The extension definition, or <CODE>null</CODE> if no such extension is defined.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  @SuppressWarnings("unchecked")
+
   public IPSExtensionDef getExtensionDef(PSExtensionRef ref) {
     if (ref == null) throw new IllegalArgumentException("ref cannot be null");
 
@@ -207,7 +207,7 @@ class PSExtensionHandlerConfiguration {
    * @param extensionDef The extension def to add. Must not be <CODE>null</CODE>.
    * @throws IllegalArgumentException If any param is invalid.
    */
-  @SuppressWarnings("unchecked")
+
   public void addExtensionDef(IPSExtensionDef extensionDef) {
     if (extensionDef == null) throw new IllegalArgumentException("extensionDef cannot be null");
 
@@ -247,7 +247,7 @@ class PSExtensionHandlerConfiguration {
    * @throws IllegalArgumentException If any param is invalid.
    * @see java.io.File#getCanonicalFile
    */
-  @SuppressWarnings("unchecked")
+
   public void setPendingRemoval(File toBeRemoved) throws IOException {
     if (toBeRemoved == null || toBeRemoved.toString().length() == 0)
       throw new IllegalArgumentException("toBeRemoved cannot be null/empty");
@@ -282,7 +282,7 @@ class PSExtensionHandlerConfiguration {
    *     objects.
    * @see #setPendingRemoval
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator getPendingRemovals() {
     /* Need to copy the hashset to a new list and return an iterator
        from this new list.  If we don't, when clearPendingRemoval() is

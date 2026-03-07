@@ -540,7 +540,7 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
         "Style tab tests", styleDialogClassName, "Style", paramName, widgetsAndCode);
   }
 
-  @SuppressWarnings("unchecked")
+
   private String generateContentMethods(PSWidgetDefinition widgetDef) {
     StringBuilder strBuffer = new StringBuilder();
 

@@ -113,6 +113,17 @@ public class PSStaticContainerUtils {
   }
 
   /**
+   * Builds a JDBC connection URL from driver name and server properties.
+   *
+   * @param driverName the database driver name (e.g., "derby", "postgresql")
+   * @param server the server/database specification
+   * @return the complete JDBC URL (e.g., "jdbc:derby:CMDB")
+   */
+  public static String buildConnectionUrl(String driverName, String server) {
+    return "jdbc:" + driverName + ":" + server;
+  }
+
+  /**
    * @param propertyFile
    * @return
    * @throws IOException

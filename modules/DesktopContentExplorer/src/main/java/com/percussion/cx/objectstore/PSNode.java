@@ -38,7 +38,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /** The class that is used to represent menu actions as defined by 'sys_Node.dtd'. */
-@SuppressWarnings("unchecked")
+
 public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTreeNodeAssociation {
   // see PSNavigationTree.IPSTreeNodeAssociation
   public PSNavigationTree.PSTreeNode getAssociatedTreeNode() {

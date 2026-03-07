@@ -72,7 +72,7 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
    *
    * @see com.percussion.design.objectstore.legacy.IPSComponentUpdater#updateComponent(org.w3c.dom.Element)
    */
-  @SuppressWarnings("unchecked")
+
   public void updateComponent(PSComponent comp) {
     PSContentEditor editor = (PSContentEditor) (comp);
 
@@ -138,7 +138,7 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
    * @param editor The content editor assumed not <code>null</code>.
    * @return List of workflow guids, may be empty, never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private List<IPSGuid> getWorkflowsFromEditor(PSContentEditor editor) {
     List<IPSGuid> wfGuids = new ArrayList<>();
     PSWorkflowInfo wfInfo = editor.getWorkflowInfo();

@@ -48,7 +48,7 @@ import org.w3c.dom.Element;
  * com.percussion classes in order to avoid circular dependencies. This is the first class to be
  * build during the build procedure.
  */
-@SuppressWarnings("unchecked")
+
 public class Code {
 
   private static final Logger log = LogManager.getLogger(Code.class);

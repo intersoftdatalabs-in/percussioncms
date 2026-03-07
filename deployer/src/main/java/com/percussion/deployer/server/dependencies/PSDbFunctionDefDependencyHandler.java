@@ -62,7 +62,7 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     var mgr = PSDatabaseFunctionManager.getInstance();
-    @SuppressWarnings("unchecked")
+
     Iterator<PSDatabaseFunction> funcs =
         (Iterator<PSDatabaseFunction>) mgr.getDatabaseFunctions(ALL_FUNC_TYPES);
 

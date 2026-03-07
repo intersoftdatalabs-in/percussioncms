@@ -92,7 +92,7 @@ public class PSTemplateSlotTest
    /**
     * @param slot
     */
-   @SuppressWarnings("unchecked")
+
    private void setupSlot(IPSTemplateSlot slot)
    {
       slot.setFinderName("test1");
@@ -177,7 +177,7 @@ public class PSTemplateSlotTest
    /**
     * @throws Exception
     */
-   @SuppressWarnings("unchecked")
+
    @Test
    public void testFindArgumentChanges() throws Exception
    {
@@ -258,7 +258,7 @@ public class PSTemplateSlotTest
    /**
     * @throws Exception
     */
-   @SuppressWarnings("unchecked")
+
    @Test
    public void testAssociationChanges() throws Exception
    {

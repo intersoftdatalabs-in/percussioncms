@@ -43,7 +43,6 @@ public class PSSpringOvalValidator implements Validator, InitializingBean {
     this.validator = validator;
   }
 
-  @SuppressWarnings("unchecked")
   public boolean supports(Class<?> clazz) {
     return true;
   }
@@ -95,14 +94,12 @@ public class PSSpringOvalValidator implements Validator, InitializingBean {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private Field[] getFields(Object target) {
     Class<?> clazz = target.getClass();
     List<Field> fields = doGetFields(clazz);
     return fields.toArray(new Field[fields.size()]);
   }
 
-  @SuppressWarnings("unchecked")
   private List<Field> doGetFields(Class<?> clazz) {
     ArrayList<Field> list = new ArrayList<>();
     Field[] fields = clazz.getDeclaredFields();

@@ -46,7 +46,7 @@ public class SimpleXmlView extends AbstractView implements View {
    * @see AbstractView#renderMergedOutputModel(Map, HttpServletRequest, HttpServletResponse)
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   protected void renderMergedOutputModel(
       Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
     Document result = findResult(model);
@@ -65,7 +65,7 @@ public class SimpleXmlView extends AbstractView implements View {
    * @param model
    * @return the result document.
    */
-  @SuppressWarnings("unchecked")
+
   protected Document findResult(Map model) {
     String emsg;
     Object result = model.get(getResultKey());

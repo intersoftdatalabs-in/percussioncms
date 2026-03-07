@@ -734,7 +734,7 @@ public class PSDataSet extends PSComponent {
    * @throws PSSystemValidationException According to the implementation of the validation context
    *     (on warnings and/or errors).
    */
-  @SuppressWarnings("unchecked")
+
   @Override
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

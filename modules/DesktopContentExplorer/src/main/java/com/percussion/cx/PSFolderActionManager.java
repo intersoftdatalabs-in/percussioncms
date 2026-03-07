@@ -283,7 +283,7 @@ public class PSFolderActionManager {
    * @throws PSContentExplorerException if an error happens loading the folder or its children with
    *     all columns according to its display format.
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator loadChildren(PSNode parentFolderNode) throws PSContentExplorerException {
     validateNodeAsFolder(parentFolderNode);
 

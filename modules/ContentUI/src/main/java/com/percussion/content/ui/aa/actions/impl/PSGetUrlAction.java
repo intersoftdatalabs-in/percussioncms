@@ -278,7 +278,7 @@ public class PSGetUrlAction extends PSAAActionBase {
    * @param paramname the name of the parameter to be found.
    * @return the parameter value which may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   private String getControlParamValue(PSDisplayMapping mapping, String paramname) {
     try {
       PSControlMeta controlMeta = getControls().get(mapping.getUISet().getControl().getName());
@@ -727,7 +727,7 @@ public class PSGetUrlAction extends PSAAActionBase {
    * @return Never <code>null</code>.
    * @throws PSAAClientActionException If the supplied action can't be found or can't be loaded.
    */
-  @SuppressWarnings("unchecked")
+
   private SimpleURL createUrlFromAction(String actionName, PSAAObjectId id)
       throws PSAAClientActionException {
     IPSUiWs uiMgr = PSUiWsLocator.getUiWebservice();
@@ -953,7 +953,7 @@ public class PSGetUrlAction extends PSAAActionBase {
 
     private String mi_base;
 
-    @SuppressWarnings("unchecked")
+
     private Map<String, String> mi_params =
         (Map<String, String>) MapUtils.orderedMap(new HashMap<String, String>());
   }

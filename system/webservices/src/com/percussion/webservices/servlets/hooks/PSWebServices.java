@@ -120,7 +120,7 @@ public class PSWebServices
     *    this is because we cannot send any data to the requestor about the error so
     *    we throw this generic error with details of the real exception
     */
-   @SuppressWarnings("unchecked")
+
    protected void sendToServer(
       String action,
       Envelope env,
@@ -274,7 +274,7 @@ public class PSWebServices
     * @return Envelope with all the data from the response input stream
     * @throws SOAPException
     */
-   @SuppressWarnings("unchecked")
+
    private Envelope buildResponseEnvelope(HTTPResponse resp, Object context)
       throws SOAPException
    {
@@ -385,7 +385,7 @@ public class PSWebServices
     *
     * @throws SOAPException if an error occurs.
     */
-   @SuppressWarnings("unchecked")
+
    private AuthorizationInfo parseAuthenticationHeader(SOAPContext reqCtx,
          Envelope env, HTTPConnection conn)
       throws SOAPException

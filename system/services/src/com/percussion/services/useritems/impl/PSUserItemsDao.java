@@ -49,14 +49,14 @@ public class PSUserItemsDao implements IPSUserItemsDao
     private Session getSession(){
         return entityManager.unwrap(Session.class);
     }
-    
+
     /**
     * Constant for the key used to generate summary ids.
     */
    private static final String USER_ITEM_KEY = "PSX_USERITEM";
-   
+
    private IPSGuidManager m_guidMgr;
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.userpages.IPSUserItemsDao#find(java.lang.String, int)
@@ -72,8 +72,8 @@ public class PSUserItemsDao implements IPSUserItemsDao
           query.setParameter("itemId", itemId);
           query.setParameter("userName", userName);
 
-          @SuppressWarnings("unchecked")
-         List<PSUserItem> userItems = query.list(); 
+
+         List<PSUserItem> userItems = query.list();
           if(!userItems.isEmpty())
              userItem = userItems.get(0);
           return userItem;
@@ -107,14 +107,14 @@ public class PSUserItemsDao implements IPSUserItemsDao
       finally
       {
           session.flush();
-      }  
+      }
    }
 
    /*
     * (non-Javadoc)
     * @see com.percussion.services.userpages.IPSUserItemsDao#find(java.lang.String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSUserItem> find(String userName)
    {
       List<PSUserItem> userItems = new ArrayList<>();
@@ -125,7 +125,7 @@ public class PSUserItemsDao implements IPSUserItemsDao
           Query query = session.createQuery("from PSUserItem where userName = :userName");
           query.setParameter("userName", userName);
 
-          userItems = query.list(); 
+          userItems = query.list();
           return userItems;
 
    }
@@ -134,7 +134,7 @@ public class PSUserItemsDao implements IPSUserItemsDao
     * (non-Javadoc)
     * @see com.percussion.services.userpages.IPSUserItemsDao#find(int)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSUserItem> find(int itemId)
    {
       List<PSUserItem> userItems;
@@ -146,7 +146,7 @@ public class PSUserItemsDao implements IPSUserItemsDao
           return userItems;
 
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.services.userpages.IPSUserItemsDao#delete(com.percussion.services.userpages.data.PSUserItem)

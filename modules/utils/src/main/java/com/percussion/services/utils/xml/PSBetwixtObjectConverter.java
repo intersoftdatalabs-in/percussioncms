@@ -79,7 +79,7 @@ public class PSBetwixtObjectConverter extends DefaultObjectStringConverter {
       }
     } else if (Enum.class.isAssignableFrom(type)) {
       // safe cast because of the instanceof check
-      @SuppressWarnings("unchecked")
+
       Class<Enum> enumType = (Class<Enum>) type;
       return Enum.valueOf(enumType, value);
     } else if (IPSGuid.class.isAssignableFrom(type)) {

@@ -48,7 +48,7 @@ public class PSErrorHumanReadableNames {
   }
 
   /** Get an Enumeration of all the human readable names */
-  @SuppressWarnings("unchecked")
+
   public static Enumeration<String> getHumanReadableNames() {
     lazyInit();
     return (Enumeration<String>) ms_errorNames.values();

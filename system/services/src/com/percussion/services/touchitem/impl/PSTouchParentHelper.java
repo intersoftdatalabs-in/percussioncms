@@ -84,7 +84,7 @@ public final class PSTouchParentHelper
    private int touchItemAndParents(IPSRequestContext request,
          Integer contentId) throws Exception
    {
-      @SuppressWarnings("unchecked")
+
       Set<Integer> processedIds = (Set<Integer>) request.getPrivateObject(PROCESSED_DEPENDENTS);
       if (processedIds == null)
       {

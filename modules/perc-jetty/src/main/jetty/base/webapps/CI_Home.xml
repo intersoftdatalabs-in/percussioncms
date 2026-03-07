@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configure class="org.eclipse.jetty.ee8.webapp.WebAppContext">
+	<Set name="contextPath">/CI_Home</Set>
+	<Set name="war">
+		<SystemProperty name="jetty.base" />
+		/webapps/CI_Home.war
+	</Set>
+</Configure>

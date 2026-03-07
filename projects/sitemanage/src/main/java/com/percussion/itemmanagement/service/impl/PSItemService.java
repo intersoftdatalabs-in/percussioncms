@@ -974,7 +974,7 @@ public class PSItemService implements IPSItemService {
     }
   }
 
-  @SuppressWarnings("unchecked")
+
   @POST
   @Path("/setitemdates")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

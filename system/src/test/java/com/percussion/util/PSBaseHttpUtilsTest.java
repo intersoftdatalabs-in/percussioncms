@@ -118,7 +118,7 @@ public class PSBaseHttpUtilsTest
       }
    }
 
-   @SuppressWarnings("unchecked")
+
    @Test
    public void testParseQueryParams() throws Exception
    {
@@ -216,7 +216,7 @@ public class PSBaseHttpUtilsTest
       }
    }
 
-   @SuppressWarnings("unchecked")
+
    @Test
    public void testParseContentType() throws Exception
    {

@@ -46,7 +46,7 @@ import java.util.Set;
  * <p>
  * In the future, when the correct fix is implemented, this code should be
  * modified to support both types of fixup that will be required at that time.
- * 
+ *
  * @author paulhoward
  */
 public class PSFixTranslationRelationships extends PSFixBase
@@ -58,23 +58,23 @@ public class PSFixTranslationRelationships extends PSFixBase
       return "Fix Translation Relationships";
    }
 
-   @SuppressWarnings("unchecked")
+
    @Override
    public void fix(boolean preview)
          throws Exception
    {
       super.fix(preview);
-      
+
       if (null == PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST))
       {
          logInfo(null, "This rxFix plugin cannot run outside of a server.");
          return;
       }
-      
+
       IPSSystemWs sys = PSSystemWsLocator.getSystemWebservice();
-      List<PSRelationshipConfig> defs = sys.loadRelationshipTypes(null, 
+      List<PSRelationshipConfig> defs = sys.loadRelationshipTypes(null,
             PSRelationshipConfig.CATEGORY_TRANSLATION);
-      
+
       //should this fixup be run against the config on this system?
       boolean valid = false;
       for (PSRelationshipConfig cfg : defs)
@@ -83,18 +83,18 @@ public class PSFixTranslationRelationships extends PSFixBase
       }
       if (!valid)
       {
-         logInfo(null, 
+         logInfo(null,
             "This plugin does not need to run with the given relationship configuration.");
          return;
       }
-      
+
       PSRelationshipFilter filter = new PSRelationshipFilter();
       filter.setCategory(PSRelationshipConfig.CATEGORY_TRANSLATION);
       List<PSRelationship> tranRels = sys.loadRelationships(filter);
-      
-      Map<Integer, PSComponentSummary> idToSum = 
+
+      Map<Integer, PSComponentSummary> idToSum =
          new HashMap<Integer, PSComponentSummary>();
-      PSRelationshipProcessor rproc = 
+      PSRelationshipProcessor rproc =
          PSWebserviceUtils.getRelationshipProcessor();
       PSComponentSummaries ownerSums = rproc.getSummaries(filter, true);
       Iterator<PSComponentSummary> iter = ownerSums.iterator();
@@ -105,11 +105,11 @@ public class PSFixTranslationRelationships extends PSFixBase
       }
 
       //group rels by owner id, then process groups
-      Map<Integer, List<PSRelationship>> ownerIdToRels = 
+      Map<Integer, List<PSRelationship>> ownerIdToRels =
          new HashMap<Integer, List<PSRelationship>>();
       for (PSRelationship rel : tranRels)
       {
-         List<PSRelationship> ownerRels = 
+         List<PSRelationship> ownerRels =
             ownerIdToRels.get(rel.getOwner().getId());
          if (ownerRels == null)
          {
@@ -118,7 +118,7 @@ public class PSFixTranslationRelationships extends PSFixBase
          }
          ownerRels.add(rel);
       }
-      
+
       Map<Integer, List<PSRelationship>> contentIdToNewRels =
          new HashMap<Integer, List<PSRelationship>>();
       for (List<PSRelationship> rels : ownerIdToRels.values())
@@ -126,10 +126,10 @@ public class PSFixTranslationRelationships extends PSFixBase
             PSComponentSummary sum = idToSum.get(rels.get(0).getOwner().getId());
             addRels(contentIdToNewRels, sum, rels);
       }
-      
+
       if (contentIdToNewRels.size() == 0)
       {
-         logInfo(null, 
+         logInfo(null,
                "There are no translation relationships that need fixing.");
       }
       for (Integer id : contentIdToNewRels.keySet())
@@ -140,13 +140,13 @@ public class PSFixTranslationRelationships extends PSFixBase
             continue;
          if (preview)
          {
-            logPreview(id.toString(), 
+            logPreview(id.toString(),
                "Would add " + count + " translation relationships to this item.");
          }
          else
          {
             sys.saveRelationships(newRels);
-            logSuccess(id.toString(), 
+            logSuccess(id.toString(),
                   "Added " + count + " translation relationships to this item.");
          }
       }
@@ -154,7 +154,7 @@ public class PSFixTranslationRelationships extends PSFixBase
 
    /**
     * Checks if shallow cloning is enabled on the supplied config.
-    * 
+    *
     * @param cfg Assumed not <code>null</code>.
     * @return <code>true</code> if shallow cloning is enabled,
     * <code>false</code> otherwise.
@@ -166,7 +166,7 @@ public class PSFixTranslationRelationships extends PSFixBase
        * should really be on the cfg object (in fact there is a similar
        * constant that is not used, SHALLOW_CLONING.)
        */
-      return (cfg.isCloningAllowed() 
+      return (cfg.isCloningAllowed()
             && cfg.getProcessCheck(PSCloneHandler.RS_CLONESHALLOW) != null);
    }
 
@@ -177,32 +177,32 @@ public class PSFixTranslationRelationships extends PSFixBase
     * This relationship will match the supplied one except for owner revision.
     * All of these are added as a collection to the supplied
     * <code>contentIdToNewRels</code> results map.
-    * 
+    *
     * @param contentIdToNewRels The newly created relationships will be added to
     * this map. If no relationships are created for an item, no entry will be
     * added to the map. The ownerId is used as the key. Assumed not
     * <code>null</code>.
-    * 
+    *
     * @param sum The owner of the supplied <code>rels</code>. Assumed not
     * <code>null</code>.
-    * 
+    *
     * @param rels The original translation relationships that originate on the
     * item with the supplied summary. The new relationships will nearly be
     * clones, only differing by the owner revision. Assumed not
     * <code>null</code>.
     */
-   private void addRels(Map<Integer, List<PSRelationship>> contentIdToNewRels, 
+   private void addRels(Map<Integer, List<PSRelationship>> contentIdToNewRels,
          PSComponentSummary sum, List<PSRelationship> rels)
    {
       //map rels by dependent item id
-      Map<Integer, List<PSRelationship>> depContentIdToRels = 
+      Map<Integer, List<PSRelationship>> depContentIdToRels =
          new HashMap<Integer, List<PSRelationship>>();
       for (PSRelationship rel : rels)
       {
          //skip rels whose cfg is not valid for fixing
          if (!isValidConfigurationForFixup(rel.getConfig()))
             continue;
-         List<PSRelationship> depRels = 
+         List<PSRelationship> depRels =
             depContentIdToRels.get(rel.getDependent().getId());
          if (depRels == null)
          {
@@ -211,7 +211,7 @@ public class PSFixTranslationRelationships extends PSFixBase
          }
          depRels.add(rel);
       }
-      
+
       int tipRev = sum.getTipLocator().getRevision();
       List<PSRelationship> newRels = new ArrayList<PSRelationship>();
       for (List<PSRelationship> depItemRels : depContentIdToRels.values())
@@ -224,7 +224,7 @@ public class PSFixTranslationRelationships extends PSFixBase
             int ownerRev = rel.getOwner().getRevision();
             allRevs.add(ownerRev);
             if (ownerRev < startingRev)
-               startingRev = ownerRev; 
+               startingRev = ownerRev;
          }
 
          //create missing rels
@@ -240,7 +240,7 @@ public class PSFixTranslationRelationships extends PSFixBase
       if (!newRels.isEmpty())
          contentIdToNewRels.put(sum.getContentId(), newRels);
    }
-   
+
    /**
     * Local override so we can access the protected ctor.
     *
@@ -250,7 +250,7 @@ public class PSFixTranslationRelationships extends PSFixBase
    {
       /**
        * Clones the supplied rel, changing the owner revision to that supplied.
-       * 
+       *
        * @param rel The source to clone. Assumed not <code>null</code>.
        * @param rev The new revision of the owner.
        */

@@ -63,7 +63,7 @@ import java.util.Properties;
 /**
  * The assembly servlet processes all assembly requests and handles the addition
  * of active assembly decorations
- * 
+ *
  * @author dougrand
  */
 public class PSAssemblyServlet extends HttpServlet
@@ -108,11 +108,11 @@ public class PSAssemblyServlet extends HttpServlet
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see jakarta.servlet.http.HttpServlet#service(jakarta.servlet.http.HttpServletRequest,
     *      jakarta.servlet.http.HttpServletResponse)
     */
-   @SuppressWarnings("unchecked")
+
    @Override
    protected void service(HttpServletRequest request,
          HttpServletResponse response)
@@ -163,7 +163,7 @@ public class PSAssemblyServlet extends HttpServlet
             }
             boolean isAATemplate = t.getActiveAssemblyType().equals(
                   IPSAssemblyTemplate.AAType.Normal);
-            boolean isHTML = result.getMimeType() != null && 
+            boolean isHTML = result.getMimeType() != null &&
                result.getMimeType().startsWith("text/html");
             boolean isAACommand = commands != null && commands.length > 0
                   && commands[0].equals(IPSHtmlParameters.SYS_ACTIVE_ASSEMBLY);
@@ -185,7 +185,7 @@ public class PSAssemblyServlet extends HttpServlet
                reportError(request, message, response);
                return;
             }
-            
+
             if (isLegacyTemplate)
             {
                if (!t.getGlobalTemplateUsage().equals(
@@ -204,7 +204,7 @@ public class PSAssemblyServlet extends HttpServlet
             if (doAADecorations)
             {
                // need to add a page decoration when rendering a snippet
-               boolean addPageDecoration = t.getOutputFormat() == OutputFormat.Snippet; 
+               boolean addPageDecoration = t.getOutputFormat() == OutputFormat.Snippet;
                handleAADecorations(request, response, result, addPageDecoration);
                return;
             }
@@ -212,7 +212,7 @@ public class PSAssemblyServlet extends HttpServlet
             /* Discard if the connection has closed */
             if (response.isCommitted())
                return;
-            
+
             response.setContentType(result.getMimeType());
             if (result.getResultLength() > 0)
             {
@@ -235,7 +235,7 @@ public class PSAssemblyServlet extends HttpServlet
                cause.getMessage().startsWith("Connection reset by peer:")) {
             log.debug("Client aborted connection. Error: {}",
                     PSExceptionUtils.getDebugMessageForLog(e));
-            return; //Client closed connection, do not throw error   
+            return; //Client closed connection, do not throw error
          }
          log.error("Problem in assembly servlet.  Error: {}",
                  PSExceptionUtils.getMessageForLog(e));
@@ -251,18 +251,18 @@ public class PSAssemblyServlet extends HttpServlet
 
    /**
     * Handle active assembly decorations by adding them to the result page
-    * 
+    *
     * @param request the request object, assumed not <code>null</code>
     * @param response the response object, assumed not <code>null</code>
     * @param result assembly result, assume not <code>null</code>.
-    * @param addPageDecoration <code>true</code> if need to add a page 
-    * decoration to the rendered content (a snippet or a page without 
-    * global template; <code>false</code> otherwise. 
-    * 
+    * @param addPageDecoration <code>true</code> if need to add a page
+    * decoration to the rendered content (a snippet or a page without
+    * global template; <code>false</code> otherwise.
+    *
     * @throws Exception if an error occurs.
     */
    private void handleAADecorations(HttpServletRequest request,
-      HttpServletResponse response, IPSAssemblyResult result, 
+      HttpServletResponse response, IPSAssemblyResult result,
       boolean addPageDecoration)
       throws Exception
    {
@@ -372,7 +372,7 @@ public class PSAssemblyServlet extends HttpServlet
 
    /**
     * Add javascript for the head section of the page
-    * 
+    *
     * @param builder the builder, assumed never <code>null</code>
     * @param locale the locale, assumed never <code>null</code>
     * @param request the request, assumed never <code>null</code>
@@ -382,7 +382,7 @@ public class PSAssemblyServlet extends HttpServlet
          HttpServletRequest request) throws PSStringTemplateException
    {
       Locale.getDefault();
-      
+
       Map<String, String> vars = new HashMap<>();
       vars.put("AAMODE", getAAMode(request));
       vars.put("RXROOT", getRoot(request));
@@ -396,15 +396,15 @@ public class PSAssemblyServlet extends HttpServlet
    /**
     * Add the titlebar section. This calculates all the needed data, and sets up
     * for expanding the TITLEBAR template.
-    * 
+    *
     * @param result Assembly result, assumed not <code>null</code>
-    * @param addPageDecoration <code>true</code> if need to add a page 
-    * decoration to the rendered content (a snippet or a page without 
-    * global template; <code>false</code> otherwise. 
+    * @param addPageDecoration <code>true</code> if need to add a page
+    * decoration to the rendered content (a snippet or a page without
+    * global template; <code>false</code> otherwise.
     * @param builder the builder, assumed never <code>null</code>
     * @param request request object, assume dnot <code>null</code>
     * @throws PSStringTemplateException
-    * @throws JSONException 
+    * @throws JSONException
     */
    private void addAATitlebar(IPSAssemblyResult result, boolean addPageDecoration,
       StringBuilder builder, HttpServletRequest request)
@@ -439,10 +439,10 @@ public class PSAssemblyServlet extends HttpServlet
 
    /**
     * Calculate root url
-    * 
+    *
     * @param request the servlet request, assumed never <code>null</code>
     * @return the root url, never <code>null</code> or empty
-    * 
+    *
     */
    private String getRoot(HttpServletRequest request)
    {
@@ -450,7 +450,7 @@ public class PSAssemblyServlet extends HttpServlet
       int lastslash = url.indexOf("/assembler");
       return url.substring(0, lastslash);
    }
-   
+
    /**
     * Helper method to return the active assembly mode or the
     * default if noe was set.
@@ -465,18 +465,18 @@ public class PSAssemblyServlet extends HttpServlet
          defaultAAMode = StringUtils.defaultIfEmpty(
             (String)props.get("defaultActiveAssemblyMode"),
                IPSHtmlParameters.SYS_AAMODE_ICONS);
-      return 
+      return
          StringUtils.defaultIfEmpty(
             request.getParameter(IPSHtmlParameters.SYS_ACTIVE_ASSEMBLY_MODE),
-            defaultAAMode   
+            defaultAAMode
          );
    }
-   
+
 
    /**
-    * Format an error response for the servlet 
+    * Format an error response for the servlet
     * @param request the request, assumed never <code>null</code>
-    * @param string the error string, assumed never <code>null</code> 
+    * @param string the error string, assumed never <code>null</code>
     * @param response the response, assumed never <code>null</code>
     */
    private void reportError(HttpServletRequest request, String string,

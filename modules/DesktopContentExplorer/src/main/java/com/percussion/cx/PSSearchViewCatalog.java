@@ -39,7 +39,7 @@ import org.w3c.dom.Text;
  * and provide an easy lookup access to the desired search or view. Searches are stored using the
  * unique search id.
  */
-@SuppressWarnings("unchecked")
+
 public class PSSearchViewCatalog {
   /**
    * Initializes all available searches and views by making a request to the server and caches them

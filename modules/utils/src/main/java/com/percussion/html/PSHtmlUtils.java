@@ -44,7 +44,7 @@ import org.jsoup.select.Elements;
  */
 public class PSHtmlUtils {
 
-  private static final Logger log = LogManager.getLogger();
+  private static final Logger log = LogManager.getLogger(PSHtmlUtils.class);
 
   /**
    * The name of the default html cleaner properties file that is used to configure html cleaning

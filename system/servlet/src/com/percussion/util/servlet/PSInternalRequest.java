@@ -179,7 +179,7 @@ public class PSInternalRequest extends HttpServletRequestWrapper
    {
       if (pName == null || pName.trim().length() == 0)
          throw new IllegalArgumentException("pName may not be null or empty");
-      
+
       String values[] = new String[1];
       values[0] = pValue;
       m_params.put(pName, values);
@@ -226,12 +226,12 @@ public class PSInternalRequest extends HttpServletRequestWrapper
     *    objects. It may be <code>null</code> if the supplied head does
     *    not exist.
     */
-   @SuppressWarnings("unchecked")
+
    public Enumeration<String> getHeaders(String headerName)
    {
       if (headerName == null || headerName.trim().length() == 0)
          throw new IllegalArgumentException("headerName may not be null or empty");
-      
+
       Collection<String> values = (Collection<String>) m_headers.get(headerName.toLowerCase());
       if (values != null)
          return Collections.enumeration(values);
@@ -242,7 +242,7 @@ public class PSInternalRequest extends HttpServletRequestWrapper
    /**
     * Get the 1st value (if there are more than one) of the given header name.
     *
-    * @param headerName the header name, it is case insensitive and it may not 
+    * @param headerName the header name, it is case insensitive and it may not
     *    be <code>null</code> or empty.
     *
     * @return The 1st value. It may be <code>null</code> if the supplied head
@@ -252,7 +252,7 @@ public class PSInternalRequest extends HttpServletRequestWrapper
    {
       if (headerName == null || headerName.trim().length() == 0)
          throw new IllegalArgumentException("headerName may not be null or empty");
-      
+
       List<String> header = (List<String>) m_headers.get(headerName.toLowerCase());
       if (header != null && !header.isEmpty())
       {
@@ -386,12 +386,12 @@ public class PSInternalRequest extends HttpServletRequestWrapper
     * by {@link #setMethod(String)}. It is never <code>null</code> or empty.
     */
    private String m_method = "POST";
-   
+
    /**
     * Holds the HTTP_headers, never <code>null</code>, but may be empty.
-    * The map key is the name of the header as <code>String</code>, in 
+    * The map key is the name of the header as <code>String</code>, in
     * lower case. The map value is the corresponde value of the header as
-    * <code>List</code>.   
+    * <code>List</code>.
     */
    private Map<String, Collection<String>> m_headers = new HashMap<>();
    /**

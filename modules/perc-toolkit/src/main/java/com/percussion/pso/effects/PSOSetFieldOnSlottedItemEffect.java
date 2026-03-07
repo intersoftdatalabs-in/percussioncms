@@ -257,7 +257,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
   public void init(IPSExtensionDef def, File f) throws PSExtensionException {
     log.debug("Initializing...");
 
-    for (@SuppressWarnings("unchecked") Iterator<String> paramsIter = def.getInitParameterNames();
+    for ( Iterator<String> paramsIter = def.getInitParameterNames();
         paramsIter.hasNext(); ) {
       String p = paramsIter.next();
 

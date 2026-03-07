@@ -63,7 +63,7 @@ import java.util.Set;
 
 /**
  * Detect items and folders where the sys title does not match replacement rules
- * 
+ *
  */
 public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
 {
@@ -83,7 +83,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
 
    /**
     * Ctor
-    * 
+    *
     * @throws SQLException
     * @throws NamingException
     */
@@ -99,7 +99,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
    public void fix(boolean preview) throws Exception
    {
       super.fix(preview);
-      
+
       if (PSCacheManager.isAvailable()) {
          PSCacheManager cacheManager = PSCacheManager.getInstance();
          cacheManager.flush();
@@ -176,10 +176,10 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
    }
 
    /**
-    * 
+    *
     * Create new names for items looking at other items in the same folder.  Items not in any folder we can just
     * change,  If file or folder already exists a number is added to create uniqueness.
-    * 
+    *
     * @param proc
     * @param objMgr
     * @param folders
@@ -242,9 +242,9 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
    }
 
    /**
-    * 
-    * Calculate the full folder paths of changed items, taking into account any ancestor folders 
-    * 
+    *
+    * Calculate the full folder paths of changed items, taking into account any ancestor folders
+    *
     * @param pubTypeIds
     * @param proc
     * @param objMgr
@@ -259,7 +259,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
          throws PSCmsException
    {
       Map<Integer, String> itemNonChangedName = new HashMap<Integer, String>();
-      
+
       for (Entry<Integer, Set<Integer>> folderEntries : folders.entrySet())
       {
 
@@ -385,7 +385,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
             }
       }
    }
-   
+
    /**
     * Wraps string with a double quote.  Any double quotes in the string
     * are escaped with a double quote.  Matches Excel format.
@@ -434,7 +434,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
     * @param objMgr
     * @param itemChangeNameMap
     */
-   @SuppressWarnings("unchecked")
+
    private void updateComponentSummaries(IPSCmsObjectMgr objMgr, Map<Integer, ChangeItem> itemChangeNameMap)
    {
       for (ChangeItem ci : itemChangeNameMap.values())
@@ -554,7 +554,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
 
    /**
     * Do a direct sql check to find any items that have invalid characters and return the ids
-    * If nothing returned here we do not need to do anything else. 
+    * If nothing returned here we do not need to do anything else.
     *
     * @return
     * @throws NamingException

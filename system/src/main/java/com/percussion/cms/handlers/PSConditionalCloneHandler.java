@@ -98,7 +98,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /** see IPSCloneHandler for description */
-  @SuppressWarnings("unchecked")
+
   public PSLocator clone(
       PSLocator source,
       Iterator relationships,
@@ -484,7 +484,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
    *     <code>null</code>.
    * @throws PSException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   public static void fixupRelationships(IPSRequestContext reqCtx) throws PSException {
     if (reqCtx == null) throw new IllegalArgumentException("reqCtx must not be null.");
 
@@ -542,7 +542,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
    *     PSCloneFactory#CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for details of the map.
    * @throws PSException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private void fixupRelationships(
       PSRequest request,
       PSLocator clone,

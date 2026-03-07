@@ -424,7 +424,7 @@ public class PSActivityService implements IPSActivityService {
     return new PSDateRange(startDate, endDate, PSDateRange.Granularity.valueOf(granularity));
   }
 
-  @SuppressWarnings("unchecked")
+
   private Collection<Integer> getContentIdsByPath(String path, Collection<String> contentTypes) {
     var result = new ArrayList<Integer>();
     var query = createJCRQuery(path, contentTypes);

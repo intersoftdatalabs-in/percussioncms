@@ -101,7 +101,7 @@ public class PSValidateCharactersTest
 
 
 
-   @SuppressWarnings("unchecked")
+
    private class MockRequest implements IPSRequestContext {
 
       public String getParameter(String name)

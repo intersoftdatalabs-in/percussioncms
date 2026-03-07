@@ -148,7 +148,7 @@ public class PSMetadataIndexerService implements IPSMetadataIndexerService {
    * (non-Javadoc)
    * @see com.percussion.metadata.IPSMetadataIndexerService#findEntry(java.lang.String)
    */
-  @SuppressWarnings("unchecked")
+
   public IPSMetadataEntry findEntry(String pagepath) {
     Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
 

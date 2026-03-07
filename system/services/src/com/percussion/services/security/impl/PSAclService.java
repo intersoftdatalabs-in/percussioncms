@@ -78,10 +78,10 @@ public class PSAclService implements IPSAclService
 {
 
    private static final String OBJ_COM_VIS = "OBJ_COM_VIS_";
-   
+
    private static final String COM_OBJ_VIS = "COM_OBJ_VIS_";
 
-   
+
    static final long BIT32 = 0xFFFFFFFFL;
 
    @PersistenceContext
@@ -96,7 +96,7 @@ public class PSAclService implements IPSAclService
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.security.acl.IPSAclService#getUserAccessLevel(
     * com.percussion.utils.guid.IPSGuid)
     */
@@ -140,7 +140,7 @@ public class PSAclService implements IPSAclService
       {
          return new PSUserAccessLevel(new ArrayList<>(ms_defaultPerms));
       }
-     
+
       // determine permissions
       Set<PSPermissions> userPerms = new HashSet<>();
       Set<String> userCommunities = getUserCommunities();
@@ -150,13 +150,13 @@ public class PSAclService implements IPSAclService
 
       if (m_grantDefaultCommunityVisibility && userCommunities.contains(DEFAULT_COMMUNITY_NAME))
          userPerms.add(PSPermissions.RUNTIME_VISIBLE);
-      
+
       return new PSUserAccessLevel(userPerms);
    }
 
    /**
     * Get the user's communities as a set of names.
-    * 
+    *
     * @return The set, never <code>null</code>, may be empty.
     */
    private Set<String> getUserCommunities()
@@ -181,14 +181,14 @@ public class PSAclService implements IPSAclService
    public Stream<IPSGuid> streamObjectsWithAcls()
    {
       Session session = entityManager.unwrap(Session.class);
-      @SuppressWarnings("unchecked")
+
       List<Object[]> rows = session.createQuery("select distinct a.objectId, a.objectType from PSAclImpl a").list();
       return rows.stream().map(r -> new PSGuid(PSTypeEnum.valueOf(((Number) r[1]).intValue()), ((Number) r[0]).longValue()));
    }
 
    /**
     * Add the permissions from the supplied entry to the supplied set.
-    * 
+    *
     * @param userPerms The set to which the permissions are added, assumed not
     *           <code>null</code>.
     * @param entry The entry to use, assumed not <code>null</code>.
@@ -206,7 +206,7 @@ public class PSAclService implements IPSAclService
 
    /**
     * Get the current user's entry.
-    * 
+    *
     * @return The entry, may be <code>null</code> if no current authenticated
     *         entry can be found.
     */
@@ -222,7 +222,7 @@ public class PSAclService implements IPSAclService
 
    /**
     * Get the current user's session.
-    * 
+    *
     * @return The request, never <code>null</code>.
     */
    private PSRequest getUserRequest()
@@ -245,7 +245,7 @@ public class PSAclService implements IPSAclService
       IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
 
       PSAclEntryImpl aclEntry = new PSAclEntryImpl(owner);
-     
+
       PSAccessLevelImpl perm = new PSAccessLevelImpl(aclEntry,PSPermissions.OWNER);
       aclEntry.addPermission(perm);
 
@@ -267,7 +267,7 @@ public class PSAclService implements IPSAclService
 
       setupAclMap();
       ms_objectIdToAclIdMap.put(acl.getObjectGuid(), acl.getGUID());
-      
+
    }
 
    /**
@@ -300,14 +300,14 @@ public class PSAclService implements IPSAclService
       return doLoadAclsForObjects(objectGuids);
    }
 
-   @SuppressWarnings("unchecked")
+
    private List<IPSAcl> doLoadAclsForObjects(List<IPSGuid> objectGuids)
-   {  
+   {
       setupAclMap();
-      
+
       if (objectGuids==null)
          return loadAllAcls();
-      
+
       List<IPSAcl> acls = new ArrayList<>();
       List<IPSAcl> acl;
       for (IPSGuid guid : objectGuids)
@@ -346,11 +346,11 @@ public class PSAclService implements IPSAclService
          }
 
       }
-         
+
       return acls;
-     
+
    }
-   
+
    public void setupAclMap()
    {
 
@@ -366,7 +366,7 @@ public class PSAclService implements IPSAclService
 
 
    }
-   
+
    private List<IPSAcl> loadAllAcls()
    {
       synchronized (this) {
@@ -390,13 +390,13 @@ public class PSAclService implements IPSAclService
          }
          return acls;
       }
-     
+
    }
 
    /**
     * Loads ACLs from the DB, never from cache and doesn't save the loaded ACLs
     * to cache.
-    * 
+    *
     * @param aclGuids Guids to load. If <code>null</code>, all ACLs are loaded.
     *           If empty, immediately returns an empty list.
     * @return An ACL for each supplied guid for which one was found. The size of
@@ -406,27 +406,27 @@ public class PSAclService implements IPSAclService
     */
    private List<IPSAcl> doLoadModifiableAcls(List<IPSGuid> aclGuids, boolean returnNulls)
    {
-      
-      if (aclGuids == null) 
+
+      if (aclGuids == null)
          return loadAllAcls();
       List<IPSAcl> aclList = new ArrayList<>();
       for (IPSGuid aclGuid : aclGuids)
       {
          IPSAcl acl = aclGuid == null ? null : getSession().get(PSAclImpl.class, aclGuid.longValue());
-         
+
          if (acl!=null)
             ((PSAclImpl)acl).fixOwner();
-         
-         if (acl != null || returnNulls) 
+
+         if (acl != null || returnNulls)
             aclList.add(acl);
       }
-  
+
       return aclList;
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.security.acl.IPSAclService#loadAcls(java.util.Set)
     */
    @Transactional
@@ -464,12 +464,12 @@ public class PSAclService implements IPSAclService
                + "communityNames returning empty collection.");
          return Collections.emptyList();
       }
-      
+
       List<String> communities = new ArrayList<>();
       communities.add("AnyCommunity");
       communities.addAll(communityNames);
-      
-      
+
+
       // Build an HQL join query to find ACLs visible to the supplied communities
       StringBuilder hql = new StringBuilder("select distinct a from PSAclImpl a join a.entries e join e.psPermissions p where e.type = :ptype and e.name in :communities and p.permission = :perm");
       if (type != null) {
@@ -540,10 +540,10 @@ public class PSAclService implements IPSAclService
                  retGuids.add(acl.getObjectGuid());
               }
            }
-    
+
       return retGuids;
 
-      
+
    }
 
    // see IPSAclService
@@ -560,7 +560,7 @@ public class PSAclService implements IPSAclService
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.security.acl.IPSAclService#loadAclsForObjects(
     * java.util.List)
     */
@@ -596,7 +596,7 @@ public class PSAclService implements IPSAclService
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.security.acl.IPSAclService#saveAcls(java.util.Set)
     */
    @Transactional
@@ -612,10 +612,10 @@ public class PSAclService implements IPSAclService
          }
 
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.security.acl.IPSAclService#saveAcls(java.util.Set)
     */
    @Transactional
@@ -668,7 +668,7 @@ public class PSAclService implements IPSAclService
     * If set to <code>true</code>, all design objects will automatically give
     * runtime visibility to the "Default" community. Used by CM1 to reduce
     * reliance on community settings which are no longer relevant.
-    * 
+    *
     * @param always <code>true</code> value to always grant visibility to "Default",
     * <code>false</code> work "normally".
     */
@@ -687,7 +687,7 @@ public class PSAclService implements IPSAclService
     * Name of the community granted runtime visibility by m_grantDefaultCommunityVisibility
     */
    private static final String DEFAULT_COMMUNITY_NAME = "Default";
-   
+
    /**
     * Determine if the "Default" community should always be granted runtime visibility.
     * Expected to be set in the beans definition.
@@ -725,7 +725,7 @@ public class PSAclService implements IPSAclService
 
       return findObjectsVisibleToCommunities(communityNames, null, objectIds);
    }
-   
+
    @Override
    public Optional<String> validateAclImpl(IPSAcl acl) {
       // basic validation placeholder - consider more thorough checks later
@@ -746,7 +746,7 @@ public class PSAclService implements IPSAclService
             }
          }
       } catch (DataAccessException e) {
-         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e, 
+         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e,
             objectGuids.toString(), e.getLocalizedMessage());
       }
    }

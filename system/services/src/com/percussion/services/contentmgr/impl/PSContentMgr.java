@@ -261,7 +261,7 @@ public class PSContentMgr  implements IPSContentMgr
       }
    }
 
-   @SuppressWarnings("unchecked")
+
    public List<IPSNodeDefinition> findNodeDefinitionsByName(String name)
          throws RepositoryException
    {
@@ -300,7 +300,7 @@ public class PSContentMgr  implements IPSContentMgr
 
    }
 
-   @SuppressWarnings("unchecked")
+
    public List<IPSNodeDefinition> findAllItemNodeDefinitions()
          throws RepositoryException
    {
@@ -346,7 +346,7 @@ public class PSContentMgr  implements IPSContentMgr
 
    }
 
-   @SuppressWarnings("unchecked")
+
    public List<PSContentTypeWorkflow> findContentTypeWorkflowAssociations(
          IPSGuid ctId) throws RepositoryException
    {
@@ -365,7 +365,7 @@ public class PSContentMgr  implements IPSContentMgr
 
    }
 
-   @SuppressWarnings("unchecked")
+
    public List<IPSNodeDefinition> findNodeDefinitionsByTemplate(
          IPSGuid templateid) throws RepositoryException
    {
@@ -388,7 +388,7 @@ public class PSContentMgr  implements IPSContentMgr
 
    }
 
-   @SuppressWarnings("unchecked")
+
    public List<IPSNodeDefinition> findNodeDefinitionsByWorkflow(
          IPSGuid workflowid) throws RepositoryException
    {
@@ -421,7 +421,7 @@ public class PSContentMgr  implements IPSContentMgr
       String query = "select c.m_contentId, c.m_currRevision"
             + " from PSComponentSummary c where c.m_contentTypeId = :ctid";
 
-      @SuppressWarnings("unchecked")
+
       List<Object[]> results = getSession().createQuery(query).setParameter(
             "ctid", psdef.getRawContentType()).list();
 
@@ -531,7 +531,7 @@ public class PSContentMgr  implements IPSContentMgr
    /* (non-Javadoc)
     * @see com.percussion.services.contentmgr.IPSContentMgr#filterItemsByNodeDefinitions(java.util.Set, java.util.Collection)
     */
-   @SuppressWarnings("unchecked")
+
    public Collection<IPSGuid> filterItemsByNodeDefinitions(Set<IPSGuid> types,
          Collection<IPSGuid> ids)
    {
@@ -587,7 +587,7 @@ public class PSContentMgr  implements IPSContentMgr
     * @see com.percussion.services.contentmgr.IPSContentMgr#findNodesByTitle(
     *      java.long.Long, java.lang.String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<String> findNodesByTitle(Long contentTypeId, String title)
    throws RepositoryException
    {

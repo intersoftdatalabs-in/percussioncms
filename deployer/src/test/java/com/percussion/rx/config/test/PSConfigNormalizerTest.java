@@ -41,7 +41,7 @@ public class PSConfigNormalizerTest {
    *
    * @throws Exception if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   @Test
   public void testLocalConfigTest() throws Exception {
     loadLocalConfigTest(true);
@@ -70,7 +70,7 @@ public class PSConfigNormalizerTest {
     return props;
   }
 
-  @SuppressWarnings("unchecked")
+
   public void validateLocalConfig(Map<String, Object> props, boolean resolveFQName) {
     int count = resolveFQName ? 9 + 14 : 9; // == 9 top level + 14 sub-level
     assertTrue(props.size() == count);
@@ -276,7 +276,7 @@ public class PSConfigNormalizerTest {
     }
   }
 
-  @SuppressWarnings("unchecked")
+
   private void dumpNormalizedMap(Map<String, Object> nMap) {
     SortedMap<String, Object> sortedMap = new TreeMap<String, Object>(nMap);
     Set<Map.Entry<String, Object>> sortedSet = sortedMap.entrySet();
@@ -297,7 +297,7 @@ public class PSConfigNormalizerTest {
    *
    * @throws Exception if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   public void testEmptyLocalConfig() throws Exception {
     LoadEmptyLocalConfig(false);
   }

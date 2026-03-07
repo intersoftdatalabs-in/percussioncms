@@ -46,7 +46,7 @@ public class PSGetWorkFlowActionsAction extends PSAAActionBase {
   /* (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */
-  @SuppressWarnings("unchecked")
+
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     try {
       PSAAObjectId objectId = getObjectId(params);

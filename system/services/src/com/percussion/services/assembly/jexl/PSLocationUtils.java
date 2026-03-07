@@ -74,7 +74,7 @@ import java.util.Set;
  * Functions for use by jexl to calculate locations in assembly. Note that these
  * functions use annotations for documentation instead of javadoc. The
  * annotations are read by the extensions manager and presented to the workbench
- * 
+ *
  * @author dougrand
  */
 public class PSLocationUtils extends PSJexlUtilBase
@@ -98,27 +98,27 @@ public class PSLocationUtils extends PSJexlUtilBase
     * link should include sys_command=editrc.
     */
    public final static String AA_LINK = "AA_Link";
-   
+
    /**
     * Static expression for page
     */
-   private static final IPSScript PAGE = 
+   private static final IPSScript PAGE =
       PSJexlHelper.createStaticExpression("$sys.page");
    private static final IPSScript TITLE = PSJexlHelper.createStaticExpression("$sys.metadata.title");
    private static final IPSScript ALT = PSJexlHelper.createStaticExpression("$sys.metadata.alt");
 
-   
+
    /**
-    * generate a url from the parameters. The resulting url will be escaped 
+    * generate a url from the parameters. The resulting url will be escaped
     * for use in xhtml/xml.
-    * 
+    *
     * @param targetItem the target assembly item, never <code>null</code>.
-    * @param targetTemplate the name, ID or the object of the target template, 
+    * @param targetTemplate the name, ID or the object of the target template,
     *    may not <code>null</code>.
     * @param page the page number, it may be <code>0</code> or <code>null</code>
-    *    indicate no page. This is the page number of current assembled item, 
+    *    indicate no page. This is the page number of current assembled item,
     *    which may or may not be the <code>targetItem</code>.
-    * 
+    *
     * @return the generated URL.
     */
    @IPSJexlMethod(description = "generate a url from the parameters. The resulting url will be escaped for use in xhtml/xml.", params =
@@ -130,20 +130,20 @@ public class PSLocationUtils extends PSJexlUtilBase
    {
       return generateTargetInfo(targetItem, targetTemplate, page, Boolean.FALSE).getUrl();
    }
-   
+
    /**
-    * generate information about the target item from the parameters. 
-    * Along with other details, this will provide the 'title' and 'alt' text for the inline types 'link' and 'image'. 
-    * 
+    * generate information about the target item from the parameters.
+    * Along with other details, this will provide the 'title' and 'alt' text for the inline types 'link' and 'image'.
+    *
     * @param targetItem the target assembly item, assumed not <code>null</code>.
-    * @param targetTemplate the name, ID or the object of the target template, 
+    * @param targetTemplate the name, ID or the object of the target template,
     *    assumed not <code>null</code>.
     * @param page the page number, it may be <code>0</code> or <code>null</code>
     *           indicate no page. This is the page number of current assembled
     *           item, which may or may not be the <code>targetItem</code>.
     * @param usePageSuffix the binding value of $sys.usePageSuffix. It is
-    *    <code>null</code> if the target item is paginated.  
-    * 
+    *    <code>null</code> if the target item is paginated.
+    *
     * @return the information object which has data about the target.
     */
    @IPSJexlMethod(description = "generate an information object from the parameters.", params =
@@ -169,7 +169,7 @@ public class PSLocationUtils extends PSJexlUtilBase
          }
          // set the node object in the targetInfo object
          targetInfo.setNode(targetItem.getNode());
-         
+
          if (targetTemplate == null)
          {
             throw new IllegalArgumentException("targetTemplate may not be null");
@@ -179,17 +179,17 @@ public class PSLocationUtils extends PSJexlUtilBase
          PSLegacyGuid targetItemLG = (PSLegacyGuid) targetItem.getId();
 
          templateId = lookupTemplateId(targetTemplate, targetItemLG, targetItem);
-         
+
          //set templateId in the targetInfo object
          targetInfo.setTemplateId(new PSGuid(templateId));
 
          PSJexlEvaluator eval = new PSJexlEvaluator(targetItem.getBindings());
-         
+
          if (page == null)
          {
             page = (Number) eval.evaluate(PAGE);
          }
-         
+
          if (page != null && page.intValue() == 0)
          {
             page = null;
@@ -197,7 +197,7 @@ public class PSLocationUtils extends PSJexlUtilBase
 
          // set page in the targetInfo object
          targetInfo.setPage(page);
-         
+
          // set the title in the targetInfo object
          String title = (String)eval.evaluate(TITLE);
          if(title == null || title.isEmpty()) {
@@ -209,7 +209,7 @@ public class PSLocationUtils extends PSJexlUtilBase
          } else {
              targetInfo.setTitle(title);
          }
-         
+
          // set alt text for an image in the targetInfo object
          String alt = (String)eval.evaluate(ALT);
          if(alt == null || alt.isEmpty()) {
@@ -285,7 +285,7 @@ public class PSLocationUtils extends PSJexlUtilBase
          }
 
          targetInfo.setUrl(location);
-         
+
          return targetInfo;
       }
       catch (Exception e)
@@ -302,14 +302,14 @@ public class PSLocationUtils extends PSJexlUtilBase
    }
 
    /**
-    * Finds the Rhythmyx virtual path (//Site/) of JCR-170 node and picks the 
+    * Finds the Rhythmyx virtual path (//Site/) of JCR-170 node and picks the
     * first one found (if the item/node exists in more than one folder).
-    * 
-    * @param node the JCR-170 node or the item in question, assumed not 
+    *
+    * @param node the JCR-170 node or the item in question, assumed not
     *    <code>null</code>.
     * @param isFolderPath <code>true</code> if requesting a folder path for the
     *    given item; otherwise requesting the item path.
-    *    
+    *
     * @return the requested path. It never <code>null</code>, but may be empty
     *    if the item does not exist or it does not exist in any folder.
     */
@@ -343,7 +343,7 @@ public class PSLocationUtils extends PSJexlUtilBase
          {
             path = paths[0];
          }
-         
+
          return path;
       }
       catch (PSCmsException e)
@@ -354,14 +354,14 @@ public class PSLocationUtils extends PSJexlUtilBase
    }
 
    /**
-    * Finds the Rhythmyx virtual folder path for the given (JCR-170) node and 
-    * picks the first one found (if the item/node exists in more than one 
+    * Finds the Rhythmyx virtual folder path for the given (JCR-170) node and
+    * picks the first one found (if the item/node exists in more than one
     * folder). Note, the folder path is the path from the root to the parent
     * folder of the node, but does not include the node itself.
-    * 
-    * @param node the JCR-170 node or the item in question, never 
+    *
+    * @param node the JCR-170 node or the item in question, never
     *    <code>null</code>.
-    *    
+    *
     * @return the requested path. It never <code>null</code>, but may be empty
     *    if the item does not exist or it does not exist in any folder.
     */
@@ -374,18 +374,18 @@ public class PSLocationUtils extends PSJexlUtilBase
       if (node == null) {
          return "#";
       }
-      
+
       return getPath(node, true);
    }
 
    /**
-    * Finds the Rhythmyx virtual path for the given (JCR-170) node and 
-    * picks the first one found (if the item/node exists in more than one 
+    * Finds the Rhythmyx virtual path for the given (JCR-170) node and
+    * picks the first one found (if the item/node exists in more than one
     * folder). Note, the path is the path from the root to the node itself.
-    * 
-    * @param node the JCR-170 node or the item in question, never 
+    *
+    * @param node the JCR-170 node or the item in question, never
     *    <code>null</code>.
-    *    
+    *
     * @return the requested path. It never <code>null</code>, but may be empty
     *    if the item does not exist or it does not exist in any folder.
     */
@@ -397,19 +397,19 @@ public class PSLocationUtils extends PSJexlUtilBase
    {
       if (node == null)
          throw new IllegalArgumentException("node may not be null.");
-      
+
       return getPath(node, false);
    }
 
 
    /**
     * Get the containing folder of the passed node
-    * 
+    *
     * @param node the node is assumed not <code>null</code>
     * @return a guid of the parent folder (the first if there are multiple), or
     *         <code>null</code> if no parent folder is found
     */
-   @SuppressWarnings("unchecked")
+
    public IPSGuid folderId(Node node)
    {
       try
@@ -438,7 +438,7 @@ public class PSLocationUtils extends PSJexlUtilBase
    /**
     * Find the template id for given target information for a particular content
     * item.
-    * 
+    *
     * @param targetTemplate the template info, may be a string or number, but
     *           never <code>null</code>
     * @param targetItemLG the guid of the target item, never <code>null</code>
@@ -505,7 +505,7 @@ public class PSLocationUtils extends PSJexlUtilBase
 
    /**
     * Generate path
-    * 
+    *
     * @param targetItem
     * @return a path string, from the generate pub location udf
     */
@@ -515,7 +515,7 @@ public class PSLocationUtils extends PSJexlUtilBase
    {
       try
       {
-         return generate(targetItem, findDefaultTemplate(targetItem), 
+         return generate(targetItem, findDefaultTemplate(targetItem),
                targetItem.getPage());
       }
       catch (PSAssemblyException e)
@@ -523,17 +523,17 @@ public class PSLocationUtils extends PSJexlUtilBase
          throw new RuntimeException(e);
       }
    }
-   
+
    /**
-    * Generate a URL/location for a particular page of a paginated item. 
+    * Generate a URL/location for a particular page of a paginated item.
     * The resulting url will be escaped for use in xhtml/xml.
-    * 
+    *
     * @param paginatedItem the paginated assembly item, never <code>null</code>.
-    * @param targetTemplate the name, ID or the object of the target template, 
+    * @param targetTemplate the name, ID or the object of the target template,
     *    may not <code>null</code>.
-    * @param page the page number of the paginated item, it may be 
-    *    <code>0</code> or <code>null</code> indicate no page. 
-    * 
+    * @param page the page number of the paginated item, it may be
+    *    <code>0</code> or <code>null</code> indicate no page.
+    *
     * @return the generated URL/location.
     */
    @IPSJexlMethod(description = "Generate a url for a particular page of a paginated item. The resulting url will be escaped for use in xhtml/xml.", params =
@@ -548,13 +548,13 @@ public class PSLocationUtils extends PSJexlUtilBase
    }
 
    /**
-    * The same as {@link #generateToPage(IPSAssemblyItem, Object, Number)}, 
+    * The same as {@link #generateToPage(IPSAssemblyItem, Object, Number)},
     * except the location is generated with the default template.
-    * 
+    *
     * @param paginatedItem the paginated assembly item, never <code>null</code>.
-    * @param page the page number of the paginated item, it may be 
-    *    <code>0</code> or <code>null</code> indicate no page. 
-    *    
+    * @param page the page number of the paginated item, it may be
+    *    <code>0</code> or <code>null</code> indicate no page.
+    *
     * @return a path string, from the generate pub location udf
     */
    @IPSJexlMethod(description = "Generate a default template url for a particular page of a paginated item. The resulting url will be escaped for use in xhtml/xml.", params =
@@ -571,16 +571,16 @@ public class PSLocationUtils extends PSJexlUtilBase
       {
          throw new RuntimeException(e);
       }
-   }   
+   }
 
    /**
-    * generate a url from the parameters. The resulting url will be escaped 
+    * generate a url from the parameters. The resulting url will be escaped
     * for use in xhtml/xml.
-    *  
+    *
     * @param targetItem the target assembly item, never <code>null</code>.
-    * @param targetTemplate the name, ID or the object of the target template, 
+    * @param targetTemplate the name, ID or the object of the target template,
     *    may not <code>null</code>.
-    *    
+    *
     * @return a path string, from the generate pub location udf
     */
    @IPSJexlMethod(description = "generate a url from the parameters. The resulting url will be escaped for use in xhtml/xml.", params =
@@ -613,26 +613,26 @@ public class PSLocationUtils extends PSJexlUtilBase
     * is thrown.
     * <p>
     * All other cases result in an assembly exception.
-    * 
+    *
     * @param item The assembly item
     * @return The default template (IPSAssemblyTemplate)
     * @throws PSAssemblyException
     */
-   @SuppressWarnings("unchecked")
+
    public IPSAssemblyTemplate findDefaultTemplate(IPSAssemblyItem item)
          throws PSAssemblyException
    {
       /*
        * We want to find the templates that are associated with the given
        * content type and site and publish when default.
-       * 
+       *
        * To do this we take the intersection of the set templates associated
        * with a content type and the set of template associated with a site and
        * then filter out the ones that are not publish when default.
-       * 
+       *
        * This may turn into a performance issue in which case Hibernate will
        * have to be used.
-       * 
+       *
        */
       if (item == null)
       {
@@ -789,7 +789,7 @@ public class PSLocationUtils extends PSJexlUtilBase
 
    /**
     * Get the content type id of the given assembly item's target
-    * 
+    *
     * @param item the item
     * @return the guid of the content type, never <code>null</code>
     */
@@ -808,7 +808,7 @@ public class PSLocationUtils extends PSJexlUtilBase
 
    /**
     * Calculate the base site path by calling the existing UDF
-    * 
+    *
     * @param siteid the siteid
     * @param modify
     * @return the path
@@ -831,7 +831,7 @@ public class PSLocationUtils extends PSJexlUtilBase
 
    /**
     * General location path call
-    * 
+    *
     * @param templateinfo
     * @param item
     * @param folderPath
@@ -973,7 +973,7 @@ public class PSLocationUtils extends PSJexlUtilBase
 
    /**
     * Generate for a content list item
-    * 
+    *
     * @param item
     * @return a path string, from the generate pub location udf
     */
@@ -1007,7 +1007,7 @@ public class PSLocationUtils extends PSJexlUtilBase
    /**
     * Search the item's properties for the first property in the list that is
     * defined. If none are defined then return the default value
-    * 
+    *
     * @param item the item, never <code>null</code>
     * @param propertylist a comma separated list of property names, never
     *           <code>null</code> or empty
@@ -1051,10 +1051,10 @@ public class PSLocationUtils extends PSJexlUtilBase
       }
       return defaultvalue;
    }
-   
+
    /**
     * Find templates that are related to a given contenttype
-    * 
+    *
     * @param contenttype the contenttype, never <code>null</code>
     * @return the list of templates, never <code>null</code> but can be empty
     * @throws PSAssemblyException

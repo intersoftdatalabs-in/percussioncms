@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Unit test for the PSPackageLockManager. */
-@SuppressWarnings("unchecked")
+
 @org.junit.jupiter.api.Disabled("requires packaged resources that are not available on CI")
 public class PSPackageLockManagerTest {
   /**

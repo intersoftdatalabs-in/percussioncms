@@ -64,7 +64,7 @@ import org.apache.logging.log4j.Logger;
  * caches information obtained during the calculation for use in subsequent
  * calculations, so it should be discarded after a series of calculations have
  * been completed to avoid any usage of stale data.
- * 
+ *
  * @author dougrand
  */
 public class PSAssignmentTypeHelper
@@ -102,7 +102,7 @@ public class PSAssignmentTypeHelper
     * The user's community
     */
    private int m_userCommunityId;
-   
+
    /**
     * Used to retrieve and cache backend role info for community role filtering,
     * <code>null</code> until first call to {@link #init(String, Collection)}.
@@ -111,12 +111,12 @@ public class PSAssignmentTypeHelper
 
    /**
     * Ctor
-    * 
+    *
     * @param userName the user making the request, never <code>null</code>
     * @param roles the roles of the user, never <code>null</code>
     * @param community the community id
     */
-   public PSAssignmentTypeHelper(String userName, 
+   public PSAssignmentTypeHelper(String userName,
          List<String> roles, int community) {
       init(userName, roles);
 
@@ -125,7 +125,7 @@ public class PSAssignmentTypeHelper
 
    /**
     * Package protected constructor for unit test use only
-    * 
+    *
     * @param userName the user name, never <code>null</code> or empty
     * @param roles the roles of the user, never <code>null</code>
     */
@@ -136,7 +136,7 @@ public class PSAssignmentTypeHelper
 
    /**
     * Initialize data
-    * 
+    *
     * @param userName the user's name, never <code>null</code> or empty
     * @param roles the roles, never <code>null</code>
     */
@@ -162,7 +162,7 @@ public class PSAssignmentTypeHelper
     * apply to the current state, and the user's adhoc roles if one or more
     * roles for the state allow adhoc. The final roles are examined against the
     * state's roles to compute the assignment type.
-    * 
+    *
     * @param id the content id, never <code>null</code>
     * @return an assignment type, never <code>null</code>
     * @throws PSSystemException if the workflow state cannot be loaded
@@ -211,11 +211,11 @@ public class PSAssignmentTypeHelper
          PSState state = wf.findState(stateguid);
          if (state == null)
          {
-            throw new RuntimeException("No state found in WF " + 
-               sum.getWorkflowAppId() + "for state ID " + 
+            throw new RuntimeException("No state found in WF " +
+               sum.getWorkflowAppId() + "for state ID " +
                sum.getContentStateId());
          }
-         
+
          rval = getAssignmentType(wf, state, sum.getCommunityId(), id);
       }
       catch (SQLException e)
@@ -229,16 +229,16 @@ public class PSAssignmentTypeHelper
       }
       return rval;
    }
-   
+
    /**
     * Determine the assignment type from the workflow, workflow state, community, and piece of content (optional).
     * This gets two pieces of basic information: the user's roles that apply to the current state, and the user's adhoc
     * roles if the item is specified and one or more roles for the state allow adhoc. The final roles are examined
     * against the state's roles to compute the assignment type.
-    * 
+    *
     * @param wf the workflow, never <code>null</code>
     * @param state the workflow state, never <code>null</code>
-    * @param communityId the community id 
+    * @param communityId the community id
     * @param id the content id, may be <code>null</code> to exclude the user's adhoc roles from the calculation
     * @return an assignment type, never <code>null</code>
     * @throws SQLException if an error occurs.
@@ -249,14 +249,14 @@ public class PSAssignmentTypeHelper
       {
          throw new IllegalArgumentException("wf may not be null");
       }
-      
+
       if (state == null)
       {
          throw new IllegalArgumentException("state may not be null");
       }
-      
+
       PSAssignmentTypeEnum rval = PSAssignmentTypeEnum.NONE;
-      
+
       if (m_roles.contains(wf.getAdministratorRole()))
       {
          rval = PSAssignmentTypeEnum.ADMIN;
@@ -265,7 +265,7 @@ public class PSAssignmentTypeHelper
       {
          Set<Integer> roleids = wf.getRoleIds(m_roles);
          Set<Integer> assignedroleids = getAssignedRoles(state, roleids);
-         
+
          if (id != null)
          {
             Set<Integer> adhocroles = getAdhocAssignmentTypeRoles(id, state,
@@ -274,7 +274,7 @@ public class PSAssignmentTypeHelper
             // assigned or adhoc roles
             assignedroleids.addAll(adhocroles);
          }
-         
+
          // now filter out community specific roles
          filterAssignedRolesByCommunity(communityId, wf,
             assignedroleids, m_backendRoleInfo);
@@ -300,31 +300,31 @@ public class PSAssignmentTypeHelper
       if (communityId != m_userCommunityId
             && (rval.getValue() > PSAssignmentTypeEnum.READER.getValue()))
          rval = PSAssignmentTypeEnum.READER;
-         
+
       /*
-       * Override assignee permission if 
+       * Override assignee permission if
        * can't write to folder.
        * -Adam Gent
        */
-      if ( (PSAssignmentTypeEnum.ASSIGNEE == rval || PSAssignmentTypeEnum.ADMIN == rval) 
-            && PSCms.isFolderSecurityOverridesWorkflowSecurity() 
+      if ( (PSAssignmentTypeEnum.ASSIGNEE == rval || PSAssignmentTypeEnum.ADMIN == rval)
+            && PSCms.isFolderSecurityOverridesWorkflowSecurity()
             && id != null
-            && ! PSCms.canWriteInFolders(id.getUUID())) 
+            && ! PSCms.canWriteInFolders(id.getUUID()))
       {
          rval = PSAssignmentTypeEnum.READER;
       }
 
       return rval;
    }
-   
+
    /**
     * Same as {@link #filterAssignedRolesByCommunity(int, Collection)} except
     * the content id is passed as a guid and the assigned roles are passed by
     * name instead of ID.
-    * 
-    * @param contentId The content of the item to check, may not be 
+    *
+    * @param contentId The content of the item to check, may not be
     * <code>null</code> and must be an existing item.
-    * @param assignedRoleNames Collection of role names, may not be 
+    * @param assignedRoleNames Collection of role names, may not be
     * <code>null</code>, may be empty.
     */
    public static void filterAssignedRolesByCommunity(IPSGuid contentId,
@@ -332,26 +332,26 @@ public class PSAssignmentTypeHelper
    {
       if (contentId == null)
          throw new IllegalArgumentException("contentId may not be null");
-      
+
       if (assignedRoleNames == null)
          throw new IllegalArgumentException(
             "assignedRoleNames may not be null");
-      
+
       if (assignedRoleNames.isEmpty())
          return;
-      
+
       PSComponentSummary sum = loadComponentSummary(contentId.getUUID());
-      
-      filterAssignedRolesByCommunity(sum.getCommunityId(), 
+
+      filterAssignedRolesByCommunity(sum.getCommunityId(),
          sum.getWorkflowAppId(), assignedRoleNames);
    }
 
    /**
     * Load the component summary for the supplied content id
-    * 
+    *
     * @param contentId The ID of the summary to load, must be an existing
     * item.
-    * 
+    *
     * @return The summary, never <code>null</code>.
     */
    private static PSComponentSummary loadComponentSummary(int contentId)
@@ -372,52 +372,52 @@ public class PSAssignmentTypeHelper
     * supplied item's community, removing those that belong to a community other
     * than that of the item, keeping those that match or that do not belong to
     * any community.
-    * 
+    *
     * @param contentId The content id of the item to check, must be an existing
     * item.
-    * @param assignedRoleIds The role ids to filter, may not be 
+    * @param assignedRoleIds The role ids to filter, may not be
     * <code>null</code>, may be empty
     */
-   public static void filterAssignedRolesByCommunity(int contentId, 
+   public static void filterAssignedRolesByCommunity(int contentId,
       Collection<Integer> assignedRoleIds)
    {
       if (assignedRoleIds == null)
          throw new IllegalArgumentException("assignedRoleIds may not be null");
-      
+
       if (assignedRoleIds.isEmpty())
          return;
-      
+
       PSComponentSummary sum = loadComponentSummary(contentId);
-      PSWorkflow wf = loadWorkflow(sum.getWorkflowAppId());    
-      
+      PSWorkflow wf = loadWorkflow(sum.getWorkflowAppId());
+
       Set<Integer> roleIds = new HashSet<>(assignedRoleIds);
-      filterAssignedRolesByCommunity(sum.getCommunityId(), wf, roleIds, 
+      filterAssignedRolesByCommunity(sum.getCommunityId(), wf, roleIds,
          new PSBackendRoleInfo());
       assignedRoleIds.clear();
       assignedRoleIds.addAll(roleIds);
    }
-   
+
    /**
     * Checks each of the supplied WF roles to see if they also belong to the
     * specified community, removing those that belong to a community other
     * than the one specified, keeping those that match or that do not belong to
     * any community.
-    * 
+    *
     * @param communityId The ID of the community to use for filtering.
     * @param wfId The ID of the workflow, must be an existing workflow.
-    * @param roleNames The list of workflow role names to filter, may not be 
+    * @param roleNames The list of workflow role names to filter, may not be
     * <code>null</code>.
     */
-   public static void filterAssignedRolesByCommunity(int communityId, int wfId, 
+   public static void filterAssignedRolesByCommunity(int communityId, int wfId,
       Collection<String> roleNames)
    {
       if (roleNames == null)
          throw new IllegalArgumentException("roleNames may not be null");
-      
+
       PSWorkflow wf = loadWorkflow(wfId);
       PSBackendRoleInfo roleInfo = new PSBackendRoleInfo();
       Set<Integer> roleIds = wf.getRoleIds(roleNames);
-      filterAssignedRolesByCommunity(communityId, wf, roleIds, 
+      filterAssignedRolesByCommunity(communityId, wf, roleIds,
          roleInfo);
       Set<String> filteredRoleNames = wf.getRoleNames(roleIds);
       roleNames.retainAll(filteredRoleNames);
@@ -425,9 +425,9 @@ public class PSAssignmentTypeHelper
 
    /**
     * Load the workflow for the specfied ID.
-    * 
+    *
     * @param wfId The workflow, must exist.
-    * 
+    *
     * @return The workflow object, never <code>null</code>.
     */
    private static PSWorkflow loadWorkflow(int wfId)
@@ -438,7 +438,7 @@ public class PSAssignmentTypeHelper
       PSWorkflow wf = wfsvc.loadWorkflow(workflowguid);
       if (wf == null)
       {
-         throw new IllegalArgumentException("No workflow found for ID: " + 
+         throw new IllegalArgumentException("No workflow found for ID: " +
             wfId);
       }
       return wf;
@@ -449,18 +449,18 @@ public class PSAssignmentTypeHelper
     * specified community, removing those that belong to a community other than
     * the one that is specified, keeping those that match or that do not belong
     * to any community.
-    * 
+    *
     * @param communityId The community id to match
-    * @param wf The workflow that defines the roles being filtered, assumed not 
+    * @param wf The workflow that defines the roles being filtered, assumed not
     * <code>null</code>.
-    * @param assignedWFRoleIds The set of workflow role IDs to filter, assumed 
+    * @param assignedWFRoleIds The set of workflow role IDs to filter, assumed
     * not <code>null</code>, may be empty.  Note that these IDs are different
     * from the back-end role IDs.
     * @param beRoleInfo Used to cache and retrieve backend role info,
-    * assumed not <code>null</code>. 
+    * assumed not <code>null</code>.
     */
-   private static void filterAssignedRolesByCommunity(int communityId, 
-      PSWorkflow wf, Set<Integer> assignedWFRoleIds, 
+   private static void filterAssignedRolesByCommunity(int communityId,
+      PSWorkflow wf, Set<Integer> assignedWFRoleIds,
       PSBackendRoleInfo beRoleInfo)
    {
       if (! isFilterAssignedRolesByCommunity())
@@ -475,12 +475,12 @@ public class PSAssignmentTypeHelper
                      + "), WF Role IDs to be filtered, 'assignedWFRoleIds'="
                      + assignedWFRoleIds.toString());
       }
-      
+
       if (assignedWFRoleIds.isEmpty())
          return;
 
       Set<String> assignedRoleNames = wf.getRoleNames(assignedWFRoleIds);
-      
+
       Set<Long> assignedRoleIds = beRoleInfo.getBackendRoleIds(
          assignedRoleNames);
 
@@ -492,13 +492,13 @@ public class PSAssignmentTypeHelper
                      + ", Role Names="
                      + assignedRoleNames.toString());
       }
-      
+
       if (assignedRoleIds.isEmpty())
       {
          // system is misconfigured, but warnings will have already been logged.
          return;
       }
-      
+
       IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
       List<IPSGuid> roleGuids = new ArrayList<>(assignedRoleIds.size());
       for (Long id : assignedRoleIds)
@@ -506,8 +506,8 @@ public class PSAssignmentTypeHelper
          roleGuids.add(guidMgr.makeGuid(id, PSTypeEnum.ROLE));
       }
 
-      
-      List<PSCommunityRoleAssociation> commRoles = 
+
+      List<PSCommunityRoleAssociation> commRoles =
          beRoleInfo.getCommunityRoleAssociations(roleGuids);
 
       Set<Long> rolesWithCommunities = new HashSet<>();
@@ -519,16 +519,16 @@ public class PSAssignmentTypeHelper
          if (cr.getCommunityId() == communityId)
             roleMatches.add(roleId);
       }
-      
+
       Set<Long> rolesWithoutCommunties = new HashSet<>(
          assignedRoleIds);
       rolesWithoutCommunties.removeAll(rolesWithCommunities);
       assignedRoleIds.retainAll(roleMatches);
       assignedRoleIds.addAll(rolesWithoutCommunties);
-      
+
       // now filter the supplied set of wf role ids
       Set<String> filteredNames = beRoleInfo.getBackendRoleNames(
-         assignedRoleIds);      
+         assignedRoleIds);
       assignedWFRoleIds.retainAll(wf.getRoleIds(filteredNames));
 
       if (ms_logger.isDebugEnabled())
@@ -548,14 +548,14 @@ public class PSAssignmentTypeHelper
                .debug("End filterAssignedRolesByCommunity(): filtered WF role IDs="
                      + assignedWFRoleIds.toString());
       }
-      
+
    }
 
    /**
     * See {@link #isFilterAssignedRolesByCommunity()
     */
    private static Boolean ms_isFilterAssignedRolesByCommunity = null;
-   
+
    /**
     * Determines if the assignment type calculation filtered by community roles is enabled.
     * @return <code>true</code> if it is enabled.
@@ -568,21 +568,21 @@ public class PSAssignmentTypeHelper
       Properties props = PSServer.getServerProps();
       if (props == null)
          return true;
-      
+
       String filterByCommunity = props.getProperty("assignmentTypeCalculationFilterCommunityRoles", "true");
       ms_isFilterAssignedRolesByCommunity = "true".equals(filterByCommunity);
-      
+
       if (ms_logger.isDebugEnabled())
       {
          ms_logger.debug("Server property 'assignmentTypeCalculationFilterCommunityRoles' = '" + ms_isFilterAssignedRolesByCommunity + "'");
       }
       return ms_isFilterAssignedRolesByCommunity;
    }
-   
+
    /**
     * This is used to enable or disable the filtering the workflow roles by
     * community roles during assignment type calculation.
-    * 
+    *
     * @param isFilterByCommunity <code>true</code> if enable the filtering feature;
     * otherwise disable the filtering feature.
     */
@@ -590,7 +590,7 @@ public class PSAssignmentTypeHelper
    {
       ms_isFilterAssignedRolesByCommunity = isFilterByCommunity;
    }
-   
+
    /**
     * If there are roles in the state that are adhoc, check whether the user is
     * in the adhoc role. This is done by loading that user's adhoc assignments
@@ -604,14 +604,14 @@ public class PSAssignmentTypeHelper
     * <li>The role is not anonymous adhoc and the user had an assignment. In
     * this case the user only gets the role if the user is in that role.
     * </ul>
-    * 
+    *
     * @param id the content item affected
     * @param state the state, assumed never <code>null</code>
     * @param roleids the list of user role ids for this workflow, assumed never
     *           <code>null</code>
     * @return a list of effective roles to be merged in, never <code>null</code>
     */
-   @SuppressWarnings("unchecked")
+
    private Set<Integer> getAdhocAssignmentTypeRoles(IPSGuid id, PSState state,
       Set<Integer> roleids)
    {
@@ -641,7 +641,7 @@ public class PSAssignmentTypeHelper
     * then the role also has to be one of the user's assigned roles.  If no one
     * is assigned to the adhoc role, then the user is considered to have the
     * adhoc role.
-    * 
+    *
     * @param id the content id involved
     * @param roleid the role id being checked for
     * @param userRoles the workflow roles the user has
@@ -652,15 +652,15 @@ public class PSAssignmentTypeHelper
    private boolean isUserInAdhocRole(IPSGuid id, int roleid,
          Set<Integer> userRoles, PSAdhocTypeEnum adhocType)
    {
-      
+
       List<PSContentAdhocUser> adhocs = m_workflow.findAdhocInfoByItem(id);
-      
+
       // If no one is assigned adhoc, treat it like regular assignment
       if (adhocs.isEmpty())
       {
          return userRoles.contains(roleid);
       }
-      
+
       boolean checkroles = adhocType.equals(PSAdhocTypeEnum.ENABLED);
       for (PSContentAdhocUser au : adhocs)
       {
@@ -677,14 +677,14 @@ public class PSAssignmentTypeHelper
             return true;
          }
       }
-      
+
       return false;
    }
 
    /**
     * Get the assigned role ids for the state that apply to the user. If a role
     * uses adhoc, then skip the role here.
-    * 
+    *
     * @param state the state, assumed never <code>null</code>
     * @param roleids the user's role ids, assumed never <code>null</code>
     * @return the state's roles that correspond to roles assigned to the user
@@ -703,9 +703,9 @@ public class PSAssignmentTypeHelper
       }
       return rids;
    }
-   
+
    /**
-    * Retrieves, caches and processes backend role information.    
+    * Retrieves, caches and processes backend role information.
     * TODO: move the caching into the PSBackEndRoleMgr service layer
     */
    static class PSBackendRoleInfo
@@ -714,7 +714,7 @@ public class PSAssignmentTypeHelper
        * Cached map of backend role ids to role names, never <code>null</code>.
        */
       private Map<Long, String> mi_roleNameMap = new HashMap<>();
-      
+
       /**
        * Cached map of role names to backend role ids, never <code>null</code>.
        */
@@ -723,27 +723,27 @@ public class PSAssignmentTypeHelper
       /**
        * Cached map of role ids to community role associations
        */
-      private Map<Long, List<PSCommunityRoleAssociation>> mi_communityRoleMap = 
+      private Map<Long, List<PSCommunityRoleAssociation>> mi_communityRoleMap =
          new HashMap<>();
-      
+
       /**
        * Get the back-end role IDs that correspond to the supplied role names.
-       * 
-       * @param roleNames The role names, may not be <code>null</code>, may be 
+       *
+       * @param roleNames The role names, may not be <code>null</code>, may be
        * empty.
-       * 
-       * @return The IDs, may not contain the same number of elements as the 
-       * supplied names if a match for the name is not found (in which case a 
+       *
+       * @return The IDs, may not contain the same number of elements as the
+       * supplied names if a match for the name is not found (in which case a
        * warning is logged), never <code>null</code>, may be empty.
        */
       public Set<Long> getBackendRoleIds(Collection<String> roleNames)
       {
          if (roleNames == null)
             throw new IllegalArgumentException("roleNames may not be null");
-         
+
          Set<String> roleNameSet = new HashSet<>(roleNames);
          Set<Long> assignedRoleIds = new HashSet<>();
-         
+
          IPSBackEndRoleMgr mgr = PSRoleMgrLocator.getBackEndRoleManager();
          for (String roleName : roleNameSet)
          {
@@ -756,7 +756,7 @@ public class PSAssignmentTypeHelper
                if (beRoles.isEmpty())
                {
                   ms_logger.warn(
-                     "No matching backend role found for Workflow role: " 
+                     "No matching backend role found for Workflow role: "
                      + roleName);
                   continue;
                }
@@ -773,20 +773,20 @@ public class PSAssignmentTypeHelper
        * Get the names of the supplied back-end role IDs. Supplied IDs are
        * assumed to have been originally obtained via
        * {@link #getBackendRoleIds(Collection)}
-       * 
+       *
        * @param roleIds The back-end role IDs for which names are to be
        * returned, may not be <code>null</code>.
-       * 
+       *
        * @return The set of names, never <code>null</code>, may not contain
        * the same number of elements as the supplied list of IDs if all of the
-       * IDs were not obtained by calling 
+       * IDs were not obtained by calling
        * {@link #getBackendRoleIds(Collection)}.
        */
       public Set<String> getBackendRoleNames(Collection<Long> roleIds)
       {
          if (roleIds == null)
             throw new IllegalArgumentException("roleIds may not be null");
-         
+
          Set<String> filteredNames = new HashSet<>();
          for (long id : roleIds)
          {
@@ -798,10 +798,10 @@ public class PSAssignmentTypeHelper
       /**
        * Get the community roles associations for the specified back-end role
        * IDs
-       * 
+       *
        * @param roleGuids The list of IDs, may not be <code>null</code> or
        * empty.
-       * 
+       *
        * @return The list of associations, never <code>null</code>, may be
        * empty.
        */
@@ -811,10 +811,10 @@ public class PSAssignmentTypeHelper
          if (roleGuids == null || roleGuids.isEmpty())
             throw new IllegalArgumentException(
                "roleGuids may not be null or empty");
-         
-         List <PSCommunityRoleAssociation> results = 
+
+         List <PSCommunityRoleAssociation> results =
             new ArrayList<>();
-         
+
          // first check the cache
          List<IPSGuid> toFindList = new ArrayList<>();
          for (IPSGuid guid : roleGuids)
@@ -824,19 +824,19 @@ public class PSAssignmentTypeHelper
             else
                results.addAll(mi_communityRoleMap.get(guid.longValue()));
          }
-         
+
          // find those that are missing
-         if (!toFindList.isEmpty()) 
+         if (!toFindList.isEmpty())
          {
             IPSBackEndRoleMgr roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
-            List <PSCommunityRoleAssociation> commRoles = 
+            List <PSCommunityRoleAssociation> commRoles =
                roleMgr.findCommunitiesByRole(toFindList);
             results.addAll(commRoles);
-            
+
             // now add the results to the cache
             for (PSCommunityRoleAssociation assoc : commRoles)
             {
-               List<PSCommunityRoleAssociation> assocList = 
+               List<PSCommunityRoleAssociation> assocList =
                   mi_communityRoleMap.get(assoc.getRoleId());
                if (assocList == null)
                {
@@ -846,7 +846,7 @@ public class PSAssignmentTypeHelper
                assocList.add(assoc);
             }
          }
-         
+
          return results;
       }
    }

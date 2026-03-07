@@ -71,9 +71,9 @@ import java.util.Set;
  * expected as the
  * <q>source</q>
  * of the template.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSDatabaseAssembler extends PSAssemblerBase
 {
@@ -161,7 +161,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
    /**
     * rxDir relative path to preview stylesheet used for context 0.
     */
-   private static final String ms_previewStyleSheet = 
+   private static final String ms_previewStyleSheet =
       "sys_resources/stylesheets/sys_DatabasePublishingPreview.xsl";
 
    @Override
@@ -217,7 +217,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
          formatter.writeEndDocument();
 
          formatter.close();
-         
+
          String dbdoc = writer.toString();
          dbdoc = StringUtils.replace(dbdoc, PSSaxCopier.RX_FILLER, "");
 
@@ -247,7 +247,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
             {
                throw new Exception(errors);
             }
-            
+
             item.setResultData(bout.toByteArray());
             item.setMimeType("text/html");
          }
@@ -273,7 +273,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Do the start of an element, including contextual pretty printing
-    * 
+    *
     * @param formatter the formatter
     * @param element the element name
     * @throws XMLStreamException
@@ -293,7 +293,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * End an element, manage the indentation
-    * 
+    *
     * @param formatter
     * @throws XMLStreamException
     */
@@ -314,7 +314,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Handle character output
-    * 
+    *
     * @param formatter the StAX formatter, assumed never <code>null</code>
     * @param chars the characters to output, assumed never <code>null</code>
     * @throws XMLStreamException if there's a problem writing the character
@@ -329,17 +329,17 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Render a specific item. Each item is either the parent or child.
-    * 
+    *
     * @param formatter the output formatter, assumed not <code>null</code>
     * @param child the child to render, -1 indicates the parent, assumed not
     *           <code>null</code>
     * @param eval the JEXL evaluator, assumed not <code>null</code>
     * @param action the db action, assumed not <code>null</code>
-    * 
+    *
     * @return <code>false</code> if the child does not exist
     * @throws Exception
     */
-   @SuppressWarnings("unchecked")
+
    private boolean renderItem(XMLStreamWriter formatter, int child,
          PSJexlEvaluator eval, String action) throws Exception
    {
@@ -415,11 +415,11 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Extract the value for a given column. Handles lists and value arrays.
-    * 
+    *
     * @param i the index to extract for a list or value array, it is an error
-    * to pass a value other than zero if the base value is not a list or 
+    * to pass a value other than zero if the base value is not a list or
     * array
-    * 
+    *
     * @param row the row data map, assumed never <code>null</code>
     * @return the value to use
     */
@@ -444,7 +444,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Render any children
-    * 
+    *
     * @param formatter the formatter being used for the output document, assumed
     *           never <code>null</code>
     * @param eval the evaluator being used to extract the data for the output
@@ -486,7 +486,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Get the desired child variable expression
-    * 
+    *
     * @param child the child index, starts at 0
     * @return the expression, never <code>null</code>
     */
@@ -502,7 +502,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Get the desired child variable expression
-    * 
+    *
     * @param child the child index, starts at 0
     * @return the expression, never <code>null</code>
     */
@@ -518,7 +518,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Render one column of the output document
-    * 
+    *
     * @param formatter the formatter to use
     * @param cname the column name
     * @param value the value to use
@@ -622,7 +622,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
     * "variable" in the map, in which case they all must match. Parents have one
     * element per variable only. An element for a child can have either a single
     * value or a list.
-    * 
+    *
     * @param tablename the tablename, assumed not <code>null</code>
     * @param data the datamap, assumed not <code>null</code>
     * @param parent <code>true</code> if checking parent
@@ -681,7 +681,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
 
    /**
     * Check to see if the passed value is of the right type
-    * 
+    *
     * @param propertyname the name of the property, never <code>null</code> or
     *           empty
     * @param value the value, checked if not null
@@ -689,7 +689,7 @@ public class PSDatabaseAssembler extends PSAssemblerBase
     * @param required if <code>true</code>, the value must be not
     *           <code>null</code>
     */
-   @SuppressWarnings("unchecked")
+
    private void checkType(String propertyname, Object value, Class clazz,
          boolean required)
    {

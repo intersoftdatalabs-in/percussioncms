@@ -69,7 +69,7 @@ public class PSInlineLinkClearAttribs extends PSInlineLinkConverter {
      * @throws PSCmsException if an error occurs during content retrieval
      */
     @Override
-    @SuppressWarnings("unchecked")
+
     protected List<ContentKey> getContentIds(String contentType) throws PSCmsException {
         var siteRoot = Optional.ofNullable(m_props.getProperty("siteRoot"))
                 .filter(root -> !root.trim().isEmpty());

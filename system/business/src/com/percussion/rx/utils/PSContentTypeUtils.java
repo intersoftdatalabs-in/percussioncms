@@ -59,12 +59,12 @@ import org.apache.logging.log4j.Logger;
 public class PSContentTypeUtils {
 
    private static final Logger log = LogManager.getLogger(PSContentTypeUtils.class);
-   
+
    /**
     * Checks whether the supplied rules has a required rule are not. Walks
     * through all the rules and checks the name of the each extension for
     * sys_ValidateRequiredField.
-    * 
+    *
     * @param rules List of rules that needs to be checked
     * @return <code>true</code> if the rules has reuired rule otherwise
     *         <code>false</code>.
@@ -78,7 +78,7 @@ public class PSContentTypeUtils {
          if (rule.isExtensionSetRule())
          {
             // Unchecked cast: getExtensionRules() returns raw Iterator
-            @SuppressWarnings("unchecked")
+
             Iterator<PSExtensionCall> eiter = (Iterator<PSExtensionCall>) rule.getExtensionRules().iterator();
             if (eiter.hasNext())
             {
@@ -98,7 +98,7 @@ public class PSContentTypeUtils {
     * through all the rules and checks the name of the each extension for
     * sys_ValidateRequiredField. If it has then removes it supplied rules. If
     * supplied rules is null then simply returns.
-    * 
+    *
     * @param rules List of rules from which required rule needs to be removed.
     */
    public static void removeRequiredRule(List<PSRule> rules)
@@ -111,7 +111,7 @@ public class PSContentTypeUtils {
          if (rule.isExtensionSetRule())
          {
             // Unchecked cast: getExtensionRules() returns raw Iterator
-            @SuppressWarnings("unchecked")
+
             Iterator<PSExtensionCall> eiter = (Iterator<PSExtensionCall>) rule.getExtensionRules().iterator();
             if (eiter.hasNext())
             {
@@ -126,19 +126,19 @@ public class PSContentTypeUtils {
       }
       if (reqRule != null)
          rules.remove(reqRule);
-   }   
+   }
 
    /**
     * Adds the required rule to the supplied list of rules. If supplied rules is
     * <code>null</code> new array list is created and required rule is added.
     * If the required rule already exists in the supplied rules does nothing.
-    * 
+    *
     * @param rules The rules for which the required rule needs to be added. May
     *           be <code>null</code>.
     * @param fieldName The name of the must not be <code>null</code> or empty.
-    * @param fvExits a list of extensions that implemented 
+    * @param fvExits a list of extensions that implemented
     * {@link IPSFieldValidator}. Never <code>null</code>, may be empty.
-    * 
+    *
     */
    public static void addRequiredRule(List<PSRule> rules, String fieldName,
          List<PSExtensionRef> fvExits)
@@ -149,11 +149,11 @@ public class PSContentTypeUtils {
          throw new IllegalArgumentException("rules may not be null.");
       if (fvExits == null)
          throw new IllegalArgumentException("fvExits may not be null.");
-      
+
       if(hasRequiredRule(rules))
          return;
       PSExtensionCallSet callSet = new PSExtensionCallSet();
-         
+
       for (PSExtensionRef extRef : fvExits)
       {
          String extName = extRef.getExtensionName();
@@ -173,9 +173,9 @@ public class PSContentTypeUtils {
 
    /**
     * Determines if a field has the required rule.
-    * 
+    *
     * @param field the field in question, never <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if the field has the required rule.
     */
    public static boolean hasRequiredRule(PSField field)
@@ -186,19 +186,19 @@ public class PSContentTypeUtils {
       {
          CollectionUtils.addAll(rules,valrules.getRules());
       }
-      
+
       return hasRequiredRule(rules);
    }
-   
+
    /**
-    * Adds or removes the required rule for the specified field. This does 
+    * Adds or removes the required rule for the specified field. This does
     * nothing if the required rule needs to be added and the field already has
     * the required rule.
-    * 
+    *
     * @param field the field in question, never <code>null</code>.
     * @param isRequired <code>true</code> if need to add the required rule to
     * the field; otherwise remove the required rule from the field.
-    * @param fvExits a list of extensions that implemented 
+    * @param fvExits a list of extensions that implemented
     * {@link IPSFieldValidator}. Never <code>null</code>, may be empty.
     */
    public static void setFieldRequiredRule(PSField field, boolean isRequired,
@@ -239,7 +239,7 @@ public class PSContentTypeUtils {
          PSCollection newRules = new PSCollection(PSRule.class);
          newRules.addAll(rules);
          valrules.setRules(newRules);
-         
+
          field.setValidationRules(valrules);
       }
 
@@ -261,14 +261,14 @@ public class PSContentTypeUtils {
    }
 
    /**
-    * Adds or removes the required rule for the specified field. This does 
+    * Adds or removes the required rule for the specified field. This does
     * nothing if the required rule needs to be added and the field already has
     * the required rule.
-    * 
+    *
     * @param field the field in question, never <code>null</code>.
     * @param isRequired <code>true</code> if need to add the required rule to
     * the field; otherwise remove the required rule from the field.
-    * 
+    *
     * @throws PSExtensionException if failed to retrieve registered extensions.
     */
    public static void setFieldRequiredRule(PSField field, boolean isRequired) throws PSExtensionException
@@ -282,7 +282,7 @@ public class PSContentTypeUtils {
       // set the property
       setFieldRequiredRule(field, isRequired, extensions);
    }
-   
+
    /**
     * Extension name of the Required rule.
     */

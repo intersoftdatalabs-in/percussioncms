@@ -160,7 +160,7 @@ public class PSConfigUtils {
    *     of the Design Object.
    * @see PSPatternMatch
    */
-  @SuppressWarnings("unchecked")
+
   public static Collection<String> getObjectNames(
       Object objNames, IPSDesignModel model, String propName) {
     if (StringUtils.isBlank(propName))
@@ -226,7 +226,7 @@ public class PSConfigUtils {
    * @param extFQN the FQN java extension, never <code>null</code> or empty.
    * @return a list of parameter names, never <code>null</code>, may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   public static List<String> getExtensionParameterNames(String extFQN) {
     if (StringUtils.isBlank(extFQN))
       throw new IllegalArgumentException("extFQN may not be null or empty.");
@@ -300,7 +300,7 @@ public class PSConfigUtils {
    * @param conditonConfig object corresponding to the condition configuration.
    * @return The collection of rules, never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public static PSCollection prepareConditions(Object conditonConfig) {
     if (!(conditonConfig instanceof List))
       throw new PSConfigException("The value of \"conditions\" property must be a \"List\" type");
@@ -328,7 +328,7 @@ public class PSConfigUtils {
    * @return rule corresponding to the supplied data never <code>null</code>. Throws <code>
    *     PSConfigException</code> if the data is not valid.
    */
-  @SuppressWarnings("unchecked")
+
   public static PSRule createRule(Map<String, Object> map) {
     Objects.requireNonNull(map, "map must not be null for creating the rule.");
     PSRule rule = null;

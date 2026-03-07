@@ -144,7 +144,7 @@ public class PSXStreamObjectStream<T> extends PSObjectStream<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+
     protected T readObject(InputStream inputStream) throws IOException {
         Objects.requireNonNull(inputStream, "Input stream cannot be null");
 

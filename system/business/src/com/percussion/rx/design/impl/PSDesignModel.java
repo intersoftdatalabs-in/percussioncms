@@ -37,7 +37,7 @@ public class PSDesignModel implements IPSDesignModel
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#delete(com.percussion.utils.guid.IPSGuid)
     */
    public void delete(@SuppressWarnings("unused")
@@ -65,7 +65,7 @@ public class PSDesignModel implements IPSDesignModel
       {
          String msg = "Failed to delete the object with guid ({0}) " +
                "due to failure to find a delete method.";
-         Object[] args = {guid.toString()};   
+         Object[] args = {guid.toString()};
          throw new RuntimeException(MessageFormat.format(msg, args));
       }
       Object[] args = { guid };
@@ -83,7 +83,7 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#delete(java.lang.String)
     */
    public void delete(@SuppressWarnings("unused")
@@ -104,22 +104,22 @@ public class PSDesignModel implements IPSDesignModel
     */
    public List<IPSGuid> findAllIds()
    {
-      throw new UnsupportedOperationException("findAllIds() is not supported.");      
+      throw new UnsupportedOperationException("findAllIds() is not supported.");
    }
-   
+
    /*
     * //see base interface method for details
     */
    public Collection<String> findAllNames()
    {
       throw new UnsupportedOperationException(
-            "findAllNames() is not supported.");      
+            "findAllNames() is not supported.");
    }
 
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#guidToName(com.percussion.utils.guid.IPSGuid)
     */
    public String guidToName(IPSGuid guid) throws PSNotFoundException {
@@ -149,7 +149,7 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#load(java.lang.String)
     */
    public Object load(String name) throws PSNotFoundException {
@@ -166,7 +166,7 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#load(com.percussion.utils.guid.IPSGuid)
     */
    public Object load(IPSGuid guid) throws PSNotFoundException {
@@ -175,7 +175,7 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#loadModifiable(com.percussion.utils.guid.IPSGuid)
     */
    public Object loadModifiable(IPSGuid guid) throws PSNotFoundException {
@@ -186,7 +186,7 @@ public class PSDesignModel implements IPSDesignModel
     * Checks for load or loadModifiable methods that take IPSGuid as argument on
     * the service based on the readonly flag and invokes that method and returns
     * the Object.
-    * 
+    *
     * @param guid must not be <code>null</code> and must be of the type
     * supported by the design model.
     * @param readonly boolean flag to indicate whether to load the readonly
@@ -195,7 +195,7 @@ public class PSDesignModel implements IPSDesignModel
     * @return Object for the supplied guid, never <code>null</code>. Throws
     * {@link RuntimeException} in case of error.
     */
-   @SuppressWarnings("unchecked")
+
    private Object loadDesignObject(IPSGuid guid, boolean readonly)
    {
       if (guid == null || !isValidGuid(guid))
@@ -248,7 +248,7 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#loadModifiable(java.lang.String)
     */
    public Object loadModifiable(String name) throws PSNotFoundException {
@@ -265,10 +265,10 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#nameToGuid(java.lang.String)
     */
-   @SuppressWarnings("unchecked")
+
    public IPSGuid nameToGuid(String name)
    {
       if (StringUtils.isBlank(name))
@@ -319,7 +319,7 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#save(java.lang.Object)
     */
    public void save(Object obj)
@@ -329,11 +329,11 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#save(java.lang.Object,
     * java.util.List)
     */
-   @SuppressWarnings("unchecked")
+
    public void save(Object obj, @SuppressWarnings("unused")
    List<IPSAssociationSet> associationSets)
    {
@@ -372,7 +372,7 @@ public class PSDesignModel implements IPSDesignModel
 
    /**
     * Sets the type enum of the design object model.
-    * 
+    *
     * @param type Must not be <code>null</code>.
     */
    public void setType(PSTypeEnum type)
@@ -383,7 +383,7 @@ public class PSDesignModel implements IPSDesignModel
    }
 
    /**
-    * 
+    *
     * @return the type enum for the design model. May be <code>null</code> if
     * not set.
     */
@@ -395,7 +395,7 @@ public class PSDesignModel implements IPSDesignModel
    /**
     * Sets the object of the underlying service that has crud services for the
     * design object.
-    * 
+    *
     * @param service Must not be <code>null</code>.
     */
    public void setService(Object service)
@@ -406,7 +406,7 @@ public class PSDesignModel implements IPSDesignModel
    }
 
    /**
-    * 
+    *
     * @return The object of the underlying service that has crud services for
     * the design object. May be <code>null</code>, if not set.
     */
@@ -417,7 +417,7 @@ public class PSDesignModel implements IPSDesignModel
 
    /**
     * Checks whether the supplied guid type is of the model type or not.
-    * 
+    *
     * @param guid must not be <code>null</code>.
     * @return <code>true</code> if the guid is valid otherwise
     * <code>false</code>.
@@ -435,11 +435,11 @@ public class PSDesignModel implements IPSDesignModel
     * reflection to find the name of the each object by method name "getName"
     * and if it matches with the supplied name, then returns the guid returned
     * by getGUID method.
-    * 
+    *
     * As it uses reflection to get the guid through two methods, getName and
     * getGuid(case insensitive), use it only if the object has those
     * implementations.
-    * 
+    *
     * @param objects list of design objects, must not be <code>null</code>
     * @param name the name of the object, must not be <code>null</code>.
     * @return The guid of the object having the supplied name or
@@ -450,7 +450,7 @@ public class PSDesignModel implements IPSDesignModel
     * @throws IllegalAccessException
     * @throws IllegalArgumentException
     */
-   @SuppressWarnings("unchecked")
+
    protected IPSGuid getMatchingGuid(List<Object> objects, String name)
       throws SecurityException, NoSuchMethodException,
       IllegalArgumentException, IllegalAccessException,
@@ -484,19 +484,19 @@ public class PSDesignModel implements IPSDesignModel
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rx.design.IPSDesignModel#getAssociationSets()
     */
    public List<IPSAssociationSet> getAssociationSets()
    {
       return null;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.rx.design.IPSDesignModel#getVersion(com.percussion.utils.guid.IPSGuid)
     */
-   @SuppressWarnings("unchecked")
+
    public Long getVersion(IPSGuid guid)
    {
       if (guid == null)
@@ -527,17 +527,17 @@ public class PSDesignModel implements IPSDesignModel
       }
       return version;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.rx.design.IPSDesignModel#getVersion(java.lang.String)
     */
-   @SuppressWarnings("unchecked")
+
    public Long getVersion(String name)
    {
       if(StringUtils.isBlank(name))
          throw new IllegalArgumentException("name must not be null or empty");
-        
+
       Long version = null;
       Class clazz = null;
       try
@@ -563,7 +563,7 @@ public class PSDesignModel implements IPSDesignModel
       }
       return version;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.rx.design.IPSDesignModel#getGuid(java.lang.Object)
@@ -593,7 +593,7 @@ public class PSDesignModel implements IPSDesignModel
       }
       return guid;
    }
-   
+
    /**
     * @return Returns the normalized type name. May be <code>null</code>, if not set
     * through the bean configuration.
@@ -607,21 +607,21 @@ public class PSDesignModel implements IPSDesignModel
    /**
     * Sets the normalized type name. For example name of the PSTypeEnum of
     * content list is CONTENT_LIST, the normalized name is CONTENTLIST.
-    * 
+    *
     * @param normalizedTypeName Normalized name to set.
     */
    public void setNormalizedTypeEnumName(String normalizedTypeName)
    {
       m_normalizedTypeName = normalizedTypeName;
    }
-   
+
    /**
     * The type enum of the object for which the design model corresponds to.
     * Will be <code>null</code> till the design model factory assigns this
     * value when a model is requested.
     */
    private PSTypeEnum m_type = null;
-   
+
    /**
     * The normalized type enum name. The type enums for some of the design
     * objects have underscores and some of them have _DEF at the end, where as

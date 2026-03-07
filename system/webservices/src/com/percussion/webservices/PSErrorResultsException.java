@@ -28,7 +28,7 @@ import java.util.Objects;
 
 /**
  * This exception may be thrown by web services which operate on multiple
- * objects and return results. It collects valid results as well as errors 
+ * objects and return results. It collects valid results as well as errors
  * produced by single object operations.
  */
 public class PSErrorResultsException extends Exception
@@ -39,26 +39,26 @@ public class PSErrorResultsException extends Exception
    private static final long serialVersionUID = 8238544817254544094L;
 
    /**
-    * A map with all successful results collected for the requested operation, 
-    * never <code>null</code>, may be empty. Depending on the requested 
+    * A map with all successful results collected for the requested operation,
+    * never <code>null</code>, may be empty. Depending on the requested
     * operation the map value represents the object returned for successful
     * execution.
     */
    private Map<IPSGuid, Object> results = new HashMap<>();
-   
+
    /**
-    * A map with all errors collected for the requested operation, never 
+    * A map with all errors collected for the requested operation, never
     * <code>null</code>, may be empty. Depending on the operation the map
     * value represents the error produced for a failed execcution.
     */
    private Map<IPSGuid, Object> errors = new HashMap<>();
-   
+
    /**
     * A list of ids for all objects, never <code>null</code>, may be empty. The
     * order of the list is undefined
     */
    private List<IPSGuid> ids = new ArrayList<>();
-   
+
    /**
     * Construct a new exception with empty results and errors collections.
     */
@@ -68,24 +68,24 @@ public class PSErrorResultsException extends Exception
 
    /**
     * Get the results map.
-    * 
+    *
     * @return the results map, never <code>null</code>, may be empty.
     */
    public Map<IPSGuid, Object> getResults()
    {
       return results;
    }
-   
+
    /**
     * Get all results as a list.  The order of the list is undefined.
-    * 
+    *
     * @param ids the ids to get the results for, not <code>null</code>, may
     *    be empty.
-    *    
-    * @return a list with all result objects, never <code>null</code>, may be 
+    *
+    * @return a list with all result objects, never <code>null</code>, may be
     *    empty.
     */
-   @SuppressWarnings("unchecked")
+
    public List getResults(List<IPSGuid> ids)
    {
       List resultList = new ArrayList<>();
@@ -95,13 +95,13 @@ public class PSErrorResultsException extends Exception
          if (result != null)
             resultList.add(result);
       }
-      
+
       return resultList;
    }
-   
+
    /**
     * Add a new result to the results map.
-    * 
+    *
     * @param id the id of the object for which the supplied result is, not
     *    <code>null</code>.
     * @param result the result object, not <code>null</code>.
@@ -113,29 +113,29 @@ public class PSErrorResultsException extends Exception
 
       if (result == null)
          throw new IllegalArgumentException("result cannot be null");
-      
+
       ids.add(id);
       results.put(id, result);
    }
-   
+
    /**
-    * Remove the result for the supplied id. We ignore cases where the 
+    * Remove the result for the supplied id. We ignore cases where the
     * referenced result does not exist anymore.
-    * 
+    *
     * @param id the id of the result to be removed, not <code>null</code>.
     */
    public void removeResult(IPSGuid id)
    {
       if (id == null)
          throw new IllegalArgumentException("id cannot be null");
-      
+
       if (results.remove(id) != null)
          ids.remove(id);
    }
 
    /**
     * Get the list of ids for all objects.  The order of the list is undefined.
-    * 
+    *
     * @return the list of object ids in the order processed, never
     *    <code>null</code>, may be empty.
     */
@@ -143,21 +143,21 @@ public class PSErrorResultsException extends Exception
    {
       return ids;
    }
-   
+
    /**
     * Get the errors map.
-    * 
+    *
     * @return the errors map, never <code>null</code>, may be empty.
     */
    public Map<IPSGuid, Object> getErrors()
    {
       return errors;
    }
-   
+
    /**
     * Add a new error to the errors map.
-    * 
-    * @param id the id of the object that produced the error, not 
+    *
+    * @param id the id of the object that produced the error, not
     *    <code>null</code>.
     * @param error the error, not <code>null</code>.
     */
@@ -168,14 +168,14 @@ public class PSErrorResultsException extends Exception
 
       if (error == null)
          throw new IllegalArgumentException("error cannot be null");
-      
+
       ids.add(id);
       errors.put(id, error);
    }
-   
+
    /**
     * Does this exception contain errors?
-    * 
+    *
     * @return <code>true</code> if it does, <code>false</code> otherwise.
     */
    public boolean hasErrors()
@@ -188,7 +188,7 @@ public class PSErrorResultsException extends Exception
    {
       if (!(b instanceof PSErrorResultsException))
          return false;
-      
+
       PSErrorResultsException exception = (PSErrorResultsException) b;
       EqualsBuilder builder = new EqualsBuilder();
       builder.append(ids, exception.ids);
@@ -205,7 +205,7 @@ public class PSErrorResultsException extends Exception
       builder.append(ids);
       builder.append(results);
       builder.append(errors);
-      
+
       return builder.hashCode();
    }
 

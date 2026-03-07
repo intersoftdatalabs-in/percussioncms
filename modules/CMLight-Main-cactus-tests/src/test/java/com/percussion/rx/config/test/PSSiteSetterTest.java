@@ -85,7 +85,7 @@ public class PSSiteSetterTest extends PSConfigurationTest {
     }
   }
 
-  @SuppressWarnings("unchecked")
+
   public void testAddPropertyDefs() throws Exception {
     String EI_NAME = "Enterprise_Investments";
     IPSDesignModelFactory factory = PSDesignModelFactoryLocator.getDesignModelFactory();

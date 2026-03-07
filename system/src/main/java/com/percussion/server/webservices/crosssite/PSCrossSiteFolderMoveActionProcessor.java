@@ -245,7 +245,7 @@ public class PSCrossSiteFolderMoveActionProcessor extends PSCrossSiteFolderActio
   private Collection<Integer> getSharedSiteIds() {
     List<Integer> sourceSites = data.getSourceSiteIds();
     List<Integer> targetSites = data.getTargetSiteIds();
-    @SuppressWarnings("unchecked")
+
     Collection<Integer> c = CollectionUtils.intersection(sourceSites, targetSites);
     return c;
   }

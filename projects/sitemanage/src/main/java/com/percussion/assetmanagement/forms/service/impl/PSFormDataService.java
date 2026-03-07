@@ -115,14 +115,14 @@ public class PSFormDataService implements IPSFormDataService {
           deliveryClient.getJsonObject(
               new PSDeliveryActionOptions(
                   server, FORM_INFO_URL + "list", HttpMethodType.GET, true));
-      @SuppressWarnings("unchecked")
+
       Map<String, Object> jsonMap = (Map<String, Object>) getJson;
-      @SuppressWarnings("unchecked")
+
       List<Object> formInfo = (List<Object>) jsonMap.get("formsInfo");
 
       for (var i = 0; i < formInfo.size(); i++) {
         PSFormSummary sum;
-        @SuppressWarnings("unchecked")
+
         Map<String, Object> formObj = (Map<String, Object>) formInfo.get(i);
         var name = (String) formObj.get(NAME_FIELD);
         if (!formDataMap.containsKey(name)) {
@@ -172,14 +172,14 @@ public class PSFormDataService implements IPSFormDataService {
           deliveryClient.getJsonObject(
               new PSDeliveryActionOptions(
                   processor, FORM_INFO_URL + name, HttpMethodType.GET, true));
-      @SuppressWarnings("unchecked")
+
       Map<String, Object> jsonMap = (Map<String, Object>) getJson;
-      @SuppressWarnings("unchecked")
+
       List<Object> formInfo = (List<Object>) jsonMap.get("formsInfo");
       if (!formInfo.isEmpty()) {
         sum = new PSFormSummary();
         sum.setName(name);
-        @SuppressWarnings("unchecked")
+
         Map<String, Object> firstFormObj = (Map<String, Object>) formInfo.get(0);
         mergeFormData(firstFormObj, sum);
       }

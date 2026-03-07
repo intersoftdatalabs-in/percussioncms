@@ -2394,7 +2394,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * @return The content editor shared def object. May be <code>null</code> if there was an error
    *     loading the def from the Xml.
    */
-  @SuppressWarnings("unchecked")
+
   public PSContentEditorSharedDef getContentEditorSharedDef()
       throws IOException, SAXException, PSUnknownDocTypeException, PSUnknownNodeTypeException {
     // Assume the file(s) on the disk is not modified initially

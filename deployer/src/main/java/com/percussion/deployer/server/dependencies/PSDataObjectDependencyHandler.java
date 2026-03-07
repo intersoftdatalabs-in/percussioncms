@@ -421,7 +421,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
 
     for (com.percussion.util.PSEntrySet entry :
         PSDbmsHelper.getInstance().getRegistrationEntries(table, idCol, nameCol, null)) {
-      @SuppressWarnings("unchecked")
+
       Map.Entry<String, String> stringStringEntry = (Map.Entry<String, String>) entry;
       deps.add(createDependency(m_def, stringStringEntry));
     }
@@ -442,7 +442,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   protected Iterator<PSDependency> getDependencies(
       PSSecurityToken tok, String table, String idCol, String nameCol, PSJdbcSelectFilter filter)
       throws PSDeployException {
@@ -890,7 +890,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @return The transfered table data, will never be <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private PSJdbcTableData transferDepIdInDepData(
       PSJdbcTableData data, String tableName, String idColumn, PSIdMapping mapping)
       throws PSDeployException {

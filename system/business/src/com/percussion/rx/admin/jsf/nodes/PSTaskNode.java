@@ -54,7 +54,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * The backing bean for a scheduled task.
- * 
+ *
  * @author Andriy Palamarchuk
  */
 public class PSTaskNode extends PSEditableNode {
@@ -367,7 +367,7 @@ public class PSTaskNode extends PSEditableNode {
      * @return selection items corresponding to the possible extension tasks
      *         registered to the system.
      */
-    @SuppressWarnings("unchecked")
+
     public List<SelectItem> getTaskExtensionChoices() {
         return PSExtensionHelper.getTaskExtensionChoices("com.percussion.services.schedule.IPSTask");
     }
@@ -385,7 +385,7 @@ public class PSTaskNode extends PSEditableNode {
      * @return the complete parameters for the given extension, never
      *         <code>null</code>.
      */
-    @SuppressWarnings("unchecked")
+
     public List<PSParameter> getParams() {
         if ((!StringUtils.isBlank(getEvent().getExtensionName())) && m_params.isEmpty()) {
             setupParameters();
