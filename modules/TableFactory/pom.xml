@@ -166,6 +166,10 @@
                     <maxmem>2024m</maxmem>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 </project>

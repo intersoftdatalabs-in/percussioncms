@@ -462,6 +462,21 @@
                             </target>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>prepare-jetty-rewrite-rules</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${assembly-directory}/jetty/base/etc"/>
+                                <copy file="${assembly-directory}/jetty/upstream/modules/rewrite/jetty-rewrite-rules.xml"
+                                      tofile="${assembly-directory}/jetty/base/etc/jetty-rewrite-rules.xml"
+                                      overwrite="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -506,13 +521,18 @@
                                 <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
                                 <argument>jetty.base=${assembly-directory}/jetty/base</argument>
                                 <argument>--include-jetty-dir=${assembly-directory}/jetty/defaults</argument>
-                                <argument>--create-startd</argument>
+                                <argument>--create-start-d</argument>
                                 <argument>--create-files</argument>
-                                <argument>--add-to-start=perc</argument>
+                                <argument>--modules=perc-logging</argument>
+                                <argument>--add-modules=perc</argument>
                             </arguments>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
