@@ -35,7 +35,7 @@ This repository is a large mono-repo with many submodules.  This code base has a
 * **ALWAYS set JAVA_HOME to the correct JDK for the active base git branch before running any direct build or external shell commands**
 * development branch current JDK is 21
 * development branch current Node is 22
-* To build the entire project, run `./mvnw clean install` from the root directory.
+* To build the entire project, run `./mvn-env.sh clean install` from the root directory.
 * To build a specific module, navigate to that module's directory and run `../../mvn-env.sh clean install`.
 * Skip tests with `-DskipTests`
 * For efficency use maven module commands to build specific modules or run specific tests, e.g. `mvn-env.sh -pl module-name test` to run tests for a specific module.
