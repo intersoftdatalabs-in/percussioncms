@@ -557,25 +557,16 @@
                 <configuration>
                     <webResources>
                         <resource>
-                            <directory>war</directory>
+                            <directory>src/main/webapp</directory>
                             <!-- override the destination directory for this resource -->
-                            <targetPath>cm</targetPath>
+                            <targetPath>.</targetPath>
                             <!-- enable filtering -->
                             <filtering>false</filtering>
-                            <excludes>
-                                <exclude>WEB-INF</exclude>
-                                <exclude>META-INF</exclude>
-                            </excludes>
                         </resource>
-                        <!-- cui content is now in war/cui/ and copied via the war/ resource above -->
+                        <!-- Generated frontend outputs (React, legacy bundles) overlaid at package time -->
                         <resource>
-                            <directory>war/WEB-INF</directory>
-                            <targetPath>WEB-INF</targetPath>
-                            <filtering>false</filtering>
-                        </resource>
-                        <resource>
-                            <directory>war/META-INF</directory>
-                            <targetPath>META-INF</targetPath>
+                            <directory>${project.build.directory}/generated-webui</directory>
+                            <targetPath>.</targetPath>
                             <filtering>false</filtering>
                         </resource>
                         <resource>
@@ -781,7 +772,7 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <configuration>
                     <nodeVersion>v22.22.0</nodeVersion>
-                    <workingDirectory>${project.basedir}</workingDirectory>
+                    <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
                     <installDirectory>${user.home}/.m2/frontend</installDirectory>
                 </configuration>
                 <executions>
@@ -813,6 +804,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
             </plugin>
         </plugins>
         <sourceDirectory>src/main/java</sourceDirectory>

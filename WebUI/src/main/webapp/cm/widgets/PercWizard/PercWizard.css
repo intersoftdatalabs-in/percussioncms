@@ -1,0 +1,42 @@
+.perc-wizard-step-index {
+  float: left;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: white;
+}
+
+.perc-wizard-step-title {
+  float: left;
+  margin: 1px 20px 0 6px;
+}
+
+.perc-wizard-step-index.perc-wizard-step-inactive {
+  padding-top: 1px;
+  background: url(/cm/app/app/widgets/PercWizard/images/PercWizardInactive.png)
+    no-repeat;
+}
+
+.perc-wizard-step-index.perc-wizard-step-active {
+  padding-top: 1px;
+  background: url(/cm/app/app/widgets/PercWizard/images/PercWizardActive.png) no-repeat;
+}
+
+.perc-wizard-step-title.perc-wizard-step-inactive {
+  color: grey;
+}
+
+.perc-wizard-step-title.perc-wizard-step-active {
+  color: black;
+}
+
+.perc-wizard-required-fields-tip {
+  position: absolute;
+  bottom: 13px;
+  left: 30px;
+}
+
+body * {
+  font-family: "Open Sans", sans-serif;
+}
