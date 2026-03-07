@@ -5,25 +5,17 @@
 	class="org.eclipse.jetty.util.ssl.SslContextFactory$Server">
 	<!-- Mitigate SLOTH Attack -->
 	<Set name="IncludeCipherSuites">
-		<Call class="org.eclipse.jetty.util.StringUtil"
-			name="arrayFromString">
-			<Arg type="String">
-				[
-				<Property name="perc.ssl.includeCiphers"
-					default="TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384" />
-				]
-			</Arg>
-		</Call>
+		<Array type="String">
+			<Item>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</Item>
+			<Item>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</Item>
+			<Item>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</Item>
+			<Item>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</Item>
+		</Array>
 	</Set>
 	<Set name="IncludeProtocols">
-		<Call class="org.eclipse.jetty.util.StringUtil"
-			name="arrayFromString">
-			<Arg type="String">
-				[
-				<Property name="perc.ssl.protocols" default="TLSv1.2" />
-				]
-			</Arg>
-		</Call>
+		<Array type="String">
+			<Item>TLSv1.2</Item>
+		</Array>
 	</Set>
 	<Set name="KeyStoreType">
 		<Property name="jetty.sslContext.keystoreType" default="JKS" />

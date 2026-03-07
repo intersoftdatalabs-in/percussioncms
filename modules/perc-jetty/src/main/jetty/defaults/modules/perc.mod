@@ -7,7 +7,7 @@ https
 ext
 
 [depend]
-deploy
+ee8-deploy
 http
 gzip
 plus

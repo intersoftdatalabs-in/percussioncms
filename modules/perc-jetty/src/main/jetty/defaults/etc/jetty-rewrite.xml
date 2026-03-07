@@ -17,82 +17,12 @@
 			<Set name="handler">
 				<Ref refid="oldhandler" />
 			</Set>
-			<Set name="rewriteRequestURI">
-				<Property name="jetty.rewrite.rewriteRequestURI"
-					deprecated="rewrite.rewriteRequestURI" default="true" />
-			</Set>
-			<Set name="rewritePathInfo">
-				<Property name="jetty.rewrite.rewritePathInfo"
-					deprecated="rewrite.rewritePathInfo" default="false" />
-			</Set>
+
 			<Set name="originalPathAttribute">
 				<Property name="jetty.rewrite.originalPathAttribute"
 					deprecated="rewrite.originalPathAttribute" default="requestedPath" />
 			</Set>
 
-			<!-- Set DispatcherTypes -->
-			<Set name="dispatcherTypes">
-				<Array type="jakarta.servlet.DispatcherType">
-					<Item>
-						<Call class="jakarta.servlet.DispatcherType" name="valueOf">
-							<Arg>REQUEST</Arg>
-						</Call>
-					</Item>
-					<Item>
-						<Call class="jakarta.servlet.DispatcherType" name="valueOf">
-							<Arg>ASYNC</Arg>
-						</Call>
-					</Item>
-				</Array>
-			</Set>
-
-
-
-			<!-- example rule -->
-
-			<Call name="addRule">
-				<Arg>
-					<New
-						class="org.eclipse.jetty.rewrite.handler.HeaderPatternRule">
-						<Set name="pattern">*.html</Set>
-						<Set name="name">X-UA-Compatible</Set>
-						<Set name="value">IE=edge,chrome=1</Set>
-					</New>
-				</Arg>
-			</Call>
-
-			<Call name="addRule">
-				<Arg>
-					<New
-						class="org.eclipse.jetty.rewrite.handler.HeaderPatternRule">
-						<Set name="pattern">*.jsp</Set>
-						<Set name="name">X-UA-Compatible</Set>
-						<Set name="value">IE=edge,chrome=1</Set>
-					</New>
-				</Arg>
-			</Call>
-
-			<Call name="addRule">
-				<Arg>
-					<New
-						class="org.eclipse.jetty.rewrite.handler.HeaderPatternRule">
-						<Set name="pattern">*.faces</Set>
-						<Set name="name">X-UA-Compatible</Set>
-						<Set name="value">IE=edge,chrome=1</Set>
-					</New>
-				</Arg>
-			</Call>
-
-			<Call name="addRule">
-				<Arg>
-					<New
-						class="org.eclipse.jetty.rewrite.handler.HeaderPatternRule">
-						<Set name="pattern">*.htm</Set>
-						<Set name="name">X-UA-Compatible</Set>
-						<Set name="value">IE=edge,chrome=1</Set>
-					</New>
-				</Arg>
-			</Call>
 			<!-- Redirect Package Manager -->
 			<Call name="addRule">
 				<Arg>
@@ -103,16 +33,18 @@
 					</New>
 				</Arg>
 			</Call>
+
 			<!-- Redirect Docs -->
 			<Call name="addRule">
 				<Arg>
-					<New class="org.eclipse.jetty.rewrite.handler.RewriteRegexRule">
+					<New class="org.eclipse.jetty.rewrite.handler.RedirectRegexRule">
 						<Set name="regex">^/Rhythmyx/Docs/Rhythmyx/(.*)$</Set>
-						<Set name="replacement">/Docs/$1</Set>
+						<Set name="location">/Docs/$1</Set>
 					</New>
 				</Arg>
 			</Call>
-			<!-- DCE Header -->
+
+			<!-- Rewrite DCE Header -->
 			<Call name="addRule">
 				<Arg>
 					<New class="org.eclipse.jetty.rewrite.handler.RewriteRegexRule">

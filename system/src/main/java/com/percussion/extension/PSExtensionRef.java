@@ -182,6 +182,7 @@ public class PSExtensionRef implements Serializable {
         .append(m_handlerName, second.m_handlerName)
         .append(m_context, second.m_context)
         .append(m_extName, second.m_extName)
+        .append(m_category, second.m_category)
         .isEquals();
   }
 
@@ -191,6 +192,7 @@ public class PSExtensionRef implements Serializable {
         .append(m_handlerName)
         .append(m_context)
         .append(m_extName)
+        .append(m_category)
         .toHashCode();
   }
 

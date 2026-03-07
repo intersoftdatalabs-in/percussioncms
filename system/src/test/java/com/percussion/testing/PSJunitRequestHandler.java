@@ -158,7 +158,7 @@ public class PSJunitRequestHandler implements IPSLoadableRequestHandler
 
       // Appender to craft xml node's to display in the
       // result doc.
-      Logger l = LogManager.getLogger();
+      Logger l = LogManager.getLogger(PSJunitRequestHandler.class);
 
       try
       {

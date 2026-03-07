@@ -11,7 +11,7 @@ resources
 logging
 
 [provides]
-logging
+logging|default
 
 [lib]
 lib/perc-logging/**.jar

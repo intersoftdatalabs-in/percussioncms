@@ -1,25 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configure class="org.eclipse.jetty.ee8.webapp.WebAppContext">
 	<Set name="contextPath">/</Set>
-	<Set name="war">
-		<SystemProperty name="jetty.base" />
-		/webapps/Rhythmyx
-	</Set>
+	<Set name="war"><SystemProperty name="jetty.base" default="." />/webapps/Rhythmyx</Set>
 
-	<!-- Support multi static resource paths using setBaseResourceAsString with comma-separated paths -->
-	<Call name="setBaseResourceAsString">
-		<Arg>
-			<Call class="java.lang.String" name="format">
-				<Arg>%s/../..|%s/webapps/Rhythmyx</Arg>
-				<Arg>
-					<Array type="java.lang.Object">
-						<Item><SystemProperty name="jetty.base" /></Item>
-						<Item><SystemProperty name="jetty.base" /></Item>
-					</Array>
-				</Arg>
-			</Call>
-		</Arg>
-	</Call>
 	<Call name="setInitParameter">
 		<Arg>org.eclipse.jetty.servlet.Default.useFileMappedBuffer</Arg>
 		<Arg>false</Arg>
@@ -45,7 +28,6 @@
 		</Call>
 	</Get>
 	<Set name="extraClasspath">
-		<SystemProperty name="jetty.base" />
-		/lib/extra/*
+		<SystemProperty name="jetty.base" default="." />/lib/extra/*
 	</Set>
 </Configure>

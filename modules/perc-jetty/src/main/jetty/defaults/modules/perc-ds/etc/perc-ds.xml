@@ -59,12 +59,7 @@
 							<Property name="perc.ds.1.driver.class" />
 						</Set>
 
-						<Set name="jdbcUrl">
-							jdbc:
-							<Property name="perc.ds.1.driver.name" />
-							:
-							<Property name="perc.ds.1.server" />
-						</Set>
+						<Set name="jdbcUrl"><Call class="com.percussion.utils.container.PSStaticContainerUtils" name="buildConnectionUrl"><Arg><Property name="perc.ds.1.driver.name" /></Arg><Arg><Property name="perc.ds.1.server" /></Arg></Call></Set>
 
 						<Set name="username">
 							<Property name="perc.ds.1.uid" />

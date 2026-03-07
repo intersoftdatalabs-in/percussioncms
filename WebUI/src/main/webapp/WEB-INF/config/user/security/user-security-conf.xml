@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<securityConfiguration forceSecureLogin="no">
+	<!-- sample anonymous access configuration <path authType="anonymous">/user/pages/test.jsp</path> -->
+
+	<!-- sample basic auth configurations <path authType="basic">/user/apps/myServlet.htm</path>
+		<path authType="basic">/user/apps/myApp*</path> -->
+</securityConfiguration>

@@ -46,6 +46,18 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
+            <version>${derby.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyshared</artifactId>
+            <version>${derby.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
             <scope>provided</scope>
@@ -157,26 +169,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unpack-perc-war</id>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.percussion</groupId>
-                                    <artifactId>perc-web-ui</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <includes>**</includes>
-                                    <outputDirectory>${assembly-directory}/base/webapps/Rhythmyx</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>copy</id>
                         <goals>
                             <goal>copy</goal>
@@ -203,6 +195,22 @@
                                 <artifactItem>
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbyclient</artifactId>
+                                    <version>${derby.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbytools</artifactId>
+                                    <version>${derby.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbyshared</artifactId>
                                     <version>${derby.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>

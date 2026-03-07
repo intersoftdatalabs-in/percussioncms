@@ -46,6 +46,13 @@ fi
 
 PID_FILE="${JETTY_BASE}/etc/running.pid"
 
+# Always stop any running instance first to prevent duplicate startups
+if [ -x "${DIR}/StopJetty.sh" ]; then
+	echo "Stopping any running Jetty instance..."
+	"${DIR}/StopJetty.sh" >/dev/null 2>&1 || true
+	sleep 2
+fi
+
 check_pid
 
 if [ ${PID} -gt 0 ]; then

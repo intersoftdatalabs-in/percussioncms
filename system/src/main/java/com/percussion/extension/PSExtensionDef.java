@@ -100,7 +100,7 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
       while (resourceURLs.hasNext()) {
         // do an unnecessary cast so that any objects of the wrong
         // type will cause an error
-        URL u = (URL) (resourceURLs.next());
+        URL u = resourceURLs.next();
         if (u == null) {
           throw new IllegalArgumentException("null resource URLs are not allowed");
         }
@@ -116,14 +116,14 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
 
     this.interfaces = new ArrayList<>();
     while (interfaces.hasNext()) {
-      this.interfaces.add((String) interfaces.next());
+      this.interfaces.add(interfaces.next());
     }
 
     this.runtimeParams = new ArrayList<>();
     this.runtimeParamsMap = new HashMap<>();
     if (runtimeParams != null) {
       while (runtimeParams.hasNext()) {
-        PSExtensionParamDef p = (PSExtensionParamDef) runtimeParams.next();
+        PSExtensionParamDef p = runtimeParams.next();
         this.runtimeParams.add(p);
         this.runtimeParamsMap.put(p.getName(), p);
       }
@@ -323,18 +323,44 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   public void setRequiredApplications(Iterator<PSExtensionRef> apps) {
     if (apps == null) throw new IllegalArgumentException("apps may not be null");
     requiredApplications.clear();
-    while (apps.hasNext()) {
-      requiredApplications.add(apps.next().getExtensionName());
-    }
+    while (apps.hasNext())
+      requiredApplications.add(apps.next().getFQN());
   }
 
   // see IPSExtensionDef
   public Iterator<PSExtensionRef> getRequiredApplications() {
-    // This method returns an iterator of PSExtensionRef, but m_requiredApplications stores names
-    // (String).
-    // If the interface expects PSExtensionRef, you should store those instead. For now, return
-    // empty iterator for compatibility.
-    return new ArrayList<PSExtensionRef>().iterator();
+    Collection<PSExtensionRef> refs = new ArrayList<>(requiredApplications.size());
+    for (String fqn : requiredApplications) {
+      try {
+        refs.add(new PSExtensionRef(fqn));
+      } catch (IllegalArgumentException e) {
+        // If it's not a valid FQN, it might be a simple application name
+        // Try to create a synthetic FQN reference using a standard handler/context pattern
+        // This allows graceful handling of both simple names and full FQNs
+        try {
+          // Create a ref using a standard pattern: app/{appName}/{appName}
+          refs.add(new PSExtensionRef("app", fqn + "/", fqn));
+        } catch (IllegalArgumentException e2) {
+          // Data is corrupt or invalid, ignore
+        }
+      }
+    }
+    return refs.iterator();
+  }
+
+  /**
+   * Sets the required application names from an iterator of simple application names (not full FQNs).
+   * This is used when parsing extension definitions where only the application name is available,
+   * not the full handler/context/name reference.
+   *
+   * @param appNames Iterator of simple application name strings. If <code>null</code>, does nothing.
+   */
+  public void setRequiredApplicationNames(Iterator<String> appNames) {
+    if (appNames == null) return;
+    requiredApplications.clear();
+    while (appNames.hasNext()) {
+      requiredApplications.add(appNames.next());
+    }
   }
 
   /* (non-Javadoc)
@@ -343,7 +369,7 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   public boolean isJexlExtension() {
     Iterator<String> interfaces = getInterfaces();
     while (interfaces.hasNext()) {
-      String iface = (String) interfaces.next();
+      String iface = interfaces.next();
       if (iface.equals(IPSJexlExpression.class.getName())) return true;
     }
 
