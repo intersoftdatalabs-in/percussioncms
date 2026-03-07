@@ -34,7 +34,7 @@ public class PSArchiveManifestTest {
    * @throws Exception If there are any errors.
    */
   @Test
-  @SuppressWarnings("unchecked")
+
   public void testAll() throws Exception {
     // Creating PSArchiveManifest objects
     PSDeployableElement de1 =
@@ -149,7 +149,7 @@ public class PSArchiveManifestTest {
    * @param list2 The second list, assume not <code>null</code>, may be empty
    * @return <code>true</code> if they are equals; <code>false</code> otherwise
    */
-  @SuppressWarnings("unchecked")
+
   public static boolean doesFileListTheSame(Iterator list1, Iterator list2) {
     while (list1.hasNext() && list2.hasNext()) {
       PSDependencyFile df1 = (PSDependencyFile) list1.next();

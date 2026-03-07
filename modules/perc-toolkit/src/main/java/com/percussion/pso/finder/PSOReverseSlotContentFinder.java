@@ -96,7 +96,7 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
    *     com.percussion.services.assembly.IPSTemplateSlot, java.util.Map)
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   protected Set<SlotItem> getSlotItems(
       IPSAssemblyItem sourceItem, IPSTemplateSlot slot, Map<String, Object> selectors)
       throws RepositoryException, PSFilterException, PSAssemblyException {

@@ -222,7 +222,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
    * @param request request context object, assumed not <code>null</code>.
    * @param pubUrl url object to publish the edition, assumed not <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private void publishUrl(IPSRequestContext request, URL pubUrl) {
     Set inProgress = (Set) request.getSessionPrivateObject(PUB_URLS_IN_PROGRESS);
     if (inProgress == null) {
@@ -248,7 +248,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
    *     document.
    * @throws FileNotFoundException when the file does not exist
    */
-  @SuppressWarnings("unchecked")
+
   private static Map getPublishProperties()
       throws PSExtensionException, SAXException, IOException, ParserConfigurationException {
     DocumentBuilderFactory fact =

@@ -181,7 +181,7 @@ public class PSProcessServerPageTags extends Object {
    *
    * @param tagIndex the closing tag index to use.
    */
-  @SuppressWarnings("unchecked")
+
   private void markIt(int tagIndex) {
     int oldCurrent = m_current;
 

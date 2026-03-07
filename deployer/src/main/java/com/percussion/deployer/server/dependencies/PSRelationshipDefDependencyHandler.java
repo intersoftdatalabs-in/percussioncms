@@ -72,7 +72,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
+
   @Override
   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {

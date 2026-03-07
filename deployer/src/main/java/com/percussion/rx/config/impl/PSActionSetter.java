@@ -105,7 +105,7 @@ public class PSActionSetter extends PSSimplePropertySetter {
    * @param propValue The url parameter values object assumed not <code>null</code>, and expects to
    *     be an instance of Map.
    */
-  @SuppressWarnings("unchecked")
+
   private void setUrlParams(PSAction action, Object propValue) {
     if (!(propValue instanceof Map)) {
       var msg =
@@ -204,7 +204,7 @@ public class PSActionSetter extends PSSimplePropertySetter {
    * @param action The action object assumed not <code>null</code>.
    * @param propValue Must be a map of String or List of Strings.
    */
-  @SuppressWarnings("unchecked")
+
   private void setVisibility(PSAction action, Object propValue) {
     if (!(propValue instanceof Map)) {
       var msg =
@@ -333,7 +333,7 @@ public class PSActionSetter extends PSSimplePropertySetter {
    * @param resource The name of the resource, if number treats it as lookup id.
    * @return map, never <code>null</code>, may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   private static Map<String, String> getResourceLookupData(String resource) {
     var data = new HashMap<String, String>();
     var params = new HashMap();

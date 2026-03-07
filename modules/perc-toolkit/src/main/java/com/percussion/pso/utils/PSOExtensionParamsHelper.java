@@ -266,7 +266,7 @@ public class PSOExtensionParamsHelper {
     this.log = log == null ? PSOExtensionParamsHelper.defaultLog : log;
   }
 
-  @SuppressWarnings("unchecked")
+
   protected void doParameters() {
     extensionParameters = new HashMap<>();
 

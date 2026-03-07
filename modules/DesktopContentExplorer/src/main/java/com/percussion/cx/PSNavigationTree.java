@@ -1018,7 +1018,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      * @param uchildren the list of child leaf nodes that gets updated, assumed not to be <code>null
      *     </code>
      */
-    @SuppressWarnings("unchecked")
+
     private void getLeafChildren(DefaultMutableTreeNode node, List uchildren) {
       // A node is leaf if it does not have any children loaded.
       PSNode userObj = (PSNode) node.getUserObject();

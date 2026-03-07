@@ -57,7 +57,7 @@ public class PSSortXmlExtension implements IPSResultDocumentProcessor {
     return false;
   }
 
-  @SuppressWarnings("unchecked")
+
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {

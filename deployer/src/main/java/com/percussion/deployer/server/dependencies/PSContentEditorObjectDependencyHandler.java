@@ -62,7 +62,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    * @return list of dependencies, never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
-  @SuppressWarnings("unchecked")
+
   protected List<PSDependency> checkUIDef(PSSecurityToken tok, PSUIDefinition uiDef)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -91,7 +91,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    * @return list of dependencies, never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
-  @SuppressWarnings("unchecked")
+
   protected List<PSDependency> checkDisplayMapper(PSSecurityToken tok, PSDisplayMapper mapper)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -206,7 +206,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    * @param uiDef The ui Definition to transform, may not be <code>null</code>.
    * @throws PSDeployException if any errors occur.
    */
-  @SuppressWarnings("unchecked")
+
   protected void transformUIDef(PSIdMap idMap, PSUIDefinition uiDef) throws PSDeployException {
     if (idMap == null) throw new IllegalArgumentException("idMap may not be null");
     if (uiDef == null) throw new IllegalArgumentException("uiDef may not be null");
@@ -229,7 +229,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    * @param mapper The mapper to transform, may not be <code>null</code>.
    * @throws PSDeployException if any errors occur.
    */
-  @SuppressWarnings("unchecked")
+
   protected void transformDisplayMapper(PSIdMap idMap, PSDisplayMapper mapper)
       throws PSDeployException {
     if (idMap == null) throw new IllegalArgumentException("idMap may not be null");

@@ -174,7 +174,7 @@ public class PSFolderContentsDescriptorBuilder {
    * @throws PSDeployException
    */
   private PSDeployableElement getTopFolderElement() throws PSDeployException {
-    @SuppressWarnings("unchecked")
+
     Iterator<PSDeployableElement> rawElements =
         (Iterator<PSDeployableElement>)
             m_sourceMgr.getDeployableElements(IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER);

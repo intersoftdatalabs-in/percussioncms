@@ -33,7 +33,7 @@ public class SegmentWeightUtilTest {
     HashMap<String, Integer> expected;
     HashMap<String, Integer> request;
     Map<String, Integer> actual;
-    
+
     @BeforeEach
     public void setUp() throws Exception {
         weights = new HashMap<String, Integer>();
@@ -46,28 +46,28 @@ public class SegmentWeightUtilTest {
     public void testMergeSegmentWeights() {
         weights.put("1", 1);
         weights.put("2", 2);
-        
+
         request.put("1", 1);
         request.put("2", 1);
         request.put("3", 1);
         request.put("4", null);
         request.put(null, 2);
-        
+
         expected.put("1", 2);
         expected.put("2", 3);
         expected.put("3", 1);
         expected.put("4", 0);
-        
+
         actual = SegmentWeightUtil.mergeSegmentWeights(weights, request);
-        
+
         assertEquals(expected,actual);
-        
+
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void shouldFailOnNullInputOfMergeSegmentWeights() {
         SegmentWeightUtil.mergeSegmentWeights(null, null);
-        
+
     }
 
     @Test
@@ -75,30 +75,30 @@ public class SegmentWeightUtilTest {
 
         weights.put("1", 1);
         weights.put("2", 2);
-        
+
         request.put("1", 1);
         request.put("2", 1);
         request.put("3", 1);
         request.put("4", null);
         request.put(null, 2);
-        
+
         expected.put("1", 1);
         expected.put("2", 1);
         expected.put("3", 1);
         expected.put("4", 0);
-        
+
         actual = SegmentWeightUtil.setSegmentWeights(weights, request);
-        
+
         assertEquals(expected,actual);
-        
+
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void shouldFailOnNullInputOfSetSegmentWeights() {
         SegmentWeightUtil.setSegmentWeights(null, null);
     }
-    
-    @SuppressWarnings("unchecked")
+
+
     @Test
     public void testCleanSegmentWeightsOfNull() {
         weights.put("1", 1);
@@ -111,11 +111,11 @@ public class SegmentWeightUtilTest {
         assertFalse(expected.containsKey("3") || expected.containsKey("4"));
         assertEquals(expected,weights);
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void shouldFailOnNullInputOfCleanSegmentWeights() {
         SegmentWeightUtil.cleanSegmentWeightsOfNull(null);
     }
-    
+
 
 }

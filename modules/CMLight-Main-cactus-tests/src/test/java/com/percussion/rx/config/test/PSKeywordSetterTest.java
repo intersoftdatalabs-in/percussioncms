@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Tag;
 
 
 public class PSKeywordSetterTest extends PSConfigurationTest {
-  @SuppressWarnings("unchecked")
+
   public void testKeywordSetter() throws PSNotFoundException {
     IPSDesignModelFactory dm = PSDesignModelFactoryLocator.getDesignModelFactory();
     IPSDesignModel model = dm.getDesignModel(PSTypeEnum.KEYWORD_DEF);
@@ -73,7 +73,7 @@ public class PSKeywordSetterTest extends PSConfigurationTest {
     model.save(kw);
   }
 
-  @SuppressWarnings("unchecked")
+
   public void testAddPropertyDefs() throws Exception {
     PSKeyword kw = getKeyword();
     // Create the setter

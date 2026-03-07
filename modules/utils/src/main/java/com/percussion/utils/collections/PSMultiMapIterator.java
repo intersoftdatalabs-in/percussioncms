@@ -76,7 +76,7 @@ public class PSMultiMapIterator<M> implements Iterator {
    *
    * @return the next element or <code>null</code> if there are no more elements
    */
-  @SuppressWarnings("unchecked")
+
   private M findNext() {
     while (true) {
       if (m_iter != null && m_iter.hasNext()) {

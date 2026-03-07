@@ -59,7 +59,7 @@ public abstract class PSAbstractBeanValidator<FULL> implements Validator {
       if (errors instanceof PSBeanValidationException) {
         try {
           // This cast is safe because the validator only accepts objects of type FULL
-          @SuppressWarnings("unchecked")
+
           FULL fullObject = (FULL) object;
           doValidation(fullObject, (PSBeanValidationException) errors);
         } catch (PSValidationException e) {

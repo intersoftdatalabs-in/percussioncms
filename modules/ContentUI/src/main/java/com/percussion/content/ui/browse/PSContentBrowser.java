@@ -396,7 +396,7 @@ public class PSContentBrowser {
    * @throws PSErrorException
    * @throws JSONException
    */
-  @SuppressWarnings("unchecked")
+
   public static String createFolder(
       IPSRequestContext request, String parentFolderPath, String folderName)
       throws PSErrorException, JSONException {

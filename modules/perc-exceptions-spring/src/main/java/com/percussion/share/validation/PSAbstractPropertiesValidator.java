@@ -39,7 +39,6 @@ public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Valid
     return e;
   }
 
-  @SuppressWarnings("unchecked")
   public boolean supports(Class<?> klass) {
     notNull(getType(), "getType() cannot return null");
     if (klass == getType()) return true;
@@ -48,7 +47,7 @@ public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Valid
 
   protected abstract void doValidation(PROPERTIES properties, PSPropertiesValidationException e);
 
-  @SuppressWarnings("unchecked")
+
   public void validate(Object properties, Errors errors) {
     doValidation((PROPERTIES) properties, (PSPropertiesValidationException) errors);
   }

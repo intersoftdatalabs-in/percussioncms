@@ -908,7 +908,7 @@ public class ItemRestServiceImpl implements IItemRestService {
    * @param itemdef PSItemDefinition
    * @return List<Child>
    */
-  @SuppressWarnings("unchecked")
+
   private List<Child> getFromRxChildren(Node item, PSItemDefinition itemdef) {
     List<Child> children = new ArrayList<Child>();
 

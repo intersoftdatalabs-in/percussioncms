@@ -55,7 +55,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    *
    * @param request the request to wrap.
    */
-  @SuppressWarnings("unchecked")
+
   public MutableHttpServletRequestWrapper(HttpServletRequest request) {
     super(request);
     localParams = new PSFacadeMap<String, String[]>(request.getParameterMap());
@@ -125,7 +125,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    * @see jakarta.servlet.ServletRequestWrapper#getParameterMap()
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   public Map getParameterMap() {
     return Collections.unmodifiableMap(localParams);
   }
@@ -134,7 +134,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    * @see jakarta.servlet.ServletRequestWrapper#getParameterNames()
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   public Enumeration getParameterNames() {
     return Collections.<String>enumeration(localParams.keySet());
   }
@@ -168,7 +168,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaderNames()
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   public Enumeration getHeaderNames() {
     Set<String> names = new HashSet<String>();
     names.addAll(localHeaders.keySet());
@@ -187,7 +187,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
    * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaders(java.lang.String)
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   public Enumeration getHeaders(String name) {
     Validate.notEmpty(name);
     String key = name.toUpperCase();

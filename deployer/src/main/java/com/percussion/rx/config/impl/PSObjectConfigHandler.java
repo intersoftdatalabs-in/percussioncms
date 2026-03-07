@@ -192,7 +192,7 @@ public class PSObjectConfigHandler implements IPSConfigHandler {
     return false;
   }
 
-  @SuppressWarnings("unchecked")
+
   @Override
   public Map<String, Object> getExtraProperties() {
     return Collections.EMPTY_MAP;

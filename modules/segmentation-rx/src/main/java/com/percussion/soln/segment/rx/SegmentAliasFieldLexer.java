@@ -49,7 +49,7 @@ public SegmentAliasFieldLexer(Reader in) {
 public SegmentAliasFieldLexer(InputBuffer ib) {
 	this(new LexerSharedInputState(ib));
 }
-@SuppressWarnings("unchecked")
+
 public SegmentAliasFieldLexer(LexerSharedInputState state) {
 	super(state);
 	caseSensitiveLiterals = true;
@@ -149,7 +149,7 @@ tryAgain:
 		_ttype = QUOTED;
 		@SuppressWarnings("unused")
         int _saveIndex;
-		
+
 		match('"');
 		{
 		_loop8:
@@ -162,28 +162,28 @@ tryAgain:
 			else {
 				break _loop8;
 			}
-			
+
 		} while (true);
 		}
 		match('"');
-		
+
 			  	// Strip the surrounding quotes
-			  	String txt = getText(); 
-			  	setText(txt.substring(1, txt.length() -1)); 
-			
+			  	String txt = getText();
+			  	setText(txt.substring(1, txt.length() -1));
+
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
 			_token = makeToken(_ttype);
 			_token.setText(new String(text.getBuffer(), _begin, text.length()-_begin));
 		}
 		_returnToken = _token;
 	}
-	
+
 	public final void mUNQUOTED(boolean _createToken) throws RecognitionException, CharStreamException, TokenStreamException {
 		int _ttype; Token _token=null; int _begin=text.length();
 		_ttype = UNQUOTED;
 		@SuppressWarnings("unused")
         int _saveIndex;
-		
+
 		{
 		int _cnt12=0;
 		_loop12:
@@ -196,7 +196,7 @@ tryAgain:
 			else {
 				if ( _cnt12>=1 ) { break _loop12; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
 			}
-			
+
 			_cnt12++;
 		} while (true);
 		}
@@ -206,13 +206,13 @@ tryAgain:
 		}
 		_returnToken = _token;
 	}
-	
+
 	public final void mSEPARATOR(boolean _createToken) throws RecognitionException, CharStreamException, TokenStreamException {
 		int _ttype; Token _token=null; int _begin=text.length();
 		_ttype = SEPARATOR;
 		@SuppressWarnings("unused")
         int _saveIndex;
-		
+
 		switch ( LA(1)) {
 		case '\r':
 		{
@@ -242,7 +242,7 @@ tryAgain:
 				else {
 					if ( _cnt15>=1 ) { break _loop15; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());}
 				}
-				
+
 				_cnt15++;
 			} while (true);
 			}
@@ -260,12 +260,12 @@ tryAgain:
 		}
 		_returnToken = _token;
 	}
-	
-	
+
+
 	private static final long[] mk_tokenSet_0() {
 		long[] data = { -21474846209L, -1L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());
-	
+
 	}

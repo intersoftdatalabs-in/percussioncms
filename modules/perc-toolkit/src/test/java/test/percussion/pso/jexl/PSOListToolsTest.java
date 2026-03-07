@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.Vector;
 import org.apache.commons.collections.ListUtils;
 
-@SuppressWarnings("unchecked")
+
 public class PSOListToolsTest {
 
   private Collection emptyList;

@@ -69,7 +69,7 @@ public class PSLookup implements List<PSXEntry> {
     return list.toArray();
   }
 
-  @SuppressWarnings("unchecked")
+
   @Override
   public Object[] toArray(Object[] a) {
     return list.toArray(a);
@@ -85,13 +85,13 @@ public class PSLookup implements List<PSXEntry> {
     return list.containsAll(c);
   }
 
-  @SuppressWarnings("unchecked")
+
   @Override
   public boolean addAll(@SuppressWarnings("rawtypes") Collection c) {
     return list.addAll(c);
   }
 
-  @SuppressWarnings("unchecked")
+
   @Override
   public boolean addAll(int index, @SuppressWarnings("rawtypes") Collection c) {
     return list.addAll(index, c);

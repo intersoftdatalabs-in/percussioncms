@@ -86,7 +86,7 @@ public class PSExportJob extends PSDeployJob {
    * Runs this export job. Creates an archive file and stores all files in it that will be required
    * to deploy the items specified by the descriptor supplied to the <code>init()</code> method.
    */
-  @SuppressWarnings("unchecked")
+
   @Override
   public void doRun() {
     PSArchive archive = null;

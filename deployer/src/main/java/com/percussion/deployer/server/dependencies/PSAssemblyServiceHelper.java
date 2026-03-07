@@ -296,7 +296,7 @@ public class PSAssemblyServiceHelper {
     return m_legacyTemplatesMap;
   }
 
-  @SuppressWarnings("unchecked")
+
   private void catalogSlots() {
     try {
       var summaries = m_assemblySvc.getSummaries(PSTypeEnum.SLOT);

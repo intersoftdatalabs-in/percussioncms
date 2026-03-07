@@ -154,7 +154,7 @@ public class PSGetTemplateImagesForContentTypeAction extends PSAAActionBase {
    * @return sorted collection of templates by outputformat and by type, may be empty but never
    *     <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private Collection<IPSAssemblyTemplate> getSortedTemplates(
       Collection<IPSAssemblyTemplate> templates) {
     Map<OutputFormat, List<IPSAssemblyTemplate>> temp =

@@ -317,7 +317,7 @@ public class PSBaseHttpUtils {
    * @return Never <code>null</code>.
    * @throws RuntimeException If the query param string is malformed.
    */
-  @SuppressWarnings("unchecked")
+
   public static Map<String, Object> parseQueryParamsString(
       String query, boolean lowerCaseNames, boolean urlDecode) {
     Map<String, Object> results = new HashMap<>();
@@ -411,7 +411,7 @@ public class PSBaseHttpUtils {
    *     otherwise they will be added to the map as is.
    * @return The generated string. Never <code>null</code>, may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   public static String addQueryParams(String path, Map<String, Object> params, boolean urlEncode) {
     StringBuilder result = new StringBuilder();
     if (path != null) result.append(path);

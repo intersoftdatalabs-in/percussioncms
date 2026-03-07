@@ -73,7 +73,7 @@ public class PSConfigNormalizer {
     return result;
   }
 
-  @SuppressWarnings("unchecked")
+
   private void appendFQNames(
       Map<String, Object> tgtMap, String prefix, Map<String, Object> srcMap) {
     for (var k : srcMap.keySet()) {

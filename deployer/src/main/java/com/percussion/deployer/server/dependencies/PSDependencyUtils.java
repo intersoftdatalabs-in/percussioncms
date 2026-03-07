@@ -208,7 +208,7 @@ public class PSDependencyUtils {
    * @return a cloned map
    */
   //
-  @SuppressWarnings("unchecked")
+
   public static Map<String, PSPair<String, String>> clonePSPairMap(
       Map<String, PSPair<String, String>> oldMap) {
     Map<String, PSPair<String, String>> newMap = new HashMap<>();
@@ -445,7 +445,7 @@ public class PSDependencyUtils {
    * @return Iterator over zero or more table names as <code>String</code> objects, never <code>null
    *     </code>, may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   public static List<String> getLocatorTables(PSContainerLocator locator) {
     if (locator == null) throw new IllegalArgumentException("locator may not be null");
 

@@ -189,7 +189,7 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
 
   private List<Integer> extractDependentIds(Collection<PSRelationship> relationships) {
     // extract owner content ids from the relationship set
-    @SuppressWarnings("unchecked")
+
     Iterator<PSRelationship> iter = relationships.iterator();
     List<Integer> cids = new ArrayList<Integer>();
     while (iter.hasNext()) {
@@ -213,7 +213,7 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
    */
   private List<Integer> extractOwnerIds(Collection<PSRelationship> relationships) {
     // extract owner content ids from the relationship set
-    @SuppressWarnings("unchecked")
+
     Iterator<PSRelationship> iter = relationships.iterator();
     List<Integer> cids = new ArrayList<Integer>();
     while (iter.hasNext()) {
@@ -227,7 +227,7 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
   /* (non-Javadoc)
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#createEmptyRelationshipCollection()
    */
-  @SuppressWarnings("unchecked")
+
   private Collection<PSRelationship> createEmptyRelationshipCollection() {
     PSRelationshipSet relationshipSet = new PSRelationshipSet();
     return relationshipSet;
@@ -387,7 +387,7 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
    * @param trueKeepOnlyIdsFalseRemoveOnlyIds
    * @param trueOwnerIdsFalseDependentIds
    */
-  @SuppressWarnings("unchecked")
+
   private void filterRelationships(
       Collection<PSRelationship> relationships,
       Collection<Integer> ids,

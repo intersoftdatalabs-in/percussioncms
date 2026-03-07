@@ -36,7 +36,7 @@ public class HibernateAttribute_langDAO implements Attribute_langDAO {
     return session.get(Attribute_lang.class, id);
   }
 
-  @SuppressWarnings("unchecked")
+
   public Collection getAllAttribute_langs() {
     Session session = sessionFactory.getCurrentSession();
     return (Collection) (Collection<?>) session.createQuery("from Attribute_lang att", Attribute_lang.class).list();

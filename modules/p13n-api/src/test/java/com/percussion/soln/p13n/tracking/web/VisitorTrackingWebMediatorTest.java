@@ -45,7 +45,7 @@ import com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils;
 
 
 /**
- * Scenario description: 
+ * Scenario description:
  * @author adamgent, Mar 27, 2009
  */
 @ExtendWith(MockitoExtension.class)
@@ -79,8 +79,8 @@ public class VisitorTrackingWebMediatorTest {
          * Given: we provide a visitor profile id in the request parameter
          */
         mediator.setUsingRequestParameter(true);
-        request.setParameter(VisitorTrackingWebUtils.VISITOR_PROFILE_ID_REQUEST_PARAM, "1"); 
-        /* 
+        request.setParameter(VisitorTrackingWebUtils.VISITOR_PROFILE_ID_REQUEST_PARAM, "1");
+        /*
          * Expect: the tracking service to be called with a tracking request of id 1
          */
         context.checking(new Expectations() {{
@@ -92,13 +92,13 @@ public class VisitorTrackingWebMediatorTest {
          * When: get the visitor profile from the request.
          */
         mediator.resolveProfile(null, request);
-        
+
         /*
          * Then: we either have a profile or not but the tracking service was called.
          */
-        
+
     }
-    
+
     @Test
     public void shouldRetrieveVisitorProfileFromSession() {
         /*
@@ -108,7 +108,7 @@ public class VisitorTrackingWebMediatorTest {
         mediator.setUsingSession(true);
         profile.setId(3L);
         VisitorTrackingWebUtils.setVisitorProfileToSession(request.getSession(), profile);
-        /* 
+        /*
          * Expect: the tracking service should be called
          */
         context.checking(new Expectations() {{
@@ -119,11 +119,11 @@ public class VisitorTrackingWebMediatorTest {
          * When: get the visitor profile from the request.
          */
         mediator.resolveProfile(null, request);
-        
+
         /*
          * Then: we have a profile from the session and the tracking service will be called.
          */
-        
+
     }
 
     @Test
@@ -135,8 +135,8 @@ public class VisitorTrackingWebMediatorTest {
         Cookie cookie = new Cookie(VisitorTrackingWebUtils.VISITOR_PROFILE_ID_COOKIE_NAME, ""+ 2L);
         request.setCookies(new Cookie[] { cookie});
         profile.setId(2L);
-        
-        /* 
+
+        /*
          * Expect: the tracking service should be called
          */
         context.checking(new Expectations() {{
@@ -147,14 +147,14 @@ public class VisitorTrackingWebMediatorTest {
          * When: get the visitor profile from the request.
          */
         mediator.resolveProfile(null, request);
-        
+
         /*
          * Then: we have a profile from the session and the tracking service will be called.
          */
-        
+
     }
-    
-    @SuppressWarnings("unchecked")
+
+
     @Test
     public void shouldRetrieveProfileFromSessionIfSameAsCookie() throws Exception {
         mediator.setUsingCookies(true);
@@ -167,12 +167,12 @@ public class VisitorTrackingWebMediatorTest {
                     aVisitorTrackRequestOfId(2L))));
             will(returnValue(profile));
         }});
-        
+
         request.setCookies(new Cookie[] { cookie});
         profile.setId(2L);
         mediator.resolveProfile(null, request);
     }
-    
+
     @Test
     public void shouldRetrieveProfileUsingCookieIfSessionProfileIsDifferent() throws Exception {
         mediator.setUsingCookies(true);
@@ -191,15 +191,15 @@ public class VisitorTrackingWebMediatorTest {
         profile.setId(2L);
         mediator.resolveProfile(null, request);
     }
-    
+
 
     @Test
     public void shouldCreateVisitorProfileFromServletRequest() {
         /*
          * Given: no visitor profile associated with user.
          */
-        
-        /* 
+
+        /*
          * Expect: the tracking service should be called
          */
         context.checking(new Expectations() {{
@@ -210,30 +210,30 @@ public class VisitorTrackingWebMediatorTest {
          * When: get the visitor profile from the request.
          */
         mediator.resolveProfile(null, request);
-        
+
         /*
          * Then: we have a profile from the session and the tracking service will be called.
          */
-        
+
     }
-    
-    
+
+
     @Test
     public void shouldCreateVisitorProfileFromServletRequestIfCookieAndSessionAreBad() {
         /*
          * Given: the user has lots of bad profile info assocated to there request.
          */
-        
+
         profile.setId(3L);
         mediator.setUsingSession(true);
         VisitorTrackingWebUtils.setVisitorProfileToSession(request.getSession(), profile);
-        
+
         mediator.setUsingCookies(true);
         Cookie cookie = new Cookie(VisitorTrackingWebUtils.VISITOR_PROFILE_ID_COOKIE_NAME, ""+ 2L);
         request.setCookies(new Cookie[] { cookie});
 
-        
-        /* 
+
+        /*
          * Expect: the tracking service should be called
          */
         final Sequence ss = context.sequence("strategySequence");
@@ -247,13 +247,13 @@ public class VisitorTrackingWebMediatorTest {
          * When: get the visitor profile from the request.
          */
         mediator.resolveProfile(null, request);
-        
+
         /*
          * Then: we should have a new profile.
          */
-        
+
     }
-    
+
     @Test
     public void shouldReturnNullIfRequestParameterIsBad() {
         /*
@@ -263,8 +263,8 @@ public class VisitorTrackingWebMediatorTest {
         request.setParameter(VisitorTrackingWebUtils.VISITOR_PROFILE_ID_REQUEST_PARAM, "1");
 
 
-        
-        /* 
+
+        /*
          * Expect: the tracking service should be called
          */
         final Sequence ss = context.sequence("strategySequence");
@@ -277,26 +277,26 @@ public class VisitorTrackingWebMediatorTest {
          * When: get the visitor profile from the request.
          */
         VisitorProfile actual = mediator.resolveProfile(null, request);
-        
+
         /*
          * Then: we should have a new profile.
          */
         assertNull(actual);
     }
-    
-    
-    
-    
+
+
+
+
     @Factory
     public  static VistorTrackingRequestIdMatcher aVisitorTrackRequestOfId( Long id ) {
         return new VistorTrackingRequestIdMatcher(id);
     }
-    
+
     public static TypeSafeMatcher<VisitorTrackingRequest> aVisitorTrackRequestWithProfile(final VisitorProfile profile) {
         return new TypeSafeMatcher<VisitorTrackingRequest>() {
 
             VisitorProfile itemProfile;
-            
+
             @Override
             public boolean matchesSafely(VisitorTrackingRequest item) {
                 itemProfile = item.getVisitorProfile();
@@ -310,16 +310,16 @@ public class VisitorTrackingWebMediatorTest {
                     .appendText(" and request has profile: ")
                     .appendValue(itemProfile);
             }
-            
+
         };
     }
-    
-    
+
+
     public static  class VistorTrackingRequestIdMatcher extends TypeSafeMatcher<VisitorTrackingRequest>  {
 
         private Long id;
         private Long actual;
-        
+
         public VistorTrackingRequestIdMatcher(Long id) {
             super();
             this.id = id;
@@ -328,7 +328,7 @@ public class VisitorTrackingWebMediatorTest {
         @Override
         public boolean matchesSafely(VisitorTrackingRequest item) {
             actual = item.getVisitorProfileId();
-            return id == actual || id.equals(actual);            
+            return id == actual || id.equals(actual);
         }
 
         public void describeTo(Description description) {

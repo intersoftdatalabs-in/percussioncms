@@ -51,7 +51,7 @@ public class HibernateValueDAO implements ValueDAO {
     return session.get(Value.class, id);
   }
 
-  @SuppressWarnings("unchecked")
+
   public Collection<Value> getAllValues() {
     Session session = sessionFactory.getCurrentSession();
     return (Collection<Value>) (Collection<?>) session.createQuery("from Value val", Value.class).list();
@@ -64,7 +64,7 @@ public class HibernateValueDAO implements ValueDAO {
     session.merge(value);
   }
 
-  @SuppressWarnings("unchecked")
+
   public Map<String, String> saveValuesFromParams(
       Map<String, String[]> params,
       Collection<Attribute> attributes,
@@ -406,7 +406,7 @@ public class HibernateValueDAO implements ValueDAO {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @SuppressWarnings("unchecked")
+
     private Map<String, Value> getCurrentValuesFor(
         Session session, int nodeID, Attribute attribute) {
       Collection<Value> rawValues =

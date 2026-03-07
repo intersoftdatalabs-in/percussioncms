@@ -35,7 +35,7 @@ public class HibernateRelationship_typeDAO implements Relationship_typeDAO {
     return session.get(Relationship_type.class, id);
   }
 
-  @SuppressWarnings("unchecked")
+
   public Collection getAllRelationship_types() {
     Session session = sessionFactory.getCurrentSession();
     return (Collection) (Collection<?>) session.createQuery("from Relationship_type rel", Relationship_type.class).list();

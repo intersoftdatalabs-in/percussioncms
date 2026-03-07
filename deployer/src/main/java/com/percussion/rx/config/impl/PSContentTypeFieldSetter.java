@@ -305,7 +305,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
    * @param fieldName the shared field name, assumed not <code>null</code> and it is an existing
    *     shared field.
    */
-  @SuppressWarnings("unchecked")
+
   private void updateSharedGroup(PSItemDefinition itemDef, String fieldName) {
     PSSharedFieldGroup shGroup = PSContentTypeHelper.getSharedGroup(fieldName);
     PSContentEditorMapper mapper = itemDef.getContentEditorMapper();
@@ -370,7 +370,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
    * @param fieldName the system or shared field name, assumed not <code>null</code> or empty.
    * @param type assumed it is either {@link PSField#TYPE_SYSTEM} or {@link PSField#TYPE_SHARED}
    */
-  @SuppressWarnings("unchecked")
+
   private void removeFieldFromExcludes(PSItemDefinition itemDef, String fieldName, int type) {
     Iterator excludes;
     ArrayList<String> names = new ArrayList<>();
@@ -523,7 +523,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
    *     </code>.
    * @param params the value of the property. Expecting {@link Map} or {@link List} type.
    */
-  @SuppressWarnings("unchecked")
+
   private void setControlParameters(PSItemDefinition itemDef, Object params) {
     if ((!(params instanceof Map)) && (!(params instanceof List)))
       throw new PSConfigException(
@@ -594,7 +594,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
    * @param value the new value of the property.
    * @throws PSExtensionException
    */
-  @SuppressWarnings("unchecked")
+
   private void setRequired(PSField fd, String value) throws PSExtensionException {
     // convert the boolean value
     Boolean isRequired = (Boolean) super.convertValue(value, Boolean.class);
@@ -630,7 +630,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
    * @param itemDef the Content Type contains the current field, assumed not <code>null</code>.
    * @param seqValue the sequence value in String format, may not be <code>null</code> or empty.
    */
-  @SuppressWarnings("unchecked")
+
   private void setSequence(PSItemDefinition itemDef, String seqValue) {
     if (StringUtils.isBlank(seqValue))
       throw new IllegalArgumentException("seqVaule may not be null or empty.");

@@ -190,7 +190,7 @@ public class PSMainView extends JSplitPane
    *
    * @param selListener the listener interested in selection changes, may not be <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   public void addSelectionListener(IPSSelectionListener selListener) {
     if (selListener == null) {
       throw new IllegalArgumentException("selListener may not be null.");
@@ -331,7 +331,7 @@ public class PSMainView extends JSplitPane
   }
 
   // implements interface method
-  @SuppressWarnings("unchecked")
+
   public void actionExecuted(PSActionEvent event) {
     if (event == null) {
       throw new IllegalArgumentException("event may not be null.");

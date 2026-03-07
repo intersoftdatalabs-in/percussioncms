@@ -863,7 +863,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
    * @return the contents of the text after being processed by Velocity.
    */
   private static String processString(PSJexlEvaluator eval, String text) {
-    @SuppressWarnings("unchecked")
+
     VelocityContext velContext = PSVelocityUtils.getContext(eval.getVars());
 
     RuntimeServices rs = new RuntimeInstance();
@@ -1137,7 +1137,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
             principals, contentid, revisionid);
 
     for (IPSTypedPrincipal prince : principals) {
-      @SuppressWarnings("unchecked")
+
       List<PSSubject> subjects =
           PSRoleManager.getInstance()
               .getSubjectGlobalAttributes(

@@ -48,7 +48,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    * (non-Javadoc)
    * @see com.percussion.services.config.IPSPropertySetter#setProperty(java.lang.Object)
    */
-  @SuppressWarnings("unchecked")
+
   public boolean applyProperties(Object obj, ObjectState state, List<IPSAssociationSet> aSets) {
     var properties = getProperties();
     if (properties == null || properties.isEmpty()) return false;
@@ -257,7 +257,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    *     may be <code>null</code>.
    * @param defs the holder for the created property definitions, never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   protected void addFixmePropertyDefsForList(
       String propName, Object pvalue, Map<String, Object> defs) {
     if (pvalue == null) return;
@@ -329,7 +329,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    *     value in question. It may be <code>null</code>.
    * @param defs the holder for the created property definitions, never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   protected void addPropertyDefsForMap(
       String propName, Object pvalue, Map<String, Object> srcMap, Map<String, Object> defs) {
     if (pvalue == null) return;
@@ -362,7 +362,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    * @param value the value of the parameter. It may be <code>null</code>.
    * @return the converted value with type of the parameter of the method.
    */
-  @SuppressWarnings("unchecked")
+
   private Object convertValue(Method method, Object value) {
     var paramType = method.getParameterTypes()[0];
     return convertValue(value, paramType);
@@ -375,7 +375,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    * @param type the target type of the returned value, never <code>null</code>.
    * @return the converted value, may be <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   protected Object convertValue(Object value, Class type) {
     var cvt = new SimpleTypeConverter();
     return cvt.convertIfNecessary(value, type);
@@ -412,7 +412,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    *     method.
    * @return the object and setter method pair, never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private PSPair<Object, Method> findSetOrGetMethod(
       Object obj, String propertyName, boolean isSetter) {
     // find the most inner object & property name if there is any
@@ -451,7 +451,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    * @param numParams the number of parameters of the specified method.
    * @return the method in the given class. It may be <code>null</code> if cannot find the method.
    */
-  @SuppressWarnings("unchecked")
+
   private Method findtMethod(Class clz, String methodName, int numParams) {
     for (var m : clz.getDeclaredMethods()) {
       if (m.getName().equals(methodName)) {
@@ -474,7 +474,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    *     delimited by ".".
    * @return the inner object and the related property name.
    */
-  @SuppressWarnings("unchecked")
+
   private PSPair<Object, String> findObjectPropName(Object origObj, String origName) {
     if (!origName.contains(".")) return new PSPair<>(origObj, origName);
 
@@ -549,7 +549,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    * @param value the association value, never <code>null</code> but may be empty. The expected type
    *     is {@link List}
    */
-  @SuppressWarnings("unchecked")
+
   protected void setListAssociation(
       List<IPSAssociationSet> aSets, IPSAssociationSet.AssociationType type, Object value) {
     if (!(value instanceof List))

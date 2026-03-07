@@ -36,7 +36,7 @@ public class PSBeanProperties implements IPSBeanPropertiesInternal {
   }
 
   /** Loads the properties from file into memory. Does nothing if there is no properties file. */
-  @SuppressWarnings("unchecked")
+
   private void loadProperties() {
     var f = getPropertiesFile();
     if (!f.exists()) {
@@ -54,7 +54,7 @@ public class PSBeanProperties implements IPSBeanPropertiesInternal {
    * //see base class method for details
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   public List<Object> getList(String name) {
     var v = getProperty(name);
     return (v == null) ? null : (List<Object>) v;
@@ -64,7 +64,7 @@ public class PSBeanProperties implements IPSBeanPropertiesInternal {
    * //see base class method for details
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   public Map<String, Object> getMap(String name) {
     var v = getProperty(name);
     return (v == null) ? null : (Map<String, Object>) v;

@@ -44,7 +44,7 @@ public class PSKeywordDependencyHandlerTest
     *
     * @throws Exception if the test fails
     */
-   @SuppressWarnings("unchecked")
+
    @Test
    public void testHandler() throws Exception
    {

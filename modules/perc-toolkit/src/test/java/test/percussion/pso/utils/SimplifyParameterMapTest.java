@@ -70,7 +70,7 @@ public class SimplifyParameterMapTest {
     assertEquals("fee", outmap.get("array"));
   }
 
-  @SuppressWarnings("unchecked")
+
   @Test
   void testGetValueAsList() {
     List<String> result;

@@ -46,7 +46,7 @@ import java.util.Map;
  */
 public class PSOJexlEvaluatorUDF extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
 
-  @SuppressWarnings("unchecked")
+
   public Object processUdf(Object[] params, IPSRequestContext req) throws PSConversionException {
     PSExtensionParams ep = new PSExtensionParams(params);
     String expression = ep.getStringParam(0, null, true);

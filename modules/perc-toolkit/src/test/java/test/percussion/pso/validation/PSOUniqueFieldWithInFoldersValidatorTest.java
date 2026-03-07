@@ -269,7 +269,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
+
   public void testIsPromotable() {
     final IPSSystemWs systemWs = mock(IPSSystemWs.class);
     validator.setSystemWs(systemWs);

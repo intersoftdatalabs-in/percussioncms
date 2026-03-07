@@ -229,7 +229,7 @@ public abstract class PSActionUtil {
    * @return list of node definitions, never <code>null</code> may be empty. Sorted by names of the
    *     definitions.
    */
-  @SuppressWarnings("unchecked")
+
   public static List<IPSNodeDefinition> getAllowedNodeDefsForSlot(String slotid)
       throws PSAssemblyException, PSNotFoundException {
     List<IPSNodeDefinition> defs = new ArrayList<IPSNodeDefinition>();

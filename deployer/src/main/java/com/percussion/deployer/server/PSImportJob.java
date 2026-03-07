@@ -85,7 +85,7 @@ public class PSImportJob extends PSDeployJob {
    * publish while we are installing. <br>
    * See base class for more info.
    */
-  @SuppressWarnings("unchecked")
+
   @Override
   public void init(int id, Document descriptor, PSRequest req, Properties initParams)
       throws PSAuthenticationFailedException, PSAuthorizationException, PSJobException {
@@ -189,7 +189,7 @@ public class PSImportJob extends PSDeployJob {
    * Runs this import job. Installs all required files and data from the archive specified by the
    * descriptor supplied to the <code>init()</code> method.
    */
-  @SuppressWarnings("unchecked")
+
   @Override
   public void doRun() {
     PSArchive archive = null;

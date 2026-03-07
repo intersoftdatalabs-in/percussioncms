@@ -35,7 +35,7 @@ import org.apache.commons.lang3.StringUtils;
  * Active Assembly client objects.
  */
 public class PSAAClientServlet extends HttpServlet {
-  @SuppressWarnings("unchecked")
+
   @Override
   public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Discard if the connection has closed

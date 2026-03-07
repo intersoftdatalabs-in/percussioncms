@@ -43,7 +43,7 @@ public class PSConfigMapperTest {
    *
    * @throws Exception if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   @Test
   public void testConfigMapper() throws Exception {
     String prefix = "com.percussion.RSS.";
@@ -280,7 +280,7 @@ public class PSConfigMapperTest {
    * @param m1 the 1st map to be compared with, assumed not <code>null</code>.
    * @param m2 the 2nd map to be compared with, assumed not <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private void validateMapValues(Map<String, Object> m1, Map<String, Object> m2) {
     Set values1 = new HashSet<String>();
     values1.addAll(m1.values());
@@ -296,7 +296,7 @@ public class PSConfigMapperTest {
    *
    * @throws Exception if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   @Test
   public void testPartialReplacement() throws Exception {
     // prepare test data

@@ -424,7 +424,7 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
    * @return <code>true</code> if the supplied <code>childId</code> is found in the child actions of
    *     the supplied <code>action</code>, <code>false</code> if not.
    */
-  @SuppressWarnings("unchecked")
+
   private boolean isChild(PSAction action, String childId) {
     boolean isChild = false;
     Iterator childActions = action.getChildren().iterator();

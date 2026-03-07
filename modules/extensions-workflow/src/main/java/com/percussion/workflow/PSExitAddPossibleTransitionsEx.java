@@ -54,7 +54,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-@SuppressWarnings("unchecked")
+
 public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcessor {
 
   private static final Logger log = LogManager.getLogger(PSExitAddPossibleTransitionsEx.class);
@@ -947,7 +947,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
    * @return highest assignment type for the user, based on the roles in which they are acting.
    * @throws SQLException if a SQL error occurs
    */
-  @SuppressWarnings("unchecked")
+
   private static int getAssignmentInfo(
       int workflowID,
       int contentID,

@@ -248,7 +248,7 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
   }
 
   // SECURITY: added
-  @SuppressWarnings("unchecked")
+
   public ModelAndView saveChild(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
     TaxonParams tp = new TaxonParams(request, taxonomyService);
@@ -328,7 +328,7 @@ public class TaxonEditorController extends AbstractTaxonEditorController {
   }
 
   // SECURITY: added
-  @SuppressWarnings("unchecked")
+
   public ModelAndView saveNode(HttpServletRequest request, HttpServletResponse response)
       throws Exception {
     TaxonParams tp = new TaxonParams(request, taxonomyService);

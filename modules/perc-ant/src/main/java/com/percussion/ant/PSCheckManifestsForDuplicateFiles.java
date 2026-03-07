@@ -145,7 +145,7 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
   }
 
   /** Reads lines from the specified file. Any exceptions are wrapped in {@link BuildException}. */
-  @SuppressWarnings("unchecked")
+
   private List<String> readLines(File file) {
     try {
       final Reader reader = new FileReader(file);

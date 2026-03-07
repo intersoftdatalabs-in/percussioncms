@@ -438,7 +438,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
+
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");

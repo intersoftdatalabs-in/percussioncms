@@ -49,7 +49,7 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
 
 public class RxSegmentTree extends SegmentDataTree {
-    
+
     private IPSContentMgr contentManager;
     private IPSContentWs  contentWs;
     private IPSGuidManager guidManager;
@@ -57,7 +57,7 @@ public class RxSegmentTree extends SegmentDataTree {
      * The log instance to use for this class, never <code>null</code>.
      */
     private static final Log log = LogFactory.getLog(RxSegmentTree.class);
-    
+
     public RxSegmentTree(IPSContentMgr contentManager, IPSContentWs contentWs, IPSGuidManager guidManager) {
         super();
         this.contentManager = contentManager;
@@ -66,7 +66,7 @@ public class RxSegmentTree extends SegmentDataTree {
     }
 
 
-    protected Collection<Segment> retrieveSegmentsForItem(int legacyId) 
+    protected Collection<Segment> retrieveSegmentsForItem(int legacyId)
         throws PSErrorException {
         IPSGuid guid = guidManager.makeGuid(new PSLocator(legacyId, -1));
         String[] paths = contentWs.findFolderPaths(guid);
@@ -87,7 +87,7 @@ public class RxSegmentTree extends SegmentDataTree {
                     "The query string does not select on " + field);
         }
     }
-    
+
     /**
     * Setups this taxonomy object used the inputted jcrQuery.
     */
@@ -111,9 +111,9 @@ public class RxSegmentTree extends SegmentDataTree {
             throw new RuntimeException("Something wrong with the repository: ", e);
         }
     }
-    
-    @SuppressWarnings("unchecked")
-    protected void addNodesFromQuery(QueryResult results, String labelField, String aliasField) 
+
+
+    protected void addNodesFromQuery(QueryResult results, String labelField, String aliasField)
         throws ValueFormatException, IllegalStateException, ItemNotFoundException, RepositoryException {
         //String[] propNames = results.getColumnNames();
         Iterator<Row> riter = results.getRows();
@@ -146,7 +146,7 @@ public class RxSegmentTree extends SegmentDataTree {
             //node.setProperties(segProps);
         }
     }
-    
+
     private Value getValueOrFail(Row r, String name) throws ItemNotFoundException, RepositoryException {
         if(r.getValue(name) == null) {
             throw new IllegalArgumentException("Column " + name + " is null and should not be");
@@ -156,11 +156,11 @@ public class RxSegmentTree extends SegmentDataTree {
     private long getLongValueOrFail(Row r, String name) throws ItemNotFoundException, RepositoryException {
         return getValueOrFail(r, name).getLong();
     }
-    
+
     private String getStringValueOrFail(Row r, String name) throws ItemNotFoundException, RepositoryException {
         return getValueOrFail(r,name).getString();
     }
-    
+
     protected List<Long> valuesToLongs(Collection<Value> values) {
         List<Long> rvalue = new ArrayList<Long>();
         for(Value v : values) {
@@ -176,7 +176,7 @@ public class RxSegmentTree extends SegmentDataTree {
         }
         return rvalue;
     }
-    
+
     protected List<Value> getValuesFromQuery(String field, QueryResult results) throws RepositoryException {
         List<Value> ids = new ArrayList<Value>();
         RowIterator riter = results.getRows();
