@@ -6,7 +6,7 @@ This repository is a large mono-repo with many submodules.  This code base has a
 
 ## Rule Discovery Protocol
 
-**Before modifying code within this repository:**
+**For any task, question, or code modification related to a specific module, you MUST first apply this protocol to the module's path:**
 
 1. **Identify the module path:** Determine the specific directory context (e.g., `modules/perc-tinymce/` or `system/services/`).
 2. **Check for local override files:** Scan the identified directory for the following files in this specific order of priority:
