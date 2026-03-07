@@ -323,7 +323,7 @@ public class PSSearchService implements IPSSearchService {
     // the method.
     try {
         var method = cmsObjectMgr.getClass().getMethod("findItemEntries", List.class, Comparator.class);
-        @SuppressWarnings("unchecked")
+
         List<IPSItemEntry> result = (List<IPSItemEntry>) method.invoke(cmsObjectMgr, contentIdList, compare);
         return result;
     } catch (ReflectiveOperationException e) {

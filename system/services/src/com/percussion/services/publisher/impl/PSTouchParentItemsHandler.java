@@ -95,10 +95,10 @@ public class PSTouchParentItemsHandler
 
    /**
     * Create a handler
-    * 
+    *
     * @param session hibernate session, never <code>null</code>
     */
-   @SuppressWarnings("unchecked")
+
    public PSTouchParentItemsHandler(Session session) {
       if (session == null)
       {
@@ -116,7 +116,7 @@ public class PSTouchParentItemsHandler
 
    /**
     * Add the specific passed ids to the items to be touched
-    * 
+    *
     * @param ids a collection of ids, may be empty but not <code>null</code>
     */
    public void addSpecificIds(Collection<Integer> ids)
@@ -133,7 +133,7 @@ public class PSTouchParentItemsHandler
     * discussed in the class description are used to decide how far to pass up
     * the owner hierarchy. This method adds all the direct owner parents with AA
     * relationships
-    * 
+    *
     * @param ids the ids to touch parents of, never <code>null</code> but
     *           could be empty
     */
@@ -144,10 +144,10 @@ public class PSTouchParentItemsHandler
 
       if (ids == null)
          throw new IllegalArgumentException("ids may not be null");
-      
+
       if (ids.isEmpty())
          return;
-      
+
       try
       {
          List<PSRelationship> rels = getParentRelationships(ids);
@@ -159,7 +159,7 @@ public class PSTouchParentItemsHandler
          }
          addGrandParents(parents);
 
-         if (ms_log.isDebugEnabled()) 
+         if (ms_log.isDebugEnabled())
          {
             watch.stop();
             ms_log.debug("[addParents] elapse = " + watch.toString()
@@ -173,33 +173,33 @@ public class PSTouchParentItemsHandler
    }
 
    /**
-    * Gets the Active Assembly relationships where the dependents are the 
+    * Gets the Active Assembly relationships where the dependents are the
     * specified items.
-    * 
+    *
     * @param ids the ids of the specified items; assumed not <code>null</code>
     *    or empty.
-    *    
-    * @return the relationships; may be empty, but never <code>null</code>. 
-    * 
+    *
+    * @return the relationships; may be empty, but never <code>null</code>.
+    *
     * @throws PSException if an error occurs.
     */
-   private List<PSRelationship> getParentRelationships(Collection<Integer> ids) 
+   private List<PSRelationship> getParentRelationships(Collection<Integer> ids)
       throws PSException
    {
       PSRelationshipFilter filter = new PSRelationshipFilter();
       filter.setDependentIds(ids);
       filter.setCategory(PSRelationshipFilter.FILTER_CATEGORY_ACTIVE_ASSEMBLY);
       filter.limitToEditOrCurrentOwnerRevision(true);
-      
+
       return ms_rel.findByFilter(filter);
    }
-   
+
    /**
     * Determines whether the slot of the specified relationship is inline slot.
-    *  
+    *
     * @param rel the relationship in question; assumed not <code>null</code>.
-    * 
-    * @return <code>true</code> if the slot is a inline slot; otherwise return 
+    *
+    * @return <code>true</code> if the slot is a inline slot; otherwise return
     *    <code>false</code>.
     */
    private boolean isInlineSlot(PSRelationship rel)
@@ -221,16 +221,16 @@ public class PSTouchParentItemsHandler
             return m_inlineSlots.contains(sid);
          }
       }
-      
+
       return false;
    }
-   
+
    /**
     * Determines whether the template of the specified relationship contains
     * slots.
-    *  
+    *
     * @param rel the relationship in question; assumed not <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if the template of the specified relationship
     *    contains slots; otherwise return <code>false</code>.
     */
@@ -254,10 +254,10 @@ public class PSTouchParentItemsHandler
             return m_templatesWithSlots.contains(templateId);
          }
       }
-      
+
       return false;
    }
-   
+
 
    /**
     * Look at the grandparents (or higher ancestors) of an item for possible
@@ -269,7 +269,7 @@ public class PSTouchParentItemsHandler
     * <li> The dependent item was reached by following a relationship based on
     * an Inline Slot. This can be determined from the Slot Type field.
     * </ul>
-    * 
+    *
     * @param parentids the specified parent ids; assumed not <code>null</code>,
     *    but may be empty. Do nothing if it is empty.
     */
@@ -277,14 +277,14 @@ public class PSTouchParentItemsHandler
    {
       if (parentids.isEmpty())
          return;
-      
+
       // Get the relationships
       Set<Integer> grandperes = new HashSet<>();
       Integer cparent = null;
 
       try
       {
-         // collecting grand parents 
+         // collecting grand parents
          List<PSRelationship> rels = getParentRelationships(parentids);
          for (PSRelationship rel : rels)
          {
@@ -296,7 +296,7 @@ public class PSTouchParentItemsHandler
          }
          m_items.addAll(parentids);
 
-         // Removes the items which have already processed from the grand 
+         // Removes the items which have already processed from the grand
          // parents. This is also to avoid infinit recursive calls.
          grandperes.removeAll(m_items);
 
@@ -314,11 +314,11 @@ public class PSTouchParentItemsHandler
    /**
     * Performs update operation to the given content id list. It sets the
     * CONTENTLASTMODIFIEDDATE column contain the current date & time.
-    * 
-    * Note, caller must call {@link #addSpecificIds(Collection)} 
+    *
+    * Note, caller must call {@link #addSpecificIds(Collection)}
     * and/or {@link #addParents(Collection)} before call this method; otherwise
     * this method does nothing.
-    * 
+    *
     * @return the IDs of the affected items, never <code>null</code>, but may
     *    be empty.
     */
@@ -329,10 +329,10 @@ public class PSTouchParentItemsHandler
 
       return m_items;
    }
-   
+
    /**
     * Get the items that have been (or will be) touched
-    * 
+    *
     * @return the collection, never <code>null</code>
     */
    public Collection<Integer> getItemIds()

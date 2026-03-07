@@ -74,10 +74,10 @@ public class PSMembershipService implements IPSMembershipService {
       var url = "/" + PSDeliveryInfo.SERVICE_MEMBERSHIP + MEMBERSHIP + ADMIN_USERS;
       var summaries = new ArrayList<PSUserSummary>();
       var deliveryClient = new PSDeliveryClient();
-      @SuppressWarnings("unchecked")
+
       List<Object> users = (List<Object>) deliveryClient.getJsonArray(new PSDeliveryActionOptions(server, url));
       for (var i = 0; i < users.size(); i++) {
-        @SuppressWarnings("unchecked")
+
         Map<String, Object> userSum = (Map<String, Object>) users.get(i);
         var userSummary = new PSUserSummary();
         userSummary.setEmail((String) userSum.get("email"));

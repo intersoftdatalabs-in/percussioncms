@@ -64,7 +64,7 @@ public abstract class PSJSFBaseTag extends TagSupport {
    * @param name the name of the property, never <code>null</code> or empty
    * @param value the value, may be <code>null</code> or empty
    */
-  @SuppressWarnings("unchecked")
+
   protected void setValueBinding(UIComponent comp, String name, String value) {
     if (comp == null) {
       throw new IllegalArgumentException("comp may not be null");
@@ -94,7 +94,7 @@ public abstract class PSJSFBaseTag extends TagSupport {
    * @param value the value, may be <code>null</code> or empty.
    * @param params the parameter classes used by the called method, or <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   protected void setMethodBinding(UIComponent comp, String name, String value, Class[] params) {
     if (comp == null) {
       throw new IllegalArgumentException("comp may not be null");

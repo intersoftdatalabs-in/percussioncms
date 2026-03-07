@@ -34,9 +34,9 @@ import java.util.List;
  * Represents a running edition. The running edition jsp uses AJAX to query the
  * runtime status of the edition. The shown log data is built with straight JSF,
  * so it is not dynamic.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSRuntimeEditionNode extends PSLogNode
 {
@@ -44,7 +44,7 @@ public class PSRuntimeEditionNode extends PSLogNode
     * The edition represented by this runtime node.
     */
    private IPSEdition m_edition;
-   
+
    /**
     * If this element is selected.
     */
@@ -87,17 +87,17 @@ public class PSRuntimeEditionNode extends PSLogNode
    }
 
    /**
-    * Get the edition id 
-    * 
+    * Get the edition id
+    *
     * @return the edition id
     */
    public long getEditionId()
    {
       return m_edition.getGUID().longValue();
    }
-   
+
    /**
-    * @return the job id for the running edition or <code>0</code> if no 
+    * @return the job id for the running edition or <code>0</code> if no
     * edition is running.
     */
    public long getJobId()
@@ -132,7 +132,7 @@ public class PSRuntimeEditionNode extends PSLogNode
     * Gets the status logs for this edition.
     */
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<IPSPubStatus> getStatusLogs() {
       var psvc = PSPublisherServiceLocator.getPublisherService();
       List<IPSPubStatus> logs = java.util.Collections.emptyList();
@@ -150,7 +150,7 @@ public class PSRuntimeEditionNode extends PSLogNode
 
    /**
     * Get the running job of this Edition.
-    * @return the currently running job of this Edition. It may be 
+    * @return the currently running job of this Edition. It may be
     * <code>null</code> if there is no running job for this Edition.
     */
    private IPSPublisherJobStatus getJobStatus()
@@ -191,19 +191,19 @@ public class PSRuntimeEditionNode extends PSLogNode
       else
          return status.getState().getDisplayName();
    }
-   
+
    /**
     * Gets the image URL of the current status.
-    * 
-    * @return the image URL. It may be <code>null</code> if there is no 
-    *    running job with this edition. 
+    *
+    * @return the image URL. It may be <code>null</code> if there is no
+    *    running job with this edition.
     */
    public String getStatusImage()
    {
       IPSPublisherJobStatus status = getJobStatus();
       if (status == null)
          return null;
-      
+
       EndingState endState = PSPublishingStatusHelper.getEndingState(status
             .getState());
       String[] imgSrc = PSPublishingStatusHelper.getStatusImage(endState,
@@ -233,7 +233,7 @@ public class PSRuntimeEditionNode extends PSLogNode
          return "" + PSPublishingStatusHelper.getJobCompletionPercent(status);
    }
 
-   
+
    /**
     * @return get the edition, never <code>null</code>.
     */
@@ -249,7 +249,7 @@ public class PSRuntimeEditionNode extends PSLogNode
       }
       return null;
    }
-   
+
    /**
     * Start the edition if it isn't running.
     * @return the outcome, <code>null</code>.
@@ -260,13 +260,13 @@ public class PSRuntimeEditionNode extends PSLogNode
       {
          m_rxpub.startPublishingJob(m_edition.getGUID(), null);
       }
-      
+
       return perform();
    }
-   
+
    /**
     * Start the Edition from its parent node.
-    * @return the outcome of the parent node. 
+    * @return the outcome of the parent node.
     */
    public String startFromParent()
    {
@@ -275,12 +275,12 @@ public class PSRuntimeEditionNode extends PSLogNode
       /**
        * Note, assume this is called from the current parent node.
        * it is expected the navigation of the parent page defined
-       * the <redirect> to itself. Cannot return null here; otherwise 
+       * the <redirect> to itself. Cannot return null here; otherwise
        * refresh browser may restart the last started Edition.
        */
       return getParent().perform();
    }
-   
+
    /**
     * Stop the edition if it is running.
     * @return the outcome, <code>null</code>.
@@ -302,10 +302,10 @@ public class PSRuntimeEditionNode extends PSLogNode
             Thread.currentThread().interrupt();
          }
       }
-      
+
       return null;
    }
-   
+
    @SuppressWarnings("cast")
    /**
     * Performs navigation for this edition node.
@@ -316,7 +316,7 @@ public class PSRuntimeEditionNode extends PSLogNode
       navigator.setCurrentItemGuid(m_edition.getGUID());
       return super.perform();
    }
-   
+
    /**
     * Gets the CSS class for navigation link.
     */
@@ -324,7 +324,7 @@ public class PSRuntimeEditionNode extends PSLogNode
    public String getNavLinkClass() {
       return "pubruntime-nav-edition-display";
    }
-   
+
    /**
     * Get the name of the current site.
     * @return the site name, never <code>null</code> or empty.
@@ -333,7 +333,7 @@ public class PSRuntimeEditionNode extends PSLogNode
    {
       return getParent().getParent().getLabel();
    }
-   
+
    /**
     * Gets the help topic for this node.
     */

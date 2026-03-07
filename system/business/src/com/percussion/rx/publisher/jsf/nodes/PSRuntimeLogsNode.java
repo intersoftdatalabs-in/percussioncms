@@ -31,17 +31,17 @@ public class PSRuntimeLogsNode extends PSLogNode
    /**
     * Default constructor.
     */
-   public PSRuntimeLogsNode() 
+   public PSRuntimeLogsNode()
    {
       super("Publishing Logs", "pub-runtime-all-logs");
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.rx.publisher.jsf.nodes.PSLogNode#getStatusLogs()
     */
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<IPSPubStatus> getStatusLogs() {
       IPSPublisherService psvc = PSPublisherServiceLocator.getPublisherService();
       List<IPSPubStatus> logs = java.util.Collections.emptyList();
@@ -64,7 +64,7 @@ public class PSRuntimeLogsNode extends PSLogNode
    public boolean isShowSiteColumn() {
       return true;
    }
-   
+
    @Override
    public String getHelpTopic()
    {

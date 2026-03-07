@@ -318,7 +318,7 @@ public class PSItemConverterUtils
     * @return the converted server field, never <code>null</code>.
     * @throws PSCmsException for any error.
     */
-   @SuppressWarnings("unchecked")
+
    public static PSField toClientField(PSItemField source,
       PSConverter callingConverter) throws PSCmsException
    {
@@ -392,7 +392,7 @@ public class PSItemConverterUtils
     * @return the child field array, never <code>null</code>, may be empty.
     * @throws PSCmsException for field value conversion errors.
     */
-   @SuppressWarnings("unchecked")
+
    public static PSField[] toClientFields(Iterator<PSItemField> fields,
       String contentType, PSConverter callingConverter) throws PSCmsException
    {

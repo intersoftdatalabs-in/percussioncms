@@ -77,7 +77,7 @@ public class PSRelationshipService implements IPSRelationshipService {
    private Session getSession() {
       return entityManager.unwrap(Session.class);
    }
-   
+
    /**
     * {@inheritDoc}
     */
@@ -657,7 +657,7 @@ public class PSRelationshipService implements IPSRelationshipService {
     * @return a list of relationship properties, never <code>null</code>, but
     * by empty.
     */
-   @SuppressWarnings("unchecked")
+
    private Collection<PSRelationshipPropertyData> findPropertiesByRid(
            int rid)
    {
@@ -848,7 +848,7 @@ public class PSRelationshipService implements IPSRelationshipService {
    private static final Logger ms_logger = LogManager.getLogger("RelationshipService");
 
    /*
-   @SuppressWarnings("unchecked")
+
    public List<PSRelationshipData> findByCriteria(int ownderId)
    {
       Session sess = getSession();

@@ -605,7 +605,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @return a list with all alloed operations, never <code>null</code>,
     *    may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    private List<PSItemSummary.OperationEnum> getAllowedOperations(
       PSComponentSummary comp, String user)
    {
@@ -1478,7 +1478,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       return prepareForEdit(ids);
    }
 
-   @SuppressWarnings("unchecked")
+
    @Transactional
    public List<PSItemStatus> prepareForEdit(List<IPSGuid> ids)
       throws PSErrorResultsException
@@ -2220,7 +2220,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * is <code>true</code>, then load both the relationships as well as the
     * related items; otherwise the related items will not be loaded.
     */
-   @SuppressWarnings("unchecked")
+
    private List<PSCoreItem> doLoadItems(List<IPSGuid> ids, boolean includeBinary,
       boolean includeChildren, boolean includeRelated, boolean includeFolderPath, boolean isView, boolean includeRelatedItem, String relationshipTypeName)
       throws PSErrorResultsException
@@ -3840,7 +3840,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     *
     * @throws PSErrorException if failed to load the relationships.
     */
-   @SuppressWarnings("unchecked")
+
    private List<PSAaRelationship> loadSlotContentRelationships(PSLocator owner,
       IPSGuid slotid) throws PSErrorException
    {
@@ -4523,7 +4523,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * (non-Javadoc)
     * @see com.percussion.webservices.content.IPSContentWs#loadFolders(java.util.List, boolean)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSFolder> loadFolders(List<IPSGuid> ids,
          boolean loadTransientData) throws PSErrorResultsException
    {
@@ -4685,7 +4685,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    // @see IPSContentWs#loadFolders(String[])
-   @SuppressWarnings("unchecked")
+
    public List<PSFolder> loadFolders(String[] paths)
       throws PSErrorResultsException,IllegalArgumentException
    {

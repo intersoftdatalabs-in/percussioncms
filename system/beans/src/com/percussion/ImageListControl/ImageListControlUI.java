@@ -50,7 +50,7 @@ class ImageListControlUI extends BasicListUI
 // CONSTRUCTORS
 //
 
-// using default constructor!  
+// using default constructor!
 
 //
 // PUBLIC METHODS
@@ -67,7 +67,7 @@ class ImageListControlUI extends BasicListUI
   {
     maybeUpdateLayoutState();
 
-    @SuppressWarnings("unchecked")
+
     ListCellRenderer renderer = list.getCellRenderer();
     ListModel dataModel = list.getModel();
     ListSelectionModel selModel = list.getSelectionModel();
@@ -677,4 +677,4 @@ class ImageListControlUI extends BasicListUI
 
 }
 
- 
+

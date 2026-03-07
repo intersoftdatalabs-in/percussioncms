@@ -43,7 +43,7 @@ public abstract class PSAbstractFilter<T> implements Predicate {
     return rvalue;
   }
 
-  @SuppressWarnings("unchecked")
+
   @Override
   public boolean evaluate(Object obj) {
     return shouldKeep((T) obj);

@@ -464,7 +464,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
     * @see IPSAssemblyDesignWs#loadAssemblyTemplates(List, boolean, boolean,
     *    String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSAssemblyTemplateWs> loadAssemblyTemplates(List<IPSGuid> ids,
       boolean lock, boolean overrideLock, String session, String user)
       throws PSErrorResultsException
@@ -508,7 +508,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
    }
 
    // @see IPSAssemblyDesignWs#loadSlots(List, boolean, boolean, String, String)
-   @SuppressWarnings("unchecked")
+
    public List<IPSTemplateSlot> loadSlots(List<IPSGuid> ids, boolean lock,
       boolean overrideLock, String session, String user)
       throws PSErrorResultsException
@@ -1038,7 +1038,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
     * Gets the image file mapping, which
     * @return
     */
-   @SuppressWarnings("unchecked")
+
    private Map<String, String> getImgFileMap()
    {
       IPSCacheAccess cache = getCache();

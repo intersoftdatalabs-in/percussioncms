@@ -118,7 +118,7 @@ public final class PSGuidUtils {
      *         never {@code null}, may be empty
      * @throws IllegalArgumentException if summaries is null or contains non-IPSCatalogSummary elements
      */
-    @SuppressWarnings("unchecked")
+
     public static List<IPSGuid> getIds(List<?> summaries) {
         Objects.requireNonNull(summaries, "summaries cannot be null");
 

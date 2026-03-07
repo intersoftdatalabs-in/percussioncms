@@ -746,7 +746,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     *
     * @see IPSUiDesignWs#idsToPaths(List)
     */
-   @SuppressWarnings("unchecked")
+
    public List<String> idsToPaths(List<IPSGuid> ids) throws PSErrorResultsException
    {
       if (ids == null || ids.isEmpty())
@@ -783,7 +783,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     *
     * @see IPSUiDesignWs#loadActions(List, boolean, boolean, String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSAction> loadActions(List<IPSGuid> ids, boolean lock, boolean overrideLock, String session, String user)
          throws PSErrorResultsException
    {
@@ -799,7 +799,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * @see IPSUiDesignWs#loadDisplayFormats(List, boolean, boolean, String,
     * String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSDisplayFormat> loadDisplayFormats(List<IPSGuid> ids, boolean lock, boolean overrideLock,
          String session, String user) throws PSErrorResultsException
    {
@@ -881,7 +881,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * @see IPSUiDesignWs#loadHierachyNodes(List, boolean, boolean,
     *    String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSHierarchyNode> loadHierachyNodes(List<IPSGuid> ids, boolean lock, boolean overrideLock,
          String session, String user) throws PSErrorResultsException
    {

@@ -45,7 +45,7 @@ public class PSJexlUtils {
    * @return the bound or existing value
    * @throws Exception if evaluation or binding fails
    */
-  @SuppressWarnings("unchecked")
+
   public static <T> T bindExpression(PSJexlEvaluator eval, IPSScript exp, T value)
       throws Exception {
     var original = eval.evaluate(exp);
@@ -81,7 +81,7 @@ public class PSJexlUtils {
    * @return the evaluated result
    * @throws Exception if evaluation fails
    */
-  @SuppressWarnings("unchecked")
+
   public static <T> T evalExpression(
       PSJexlEvaluator eval, IPSScript exp, @SuppressWarnings("unused") Class<T> k)
       throws Exception {

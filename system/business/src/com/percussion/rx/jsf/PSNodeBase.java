@@ -44,9 +44,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * It is important to note that the model, {@link PSTreeModel}, delegates most
  * methods to the node implementation. Also, the tree model has a direct
  * reference to every node in the tree.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSNodeBase implements RowKeyIndex
 {
@@ -66,7 +66,7 @@ public class PSNodeBase implements RowKeyIndex
     * construction.
     */
    private String m_title;
-   
+
    /**
     * @see #getLabel()
     */
@@ -97,22 +97,22 @@ public class PSNodeBase implements RowKeyIndex
     * The parent pointer, or <code>null</code> if there is no parent.
     */
    private PSNodeBase m_parent = null;
-   
+
    /**
-    * Whether this node is selected - used in list views for actions. 
+    * Whether this node is selected - used in list views for actions.
     */
    private boolean m_selectedRow = false;
 
    /**
     * Ctor.
-    * 
+    *
     * @param title never <code>null</code> or empty.
     * @param outcome the outcome, may be <code>null</code>.
     */
    public PSNodeBase(String title, String outcome) {
       this(title, outcome, null);
    }
-   
+
    /**
     * Constructor allowing to specify title, outcome and label.
     *
@@ -120,7 +120,7 @@ public class PSNodeBase implements RowKeyIndex
     * @param outcome the outcome, may be <code>null</code>.
     * @param label the value returned by {@link #getLabel()}.
     * Can be <code>null</code> or blank.
-    * @see #getLabel() 
+    * @see #getLabel()
     */
    public PSNodeBase(String title, String outcome, String label) {
       if (StringUtils.isBlank(title))
@@ -135,7 +135,7 @@ public class PSNodeBase implements RowKeyIndex
 
    /**
     * Create a row key for nodes that have no row key assigned.
-    * 
+    *
     * @return a row key, never <code>null</code> or empty.
     */
    protected String makeRowKey()
@@ -144,32 +144,32 @@ public class PSNodeBase implements RowKeyIndex
    }
 
    /**
-    * Base action, which does nothing. 
-    * 
+    * Base action, which does nothing.
+    *
     * @return the registered outcome, may be <code>null</code>.
     */
    public String perform()
    {
       PSNavigation navigator = getModel().getNavigator();
-      navigator.setCurrentItemKey((String) getKey());      
+      navigator.setCurrentItemKey((String) getKey());
       return getOutcome();
    }
 
    /**
     * This is used (or called) on the tree node. It defaults to be the same
     * as {@link #perform()}, unless override by derived classes/nodes.
-    * 
+    *
     * @return the registered outcome, may be <code>null</code>.
     */
    public String performOnTreeNode() throws PSNotFoundException {
       return perform();
    }
-   
+
    /**
     * Get the outcome, which tells the system what to do next. A particular node
     * implementation will set data on a managed bean and will cause the outcome
     * to navigate to a particular list or edit view.
-    * 
+    *
     * @return the outcome, if <code>null</code> then the node does not point
     *         to a view and will not be rendered as a link.
     */
@@ -181,7 +181,7 @@ public class PSNodeBase implements RowKeyIndex
    /**
     * Set the outcome. See {@link #getOutcome()} for information about this
     * property.
-    * 
+    *
     * @param outcome the outcome, may be <code>null</code>
     */
    public void setOutcome(String outcome)
@@ -191,7 +191,7 @@ public class PSNodeBase implements RowKeyIndex
 
    /**
     * If this node is a category node, then it is a container.
-    * 
+    *
     * @return <code>true</code> for a container node.
     */
    public boolean isContainer()
@@ -205,7 +205,7 @@ public class PSNodeBase implements RowKeyIndex
     * initialized containers it will return <code>false</code> if the
     * container is empty. For non-containers it will return <code>true</code>,
     * but should never be called by the table model.
-    * 
+    *
     * @return <code>true</code> if this node is a container and contains no
     *         elements after initialization, and <code>true</code> for
     *         non-container nodes.
@@ -217,11 +217,11 @@ public class PSNodeBase implements RowKeyIndex
 
    /**
     * A container node will have children.
-    * 
-    * @return the children, it may be <code>null</code> or empty collection 
+    *
+    * @return the children, it may be <code>null</code> or empty collection
     *    for non-containers or a container does not have any children.
     */
-   @SuppressWarnings("unchecked")
+
    public List<? extends PSNodeBase> getChildren() throws PSNotFoundException {
       return Collections.emptyList();
    }
@@ -229,7 +229,7 @@ public class PSNodeBase implements RowKeyIndex
    /**
     * An enabled node is rendered normally. Disabled nodes are rendered with
     * grayed text and no link.
-    * 
+    *
     * @return <code>true</code> if the node is enabled.
     */
    public boolean getEnabled()
@@ -239,8 +239,8 @@ public class PSNodeBase implements RowKeyIndex
 
    /**
     * The node's title is used as the link or displayed text in the rendered
-    * tree. 
-    * 
+    * tree.
+    *
     * @return the title, never <code>null</code> or empty.
     */
    public String getTitle()
@@ -261,7 +261,7 @@ public class PSNodeBase implements RowKeyIndex
       final String s = StringUtils.isBlank(m_label) ? m_title : m_label;
       return StringUtils.abbreviate(s, LABEL_SIZE);
    }
-   
+
    /**
     * @return the name of the css class to use when rendering this node's
     * link in the navigation tree.
@@ -270,7 +270,7 @@ public class PSNodeBase implements RowKeyIndex
    {
       return "datadisplay";
    }
-   
+
    /**
     * @param title the title to set, never <code>null</code> or empty
     */
@@ -285,7 +285,7 @@ public class PSNodeBase implements RowKeyIndex
 
    /**
     * The row key is a unique identifier for each node in the tree.
-    * 
+    *
     * @return the key, never <code>null</code>
     */
    public Object getKey()
@@ -296,7 +296,7 @@ public class PSNodeBase implements RowKeyIndex
    /**
     * The model is the iterator over the node tree. This is setup by the model
     * on creation and propagated to children by the category nodes.
-    * 
+    *
     * @return the model, never <code>null</code> for correctly created nodes
     *         once they are in a managed category node.
     */
@@ -333,7 +333,7 @@ public class PSNodeBase implements RowKeyIndex
    /**
     * Every attached node has a parent. The exception is the root category node
     * which has no parent. Nodes can be detached, and will have no parent.
-    * 
+    *
     * @return the parent, may be <code>null</code>.
     */
    public PSNodeBase getParent()
@@ -366,7 +366,7 @@ public class PSNodeBase implements RowKeyIndex
    /**
     * Remove the given node from this parent. The node will already be removed
     * from the model.
-    * 
+    *
     * @param node the node to remove, never <code>null</code>.
     */
    public void remove(PSNodeBase node)
@@ -377,7 +377,7 @@ public class PSNodeBase implements RowKeyIndex
 
    /**
     * Is this node selected in the tree.
-    * 
+    *
     * @return <code>true</code> if this node is selected.
     */
    public boolean getSelected()
@@ -428,7 +428,7 @@ public class PSNodeBase implements RowKeyIndex
 
    /**
     * Version of toString used to pretty print.
-    * 
+    *
     * @param indendation count of characters to indent the output
     * @return the output
     */
@@ -540,7 +540,7 @@ public class PSNodeBase implements RowKeyIndex
    /**
     * Get the help file name for the current node.
     * Note, the derived class must implement {@link #getHelpTopic()}
-    * 
+    *
     * @return  the help file name, never <code>null</code> or empty.
     */
    public String getHelpFile()
@@ -551,44 +551,44 @@ public class PSNodeBase implements RowKeyIndex
    /**
     * Get the number of rows per page for paginated table from a given
     * total number of rows.
-    * 
+    *
     * @param totalRows the total number of rows of the table.
-    * 
+    *
     * @return the number of rows per page.
     */
    public static int getPageRows(int totalRows)
    {
       return Math.max(totalRows/MAX_RANGE_PAGES, MIN_ROW_PER_PAGE);
    }
-   
+
    /**
-    * The outcome for navigating to a warning message screen when user 
-    * picked an action that will act on a selected item, but the user hasn't 
-    * selected anything (from a list) yet. 
+    * The outcome for navigating to a warning message screen when user
+    * picked an action that will act on a selected item, but the user hasn't
+    * selected anything (from a list) yet.
     */
    public final static String NONE_SELECT_WARNING = "no-selection-warning";
-   
+
    /**
     * The minimum number of rows per paginated table.
     */
    private final static int MIN_ROW_PER_PAGE = 25;
-   
+
    /**
     * The maximum number of rows in the drop down list of the paginated table.
     */
    private final static int MAX_RANGE_PAGES = 30;
 
    /**
-    * Get the help topic of the node. This must be implemented by the derived 
+    * Get the help topic of the node. This must be implemented by the derived
     * node.
     * @return the help topic, never <code>null</code> or empty.
     */
    protected String getHelpTopic()
    {
       throw new UnsupportedOperationException(
-         "getHelpTopic not implemented for this node type");      
+         "getHelpTopic not implemented for this node type");
    }
-   
+
    /**
     * Error message for the exception when title is null or empty.
     */

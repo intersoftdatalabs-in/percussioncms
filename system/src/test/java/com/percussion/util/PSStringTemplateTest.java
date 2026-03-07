@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test PSStringTemplate
  */
-@SuppressWarnings("unchecked")
+
 public class PSStringTemplateTest
 {
 

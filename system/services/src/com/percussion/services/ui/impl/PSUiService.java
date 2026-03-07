@@ -151,7 +151,7 @@ public class PSUiService implements IPSUiService
     *
     * @see IPSUiService#findHierarchyNodes(String, PSHierarchyNode.NodeType)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSHierarchyNode> findHierarchyNodes(String name, PSHierarchyNode.NodeType type)
    {
       if (StringUtils.isBlank(name))
@@ -185,7 +185,7 @@ public class PSUiService implements IPSUiService
     * @see IPSUiService#findHierarchyNodes(String, IPSGuid,
     * PSHierarchyNode.NodeType)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSHierarchyNode> findHierarchyNodes(String name, IPSGuid parentId, PSHierarchyNode.NodeType type)
    {
       Session session = getSession();
@@ -404,7 +404,7 @@ public class PSUiService implements IPSUiService
     * @return a list with all hierarchy node properties found for the supplied
     *         node, never <code>null</code>, may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    private List<PSHierarchyNodeProperty> loadHierarchyNodeProperties(IPSGuid nodeId)
    {
       if (nodeId == null)

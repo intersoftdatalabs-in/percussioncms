@@ -23,20 +23,20 @@ import org.aspectj.lang.JoinPoint;
 public class PSDesignObjectAuditor {
    /**
     * Perform the audit of the method call specified in the supplied joinpoint.
-    * If auditing is notenabled, simply returns, otherwise performs the audit 
+    * If auditing is notenabled, simply returns, otherwise performs the audit
     * as follows:
     * <p>
-    * Only audits method signatures that start with "save" or "delete".  
+    * Only audits method signatures that start with "save" or "delete".
     * <p>
     * Only considers the first parameter of the method signature.  This argument
     * must be an instance of {@link IPSCatalogIdentifier} or a collection of
     * such instances.
     * <p>
     * For each object audited, a {@link PSAuditData} object is inserted in the
-    * repository.  
-    * 
+    * repository.
+    *
     * @param joinPoint The joinpoint, never <code>null</code>.
-    * 
+    *
     * @throws Throwable If there are any errors.
     */
     public void audit(JoinPoint joinPoint) throws Throwable {
@@ -76,25 +76,25 @@ public class PSDesignObjectAuditor {
         }
         svc.saveAuditLogEntries(entries);
     }
-   
+
    /**
     * Worker method of {@link #audit(JoinPoint)}, see that method for
     * a description of the auditing logic. This method determines the resulting
     * action(s) and guid(s) from the supplied argument and method name. This
     * method is not intended to be called directly, and is public to allow for
     * unit testing.
-    * 
+    *
     * @param methodName The name of the method being audited, used to determine
     * the audited action, may be <code>null</code> in which case an empty
     * collection is returned.
     * @param arg The argument from which to extract one or more guids for the
     * audited action, may be <code>null</code> in which case an empty
     * collection is returned.
-    * 
-    * @return The resulting list of audit data, never <code>null</code>, may be 
+    *
+    * @return The resulting list of audit data, never <code>null</code>, may be
     * empty.
     */
-    @SuppressWarnings("unchecked")
+
     public Collection<PSAuditData> createAuditData(String methodName, Object arg) {
         var dataList = new ArrayList<PSAuditData>();
         if (methodName == null) {
@@ -138,12 +138,12 @@ public class PSDesignObjectAuditor {
     }
 
    /**
-    * Check the audit service to determine if auditing is enabled, caching the 
+    * Check the audit service to determine if auditing is enabled, caching the
     * result for use by future invocations of this method.
-    * 
+    *
     * @return <code>true</code> if it is enabled, <code>false</code>
     * otherwise.
-    */   
+    */
     private boolean isAuditingEnabled() {
         if (m_auditEnabled == null) {
             var svc = PSDesignObjectAuditServiceLocator.getAuditService();
@@ -158,7 +158,7 @@ public class PSDesignObjectAuditor {
     * the config is checked for the first time, immutable after that.
     */
     Boolean m_auditEnabled = null;
-   
+
    /**
     * Simple data structure to hold the guid and audit action, package access
     * for unit testing.
@@ -170,26 +170,26 @@ public class PSDesignObjectAuditor {
        * <code>null</code>.
        */
       private IPSGuid mi_objectGuid;
-      
+
       /**
-       * The action being performed by the method being audited, may be 
+       * The action being performed by the method being audited, may be
        * <code>null</code>.
        */
-      private AuditTypes mi_auditAction; 
-      
+      private AuditTypes mi_auditAction;
+
       /**
        * Get the guid
-       * 
+       *
        * @return The guid, may be <code>null</code>.
        */
       IPSGuid getGuid()
       {
          return mi_objectGuid;
       }
-      
+
       /**
        * Get the action.
-       * 
+       *
        * @return The action, may be <code>null</code>.
        */
       AuditTypes getAction()

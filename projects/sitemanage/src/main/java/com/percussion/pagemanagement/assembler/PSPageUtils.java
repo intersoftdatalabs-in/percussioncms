@@ -984,7 +984,7 @@ public class PSPageUtils extends PSJexlUtilBase {
   public Map<String, String> parseSoProMetadata(String metadata) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      @SuppressWarnings("unchecked")
+
       Map<String, String> jsonObject = mapper.readValue(metadata, Map.class);
       Map<String, String> map = new ConcurrentHashMap<>();
 
@@ -2046,7 +2046,7 @@ public class PSPageUtils extends PSJexlUtilBase {
    * @param asmItem
    * @return The root AssemblyItem
    */
-  @SuppressWarnings("unchecked")
+
   @IPSJexlMethod(
       description = "Get the Root Assembly Item,  e.g. the page being rendered",
       params = {
@@ -2072,7 +2072,7 @@ public class PSPageUtils extends PSJexlUtilBase {
    * @return The Metadata Map. The key is a string and the value must be a String or List of
    *     Strings.
    */
-  @SuppressWarnings("unchecked")
+
   @IPSJexlMethod(
       description = "Get the page metadata map that a widget can add to.",
       params = {
@@ -2322,7 +2322,7 @@ public class PSPageUtils extends PSJexlUtilBase {
   public Map<String, Object> createJsonObject(String jsonString) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      @SuppressWarnings("unchecked")
+
       Map<String, Object> result = mapper.readValue(jsonString, Map.class);
       return result;
     } catch (Exception e) {
@@ -2341,7 +2341,7 @@ public class PSPageUtils extends PSJexlUtilBase {
       try {
         Object value = jsonObj.get(name);
         if (value instanceof List<?>) {
-          @SuppressWarnings("unchecked")
+
           List<Object> castedValue = (List<Object>) value;
           ret = castedValue;
         } else if (value != null) {

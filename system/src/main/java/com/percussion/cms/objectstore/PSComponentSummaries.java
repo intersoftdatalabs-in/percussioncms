@@ -249,7 +249,7 @@ public class PSComponentSummaries extends PSDbComponentSet {
    * (non-Javadoc)
    * @see com.percussion.cms.objectstore.PSDbComponentSet#iterator()
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator<PSComponentSummary> iterator() {
     return super.iterator();
   }

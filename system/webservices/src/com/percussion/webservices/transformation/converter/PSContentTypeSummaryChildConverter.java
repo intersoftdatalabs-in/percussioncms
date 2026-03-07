@@ -41,7 +41,7 @@ public class PSContentTypeSummaryChildConverter extends PSConverter
       super(beanUtils);
    }
 
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object convert(@SuppressWarnings("unused") Class type, Object value)
    {
@@ -52,7 +52,7 @@ public class PSContentTypeSummaryChildConverter extends PSConverter
             (com.percussion.webservices.content.PSContentTypeSummaryChild) value;
          PSContentTypeSummaryChild dest = new PSContentTypeSummaryChild();
          dest.setName(orig.getName());
-         
+
          Converter converter = factory.getConverter(List.class);
          List<PSFieldDescription> target = (List<PSFieldDescription>) converter.convert(List.class, orig.getChildField());
 

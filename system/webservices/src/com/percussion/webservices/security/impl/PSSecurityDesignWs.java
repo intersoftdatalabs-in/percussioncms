@@ -232,7 +232,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
     * @see IPSSecurityDesign#loadCommunities(List, boolean, boolean,
     *    String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSCommunity> loadCommunities(List<IPSGuid> ids, boolean lock,
       boolean overrideLock, String session, String user)
       throws PSErrorResultsException
@@ -672,7 +672,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
     * @see IPSSecurityDesignWs#getVisibilityByCommunity(List, PSTypeEnum,
     *    String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSCommunityVisibility> getVisibilityByCommunity(
       List<IPSGuid> ids, PSTypeEnum type, String session, String user)
       throws PSErrorResultsException, RemoteException

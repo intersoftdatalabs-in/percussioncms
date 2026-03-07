@@ -207,7 +207,7 @@ public class PSPageDao extends PSAbstractContentItemDao<PSPage> implements IPSPa
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+
   protected void convertToObject(PSContentItem contentItem, PSPage page) {
     var f = contentItem.getFields();
     var name = (String) f.get("sys_title");

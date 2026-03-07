@@ -86,7 +86,7 @@ public class PSTestCompare
     * @param query
     * @return
     */
-   @SuppressWarnings("unchecked")
+
    private static Map processQuery(String query)
    {
       Map rval = new HashMap();

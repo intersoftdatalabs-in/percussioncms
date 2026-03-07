@@ -568,7 +568,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
    * Reset the user property mapper {@link #m_userPropMap}. This should be called after {@link
    * #m_userProps} is updated.
    */
-  @SuppressWarnings("unchecked")
+
   private void resetUserPropMap() {
     m_userPropMap.clear();
 

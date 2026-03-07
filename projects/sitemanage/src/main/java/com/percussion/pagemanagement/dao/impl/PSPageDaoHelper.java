@@ -124,7 +124,7 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+
   @Transactional
   public Collection<Integer> findPageIdsByTemplateInRecentRevision(String deletedTemplate) {
     notEmpty(deletedTemplate);

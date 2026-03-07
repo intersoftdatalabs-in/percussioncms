@@ -42,7 +42,7 @@ public class PSExtensionDefFactoryTest
    /**
     * Does a round trip test, with all possible properties containing values.
     */
-   @SuppressWarnings("unchecked")
+
 
    @Test
    public void testFull() throws Exception
@@ -130,7 +130,7 @@ public class PSExtensionDefFactoryTest
     * Does a round trip test, using a def that has no URLs and no runtime
     * parameters defined..
     */
-   @SuppressWarnings("unchecked")
+
 
    @Test
    public void testNoUrlsNoRuntimeParams() throws Exception
@@ -190,7 +190,7 @@ public class PSExtensionDefFactoryTest
    /**
     * Does a round trip test, using a def that has no URLs defined.
     */
-   @SuppressWarnings("unchecked")
+
 
    @Test
    public void testNoUrls() throws Exception
@@ -260,7 +260,7 @@ public class PSExtensionDefFactoryTest
    /**
     * Does a round trip test, using a def that has no runtime params defined.
     */
-   @SuppressWarnings("unchecked")
+
 
    @Test
    public void testNoRuntimeParamst() throws Exception

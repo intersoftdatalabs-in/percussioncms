@@ -123,7 +123,7 @@ public class PSHttpHeaders {
 
     Object existingVal = m.get(key);
     if (existingVal instanceof List) {
-      @SuppressWarnings("unchecked")
+
       List<String> valList = (List<String>) existingVal;
       valList.add((String) value);
     } else if (existingVal != null) {
@@ -178,7 +178,7 @@ public class PSHttpHeaders {
     }
     Object val = m.get(key);
     if (val instanceof List) {
-      @SuppressWarnings("unchecked")
+
       List<String> valList = (List<String>) val;
       return valList.iterator();
     }

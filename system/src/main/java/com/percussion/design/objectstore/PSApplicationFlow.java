@@ -87,7 +87,7 @@ public class PSApplicationFlow extends PSComponent {
   protected PSApplicationFlow() {}
 
   // see interface for description
-  @SuppressWarnings("unchecked")
+
   public Object clone() {
     PSApplicationFlow copy = (PSApplicationFlow) super.clone();
     copy.m_redirects = (HashMap) m_redirects.clone();
@@ -162,7 +162,7 @@ public class PSApplicationFlow extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the redirect is <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void setDefaultRedirect(String name, PSUrlRequest redirect) {
     validate(name);
     if (redirect == null) throw new IllegalArgumentException("the redirect cannot be null");
@@ -208,7 +208,7 @@ public class PSApplicationFlow extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the redirect collection is <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void addRedirects(String name, PSCollection redirects) {
     validate(name);
     validate(redirects);
@@ -227,7 +227,7 @@ public class PSApplicationFlow extends PSComponent {
    *     empty or if the redirect collection is <code>null</code> or if no command handler was found
    *     for the provided name.
    */
-  @SuppressWarnings("unchecked")
+
   public void addConditionalRedirects(String name, PSCollection redirects) {
     validate(name);
     if (redirects == null) throw new IllegalArgumentException("the redirects cannot be null");
@@ -290,7 +290,7 @@ public class PSApplicationFlow extends PSComponent {
    *
    * @param c a valid PSApplicationFlow, not <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void copyFrom(PSApplicationFlow c) {
     try {
       super.copyFrom(c);

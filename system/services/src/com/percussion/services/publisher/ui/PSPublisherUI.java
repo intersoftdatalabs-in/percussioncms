@@ -42,14 +42,14 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Provides a set of getters to populate browser UIs. Each method is named for
  * the kind of data that is returned.
- * 
+ *
  * @author dougrand
  */
 public class PSPublisherUI
 {
    /**
     * Get the edition types
-    * 
+    *
     * @return an array of edition types for use in the selection dropdown, never
     *         <code>null</code>
     */
@@ -70,7 +70,7 @@ public class PSPublisherUI
 
    /**
     * Get the content list generators
-    * 
+    *
     * @return an array of generators for use in the selection dropdown, never
     *         <code>null</code>
     */
@@ -81,7 +81,7 @@ public class PSPublisherUI
 
    /**
     * Get the template expanders
-    * 
+    *
     * @return an array of template expanders for use in the selection.
     */
    public SelectItem[] getTemplateExpanders()
@@ -91,13 +91,13 @@ public class PSPublisherUI
 
    /**
     * Get the parameter names and descriptions for the given extension
-    * 
+    *
     * @param extensionName the extension name, if empty or <code>null</code>
     *           an empty array is returned
     * @return an array of pairs. The first member of each pair is the param
     *         name, the second is the description.
     */
-   @SuppressWarnings("unchecked")
+
    public PSPair<String, String>[] getParameters(String extensionName)
    {
       if (StringUtils.isBlank(extensionName))
@@ -109,7 +109,7 @@ public class PSPublisherUI
 
    /**
     * Load filters for the selection list
-    * 
+    *
     * @return a list of known filters for the selection list
     */
    public SelectItem[] getFilters()
@@ -133,7 +133,7 @@ public class PSPublisherUI
 
    /**
     * Get the selection items for a given extension interface
-    * 
+    *
     * @param iface the interface, assumed not <code>null</code> or empty
     * @return the array of items
     */
@@ -152,11 +152,11 @@ public class PSPublisherUI
 
    /**
     * Get the matching extensions and return their names
-    * 
+    *
     * @param iface the iface, assumed not <code>null</code> or empty
     * @return the matching names
     */
-   @SuppressWarnings("unchecked")
+
    private List<String> getMatchingExtensions(String iface)
    {
       IPSExtensionManager mgr = PSServer.getExtensionManager(null);
@@ -181,12 +181,12 @@ public class PSPublisherUI
 
    /**
     * Get the parameters for the given extension
-    * 
+    *
     * @param extensionName the name of the extension
     * @return an array of pairs. Each pair consists of a parameter name and a
     *         parameter description
     */
-   @SuppressWarnings("unchecked")
+
    private PSPair<String, String>[] getParametersForExtension(
          String extensionName)
    {

@@ -41,7 +41,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Methods that enable the use of keywords when building assembly output.
- * 
+ *
  * @author dougrand
  */
 public class PSKeywordUtils extends PSJexlUtilBase
@@ -54,7 +54,7 @@ public class PSKeywordUtils extends PSJexlUtilBase
    /**
     * Retrieve the named keyword and output the available choices as html
     * selection elements
-    * 
+    *
     * @param keywordname the name of the keyword, never <code>null</code> or
     *           empty
     * @param currentchoice the current value to mark selected, may be
@@ -95,7 +95,7 @@ public class PSKeywordUtils extends PSJexlUtilBase
 
    /**
     * Get the keyword choices for the named keyword
-    * 
+    *
     * @param keywordname the named keyword, never <code>null</code> or empty
     * @return a list of results, never <code>null</code>. Each result is a
     *         two element array. The first element of this array is the label of
@@ -131,7 +131,7 @@ public class PSKeywordUtils extends PSJexlUtilBase
    /**
     * Retrieve the named keyword and return the label associated with the given
     * value
-    * 
+    *
     * @param keywordname the name of the keyword, never <code>null</code> or
     *           empty
     * @param keywordvalue the value, never <code>null</code> or empty
@@ -170,7 +170,7 @@ public class PSKeywordUtils extends PSJexlUtilBase
    /**
     * Retrieve the named keyword and return the label associated with the given
     * value
-    * 
+    *
     * @param keywordname the name of the keyword, never <code>null</code> or
     *           empty
     * @param keywordvalue the value, never <code>null</code> or empty
@@ -221,7 +221,7 @@ public class PSKeywordUtils extends PSJexlUtilBase
     * Retrieve the named field for the given content type and return the label
     * for the value given. If there's a problem, the error will be logged and a
     * {@link RuntimeException} thrown.
-    * 
+    *
     * @param contenttypename the name of the content type, never
     *           <code>null</code> or empty
     * @param fieldname the field name in the given content type, never
@@ -232,7 +232,7 @@ public class PSKeywordUtils extends PSJexlUtilBase
     *         field is unknown or does not contain a choice list, or the value
     *         is not found in the choice list.
     */
-   @SuppressWarnings("unchecked")
+
    @IPSJexlMethod(description = "Retrieve the named field for the given content type and return the label for the value given", params =
    {
          @IPSJexlParam(name = "contenttypename", type = "String", description = "the name of the content type"),
@@ -260,13 +260,13 @@ public class PSKeywordUtils extends PSJexlUtilBase
 
       try
       {
-         PSItemDefinition def = idmgr.getItemDef(contenttypename, 
+         PSItemDefinition def = idmgr.getItemDef(contenttypename,
                PSItemDefManager.COMMUNITY_ANY);
          PSServerItem item = new PSServerItem(def);
          // Load request, use internal
          PSRequest intreq = PSRequest.getContextForRequest();
          item.load(null, intreq); // Loads defaults
-         
+
          PSItemField field = item.getFieldByName(fieldname);
          if (field == null)
          {

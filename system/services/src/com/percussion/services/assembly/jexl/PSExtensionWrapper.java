@@ -35,7 +35,7 @@ import java.util.Iterator;
  * class, which will instantiate the extension and allow a varargs call to
  * invoke the extension function. This can be used as a direct base class as
  * well.
- * 
+ *
  * @author dougrand
  */
 public class PSExtensionWrapper
@@ -47,11 +47,11 @@ public class PSExtensionWrapper
 
    /**
     * Create an extension wrapper
-    * 
+    *
     * @param context the context, never <code>null</code> or empty
     * @param name the name of the extension, never <code>null</code> or empty
     */
-   @SuppressWarnings("unchecked")
+
    public PSExtensionWrapper(String context, String name) {
       if (StringUtils.isBlank(context))
       {
@@ -91,7 +91,7 @@ public class PSExtensionWrapper
 
    /**
     * Call the given extension using the passed varargs
-    * 
+    *
     * @param args the varargs, never <code>null</code>
     * @return the value returned by the extension
     * @throws PSConversionException
@@ -102,10 +102,10 @@ public class PSExtensionWrapper
             .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
       return call(req, args);
    }
-   
+
    /**
     * Call the given extension using the passed varargs and request
-    * 
+    *
     * @param req the request to use, never <code>null</code>
     * @param args the varargs, never <code>null</code>
     * @return the value returned by the extension

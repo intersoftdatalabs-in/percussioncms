@@ -39,10 +39,10 @@ public class PSUiWs extends PSUiBaseWs implements IPSUiWs
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiWs#loadActions(String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSAction> loadActions(String name) throws PSErrorException
    {
       List actions = findComponentsByNameLabel(name, null, FIND_ACTIONS,
@@ -52,7 +52,7 @@ public class PSUiWs extends PSUiBaseWs implements IPSUiWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiWs#loadDisplayFormats(String)
     */
    public List<PSDisplayFormat> loadDisplayFormats(String name)
@@ -78,7 +78,7 @@ public class PSUiWs extends PSUiBaseWs implements IPSUiWs
 
    /**
     * Gets the id and name pairs for all communities.
-    * 
+    *
     * @return the id / name pairs, never <code>null</code>, may be empty.
     */
    private Map<IPSGuid, String> getAllCommunities()
@@ -94,10 +94,10 @@ public class PSUiWs extends PSUiBaseWs implements IPSUiWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiWs#loadSearches(String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSSearch> loadSearches(String name) throws PSErrorException
    {
       return loadSearchViews(name, false);
@@ -105,16 +105,16 @@ public class PSUiWs extends PSUiBaseWs implements IPSUiWs
 
    /**
     * Loads all searches or views for the supplied name.
-    * 
+    *
     * @param name the name of the search or view to load, may be
     * <code>null</code> or empty, asterisk wildcards are accepted. All
     * searches or views will be loaded if not supplied or empty.
     * @param isView <code>true</code> if loading views; otherwise loading
     * searches.
-    * 
+    *
     * @return a list with all loaded searches or views, never <code>null</code>,
     * may be empty, ordered in alpha order by name.
-    * 
+    *
     * @throws PSErrorException if an error occurs while loading the searches or
     * views.
     */
@@ -143,7 +143,7 @@ public class PSUiWs extends PSUiBaseWs implements IPSUiWs
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSUiWs#loadViews(String)
     */
    public List<PSSearch> loadViews(String name) throws PSErrorException

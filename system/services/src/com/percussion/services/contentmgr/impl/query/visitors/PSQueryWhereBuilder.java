@@ -75,9 +75,9 @@ import java.util.Set;
  * classes returned by this method are ordered and the references then
  * correspond to c0, c1, c2, etc. References to the component summary are on the
  * alias cs.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 {
@@ -139,7 +139,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 
    /**
     * Ctor
-    * 
+    *
     * @param type the type configuration from the content repository for the
     *           specific content type being processed, never <code>null</code>
     * @param params the extra parameters that have been defined, may be
@@ -156,7 +156,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
          m_parameters = params;
       else
          m_parameters = new HashMap<>();
-      
+
       // Make sure that the main class is always "in use". This makes references
       // to c0 always valid
       m_inuse.add(m_type.getMainClass());
@@ -164,7 +164,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 
    /**
     * Get the results, never <code>null</code>
-    * 
+    *
     * @return the query string, never <code>null</code>
     */
    @Override
@@ -175,10 +175,10 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 
    /**
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor#visitValue(com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeValue)
     */
-   @SuppressWarnings("unchecked")
+
    @Override
    public IPSQueryNode visitValue(PSQueryNodeValue value)
          throws InvalidQueryException
@@ -200,7 +200,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor#visitLiteral(com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeLiteral)
     */
    @Override
@@ -216,7 +216,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
     * The key is a generated parameter name. The value is the value for the
     * named parameter. This is returned after the where builder has run. Each
     * value is assigned to a parameter and returned.
-    * 
+    *
     * @return Returns the queryParams.
     */
    public Map<String, Object> getQueryParams()
@@ -228,7 +228,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
     * This list records the classes in use. Property references must resolve to
     * one of these classes. The user of this will request these after the where
     * builder has run and use the results to build a join.
-    * 
+    *
     * @return the inuse classes from the type definition, never
     *         <code>null</code> but may be empty in some cases
     */
@@ -239,13 +239,13 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 
    /**
     * Format a single value
-    * 
+    *
     * @param object the value, may be <code>null</code>
     * @param type the type of the value
     * @throws RepositoryException
     * @throws IllegalStateException
     */
-   @SuppressWarnings("unchecked")
+
    private void handleObject(Object object, int type)
          throws IllegalStateException, RepositoryException
    {
@@ -336,7 +336,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 
    /**
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor#visitIdentifier(com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeIdentifier)
     */
    @Override
@@ -374,14 +374,14 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
    /**
     * Check a class reference to see if it is currently in the in use
     * collection.
-    * 
+    *
     * @param classref the reference to the instance class, if <code>null</code>
     * then do nothing.
     */
    private void checkAndRegisterInUse(Class classref)
    {
       if (classref == null) return;
-      
+
       if (!m_inuse.contains(classref))
       {
          m_inuse.add(classref);
@@ -390,7 +390,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 
    /**
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor#visitConjunction(com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeConjunction)
     */
    @Override
@@ -515,7 +515,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
     * is actually an identifier, then the type won't be found in this code; but
     * that doesn't matter since it will be an id on the other side of the
     * comparison.
-    * 
+    *
     * @param comparisonNode the current comparison node, never <code>null</code>
     * @return for this implementation, the original node is simply returned
     * @throws InvalidQueryException never thrown in this method
@@ -586,7 +586,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
 
    /**
     * Take the passed node, and wrap if appropriate
-    * 
+    *
     * @param node the node, assumed never <code>null</code>
     * @param op the operator, assumed never <code>null</code>
     * @throws InvalidQueryException if there's a problem with calling accept on
@@ -611,7 +611,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
    /**
     * Check each id in the projection to see that the containing class is
     * included in the inuse list.
-    * 
+    *
     * @param projection the projection, never <code>null</code>
     */
    public void processProjection(List<PSQueryNodeIdentifier> projection)
@@ -627,7 +627,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
          {
             // This means all properties, add all available classes to inuse
             // and return
-            for(PSTypeConfiguration.ImplementingClass clazz 
+            for(PSTypeConfiguration.ImplementingClass clazz
                   : m_type.getImplementingClasses())
             {
                checkAndRegisterInUse(clazz.getImplementingClass());
@@ -647,7 +647,7 @@ public class PSQueryWhereBuilder extends PSQueryNodeVisitor
    /**
     * Check each id in the sorter list to see that the containing class is
     * included in the inuse list.
-    * 
+    *
     * @param sortFields the sortFields, never <code>null</code>
     */
    public void processSortfields(

@@ -30,7 +30,7 @@ public class PSProgressBarTag extends PSJSFBaseTag {
   /* (non-Javadoc)
    * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(jakarta.faces.component.UIComponent)
    */
-  @SuppressWarnings("unchecked")
+
   @Override
   protected void setProperties(UIComponent comp) {
     super.setProperties(comp);

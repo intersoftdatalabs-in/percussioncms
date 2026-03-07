@@ -218,7 +218,7 @@ public class PSWebServerProvider extends PSSecurityProvider {
    * @param cert the certificate definition string, may be <code>null</code> or empty.
    * @param attribs the object to store the attributes in, may be <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public static void parseCertificateString(
       String attribHeader, String cert, PSUserAttributes attribs) {
     if ((attribs == null) || (cert == null) || (cert.length() == 0))

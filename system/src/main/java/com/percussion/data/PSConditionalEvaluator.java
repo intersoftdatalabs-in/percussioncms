@@ -174,7 +174,7 @@ public class PSConditionalEvaluator {
           variable = myStack.pop();
 
           if (variable instanceof List<?>) {
-            @SuppressWarnings("unchecked")
+
             List<Object> listVariable = (List<Object>) variable;
             result = (listVariable == null || isListEmpty(listVariable));
           } else if (variable instanceof String) {
@@ -852,7 +852,7 @@ public class PSConditionalEvaluator {
   }
 
   /** Safely cast an object to List<Object>. */
-  @SuppressWarnings("unchecked")
+
   private static List<Object> safeCastToObjectList(Object obj) {
     if (obj instanceof List<?>) {
       try {
@@ -994,9 +994,9 @@ public class PSConditionalEvaluator {
           result = compareWithNumericSet(opCode, left, right, dateFormat);
         } else {
           // based on the type must be one of the Comparable classes
-          @SuppressWarnings("unchecked")
+
           Comparable<Object> leftComp = (Comparable<Object>) left;
-          @SuppressWarnings("unchecked")
+
           Comparable<Object> rightComp = (Comparable<Object>) right;
           result = compare(opCode, leftComp, rightComp);
         }

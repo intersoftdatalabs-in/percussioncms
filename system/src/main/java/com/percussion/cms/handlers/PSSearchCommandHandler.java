@@ -270,7 +270,7 @@ public class PSSearchCommandHandler extends PSCommandHandler
    * @throws PSUnknownNodeTypeException if the input doc does not conform to the
    *     sys_SearchParameters.xsd schema.
    */
-  @SuppressWarnings("unchecked")
+
   private Document executeSearchRequest(PSRequest req, List execDataCleanupList)
       throws PSInternalRequestCallException,
           PSAuthorizationException,
@@ -875,7 +875,7 @@ public class PSSearchCommandHandler extends PSCommandHandler
    *     search command, the collection may be empty if no input document is found in the request or
    *     it doesn't contain any elements that define conditions
    */
-  @SuppressWarnings("unchecked")
+
   private PSCollection createConditionals(
       PSWSSearchRequest searchReq,
       PSFieldSet fieldSet,

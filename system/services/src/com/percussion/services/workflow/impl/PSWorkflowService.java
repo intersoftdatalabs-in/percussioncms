@@ -106,7 +106,7 @@ public class PSWorkflowService
     * workflows. This almost never happens in production, and the minor time
     * loss in development is unimportant.
     */
-   @SuppressWarnings("unchecked")
+
    public static class EvictionListener extends PSTableUpdateHandlerBase
    {
       /**
@@ -242,7 +242,7 @@ public class PSWorkflowService
    }
 
    //see interface
-   @SuppressWarnings("unchecked")
+
    public List<PSObjectSummary> findWorkflowSummariesByName(String name)
    {
       String query;
@@ -888,7 +888,7 @@ public class PSWorkflowService
       getSession().delete(adhoc);
    }
 
-   @SuppressWarnings("unchecked")
+
    public List<PSContentAdhocUser> findAdhocInfoByUser(String username)
    {
       if (username == null || StringUtils.isBlank(username))
@@ -903,7 +903,7 @@ public class PSWorkflowService
 
    }
 
-   @SuppressWarnings("unchecked")
+
    public List<PSContentAdhocUser> findAdhocInfoByItem(IPSGuid contentId)
    {
       if (contentId == null)
@@ -1173,7 +1173,7 @@ public class PSWorkflowService
     * workflow.  May be empty if a version could not be found for the specified
     * workflow.
     */
-   @SuppressWarnings("unchecked")
+
    private List<Integer> getWorkflowVersionForId(long id)
    {
       return getSession().createQuery(

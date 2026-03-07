@@ -77,7 +77,7 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
    * @throws ClassNotFoundException If a class by the supplied name cannot be found.
    * @throws NullPointerException if className is <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public PSDbComponentSet(String className, String compType) throws ClassNotFoundException {
     this((Class<T>) Class.forName(className), compType);
   }
@@ -359,7 +359,7 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
       }
 
       // Load the object and append to the current list
-      @SuppressWarnings("unchecked")
+
       Constructor<T> ctor = m_class.getConstructor(new Class[] {Element.class});
       Element[] args = new Element[1];
       while (aEl != null && aEl.getNodeName().equalsIgnoreCase(strNodeName)) {

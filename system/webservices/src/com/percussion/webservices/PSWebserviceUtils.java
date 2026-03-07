@@ -295,7 +295,7 @@ public class PSWebserviceUtils
     * <code>null</code>.
     * @throws PSErrorResultsException for any error loading the design object.
     */
-   @SuppressWarnings("unchecked")
+
    public static List<IPSCatalogSummary> loadDesignObjects(PSTypeEnum type,
          List<IPSGuid> ids) throws PSErrorResultsException
    {

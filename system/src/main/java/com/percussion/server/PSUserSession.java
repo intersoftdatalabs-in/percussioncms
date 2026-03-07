@@ -254,7 +254,7 @@ public class PSUserSession {
    *
    * @return the array of user entries
    */
-  @SuppressWarnings("unchecked")
+
   public PSUserEntry[] getAuthenticatedUserEntries() {
     int size = m_UserEntries.size();
     PSUserEntry[] ret = new PSUserEntry[size];
@@ -483,7 +483,7 @@ public class PSUserSession {
    * security engine once a user has been successfully authenticated. Loads all the system and
    * designer persistent properties once.
    */
-  @SuppressWarnings("unchecked")
+
   public void addAuthenticatedUserEntry(PSUserEntry entry) {
     if (!m_UserEntries.contains(entry)) // only add it once!
     m_UserEntries.add(entry);
@@ -514,7 +514,7 @@ public class PSUserSession {
    * @param loginId the login id to use for connections
    * @param loginPw the login password to use for connections
    */
-  @SuppressWarnings("unchecked")
+
   public void setBackEndCredentials(String driver, String server, String loginId, String loginPw) {
     if (driver == null) driver = "";
     if (server == null) server = "";
@@ -604,7 +604,7 @@ public class PSUserSession {
    * @param server the server which accepted this credential
    * @param uid the id associated with this credential
    */
-  @SuppressWarnings("unchecked")
+
   public void putBeWorkingCredential(String driver, String server, String uid) {
     if (driver == null) driver = "";
 
@@ -661,7 +661,7 @@ public class PSUserSession {
    * @param o the private object associated with the key (may be <code>null</code>)
    * @exception com.percussion.error.PSRuntimeException if key is null
    */
-  @SuppressWarnings("unchecked")
+
   public synchronized void setPrivateObject(Object key, Object o)
       throws com.percussion.error.PSRuntimeException {
     loadPersistentProperties();
@@ -779,7 +779,7 @@ public class PSUserSession {
    * @param context - system or designer
    * @param map - system or private map, assumed not <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   private void updateProperties(String context, Map map) {
     if (!m_isLoaded || map.isEmpty()) return;
     for (Iterator itr = m_usrMeta.iterator(); itr.hasNext(); ) {
@@ -864,7 +864,7 @@ public class PSUserSession {
    * @param propName
    * @return <code>true</code> if new porperty else <code>true</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private boolean isNewProperty(String propName) {
     PSPersistentProperty prop = getProperty(propName);
     if (prop == null) {
@@ -889,7 +889,7 @@ public class PSUserSession {
    *     mapping for key, or if the key had already been cleared.
    * @throws IllegalArgumentException if property name is <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   public synchronized Object clearSessionObject(String name) {
     loadPersistentProperties();
     if (name == null || name.length() == 0)
@@ -912,7 +912,7 @@ public class PSUserSession {
    * @return property value set.
    * @throws IllegalArgumentException if property name is <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   public synchronized Object setSessionObject(String name, Object value)
       throws IllegalArgumentException {
     loadPersistentProperties();
@@ -931,7 +931,7 @@ public class PSUserSession {
    * @return the default value if the mapping for the key doesn not exist.
    * @throws IllegalArgumentException if property name is <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   public synchronized Object getSessionObject(String name, Object defaultValue)
       throws IllegalArgumentException {
     loadPersistentProperties();
@@ -978,7 +978,7 @@ public class PSUserSession {
    * <p><em>NOTE:</em> This method must be called only from <code>synchronized</code> methods. Since
    * the method is private, it should be easy to verify this.
    */
-  @SuppressWarnings("unchecked")
+
   private synchronized void loadPersistentProperties() {
     if (m_UserEntries.isEmpty() || m_isLoaded) return;
 
@@ -1008,7 +1008,7 @@ public class PSUserSession {
    * enabled anymore, the language is set as follows: to <code>en-us</code> if that language is
    * available and enabled or to the first enabled language found otherwise.
    */
-  @SuppressWarnings("unchecked")
+
   private void verifyLanguage() {
     Object value = m_privateObjects.get(IPSHtmlParameters.SYS_LANG);
     if (value instanceof String) {

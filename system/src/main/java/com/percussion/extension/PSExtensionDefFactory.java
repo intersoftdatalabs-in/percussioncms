@@ -126,7 +126,7 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
   /* (non-Javadoc)
    * @see IPSExtensionDefFactory#fromXml(Element)
    */
-  @SuppressWarnings("unchecked")
+
   public IPSExtensionDef fromXml(Element defElement) throws PSExtensionException {
     if (defElement == null) throw new IllegalArgumentException("defElement cannot be null");
 

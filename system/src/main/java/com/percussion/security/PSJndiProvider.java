@@ -140,7 +140,7 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
    * @throws IllegalArgumentException If any param is invalid.
    * @throws PSRuntimeException If the filter class cannot be initialized.
    */
-  @SuppressWarnings("unchecked")
+
   PSJndiProvider(
       String spType, String spInstance, Properties providerAttributes, boolean doCataloging) {
     super(spType, spInstance);
@@ -202,7 +202,7 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
    * @param authentication the authentication for which to set the provider properties, not <code>
    *     null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void setProviderProperties(PSDirectory directory, PSAuthentication authentication) {
     if (directory == null) throw new IllegalArgumentException("directory cannot be null");
 
@@ -317,7 +317,7 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
    * @throws NamingException If an error occurred.
    * @throws IllegalArgumentException if url is <code>null</code> or empty.
    */
-  @SuppressWarnings("unchecked")
+
   public synchronized InitialDirContext createInitialContext(String url) throws NamingException {
     if (url == null || url.trim().length() == 0)
       throw new IllegalArgumentException("url may not be null or empty");

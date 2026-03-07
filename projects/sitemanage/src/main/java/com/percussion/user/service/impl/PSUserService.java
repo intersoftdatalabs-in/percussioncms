@@ -1062,7 +1062,7 @@ public class PSUserService implements IPSUserService {
    * @return not <code>null</code> may be empty.
    * @throws PSSecurityCatalogException
    */
-  @SuppressWarnings("unchecked")
+
   private String getSubjectEmail(String subjectName) throws PSSecurityCatalogException {
     String email = "";
     List<Subject> subjects = findExistingUsers(subjectName);

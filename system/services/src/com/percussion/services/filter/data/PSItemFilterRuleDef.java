@@ -60,9 +60,9 @@ import java.util.Objects;
  * This data object represents a single rule instantiation for an item filter.
  * Rules are applied in rule priority order - the order of the actual defs is
  * not relevant (at least at this point).
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSItemFilterRuleDef")
@@ -74,7 +74,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     * Serial id identifies versions of serialized data
     */
    private static final long serialVersionUID = 1L;
-   
+
    static
    {
       // Register types with XML serializer for read creation of objects
@@ -118,21 +118,21 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
 
    /**
     * The rule belongs to a specific item filter, this is the pointer to the
-    * containing filter for the given rule. 
+    * containing filter for the given rule.
     */
    @ManyToOne(targetEntity = PSItemFilter.class)
    @JoinColumn(name = "FILTER_ID", nullable = false)
    private PSItemFilter filter;
 
    /**
-    * A rule can reference parameters that control how the rule will  be 
+    * A rule can reference parameters that control how the rule will  be
     * invoked. The parameters can be overridden when the rule is invoked.
     */
    @OneToMany(targetEntity = PSItemFilterRuleParam.class, cascade =
    {CascadeType.ALL}, fetch = FetchType.EAGER,orphanRemoval = true)
    @JoinColumn(name = "FILTER_RULE_ID")
    @MapKey(name = "name")
-   @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, 
+   @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE,
          region = "PSItemFilterRuleDef_Params")
    @Fetch(FetchMode. SUBSELECT)
    private Map<String, PSItemFilterRuleParam> params = new HashMap<>();
@@ -155,7 +155,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
       }
    }
 
-   
+
    @IPSXmlSerialization(suppress = true)
    public IPSItemFilterRule getRule() throws PSFilterException
    {
@@ -168,14 +168,14 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
 
    /**
     * Set the hibernate version. Only used for deserialization and other such
-    * cases that require manipulation of the version. 
+    * cases that require manipulation of the version.
     * @param v the version, could be <code>null</code>
     */
    public void setVersion(Integer v)
    {
       this.version = v;
    }
-   
+
    /**
     * Get the version. The annotation suppresses the inclusion of this property
     * when the object is serialized.
@@ -187,7 +187,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
    {
       return this.version;
    }
-   
+
    /**
     * Get the name of the rule which is actually an extension name
     * @return the name of the extension, never <code>null</code> or empty
@@ -197,14 +197,14 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
    {
       return name;
    }
- 
+
    /**
     * Lookup the rule from the name
-    * 
+    *
     * @return the rule, never <code>null</code>
     * @throws PSFilterException if the rule is not found
     */
-   @SuppressWarnings("unchecked")
+
    private IPSItemFilterRule lookupRule() throws PSFilterException
    {
       if (name.equals(TEST_RULE_NAME))
@@ -256,10 +256,10 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
    }
 
    /**
-    * Set the guid representation of the rule def. 
+    * Set the guid representation of the rule def.
     * @param newguid the new guid, never <code>null</code>
     */
-   public void setGUID(IPSGuid newguid) 
+   public void setGUID(IPSGuid newguid)
    {
       if (newguid == null)
       {
@@ -277,7 +277,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
    {
       setRule(rulename);
    }
-   
+
    /**
     * Set the rule name
     * @param rulename the new rule name, never <code>null</code> or empty
@@ -323,7 +323,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
    {
       setParam(parameterName, value);
    }
-   
+
    public void setParam(String parameterName, String value)
    {
       if (StringUtils.isBlank(parameterName))
@@ -421,9 +421,9 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
       }
       return Collections.unmodifiableMap(rval);
    }
-   
+
    /**
-    * Use this rule name for testing. It makes sure that no lookup is made 
+    * Use this rule name for testing. It makes sure that no lookup is made
     * through the extension manager.
     */
    public static final String TEST_RULE_NAME = "***TESTRULE***";

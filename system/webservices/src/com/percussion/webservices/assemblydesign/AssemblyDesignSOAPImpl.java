@@ -365,7 +365,7 @@ public class AssemblyDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see AssemblyDesign#saveAssemblyTemplates(SaveAssemblyTemplatesRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveAssemblyTemplates(
       SaveAssemblyTemplatesRequest saveAssemblyTemplatesRequest)
    {
@@ -404,7 +404,7 @@ public class AssemblyDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see AssemblyDesign#saveSlots(SaveSlotsRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveSlots(SaveSlotsRequest saveSlotsRequest)
    {
       final String serviceName = "saveSlots";

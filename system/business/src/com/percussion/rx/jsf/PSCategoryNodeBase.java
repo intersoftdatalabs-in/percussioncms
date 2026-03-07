@@ -40,16 +40,16 @@ import org.apache.myfaces.trinidad.model.RowKeyIndex;
  * track of a current index being accessed. The index can be on an element or
  * point beyond the end of the child list or be <code>-1</code> which
  * indicates that it isn't currently set.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSCategoryNodeBase extends PSNodeBase
 {
    /**
     * The children of the category. This starts <code>null</code>. When the
     * {@link #getChildren()} method is called the collection is created by using
-    * the appropriate cataloger. The exact semantics may be modified by a 
+    * the appropriate cataloger. The exact semantics may be modified by a
     * subclass.
     */
    protected List<PSNodeBase> m_children;
@@ -59,16 +59,16 @@ public class PSCategoryNodeBase extends PSNodeBase
     * element is currently selected.
     */
    protected int m_index = -1;
-   
+
    /**
     * A string to filter returned subnodes with. <code>null</code> or
-    * empty indicates no filter. 
+    * empty indicates no filter.
     */
    protected String m_filter;
 
    /**
     * Ctor.
-    * 
+    *
     * @param title the node's title, never <code>null</code> or empty.
     * @param outcome the outcome, may be <code>null</code>.
     */
@@ -85,7 +85,7 @@ public class PSCategoryNodeBase extends PSNodeBase
     * @param outcome the outcome, may be <code>null</code>.
     * @param label the value returned by {@link #getLabel()}.
     * Can be <code>null</code> or blank.
-    * @see #getLabel() 
+    * @see #getLabel()
     */
    public PSCategoryNodeBase(String title, String outcome, String label) {
       super(title, outcome, label);
@@ -93,16 +93,16 @@ public class PSCategoryNodeBase extends PSNodeBase
    }
 
    /**
-    * Gets the number of rows per page for the table that displays the child 
+    * Gets the number of rows per page for the table that displays the child
     * components.
-    * 
+    *
     * @return the number of rows per page.
     */
    public int getPageRows()
    {
       return PSNodeBase.getPageRows(getRowCount());
    }
-   
+
    @Override
    public boolean isContainer()
    {
@@ -117,7 +117,7 @@ public class PSCategoryNodeBase extends PSNodeBase
 
    /**
     * Add a node to this category.
-    * 
+    *
     * @param node the node to add, never <code>null</code>.
     */
    public void addNode(PSNodeBase node)
@@ -164,11 +164,11 @@ public class PSCategoryNodeBase extends PSNodeBase
    {
       m_children = null;
    }
-   
+
    /**
     * Remove the given node from this parent. The node will already be removed
     * from the model.
-    * 
+    *
     * @param node the node to remove, never <code>null</code>.
     */
    @Override
@@ -270,7 +270,7 @@ public class PSCategoryNodeBase extends PSNodeBase
       {
          throw new IllegalArgumentException("key may not be null");
       }
-      
+
       if (m_children == null) return;
       String comparekey = key.toString();
       int current = m_index;
@@ -308,7 +308,7 @@ public class PSCategoryNodeBase extends PSNodeBase
    {
       m_filter = filter;
    }
-   
+
    /**
     * Get nodes that match the current set pattern.
     * @return the matching nodes, may be empty. If it is not empty, then
@@ -345,7 +345,7 @@ public class PSCategoryNodeBase extends PSNodeBase
          {
             if (node.getSelectedRow())
                hasSelected = true;
-            
+
             rval.add(node);
             continue;
          }
@@ -358,10 +358,10 @@ public class PSCategoryNodeBase extends PSNodeBase
       {
          rval.get(0).setSelectedRow(true);
       }
-      
+
       return Collections.unmodifiableList(rval);
    }
-   
+
    /**
     * @return the name of the css class to use when rendering this node's
     * link in the navigation tree.
@@ -371,7 +371,7 @@ public class PSCategoryNodeBase extends PSNodeBase
    {
       return "treenode";
    }
-   
+
    /*
     * The action for a category does nothing but return the outcome that moves
     * to the "view" for the category. Subclasses can add more behavior if
@@ -387,18 +387,18 @@ public class PSCategoryNodeBase extends PSNodeBase
 
    /**
     * Find a selected node and return it. This method allows for the possibility
-    * that we might allow multi selection in some collections, and therefore 
+    * that we might allow multi selection in some collections, and therefore
     * returns the first match that fulfills the criteria.
-    * 
+    *
     * @param clazz if not <code>null</code> then limit the returned node to
     * the given class.
     * @return the selected node or <code>null</code> if one is not found.
     */
-   @SuppressWarnings("unchecked")
+
    public PSNodeBase findSelected(Class clazz)
    {
       if (m_children == null) return null;
-      
+
       for(PSNodeBase node : m_children)
       {
          if (node.getSelectedRow())
@@ -411,7 +411,7 @@ public class PSCategoryNodeBase extends PSNodeBase
       }
       return null;
    }
-   
+
    /**
     * Same as <code>findSelected(null)</code>.
     * @return the currently selected node of any class.
@@ -421,21 +421,21 @@ public class PSCategoryNodeBase extends PSNodeBase
    {
       return findSelected(null);
    }
-   
+
    /**
     * Provides all the names for the type of the object contained in this
     * category. Is used for verifying a name for uniqueness.
     * The subclasses need to implement this method only if their editors
-    * validate for unique names. 
+    * validate for unique names.
     * @return all the names of the object type the category corresponds to.
     * The default implementation returns an empty set.
-    * Never <code>null</code>. 
+    * Never <code>null</code>.
     */
    public Set<Object> getAllNames()
    {
       return Collections.emptySet();
    }
-   
+
    /**
     * Returns the outcome to return to the corresponding view.
     * The default implementation throwns a.

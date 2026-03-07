@@ -480,7 +480,7 @@ public class PSTaskAdapter implements Job {
               })
               .orElse(email);
    }
-   
+
    /**
     * Get the email addresses from the notified role of the job.
     * @param job the task in question, assumed not <code>null</code>.
@@ -488,7 +488,7 @@ public class PSTaskAdapter implements Job {
     *    the notified role is not specified or there is no sys_email property
     *    specified in any of the members.
     */
-   @SuppressWarnings("unchecked")
+
 
     /**
      * Get the Velocity Runtime Services with proper initialization.
@@ -554,7 +554,7 @@ public class PSTaskAdapter implements Job {
     * @throws PSNotFoundException if cannot find the extension.
     * @throws PSExtensionException error on prepare the extension.
     */
-   @SuppressWarnings("unchecked")
+
    private static IPSTask getTask(String name)
       throws PSNotFoundException, PSExtensionException
    {
@@ -627,13 +627,13 @@ public class PSTaskAdapter implements Job {
 
       return (StringUtils.isBlank(port)) ? host : host + ":" + port;
    }
-   
+
    /**
     * Gets the host name from a given server instance.
     * @param server the server instance in the format of &lt;host-name>[:port].
     *    Assumed not <code>null</code> or empty.
-    * @return the host name part of the server instance. 
-    *    Never <code>null</code>, but may be empty. 
+    * @return the host name part of the server instance.
+    *    Never <code>null</code>, but may be empty.
     */
    private static String getServerName(String server)
    {
@@ -645,8 +645,8 @@ public class PSTaskAdapter implements Job {
     * Gets the port from a given server instance.
     * @param server the server instance in the format of &lt;host-name>[:port].
     *    Assumed not <code>null</code> or empty.
-    * @return the port part of the server instance. 
-    *    Never <code>null</code>, but may be empty. 
+    * @return the port part of the server instance.
+    *    Never <code>null</code>, but may be empty.
     */
    private static String getServerPort(String server)
    {
@@ -657,20 +657,20 @@ public class PSTaskAdapter implements Job {
    /**
     * Determines if the given task is registered for the current server.
     * @param curJob the task in question, assumed not <code>null</code>.
-    * @return <code>true</code> if the task is registered for the current 
+    * @return <code>true</code> if the task is registered for the current
     *    server.
     */
    private static boolean isRegisteredServer(PSScheduledTask curJob)
    {
       if (StringUtils.isBlank(curJob.getServer()))
          return true;
-      
+
       String server = curJob.getServer().trim();
       String host = getServerName(server);
       String port = getServerPort(server);
       boolean isHostMatch = false;
-      
-      // compare the (optional) port of the server instance 
+
+      // compare the (optional) port of the server instance
       boolean isPortMatch = true;
       if (StringUtils.isNotBlank(port))
       {
@@ -680,11 +680,11 @@ public class PSTaskAdapter implements Job {
          String httpsPort = null;
          if (PSServer.getSslListenerPort() != 0)
             httpsPort = String.valueOf(PSServer.getSslListenerPort());
-         
+
          isPortMatch = (httpPort != null && httpPort.equals(port)) ||
                (httpsPort != null && httpsPort.equals(port));
       }
-      
+
       // compare the host name
       try
       {
@@ -696,7 +696,7 @@ public class PSTaskAdapter implements Job {
       {
          log.error("Failed to identify server name or IP address.", e);
       }
-      
+
       if (log.isDebugEnabled())
       {
          String hostName = PSServer.getHostName();
@@ -714,7 +714,7 @@ public class PSTaskAdapter implements Job {
 
       return isHostMatch && isPortMatch;
    }
-   
+
    /**
     * Creates the task result for the failed task and the exception.
     * @param task the failed task, assumed not <code>null</code>.
@@ -860,7 +860,7 @@ public class PSTaskAdapter implements Job {
      *
      * @return the map of tools, may be null if failed to load
      */
-    @SuppressWarnings("unchecked")
+
     private static Map<String, Object> getToolsMap() {
         if (ms_toolsMap == null) {
             synchronized (PSTaskAdapter.class) {
@@ -885,7 +885,7 @@ public class PSTaskAdapter implements Job {
      * @param vars the job result variables, never null
      * @return the rendered text, may be null if rendering fails
      */
-    @SuppressWarnings("unchecked")
+
     private static String getNotifyMessage(PSNotificationTemplate template, Map<String, Object> vars) {
         var context = PSVelocityUtils.getContext(vars);
 

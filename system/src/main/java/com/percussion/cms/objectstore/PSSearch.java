@@ -287,7 +287,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @return An iterator containing one or more {@link com.percussion.cms.objectstore.PSSearchField}
    *     objects. Never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator getFields() {
     return m_fields.iterator();
   }
@@ -318,7 +318,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param fields iterator over {@link com.percussion.cms.objectstore.PSSearchField} objects. Never
    *     <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public void setFields(Iterator fields) {
     if (fields == null) throw new IllegalArgumentException("fields must not be null");
 
@@ -344,7 +344,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param fields iterator over {@link com.percussion.cms.objectstore.PSSearchField} objects. If
    *     <code>null</code> fields will not be removed.
    */
-  @SuppressWarnings("unchecked")
+
   public void removeFields(Iterator fields) {
     if (fields == null || !fields.hasNext()) return;
     m_fields.removeFields(fields);
@@ -369,7 +369,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    *
    * @return a iterator containing zero or more objects. Never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator getProperties() {
     return m_properties.iterator();
   }
@@ -764,7 +764,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @return <code>true</code> if a property with <code>name</code> has value <code>value</code>,
    *     <code>false</code> otherwise.
    */
-  @SuppressWarnings("unchecked")
+
   public boolean doesPropertyHaveValue(String name, String value) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name must not be null or empty");
@@ -877,7 +877,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param communities list of communities this search is visible to. Must not be <code>null</code>
    *     or empty.
    */
-  @SuppressWarnings("unchecked")
+
   public void setShowTo(Collection communities) {
     Iterator iter = communities.iterator();
     while (iter.hasNext()) {
@@ -1058,7 +1058,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    *     empty. (Not assumed so callers don't need to duplicate this check). If {@link
    *     #ANY_COMMUNITY_ID} is supplied, it is expected to be the first in the list.
    */
-  @SuppressWarnings("unchecked")
+
   private void setAsNewSearch(String type, int[] communityIds, DefaultSearchConfigurator dsc) {
     if (null == communityIds || communityIds.length == 0) {
       throw new IllegalArgumentException("communityIds cannot be null or empty");
@@ -1199,7 +1199,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param bMulti if <code>true</code> then if the property exists this
    *    value will be added
    */
-  @SuppressWarnings("unchecked")
+
   public void setProperty(String strName, String strValue, boolean bMulti) {
     if (strName == null || strName.trim().length() == 0)
       throw new IllegalArgumentException("strName must not be null or empty");
@@ -1294,7 +1294,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @return Value(s) of the property, Returns <code>null</code> if property does not exist or
    *     supplied property name is <code>null</code> or empty.
    */
-  @SuppressWarnings("unchecked")
+
   public String[] getPropertyValues(String strName) {
     if (strName == null || strName.trim().length() == 0) return null;
 
@@ -1324,7 +1324,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param strName The property name, may not be <code>null</code> or empty.
    * @return <code>true</code> if the property exists, otherwise <code>false</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public boolean hasProperty(String strName) {
     if (strName == null || strName.trim().length() == 0)
       throw new IllegalArgumentException("strName must not be null or empty");
@@ -1362,7 +1362,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    *     <code>null</code>, then the property is removed from this object (the same behavior as for
    *     single valued properties).
    */
-  @SuppressWarnings("unchecked")
+
   public void removeProperty(String strName, String strValue, boolean bMulti) {
     if (strName == null || strName.trim().length() == 0)
       throw new IllegalArgumentException("strName must not be null or empty");
@@ -1502,7 +1502,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @return the map that was supplied or a new <code>HashMap</code> if <code>null</code> was
    *     supplied with all query parameters filled in, never <code>null</code>, may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   public static Map parseParameters(String url, Map params) {
     if (params == null) params = new HashMap();
 
@@ -1705,7 +1705,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    *
    * @return A read-only collection of property names, never <code>null</code> or empty.
    */
-  @SuppressWarnings("unchecked")
+
   public Collection getInternalPropertyNames() {
     return Collections.unmodifiableCollection(ms_internalSearchProps);
   }
@@ -1714,7 +1714,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * Converts this search to an internal search if {@link #useExternalSearch()} returns <code>true
    * </code>, otherwise simply returns.
    */
-  @SuppressWarnings("unchecked")
+
   public void convertToInternal() {
     if (!useExternalSearch()) return;
 
@@ -1784,7 +1784,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    *
    * @see com.percussion.services.data.IPSCloneTuner#tuneClone(long)
    */
-  @SuppressWarnings("unchecked")
+
   public Object tuneClone(long newId) {
     PSKey newKey = createKey(new String[] {newId + ""});
     setKey(newKey);
@@ -2156,7 +2156,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * List of properties that cannot be modifed over the life cycle of this object. Initialized in
    * definition, setup with elements in ctor, never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private List m_nonEditableProps = new ArrayList();
 
   /**

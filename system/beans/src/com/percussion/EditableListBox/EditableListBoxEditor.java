@@ -46,7 +46,7 @@ import javax.swing.table.TableCellEditor;
   * box cell.
   */
 
-@SuppressWarnings("unchecked")
+
 public class EditableListBoxEditor implements TableCellEditor, Serializable
 {
 
@@ -80,7 +80,7 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
           ((JTextField)m_editorComponent).setText("");
       }
 
-    
+
       public Object getCellEditorValue()
       {
             if (m_storage instanceof EditableListBoxCellNameHelper)
@@ -109,7 +109,7 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
     ((JTextField)m_editorComponent).addKeyListener(m_delegate);
 
     ((JTextField)m_editorComponent).addActionListener(m_delegate);
-    
+
     ((JTextField)m_editorComponent).addFocusListener(m_delegate);
   }
 
@@ -134,16 +134,16 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
         if (x != null)// && !(x.toString().equals("")))
         {
           m_storage = x;
-          
+
         }
         else
         {
           return;
           //m_storage = new String("");
-        }  
+        }
         // trims whitespaces before setting string into component
         ((JComboBox<Object>)m_editorComponent).setSelectedItem(m_storage.toString().trim());
-        
+
         // if ComboBox is a DropDownList... and if the selectedItem is not a part of the
         // comboBox list yet...
 
@@ -265,7 +265,7 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
     }
     return m_delegate.isCellEditable(anEvent);
   }
-    
+
   // implements javax.swing.CellEditor
   public boolean shouldSelectCell(EventObject anEvent)
   {
@@ -318,8 +318,8 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
 
     /*
      * Notify all listeners that have registered interest for
-     * notification on this event type.  The event instance 
-     * is lazily created using the parameters passed into 
+     * notification on this event type.  The event instance
+     * is lazily created using the parameters passed into
      * the fire method.
      * @see EventListenerList
      */
@@ -405,21 +405,21 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
 //  Protected EditorDelegate class
 //
 
-   protected class EditorDelegate implements KeyListener, ItemListener, 
+   protected class EditorDelegate implements KeyListener, ItemListener,
       ActionListener, Serializable, FocusListener
    {
       protected Object value;
-      
+
       public Object getCellEditorValue()
       {
          return value;
       }
-      
+
       public void setValue(Object x)
       {
          this.value = x;
       }
-      
+
       public boolean isCellEditable(EventObject anEvent)
       {
          if (m_storage instanceof EditableListBoxCellEditHelper)
@@ -427,31 +427,31 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
          else
             return true;
       }
-      
+
       public boolean startCellEditing(EventObject anEvent)
       {
          return true;
       }
-      
+
       public boolean stopCellEditing()
       {
          return true;
       }
-      
+
       public void cancelCellEditing() {}
-      
+
       // Implementing ActionListener interface
       public void actionPerformed(ActionEvent e)
       {
          fireEditingStopped();
       }
-      
+
       // Implementing ItemListener interface
       public void itemStateChanged(ItemEvent e)
       {
          if ( null == m_tableRef )
             return;
-         
+
          // getSelectedRow() has to change; irrelevant now
          if (m_tableRef.getSelectedRow() != m_currentIndex)
          {
@@ -461,10 +461,10 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
          else
             fireEditingStopped();
       }
-      
+
       public void keyPressed(KeyEvent e) {}
       public void keyReleased(KeyEvent e) {}
-      
+
       public void keyTyped(KeyEvent e)
       {
          char c = e.getKeyChar();
@@ -474,12 +474,12 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
             fireEditingCanceled();
          }
       }
-      
+
       public void focusGained(@SuppressWarnings("unused") FocusEvent e)
       {
          // noop
       }
-      
+
       public void focusLost(@SuppressWarnings("unused") FocusEvent e)
       {
          fireEditingStopped();

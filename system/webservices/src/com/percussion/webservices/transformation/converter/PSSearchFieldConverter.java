@@ -42,7 +42,7 @@ public class PSSearchFieldConverter extends PSConverter
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object convert(Class type, Object value)
    {

@@ -80,7 +80,7 @@ public class PSImportLogDao implements IPSImportLogDao {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+
   public List<PSImportLogEntry> findAll(String objectId, String type) {
     Validate.notNull(type, "Type must not be null");
     var session = getSession();

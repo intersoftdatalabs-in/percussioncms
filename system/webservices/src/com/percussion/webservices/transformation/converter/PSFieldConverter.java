@@ -42,25 +42,25 @@ public class PSFieldConverter extends PSConverter
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object convert(Class type, Object value)
    {
       if (value == null)
          return null;
-      
+
       try
       {
          if (isClientToServer(value))
          {
             PSField orig = (PSField) value;
-            
+
             String contentType = orig.getContentType();
             if (StringUtils.isBlank(contentType))
                throw new ConversionException(
                   "You must set the contentType for each field to convert.");
-            
-            PSItemField dest = PSItemConverterUtils.createItemField(contentType, 
+
+            PSItemField dest = PSItemConverterUtils.createItemField(contentType,
                orig.getName());
             PSItemConverterUtils.toServerFieldValues(dest, orig);
 

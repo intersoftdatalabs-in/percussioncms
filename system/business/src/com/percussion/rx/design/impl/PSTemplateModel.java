@@ -74,11 +74,11 @@ public class PSTemplateModel extends PSDesignModel
          return Collections.emptyList();
       }
    }
-   
+
    /**
     * Loads the readonly or modifiable template from the template service for
     * the supplied guid based on the readonly flag.
-    * 
+    *
     * @param guid Must not be <code>null</code> and must be a template guid.
     * @param readonly Flag to indicate whether to load a readonly or modifiable
     * template.
@@ -130,9 +130,9 @@ public class PSTemplateModel extends PSDesignModel
     * associations are expected to be of type String. If any object in the list
     * of associations is not a String or no slot object exists with that name
     * then it is not added to the template.
-    * 
+    *
     * @param obj Object
-    * 
+    *
     */
    @Override
    public void save(Object obj, List<IPSAssociationSet> associationSets)
@@ -170,11 +170,11 @@ public class PSTemplateModel extends PSDesignModel
    /**
     * Sets the supplied slot associations on the supplied template. See
     * {@link #save(Object, List)} for details.
-    * 
+    *
     * @param template assumed not <code>null</code>.
     * @param associations assumed not <code>null</code>
     */
-   @SuppressWarnings("unchecked")
+
    private void setSlotAssociations(IPSAssemblyTemplate template,
          List associations)
    {
@@ -223,7 +223,7 @@ public class PSTemplateModel extends PSDesignModel
    {
       IPSAssemblyService service = PSAssemblyServiceLocator
             .getAssemblyService();
-      
+
       IPSAssemblyTemplate template = service.findTemplate(guid);
       if(template == null)
       {
@@ -233,7 +233,7 @@ public class PSTemplateModel extends PSDesignModel
          log.info(MessageFormat.format(msg, args));
          return;
       }
-      
+
       String depTypes = PSDesignModelUtils.checkDependencies(guid);
       if(depTypes != null)
       {
@@ -261,7 +261,7 @@ public class PSTemplateModel extends PSDesignModel
 
    /**
     * Helper method to remove the content type template associations if exists.
-    * 
+    *
     * @param guid, Template guid assumed not <code>null</code>.
     * @throws RepositoryException
     */
@@ -288,7 +288,7 @@ public class PSTemplateModel extends PSDesignModel
 
    /**
     * Helper method to remove the site template associations.
-    * 
+    *
     * @param guid, Template guid assumed not <code>null</code>.
     * @throws PSAssemblyException
     */
@@ -323,10 +323,10 @@ public class PSTemplateModel extends PSDesignModel
    }
 
    /**
-    * 
+    *
     * Helper method to handle the slot association removals for the supplied
     * template.
-    * 
+    *
     * @param guid, Template guid assumed not <code>null</code>.
     * @throws PSAssemblyException
     */

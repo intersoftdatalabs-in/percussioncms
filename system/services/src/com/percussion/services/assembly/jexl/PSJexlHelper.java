@@ -110,7 +110,7 @@ public class PSJexlHelper extends PSServiceJexlEvaluatorBase
     * @return the extension ref for the given name
     * @throws PSExtensionException
     */
-   @SuppressWarnings("unchecked")
+
    public PSExtensionRef getExtensionRef(String name)
          throws PSExtensionException
    {

@@ -41,7 +41,7 @@ import java.util.Set;
  * slot should be accessible either as an inline slot, these are constant across
  * content types, or a variant slot, which are specific to a particular content
  * type's variant.
- * 
+ *
  * <p>
  * The algorithm is to make a list of the inline slots, and then iterate over
  * all content types. For each content type, we do a query that returns the list
@@ -98,8 +98,8 @@ public class PSFixOrphanedSlots extends PSFixDBBase implements IPSFix
 
    /**
     * Ctor
-    * @throws SQLException 
-    * @throws NamingException 
+    * @throws SQLException
+    * @throws NamingException
     */
    public PSFixOrphanedSlots() throws NamingException, SQLException
          {
@@ -107,7 +107,7 @@ public class PSFixOrphanedSlots extends PSFixDBBase implements IPSFix
    }
 
    @Override
-   @SuppressWarnings("unchecked")
+
    public void fix(boolean preview)
          throws Exception
    {
@@ -203,8 +203,8 @@ public class PSFixOrphanedSlots extends PSFixDBBase implements IPSFix
             if (removedRelationships.size() > 0)
             {
                anyproblems = true;
-               log(preview ? Status.PREVIEW : Status.SUCCESS, 
-                     Integer.toString(contenttypeid), 
+               log(preview ? Status.PREVIEW : Status.SUCCESS,
+                     Integer.toString(contenttypeid),
                      (preview ? "Would remove " : "Removed ")
                      + " orphaned relationship records for content type"
                      );

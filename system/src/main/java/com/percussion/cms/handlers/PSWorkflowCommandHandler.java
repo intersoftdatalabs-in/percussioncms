@@ -613,7 +613,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
    *     relationship set.
    * @throws PSCmsException if anything goes wrong looking up existing relationships.
    */
-  @SuppressWarnings("unchecked")
+
   private boolean createCheckedOutRevision(PSExecutionData data)
       throws PSRequestValidationException,
           PSAuthorizationException,
@@ -857,7 +857,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
      * @throws PSRequestValidationException if the data does not contain the necessary parameters.
      * @throws PSCmsException If there is an error loading item data for validation.
      */
-    @SuppressWarnings("unchecked")
+
     private void initValidation(PSExecutionData data)
         throws PSCmsException, PSRequestValidationException {
       // get the internal command request handler

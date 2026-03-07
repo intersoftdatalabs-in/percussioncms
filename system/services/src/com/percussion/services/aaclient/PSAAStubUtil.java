@@ -129,7 +129,7 @@ public final class PSAAStubUtil {
      * @param <T> the type parameter
      * @return the cached template of the specified type
      */
-    @SuppressWarnings("unchecked")
+
     private static <T> T getTemplate(String filePath, Class<T> returnType) {
         cacheLock.readLock().lock();
         try {

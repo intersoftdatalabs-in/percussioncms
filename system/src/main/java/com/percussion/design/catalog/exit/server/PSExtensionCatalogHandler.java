@@ -105,7 +105,7 @@ public class PSExtensionCatalogHandler extends PSCatalogRequestHandler
    * @param request the request object containing all context data associated with the request
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
     Element root = null;

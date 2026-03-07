@@ -60,9 +60,9 @@ import java.util.Map;
 
 /**
  * Generate a location using a jexl expression.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSJexlLocationGenerator implements IPSAssemblyLocation
 {
@@ -83,16 +83,16 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
    /**
     * This method creates a new publishing location string using the provided
     * parameters.
-    * 
+    *
     * See {@link IPSAssemblyLocation#createLocation(Object[], IPSRequestContext)
     * createLocation} for details.
-    * 
+    *
     * @param params array containing two required elements
-    * 
+    *
     * param[0] is required. This is the JEXL expression to use when generating
     * the output. The JEXL expression may use the item node
     */
-   @SuppressWarnings("unchecked")
+
    public String createLocation(Object[] params, IPSRequestContext request)
          throws PSExtensionException
    {
@@ -137,7 +137,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
       String origsitestr = request
             .getParameter(IPSHtmlParameters.SYS_ORIGINALSITEID);
       String contextstr = request.getParameter(IPSHtmlParameters.SYS_CONTEXT);
-      
+
       if (StringUtils.isNotBlank(pagestr) && StringUtils.isNumeric(pagestr))
       {
          Integer page = new Integer(pagestr);
@@ -155,7 +155,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
       {
          jexlEvaluator.bind("$sys.page_suffix", "");
       }
-      
+
       if (StringUtils.isNotBlank(origsitestr) && !origsitestr.equals(sitestr))
       {
          jexlEvaluator.bind("$sys.crossSiteLink", true);
@@ -231,7 +231,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
          {
             Node thenode = nodes.get(0);
             jexlEvaluator.bind("$sys.item", thenode);
-            
+
             if (StringUtils.isBlank(fidstr))
             {
                IPSSiteManager smgr = PSSiteManagerLocator.getSiteManager();
@@ -317,15 +317,15 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
 
    /**
     * Get the publishing path for the specified site and folder.
-    * 
+    *
     * @param sitestr the id of the specified site, assumed not <code>null</code>
     *           or empty.
     * @param folder the locator of the specified folder, assumed not
     *           <code>null</code>.
-    * 
+    *
     * @return the publishing path, may be <code>null</code> if failed to get
     *         the specified path.
-    * 
+    *
     * @throws PSSiteManagerException if the specified folder does not exit under
     *            the specified site.
     */
@@ -338,7 +338,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
 
    /**
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef,
     *      java.io.File)
     */

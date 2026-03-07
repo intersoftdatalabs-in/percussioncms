@@ -180,7 +180,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    *   <li>If successful, call <code>setPersisted</code> on the components.
    * </ol>
    */
-  @SuppressWarnings("unchecked")
+
   public PSSaveResults save(IPSDbComponent[] components) throws PSCmsException {
     if (null == components) throw new IllegalArgumentException("Null array not allowed.");
 
@@ -551,7 +551,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    *
    * @param comps The db component collection, assumed not <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private void updateDbComponentVersions(PSDbComponentCollection comps) {
     Iterator iter = comps.iterator();
     while (iter.hasNext()) {
@@ -585,7 +585,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    *
    * @param iter The iterator, assumed not <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private void updateDbComponentVersions(Iterator iter) {
     while (iter.hasNext()) {
       Object obj = iter.next();

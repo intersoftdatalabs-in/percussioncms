@@ -1600,7 +1600,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
     *
     * @see Content#loadItems(LoadItemsRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public LoadItemsResponse loadItems(LoadItemsRequest loadItemsRequest)
       throws com.percussion.webservices.content.InvalidSessionFaultMessage, com.percussion.webservices.content.ContractViolationFaultMessage, com.percussion.webservices.content.ErrorResultsFaultMessage
    {
@@ -1844,7 +1844,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
     *
     * @see Content#newTranslations(NewTranslationsRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public NewTranslationsResponse newTranslations(NewTranslationsRequest newTranslationsRequest) throws com.percussion.webservices.content.InvalidSessionFaultMessage, com.percussion.webservices.content.ContractViolationFaultMessage, com.percussion.webservices.content.ErrorResultsFaultMessage
    {
       String serviceName = "newTranslations";
@@ -1974,7 +1974,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
     *
     * @see Content#releaseFromEdit(ReleaseFromEditRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void releaseFromEdit(ReleaseFromEditRequest req)
    {
       String serviceName = "releaseFromEdit";
@@ -2133,7 +2133,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
     *
     * @see Content#saveChildEntries(SaveChildEntriesRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveChildEntries(SaveChildEntriesRequest saveChildEntriesRequest)
       throws com.percussion.webservices.content.InvalidSessionFaultMessage, com.percussion.webservices.content.ContractViolationFaultMessage, com.percussion.webservices.content.ErrorsFaultMessage, com.percussion.webservices.content.UnknownChildFaultMessage
    {
@@ -2182,7 +2182,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
     *
     * @see Content#saveContentRelations(data.PSAaRelationship[])
     */
-   @SuppressWarnings("unchecked")
+
    public void saveContentRelations(
       PSAaRelationship[] relationships) throws RemoteException,
       PSInvalidSessionFault, PSErrorsFault, PSContractViolationFault,
@@ -2240,7 +2240,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
       return saveFolders(folders);
    }
 
-   @SuppressWarnings("unchecked")
+
    public SaveFoldersResponse saveFolders(PSFolder[] folders)
       throws com.percussion.webservices.content.InvalidSessionFaultMessage, com.percussion.webservices.content.ContractViolationFaultMessage, com.percussion.webservices.content.ErrorResultsFaultMessage
    {
@@ -2281,7 +2281,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
     *
     * @see Content#saveItems(SaveItemsRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public SaveItemsResponse saveItems(SaveItemsRequest saveItemsRequest)
       throws com.percussion.webservices.content.InvalidSessionFaultMessage, com.percussion.webservices.content.ContractViolationFaultMessage, com.percussion.webservices.content.ErrorResultsFaultMessage
    {

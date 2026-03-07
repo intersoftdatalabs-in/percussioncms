@@ -112,7 +112,7 @@ public class PSWFActionService implements IPSWFActionService {
   /*
    * @see IPSWFActionService#getWorkflowAction(java.lang.String)
    */
-  @SuppressWarnings("unchecked")
+
   public IPSWorkflowAction getWorkflowAction(String workflowActionName)
       throws PSExtensionException, PSNotFoundException {
     initServices();

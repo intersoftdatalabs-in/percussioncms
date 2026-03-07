@@ -101,7 +101,7 @@ public class PSPreviewItemContent extends HttpServlet {
     }
   }
 
-  @SuppressWarnings("unchecked")
+
   private HttpServletRequest getRequestFromUrl(String url, HttpServletRequest request)
       throws PSRequestParsingException {
     var mutableUrl = new PSMutableUrl(url);

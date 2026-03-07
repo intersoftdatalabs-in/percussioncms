@@ -30,9 +30,9 @@ import java.util.List;
 
 /**
  * The runtime site node. This shows the site's edition as children and allows
- * the user to pick an edition to run. The logs child shows the publishing 
+ * the user to pick an edition to run. The logs child shows the publishing
  * logs for the entire site. The user can drill into the various logs.
- * 
+ *
  * @author dougrand
  *
  */
@@ -53,7 +53,7 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * element is currently selected.
     */
    protected int m_index = -1;
-   
+
    /**
     * Ctor.
     * @param site
@@ -72,7 +72,7 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * Facade method on the site object. Facade methods translate from internal
     * to external representations, and perform any needed server site validation
     * that cannot be handled by JSF.
-    * 
+    *
     * @return the site's name, never <code>null</code> or empty.
     */
    /**
@@ -92,12 +92,12 @@ public class PSRuntimeSiteNode extends PSNodeBase
    public IPSGuid getSiteID() {
       return m_site.getGUID();
    }
-   
+
    /**
     * Facade method on the site object. Facade methods translate from internal
     * to external representations, and perform any needed server site validation
     * that cannot be handled by JSF.
-    * 
+    *
     * @return the site's description, may be <code>null</code> or empty.
     */
    /**
@@ -123,7 +123,7 @@ public class PSRuntimeSiteNode extends PSNodeBase
 
    /**
     * Add a node to this site.
-    * 
+    *
     * @param node the node to add, never <code>null</code>.
     */
    /**
@@ -141,7 +141,7 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * Gets the child nodes for this site.
     * @return list of child nodes
     */
-   @SuppressWarnings("unchecked")
+
    public List<? extends PSNodeBase> getChildren() {
       if (m_children.isEmpty()) {
          var editions = new PSRuntimeEditionListNode(m_site);
@@ -164,7 +164,7 @@ public class PSRuntimeSiteNode extends PSNodeBase
       }
       return m_children;
    }
-   
+
    /**
     * Returns string representation of this node and its children.
     */
@@ -259,7 +259,7 @@ public class PSRuntimeSiteNode extends PSNodeBase
       }
       m_index = current;
    }
-   
+
    /**
     * @return the name of the css class to use when rendering this node's
     * link in the navigation tree.

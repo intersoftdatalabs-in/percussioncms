@@ -392,7 +392,7 @@ public class PSDbComponentCollection extends PSDbComponent {
   /** See {@link PSDbComponentList#iterator()} for details. */
   public <T extends IPSDbComponent> Iterator<T> iterator() {
     // This cast is safe if m_list is always List<T> in subclasses
-    @SuppressWarnings("unchecked")
+
     Iterator<T> it = (Iterator<T>) m_list.iterator();
     return it;
   }

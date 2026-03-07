@@ -93,7 +93,7 @@ class PSDtdTreeDeserializationTest {
 
     assertNotNull(result);
     assertInstanceOf(java.util.Map.class, result);
-    @SuppressWarnings("unchecked")
+
     java.util.HashMap<String, java.util.ArrayList<String>> deserializedMap =
         (java.util.HashMap<String, java.util.ArrayList<String>>) result;
     assertTrue(deserializedMap.containsKey("parent"));
@@ -132,7 +132,7 @@ class PSDtdTreeDeserializationTest {
 
     assertNotNull(result);
     assertInstanceOf(java.util.List.class, result);
-    @SuppressWarnings("unchecked")
+
     java.util.ArrayList<Integer> deserializedNumbers = (java.util.ArrayList<Integer>) result;
     assertEquals(5, deserializedNumbers.size());
     assertEquals(3, deserializedNumbers.get(2));

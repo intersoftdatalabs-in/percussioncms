@@ -53,7 +53,7 @@ public class PSSlotModel extends PSDesignModel
     * second one is expected to be the template name. Any association that is
     * not in the expected form or either content type or template does not exist
     * with the supplied name then the association is not added for that pair.
-    * 
+    *
     * @param obj must not be <code>null</code> and must be an instance of
     * {@link IPSTemplateSlot}.
     * @param associationSets may be <code>null</code> or empty.
@@ -63,7 +63,7 @@ public class PSSlotModel extends PSDesignModel
    {
       if(obj == null)
                throw new IllegalArgumentException("obj must not be null");
-            
+
       if (!(obj instanceof IPSTemplateSlot))
       {
          throw new RuntimeException("Invalid Object passed for save.");
@@ -102,7 +102,7 @@ public class PSSlotModel extends PSDesignModel
     * the object. The first and second object of PSPair are expected to be
     * String objects, the first one is expected to be the name of the content
     * type and the second one is expected to be the name of template.
-    * 
+    *
     * @param slotObj assumed not <code>null</code>.
     * @param existAssoc the existing associations, may be <code>null</code> or
     * empty.
@@ -110,26 +110,26 @@ public class PSSlotModel extends PSDesignModel
     * @param action the action on how to apply the association, assumed not
     * <code>null</code>.
     */
-   @SuppressWarnings("unchecked")
+
    private void setSlotAssociations(IPSTemplateSlot slotObj,
          Collection<PSPair<IPSGuid, IPSGuid>> existAssoc,
          Collection assoc, AssociationAction action)
    {
       if (assoc == null || assoc.isEmpty())
          return;
-      
+
       IPSTemplateService service = (IPSTemplateService) getService();
       for (Object pairObj : assoc)
       {
          PSPair<String, String> pairNames = validatePairStrs(slotObj, pairObj);
          if (pairNames == null)
             continue;
-         
+
          PSPair<IPSGuid, IPSGuid> pairIds = getPairIDs(slotObj, pairNames
                .getFirst(), pairNames.getSecond(), service);
          if (pairIds == null)
             continue;
-         
+
          if (action.equals(AssociationAction.DELETE))
          {
             existAssoc.remove(pairIds);
@@ -145,15 +145,15 @@ public class PSSlotModel extends PSDesignModel
    /**
     * Validates the supplied object as a {@link PSPair PSPair&lt;String,String>}
     * type.
-    *  
+    *
     * @param slotObj the slot object, assumed not <code>null</code>.
-    * @param pairObject the pair object in question, assumed not 
+    * @param pairObject the pair object in question, assumed not
     * <code>null</code>.
-    * 
+    *
     * @return the pair string in proper type. It may be <code>null</code> if
     * the pair object is invalid.
     */
-   @SuppressWarnings("unchecked")
+
    private PSPair<String, String> validatePairStrs(IPSTemplateSlot slotObj,
          Object pairObject)
    {
@@ -172,26 +172,26 @@ public class PSSlotModel extends PSDesignModel
       {
          String msg = "Expected a PSPair<String, String> object for " +
                "slot ({0}) association but found PSPair<{1},{2}> skipping " +
-               "this object."; 
+               "this object.";
          Object[] args = { slotObj.getName(), obj1.getClass().getName(),
                obj2.getClass().getName() };
          ms_logger.warn(MessageFormat.format(msg, args));
          return null;
       }
-      
+
       return (PSPair<String, String>) pairObject;
    }
 
    /**
     * Gets the Content Type and Template IDs from their names.
-    * 
+    *
     * @param slot the slot object, assumed not <code>null</code>.
-    * @param ctName the Content Type name, assumed not <code>null</code> or 
+    * @param ctName the Content Type name, assumed not <code>null</code> or
     * empty.
-    * @param tmplateName the Template name, assumed not <code>null</code> or 
-    * empty. 
+    * @param tmplateName the Template name, assumed not <code>null</code> or
+    * empty.
     * @param service the service, assumed not <code>null</code>.
-    * 
+    *
     * @return the pair IDs, it may be <code>null</code> if failed to find
     * the specified Content Type or Template from their names or the specified
     * Content Type and Template association is invalid.
@@ -214,7 +214,7 @@ public class PSSlotModel extends PSDesignModel
          }
          IPSAssemblyTemplate template = service
                .findTemplateByName(tmplateName);
-         
+
          // validate the association
          IPSNodeDefinition nodeDef = nodeDefs.get(0);
          for (IPSGuid id : nodeDef.getVariantGuids())
@@ -223,13 +223,13 @@ public class PSSlotModel extends PSDesignModel
                return new PSPair<>(nodeDef.getGUID(), template
                      .getGUID());
          }
-         
+
          String msg = "Skipping the slot \"{0}\" association for pair ({1},{2})."
             + " This is because the content type \"{1}\" is not associate with"
             + " Template \"{2}\".";
          Object[] args = {slot.getName(), ctName, tmplateName };
          ms_logger.warn(MessageFormat.format(msg, args));
-         
+
          return null;
       }
       catch (PSAssemblyException e)
@@ -246,7 +246,7 @@ public class PSSlotModel extends PSDesignModel
    public List<IPSAssociationSet> getAssociationSets()
    {
       List<IPSAssociationSet> asets = new ArrayList<>();
-      
+
       // create 2 associations as the place-holder, one for DELETE, one for MERGE
       IPSAssociationSet assoc = new PSAssociationSet(AssociationType.SLOT_CONTENTTYPE_TEMPLATE);
       assoc.setAction(AssociationAction.DELETE);
@@ -254,7 +254,7 @@ public class PSSlotModel extends PSDesignModel
       assoc = new PSAssociationSet(AssociationType.SLOT_CONTENTTYPE_TEMPLATE);
       assoc.setAction(AssociationAction.MERGE);
       asets.add(assoc);
-      
+
       return asets;
    }
 
@@ -285,7 +285,7 @@ public class PSSlotModel extends PSDesignModel
          removeTemmplateAssociations(slot);
          service.deleteSlot(guid);
       }
-      catch (Exception e) 
+      catch (Exception e)
       {
          String msg = "Failed to delete the slot with the given id ({0}) "
                + "and name ({1})";
@@ -293,10 +293,10 @@ public class PSSlotModel extends PSDesignModel
          throw new RuntimeException(MessageFormat.format(msg, args));
       }
    }
-   
+
    /**
     * Helper method to remove the template associations.
-    * 
+    *
     * @param guid, The slot guid assumed not <code>null</code>.
     * @throws PSAssemblyException
     */
@@ -305,7 +305,7 @@ public class PSSlotModel extends PSDesignModel
    {
       IPSAssemblyService service = PSAssemblyServiceLocator
             .getAssemblyService();
-      Map<IPSGuid, IPSAssemblyTemplate> templateMap = 
+      Map<IPSGuid, IPSAssemblyTemplate> templateMap =
          new HashMap<>();
       List<IPSAssemblyTemplate> templates = service.findTemplatesBySlot(slot);
       for (IPSAssemblyTemplate template : templates)
@@ -326,7 +326,7 @@ public class PSSlotModel extends PSDesignModel
       }
 
    }
-   
+
    /**
     * The logger for this class.
     */

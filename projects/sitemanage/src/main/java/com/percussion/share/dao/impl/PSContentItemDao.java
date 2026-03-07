@@ -353,7 +353,7 @@ public class PSContentItemDao implements IPSContentItemDao {
               fv = new PSPurgableFileValue((PSPurgableTempFile) value);
               f.addValue(fv);
             } else if (value instanceof List) {
-              @SuppressWarnings("unchecked")
+
               var values = (List<String>) value;
               for (var val : values) {
                 fv = f.createFieldValue(val);

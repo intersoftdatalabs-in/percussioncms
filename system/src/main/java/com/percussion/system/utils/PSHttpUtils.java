@@ -31,7 +31,7 @@ public class PSHttpUtils extends PSBaseHttpUtils {
    * @param cookies used to store cookies in
    * @return The number of cookie values parsed.
    */
-  @SuppressWarnings("unchecked")
+
   public static int parseCookies(String value, Map cookies) {
     return parseHttpParamsString(value, cookies);
   }

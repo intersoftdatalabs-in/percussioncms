@@ -116,7 +116,7 @@ public class PSPageTree implements IPSWidgetHandler {
 
    /**
     * todo
-    * 
+    *
     * @param idObj the object id that is a JSON object with all parameters
     * required obtain slot items, assumed not <code>null</code> or empty.
     * @return Json array of all snippets nodes, never <code>null</code>, may
@@ -126,7 +126,7 @@ public class PSPageTree implements IPSWidgetHandler {
     * @throws PSAssemblyException
     * @throws NumberFormatException
     */
-   @SuppressWarnings("unchecked")
+
    private JSONArray getSnippets(JSONObject idObj) throws PSAssemblyException,
            PSFilterException, RepositoryException, PSNotFoundException {
       JSONArray result = new JSONArray();
@@ -165,7 +165,7 @@ public class PSPageTree implements IPSWidgetHandler {
       return result;
    }
 
-   @SuppressWarnings("unchecked")
+
    private JSONArray getSlots(JSONObject idObj) throws PSAssemblyException
    {
       JSONArray result = new JSONArray();
