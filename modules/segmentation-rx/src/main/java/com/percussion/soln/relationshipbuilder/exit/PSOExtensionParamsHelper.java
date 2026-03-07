@@ -36,44 +36,44 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.IPSSlotContentFinder;
 
 /**
- * 
+ *
  * Helps make getting Extension/Result parameters easier by doing the necessary conversion
  * and error handling.
- *  
+ *
  * @author adamgent
  * @see #getParameter(String)
  */
 public class PSOExtensionParamsHelper {
-   
+
     Object[] params;
     IPSExtensionDef extensionDef;
     Map<String,String> extensionParameters;
     Map<String,? extends Object> slotArguments;
     Map<String,Object> slotSelectors;
-    
+
     IPSRequestContext request;
-    
+
     /**
      * The log instance to use for this class if one is not provided, never <code>null</code>.
      */
     private static final Log defaultLog = LogFactory
             .getLog(PSOExtensionParamsHelper.class);
-    
+
     /**
      * The user log instance.
      */
     private Log log;
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param def The extension definition, never null.
      * @param params The parameters passed to the extension, never null.
-     * @param request The request passed to the extension, maybe null 
+     * @param request The request passed to the extension, maybe null
      * if the extension does not handle requests (UDFs).
      * @param log The logger to use for reporting errors and debug messages, maybe null.
      * If null the logger for this class will be used.
-     * 
+     *
      * @see #getParameter(String)
      */
     public PSOExtensionParamsHelper(IPSExtensionDef def, Object [] params,
@@ -87,24 +87,24 @@ public class PSOExtensionParamsHelper {
         doParameters();
         doLog(log);
     }
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param parameters The extension parameters already converted to a Map.
      * @param request The request passed to the extension, maybe null.
      * @param log The logger to use for reporting errors and debug messages, maybe null.
      * If null the logger for this class will be used.
-     * 
+     *
      * @see #getParameter(String)
      */
-    public PSOExtensionParamsHelper(Map<String,String> parameters, 
+    public PSOExtensionParamsHelper(Map<String,String> parameters,
             IPSRequestContext request, Log log) {
         this.extensionParameters = parameters;
         this.request = request;
         doLog(log);
     }
-    
+
     /**
      * Use this constructor to help with slot finders.
      * @see IPSSlotContentFinder#find(com.percussion.services.assembly.IPSAssemblyItem, com.percussion.services.assembly.IPSTemplateSlot, Map)
@@ -112,7 +112,7 @@ public class PSOExtensionParamsHelper {
      * @param selectors The selectors that are passed with the find method.
      * @param log
      */
-    public PSOExtensionParamsHelper(Map<String,? extends Object> args, 
+    public PSOExtensionParamsHelper(Map<String,? extends Object> args,
             Map<String,Object> selectors, Log log) {
         doLog(log);
         if (args == null)
@@ -129,18 +129,18 @@ public class PSOExtensionParamsHelper {
         }
         this.slotArguments = args;
         this.slotSelectors = selectors;
-        
+
     }
-    
+
     /**
      * Gets a parameter by first trying to get it from the request then
      * followed by the parameters passed to the extension.
-     * 
+     *
      * @param paramName
      * @return The value of the parameter, or null if the parameter is not found.
      */
     public String getParameter(String paramName) {
-        
+
         if (slotSelectors != null && slotArguments != null) {
             // This helper is for a slot finder.
             Object val = slotSelectors.get(paramName);
@@ -175,7 +175,7 @@ public class PSOExtensionParamsHelper {
                return null;
             }
         }
-        
+
         if (request != null) {
             String value = request.getParameter(paramName);
             log.debug("Got the parameter name = " + paramName
@@ -190,13 +190,13 @@ public class PSOExtensionParamsHelper {
         }
         log.warn("Extension Parameters is null");
         return null;
-        
+
     }
-    
+
     public Number getRequiredParameterAsNumber(String paramName) {
         return paramToNumber(paramName, getRequiredParameter(paramName));
     }
-    
+
     public Boolean getRequiredParameterAsBoolean(String paramName)
     {
        return paramToBoolean(paramName, getRequiredParameter(paramName));
@@ -204,7 +204,7 @@ public class PSOExtensionParamsHelper {
     /**
      * Gets a parameter and if its null or an empty String then an
      * IllegalArgumentException is thrown.
-     * 
+     *
      * @param paramName Name of the parameter.
      * @return value of the parameter never null or empty.
      * @throws IllegalArgumentException
@@ -218,20 +218,20 @@ public class PSOExtensionParamsHelper {
         }
         return value;
     }
-    
+
     public Number getOptionalParameterAsNumber(String paramName, String defaultValue) {
         return paramToNumber(paramName, getOptionalParameter(paramName, defaultValue));
     }
-    
+
     public Boolean getOptionalParameterAsBoolean(String paramName, Boolean defaultValue)
     {
        String b = (defaultValue.booleanValue()) ? "true" : "false" ;
        return paramToBoolean(paramName, getOptionalParameter(paramName, b));
     }
-    
+
     /**
      * Gets a parameter and if its null or empty returns the provided default value.
-     * 
+     *
      * @param paramName Name of the parameter.
      * @param defaultValue The value to return if paramName is not found. Maybe null.
      * @return The value of the parameter or the defaultValue.
@@ -242,15 +242,15 @@ public class PSOExtensionParamsHelper {
             log.debug("Parameter " + paramName + " was not set. Using default value = " + defaultValue);
             return defaultValue;
         }
-        return value;        
+        return value;
     }
-    
+
     public void errorOnParameter(String paramName, String reason) {
         String error = "Parameter: " + paramName + " is invalid."+ " Reason: " + reason;
         log.error(error);
         throw new IllegalArgumentException(error);
     }
-    
+
     public Number paramToNumber(String paramName, String param) {
         try {
             return NumberUtils.createNumber(param);
@@ -262,7 +262,7 @@ public class PSOExtensionParamsHelper {
             throw new IllegalArgumentException(message,e);
         }
     }
-    
+
     public Boolean paramToBoolean(String paramName, String param)
     {
         Converter cvt = new BooleanConverter();
@@ -281,7 +281,7 @@ public class PSOExtensionParamsHelper {
     /**
      * Get the parameters passed to the extension as a map.
      * <em>This does not include the parameters that are in the request.</em>
-     * 
+     *
      * @return a map with the parameter name as key and the parameter value as
      *         <code>String</code> object, never <code>null</code>, may be
      *         empty. Parameter values may be <code>null</code>.
@@ -289,16 +289,16 @@ public class PSOExtensionParamsHelper {
     public Map<String, String> getExtensionParameters() {
         return this.extensionParameters;
     }
-    
+
     protected void doLog(Log log) {
         this.log = log == null ? PSOExtensionParamsHelper.defaultLog : log;
     }
-    
-    @SuppressWarnings("unchecked")
+
+
     protected void doParameters()
-    {  
+    {
        extensionParameters = new HashMap<String, String>();
-       
+
        if (params != null)
        {
           int index = 0;
@@ -306,7 +306,7 @@ public class PSOExtensionParamsHelper {
           while (names.hasNext())
           {
              String name = (String) names.next();
-          
+
              if (params.length > index) {
                  Object p = params[index];
                  String pString;
@@ -324,7 +324,7 @@ public class PSOExtensionParamsHelper {
              }
              else
                 extensionParameters.put(name, null);
-             
+
              index++;
           }
        }

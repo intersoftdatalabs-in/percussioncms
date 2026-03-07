@@ -62,7 +62,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   }
 
   // see base class method for details
-  @SuppressWarnings("unchecked")
+
   public List<PSSearchIndexQueueItem> loadItems(int count) {
     Date maxDelayDate = new Date(new Date().getTime() - MAX_DELAY);
     Date minDelayDate = new Date(new Date().getTime() - POLL_DELAY);

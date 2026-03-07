@@ -168,7 +168,7 @@ public class PSOWFActionDispatcher extends PSDefaultExtension implements IPSWork
     return actions;
   }
 
-  @SuppressWarnings("unchecked")
+
   private IPSExtension getExtension(String workflowActionName, String interfaceName)
       throws PSExtensionException, PSNotFoundException {
     IPSExtension ext = null;

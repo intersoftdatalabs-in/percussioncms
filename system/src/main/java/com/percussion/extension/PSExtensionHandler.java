@@ -433,7 +433,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * @throws IllegalArgumentException if def is <code>null</code>.
    * @throws PSExtensionException if the files cannot be located.
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator getResources(IPSExtensionDef def) throws PSExtensionException {
     if (def == null) throw new IllegalArgumentException("def may not be null.");
 
@@ -477,7 +477,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    *     codeRoot is <code>null</code>.
    * @throws MalformedURLException if the result from the catalog is invalid.
    */
-  @SuppressWarnings("unchecked")
+
   private ArrayList catalogResources(File location, File codeRoot) throws MalformedURLException {
     if (location == null) throw new IllegalArgumentException("location may not be null.");
 
@@ -530,7 +530,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
    * @param ext The live instance. Must not be <CODE>null</CODE>.
    * @see #putLiveExtension
    */
-  @SuppressWarnings("unchecked")
+
   private void putLiveExtension(PSExtensionRef ref, IPSExtension ext) {
     m_liveExtensions.put(ref, ext);
   }

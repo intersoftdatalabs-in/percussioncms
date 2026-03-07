@@ -32,7 +32,7 @@ public class PSTestPrinter {
    *
    * @param map the map, never <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   public static void printMapEntries(Map map) {
     if (map == null) {
       throw new IllegalArgumentException("map may not be null");

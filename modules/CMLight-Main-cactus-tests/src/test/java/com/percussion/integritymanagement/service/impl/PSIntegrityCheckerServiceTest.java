@@ -57,7 +57,7 @@ public class PSIntegrityCheckerServiceTest extends PSServletTestCase {
     super.setUp();
   }
 
-  @SuppressWarnings("unchecked")
+
   public void init(String uid, String pwd, String community) throws Exception {
     PSSpringWebApplicationContextUtils.injectDependencies(this);
     PSRequestInfo.resetRequestInfo();

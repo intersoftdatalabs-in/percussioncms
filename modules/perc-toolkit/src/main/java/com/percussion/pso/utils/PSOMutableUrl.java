@@ -88,7 +88,7 @@ public class PSOMutableUrl {
     return m_param;
   }
 
-  @SuppressWarnings("unchecked")
+
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(m_base);

@@ -114,7 +114,7 @@ public class PSEditionSetter extends PSSimplePropertySetter {
     return taskMap;
   }
 
-  @SuppressWarnings("unchecked")
+
   private void setTasks(PSEditionWrapper wrapper, Object propValue, boolean isPreTasks) {
     var srcTasks = new ArrayList<Map>();
     if (propValue instanceof List) {
@@ -149,7 +149,7 @@ public class PSEditionSetter extends PSSimplePropertySetter {
     }
   }
 
-  @SuppressWarnings("unchecked")
+
   private IPSEditionTaskDef createTask(Map<String, Object> props, int seq, IPSGuid editionId) {
     var srv = PSPublisherServiceLocator.getPublisherService();
     var task = srv.createEditionTask();

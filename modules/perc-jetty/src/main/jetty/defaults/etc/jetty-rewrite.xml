@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!-- =============================================================== -->
+<!-- Mixin the RewriteHandler -->
+<!-- =============================================================== -->
+
+
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+
+	<!-- =========================================================== -->
+	<!-- configure rewrite handler -->
+	<!-- =========================================================== -->
+	<Get id="oldhandler" name="handler" />
+
+	<Set name="handler">
+		<New id="Rewrite"
+			class="org.eclipse.jetty.rewrite.handler.RewriteHandler">
+			<Set name="handler">
+				<Ref refid="oldhandler" />
+			</Set>
+
+			<Set name="originalPathAttribute">
+				<Property name="jetty.rewrite.originalPathAttribute"
+					deprecated="rewrite.originalPathAttribute" default="requestedPath" />
+			</Set>
+
+			<!-- Redirect Package Manager -->
+			<Call name="addRule">
+				<Arg>
+					<New
+						class="org.eclipse.jetty.rewrite.handler.RedirectPatternRule">
+						<Set name="pattern">/cm/packages</Set>
+						<Set name="location">/sys_resources/ui/gwt/com.percussion.gwt.pkgmgtui.PkgMgtUI/PkgMgtUI.html</Set>
+					</New>
+				</Arg>
+			</Call>
+
+			<!-- Redirect Docs -->
+			<Call name="addRule">
+				<Arg>
+					<New class="org.eclipse.jetty.rewrite.handler.RedirectRegexRule">
+						<Set name="regex">^/Rhythmyx/Docs/Rhythmyx/(.*)$</Set>
+						<Set name="location">/Docs/$1</Set>
+					</New>
+				</Arg>
+			</Call>
+
+			<!-- Rewrite DCE Header -->
+			<Call name="addRule">
+				<Arg>
+					<New class="org.eclipse.jetty.rewrite.handler.RewriteRegexRule">
+						<Set name="regex">^/Rhythmyx/dce_header.jsp</Set>
+						<Set name="replacement">/dce_header.jsp</Set>
+					</New>
+				</Arg>
+			</Call>
+
+		</New>
+	</Set>
+</Configure>

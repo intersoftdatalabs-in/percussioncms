@@ -39,12 +39,12 @@ public class PSConcurrentList<T> implements List<T> {
     list = new ArrayList<>();
   }
 
-  @SuppressWarnings("unchecked")
+
   public PSConcurrentList(Class<T> clazz) {
     list = (List<T>) Arrays.asList(Array.newInstance(clazz, 0));
   }
 
-  @SuppressWarnings("unchecked")
+
   public PSConcurrentList(Class<?> clazz, int capacity) {
     list = (List<T>) Arrays.asList(Array.newInstance(clazz, capacity));
   }

@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * Represents the site node's log in the runtime tree.
- * 
+ *
  * @author dougrand
  */
 public class PSRuntimeSiteLogNode extends PSLogNode
@@ -44,13 +44,13 @@ public class PSRuntimeSiteLogNode extends PSLogNode
       super("Publishing Logs", "pub-runtime-site-logs");
       m_site = site;
    }
-   
+
    /*
     * (non-Javadoc)
     * @see com.percussion.rx.publisher.jsf.nodes.PSLogNode#getStatusLogs()
     */
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<IPSPubStatus> getStatusLogs() {
       IPSPublisherService psvc = PSPublisherServiceLocator.getPublisherService();
       List<IPSPubStatus> logs = java.util.Collections.emptyList();
@@ -73,7 +73,7 @@ public class PSRuntimeSiteLogNode extends PSLogNode
    public boolean isShowSiteColumn() {
       return false;
    }
-   
+
    /**
     * Deletes all entries in site item table for the current site.
     */
@@ -82,7 +82,7 @@ public class PSRuntimeSiteLogNode extends PSLogNode
       deleteSiteItems(m_site.getGUID());
       return perform();
    }
-   
+
    /**
     * Get the name of the current site.
     * @return the site name, never <code>null</code> or empty.
@@ -91,7 +91,7 @@ public class PSRuntimeSiteLogNode extends PSLogNode
    {
       return m_site.getName();
    }
-   
+
    @Override
    public String getHelpTopic()
    {

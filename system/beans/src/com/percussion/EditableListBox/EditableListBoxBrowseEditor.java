@@ -56,7 +56,7 @@ import javax.swing.table.TableCellEditor;
   * box cell.
   */
 
-@SuppressWarnings("unchecked")
+
 public class EditableListBoxBrowseEditor implements TableCellEditor, Serializable
 {
 //
@@ -371,8 +371,8 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
 
     /*
      * Notify all listeners that have registered interest for
-     * notification on this event type.  The event instance 
-     * is lazily created using the parameters passed into 
+     * notification on this event type.  The event instance
+     * is lazily created using the parameters passed into
      * the fire method.
      * @see EventListenerList
      */
@@ -398,8 +398,8 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
 
     /*
      * Notify all listeners that have registered interest for
-     * notification on this event type.  The event instance 
-     * is lazily created using the parameters passed into 
+     * notification on this event type.  The event instance
+     * is lazily created using the parameters passed into
      * the fire method.
      * @see EventListenerList
      */

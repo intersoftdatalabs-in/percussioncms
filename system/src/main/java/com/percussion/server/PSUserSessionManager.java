@@ -97,7 +97,7 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
    * each category, deletes enough anonymous sessions, then credentialed sessions, to bring us down
    * under the session limit.
    */
-  @SuppressWarnings("unchecked")
+
   private void validateSessions() {
     long idledTimeMS = 0; // in milliseconds
 
@@ -233,7 +233,7 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
    * @param request the request object to locate the session for
    * @return the session object (which may be a temporary session object)
    */
-  @SuppressWarnings("unchecked")
+
   public static synchronized PSUserSession getUserSession(PSRequest request) {
     isTrue(!ms_stopped, "Cannot get user session because session manager has been stopped");
     PSUserSession sess = null;

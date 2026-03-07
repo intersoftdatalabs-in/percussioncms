@@ -57,34 +57,34 @@ import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.
  * <p>
  * The base class' find method filters and organizes the returned slot items
  * into a set of assembly items to be assembled.
- * 
+ *
  * @deprecated use {@link PSSlotContentFinderBase} instead.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTemplateSlot>
    implements IPSSlotContentFinder
 {
-   
+
    /**
     * Represents a single slot item to be filtered, sorted and output as an
     * assembly item
     */
    public static class SlotItem extends ContentItem
-   {      
+   {
       /**
        * Ctor
-       * 
+       *
        * @param itemId content item guid, never <code>null</code>
        * @param templateId template guid, may be <code>null</code>
        * @param sortrank sort order
        */
-      public SlotItem(IPSGuid itemId, IPSGuid templateId, int sortrank) 
+      public SlotItem(IPSGuid itemId, IPSGuid templateId, int sortrank)
       {
          super(itemId, templateId, sortrank);
       }
-      
+
       /**
        * Create an instance from {@link ContentItem}.
        * @param item the source of the item, never <code>null</code>.
@@ -102,7 +102,7 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
    {
       /**
        * Compare slot items for ordering
-       * 
+       *
        * @param s1 slot item one, never <code>null</code>
        * @param s2 slot item two, never <code>null</code>
        * @return positive number for increasing order, negative for decreasing
@@ -124,7 +124,7 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
              * If this comparator returns zero, a set based on this comparator
              * will treat the two slot items as equal (and only store one of
              * them).
-             * 
+             *
              * Therefore, if by some chance the sort ranks are the same, compare
              * the items using their relationship ids (if set) or their item
              * ids.
@@ -142,20 +142,20 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
             return s1.getSortrank() - s2.getSortrank();
       }
    }
-  
+
    /**
     * Logger
     */
    private static final Logger ms_log = LogManager.getLogger(PSBaseSlotContentFinder.class);
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSSlotContentFinder#find(com.percussion.services.assembly.IPSAssemblyItem,
     *      com.percussion.services.assembly.IPSTemplateSlot, java.util.Map)
     */
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<IPSAssemblyItem> find(IPSAssemblyItem sourceItem,
          IPSTemplateSlot slot, Map<String, Object> selectors)
            throws RepositoryException, PSFilterException, PSAssemblyException, PSNotFoundException {
@@ -171,12 +171,12 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
     * Get the slot items to be operated on. The items do not need to be ordered
     * or filtered. This method is supplied by an implementer and is normally
     * called by the {@link #find(IPSAssemblyItem, IPSTemplateSlot, Map)} method
-    * to get initial content. 
+    * to get initial content.
     * <p>
     * It is important to note that while this mechanism works well for most
     * cases, there may be cases where an implementer must simply write their
     * own find method.
-    * 
+    *
     * @param sourceItem the source assembly item, guaranteed never
     *           <code>null</code> because this is called from
     *           {@link #find(IPSAssemblyItem, IPSTemplateSlot, Map)}
@@ -187,7 +187,7 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
     *         filtered, ordered and turned into assembly items. The set must be
     *         ordered if the slots are to be ordered. Use {@link SlotItemOrder}
     *         to order slot items in the set.
-    * 
+    *
     * @throws RepositoryException
     * @throws PSFilterException
     * @throws PSAssemblyException
@@ -195,15 +195,15 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
    protected abstract Set<SlotItem> getSlotItems(IPSAssemblyItem sourceItem,
          IPSTemplateSlot slot, Map<String, Object> selectors)
          throws RepositoryException, PSFilterException, PSAssemblyException;
-       
+
    @Override
    protected Set<ContentItem> getContentItems(IPSAssemblyItem sourceItem,
          IPSTemplateSlot slot, Map<String, Object> selectors)
    {
       Set<ContentItem> rval = new TreeSet<>(new ContentItemOrder());
-      
+
       IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
-      
+
       try
       {
          Set<SlotItem> items = getSlotItems(sourceItem, slot, selectors);
@@ -221,14 +221,14 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
          ms_log.error(errMsg, e);
          throw new RuntimeException(errMsg, e);      }
    }
-   
+
    @Override
-   protected IPSAssemblyItem createAssemblyItem(ContentItem slotitem, 
+   protected IPSAssemblyItem createAssemblyItem(ContentItem slotitem,
          IPSAssemblyItem sourceItem,
          String templatename, IPSAssemblyService asm,
          IPSTemplateSlot slot) throws PSAssemblyException
    {
-      IPSAssemblyItem clone = super.createAssemblyItem(slotitem, sourceItem, 
+      IPSAssemblyItem clone = super.createAssemblyItem(slotitem, sourceItem,
             templatename, asm, slot);
 
       boolean isAaSlot = new PSAssemblerUtils().isAASlot(slot);
@@ -243,7 +243,7 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
    /**
     * Get the specified argument from the passed selectors. If no argument is
     * present then the default is returned.
-    * 
+    *
     * @param args the arguments, never <code>null</code>
     * @param selectors the selectors, never <code>null</code>
     * @param key the key, never <code>null</code> or empty
@@ -265,7 +265,7 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
       {
          throw new IllegalArgumentException("selectors may not be null");
       }
-      
+
       Map<String, Object> params = new HashMap<>();
       params.putAll(args);
       params.putAll(selectors);
@@ -279,9 +279,9 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
     * by clause on 'nt:base' and this returns the content ids. That is then
     * turned into a map that yields ascending sort order, which is used with
     * a different comparator.
-    * 
+    *
     * Calls {@link #reorder(Set, String, String)} with no locale.
-    * 
+    *
     * @param rval the original results, may be empty but not <code>null</code>
     * @param orderby the orderby string, never <code>null</code> or empty
     * @return the reordered set
@@ -291,21 +291,21 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
    {
       return reorder(rval, orderby, null);
    }
-   
+
    /**
     * Reorder the return set by a different algorithm. This first extracts the
     * content ids from the set. Then it does a JSR-170 query with the order
     * by clause on 'nt:base' and this returns the content ids. That is then
     * turned into a map that yields ascending sort order, which is used with
     * a different comparator.
-    * 
+    *
     * @param orderby the orderby string, never <code>null</code> or empty
     * @param locale the locale to use in the search to ensure the correct
     * collating sequence. If <code>null</code> or empty the JVM locale is used.
     * @return the reordered set
     * @deprecated use  instead.
     */
-   protected Set<SlotItem> reorder(Set<SlotItem> srcItems, String orderby, 
+   protected Set<SlotItem> reorder(Set<SlotItem> srcItems, String orderby,
          String locale)
    {
       Set<ContentItem> items = new TreeSet<>(new ContentItemOrder());
@@ -321,12 +321,12 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
       }
       return reItems;
    }
-   
-   
+
+
    /**
     * Get the locale from the available information. The default value is taken
     * from the source node using the sys_lang field.
-    * 
+    *
     * @param source the source assembly item, never <code>null</code>.
     * @param args the arguments, never <code>null</code>
     * @param selectors the selectors, never <code>null</code>
@@ -362,7 +362,7 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
     * the supplied slot item. If the item exists in more than one site, then
     * sets it to the first site returned by
     * {@link IPSSiteManager#getItemSites(IPSGuid)} method.
-    * 
+    *
     * @param slotItem slot item on which the site id needs to be set, if
     *           <code>null</code> does nothing.
     * @param skipFolderID if true skips setting the folder id.
@@ -386,6 +386,6 @@ public abstract class PSBaseSlotContentFinder extends PSContentFinderBase<IPSTem
          }
       }
    }
-   
-   
+
+
 }

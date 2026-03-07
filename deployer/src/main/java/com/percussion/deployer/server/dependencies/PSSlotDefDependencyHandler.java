@@ -142,7 +142,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   // see base class
   @Override
-  @SuppressWarnings("unchecked")
+
   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -722,7 +722,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
+
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");

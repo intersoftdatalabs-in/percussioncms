@@ -105,7 +105,7 @@ import org.w3c.dom.Element;
  *   <li>inlinetype
  * </ul>
  */
-@SuppressWarnings("unchecked")
+
 public class PSGenerateSearchQueryExit extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 

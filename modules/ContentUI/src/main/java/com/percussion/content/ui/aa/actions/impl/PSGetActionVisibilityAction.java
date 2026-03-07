@@ -126,7 +126,7 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
       return mi_ctx.getUserLocale();
     }
 
-    @SuppressWarnings("unchecked")
+
     @Override
     public Collection<String> getRoles() {
       return mi_ctx.getSubjectRoles();
@@ -145,7 +145,7 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
       mi_ctx = ctx;
     }
 
-    @SuppressWarnings("unchecked")
+
     @Override
     public int getAssignmentType() {
       IPSSystemService svc = PSSystemServiceLocator.getSystemService();

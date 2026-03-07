@@ -155,7 +155,7 @@ public class PSHtmlParamDocument {
   public void setParams(Map<String, ?> params) {
     if (params == null) throw new IllegalArgumentException("params must not be null");
     // unchecked assignment: we trust caller to supply correct types
-    @SuppressWarnings("unchecked")
+
     Map<String, Object> tmp = (Map<String, Object>) params;
     m_params = tmp;
   }

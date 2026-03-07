@@ -34,18 +34,18 @@ public class PSArrayToListConverter extends PSArrayConverter
    /* (non-Javadoc)
     * @see Converter#convert(Class, Object)
     */
-   @SuppressWarnings("unchecked")
+
    public Object convert(Class listType, Object value)
    {
       if (value == null)
          return null;
-      
+
       if (listType == null)
          throw new IllegalArgumentException("listType cannot be null");
-      
+
       if (!value.getClass().isArray())
          throw new IllegalArgumentException("value must be of type array");
-      
+
       Class arrayType = Array.newInstance(Object.class, 0).getClass();
       Object[] convertedArray = (Object[]) super.convert(arrayType, value);
       return Arrays.asList(convertedArray);

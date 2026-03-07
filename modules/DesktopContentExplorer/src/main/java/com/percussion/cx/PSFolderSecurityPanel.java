@@ -129,7 +129,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    *
    * @return <code>true</code> if success, <code>false</code> otherwise
    */
-  @SuppressWarnings("unchecked")
+
   public boolean onOk() {
     if (!m_enabled) return true;
 
@@ -530,7 +530,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    *
    * @param acl current ACL for this folder, never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private void loadAclList(PSObjectAcl acl) {
     if (acl == null) throw new IllegalArgumentException("acl must not be null");
 
@@ -696,7 +696,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    *
    * @param listModel ACL list model to sort, never <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   private void sortListModelEntries(DefaultListModel listModel) {
     if (listModel == null) throw new IllegalArgumentException("sorted listModel may not be null");
 
@@ -726,7 +726,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    *
    * @param listAclEntries a list of ACL Entries to sort, never <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   private void sortAclEntries(AbstractList listAclEntries) {
     if (listAclEntries == null)
       throw new IllegalArgumentException("listAclEntries may not be null");

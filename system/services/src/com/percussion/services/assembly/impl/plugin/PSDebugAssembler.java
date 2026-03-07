@@ -75,9 +75,9 @@ import org.apache.logging.log4j.Logger;
  * for the user if the assembler/debug path is used to invoke the assembly
  * engine. The output of the debug assembler helps to understand what data is
  * available to the target assembly plugin.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSDebugAssembler implements IPSAssembler, IPSExtension
 {
@@ -96,7 +96,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
     * Outputs some data, changing MDO and MDC characters to entities. It
     * recognizes and trims leading whitespace and limits the output data to a
     * set length.
-    * 
+    *
     * @param pw the printwriter, never <code>null</code>
     * @param data the data, may be <code>null</code> or empty
     */
@@ -126,7 +126,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.assembly.IPSAssembler#assemble(java.util.List)
     */
    public List<IPSAssemblyResult> assemble(List<IPSAssemblyItem> items)
@@ -154,7 +154,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
       return results;
    }
-   
+
    public void preProcessItemBinding(IPSAssemblyItem item, PSAssemblyJexlEvaluator eval) throws PSAssemblyException
    {
       // do nothing by default
@@ -163,7 +163,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * Assemble one item
-    * 
+    *
     * @param item the item, assumed not <code>null</code>
     * @return a result, never <code>null</code>
     * @throws Exception
@@ -228,7 +228,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
    }
 
    /**
-    * 
+    *
     * @param item
     * @param pw
     * @throws Exception
@@ -250,7 +250,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * Output the navigation node, and it's subnodes
-    * 
+    *
     * @param pw the printwriter, assumed not null
     * @param navNode the current node, assumed not null
     * @throws RepositoryException
@@ -308,11 +308,11 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
     * Output errors recorded in the bindings. As the bindings are evaluated,
     * errors are stored in a special variable. This method does nothing if no
     * errors were recorded.
-    * 
+    *
     * @param pw the print writer for output, assumed not <code>null</code>
     * @param bindings bindings, assumed not <code>null</code>
     */
-   @SuppressWarnings("unchecked")
+
    private void outputBindingErrors(PrintWriter pw, Map<String, Object> bindings)
    {
       Map<String, Throwable> problems = (Map<String, Throwable>) bindings
@@ -347,7 +347,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
     * slots for the item's template and calls the content finder. Since this is
     * used outside of a template, the output may be incomplete or incorrect as
     * the template can override parameters for the finder.
-    * 
+    *
     * @param pw the printwriter, assumed never <code>null</code>
     * @param item the assembly item, assumed never <code>null</code>
     * @throws PSAssemblyException
@@ -427,11 +427,11 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * Generate a toggle span followed by a div
-    * 
-    * @param pw the print writer used for the output, assumed never 
+    *
+    * @param pw the print writer used for the output, assumed never
     *   <code>null</code>
-    * @param tag the name of the thing being output, assumed never 
-    *   <code>null</code> or empty 
+    * @param tag the name of the thing being output, assumed never
+    *   <code>null</code> or empty
     * @param hide if this is <code>true</code> then the block should start
     *   hidden.
     */
@@ -459,7 +459,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * End the toggled div
-    * 
+    *
     * @param pw
     */
    private void outputEndToggler(PrintWriter pw)
@@ -469,13 +469,13 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * Output the data associated with the content item itself.
-    * 
+    *
     * @param pw the printwriter, assumed never <code>null</code>
     * @param node the data node, assumed never <code>null</code>
     * @param toggleprops if <code>true</code> then put the properties in a div
     *           that starts out hidden. Used to display the nav tree without
     *           properties.
-    * 
+    *
     * @throws RepositoryException
     */
    private void outputItem(PrintWriter pw, Node node, boolean toggleprops)
@@ -555,12 +555,12 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * Primitive that outputs a map's data with a title
-    * 
+    *
     * @param title the title, assumed not <code>null</code>
     * @param pw the print writer, assumed never <code>null</code>
     * @param data the map data, may be <code>null</code> or empty
     */
-   @SuppressWarnings("unchecked")
+
    private void outputMap(String title, PrintWriter pw, Map data)
    {
       pw.print("<h2>" + title + "</h2>");
@@ -570,11 +570,11 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
    /**
     * Output the map data without a header. Called from
     * {@link #outputMap(String, PrintWriter, Map)} to do the body of the work.
-    * 
+    *
     * @param pw the print writer, assumed never <code>null</code>
     * @param data the map data, may be <code>null</code> or empty
     */
-   @SuppressWarnings("unchecked")
+
    private void outputMapNoHeader(PrintWriter pw, Map data)
    {
       if (data == null)
@@ -682,7 +682,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * Output the page header
-    * 
+    *
     * @param pw the printwriter, assumed never <code>null</code>
     * @param guid the id of the item, assumed not <code>null</code>
     */
@@ -703,7 +703,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
 
    /**
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef,
     *      java.io.File)
     */

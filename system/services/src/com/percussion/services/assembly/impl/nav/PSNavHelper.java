@@ -96,7 +96,7 @@ import static org.apache.commons.lang3.Validate.notNull;
  * should be created once per assembly request. It caches some information
  * during the current request.
  * As relationship processor is run as the system user, community filtering is ignored.
- * 
+ *
  * @author dougrand
  */
 public class PSNavHelper
@@ -201,12 +201,12 @@ public class PSNavHelper
    private static AtomicInteger landingPageWarnCount = new AtomicInteger(100);
 
    private static ArrayList<Long> m_navCtypes;
-   
+
    private static volatile boolean m_isInited = false;
-   
+
    /**
     * Ctor
-    * 
+    *
     * @param assemblyItem assembly item, never <code>null</code>
     */
    public PSNavHelper(IPSAssemblyItem assemblyItem) {
@@ -217,12 +217,12 @@ public class PSNavHelper
       m_assemblyItem = assemblyItem;
       m_params = getParams(assemblyItem);
       m_relProc = PSRelationshipProcessor.getInstance();
-     
+
       init();
-      
-     
+
+
    }
-   
+
    public static Map<String,String> getParams(IPSAssemblyItem assemblyItem)
    {
       Map<String,String> params = new HashMap<>();
@@ -245,14 +245,14 @@ public class PSNavHelper
       {
          synchronized (PSNavHelper.class)
          {
-            
+
             if (!m_isInited)
             {
             navConfig = PSNavConfig.getInstance();
             m_cmsObjMgr = PSCmsObjectMgrLocator.getObjectManager();
             m_contentMgr = PSContentMgrLocator.getContentMgr();
             m_gmgr = PSGuidManagerLocator.getGuidMgr();
-            
+
             // Initialize the navconfig
             if (navConfig.getNavonTypes() == null)
             {
@@ -263,8 +263,8 @@ public class PSNavHelper
                throw new IllegalArgumentException("NavTree content type configuration missing!");
             }
 
-           
-            
+
+
             m_navCtypes = new ArrayList<>();
             for(IPSGuid g: navConfig.getNavonTypes()){
                m_navCtypes.add(g.longValue());
@@ -272,7 +272,7 @@ public class PSNavHelper
            for(IPSGuid g : navConfig.getNavTreeTypes()){
               m_navCtypes.add(g.longValue());
            }
-            
+
       IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
       List<String> slotnames = new ArrayList<>();
 
@@ -311,10 +311,10 @@ public class PSNavHelper
          log.warn("Could not load one or more nav slots. Error: {}",
                  PSExceptionUtils.getMessageForLog(e));
       }
-            
+
             }
          }
-      
+
       }
    }
 
@@ -342,7 +342,7 @@ public class PSNavHelper
     * This method stores data into the assembly item. The data uses the $nav
     * binding, and the presence of $nav.self indicates to the method that this
     * data is initialized.
-    * 
+    *
     * @param sourceItem the source assembly item, never <code>null</code>
     * @return the self navon node, <code>null</code> if there is no visible
     *         navon node
@@ -412,12 +412,12 @@ public class PSNavHelper
 
    /**
     * Gets the root node of the given node.
-    * 
+    *
     * @param self the node in question, it may be <code>null</code>.
-    * 
-    * @return the root node, it can never be <code>null</code>, but It may be 
+    *
+    * @return the root node, it can never be <code>null</code>, but It may be
     * the node itself if the given node does not have a parent.
-    * 
+    *
     * @throws ItemNotFoundException
     * @throws AccessDeniedException
     * @throws RepositoryException
@@ -426,7 +426,7 @@ public class PSNavHelper
          AccessDeniedException, RepositoryException
    {
       notNull(self);
-      
+
       Node root = self;
       while (root.getParent() != null)
       {
@@ -434,11 +434,11 @@ public class PSNavHelper
       }
       return root;
    }
-   
+
    /**
     * Setup navigation predefined values for assembly, $nav.self, $nav.base
     * and $nav.root
-    * 
+    *
     * @param sourceItem source assembly item, never <code>null</code>
     * @param eval the jexl bindings to setup, never <code>null</code>
     * @param self the self navon, if <code>null</code> this method has no
@@ -448,7 +448,7 @@ public class PSNavHelper
     * @throws RepositoryException
     * @throws ValueFormatException
     */
-   @SuppressWarnings("unchecked")
+
    public void setupNavValues(IPSAssemblyItem sourceItem,
          PSJexlEvaluator eval, Node self) throws ItemNotFoundException, AccessDeniedException,
          RepositoryException, ValueFormatException
@@ -461,7 +461,7 @@ public class PSNavHelper
       {
          throw new IllegalArgumentException("eval may not be null");
       }
-      
+
       if (self == null)
          return;
 
@@ -503,7 +503,7 @@ public class PSNavHelper
 
       sourceItem.getBindings().put("$nav", navmap);
    }
-   
+
    /**
     * Build parent axis and load the parents. This is done by recursively
     * calling the relationship processor on the configured submenu relationship.
@@ -518,7 +518,7 @@ public class PSNavHelper
     * This enables the proxy to be reused when constructing the child axis.
     * <p><b>Note: The implementation now is revisionless this will always get the Tip Revision
     * of the parent.  Any changes while the navons are checked out will have immediate effect.</b></p>
-    * 
+    *
     * @param self the self navon's locator, assumed not <code>null</code>
     * @return the self navon's proxy node
     * @throws PSCmsException
@@ -529,16 +529,16 @@ public class PSNavHelper
          RepositoryException, PSFilterException
    {
       init();
-      
+
       IPSFolderRelationshipCache folderCache = PSFolderRelationshipCache
             .getInstance();
-      
-      
+
+
       if (self == null)
       {
          throw new IllegalArgumentException("self may not be null");
       }
-      
+
       if (folderCache == null)
       {
          throw new IllegalArgumentException("FolderCache is not initialized check for previous errors in startup");
@@ -563,13 +563,13 @@ public class PSNavHelper
 
       }
       if (guids.size()==0) return null;
-      
-      
+
+
       List<IPSFilterItem> filteredset = m_assemblyItem.getFilter().filter(
             filterset, m_params);
-      
+
       if (filteredset.size()==0) return null;
-      
+
       for (IPSFilterItem g : filteredset)
       {
          PSLegacyGuid lg = (PSLegacyGuid) g.getItemId();
@@ -634,7 +634,7 @@ public class PSNavHelper
             axis = PSNavAxisEnum.PARENT;
          }
          Node pnode = createProxyNode(cur, axis, PSSectionTypeEnum.section);
-         
+
          if (last != null)
          {
             last.setParent(pnode);
@@ -656,7 +656,7 @@ public class PSNavHelper
     * Navons must be filtered according to the item filter. Here we first find
     * the associated folders and create filter items. Then we filter them, and
     * finally extract the guids of the items that remain
-    * 
+    *
     * @param guids the navon guids, assumed not <code>null</code>
     * @return a list of guids that has been filtered, {@link NNTPConnectionClosedException}
     * @throws PSCmsException
@@ -697,7 +697,7 @@ public class PSNavHelper
             filterset, m_params);
 
       // Create return list
-      Map<Integer,PSLegacyGuid> filteredItemToId = 
+      Map<Integer,PSLegacyGuid> filteredItemToId =
          new HashMap<>();
       for (IPSFilterItem fitem : filteredset)
       {
@@ -726,7 +726,7 @@ public class PSNavHelper
     * than one folder then uses the supplied siteid to determine, which of the
     * folders exists under the given site. If more than one folder exist under
     * the given site then alphbatically first folder is returned.
-    * 
+    *
     * @param sourceItem IPSAssemblyItem assumed not <code>null</code>.
     * @return PSComponentSummary of the sourceItem's folder or <code>null</code>
     *         if not found.
@@ -858,7 +858,7 @@ public class PSNavHelper
     * Finds the navon/navTree content item for the given folder locator.
     * Recurses if the given folder does not have a content item of navon or
     * navTree content types.
-    * 
+    *
     * @param folderLoc locator of the folder for which the navon or navTree
     *           content item needs to find.
     * @return PSLocator of navon or navTree contenttype item. May be
@@ -941,7 +941,7 @@ public class PSNavHelper
     * <p>
     * The axis on the submenu nodes will be determined by the parent. If the
     * parent is the self node, then the axis is set to CHILD
-    * 
+    *
     * @param axis the axis of the parent, never <code>null</code>
     * @param parentNode the parent node being manipulated, never
     *           <code>null</code>
@@ -951,11 +951,11 @@ public class PSNavHelper
     * @throws RepositoryException
     * @throws PSFilterException
     */
-   @SuppressWarnings("unchecked")
+
    public MultiValuedMap findNavChildren(PSNavAxisEnum axis, IPSNode parentNode)
          throws PSCmsException, RepositoryException, PSFilterException
    {
-      if (axis == null) 
+      if (axis == null)
       {
          throw new IllegalArgumentException("axis may not be null");
       }
@@ -1052,15 +1052,15 @@ public class PSNavHelper
          newaxis = PSNavAxisEnum.NONE;
 
       boolean found;
-      
+
       PSLocator parentFolder = getParentFolder(new PSLocator(parentNode.getGuid().getUUID()));
       List<PSLocator> childFolders = getChildFolders(parentFolder);
-      
+
       for (PSRelationship r : sortedSubMenues)
       {
          Integer contentId = r.getDependent().getId();
          PSLocator nodeFolder = getParentFolder(r.getDependent());
-         
+
          boolean isSectionLink = !childFolders.contains(nodeFolder);
          Node n = null;
          if(!isSectionLink)
@@ -1100,7 +1100,7 @@ public class PSNavHelper
    }
 
 
-   
+
    /**
     * Helper method to get the parent folder of the supplied item content id.
     * @param psLocator
@@ -1111,14 +1111,14 @@ public class PSNavHelper
    {
       IPSFolderRelationshipCache folderCache = PSFolderRelationshipCache
             .getInstance();
-      
+
       List<PSLocator> parents = folderCache.getParentLocators(psLocator);
       if (parents.isEmpty())
          log.warn("Navon with id {} is not in any folder", psLocator.getId());
       else if (parents.size()>1)
          log.warn("Navon with id {} is in multiple folders {}", psLocator.getId(),
                  parents);
-      
+
       return !parents.isEmpty() ? parents.get(0): null;
    }
 
@@ -1126,39 +1126,39 @@ public class PSNavHelper
     * Helper method to get the child folders of the supplied parent guid.
     * @param locator parent locator, assumed not <code>null</code>.
     * @return never <code>null</code> may be empty.
-    * @throws PSCmsException 
+    * @throws PSCmsException
     */
    private List<PSLocator> getChildFolders(PSLocator locator) throws PSCmsException
    {
       IPSFolderRelationshipCache folderCache =  PSFolderRelationshipCache
             .getInstance();
-      
+
       return folderCache.getChildLocators(locator);
-      
+
    }
 
    /**
     * Creates a proxy node from the specified "contained" node.
-    * 
+    *
     * @param node the contained node of the created proxy node, assumed not
     * <code>null</code>.
     * @param axis the axis of the node.
-    * 
+    *
     * @return the created proxy node, never <code>null</code>.
     */
    private Node createProxyNode(IPSNode node, PSNavAxisEnum axis, PSSectionTypeEnum type)
    {
-      PSNavonNodeInvocationHandler handler = 
+      PSNavonNodeInvocationHandler handler =
          new PSNavonNodeInvocationHandler(this, node, axis, type);
       IPSProxyNode proxyNode = (IPSProxyNode) Proxy.newProxyInstance(getClass()
             .getClassLoader(), ms_interfaces, handler);
       handler.setProxyNode(proxyNode);
-      
+
       return proxyNode;
    }
-   
+
    /**
-    * Filter the image items in a folder using the item filter from the 
+    * Filter the image items in a folder using the item filter from the
     * assembly
     * @param parentNode the parent node, assumed never <code>null</code>
     * @param iguids the image item guids, assumed never <code>null</code>
@@ -1219,7 +1219,7 @@ public class PSNavHelper
    }
    /**
     * Find the landing page node associated with the given navon guid
-    * 
+    *
     * @param node the navon's node, never <code>null</code>
     * @return the landing page, or <code>null</code> if no page is defined
     * @throws PSCmsException
@@ -1243,10 +1243,10 @@ public class PSNavHelper
 
 
       // Use the relationships and filter out any that are not visible
-      IPSGuid landingPageItem = null, 
+      IPSGuid landingPageItem = null,
                landingPageFolder = null,
                landingPageSite = null;
-      
+
       if (!dependents.isEmpty())
       {
          List<IPSFilterItem> items = new ArrayList<>();
@@ -1280,7 +1280,7 @@ public class PSNavHelper
             return null;
          }
       }
-      
+
       if (landingPageItem == null)
       {
          if (navConfig.isNavonLandingPageRequired())
@@ -1288,7 +1288,7 @@ public class PSNavHelper
             int count = landingPageWarnCount.get();
             if (count > 0)
             {
-               
+
                log.warn("No landing page relationship found for content id {}"
                , node.getGuid().getUUID());
                if (landingPageWarnCount.decrementAndGet()==0)
@@ -1317,7 +1317,7 @@ public class PSNavHelper
             break;
          }
       }
-      String vid = landingPageRel != null ? 
+      String vid = landingPageRel != null ?
             landingPageRel.getProperty("sys_variantid") : null;
       if (StringUtils.isBlank(vid))
       {
@@ -1330,28 +1330,28 @@ public class PSNavHelper
                new PSGuid(PSTypeEnum.TEMPLATE, vid));
       }
       PSContentNode lnode = (PSContentNode)nodes.get(0);
-      //If we have properties like folderid and siteid add them as 
+      //If we have properties like folderid and siteid add them as
       //nav:landingPageFolderId and nav:landingPageSiteId
       if (landingPageFolder != null)
       {
          PSLocator folder = m_gmgr.makeLocator(landingPageFolder);
          lnode.addProperty(new PSProperty(
-               PROP_NAV_LANDINPAGE_FOLDERID, node, 
+               PROP_NAV_LANDINPAGE_FOLDERID, node,
                folder.getId()));
       }
       if (landingPageSite != null)
       {
          lnode.addProperty(new PSProperty(
-               PROP_NAV_LANDINPAGE_SITEID, node, 
+               PROP_NAV_LANDINPAGE_SITEID, node,
                landingPageSite.longValue()));
       }
-         
+
       return new PSProperty("nav:landingPage", node, lnode);
    }
-   
+
    /**
     * Find the landing page node associated with the given navon guid
-    * 
+    *
     * @param node the navon's node, never <code>null</code>
     * @return the landing page, or <code>null</code> if no page is defined
     * @throws PSCmsException
@@ -1379,12 +1379,12 @@ public class PSNavHelper
       else
          return null;
    }
-   
-   
+
+
 
    /**
     * Get template guid for specified content item guid
-    * 
+    *
     * @param cid content item guid, never <code>null</code>
     * @return corresponding template, may be <code>null</code> for a broken
     *         relationship
@@ -1400,14 +1400,14 @@ public class PSNavHelper
 
    /**
     * Calculate and return the "right" image child
-    * 
+    *
     * @param navon the navon proxy, never <code>null</code>
     * @return the image node, could be <code>null</code> if there's no match
     * @throws RepositoryException
     * @throws AccessDeniedException
     * @throws ItemNotFoundException
     */
-   @SuppressWarnings("unchecked")
+
    public Node findSelectedImage(Node navon) throws ItemNotFoundException,
          AccessDeniedException, RepositoryException
    {
@@ -1457,26 +1457,26 @@ public class PSNavHelper
     * should be set to empty string.
     */
    public static String PROP_NAV_LANDINPAGE_SITEID = "nav:landingPageSiteId";
-   
+
    /**
-    * Describes the type of section. 
+    * Describes the type of section.
     */
    public enum PSSectionTypeEnum {
        /**
         * regular section.
         */
        section,
-       
+
        /**
         * link to a regular section.
         */
        sectionlink,
-       
+
        /**
         * external link type section.
         */
        externallink
-       
+
    }
 
    public static boolean isNavSlot(String slot)
@@ -1484,19 +1484,19 @@ public class PSNavHelper
       init();
       return isSubmenuSlot(slot) || isLandingSlot(slot) || isNavImageSlot(slot);
    }
-       
+
    public static boolean isSubmenuSlot(String slot)
    {
       init();
       return submenuSlots.contains(slot);
    }
-       
+
    public static boolean isLandingSlot(String slot)
    {
       init();
       return landingPageSlots.contains(slot);
    }
-       
+
    public static boolean isNavImageSlot(String slot)
    {
       init();

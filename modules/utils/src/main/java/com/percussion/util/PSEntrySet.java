@@ -103,7 +103,7 @@ public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {
 
     if (!(o instanceof java.util.Map.Entry)) return false;
 
-    @SuppressWarnings("unchecked")
+
     java.util.Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) o;
     K key = entry.getKey();
     V val = entry.getValue();

@@ -17,7 +17,9 @@
 		default_value=" &gt; " datatype="string" />
 	<UserPref name="ariaLabel" display_name="Aria Label"
 		default_value="" datatype="string" />
-	<CssPref name="rootclass" display_name="CSS root class"
+	<UserPref name="navLabel" display_name="Navigation Label"
+		default_value="Breadcrumb Navigation" datatype="string" />
+    <CssPref name="rootclass" display_name="CSS root class"
 		datatype="string" />
 	<Code type="jexl">
         <![CDATA[
@@ -53,7 +55,7 @@
 #set($d=$ancestors.add($navSelf))##
 #end##
 #if ($ancestors.size() > 0)##
-<nav>
+<nav aria-label="$!{navLabel}">
 <ul class="perc-breadcrumb-main">
 #foreach($node in $ancestors)##
 #set($liclass="perc-list-element")##
@@ -83,7 +85,7 @@
 </nav>
 #end##
 #elseif ($perc.isEditMode())##
-<nav>
+<nav aria-label="$!{navLabel}">
 <ul class="perc-breadcrumb-main" $sampleTooltip>
 #set ($sampleContent = ["Section 1", "Section 2"])##
 #foreach($node in $sampleContent)##

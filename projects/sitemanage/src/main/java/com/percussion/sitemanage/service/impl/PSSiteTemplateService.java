@@ -629,7 +629,7 @@ public class PSSiteTemplateService implements IPSSiteTemplateService {
     return new PSTemplateSummaryList(templates);
   }
 
-  @SuppressWarnings("unchecked")
+
   protected PSTemplateSummary assignTemplate(AssignTemplate assignTemplate)
       throws PSDataServiceException {
     String templateId = assignTemplate.getTemplateId();

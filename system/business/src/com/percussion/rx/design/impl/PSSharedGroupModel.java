@@ -37,17 +37,17 @@ public class PSSharedGroupModel extends PSLimitedDesignModel
       throw new UnsupportedOperationException("load(IPSGuid) is not currently "
             + "implemented for design objects of type " + getType().name());
    }
-   
+
    @Override
-   @SuppressWarnings("unchecked")
+
    public Long getVersion(String name)
    {
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name may not be null or empty");
-      
+
       Long version = null;
-    
-      PSContentEditorSharedDef sharedDef = 
+
+      PSContentEditorSharedDef sharedDef =
          PSServer.getContentEditorSharedDef();
       if (sharedDef != null)
       {
@@ -59,19 +59,19 @@ public class PSSharedGroupModel extends PSLimitedDesignModel
                   group.toXml(doc)));
          }
       }
-    
+
       return version;
    }
-   
+
    @Override
    public void delete(String name)
    {
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name may not be null or empty");
-      
+
       try
       {
-      PSContentEditorSharedDef sharedDef = 
+      PSContentEditorSharedDef sharedDef =
          PSServer.getContentEditorSharedDef();
       if (sharedDef != null)
       {

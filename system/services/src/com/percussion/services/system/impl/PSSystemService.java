@@ -118,8 +118,8 @@ public class PSSystemService
    private Session getSession(){
       return entityManager.unwrap(Session.class);
    }
-   
-   public PSSystemService(IPSDatasourceManager dsMgr,  
+
+   public PSSystemService(IPSDatasourceManager dsMgr,
          IPSGuidManager guidMgr, IPSWorkflowService wfService, IPSCmsObjectMgr cmsMgr)
    {
       m_dsMgr = dsMgr;
@@ -127,7 +127,7 @@ public class PSSystemService
       m_wfService = wfService;
       m_cmsMgr = cmsMgr;
    }
-   
+
    /* (non-Javadoc)
     * @see IPSSystemService#findSharedPropertiesByName(String)
     */
@@ -153,7 +153,7 @@ public class PSSystemService
    /* (non-Javadoc)
     * @see IPSSystemService#loadHierarchyNode(IPSGuid)
     */
-   @SuppressWarnings("unchecked")
+
    public PSSharedProperty loadSharedProperty(IPSGuid id)
       throws PSSystemException
    {
@@ -397,7 +397,7 @@ public class PSSystemService
    /* (non-Javadoc)
     * @see IPSSystemService#findContentStatusHistory(IPSGuid)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSContentStatusHistory> findContentStatusHistory(IPSGuid id)
    {
       if (!(id instanceof PSLegacyGuid))
@@ -419,7 +419,7 @@ public class PSSystemService
 
    /**
     * Deletes the specified content history entry.
-    * 
+    *
     * @param entity the to be deleted content history entry, not <code>null</code>
     */
    @Transactional
@@ -428,18 +428,18 @@ public class PSSystemService
       notNull(entity);
       getSession().delete(entity);
    }
-   
+
    /**
-    * Save the specified content history entry. A new ID will be set if the ID 
+    * Save the specified content history entry. A new ID will be set if the ID
     * is less than <code>0</code>.
-    * 
+    *
     * @param entity the to be saved content history entry, not <code>null</code>.
     */
    @Transactional
    public void saveContentStatusHistory(PSContentStatusHistory entity)
    {
       notNull(entity);
-      
+
       if (entity.getId() >= 0L)
       {
          getSession().update(entity);
@@ -450,15 +450,15 @@ public class PSSystemService
       entity.setId(id.longValue());
       getSession().save(entity);
    }
-   
+
    /**
     * Gets the content IDs where there is no specified work-flow
     * activities before the specified date; but there are such
     * work-flow activities after the date. The work-flow activities
-    * is represented by the state name of the work-flow. 
-    *    
+    * is represented by the state name of the work-flow.
+    *
     * The expected parameters of this query are: begin-date, end-date and state-name.
-    * 
+    *
     * Note, JDBC seems have trouble to set Date (or Timestamp) parameter, then use it
     *    to compare values in the database. It cannot pick up the values within the same day.
     *    The workaround is to "bake" the date value into the query.
@@ -486,7 +486,7 @@ public class PSSystemService
       + "h1.contentId not in "
          + "(select h3.contentId from PSContentStatusHistory h3 where "
          + "h3.contentId = h1.contentId and h3.stateName = {2} and h3.eventTime < {0})";
-      
+
    public int findNewContentActivities(Collection<Integer> cids,
          Date beginDate, Date endDate, String stateName)
    {
@@ -496,7 +496,7 @@ public class PSSystemService
       notNull(beginDate);
       notNull(endDate);
 
-      Object[] params = new Object[]{getDateString(beginDate), 
+      Object[] params = new Object[]{getDateString(beginDate),
             getDateString(endDate), "'" + stateName + "'"};
       List<Long> count = findContentActivities(cids,
             FIND_NEW_ACTIVITIES_InClause, FIND_NEW_ACTIVITIES_TempIds, params);
@@ -504,25 +504,25 @@ public class PSSystemService
    }
 
    /**
-    * Gets the total number of content activities after the specified 
+    * Gets the total number of content activities after the specified
     * date for the specified content IDs. The content activities is
     * represented by the state-name of the work-flow.
-    *    
+    *
     * The expected parameters of this query are: begin-date, end-date and state-name.
-    *  
+    *
     * Note, JDBC seems have trouble to set Date (or Timestamp) parameter, then use it
     *    to compare values in the database. It cannot pick up the values within the same day.
     *    The workaround is to "bake" the date value into the query.
     */
    private static String FIND_NUM_ACTIVITIES_InClause = "select contentId "
          + "from PSContentStatusHistory "
-         + "where contentId in (:contentId) and " 
+         + "where contentId in (:contentId) and "
          + "stateName = {2} and eventTime >= {0} and eventTime < {1}";
 
    // same as FIND_NUM_ACTIVITIES_InClause, but with "transitionLabel" specified
    private static String FIND_NUM_ACTIVITIES_InClause_2 = "select contentId "
       + "from PSContentStatusHistory "
-      + "where contentId in (:contentId) and " 
+      + "where contentId in (:contentId) and "
       + "stateName = {2} and transitionLabel = {3} and eventTime >= {0} and eventTime < {1}";
 
    /**
@@ -531,12 +531,12 @@ public class PSSystemService
     */
    private static String FIND_NUM_ACTIVITIES_TempIds = "select h.contentId "
       + "from PSContentStatusHistory h, PSTempId t "
-      + "where h.contentId = t.pk.itemId and t.pk.id = :idset and " 
+      + "where h.contentId = t.pk.itemId and t.pk.id = :idset and "
       + "h.stateName = {2} and h.eventTime >= {0} and h.eventTime < {1}";
    // same as FIND_NUM_ACTIVITIES_TempIds, but with "transitionLabel" specified
    private static String FIND_NUM_ACTIVITIES_TempIds_2 = "select h.contentId "
       + "from PSContentStatusHistory h, PSTempId t "
-      + "where h.contentId = t.pk.itemId and t.pk.id = :idset and " 
+      + "where h.contentId = t.pk.itemId and t.pk.id = :idset and "
       + "h.stateName = {2} and h.transitionLabel = {3} and h.eventTime >= {0} and h.eventTime < {1}";
 
    public int findNumberContentActivities(Collection<Integer> cids,
@@ -557,7 +557,7 @@ public class PSSystemService
       notNull(endDate);
 
       Object[] params;
-      
+
       List<Long> pageIds;
       if (transitionName == null)
       {
@@ -575,11 +575,11 @@ public class PSSystemService
       }
       return pageIds;
    }
-   
+
    /**
     * Gets the published content IDs from the specified IDs and within the specified date range.
-    * The published items must have transitioned to the specified "publish state", 
-    * but have not transitioned to an "archive state" between the date of last "publish state" 
+    * The published items must have transitioned to the specified "publish state",
+    * but have not transitioned to an "archive state" between the date of last "publish state"
     * and the end of the specified date range.
     * <p>
     * Expected parameters are: begin-date, end-date, publish-state and archive-state.
@@ -625,14 +625,14 @@ public class PSSystemService
       notNull(beginDate);
       notNull(endDate);
 
-      Object[] params = new Object[]{getDateString(beginDate), 
+      Object[] params = new Object[]{getDateString(beginDate),
             getDateString(endDate), "'" + pubStateName + "'", "'" + archiveStateName + "'"};
       List<Long> count = findContentActivities(cids,
             FIND_NUM_PUB_ITEMS_InClause, FIND_NUM_PUB_ITEMS_TempIds, params);
-      
+
       return count.size();
    }
-   
+
    /**
     * Gets the published content IDs from the specified IDs.
     * The published items must have transitioned to the specified "publish state."
@@ -674,7 +674,7 @@ public class PSSystemService
             + "FROM PSContentStatusHistory h3 "
             + "WHERE h3.contentId = h2.contentId AND "
             + "h3.stateName = {0} GROUP BY h3.contentId))";
-   
+
    public Collection<Long> findPublishedItems(Collection<Integer> cids, String pubStateName, String archiveStateName)
    {
       notNull(pubStateName);
@@ -682,7 +682,7 @@ public class PSSystemService
       notNull(archiveStateName);
       notEmpty(archiveStateName);
       notNull(cids);
-      
+
       Object[] params = new Object[]{"'" + pubStateName + "'", "'" + archiveStateName + "'"};
       return findContentActivities(cids, FIND_PUB_ITEMS_InClause, FIND_PUB_ITEMS_TempIds, params);
    }
@@ -690,7 +690,7 @@ public class PSSystemService
    /**
     * Executes the specified query based on the specified state, items, begin
     * and end dates.
-    * 
+    *
     * @param cids the IDs of the items in question, not <code>null</code>.
     * @param queryInClause the query used if the number of items are small,
     *           assumed not blank.
@@ -698,11 +698,11 @@ public class PSSystemService
     *           blank.
     * @param params the parameters used to format the actual query from above
     *           source queries, not empty.
-    * 
+    *
     * @return the result set, caller is responsible to interpret the content of
     *         it, never <code>null</code>, may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    private List<Long> findContentActivities(Collection<Integer> cids,
          String queryInClause, String queryTempIds, Object[] params)
    {
@@ -711,7 +711,7 @@ public class PSSystemService
 
       Session s = getSession();
       long idset = 0;
-      
+
       //String querySource = queryTempIds;
       String querySource = cids.size() < MAX_IDS ? queryInClause : queryTempIds;
       String queryString = MessageFormat.format(querySource, params);
@@ -730,13 +730,13 @@ public class PSSystemService
          }
 
          List<Integer> countList = (idset != 0) ? (List)executeQuery(q) : q.list();
-         
+
          List<Long> convertList = new ArrayList<>();
          for(int val:countList)
          {
             convertList.add(new Long(val));
          }
-         
+
          return convertList;
       }
       finally
@@ -777,7 +777,7 @@ public class PSSystemService
          return results.isEmpty() ? null : results.get(0);
 
    }
-   
+
    /**
     * Get the descriptor for the specified type
     *
@@ -872,7 +872,7 @@ public class PSSystemService
     * @return the ui component or <code>null</code> if the ui component is not
     *         found, if multiples are found, the first is returned
     */
-   @SuppressWarnings("unchecked")
+
    public PSUIComponent findComponentByName(String name)
    {
       Session s = getSession();
@@ -887,7 +887,7 @@ public class PSSystemService
          return results.get(0);
 
    }
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.system.IPSSystemService#sendEmail(com.percussion.workflow.mail.IPSMailMessageContext)
     */
@@ -906,8 +906,8 @@ public class PSSystemService
    }
 
    /**
-    * Get the email queue sender, as a required getter for Spring. 
-    * 
+    * Get the email queue sender, as a required getter for Spring.
+    *
     * @return the email sender, it may not be <code>null</code> in a correct
     *    configured environment.
     */
@@ -929,9 +929,9 @@ public class PSSystemService
       }
       m_emailSender = emailSender;
    }
-   
+
    public List<PSAssignmentTypeEnum> getContentAssignmentTypes(
-         List<IPSGuid> ids, String user, 
+         List<IPSGuid> ids, String user,
          List<String> roles, int community)
          throws PSSystemException
    {
@@ -943,7 +943,7 @@ public class PSSystemService
       {
          throw new IllegalArgumentException("roles may not be null");
       }
-      PSAssignmentTypeHelper helper = new PSAssignmentTypeHelper( 
+      PSAssignmentTypeHelper helper = new PSAssignmentTypeHelper(
             user, roles, community);
       List<PSAssignmentTypeEnum> rval = new ArrayList<>();
       for (IPSGuid id : ids) {
@@ -951,7 +951,7 @@ public class PSSystemService
       }
       return rval;
    }
-   
+
    /*
     * //see base interface method for details
     */
@@ -963,29 +963,29 @@ public class PSSystemService
       List<String> roles = getUserRoles();
       return getContentAssignmentTypes(ids, user, roles, communityId);
    }
-   
-   
+
+
    public List<String> getAdhocRoles(IPSGuid contentId, IPSGuid transitionId)
    {
       if (contentId == null)
          throw new IllegalArgumentException("contentId may not be null");
-      
+
       if (transitionId == null)
          throw new IllegalArgumentException("transitionId may not be null");
-      
+
       List<String> results = new ArrayList<>();
-      
+
       // get the component summary
       PSComponentSummary sum = getComponentSummary(contentId);
       if (sum == null)
          return results;
-      
+
       // load the to-state
       PSState toState = getToState(sum, transitionId);
       if (toState == null)
          return results;
-      
-      // start by adding adhoc normal roles only, but if we come across 
+
+      // start by adding adhoc normal roles only, but if we come across
       // anonymous, then just add all roles on the system
       List<PSAssignedRole> assignedRoles = toState.getAssignedRoles();
       List<IPSGuid> roleIds = new ArrayList<>();
@@ -1000,12 +1000,12 @@ public class PSSystemService
             break;
          }
       }
-      
+
       if (!anonymous)
       {
-         IPSGuid wfId = m_guidMgr.makeGuid(sum.getWorkflowAppId(), 
+         IPSGuid wfId = m_guidMgr.makeGuid(sum.getWorkflowAppId(),
             PSTypeEnum.WORKFLOW);
-         
+
          PSWorkflow wf = m_wfService.loadWorkflow(wfId);
          for (PSWorkflowRole role : wf.getRoles())
          {
@@ -1018,38 +1018,38 @@ public class PSSystemService
          IPSBackEndRoleMgr beRoleMgr = PSRoleMgrLocator.getBackEndRoleManager();
          results.addAll(beRoleMgr.getRhythmyxRoles());
       }
-      
+
       PSAssignmentTypeHelper.filterAssignedRolesByCommunity(contentId, results);
-      
+
       return results;
    }
 
-   @SuppressWarnings("unchecked")
-   public List<String> getAdhocRoleMembers(IPSGuid contentId, 
+
+   public List<String> getAdhocRoleMembers(IPSGuid contentId,
       IPSGuid transitionId, String roleName, String nameFilter)
    {
       if (contentId == null)
          throw new IllegalArgumentException("contentId may not be null");
-      
+
       if (transitionId == null)
          throw new IllegalArgumentException("transitionId may not be null");
-      
+
       if (StringUtils.isBlank(roleName))
          throw new IllegalArgumentException(
             "roleName may not be null or empty");
-      
+
       List<String> results = new ArrayList<>();
-      
+
       // get the component summary
       PSComponentSummary sum = getComponentSummary(contentId);
       if (sum == null)
          return results;
-      
+
       // load the to-state
       PSState toState = getToState(sum, transitionId);
       if (toState == null)
          return results;
-      
+
       // see if normal adhoc role or anonymous
       List<IPSGuid> roleIds = new ArrayList<>();
       boolean anonymous = false;
@@ -1063,12 +1063,12 @@ public class PSSystemService
             break;
          }
       }
-      
+
       if (!anonymous)
       {
-         IPSGuid wfId = m_guidMgr.makeGuid(sum.getWorkflowAppId(), 
+         IPSGuid wfId = m_guidMgr.makeGuid(sum.getWorkflowAppId(),
             PSTypeEnum.WORKFLOW);
-         
+
          // ensure an adhoc role is specified
          boolean match = false;
          PSWorkflow wf = m_wfService.loadWorkflow(wfId);
@@ -1081,31 +1081,31 @@ public class PSSystemService
                break;
             }
          }
-         
+
          if (!match)
             return results;
       }
-      
+
       // filter by community if not anonymous
       String communityId = anonymous ? null : String.valueOf(
          sum.getCommunityId());
       PSRoleManager roleMgr = PSRoleManager.getInstance();
-      Set<PSSubject> subjects = roleMgr.getSubjects(roleName, nameFilter, 
+      Set<PSSubject> subjects = roleMgr.getSubjects(roleName, nameFilter,
          PSSubject.SUBJECT_TYPE_USER, null, communityId, true);
       for (PSSubject subject : subjects)
       {
          results.add(subject.getName());
       }
-      
+
       return results;
    }
-   
+
    /**
     * Loads the component summary for the specified item.
-    * 
+    *
     * @param contentId The content id, assumed not <code>null</code>.
-    * 
-    * @return the summary, or <code>null</code> if it could not be found 
+    *
+    * @return the summary, or <code>null</code> if it could not be found
     * (an error message is logged in this case).
     */
    private PSComponentSummary getComponentSummary(IPSGuid contentId)
@@ -1116,36 +1116,36 @@ public class PSSystemService
          ms_logger.error("Failed to locate component summary for item: {}" ,
             contentId);
       }
-      
+
       return sum;
    }
-   
+
    /**
     * Load the destination state of the specified transition.
-    * 
+    *
     * @param sum The component summary of the item, assumed not
     * <code>null</code>, used to determine the current workflow state.
     * @param transitionId The id of the transition in the current workflow
     * state, assumed not <code>null</code>.
-    * 
+    *
     * @return The destination state, may be <code>null</code> if we are not able
     * to locate it (error messages are logged in this case).
     */
    private PSState getToState(PSComponentSummary sum, IPSGuid transitionId)
    {
-      IPSGuid wfId = m_guidMgr.makeGuid(sum.getWorkflowAppId(), 
+      IPSGuid wfId = m_guidMgr.makeGuid(sum.getWorkflowAppId(),
          PSTypeEnum.WORKFLOW);
-      IPSGuid fromStateId = m_guidMgr.makeGuid(sum.getContentStateId(), 
+      IPSGuid fromStateId = m_guidMgr.makeGuid(sum.getContentStateId(),
          PSTypeEnum.WORKFLOW_STATE);
-      
+
       PSState fromState = m_wfService.loadWorkflowState(fromStateId, wfId);
       if (fromState == null)
       {
-         ms_logger.error("Failed to locate state for workflowid " + 
+         ms_logger.error("Failed to locate state for workflowid " +
             sum.getWorkflowAppId() + " and stateid " + sum.getContentStateId());
          return null;
-      }      
-      
+      }
+
       // find the transition
       PSTransition trans = null;
       for (PSTransition test : fromState.getTransitions())
@@ -1156,32 +1156,32 @@ public class PSSystemService
             break;
          }
       }
-      
+
       if (trans == null)
       {
-         ms_logger.error("Failed to locate transition for workflowid " + 
-            sum.getWorkflowAppId() + ", stateid " + sum.getContentStateId() + 
+         ms_logger.error("Failed to locate transition for workflowid " +
+            sum.getWorkflowAppId() + ", stateid " + sum.getContentStateId() +
             ", and transitionid " + transitionId.getUUID());
-         return null;         
+         return null;
       }
-      
+
       PSState toState = m_wfService.loadWorkflowState(m_guidMgr.makeGuid(
          trans.getToState(), PSTypeEnum.WORKFLOW_STATE), wfId);
-      
+
       if (toState == null)
       {
-         ms_logger.error("Failed to locate state for workflowid " + 
+         ms_logger.error("Failed to locate state for workflowid " +
             sum.getWorkflowAppId() + " and stateid " + trans.getToState());
       }
-      
+
       return toState;
    }
 
    /**
     * Gets the string representation of a given date and time.
-    * 
+    *
     * @param date the date & time in question, assumed not <code>null</code>.
-    * 
+    *
     * @return string representation of the given date & time, never <code>null</code>.
     */
    private String getDateString(Date date)
@@ -1197,7 +1197,7 @@ public class PSSystemService
 
    /**
     * Determines if the repository is an oracle database.
-    * 
+    *
     * @return It is <code>true</code> if the repository is an oracle database.
     */
    @Override
@@ -1205,7 +1205,7 @@ public class PSSystemService
    {
       if (m_isOracle != null)
          return m_isOracle;
-      
+
       try
       {
          PSConnectionDetail connDetail = m_dsMgr.getConnectionDetail(null);
@@ -1310,7 +1310,7 @@ public class PSSystemService
     * <code>null</code> after that.
     */
    private IPSDatasourceManager m_dsMgr;
-   
+
    /**
     * Logger to use, never <code>null</code>.
     */
@@ -1428,22 +1428,22 @@ public class PSSystemService
     */
    private Map<PSConfigurationTypes, PSMimeContentDescriptor> m_mimeContentMap
    = null;
-   
+
    /**
     * JMS queue sender for queuing email messages. It is set/wired by Spring.
     */
    IPSQueueSender m_emailSender = null;
-   
+
    /**
     * The GUID manager, initialized by constructor.
     */
    IPSGuidManager m_guidMgr;
-   
+
    /**
     * The workflow service, initialized by constructor.
     */
    IPSWorkflowService m_wfService;
-   
+
    /**
     * CMS object manager, initialized by constructor.
     */

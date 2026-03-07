@@ -119,7 +119,7 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+
     public Set<String> getAllKeys() {
         var keys = (Set<String>) cache.getKeys();
         log.debug("Retrieved {} cache keys", keys.size());

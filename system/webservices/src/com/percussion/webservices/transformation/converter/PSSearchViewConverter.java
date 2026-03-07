@@ -459,7 +459,7 @@ private static final String STANDARD_VIEW = "list";
     * @return the converted search fields, never <code>null</code>, but may be
     *    empty.
     */
-   @SuppressWarnings("unchecked")
+
    protected SearchField[] getSearchFields(PSSearch source)
    {
       if (source == null)

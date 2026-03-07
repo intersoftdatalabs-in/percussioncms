@@ -71,7 +71,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * in this class, rather than directly by the framework. This enables us to
  * validate the values and translate from internal to external forms. If we only
  * needed to do the translations then converters would have also been an option.
- * 
+ *
  * @author dougrand
  */
 public class PSContentListSelect
@@ -93,7 +93,7 @@ public class PSContentListSelect
 
       /**
        * Ctor
-       * 
+       *
        * @param l the content list, never <code>null</code>
        */
       public Entry(IPSContentList l) {
@@ -141,7 +141,7 @@ public class PSContentListSelect
 
       /**
        * Calculate the edition type icon to use in the UI
-       * 
+       *
        * @return the icon name, never <code>null</code> or empty
        */
       public String getEditionTypeIcon()
@@ -153,7 +153,7 @@ public class PSContentListSelect
       /**
        * Calculate the alt and title attribute value for the edition type icon
        * to use in the UI.
-       * 
+       *
        * @return the alt/title value with first character uppercase and the
        * remainder lowercase, never <code>null</code> or empty
        */
@@ -161,7 +161,7 @@ public class PSContentListSelect
       {
          String text;
          String name = mi_editionType.name().toUpperCase();
-         
+
          if (name.length() > 1)
          {
             String firstChar = name.substring(0, 1);
@@ -170,13 +170,13 @@ public class PSContentListSelect
          }
          else
             text = name;
-         
+
          return text;
       }
-      
+
       /**
        * Action listener that is fired if a list is deleted
-       * 
+       *
        * @return the name of the outcome
        * @throws PSPublisherException
        */
@@ -193,7 +193,7 @@ public class PSContentListSelect
 
       /**
        * Action listener that is fired if a list is edited
-       * 
+       *
        * @return the name of the outcome
        * @throws PSPublisherException
        */
@@ -249,12 +249,12 @@ public class PSContentListSelect
     * The current expander
     */
    String m_expander = null;
-   
+
    /**
     * The name of the content list to copy
     */
    String m_copyItemName = null;
-   
+
    /**
     * The name to give the new content list
     */
@@ -288,12 +288,12 @@ public class PSContentListSelect
 
       return rval;
    }
-   
+
    /**
     * Get the selection items
     * @return the selection items, never <code>null</code>
     */
-   public SelectItem[] getCopyItems() 
+   public SelectItem[] getCopyItems()
    {
      List<Entry> entries = getEntries();
      SelectItem[] rval = new SelectItem[entries.size()];
@@ -323,7 +323,7 @@ public class PSContentListSelect
 
    /**
     * Simple action that just causes the page to be refreshed
-    * 
+    *
     * @return <code>null</code> all the time
     */
    public String filter()
@@ -391,7 +391,7 @@ public class PSContentListSelect
 
    /**
     * Get a UI value for the edition type
-    * 
+    *
     * @return the edition type name, never <code>null</code>
     */
    public String getEditiontype()
@@ -409,7 +409,7 @@ public class PSContentListSelect
    /**
     * Set a new UI value for the edition type, which is translated to a new enum
     * value
-    * 
+    *
     * @param newvalue the new value, never <code>null</code>
     */
    public void setEditiontype(String newvalue)
@@ -429,7 +429,7 @@ public class PSContentListSelect
 
    /**
     * Get the current editable object's name
-    * 
+    *
     * @return the name
     */
    public String getName()
@@ -439,7 +439,7 @@ public class PSContentListSelect
 
    /**
     * Set the current editable object's name
-    * 
+    *
     * @param name the name, never <code>null</code> or empty
     */
    public void setName(String name)
@@ -454,7 +454,7 @@ public class PSContentListSelect
 
    /**
     * Get the current editable object's url
-    * 
+    *
     * @return the url
     */
    public String getUrl()
@@ -464,7 +464,7 @@ public class PSContentListSelect
 
    /**
     * Set the current editable object's url. This must obey some specific rules
-    * 
+    *
     * @param url the url, never <code>null</code> or empty
     */
    public void setUrl(String url)
@@ -584,19 +584,19 @@ public class PSContentListSelect
     * Accepts events from the generator and expander drop downs. Reset the
     * shown values for both in this case - this is cheap enough. Later we
     * can make this more specific if there's a reason.
-    * 
+    *
     * @param event the event from JSF
     */
-   @SuppressWarnings("unused") 
+   @SuppressWarnings("unused")
    public void selectValueChanged(ValueChangeEvent event)
    {
       m_resetGenParams = true;
       m_resetExpParams = true;
    }
-   
+
    /**
     * Adjust the parameters in the lists to be displayed
-    * 
+    *
     * @param extension the extension name
     * @param params the params to be adjusted, assumed not <code>null</code>
     * @return the adjusted item list
@@ -636,7 +636,7 @@ public class PSContentListSelect
 
    /**
     * Gets a list of generator args.
-    * 
+    *
     * @return the list of args. The elements in each array are: param name,
     *         param value, tag id, description
     */
@@ -658,7 +658,7 @@ public class PSContentListSelect
    /**
     * The parameters to save for the generator, does not remove any unneeded
     * parameters.
-    * 
+    *
     * @param params the args to save, never <code>null</code>
     */
    public void setGeneratorArguments(List<PSParameter> params)
@@ -672,7 +672,7 @@ public class PSContentListSelect
 
    /**
     * Gets a list of expander args.
-    * 
+    *
     * @return the list of args. The elements in each array are: param name,
     *         param value, tag id, description
     */
@@ -695,7 +695,7 @@ public class PSContentListSelect
    /**
     * The parameters to save for the expander, does not remove any unneeded
     * parameters.
-    * 
+    *
     * @param params the args to save, never <code>null</code>
     */
    public void setExpanderArguments(List<PSParameter> params)
@@ -709,7 +709,7 @@ public class PSContentListSelect
 
    /**
     * Access the current content list's filter name
-    * 
+    *
     * @return the filter name, never <code>null</code> but may be empty
     */
    public String getFilterName()
@@ -726,7 +726,7 @@ public class PSContentListSelect
 
    /**
     * Set a new filter on the current content list
-    * 
+    *
     * @param name the name, may be empty
     * @throws PSFilterException
     */
@@ -748,12 +748,12 @@ public class PSContentListSelect
          m_current.setFilterId(fsvc.findFilterByName(name).getGUID());
       }
    }
-   
+
    /**
     * Get the type of the current content list
     * @return the type
     */
-   public int getType() 
+   public int getType()
    {
       return m_current.getContentListType().ordinal();
    }
@@ -785,7 +785,7 @@ public class PSContentListSelect
 
    /**
     * Action that is fired if a new list should be created
-    * 
+    *
     * @return the name of the outcome
     */
    public String newlist()
@@ -813,7 +813,7 @@ public class PSContentListSelect
    /**
     * Validate that the item filter value is appropriate for the kind of content
     * list we are editing
-    * 
+    *
     * @param context the faces context
     * @param component the ui component
     * @param value the value in question
@@ -837,7 +837,7 @@ public class PSContentListSelect
 
    /**
     * Action that is fired if a list should be saved
-    * 
+    *
     * @return the name of the outcome
     * @throws PSPublisherException
     */
@@ -858,7 +858,7 @@ public class PSContentListSelect
       }
       return "save";
    }
-   
+
    /**
     * Copy the selected content list
     * @return the name of the outcome
@@ -878,7 +878,7 @@ public class PSContentListSelect
             String message = PSI18nUtils.getString("jsf@clist_unique_name");
             FacesMessage m = new FacesMessage(FacesMessage.SEVERITY_ERROR,
                   "", message);
-            FacesContext.getCurrentInstance().addMessage("name", m);        
+            FacesContext.getCurrentInstance().addMessage("name", m);
             return "fail";
          }
          // Clone with new name
@@ -897,12 +897,12 @@ public class PSContentListSelect
       }
       return "copy";
    }
-   
+
    /**
     * Transition to copylist page
     * @return outcome
     */
-   public String copylist() 
+   public String copylist()
    {
       return "copy";
    }
@@ -951,7 +951,7 @@ public class PSContentListSelect
 
    /**
     * Extract the keys from a list of items
-    * 
+    *
     * @param currentParams the list to extract from, assumed not
     *           <code>null</code>
     * @return the list of names, never <code>null</code>
@@ -970,7 +970,7 @@ public class PSContentListSelect
    /**
     * Action that is fired when an edit is complete, but the results should not
     * be saved
-    * 
+    *
     * @return the name of the outcome
     */
    public String cancel()
@@ -980,13 +980,13 @@ public class PSContentListSelect
       m_copyItemNewName = null;
       return "cancel";
    }
-   
+
    /**
     * Are there validation errors? Used to conditionally show certain controls.
     * @return <code>true</code> if there's a message in the context and the
     * severity isn't info, <code>false</code> otherwise
     */
-   @SuppressWarnings("unchecked")
+
    public Boolean getShowErrorControl()
    {
       FacesContext ctx = FacesContext.getCurrentInstance();

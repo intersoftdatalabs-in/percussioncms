@@ -28,7 +28,7 @@ import com.percussion.soln.segment.data.ISegmentDataService;
 
 public class DSSegmentDao extends HibernateDaoSupport implements ISegmentDataService {
 
-    @SuppressWarnings("unchecked")
+
     public void resetSegmentTree(boolean clear, String rootPath) {
         if (clear) {
             List<Segment> segments = (List<Segment>) getHibernateTemplate().find("from " + Segment.class.getSimpleName());
@@ -55,7 +55,7 @@ public class DSSegmentDao extends HibernateDaoSupport implements ISegmentDataSer
         throw new UnsupportedOperationException("getSegmentContentType is not yet supported");
     }
 
-    @SuppressWarnings("unchecked")
+
     public Segments retrieveAllSegmentData() {
         HibernateTemplate t = getHibernateTemplate();
         return new Segments((List<Segment>) t.find("from " + Segment.class.getSimpleName()));
@@ -66,5 +66,5 @@ public class DSSegmentDao extends HibernateDaoSupport implements ISegmentDataSer
         //return null;
         throw new UnsupportedOperationException("retrieveSegmentDataForId is not yet supported");
     }
-    
+
 }

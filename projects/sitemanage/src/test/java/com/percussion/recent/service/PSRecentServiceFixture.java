@@ -103,7 +103,7 @@ public class PSRecentServiceFixture {
     this.response = response;
   }
 
-  @SuppressWarnings("unchecked")
+
   public void init() throws Exception {
     init("admin1", "demo", "Enterprise_Investments_Admin");
   }
@@ -112,7 +112,7 @@ public class PSRecentServiceFixture {
     setUp("admin1", "demo", "Enterprise_Investments_Admin");
   }
 
-  @SuppressWarnings("unchecked")
+
   public void init(String uid, String pwd, String community) throws Exception {
     PSSpringWebApplicationContextUtils.injectDependencies(this);
     PSRequestInfo.resetRequestInfo();

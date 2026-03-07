@@ -66,7 +66,7 @@ public class PSAllowAllCtypeWorkflowsUpdater implements IPSComponentUpdater {
     PSWorkflowInfo wfInfo = editor.getWorkflowInfo();
     if (wfInfo != null) {
       updateInfo(wfInfo);
-      @SuppressWarnings("unchecked")
+
       List<Integer> allowedIds = IteratorUtils.toList(wfInfo.getValues());
       if (!allowedIds.isEmpty()
           && !IteratorUtils.toList(wfInfo.getValues()).contains(editor.getWorkflowId())) {

@@ -111,7 +111,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
      * relationships table ({@link IPSConstants#PSX_RELATIONSHIPS}). Never
      * <code>null</code>, but may be empty.
      */
-    @SuppressWarnings("unchecked")
+
     private Collection<Map.Entry<String, String>> m_pduProps = Collections.emptyList();
 
     /**
@@ -119,7 +119,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
      * properties table ({@link IPSConstants#PSX_RELATIONSHIPPROPERTIES}).
      * Never <code>null</code>, but may be empty.
      */
-    @SuppressWarnings("unchecked")
+
     private Collection<Map.Entry<String, String>> m_customProps = Collections.emptyList();
 
     /**
@@ -835,7 +835,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
      * @return the ids. It may be empty if there is no names, category or type
      *    specified in the given filter.
      */
-    @SuppressWarnings("unchecked")
+
     private Set<Integer> getRelationshipNameIds(PSRelationshipFilter filter) {
         if (filter.getNames().isEmpty() && (filter.getCategory() == null) &&
                 (filter.getType() == null)) {
@@ -852,7 +852,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
             if (id != null) {
                 ids.add(id);
             } else {
-                ids.add(-1); // add an unknown 
+                ids.add(-1); // add an unknown
             }
         }
 

@@ -105,7 +105,7 @@ public class PSContentService implements IPSContentService {
     * {@inheritDoc}
     */
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<PSKeyword> findKeywordsByLabel(String label, String sortProperty) {
       var session = getSession();
       var searchLabel = StringUtils.isBlank(label) ? "%" : label;
@@ -135,7 +135,7 @@ public class PSContentService implements IPSContentService {
     * {@inheritDoc}
     */
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<PSKeyword> findKeywordChoices(String type, String sortProperty) {
       if (StringUtils.isBlank(type)) {
          throw new IllegalArgumentException("type cannot be null or empty");
@@ -156,7 +156,7 @@ public class PSContentService implements IPSContentService {
     * {@inheritDoc}
     */
    @Override
-   @SuppressWarnings("unchecked")
+
    public PSKeyword loadKeyword(IPSGuid id, String sortProperty) throws PSContentException {
       if (id == null) {
          throw new IllegalArgumentException("id cannot be null");
@@ -314,7 +314,7 @@ public class PSContentService implements IPSContentService {
    /* (non-Javadoc)
     * @see IPSContentService#loadAutoTranslations()
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSAutoTranslation> loadAutoTranslations(IPSGuid contentTypeId) {
       if (contentTypeId == null) {
          throw new IllegalArgumentException("contentTypeId cannot be null");
@@ -368,7 +368,7 @@ public class PSContentService implements IPSContentService {
    }
 
    @Override
-   @SuppressWarnings("unchecked")
+
    public List<PSFolderProperty> loadFolderProperties(IPSGuid folderId) {
       if (folderId == null) {
          throw new IllegalArgumentException("folderId cannot be null");

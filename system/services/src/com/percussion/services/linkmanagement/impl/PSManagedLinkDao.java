@@ -45,7 +45,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Handles CRUD for link data used by a managed link.
- * 
+ *
  * @author JaySeletz
  *
  */
@@ -54,7 +54,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class PSManagedLinkDao implements IPSManagedLinkDao
 {
     private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
-    
+
     /**
      * Constant for the key used to generate link id's.
      */
@@ -74,7 +74,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
     {
         m_guidMgr = guidMgr;
     }
-    
+
     @Transactional
     public PSManagedLink createLink(int parentId, int parentRev, int childId, String anchor)
     {
@@ -83,7 +83,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
         link.setParentRevision(parentRev);
         link.setChildId(childId);
         link.setAnchor(anchor);
-        
+
         return link;
     }
 
@@ -94,7 +94,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
         {
             link.setLinkId(m_guidMgr.createId(MANAGED_LINK_KEY));
         }
-        
+
         Session session = getSession();
         try
         {
@@ -109,7 +109,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
         finally
         {
             session.flush();
-        }        
+        }
     }
 
     public java.util.Optional<PSManagedLink> findLinkByLinkId(long linkId)
@@ -140,7 +140,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
 
         }
     }
-    
+
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void deleteLinksInNewTransaction(Collection<PSManagedLink> links)
     {
@@ -164,7 +164,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
             session.flush();
         }
     }
-    
+
     @Transactional(readOnly=false,propagation=Propagation.REQUIRES_NEW)
     public void cleanupOrphanedLinks()
     {
@@ -188,26 +188,26 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
        }
     }
 
-    @SuppressWarnings("unchecked")
+
     public List<PSManagedLink> findLinksByParentId(int parentId)
     {
         Session session = getSession();
 
             Query query = session.createQuery("from PSManagedLink where parentid = :parentId");
             query.setParameter("parentId", parentId);
-            
+
 
             return query.list();
 
     }
-    
+
     public List<PSManagedLink> findLinksByParentIds(List<Integer> parentIds)
     {
        if(isEmpty(parentIds))
        {
            return new ArrayList<>();
        }
-       
+
        if (parentIds.size() < MAX_IDS)
        {
            return findLinksByListOfParentIds(parentIds);
@@ -225,8 +225,8 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
            return results;
        }
     }
-    
-   @SuppressWarnings("unchecked")
+
+
    private List<PSManagedLink> findLinksByListOfParentIds(List<Integer> parentIds)
    {
       Session session = getSession();
@@ -249,5 +249,5 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
      query.setParameter("childId", childId);
      return  query.list();
    }
-    
+
 }

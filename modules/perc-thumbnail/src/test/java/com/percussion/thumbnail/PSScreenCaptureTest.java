@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 
 public class PSScreenCaptureTest {
 
-  protected static final Logger log = LogManager.getLogger();
+  protected static final Logger log = LogManager.getLogger(PSScreenCaptureTest.class);
 
   public static File temp;
 

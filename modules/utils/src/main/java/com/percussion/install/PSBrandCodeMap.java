@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /** In memory representation of the component map xml file. */
-@SuppressWarnings("unchecked")
+
 public class PSBrandCodeMap implements IPSBrandCodeMap {
 
   /*************************************************************************

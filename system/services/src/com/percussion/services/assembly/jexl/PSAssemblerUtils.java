@@ -82,7 +82,7 @@ import java.util.Set;
 
 /**
  * Various functions for use in the assembly engine
- * 
+ *
  * @author dougrand
  */
 public class PSAssemblerUtils extends PSJexlUtilBase
@@ -94,7 +94,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * helper to assemble the items in a slot
-    * 
+    *
     * @param item
     * @param slot
     * @param params
@@ -137,7 +137,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
          {
             // Need user name for preview filter rule
             params.put(IPSHtmlParameters.SYS_USER, item.getUserName());
-         } 
+         }
          List<IPSAssemblyItem> relitems = finder.find(item, slot, params);
          return asm.assemble(relitems);
       }
@@ -178,7 +178,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * helper to assemble the items in a slot
-    * 
+    *
     * @param item
     * @param node
     * @param childname
@@ -225,7 +225,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * helper to assemble the items in a slot
-    * 
+    *
     * @param slot
     * @return <code>true</code> if the slot is a relationship slot
     * @throws PSAssemblyException
@@ -243,7 +243,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * helper to get the popup menu for a content item
-    * 
+    *
     * @param item
     * @param mode
     * @param context
@@ -267,7 +267,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * helper to get the popup menu for a content item
-    * 
+    *
     * @param item
     * @param folderid
     * @param siteid
@@ -392,7 +392,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * helper setup the variables needed to invoke an applet
-    * 
+    *
     * @param request
     * @param data
     */
@@ -438,7 +438,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * Get the title
-    * 
+    *
     * @param guid
     * @return the title of the given content item. Returns the guid if there is
     *         no name.
@@ -464,7 +464,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * helper to extract a single parameter value
-    * 
+    *
     * @param params
     * @param name
     * @return the param value, may be <code>null</code>
@@ -488,12 +488,12 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * Combine parameter values
-    * 
+    *
     * @param input
     * @param urlquery
     * @return a map with the combined values
     */
-   @SuppressWarnings("unchecked")
+
    @IPSJexlMethod(description = "helper to combine new parameter values", params =
    {
          @IPSJexlParam(name = "params", type = "Map<String,String[]>", description = "the request parameters as accessed from $sys.params"),
@@ -550,12 +550,12 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * Combine parameter values
-    * 
+    *
     * @param input
     * @param extra
     * @return a map combining parameter values
     */
-   @SuppressWarnings("unchecked")
+
    @IPSJexlMethod(description = "helper to combine new parameter values", params =
    {
          @IPSJexlParam(name = "params", type = "Map<String,String[]>", description = "the request parameters as accessed from $sys.params"),
@@ -601,7 +601,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * extract a specific property of each child via the named child node list
-    * 
+    *
     * @param parentNode
     * @param childName
     * @param propertyName
@@ -647,7 +647,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
    /**
     * extract a specific value of each map via the named key in the list
-    * 
+    *
     * @param maplist
     * @param key
     * @return a list of string values
@@ -690,7 +690,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
    /**
     * Get the assembly items that go into the supplied slot of the supplied
     * parent item.
-    * 
+    *
     * @param item parent item, must not be <code>null</code>.
     * @param slot slot to load snippets for, must not be <code>null</code>/
     * @param params additional parameters, may be <code>null</code> or empty.
@@ -717,7 +717,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
       }
       return finder.find(item, slot, params);
    }
-   
+
    /**
     * Gets error message when failed to assemble the specified item.
     * @param item the item, assumed not <code>null</code>.
@@ -727,12 +727,12 @@ public class PSAssemblerUtils extends PSJexlUtilBase
    {
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
       PSComponentSummary summary = cms.loadComponentSummary(item.getId().getUUID());
-      
+
       return "Problem assembling slot "+slot.getName()+" in item (name=\"" + summary.getName()
             + "\", id=" + item.getId().toString() + ") with template: "
             + item.getTemplate().getName() + ".";
    }
-   
+
    @IPSJexlMethod(description = "helper to get selected text if available", params =
    {@IPSJexlParam(name = "params", description = "the html params eg. $sys.params"),
          @IPSJexlParam(name = "defaultText", description = "The text to use if selected text is not available")}, returns = "The text String or default text if not available")
@@ -771,14 +771,14 @@ public class PSAssemblerUtils extends PSJexlUtilBase
       }
       return result;
    }
-   
- 
+
+
    @IPSJexlMethod(description = "import a file into the assembled document", params =
    {
             @IPSJexlParam(name = "path", type = "String", description = "The path to the include")},
             returns = "The file contents as a string")
    public String importFile(String path)
-   { 
+   {
       File file = new File(path);
       String fileString="";
       try
@@ -788,10 +788,10 @@ public class PSAssemblerUtils extends PSJexlUtilBase
       catch (IOException e)
       {
          log.error("Cannot find file for assembly import : "+ path);
-      } 
+      }
       return fileString;
    }
-   
+
    @IPSJexlMethod(description = "import an include file separated with the includeStart and includeEnd velocity macros and convert to a map", params =
       {
                @IPSJexlParam(name = "path", type = "String", description = "The path to the include")},
@@ -799,21 +799,21 @@ public class PSAssemblerUtils extends PSJexlUtilBase
    public Map<String,String> readMultiIncludeFile(String path)
    {
       Map<String,String> includeMap = new HashMap<>();
-    
+
       if (StringUtils.isEmpty(path))
       {
-        
+
          includeMap.put("INCLUDE_ERROR", "Empty include file path");
          return includeMap;
       }
-      
+
       FileInputStream fis = null;
       BufferedReader br = null;
-      try 
+      try
       {
          fis = new FileInputStream(new File(path));
          br = new BufferedReader(new InputStreamReader(fis,"UTF-8"));
-       
+
          String line = null;
          String key = null;
          StringBuilder snippet = null;
@@ -822,15 +822,15 @@ public class PSAssemblerUtils extends PSJexlUtilBase
             size += line.length();
             if (size > 50000000)
                throw new IllegalArgumentException("Include file "+path+" is too large Max size 50M characters");
-            
+
             String INCLUDE_SEPARATOR = "----------------------------- include";
-            
+
             if (line.contains(INCLUDE_SEPARATOR))
             {
                String[] sepinfo = line.trim().split(" ");
                if (sepinfo.length != 4)
                   throw new IllegalArgumentException("Invalid include separator "+line);
-              
+
                String name = sepinfo[3];
                if (sepinfo[2].equals("start"))
                {
@@ -842,9 +842,9 @@ public class PSAssemblerUtils extends PSJexlUtilBase
                   key = null;
                } else
                {
-                  throw new IllegalArgumentException("Invalid command "+sepinfo[2]+ "in  separator "+line);   
+                  throw new IllegalArgumentException("Invalid command "+sepinfo[2]+ "in  separator "+line);
                }
-               
+
             } else if (key!=null && snippet != null)
             {
                snippet.append(line);
@@ -865,7 +865,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
          if (fis!=null) try {fis.close();} catch (Exception e){}
          if (br!=null) try {br.close();} catch (Exception e){}
       }
-      
+
       return includeMap;
    }
 
@@ -881,7 +881,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
       timers.put(name, stopWatch);
       stopWatch.start();
    }
-   
+
    @IPSJexlMethod(description = "Stop a performance timer", params =
       {
                @IPSJexlParam(name = "item", type = "IPSAssemblyItem", description = "The $sys.assemblyItem object"),
@@ -894,7 +894,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
          stopWatch.stop();
       }
    }
-   
+
    @IPSJexlMethod(description = "return the count of a performance timer", params =
       {
                @IPSJexlParam(name = "item", type = "IPSAssemblyItem", description = "The $sys.assemblyItem object"),
@@ -903,11 +903,11 @@ public class PSAssemblerUtils extends PSJexlUtilBase
    public double timerElapsed(IPSAssemblyItem item, String name)
    {
       PSStopwatch stopWatch = getTimers(item).get(name);
-   
+
       return (stopWatch == null) ? 0L : stopWatch.elapsed();
    }
-   
-   
+
+
    @IPSJexlMethod(description = "Returns html showing the current timer times", params =
       {
                @IPSJexlParam(name = "item", type = "IPSAssemblyItem", description = "The $sys.assemblyItem object")},
@@ -924,7 +924,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
       }
       return results;
    }
-   
+
    @IPSJexlMethod(description = "resets all the performance timers", params =
       {
                @IPSJexlParam(name = "item", type = "IPSAssemblyItem", description = "The $sys.assemblyItem object")})
@@ -933,7 +933,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
       HashMap<String, PSStopwatch> timers = getTimers(item);
       timers.clear();
    }
-   
+
    private HashMap<String, PSStopwatch> getTimers(IPSAssemblyItem item)
    {
       HashMap<String,Object> sys = (HashMap<String,Object>)item.getBindings().get("$sys");
@@ -946,7 +946,7 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 
       return timers;
    }
-   
+
    @IPSJexlMethod(description = "logs to the system log file.  Too much logging will slow publishing and fill logs", params =
       {
                @IPSJexlParam(name = "string", type = "String", description = "The string to log"),
@@ -955,17 +955,17 @@ public class PSAssemblerUtils extends PSJexlUtilBase
    {
       if (level == null)
          level = "INFO";
-      
+
       String lvlUp = level.toUpperCase();
-      if(lvlUp.equals("DEBUG")) 
+      if(lvlUp.equals("DEBUG"))
             log.debug(string);
-      else if (lvlUp.equals("INFO")) 
+      else if (lvlUp.equals("INFO"))
             log.info(string);
-      else if (lvlUp.equals("ERROR")) 
+      else if (lvlUp.equals("ERROR"))
             log.error(string);
-    
+
    }
-   
+
    @IPSJexlMethod(description = "Returns the username of the logged in user", params = { })
    public String getUserName(){
 	    String userName = (String) PSRequestInfo.getRequestInfo(
@@ -977,18 +977,18 @@ public class PSAssemblerUtils extends PSJexlUtilBase
 	            if (req != null)
 	               userName = req.getUserSession().getRealAuthenticatedUserEntry();
 	         }
-	   
+
 	         return userName;
    }
-   
+
    @IPSJexlMethod(description = "Returns the Roles of the logged in user", params = { })
    public List<String> getUserRoles(){
 	   PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(
 	               PSRequestInfo.KEY_PSREQUEST);
-	   
+
 	   if (req != null)
 		   return req.getUserSession().getUserRoles();
-	   
+
 	return new ArrayList<>();
 
    }

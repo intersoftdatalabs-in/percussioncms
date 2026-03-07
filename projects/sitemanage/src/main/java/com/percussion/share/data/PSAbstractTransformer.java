@@ -38,14 +38,14 @@ public abstract class PSAbstractTransformer<OLD, NEW> implements Transformer {
    * @param old the collection of OLD objects
    * @return a list of NEW objects
    */
-  @SuppressWarnings("unchecked")
+
   public List<NEW> collect(Collection<OLD> old) {
     var newList = new ArrayList<NEW>();
     newList.addAll(CollectionUtils.collect(old, this));
     return newList;
   }
 
-  @SuppressWarnings("unchecked")
+
   @Override
   public Object transform(Object old) {
     try {

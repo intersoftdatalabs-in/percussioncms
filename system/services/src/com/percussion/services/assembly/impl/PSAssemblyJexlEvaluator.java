@@ -33,30 +33,30 @@ import static com.percussion.cms.IPSConstants.SYS_PARAM_USER;
 
 /**
  * Override service implementation to load bound functions
- * 
+ *
  * @author dougrand
  */
 public class PSAssemblyJexlEvaluator extends PSServiceJexlEvaluatorBase
 {
    private static final Logger ms_log1 = LogManager.getLogger(PSAssemblyJexlEvaluator.class);
-   
+
    private static IPSScript ms_rx = null;
    private static IPSScript ms_user = null;
-   
+
    /**
     * Default ctor, prebind necessary assembly methods here
-    * 
+    *
     * @param work the work item passed to the assembly, never <code>null</code>
     */
-   @SuppressWarnings("unchecked")
+
    public PSAssemblyJexlEvaluator(IPSAssemblyItem work) {
       super(false);
-      
+
       if (work == null)
       {
          throw new IllegalArgumentException("work may not be null");
       }
-      
+
       synchronized(PSAssemblyJexlEvaluator.class)
       {
          if (ms_rx == null)
@@ -74,7 +74,7 @@ public class PSAssemblyJexlEvaluator extends PSServiceJexlEvaluatorBase
             }
          }
       }
-      
+
       /*
        * Copy initial data from any existing bindings
        */
@@ -93,7 +93,7 @@ public class PSAssemblyJexlEvaluator extends PSServiceJexlEvaluatorBase
       {
          throw new RuntimeException("Error setting up bindings", e);
       }
-      
+
       Map<String, String[]> params = work.getParameters();
 
       bind(SYS_PARAM_PARAMS, params);

@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
  * and values are used for the localization of exception messages as well as labels and other GUI
  * entities. This class is a Singleton.
  */
-@SuppressWarnings("unchecked")
+
 public class PSI18NTranslationKeyValues {
   private PSI18NTranslationKeyValues() {}
 

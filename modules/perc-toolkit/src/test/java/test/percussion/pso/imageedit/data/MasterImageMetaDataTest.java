@@ -46,7 +46,7 @@ public class MasterImageMetaDataTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
+
   public void testDescribe() {
     try {
       cut.setAlt("alt string");

@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author YuBingChen
  */
-@SuppressWarnings("unchecked")
+
 
 public class PSEditionSetterTest extends PSConfigurationTest {
   /**

@@ -74,9 +74,9 @@ import org.apache.logging.log4j.Logger;
  * <p>
  * This also implements the {@link NodeType} interface for JSR-170 as it has
  * all the appropriate data available.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSTypeConfiguration implements NodeType, Serializable
 {
@@ -131,7 +131,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
       /**
        * Ctor
-       * 
+       *
        * @param baseName the base name, assumed not <code>null</code>
        * @param lazyFields if <code>true</code>, then the generated class
        *           contains blob/clob fields
@@ -146,7 +146,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
          }
       }
 
-      /* (non-Javadoc) 
+      /* (non-Javadoc)
        * @see net.sf.cglib.core.DefaultNamingPolicy#getClassName(java.lang.String,
        *      java.lang.String, java.lang.Object, net.sf.cglib.core.Predicate)
        */
@@ -164,13 +164,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
          }
          return b.toString();
       }
-      
+
       @Override
       public boolean equals(Object obj)
       {
          return EqualsBuilder.reflectionEquals(this, obj);
       }
-      
+
       @Override
       public int hashCode()
       {
@@ -207,17 +207,17 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
       /**
        * Ctor
-       * 
+       *
        * @param clazz the class, assumed not <code>null</code>
        * @param config the hibernate configuration string, never
        *           <code>null</code> or empty
        * @param lazy if <code>true</code>, the class is lazy loaded
        */
-      public ImplementingClass(Class clazz, String config, boolean lazy) 
+      public ImplementingClass(Class clazz, String config, boolean lazy)
       {
          if (clazz == null)
             throw new IllegalArgumentException("clazz may be not null.");
-         
+
          m_clazz = clazz;
          m_configuration = config;
          m_isLazyLoaded = lazy;
@@ -228,12 +228,12 @@ public class PSTypeConfiguration implements NodeType, Serializable
       {
          if (!(obj instanceof ImplementingClass))
             return false;
-         
+
          ImplementingClass other = (ImplementingClass) obj;
-         
+
          // avoid to compare "m_configuration" since it will be different
          // even if isSameBaseName(m_clazz, other.m_clazz) == true.
-         
+
          return m_isLazyLoaded == other.m_isLazyLoaded
                && isSameBaseName(m_clazz, other.m_clazz);
       }
@@ -268,7 +268,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
          return m_isLazyLoaded;
       }
 
-      /* (non-Javadoc) 
+      /* (non-Javadoc)
        * @see java.lang.Object#toString()
        */
       @Override
@@ -287,13 +287,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
    }
 
    /**
-    * Determines if the given classes have the same base name, but may have 
-    * different tail number. For example, "Foo"/"Foo_1 and 
+    * Determines if the given classes have the same base name, but may have
+    * different tail number. For example, "Foo"/"Foo_1 and
     * "FooChild1_2"/"FooChild1_4" are considered using the same base name.
-    * 
+    *
     * @param c1 the 1st class in question, assumed not <code>null</code>.
     * @param c2 the 2nd class in question, assumed not <cod>null</code>.
-    * 
+    *
     * @return <code>true</code> if the names of both classes have the same
     *    base name; otherwise return <code>false</code>.
     */
@@ -305,11 +305,11 @@ public class PSTypeConfiguration implements NodeType, Serializable
    }
 
    /**
-    * Strips the tail number for the given class name. 
+    * Strips the tail number for the given class name.
     * For example, "FooChild1_1" will return "FooChild1".
-    * 
+    *
     * @param className the class name, assumed not <code>null</code>.
-    * 
+    *
     * @return the name without underscore and its following digit characters if
     *    there is any, never <code>null</code>, but may empty.
     */
@@ -318,7 +318,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       int i = className.lastIndexOf('_');
       if (i == -1)
          return className;
-      
+
       String tail = className.substring(i+1);
       if (StringUtils.isNumeric(tail))
          return className.substring(0, i);
@@ -370,7 +370,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * The map of simple children for this type. Each map key is the name of a
     * simple child. The value is a pair of the table and value column
     */
-   private Map<String, PSPair<String, String>> m_simpleChildProperties = 
+   private Map<String, PSPair<String, String>> m_simpleChildProperties =
       new HashMap<>();
 
    /**
@@ -392,20 +392,20 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * Each pair in this list holds a hibernate configuration plus an
     * implementing class.
     */
-   private List<ImplementingClass> m_implementingClasses = 
+   private List<ImplementingClass> m_implementingClasses =
       new ArrayList<>();
 
    /**
     * Each class maps to a list of properties, the properties are used to create
     * properties elements in the content node when loading an item.
     */
-   private Map<Class, List<String>> m_properties = 
+   private Map<Class, List<String>> m_properties =
       new HashMap<>();
 
    /**
     * Tracks the loading mechanism used for each class
     */
-   private Map<Class, IDType> m_loadpolicy = 
+   private Map<Class, IDType> m_loadpolicy =
       new HashMap<>();
 
    /**
@@ -454,19 +454,19 @@ public class PSTypeConfiguration implements NodeType, Serializable
    private Map<String, PSField> m_fieldToField;
 
    /**
-    * A set of strings that correspond to this types tables. If this is a 
+    * A set of strings that correspond to this types tables. If this is a
     * content type the tables are indexed on contentid + revisionid. If this
-    * is a child type then the tables are indexed on contentid + revisionid + 
+    * is a child type then the tables are indexed on contentid + revisionid +
     * sysid. Simple children are stored using just contentid + revisionid.
     */
    private Set<String> m_tableNames;
-   
+
    /**
     * Contains the local table for the content editor. Will never be
     * <code>null</code> after initialization for a valid ce.
     */
    private String m_firstTable = null;
-   
+
    /**
     * Each entry is a single property definition. These property definitions
     * allow either single or wholesale querying of the property structure. They
@@ -474,13 +474,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * access.
     */
    private Map<String, PSPropertyDefinition> m_propertyDefinitions = null;
-   
+
    /**
     * Type map used to translate simple child types back to a java class. If
     * not in this map, then the translation isn't meaningful. Used for search
     * mechanism.
     */
-   private static Map<String,Class> ms_hibernateTypeMap = 
+   private static Map<String,Class> ms_hibernateTypeMap =
       new HashMap<>();
    /*
     * Initialize type map
@@ -500,15 +500,15 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * in the legacy repository are never more than one level below their parent.
     * Children are accessed by child id, which may only be valid while the
     * server is running.
-    * 
+    *
     * @param definition The parent item's definition, never <code>null</code>
     * @param child The child definition, may be <code>null</code> if this
     *           configuration is for a parent
-    * @param isDerbyDatabase if <code>true</code> then the repository is a 
+    * @param isDerbyDatabase if <code>true</code> then the repository is a
     *      derby database.
     */
-   public PSTypeConfiguration(PSItemDefinition definition, PSItemChild child, 
-         boolean isDerbyDatabase) 
+   public PSTypeConfiguration(PSItemDefinition definition, PSItemChild child,
+         boolean isDerbyDatabase)
    {
       Iterator<PSField> fiter;
       Map<String, List<String>> fieldsByTable = new HashMap<>();
@@ -533,7 +533,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
          m_type = definition.getName() + "_" + child.getName();
          m_sortedChild = child.isSequenced();
       }
-      
+
       processFields(definition, fiter, fieldsByTable, fieldToColumnName,
             m_fieldToType, m_tableNames, isComplexChild);
       calculateConfiguration(m_tableNames, fieldsByTable, fieldToColumnName,
@@ -541,13 +541,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
    }
 
    /**
-    * It is similar as the {@link Object#equals(Object)}, except it uses 
+    * It is similar as the {@link Object#equals(Object)}, except it uses
     * {@link PSField#equalMetaData(Object)} to compare field objects. It also
     * considers the {@link Class} objects are the same if the base name of
     * their class names are the same.
-    * 
+    *
     * @param obj the object in question, may be <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if the meta data of the supplied object equals
     * this.
     */
@@ -555,9 +555,9 @@ public class PSTypeConfiguration implements NodeType, Serializable
    {
       if (! (obj instanceof PSTypeConfiguration))
          return false;
-      
+
       PSTypeConfiguration other = (PSTypeConfiguration) obj;
-      
+
       boolean isEqual = new EqualsBuilder()
          .append(m_bodyProperties, other.m_bodyProperties)
          .append(m_childField, other.m_childField)
@@ -579,21 +579,21 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
       boolean isEqualFields = isEqualFieldMetaData(m_fieldToField,
             other.m_fieldToField);
-      
+
       boolean isEqualPolicy = isEqualMap(m_loadpolicy, other.m_loadpolicy);
       boolean isEqualProps = isEqualMap(m_properties, other.m_properties);
-      
+
       return isEqual && isEqualFields && isEqualPolicy && isEqualProps;
    }
 
    /**
     * Determines if the given pair of maps contain the same set of fields
     * where the meta data of the fields are the same.
-    *  
+    *
     * @param fdMap1 a map that maps field name to its field object, assumed not
     *    <code>null</code>.
     * @param fdMap2 the 2nd map in question, assumed not <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if both contain the same set of fields where
     * the meta data of the fields are equal.
     */
@@ -602,51 +602,51 @@ public class PSTypeConfiguration implements NodeType, Serializable
    {
       if (fdMap1.size() != fdMap2.size())
          return false;
-      
+
       for (Map.Entry<String, PSField> e : fdMap1.entrySet())
       {
          PSField f2 = fdMap2.get(e.getKey());
          if (f2 == null || (!f2.equalMetaData(e.getValue())))
             return false;
       }
-      
+
       return true;
    }
-   
+
    /**
-    * Determines if the given maps are equal. 
+    * Determines if the given maps are equal.
     * Using {@link #isSameBaseName(Class, Class)} to compare the keys.
-    * 
+    *
     * @param m1 the 1st map in question, assumed not <code>null</code>.
     * @param m2 the 2nd map in question, assumed not <code>null</code>.
-    *    
-    * @return <code>true</code> the maps are equal. 
+    *
+    * @return <code>true</code> the maps are equal.
     */
    private boolean isEqualMap(Map<Class, ? extends Object> m1,
          Map<Class, ? extends Object> m2)
    {
       if (m1.size() != m2.size())
          return false;
-      
+
       for (Class k : m1.keySet())
       {
          Object v2 = getMapValue(k, m2);
          if (v2 == null || (!v2.equals(m1.get(k))) )
             return false;
-         
+
       }
       return true;
    }
-   
+
    /**
-    * Gets the map value from the given map where the class name of the map key 
-    * has the same base name as the supplied key. 
+    * Gets the map value from the given map where the class name of the map key
+    * has the same base name as the supplied key.
     * See {@link #isSameBaseName(Class, Class)} for detail.
-    *  
+    *
     * @param srcKey the lookup key, assumed not <code>null</code>.
     * @param m the map that may contain the value, assumed not <code>null</code>.
-    * 
-    * @return the map value where the map key has the same base name as the 
+    *
+    * @return the map value where the map key has the same base name as the
     *    supplied key. It may be <code>null</code> if cannot find one in the map.
     */
 
@@ -659,17 +659,17 @@ public class PSTypeConfiguration implements NodeType, Serializable
       }
       return null;
    }
-   
+
    /**
-    * Get the system definition and add all the unmapped fields from the 
+    * Get the system definition and add all the unmapped fields from the
     * repository to the property definitions.
     */
-   @SuppressWarnings("unchecked")
+
    private void addSystemFieldPropertyDefinitions()
    {
-      PSContentEditorSystemDef systemDef = 
+      PSContentEditorSystemDef systemDef =
          PSServer.getContentEditorSystemDef();
-      IPSContentRepository rep = 
+      IPSContentRepository rep =
          PSContentInternalLocator.getLegacyRepository();
       Set<String> systemFields = rep.getUnmappedSystemFields();
       PSFieldSet systemDefFields = systemDef.getFieldSet();
@@ -684,13 +684,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
             addPropertyDefinition(prop, field);
          }
       }
-      
+
    }
 
    /**
     * Process fields and fill the various passed maps and table data. This
     * method initializes the state of the configuration object as a side effect.
-    * 
+    *
     * @param definition the item definition
     * @param fiter an iterator over the fields being processed
     * @param fieldsByTable for each table, a list of fields is stored
@@ -767,7 +767,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Extract column and table information from a field
-    * 
+    *
     * @param field the field, assumed not <code>null</code>
     * @return an array of exactly two elements, the first is the table and the
     *         second is the column. If there is any error, this method returns
@@ -792,7 +792,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
    /**
     * Calculate the correct type for a property that can represent the given
     * field
-    * 
+    *
     * @param field the field, assumed never <code>null</code>
     * @return the class that represents the given field's data type
     */
@@ -836,7 +836,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Translate a passed field to an appropriate hibernate mapping type
-    * 
+    *
     * @param field the field, assumed never <code>null</code>
     * @return the type, never <code>null</code>
     */
@@ -896,7 +896,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * One table is specially handled, i.e. <code>CONTENTSTATUS</code>. This
     * is automatically mapped to the class {@link PSComponentSummary}, which is
     * already setup as part of the system.
-    * 
+    *
     * @param tableNames the tables involved in this type, assumed never
     *           <code>null</code>
     * @param fieldsByTable a map that goes from a specific table to a list of
@@ -906,7 +906,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param fieldToType A map that correlates fields to specific data types
     * @param sortedchild if <code>true</code>, this is configuring a sorted
     *           child field
-    * @param isDerbyDatabase if <code>true</code> then the repository is a 
+    * @param isDerbyDatabase if <code>true</code> then the repository is a
     *      derby database.
     */
    private void calculateConfiguration(Set<String> tableNames,
@@ -928,7 +928,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       if (m_lazyLoadProperties.size() > 0)
       {
          handleImplementationClass(tableNames, fieldsByTable,
-               fieldToColumnName, fieldToType, sortedchild, firstTable, true, 
+               fieldToColumnName, fieldToType, sortedchild, firstTable, true,
                isDerbyDatabase);
       }
 
@@ -946,7 +946,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * Handles the details of creating the bean and configuration. This is called
     * twice. Once for the normal fields and once if there are any lazy loaded
     * fields.
-    * 
+    *
     * @param tableNames
     * @param fieldsByTable
     * @param fieldToColumnName
@@ -954,13 +954,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param sortedchild
     * @param firstTable
     * @param lazyFields
-    * @param isDerbyDatabase if <code>true</code> then the repository is a 
+    * @param isDerbyDatabase if <code>true</code> then the repository is a
     * derby database.
     */
    private void handleImplementationClass(Set<String> tableNames,
          Map<String, List<String>> fieldsByTable,
          Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
-         boolean sortedchild, String firstTable, boolean lazyFields, 
+         boolean sortedchild, String firstTable, boolean lazyFields,
          boolean isDerbyDatabase)
    {
       IDType load;
@@ -1021,7 +1021,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Handle all the property mappings for the implementation class.
-    * 
+    *
     * @param fieldsByTable
     * @param fieldToColumnName
     * @param fieldToType
@@ -1033,7 +1033,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param pertableprops
     * @param lazyFields if <code>true</code> then only map the lazy fields for
     *           properties, if <code>false</code> only map the non-lazy fields
-    * @param isDerbyDatabase if <code>true</code> then the repository is a 
+    * @param isDerbyDatabase if <code>true</code> then the repository is a
     * derby database.
     */
    private void handleProperties(Map<String, List<String>> fieldsByTable,
@@ -1051,7 +1051,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
             continue;
          }
 
-         // Decide if field should be added to main or auxiliary class: 
+         // Decide if field should be added to main or auxiliary class:
          // -Lazy loaded (LOB) fields go in auxiliary class.
          boolean isLazy = m_lazyLoadProperties.contains(field);
          if ((!lazyFields && isLazy) || (lazyFields && !isLazy))
@@ -1059,7 +1059,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
          // Add the field to the generated class bean.
          Class type = fieldToType.get(field);
-         
+
          if (isDerbyDatabase)
          {
             // Note special processing (for Derby, specifically).
@@ -1071,7 +1071,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
             }
             else if (type.getName().equals("java.sql.Blob"))
             {
-               type = byte[].class;            
+               type = byte[].class;
             }
          }
          gen.addProperty(field, type);
@@ -1101,10 +1101,10 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Create a configured bean generator
-    * 
+    *
     * @param lazyFields if <code>true</code> then this bean is for the lazy
     *           fields
-    * 
+    *
     * @return the bean generator
     */
    private BeanGenerator createBeanGenerator(boolean lazyFields)
@@ -1122,7 +1122,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * Build the complete hibernate configuration from the calculated pieces.
     * Keeps the cache region for the parent and child items at a different
     * region as the cache keys are different for them.
-    * 
+    *
     * @param firstTable
     * @param hibProps
     * @param hibId
@@ -1179,7 +1179,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * Create the hibernate configuration and bean properties for simple
     * children. Simple children are those that will appear in the node as multi
     * valued properties.
-    * 
+    *
     * @param props the current properties, assumed never <code>null</code>,
     *           will be modified by this method
     * @param hibProps the hibernate configuration being build, assumed never
@@ -1202,7 +1202,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Handle the child id field details
-    * 
+    *
     * @param sortedchild <code>true</code> if this child must maintain a sort
     *           order
     * @param hibProps the properties stringbuilder, assumed not
@@ -1237,7 +1237,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Handle the parent id information
-    * 
+    *
     * @param hibProps the properties stringbuilder, assumed not
     *           <code>null</code>
     * @param hibId the id stringbuilder, assumed not <code>null</code>
@@ -1258,7 +1258,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Add a many to one mapping to the properties
-    * 
+    *
     * @param builder
     * @param property
     * @param targetentity
@@ -1281,7 +1281,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Add a bag mapping to the properties
-    * 
+    *
     * @param builder
     * @param property
     * @param mapping
@@ -1310,7 +1310,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Add a composite key to the hibernate configuration
-    * 
+    *
     * @param builder
     */
    private void addHibernateCompositeKey(StringBuilder builder)
@@ -1318,7 +1318,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       builder.append("<composite-id "
             + "class='com.percussion.services.contentmgr.impl"
             + ".legacy.PSLegacyCompositeId' name='"
-            + PSContentNode.ID_PROPERTY_NAME 
+            + PSContentNode.ID_PROPERTY_NAME
             + "'>\n");
       builder.append("   <key-property name=\"sys_contentid\""
             + " column=\"CONTENTID\" />\n");
@@ -1329,7 +1329,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Add hibernate join configuration
-    * 
+    *
     * @param builder the builder to append to
     * @param table the table name
     * @param properties the properties for this table
@@ -1350,14 +1350,14 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Add a hibernate property to the passed string builder
-    * 
+    *
     * @param field the field, assumed not <code>null</code>
     * @param column the column, assumed not <code>null</code>
     * @param builder the builder, assumed not <code>null</code>
     * @param isLazy if <code>true</code> then this is a lob property
-    * @param type the type of the property, assumed not <code>null</code> 
+    * @param type the type of the property, assumed not <code>null</code>
     */
-   @SuppressWarnings("unchecked")
+
    private void addHibernateProperty(String field, String column,
          StringBuilder builder, boolean isLazy, Class type)
    {
@@ -1403,7 +1403,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * <p>
     * For all main content types this list includes {@link PSComponentSummary},
     * plus at least one other implementing class.
-    * 
+    *
     * @return Returns the implementingClasses, never <code>null</code> and
     *         never empty
     */
@@ -1414,7 +1414,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Does this represent a content type?
-    * 
+    *
     * @return returns <code>true</code> if this type configuration represents
     *         a content type and not a child
     */
@@ -1428,7 +1428,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * more interesting property wrapper that allows interception to expand the
     * body on access. The expansion calls the assembly manager to expand inline
     * templates and links.
-    * 
+    *
     * @return Returns the bodyProperties, may be empty but not <code>null</code>
     */
    public Set<String> getBodyProperties()
@@ -1470,7 +1470,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Get the type of a given property
-    * 
+    *
     * @param property the name of the property, never <code>null</code> or
     *           empty
     * @return the type, never <code>null</code>
@@ -1525,7 +1525,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * Get all properties supported by this type, externalized for comparison
     * with JSR-170 properties. Includes simple children but does not include
     * complex children
-    * 
+    *
     * @return a list, never <code>null</code> or empty
     */
    public Set<String> getAllJSR170Properties()
@@ -1554,8 +1554,8 @@ public class PSTypeConfiguration implements NodeType, Serializable
       {
          props.add(PSContentUtils.externalizeName(prop));
       }
-      
-      // Add additional properties we add for all 
+
+      // Add additional properties we add for all
       for (int i = 0; i < PSContentRepository.ms_fieldToAdd.length; i += 2)
       {
          String field = PSContentRepository.ms_fieldToAdd[i];
@@ -1565,13 +1565,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
       // Add contentid, revision
       props.add(IPSContentPropertyConstants.RX_SYS_CONTENTID);
       props.add(IPSContentPropertyConstants.RX_SYS_REVISION);
-      
+
       return props;
    }
 
    /**
     * Add a child's configuration.
-    * 
+    *
     * @param childconfig the child configuration, assumed never
     *           <code>null</code>
     */
@@ -1627,13 +1627,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
    {
       return m_type;
    }
-   
+
    /**
-    * A set of strings that correspond to this type's tables. If this is a 
+    * A set of strings that correspond to this type's tables. If this is a
     * content type the tables are indexed on contentid + revisionid. If this
-    * is a child type then the tables are indexed on contentid + revisionid + 
+    * is a child type then the tables are indexed on contentid + revisionid +
     * sysid. Simple children are stored using just contentid + revisionid.
-    * 
+    *
     * @return the tableNames, never <code>null</code> after construction
     */
    public Set<String> getTableNames()
@@ -1643,7 +1643,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Get the original PSField for the given property
-    * 
+    *
     * @param property the property name without any prefix, never
     *           <code>null</code> or empty
     * @return the field, <code>null</code> if the property is unknown
@@ -1660,7 +1660,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
    /**
     * Find and return the first implementation class that isn't the component
     * summary
-    * 
+    *
     * @return the implementation class, never <code>null</code> for a valid
     *         configuration
     */
@@ -1678,7 +1678,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Return those properties that are not loaded initially
-    * 
+    *
     * @return the properties, never <code>null</code> but may be empty
     */
    public Set<String> getLazyProperties()
@@ -1688,7 +1688,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Find and return the class that is lazy loaded for the configuration
-    * 
+    *
     * @return the class or <code>null</code> if this configuration did not
     *         require a lazy loader
     */
@@ -1706,7 +1706,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
 
    /**
     * Return the simple child tables used
-    * 
+    *
     * @return a set of child property tables, might be empty but not <code>null</code>
     */
    public Set<String> getSimpleChildPropertiesTables()
@@ -1736,7 +1736,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
    /**
     * Calculate the property definition for the given field and add it to the
     * set of stored definitions.
-    * 
+    *
     * @param prop the property name, assumed never <code>null</code> or empty.
     * @param field the field, assumed never <code>null</code>.
     */
@@ -1777,7 +1777,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       m_propertyDefinitions.put(prop, new PSPropertyDefinition(
             PSContentUtils.externalizeName(prop), multiple, itype, this));
    }
-   
+
    /*
     * Node type methods, bare implementation
     */

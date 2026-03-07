@@ -214,9 +214,9 @@ public class PSCommentsService implements IPSCommentsService {
                 new PSDeliveryActionOptions(
                     server, COMMENT_GET_COMMENTS_ON_PAGE, HttpMethodType.POST, true),
                 mapper.writeValueAsString(postJson));
-        @SuppressWarnings("unchecked")
+
         Map<String, Object> responseMap = (Map<String, Object>) responseMapObj;
-        @SuppressWarnings("unchecked")
+
         List<Map<String, Object>> commentsOnPage = (List<Map<String, Object>>) responseMap.get("comments");
 
         for (var jsonComment : commentsOnPage) {
@@ -471,15 +471,15 @@ public class PSCommentsService implements IPSCommentsService {
       var deliveryClient = new PSDeliveryClient();
       deliveryClient.setLicenseOverride(licenseId);
       var mapper = new ObjectMapper();
-      @SuppressWarnings("unchecked")
+
       Map<String, Object> responseMap = (Map<String, Object>) deliveryClient
           .getJsonObject(
               new PSDeliveryActionOptions(server, url, HttpMethodType.POST, true),
               mapper.writeValueAsString(postJson));
-      @SuppressWarnings("unchecked")
+
       List<Object> siteInfo = (List<Object>) responseMap.get("summaries");
       for (var i = 0; i < siteInfo.size(); i++) {
-        @SuppressWarnings("unchecked")
+
         Map<String, Object> pageObj = (Map<String, Object>) siteInfo.get(i);
         summaries.add(getCommentSummary(name, pageObj, countsOnly));
       }

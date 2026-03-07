@@ -186,7 +186,7 @@ public class PSNavonNodeInvocationHandler implements InvocationHandler
       m_proxyNode = proxyNode;
    }
 
-   @SuppressWarnings("unchecked")
+
    public Object invoke(Object proxy, Method method, Object[] args)
          throws Throwable
    {

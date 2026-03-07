@@ -64,7 +64,7 @@ public class PSPublisherServiceHelper {
     return m_publisherSvc;
   }
 
-  @SuppressWarnings("unchecked")
+
   private void getContentLists() throws PSDeployException {
     try {
       List<IPSContentList> cList = m_publisherSvc.findAllContentLists("");
@@ -90,7 +90,7 @@ public class PSPublisherServiceHelper {
    * @throws PSDeployException
    * @throws PSExtensionException
    */
-  @SuppressWarnings("unchecked")
+
   private static PSExtensionRef getExtensionRef(String name, String context, String interfacename)
       throws PSDeployException {
     if (name == null || name.trim().length() == 0)

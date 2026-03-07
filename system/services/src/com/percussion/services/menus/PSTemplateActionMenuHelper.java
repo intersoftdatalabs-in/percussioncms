@@ -93,7 +93,7 @@ public class PSTemplateActionMenuHelper {
         if (templates != null && !templates.isEmpty()) {
             IPSSecurityWs sec = PSSecurityWsLocator.getSecurityWebservice();
 
-            @SuppressWarnings("unchecked")
+
             List<IPSGuid> templateGuids = new ArrayList<>(CollectionUtils.collect(templates, new Transformer() {
                 public Object transform(Object input) {
                     return ((IPSAssemblyTemplate) input).getGUID();
@@ -159,7 +159,7 @@ public class PSTemplateActionMenuHelper {
     }
 
 
-    @SuppressWarnings("unchecked")
+
     private List<IPSGuid> filterCurrentCommunityTemplates(IPSRequestContext request, Collection<IPSGuid> filtered)
     {
         IPSAclService svc = PSAclServiceLocator.getAclService();

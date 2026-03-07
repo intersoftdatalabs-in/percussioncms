@@ -36,7 +36,7 @@ public class HibernateNode_editorDAO implements Node_editorDAO {
     return session.get(Node_editor.class, id);
   }
 
-  @SuppressWarnings("unchecked")
+
   public Collection<Node_editor> getAllNode_editors() {
     Session session = sessionFactory.getCurrentSession();
     return (Collection<Node_editor>) (Collection<?>) session.createQuery("from Node_editor nod", Node_editor.class).list();

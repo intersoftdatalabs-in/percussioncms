@@ -61,7 +61,7 @@ import org.junit.jupiter.api.Tag;
  */
 
 public class PSContentTypeSetterTest extends PSConfigurationTest {
-  @SuppressWarnings("unchecked")
+
   public void testAddPropertyDefs() throws Exception {
     PSItemDefManager mgr = PSItemDefManager.getInstance();
     PSItemDefinition itemDef = mgr.getItemDef("rffBrief", 1002);
@@ -182,7 +182,7 @@ public class PSContentTypeSetterTest extends PSConfigurationTest {
     itemDef.setLabel("Breif");
   }
 
-  @SuppressWarnings("unchecked")
+
   public void testFieldProperties() throws Exception {
     PSItemDefManager mgr = PSItemDefManager.getInstance();
     PSItemDefinition itemDef = mgr.getItemDef("rffBrief", 1002);
@@ -480,7 +480,7 @@ public class PSContentTypeSetterTest extends PSConfigurationTest {
    * @param fieldName the name of the field, assumed not <code>null</code> or empty.
    * @param type the type of the field, assumed returned by PSField.getType().
    */
-  @SuppressWarnings("unchecked")
+
   private static void addFieldToExcludes(PSItemDefinition itemDef, String fieldName, int type) {
     if (type == PSField.TYPE_SYSTEM) {
       ArrayList<String> names = new ArrayList<String>();
@@ -503,7 +503,7 @@ public class PSContentTypeSetterTest extends PSConfigurationTest {
    * @param fieldName the name of the shared field in question, assumed not <code>null</code> or
    *     empty.
    */
-  @SuppressWarnings("unchecked")
+
   private static void addFieldToSharedExcludes(PSItemDefinition itemDef, String fieldName) {
     ArrayList<String> names =
         iteratorToList(itemDef.getContentEditorMapper().getSharedFieldExcludes());
@@ -546,7 +546,7 @@ public class PSContentTypeSetterTest extends PSConfigurationTest {
    * @param it the iterator, assumed not <code>null</code>.
    * @return the converted list, never <code>null</code>, may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   private static ArrayList<String> iteratorToList(Iterator it) {
     ArrayList<String> list = new ArrayList<String>();
     CollectionUtils.addAll(list, it);
@@ -570,7 +570,7 @@ public class PSContentTypeSetterTest extends PSConfigurationTest {
    * @return the ID of the configured Content Type, never <code>null</code>.
    * @throws Exception if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private IPSGuid validateLocalConfig() throws Exception {
     // validate the Content Type
     PSItemDefManager mgr = PSItemDefManager.getInstance();

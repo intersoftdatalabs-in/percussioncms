@@ -60,7 +60,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /** The utility class to hold search criteria, build search request and execute it. */
-@SuppressWarnings("unchecked")
+
 public class PSExecutableSearch extends PSWSExecutableSearch {
   /** Label for uncategorized */
   private static final String _UNCATEGORIZED_ = "[Uncategorized]";

@@ -89,7 +89,7 @@ public interface IPSOWFActionService {
    * @throws PSExtensionException
    * @throws PSNotFoundException
    */
-  @SuppressWarnings("unchecked")
+
   public IPSWorkflowAction getWorkflowAction(String workflowActionName)
       throws PSExtensionException, PSNotFoundException;
 }

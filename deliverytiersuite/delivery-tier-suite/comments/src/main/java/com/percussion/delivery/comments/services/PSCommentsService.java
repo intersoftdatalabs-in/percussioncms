@@ -245,7 +245,7 @@ public class PSCommentsService implements IPSCommentsService {
    * @param criteria The criteria object.
    * @return A PSComments object which has a comment list.
    */
-  @SuppressWarnings("unchecked")
+
   public PSComments getComments(PSCommentCriteria criteria, boolean isModerator) {
     log.info("Getting all comments according to the given criteria object");
 
@@ -314,7 +314,7 @@ public class PSCommentsService implements IPSCommentsService {
    * @param startIndex Specifies the offset of the first page to return.
    * @return A PSPageSummaries object with the list of pages with comments.
    */
-  @SuppressWarnings("unchecked")
+
   public PSPageSummaries getPagesWithComments(String site, int maxResults, int startIndex) {
     if (site == null || site.isEmpty()) {
       throw new IllegalArgumentException("site cannot be null or empty");
@@ -370,7 +370,7 @@ public class PSCommentsService implements IPSCommentsService {
    * com.percussion.comments.services.IPSCommentsService#getDefaultModerationState
    * (java.lang.String)
    */
-  @SuppressWarnings("unchecked")
+
   public APPROVAL_STATE getDefaultModerationState(String site) {
     try {
       APPROVAL_STATE state = dao.findDefaultModerationState(site);

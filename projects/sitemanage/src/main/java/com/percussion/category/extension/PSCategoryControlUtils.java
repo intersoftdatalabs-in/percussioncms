@@ -138,7 +138,7 @@ public class PSCategoryControlUtils {
    * @param doc the input XML Document
    * @return the category XML Document in the old format
    */
-  @SuppressWarnings("unchecked")
+
   public static Document convertToOldFormatXml(Document doc) {
     var document = DocumentHelper.createDocument();
     var root = document.addElement("Tree");
@@ -178,7 +178,7 @@ public class PSCategoryControlUtils {
    * @param source the source XML element
    * @param targetParent the target parent XML element
    */
-  @SuppressWarnings("unchecked")
+
   private static void createChildElement(Element source, Element targetParent) {
     var newChild = targetParent.addElement("Node");
     for (var attr : (List<Attribute>) source.attributes()) {

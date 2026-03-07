@@ -180,7 +180,7 @@ public class PSInstallation implements Externalizable
     *
     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
     */
-   @SuppressWarnings("unchecked")
+
    public void readExternal(ObjectInput in) throws IOException,
          ClassNotFoundException
    {

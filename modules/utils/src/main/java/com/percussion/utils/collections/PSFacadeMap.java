@@ -37,7 +37,7 @@ public class PSFacadeMap<K, V> extends HashMap<K, V> {
    *
    * @param mapToEncapsulate the map to encapsulate, never <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   public PSFacadeMap(Map<K, ? extends V> mapToEncapsulate) {
     super(mapToEncapsulate);
   }

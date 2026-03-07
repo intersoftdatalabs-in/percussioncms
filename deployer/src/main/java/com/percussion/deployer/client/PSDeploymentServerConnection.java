@@ -1249,7 +1249,7 @@ public class PSDeploymentServerConnection {
       var iterator = params.entrySet().iterator();
       int onParam = 0;
       while (iterator.hasNext()) {
-        @SuppressWarnings("unchecked")
+
         Map.Entry<String, ?> entry = (Map.Entry<String, ?>) iterator.next();
         if (entry.getKey() == null)
           throw new IllegalArgumentException("params may not contain a null key");

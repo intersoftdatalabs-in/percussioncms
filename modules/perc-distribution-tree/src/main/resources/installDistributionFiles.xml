@@ -74,6 +74,18 @@
 				followsymlinks="false" includes="*.jar" />
 		</copy>
 
+		<!-- Unpack perc-web-ui WAR to Rhythmyx -->
+		<echo>Unpacking perc-web-ui WAR...</echo>
+		<mkdir dir="${assembly-directory}/jetty/base/webapps/Rhythmyx" />
+		<unzip dest="${assembly-directory}/jetty/base/webapps/Rhythmyx" overwrite="true">
+			<fileset dir="../../WebUI/target">
+				<include name="perc-web-ui-${project.version}.war" />
+			</fileset>
+			<patternset>
+				<exclude name="META-INF/**" />
+			</patternset>
+		</unzip>
+
 		<copy todir="${assembly-directory}/Docs">
 			<fileset dir="{basedir}/../../../system/Docs" />
 		</copy>
@@ -227,23 +239,6 @@
 			<fileset dir="${basedir}/../../system/DTD" includes="**" />
 		</copy>
 
-
-		<!-- Force copy of UI files - they weren't getting refreshed on upgrade
-			without this -->
-		<copy todir="${assembly-directory}/jetty/base/webapps/Rhythmyx/"
-			overwrite="true" verbose="true" filtering="true">
-			<fileset
-				dir="../../WebUI/target/perc-web-ui-${project.version}">
-				<include name="cm/**" />
-				<include name="dce/**" />
-				<include name="test/**" />
-				<include name="tmx/**" />
-				<include name="ui/**" />
-				<include name="util/**" />
-				<include name="*.jsp" />
-				<include name="favicon.ico" />
-			</fileset>
-		</copy>
 
 		<!-- Copy DesktopContentExplorer resources and jar -->
 		<!-- <copy todir="${assembly-directory}/jetty/base/webapps/Rhythmyx/dce"

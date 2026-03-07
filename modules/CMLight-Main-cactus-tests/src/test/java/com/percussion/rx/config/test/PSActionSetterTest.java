@@ -41,7 +41,7 @@ public class PSActionSetterTest extends PSConfigurationTest {
     validateDefaultConfiguration();
   }
 
-  @SuppressWarnings("unchecked")
+
   private void validateDefaultConfiguration() throws PSNotFoundException {
     IPSDesignModelFactory dm = PSDesignModelFactoryLocator.getDesignModelFactory();
     IPSDesignModel model = dm.getDesignModel(PSTypeEnum.ACTION);
@@ -140,7 +140,7 @@ public class PSActionSetterTest extends PSConfigurationTest {
     assertTrue(acxt == null);
   }
 
-  @SuppressWarnings("unchecked")
+
   private void validateLocalConfiguration() throws PSNotFoundException {
     IPSDesignModelFactory dm = PSDesignModelFactoryLocator.getDesignModelFactory();
     IPSDesignModel model = dm.getDesignModel(PSTypeEnum.ACTION);

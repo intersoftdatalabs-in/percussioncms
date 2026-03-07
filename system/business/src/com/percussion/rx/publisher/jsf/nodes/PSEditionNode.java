@@ -220,7 +220,7 @@ public class PSEditionNode extends PSDesignNode
        * @return the complete parameters for the given extension, never
        *         <code>null</code>.
        */
-      @SuppressWarnings("unchecked")
+
       public List<PSParameter> getParams()
       {
          return m_params;
@@ -857,7 +857,7 @@ public class PSEditionNode extends PSDesignNode
     * @return selection items corresponding to the possible extension tasks
     *         registered to the system.
     */
-   @SuppressWarnings("unchecked")
+
    public List<SelectItem> getTaskExtensionChoices()
    {
       return PSExtensionHelper

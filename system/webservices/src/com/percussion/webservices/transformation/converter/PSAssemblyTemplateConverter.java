@@ -66,7 +66,7 @@ public class PSAssemblyTemplateConverter extends PSConverter
       m_specialProperties.add("whenToPublish");
    }
 
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object convert(Class type, Object value)
    {
@@ -145,7 +145,7 @@ public class PSAssemblyTemplateConverter extends PSConverter
          }
 
          // Convert bindings (to generated wrapper)
-         @SuppressWarnings("unchecked")
+
          List<PSTemplateBinding> bindings = (List<PSTemplateBinding>) orig.getBindings();
          if (bindings != null && !bindings.isEmpty())
          {

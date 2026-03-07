@@ -76,7 +76,7 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        <phase>process-resources</phase>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <target>
                                 <echo message="unzip archive"/>
@@ -162,6 +162,10 @@
                     </execution>
                 </executions>
             </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                </plugin>
         </plugins>
     </build>
     <profiles>
@@ -178,7 +182,7 @@
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
-                                <phase>process-resources</phase>
+                                <phase>prepare-package</phase>
                                 <configuration>
                                     <target>
                                         <mkdir dir="${download-folder}"/>
@@ -195,7 +199,7 @@
                         <executions>
                             <execution>
                                 <id>copy-dependencies</id>
-                                <phase>none</phase>
+                                <phase>process-resources</phase>
                             </execution>
                             <execution>
                                 <id>analyze</id>
@@ -204,32 +208,6 @@
                                 </goals>
                                 <configuration>
                                     <failOnWarning>false</failOnWarning>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>default-deploy</id>
-                                <phase>none</phase>
-                            </execution>
-                            <execution>
-                                <id>phantomjs-nexus-deploy-win</id>
-                                <goals>
-                                    <goal>deploy-file</goal>
-                                </goals>
-                                <phase>deploy</phase>
-                                <configuration>
-                                    <repositoryId>repo-man</repositoryId>
-                                    <file>${download-folder}/download-file</file>
-                                    <url>https://mvn.intsof.com/repositories/thirdparty/</url>
-                                    <groupId>com.tiny</groupId>
-                                    <artifactId>tinymce</artifactId>
-                                    <packaging>zip</packaging>
-                                    <generatePom>true</generatePom>
                                 </configuration>
                             </execution>
                         </executions>

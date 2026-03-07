@@ -813,7 +813,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
     * @see IPSSystemDesignWs#loadItemFilters(List, boolean, boolean, String,
     *    String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSItemFilter> loadItemFilters(List<IPSGuid> ids, boolean lock,
       boolean overrideLock, String session, String user)
       throws PSErrorResultsException
@@ -866,7 +866,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
     * @see IPSSystemDesignWs#loadRelationshipTypes(List, boolean, boolean,
     *    String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSRelationshipConfig> loadRelationshipTypes(List<IPSGuid> ids,
       boolean lock, boolean overrideLock, String session, String user)
       throws PSErrorResultsException
@@ -1019,7 +1019,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
     *
     * @see IPSSystemDesignWs#saveAcls(List, boolean, String, String)
     */
-   @SuppressWarnings("unchecked")
+
    @Transactional
    public List<PSUserAccessLevel> saveAcls(List<PSAclImpl> acls,
       boolean release, String session, String user)

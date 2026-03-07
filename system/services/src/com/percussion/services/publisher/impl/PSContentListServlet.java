@@ -67,9 +67,9 @@ import java.util.Map;
  * Takes parameters and constructs a content list suitable for the publisher. It
  * does this by running the content list execution in the publisher service and
  * translates the resulting assembly items into an xml document.
- * 
+ *
  * @author dougrand
- * 
+ *
  */
 public class PSContentListServlet extends HttpServlet
 {
@@ -90,17 +90,17 @@ public class PSContentListServlet extends HttpServlet
          "yyyy-MM-dd HH:mm:ss");
 
    /**
-    * 
+    *
     */
    private static final long serialVersionUID = 1L;
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see jakarta.servlet.http.HttpServlet#service(jakarta.servlet.http.HttpServletRequest,
     *      jakarta.servlet.http.HttpServletResponse)
     */
-   @SuppressWarnings("unchecked")
+
    @Override
    protected void service(HttpServletRequest request,
          HttpServletResponse response)
@@ -145,7 +145,7 @@ public class PSContentListServlet extends HttpServlet
          requiredParam(context, IPSHtmlParameters.SYS_CONTEXT);
          requiredParam(siteid, IPSHtmlParameters.SYS_SITEID);
          requiredParam(contentlistname, IPSHtmlParameters.SYS_CONTENTLIST);
-         
+
          int assemblyContext = 0;
          if (!StringUtils.isBlank(assemblycontext))
          {
@@ -153,7 +153,7 @@ public class PSContentListServlet extends HttpServlet
          }
          else
          {
-            assemblyContext = Integer.parseInt(context);   
+            assemblyContext = Integer.parseInt(context);
          }
 
          StringWriter writer = new StringWriter();
@@ -192,7 +192,7 @@ public class PSContentListServlet extends HttpServlet
          {
             IPSGuid deliveryContextId = new PSGuid(PSTypeEnum.CONTEXT, context);
             IPSGuid siteId = new PSGuid(PSTypeEnum.SITE, siteid);
-            items = pub.executeContentList(list, overrides, publish, 
+            items = pub.executeContentList(list, overrides, publish,
                   deliveryContextId, siteId);
             if (!StringUtils.isBlank(publicationid) && maxresults > 0)
             {
@@ -268,7 +268,7 @@ public class PSContentListServlet extends HttpServlet
                "Created content list {0} publication id {3}\n" +
                "Site id: {1}, Delivery: {2}, Context: {4}\n" +
                "{5} result items took {6} milliseconds",
-               contentlistname, siteid, delivery, publicationid, 
+               contentlistname, siteid, delivery, publicationid,
                context, items.size(), sw.elapsed());
          log.debug("{}",info);
       }
@@ -291,7 +291,7 @@ public class PSContentListServlet extends HttpServlet
 
    /**
     * Assemble a single content list item
-    * 
+    *
     * @param pub the publishing service, never <code>null</code>
     * @param cms the legacy content service, never <code>null</code>
     * @param asm the assembly service, never <code>null</code>
@@ -418,7 +418,7 @@ public class PSContentListServlet extends HttpServlet
 
    /**
     * Begin the output content list document
-    * 
+    *
     * @param delivery
     * @param context
     * @param writer
@@ -441,7 +441,7 @@ public class PSContentListServlet extends HttpServlet
    /**
     * Validate that the passed parameter value is not <code>null</code> or
     * empty.
-    * 
+    *
     * @param param the param value
     * @param paramName the name of the param, assumed never <code>null</code>
     *           or empty

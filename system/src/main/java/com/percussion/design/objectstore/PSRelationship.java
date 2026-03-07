@@ -122,7 +122,7 @@ public class PSRelationship extends PSComponent {
    * Initialize the user properties according to the supplied relationship configuration object and
    * current relationshiip id. Note, both {@link #m_id} and {@link #m_config} have to be set.
    */
-  @SuppressWarnings("unchecked")
+
   private void initUserProperties() {
     if (m_config.getUserProperties().isEmpty()) {
       m_userProperties = Collections.emptyList();

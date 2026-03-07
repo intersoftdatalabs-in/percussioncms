@@ -31,7 +31,7 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import com.percussion.soln.p13n.delivery.data.DeliveryListItem;
 import com.percussion.soln.p13n.delivery.data.IDeliveryDataService;
 
-public class DSDeliveryHibernateDao extends HibernateDaoSupport 
+public class DSDeliveryHibernateDao extends HibernateDaoSupport
     implements IDeliveryDataService{
 
     /**
@@ -43,7 +43,7 @@ public class DSDeliveryHibernateDao extends HibernateDaoSupport
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    @SuppressWarnings("unchecked")
+
     public List<DeliveryListItem> retrieveAllListItems() throws DeliveryDataException {
         return (List<DeliveryListItem>) getHibernateTemplate().find("from DeliveryListItem");
     }
@@ -59,7 +59,7 @@ public class DSDeliveryHibernateDao extends HibernateDaoSupport
                     t.delete(old);
                 }
                 t.save(d);
-            } 
+            }
             catch (DataAccessException e) {
                 String message = "Database Error Saving: " + d;
                 log.error("{} Error: {}",
@@ -80,10 +80,10 @@ public class DSDeliveryHibernateDao extends HibernateDaoSupport
         List<DeliveryListItem> items = new LinkedList<>();
         HibernateTemplate t = getHibernateTemplate();
         for(Long id : ids) {
-            try { 
+            try {
                 DeliveryListItem item = t.get(DeliveryListItem.class, id);
                 items.add(item);
-            } 
+            }
             catch (DataAccessException e) {
                 String message = "Database error getting list item for id: " +  id;
                 log.error(message, e);
@@ -97,7 +97,7 @@ public class DSDeliveryHibernateDao extends HibernateDaoSupport
         }
         return items;
     }
-    
-    
+
+
 
 }

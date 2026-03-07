@@ -64,7 +64,7 @@ class CookieModuleDeserializationTest {
 
     assertNotNull(result);
     assertInstanceOf(Map.class, result);
-    @SuppressWarnings("unchecked")
+
     Map<String, String> deserializedMap = (Map<String, String>) result;
     assertEquals(2, deserializedMap.size());
     assertEquals("ABC123DEF456", deserializedMap.get("JSESSIONID"));
@@ -95,7 +95,7 @@ class CookieModuleDeserializationTest {
 
     assertNotNull(result);
     assertInstanceOf(Map.class, result);
-    @SuppressWarnings("unchecked")
+
     Map<String, java.util.List<String>> deserializedMap =
         (Map<String, java.util.List<String>>) result;
     assertTrue(deserializedMap.containsKey("multi_cookies"));

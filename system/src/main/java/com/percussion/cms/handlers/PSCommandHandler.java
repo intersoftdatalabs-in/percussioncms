@@ -553,7 +553,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    *     null</code>.
    * @throws PSNotFoundException if a udf or extension cannot be located.
    */
-  @SuppressWarnings("unchecked")
+
   protected void prepareInputFieldTranslations(
       int childId, PSDisplayMapper mapper, PSFieldSet fieldSet)
       throws PSExtensionException, PSNotFoundException {
@@ -593,7 +593,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    *     </code>.
    * @throws PSNotFoundException if a udf or extension cannot be located.
    */
-  @SuppressWarnings("unchecked")
+
   private void prepareSimpleChildTranslations(PSDisplayMapper mapper, Map runnerMap)
       throws PSExtensionException, PSNotFoundException {
     PSContentEditorPipe pipe = (PSContentEditorPipe) m_ce.getPipe();
@@ -726,7 +726,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    *     empty.
    * @return An Iterator over <code>zero</code> or more prepared extensions.
    */
-  @SuppressWarnings("unchecked")
+
   protected Iterator getAppliedExtensions(PSExecutionData data, List extList) {
     if (data == null || extList == null)
       throw new IllegalArgumentException("data or extList may not be null");
@@ -843,7 +843,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    * @param dispMapper the display mapper, assumed not <code>null</code>.
    * @param pageId the actual page id used as key to the lookup map.
    */
-  @SuppressWarnings("unchecked")
+
   private void prepareValidation(PSContentEditor ce, PSDisplayMapper dispMapper, int pageId) {
     int nextPageId = pageId;
     Map fieldEvaluators = new LinkedHashMap();
@@ -912,7 +912,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    * @param fieldEvaluators the map of evaluators. We will add any we create here.
    * @param dispMapper the display mapper, assumed not <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   private void prepareSimpleChildValidation(
       PSContentEditor ce, Map fieldEvaluators, PSDisplayMapper dispMapper) {
     PSContentEditorPipe pipe = (PSContentEditorPipe) ce.getPipe();
@@ -1171,7 +1171,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    *
    * @param listener The listener to notify, may not be <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   void addEditorChangeListener(IPSEditorChangeListener listener) {
     if (listener == null) throw new IllegalArgumentException("listener may not be null");
 

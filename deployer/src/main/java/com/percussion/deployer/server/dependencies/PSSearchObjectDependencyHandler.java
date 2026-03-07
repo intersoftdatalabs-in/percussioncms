@@ -355,7 +355,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   // see IPSIdTypeHandler interface
-  @SuppressWarnings("unchecked")
+
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");
@@ -735,7 +735,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
    * @return The id of the Display Format to use as default or -1 if a Display Format was not found.
    * @throws PSDeployException if any errors occur.
    */
-  @SuppressWarnings("unchecked")
+
   private Integer getDefaultTargetDisplayFormatId(
       PSComponentProcessorProxy proc, PSDisplayFormatDefDependencyHandler dfHandler)
       throws PSDeployException {

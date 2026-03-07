@@ -875,7 +875,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
     * @see IPSContentDesignWs#loadContentTypes(List, boolean, boolean,
     *    String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSItemDefinition> loadContentTypes(List<IPSGuid> ids,
       boolean lock, boolean overrideLock, String session, String user)
       throws PSErrorResultsException
@@ -985,7 +985,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
     * @see IPSContentDesignWs#loadKeywords(List, boolean, boolean,
     *    String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSKeyword> loadKeywords(List<IPSGuid> ids, boolean lock,
       boolean overrideLock, String session, String user)
       throws PSErrorResultsException

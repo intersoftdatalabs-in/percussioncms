@@ -94,7 +94,7 @@ public class MultiSiteResolutionControllerTest {
    * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
-  @SuppressWarnings("unchecked")
+
   @Disabled("Test is failing") // TODO: Fix me
   public final void testHandleRequestInternalHttpServletRequestHttpServletResponse() {
     // disabled - needs rewrite with Mockito

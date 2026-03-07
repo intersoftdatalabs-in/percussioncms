@@ -80,7 +80,7 @@ public class PSPair<A, B> {
    *
    * @see java.lang.Object#equals(java.lang.Object)
    */
-  @SuppressWarnings("unchecked")
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof PSPair)) return false;

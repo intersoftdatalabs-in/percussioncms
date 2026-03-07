@@ -157,7 +157,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  @SuppressWarnings("unchecked")
+
   public Iterator getChildTypes() {
     return PSIteratorUtils.emptyIterator();
   }

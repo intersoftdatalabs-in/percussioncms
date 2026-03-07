@@ -30,16 +30,16 @@ import java.util.Map;
 
 /**
  * The tree model provides a lazy loaded tree that is primarily managed by the
- * node implementations. The tree provides a basic navigation mechanism that 
- * allows the <code>tr:tree</code> to render the model. 
+ * node implementations. The tree provides a basic navigation mechanism that
+ * allows the <code>tr:tree</code> to render the model.
  * <p>
  * The actual tree is implemented by the node classes. The model is actually a
  * kind of tree walker, that maintains information about the current container
- * being referenced. 
+ * being referenced.
  * <p>
  * Setting the key via {@link #setRowKey(Object)} will cause the model to now
- * point at the referenced node and make that node's parent the current 
- * container. 
+ * point at the referenced node and make that node's parent the current
+ * container.
  * <p>
  * Setting the row index {@link #setRowIndex(int)} simply navigates
  * within the current container. Note that the set index is not forced to be
@@ -48,7 +48,7 @@ import java.util.Map;
  * will return <code>false</code>.
  * <p>
  * The methods for adding and removing nodes from the tree model are called by
- * the container nodes. 
+ * the container nodes.
  * <p>
  * The navigator provides access methods and is the actual managed bean that
  * is tied to JSF.
@@ -63,7 +63,7 @@ import java.util.Map;
  * So a particular leaf would be represented by a path like this:
  * <br>
  * [ "rootkey", "parentkey", "leafkey" ]
- * 
+ *
  * @author dougrand
  *
  */
@@ -73,12 +73,12 @@ public class PSTreeModel extends MenuModel
     * The logger for the tree model.
     */
    private static final Logger ms_log = LogManager.getLogger(PSTreeModel.class);
-   
+
    /**
     * The current container, never <code>null</code> after construction.
     */
    PSNodeBase m_container = null;
-   
+
    /**
     * Each added node is put in this map so it can be found, and removed
     * if the node is removed from its container.
@@ -86,15 +86,15 @@ public class PSTreeModel extends MenuModel
    Map<String,PSNodeBase> m_rowmap = new HashMap<>();
 
    /**
-    * The focus row key. 
+    * The focus row key.
     */
-   private Object m_focusRowKey; 
-   
+   private Object m_focusRowKey;
+
    /**
     * Navigator for this tree model, never <code>null</code> after ctor.
     */
    private PSNavigation m_navigator;
-   
+
    /**
     * Create the model with the given root node.
     * @param root the root node, never <code>null</code>.
@@ -115,7 +115,7 @@ public class PSTreeModel extends MenuModel
       m_container.setRowIndex(-1);
       addNode(root);
    }
-   
+
    /**
     * @return the navigator. Never <code>null</code>.
     */
@@ -151,7 +151,7 @@ public class PSTreeModel extends MenuModel
       }
    }
 
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object getContainerRowKey(Object child)
    {
@@ -164,7 +164,7 @@ public class PSTreeModel extends MenuModel
             key = childkey.subList(0, childkey.size() - 1);
          }
       }
-  
+
       ms_log.debug("Get container row key: " + key);
       return key;
    }
@@ -176,7 +176,7 @@ public class PSTreeModel extends MenuModel
       PSNodeBase current = (PSNodeBase) m_container.getRowData();
       if (current == null)
       {
-         // Don't know why the Row Data is not available. Doug's code (below) 
+         // Don't know why the Row Data is not available. Doug's code (below)
          //    throw new IllegalStateException("No current node");
          // caused a lot of (none reproducible) problems. Let's always return
          // FALSE for now.
@@ -256,7 +256,7 @@ public class PSTreeModel extends MenuModel
 
    @Override
    public Object getWrappedData()
-   { 
+   {
       PSNodeBase root = m_container;
       while(root.getParent() != null)
       {
@@ -273,7 +273,7 @@ public class PSTreeModel extends MenuModel
       return avail;
    }
 
-   @SuppressWarnings("unchecked")
+
    @Override
    public void setRowKey(Object key)
    {
@@ -288,7 +288,7 @@ public class PSTreeModel extends MenuModel
          m_container.setRowIndex(-1);
          return;
       }
-      
+
       if (key instanceof List)
       {
          List<Object> listkey = (List<Object>) key;
@@ -300,13 +300,13 @@ public class PSTreeModel extends MenuModel
             return;
          }
       }
-      
+
       PSNodeBase node = m_rowmap.get(key.toString());
       if (node != null && node.getParent() != null)
       {
          m_container = node.getParent();
          m_container.setRowKey(node.getKey());
-         ms_log.debug("Set row key: " + key + " new container: " 
+         ms_log.debug("Set row key: " + key + " new container: "
                + m_container.getTitle() + "(" + m_container.getKey() + ")");
 
       }
@@ -328,7 +328,7 @@ public class PSTreeModel extends MenuModel
    public void setWrappedData(Object arg0)
    {
       ms_log.debug("Set wrapped data: " + arg0);
-      throw new UnsupportedOperationException("Cannot reset data");  
+      throw new UnsupportedOperationException("Cannot reset data");
    }
 
    /**
@@ -344,11 +344,11 @@ public class PSTreeModel extends MenuModel
       node.setModel(this);
       m_rowmap.put((String) node.getKey(), node);
    }
-   
+
    /**
     * Remove node from the model. Does not remove the node from the node tree,
     * that must be done explicitly.
-    * 
+    *
     * @param node the node to remove, never <code>null</code>.
     */
    public void removeNode(PSNodeBase node)
@@ -368,16 +368,16 @@ public class PSTreeModel extends MenuModel
       else
          return createExternalKey(m_focusRowKey);
    }
-   
+
    /**
     * Calculate and return a complete row key from root to leaf, but omit
     * the root node itself.
-    * 
+    *
     * @param internalKey the internal key, assumed never <code>null</code>.
     * @return the complete row path, never <code>null</code>.
     */
    private List<String> createExternalKey(Object internalKey)
-   {      
+   {
       PSNodeBase base = m_rowmap.get(internalKey);
       List<String> rval = new ArrayList<>();
       while(base != null && base.getParent() != null)
@@ -391,18 +391,18 @@ public class PSTreeModel extends MenuModel
    /**
     * Set the focus row for the model. Since the passed key is really a path,
     * we only need to store the final component.
-    * 
-    * @param key the focus row, may be <code>null</code> if there is no 
+    *
+    * @param key the focus row, may be <code>null</code> if there is no
     * selected row.
     */
    public void setFocusRowKey(List<String> key)
    {
       m_focusRowKey = key.get(key.size() - 1);
    }
-   
+
    /**
     * Get the named node from the model.
-    * 
+    *
     * @param key the key, never <code>null</code> or empty.
     * @return the node, or <code>null</code> if not found.
     */

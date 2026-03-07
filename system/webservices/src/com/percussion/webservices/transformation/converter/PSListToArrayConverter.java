@@ -29,7 +29,7 @@ public class PSListToArrayConverter extends PSArrayConverter
 {
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see PSConverter#PSConvert(BeanUtilsUtil)
     */
    public PSListToArrayConverter(BeanUtilsBean beanUtils)
@@ -39,10 +39,10 @@ public class PSListToArrayConverter extends PSArrayConverter
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see Converter#convert(Class, Object)
     */
-   @SuppressWarnings("unchecked")
+
    public Object convert(Class arrayType, Object value)
    {
       if (value == null)

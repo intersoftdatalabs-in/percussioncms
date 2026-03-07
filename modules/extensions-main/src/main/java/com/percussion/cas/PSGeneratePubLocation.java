@@ -591,7 +591,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
    * @throws SQLException if any SQL operation fails.
    * @throws NamingException
    */
-  @SuppressWarnings("unchecked")
+
   protected PSExtensionParamValue[] getExitParameters(
       IPSLocationScheme scheme, int contentid, int revision) throws SQLException, NamingException {
     Connection connection = null;

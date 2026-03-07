@@ -112,7 +112,7 @@ public class PSLocationSchemeConfigHandler extends PSObjectConfigHandler {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+
   public boolean unprocess(Object obj, List assocSets) {
     m_isUnProcess = true;
     super.unprocess(obj, assocSets);
@@ -259,7 +259,7 @@ public class PSLocationSchemeConfigHandler extends PSObjectConfigHandler {
   /*
    * //see base class method for details
    */
-  @SuppressWarnings("unchecked")
+
   @Override
   protected Collection<String> getPrevNames() {
     Map<String, Object> prevProps = getPrevExtraProperties();
@@ -275,7 +275,7 @@ public class PSLocationSchemeConfigHandler extends PSObjectConfigHandler {
    * @param ctxValue the value of "contexts" property. It may be <code>null</code> or empty.
    * @return a list of Location Scheme names, never <code>null</code>, but may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   private Collection<String> getNamesFromCtxProperty(Object ctxValue) {
     if (ctxValue == null) return Collections.emptyList();
     if ((ctxValue instanceof Collection) && ((Collection) ctxValue).isEmpty())
@@ -640,7 +640,7 @@ public class PSLocationSchemeConfigHandler extends PSObjectConfigHandler {
    * //see base class method for details
    */
   @Override
-  @SuppressWarnings("unchecked")
+
   public Map<String, Object> getExtraProperties() {
     return m_extraProperties;
   }

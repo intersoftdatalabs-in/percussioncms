@@ -30,7 +30,7 @@ import org.apache.myfaces.trinidad.model.RowKeySetImpl;
  * The navigation bean controls the design or runtime tree control in the
  * navigation facet of the UI. The contained tree model is compatible with
  * Trinidad's tree control.
- * 
+ *
  * @author dougrand
  */
 public class PSNavigation
@@ -57,15 +57,15 @@ public class PSNavigation
    private String m_currentCategoryKey = PSSiteContainerNode.PUB_DESIGN_SITE_VIEWS;
 
    /**
-    * The starting node of the navigation instance. This node is used to 
+    * The starting node of the navigation instance. This node is used to
     * populate the starting page of the current tab
     */
    private PSNodeBase m_startingNode;
-   
+
    /**
     * Default constructor.
     */
-   public PSNavigation() 
+   public PSNavigation()
    {
    }
 
@@ -77,10 +77,10 @@ public class PSNavigation
    {
       if (node == null)
          throw new IllegalArgumentException("node must not be null.");
-      
+
       m_startingNode = node;
    }
-   
+
    /**
     * @return the starting node, which is used to populate the starting page
     * of the current tab. Never <code>null</code>.
@@ -92,30 +92,30 @@ public class PSNavigation
 
       return m_startingNode;
    }
-   
+
    /**
     * Change the focus on status node if it is not already on it.
     * This must be called on the starting JSP/JSF page; otherwise the
     * focus node on the left tree and the breadcrumb may not be correct.
-    * 
-    * This is used in case user was not on the starting node, switch to 
+    *
+    * This is used in case user was not on the starting node, switch to
     * different tab, then switch back to the current tab.
-    * 
+    *
     * Must call {@link #setStartingNode} first.
     */
    protected void focusOnStartingNode()
    {
       if (m_startingNode == null)
          throw new IllegalStateException("m_startingNode must not be null.");
-      
+
       setCurrentItemKey((String)m_startingNode.getKey());
    }
-   
+
    /**
     * The purpose of this method is to provide an interface for JSF/JSP to call
-    * {@link #focusOnStartingNode()}. Assumed this is evaluated to 
+    * {@link #focusOnStartingNode()}. Assumed this is evaluated to
     * {@link java.lang.String} by JSP.
-    * 
+    *
     * @return arbitrary string, never <code>null</code> or empty.
     */
    public String getFocusOnStartingNode()
@@ -123,7 +123,7 @@ public class PSNavigation
       focusOnStartingNode();
       return "invoke PSNavigation.focusOnStartingNode()";
    }
-   
+
    /**
     * @return the tree
     */
@@ -162,7 +162,7 @@ public class PSNavigation
 
    /**
     * Set the current item to be edited's guid.
-    * 
+    *
     * @param guid the guid, <code>null</code> to reset.
     */
    public void setCurrentItemGuid(IPSGuid guid)
@@ -178,7 +178,7 @@ public class PSNavigation
     * If the current item is set, that item's node is shown in the tree as
     * selected and all other nodes are grayed out. If no item is set then the
     * entire tree is active.
-    * 
+    *
     * @return the current item's guid or <code>null</code> if there is no
     *         current item.
     */
@@ -190,7 +190,7 @@ public class PSNavigation
    /**
     * Allows JSF to retrieve a node by name. Throws an exception if the node is
     * not found.
-    * 
+    *
     * @param key the name of the node desired, never <code>null</code> or
     *            empty.
     * @return the node, never <code>null</code>.
@@ -208,7 +208,7 @@ public class PSNavigation
 
    /**
     * Get the nodes from the given category node.
-    * 
+    *
     * @param key the key that specifies the category node, never
     *            <code>null</code> or empty.
     * @return the filtered list, never <code>null</code>.
@@ -219,7 +219,7 @@ public class PSNavigation
 
    /**
     * Get the specified category node.
-    * 
+    *
     * @param key the key of the category node, never <code>null</code> or
     *            empty.
     * @return the category node, never <code>null</code>.
@@ -238,7 +238,7 @@ public class PSNavigation
 
    /**
     * Throws IllegalArgumentException if the provided key is null.
-    * 
+    *
     * @param key the key to validate. If null, throws IllegalArgumentException.
     */
    private void notNullKey(String key)
@@ -248,7 +248,7 @@ public class PSNavigation
 
    /**
     * Accessor for the node list.
-    * 
+    *
     * @return the site nodes, never <code>null</code>.
     */
    public List<PSNodeBase> getList() throws PSNotFoundException {
@@ -263,10 +263,10 @@ public class PSNavigation
    {
       setFilter(null);
    }
-   
+
    /**
     * Get the filter from the current category node.
-    * 
+    *
     * @return the filter, could be empty or <code>null</code>.
     */
    public String getFilter()
@@ -276,7 +276,7 @@ public class PSNavigation
 
    /**
     * Set the filter for the current category node.
-    * 
+    *
     * @param filter the filter, may be <code>null</code> or empty.
     */
    public void setFilter(String filter)
@@ -291,10 +291,10 @@ public class PSNavigation
    {
       return m_currentCategoryKey;
    }
-   
+
    /**
     * Change the current category key.
-    * 
+    *
     * @param rowKey the category key, never <code>null</code> or empty.
     */
    public void setCurrentCategoryKey(String rowKey)
@@ -327,7 +327,7 @@ public class PSNavigation
    /**
     * Get the current selected item as a string, used for selections in the list
     * views.
-    * 
+    *
     * @return the current key, may be <code>null</code> if nothing is
     *         selected.
     */
@@ -346,10 +346,10 @@ public class PSNavigation
 
    /**
     * Set the current selected item.
-    * 
+    *
     * @param key the selected item, may be <code>null</code>.
     */
-   @SuppressWarnings("unchecked")
+
    public void setCurrentItemKey(String key)
    {
       Object old = getTree().getRowKey();
@@ -363,7 +363,7 @@ public class PSNavigation
 
    /**
     * Get the current selected node from the tree.
-    * 
+    *
     * @return the current selected node, or <code>null</code> if nothing is
     *         selected.
     */
@@ -377,28 +377,28 @@ public class PSNavigation
     * Return the current node if found one; if current node does not exist
     * then return the current collection node if exists; otherwise return
     * the starting node.
-    * 
-    * @return the either current node or collection node. 
+    *
+    * @return the either current node or collection node.
     * Never <code>null</code>.
     */
    public PSNodeBase getActiveNode()
    {
-      // 
+      //
       PSNodeBase activeNode = getCurrentNode();
       if (activeNode == null)
          activeNode = getCollectionNode();
-      
+
       if (activeNode == null)
          activeNode = getStartingNode();
-      
+
       if (activeNode == null)
          throw new IllegalStateException("ActiveNode==NULL is unexpected.");
-      
+
       return activeNode;
    }
    /**
     * Get the node specified by the given key.
-    * 
+    *
     * @param key the key, may be <code>null</code>
     * @return the node in the model specified by the key, or <code>null</code>
     *         if the key is <code>null</code> or if the node cannot be found.
@@ -420,7 +420,7 @@ public class PSNavigation
     * Indicates whether the navigation bean category nodes are enabled. The
     * navigation bean can use this method to enforce disabling of the category
     * nodes.
-    * 
+    *
     * @return <code>true</code> if the category nodes should be enabled.
     */
    public boolean areCategoryNodesEnabled()
@@ -430,7 +430,7 @@ public class PSNavigation
 
    /**
     * Return the node that is specified by the current category key.
-    * 
+    *
     * @return the collection node, or <code>null</code> if nothing is
     *         selected, or the corresponding node cannot be found.
     */
@@ -438,11 +438,11 @@ public class PSNavigation
    {
       return (PSCategoryNodeBase) getNodeByKey(m_currentCategoryKey);
    }
-   
+
    /**
-    * The outcome for navigating to a warning message screen when user 
-    * picked an action that will act on a selected item, but the user hasn't 
-    * selected anything (from a list) yet. 
+    * The outcome for navigating to a warning message screen when user
+    * picked an action that will act on a selected item, but the user hasn't
+    * selected anything (from a list) yet.
     */
    public final static String NONE_SELECT_WARNING = "no-selection-warning";
 }

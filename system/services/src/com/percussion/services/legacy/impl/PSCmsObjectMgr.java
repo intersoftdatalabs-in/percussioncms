@@ -133,7 +133,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Implementation class for legacy object accessing
- * 
+ *
  * @author dougrand
  */
 @PSBaseBean("sys_cmsObjectMgr")
@@ -156,10 +156,10 @@ public class PSCmsObjectMgr
     * Logger
     */
    private static final Logger logger = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
-   
+
    private static final int BATCH_SIZE = 50;
    private static ThreadLocal<Integer> ms_itemCount = new ThreadLocal<>();
-  
+
    private Map<Long,PSCommandHandler> workflowHandlers = new ConcurrentHashMap<>(16, 0.9f, 1);
 
     @PersistenceContext
@@ -181,7 +181,7 @@ public class PSCmsObjectMgr
            return entityManager.unwrap(Session.class);
        }
     }
-   
+
    /**
     * Ctor, invoked from Spring
     */
@@ -204,7 +204,7 @@ public class PSCmsObjectMgr
 
    /*
     *  (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#touchItems(java.util.
     * Collection)
     */
@@ -212,11 +212,11 @@ public class PSCmsObjectMgr
    {
       Date now = new Date();
       updateSummaryDate("m_contentLastModifiedDate", now, ids, true);
-      
+
      PSItemSummaryCache cache = PSItemSummaryCache.getInstance();
       if (cache != null)
          cache.updateLastModifiedDate(ids, now);
-        
+
    }
     public void setPostDate(Collection<Integer> ids) {
         setPostDate(ids,new Date());
@@ -235,7 +235,7 @@ public class PSCmsObjectMgr
     }
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#setPostDate(java.util.
     * Collection)
     */
@@ -254,10 +254,10 @@ public class PSCmsObjectMgr
        }
       updateSummaryDate("m_contentPostDate", date, filteredIds, false);
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#setPostDate(java.util.
     * Collection)
     */
@@ -268,9 +268,9 @@ public class PSCmsObjectMgr
       setPostDate(ids,date);
    }
 
-   
-   
-   
+
+
+
     public List<PSUIMode> findUiModes() {
         Session session = getSession();
         try {
@@ -322,7 +322,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.legacy.IPSCmsObjectMgr#clearStartDate(java.util.
     * Collection)
@@ -334,7 +334,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.legacy.IPSCmsObjectMgr#clearExpiryDate(java.util.
     * Collection)
@@ -343,10 +343,10 @@ public class PSCmsObjectMgr
    {
       updateSummaryDate("m_contentExpiryDate", null, ids, true);
                }
-     
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.legacy.IPSCmsObjectMgr#createLocale(String, String)
     */
    public PSLocale createLocale(String languageString, String displayName)
@@ -360,7 +360,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.legacy.IPSCmsObjectMgr#getLocaleById(long)
     */
    public Optional<PSLocale> loadLocale(int id)
@@ -370,11 +370,11 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.legacy.IPSCmsObjectMgr#getLocaleByName(java.lang.String)
     */
-   @SuppressWarnings("unchecked")
+
    public Optional<PSLocale> findLocaleByLanguageString(String lang)
    {
 
@@ -394,10 +394,10 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.legacy.IPSCmsObjectMgr#getLocaleByStatus(int)
     */
-   @SuppressWarnings("unchecked")
+
    public Stream<PSLocale> findLocalesByStatus(int status)
    {
       Session session = getSession();
@@ -410,10 +410,10 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.legacy.IPSCmsObjectMgr#findLocales(String, String)
     */
-   @SuppressWarnings("unchecked")
+
    public Stream<PSLocale> findLocales(String lang, String label)
    {
       Session session = getSession();
@@ -453,7 +453,7 @@ public class PSCmsObjectMgr
 
       }
 
-   @SuppressWarnings("unchecked")
+
    public Stream<PSLocale> findAllLocales()
    {
       Session session = getSession();
@@ -470,11 +470,11 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.legacy.IPSCmsObjectMgr#findAllPersistentMeta()
     */
-   @SuppressWarnings("unchecked")
+
    public Stream<PSPersistentPropertyMeta> findAllPersistentMeta()
    {
       Session s = getSession();
@@ -552,12 +552,12 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.legacy.IPSCmsObjectMgr#findPersistentMetaByName(
     * java.lang.String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSPersistentPropertyMeta> findPersistentMetaByName(String name)
    {
       if (StringUtils.isBlank(name))
@@ -572,10 +572,10 @@ public class PSCmsObjectMgr
 
    /**
     * Find all persistent property's meta objects.
-    * 
+    *
     * @return the meta objects, never <code>null</code>, but may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSPersistentProperty> findAllPersistentProperties()
    {
       Session s = getSession();
@@ -586,11 +586,11 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#
     * findPersistentPropertiesByName(java.lang.String)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSPersistentProperty> findPersistentPropertiesByName(String userName)
    {
       if (StringUtils.isBlank(userName))
@@ -604,7 +604,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.legacy.IPSCmsObjectMgr#savePersistentProperty(com.
     * percussion.server.PSPersistentProperty)
@@ -619,7 +619,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.legacy.IPSCmsObjectMgr#deletePersistentProperty(
     * com.percussion.server.PSPersistentProperty)
@@ -634,7 +634,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.legacy.IPSCmsObjectMgr#updatePersistentProperty(
     * com.percussion.server.PSPersistentProperty)
@@ -649,7 +649,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.legacy.IPSCmsObjectMgr#saveOrUpdateLocale(com.percussion.
     * i18n.PSLocale)
@@ -661,7 +661,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.legacy.IPSCmsObjectMgr#remove(com.percussion.i18n.PSLocale)
     */
@@ -670,7 +670,7 @@ public class PSCmsObjectMgr
       getSession().delete(locale);
    }
 
-   @SuppressWarnings("unchecked")
+
    public List<PSComponentSummary> loadComponentSummaries(Collection<Integer> ids)
    {
        Session s = getSession();
@@ -690,7 +690,7 @@ public class PSCmsObjectMgr
 
    /**
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#loadComponentSummary(int)
     */
    public PSComponentSummary loadComponentSummary(int contentid,boolean refresh)
@@ -712,7 +712,7 @@ public class PSCmsObjectMgr
 
     /**
     * Call this on all finders to cleanup component summaries.
-    * 
+    *
     * @param summaries the summaries to modify, assumed never <code>null</code>
     */
    private void fixupLocators(List<PSComponentSummary> summaries)
@@ -725,7 +725,7 @@ public class PSCmsObjectMgr
 
    /**
     * Call this on any finder that returns a single component summary
-    * 
+    *
     * @param s a summary to modify, may be <code>null</code>
     */
    private void fixupLocator(PSComponentSummary s)
@@ -737,7 +737,7 @@ public class PSCmsObjectMgr
       s.setLocator(new PSLocator(contentid, revision));
    }
 
-   @SuppressWarnings("unchecked")
+
    public Stream<PSComponentSummary> findComponentSummariesByCheckedOutUsers(Set<String> users) throws PSORMException
    {
       Session s = getSession();
@@ -749,8 +749,8 @@ public class PSCmsObjectMgr
          return summaries.stream();
 
       }
-   
-   @SuppressWarnings("unchecked")
+
+
    public Stream<PSComponentSummary> findComponentSummariesByType(long contentType) throws PSORMException
    {
       List<PSComponentSummary> summaries = getSession()
@@ -761,7 +761,7 @@ public class PSCmsObjectMgr
       return summaries.stream();
    }
 
-   @SuppressWarnings("unchecked")
+
    public Stream<Integer> findContentIdsByType(long contentType) throws PSORMException
    {
       return ((List<Integer>) getSession()
@@ -771,7 +771,7 @@ public class PSCmsObjectMgr
                   "type", contentType).list()).stream();
    }
 
-   @SuppressWarnings("unchecked")
+
    public Stream<Integer> findContentIdsByWorkflow(int workflowid) throws PSORMException
    {
       return ((List<Integer>) getSession()
@@ -781,11 +781,11 @@ public class PSCmsObjectMgr
                   "workflowid", workflowid).list()).stream();
    }
 
-   @SuppressWarnings("unchecked")
+
    public Stream<Integer> findContentIdsByWorkflowStatus(int workflowid, int stateid) throws PSORMException
    {
 
-      
+
       return ((List<Integer>) getSession()
             .createQuery(
                   "select c.m_contentId "
@@ -845,7 +845,7 @@ public class PSCmsObjectMgr
       return Optional.ofNullable(statesCtx);
    }
 
-   @SuppressWarnings("unchecked")
+
    public <T extends IPSIdentifiableItem> Stream<T> filterItemsByPublishableFlag(List<T> items, List<String> flags)
          throws PSORMException
    {
@@ -858,7 +858,7 @@ public class PSCmsObjectMgr
          cids.add(lg.getContentId());
       }
       long idset = 0;
-      
+
       try
       {
          Query q;
@@ -878,9 +878,9 @@ public class PSCmsObjectMgr
                   + "c.m_workflowAppId = s.workflowId AND " + "c.m_contentStateId = s.stateId AND "
                   + "s.contentValidValue in (:flags)");
             q.setParameter("idset", idset);
-            q.setParameterList("flags", flags);           
+            q.setParameterList("flags", flags);
          }
-         // 
+         //
          List<Integer> results = (idset != 0) ? (List) executeQuery(q) : q.list();
          Set<Integer> passedcids = new HashSet<>();
          for (Integer cid : results)
@@ -924,7 +924,7 @@ public class PSCmsObjectMgr
          // evictEntityRegion removed in Hibernate 6
          // else
          //    sf.getCache().evictEntityRegion(clazz);
-         
+
          // Handle eviction from data object cache for classes that may be
          // cached in memory. Required until we eliminate applications. (if
          // ever)
@@ -1002,15 +1002,15 @@ public class PSCmsObjectMgr
     * config name (of a config) will be saved into the id/name mapping table,
     * where the id will be the next available number for the id/name mapping
     * table.
-    * 
+    *
     * @param config the relationship configuration set, retrieved from the
     *           config table, assumed not <code>null</code>.
     * @param s the session object, used for the persistent layer, assumed not
     *           <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if any of the id has been reset in the given
     *         config object.
-    * 
+    *
     * @throws PSCmsException if failed to construct relationship configuration
     *            set from the supplied config object.
     */
@@ -1072,15 +1072,15 @@ public class PSCmsObjectMgr
     * table. (3) if same id but different name between the config and the
     * id/name mapping table, then update the id/name mapping table with the name
     * of the config. (4) remove any orphen entries in the id/name mapping table.
-    * 
+    *
     * @param configSet the to be updated (or saved) relationship configurations,
     *           assumed not <code>null</code>.
     * @param s the session object, used for the persistent layer, assumed not
     *           <code>null</code>.
-    * 
+    *
     * @return <code>true</code> if any of the id has been reset in the given
     *         user defined configurations.
-    * 
+    *
     * @throws PSCmsException if failed to update the config names.
     */
    private boolean updateUserRelationshipConfigNameIds(PSRelationshipConfigSet configSet, Session s)
@@ -1143,11 +1143,11 @@ public class PSCmsObjectMgr
     * Validates the id of a user defined relationship config. Do nothing if it
     * does not have an assigned id; otherwise, the assigned id must not already
     * been used by other configurations.
-    * 
+    *
     * @param config the to be validated user relationship config, assumed not
     *           <code>null</code>.
     * @param configSet the configuration set, assumed never <code>null</code>
-    * 
+    *
     * @throws PSCmsException if the validation failed.
     */
    private void validateRelationshipConfigNameId(PSRelationshipConfig config, PSRelationshipConfigSet configSet)
@@ -1182,9 +1182,9 @@ public class PSCmsObjectMgr
     * Validating pre-defined system relationship configurations in the given
     * configs. Make sure the ids/names of the system relationship configurations
     * match the predefined ones in {@link PSRelationshipConfig.SysConfigEnum}.
-    * 
+    *
     * @param configSet the to be validated configurations.
-    * 
+    *
     * @throws PSCmsException if the validation failed.
     */
    private void validateSysRelationshipConfigs(PSRelationshipConfigSet configSet) throws PSCmsException
@@ -1204,13 +1204,13 @@ public class PSCmsObjectMgr
 
    /**
     * Gets the relationship configurations from the supplied config.
-    * 
+    *
     * @param config it contains XML representation of the relationship
     *           configurations, assumed not <code>null</code>.
-    * 
+    *
     * @return the retrieved relationship configurations, never
     *         <code>null</code>.
-    * 
+    *
     * @throws PSCmsException failed to create relationship config set from its
     *            XML representation.
     */
@@ -1234,7 +1234,7 @@ public class PSCmsObjectMgr
    /**
     * Replaces the relationship configurations in the supplied {@link PSConfig}
     * object with the new relationship config set.
-    * 
+    *
     * @param config the object that hold the XML representation of the
     *           relationship configurations, assumed not <code>null</code>.
     * @param configSet the new relationship config set, assumed not
@@ -1251,11 +1251,11 @@ public class PSCmsObjectMgr
    /**
     * Finds the config name object with the supplied name from the given name
     * list.
-    * 
+    *
     * @param name the looked up name, assumed not <code>null</code>.
     * @param cfgnames a list of config names, assumed not <code>null</code>, but
     *           may be empty.
-    * 
+    *
     * @return the found config name object, it may be <code>null</code> if
     *         cannot find one.
     */
@@ -1271,11 +1271,11 @@ public class PSCmsObjectMgr
 
    /**
     * Finds the config name object by a specified id from the given name list.
-    * 
+    *
     * @param id the looked up id.
     * @param cfgnames a list of config names, assumed not <code>null</code>, but
     *           may be empty.
-    * 
+    *
     * @return the config name object with the specified id, it may be
     *         <code>null</code> if cannot find one.
     */
@@ -1289,7 +1289,7 @@ public class PSCmsObjectMgr
       return null;
    }
 
-   @SuppressWarnings("unchecked")
+
    public void flushSecondLevelCache()
    {
        Cache cache = getSession().getSessionFactory().getCache();
@@ -1300,13 +1300,13 @@ public class PSCmsObjectMgr
 
          if (logger.isDebugEnabled())
             logger.debug("Flushed hibernate 2nd level cache.");
-         
+
          // Clear the Eh cache
         PSCacheAccessLocator.getCacheAccess().clear();
    }
 
    // Implements IPSRelationshipService.findAllRelationshipConfigNames()
-   @SuppressWarnings("unchecked")
+
    public Stream<PSRelationshipConfigName> findAllRelationshipConfigNames()
    {
       List<PSRelationshipConfigName> names = getSession()
@@ -1319,7 +1319,7 @@ public class PSCmsObjectMgr
    }
 
    // Implements IPSRelationshipService.findRelationshipConfigNames()
-   @SuppressWarnings("unchecked")
+
    public Stream<PSRelationshipConfigName> findRelationshipConfigNames(String name)
    {
       Session sess = getSession();
@@ -1331,7 +1331,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see IPSCmsObjectMgr#findRolesByName(String)
     */
    public Stream<PSRole> findRolesByName(String name)
@@ -1367,7 +1367,7 @@ public class PSCmsObjectMgr
       return roles.stream();
    }
 
-   @SuppressWarnings("unchecked")
+
    public Stream<IPSGuid> findPublicOrCurrentGuids(List<Integer> ids)
    {
       Session s = getSession();
@@ -1394,7 +1394,7 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#loadCmsObject(int)
     */
    public Optional<PSCmsObject> loadCmsObject(int objectType)
@@ -1408,10 +1408,10 @@ public class PSCmsObjectMgr
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#findAllCmsObjects()
     */
-   @SuppressWarnings("unchecked")
+
    public Stream<PSCmsObject> findAllCmsObjects()
    {
       Session session = getSession();
@@ -1428,7 +1428,7 @@ public class PSCmsObjectMgr
       {
          return Collections.emptySet();
       }
-      
+
       Session session = getSession();
 
          // Convert incoming id strings to id numbers as appropriate
@@ -1459,7 +1459,7 @@ public class PSCmsObjectMgr
                logger.error("Bad contentid found (wrong class): {}" , id);
             }
          }
-         
+
          Set<Long> rval = new HashSet<>();
          List<Number> results;
          // Grab max ids at a time from the list, if less than max do the
@@ -1476,7 +1476,7 @@ public class PSCmsObjectMgr
                 .setParameterList("ids", ids.subList(i, end)).list();
             results.addAll(partResults);
          }
-         
+
          for(Number n : results)
          {
             rval.add(n.longValue());
@@ -1484,10 +1484,10 @@ public class PSCmsObjectMgr
          return rval;
 
       }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.legacy.IPSCmsObjectMgr#findItemEntries(java.util.
     * List, java.util.Comparator)
@@ -1495,22 +1495,22 @@ public class PSCmsObjectMgr
    public List<IPSItemEntry> findItemEntries(List<Integer> contentIds, Comparator<IPSItemEntry> comparator)
    {
       notNull(contentIds);
-      
+
       PSItemSummaryCache itemCache = PSItemSummaryCache.getInstance();
       if (itemCache == null)
          return Collections.emptyList();
-      
+
       List<IPSItemEntry> itemEntries = itemCache.getItems(contentIds);
-      
+
       if (comparator != null)
          Collections.sort(itemEntries, comparator);
-      
+
       return itemEntries;
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#findItemEntry(int)
     */
    public IPSItemEntry findItemEntry(int contentId)
@@ -1518,21 +1518,21 @@ public class PSCmsObjectMgr
       PSItemSummaryCache itemSummaryCache = PSItemSummaryCache.getInstance();
       return itemSummaryCache == null ? null : itemSummaryCache.getItem(contentId);
    }
-   
+
    /**
     * Convert an integer object to int
-    * 
+    *
     * @param i the integer object, it may be <code>null</code>.
     * @param defaultValue the returned default value if the integer object is
     *           <code>null</code>.
-    *   
+    *
     * @return the primitive integer.
     */
    private int toInt(Object i, int defaultValue)
    {
       if (i == null)
          return defaultValue;
-      
+
       if (i instanceof Long)
          return ((Long) i).intValue();
       else
@@ -1541,7 +1541,7 @@ public class PSCmsObjectMgr
 
    /**
     * Set the state name for the specified item
-    * 
+    *
     * @param item the item, not <code>null</code>.
     * @param wfStateIdMap maps the work-flow ID to the related state ID / name map, never <code>null</code>.
     * this is used for caching the work-flow state ID/name mapping to improve processing performance.
@@ -1550,15 +1550,15 @@ public class PSCmsObjectMgr
    {
       if (item.getWorkflowAppId() < 0 || item.getContentStateId() < 0)
          return;
-      
+
       Map<Integer, String> map = getStateIdNameMap(item.getWorkflowAppId(), wfStateIdMap);
       String name = map.get(item.getContentStateId());
       item.setStateName(name);
    }
-   
+
    /**
     * Gets the state ID/name mapping for the specified work-flow.
-    * 
+    *
     * @param wfId the ID of the work-flow.
     * @param wfStateIdNameMap maps the work-flow ID to the related state ID /
     *           name map, never <code>null</code>. this is used for caching the
@@ -1572,30 +1572,30 @@ public class PSCmsObjectMgr
       Map<Integer, String> stateIdNameMap = wfStateIdNameMap.get(wfId);
       if (stateIdNameMap != null)
          return stateIdNameMap;
-      
+
       PSWorkflow wf = loadWorkflow(wfId);
       Map<Integer, String> map = new HashMap<>();
       if (wf == null)
       {
          logger.warn("Failed to load workflow id = {}" , wfId);
-         wfStateIdNameMap.put(wfId, map);         
+         wfStateIdNameMap.put(wfId, map);
          return map;
       }
-      
+
       for (PSState s : wf.getStates())
       {
          map.put((int)s.getStateId(), s.getName());
       }
       wfStateIdNameMap.put(wfId, map);
-      return map;         
+      return map;
    }
 
    /**
     * Load the specified workflow, see
     * {@link IPSWorkflowService#loadWorkflow(IPSGuid)} for details.
-    * 
+    *
     * @param wfId
-    * 
+    *
     * @return The workflow, <code>null</code> if not found.
     */
    private PSWorkflow loadWorkflow(int wfId)
@@ -1604,10 +1604,10 @@ public class PSCmsObjectMgr
       IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
       return svc.loadWorkflow(gmgr.makeGuid(wfId, PSTypeEnum.WORKFLOW));
    }
-   
+
    /**
     * Set the content type label for the specified item if possible.
-    * 
+    *
     * @param item the item, not <code>null</code>.
     * @param ctTypeIdLabel it maps content type ID to content type name, never
     *           <code>null</code>. This is used for caching the content type
@@ -1618,14 +1618,14 @@ public class PSCmsObjectMgr
       int contentTypeId = item.getContentTypeId();
       if (contentTypeId < 0)
          return;
-      
+
       String label = ctTypeIdLabel.get(contentTypeId);
       if (label != null)
       {
          item.setContentTypeLabel(label);
          return;
       }
-      
+
       try
       {
          label = PSItemDefManager.getInstance().contentTypeIdToLabel(contentTypeId);
@@ -1637,10 +1637,10 @@ public class PSCmsObjectMgr
          logger.warn("Invalid content type id ({}) for contentId = {}",contentTypeId  , item.getContentId());
       }
    }
-   
+
    /**
     * Create an item entry from a row of item info
-    * 
+    *
     * @param item the raw data return from query, assumed not <code>null</code>.
     * @param wfStateIdNameMap maps the work-flow ID to the related state ID /
     *           name map, never <code>null</code>. this is used for caching the
@@ -1649,7 +1649,7 @@ public class PSCmsObjectMgr
     * @param ctTypeIdLabel it maps content type ID to content type name, never
     *           <code>null</code>. This is used for caching the content type
     *           ID/name to improve processing performance.
-    * 
+    *
     * @return the item entry, not <code>null</code>.
     */
    private PSItemEntry createItemEntry(Object[] item, Map<Integer, Map<Integer, String>> wfStateIdNameMap,
@@ -1685,7 +1685,7 @@ public class PSCmsObjectMgr
                stateId,
                tipRevision,currentRevision,publicRevision,
               checkedOutUserName);
-      
+
       setStateName(itemEntry, wfStateIdNameMap);
       setContentTypeLabel(itemEntry, ctTypeIdLabel);
 
@@ -1704,7 +1704,7 @@ public class PSCmsObjectMgr
            private static final String PROP_MAX_SUMMARY_CACHE_SIZE = "MAX_SUMMARY_CACHE_SIZE";
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.services.legacy.IPSCmsObjectMgr#loadAllItemEntries()
     */
    public Collection<IPSItemEntry> loadAllItemEntries()
@@ -1732,17 +1732,17 @@ public class PSCmsObjectMgr
           }
 
          List<Object[]> listItems = q.list();
-         
+
          List<IPSItemEntry> allEntries = new ArrayList<>();
          Map<Integer, Map<Integer, String>> wfStateIdNameMap = new HashMap<>();
          Map<Integer, String> ctTypeIdLabelMap = new HashMap<>();
-         
+
          for (Object[] row : listItems)
          {
             PSItemEntry entry = createItemEntry(row, wfStateIdNameMap, ctTypeIdLabelMap);
             allEntries.add(entry);
          }
-         
+
          return allEntries;
 
       }
@@ -1774,42 +1774,42 @@ public class PSCmsObjectMgr
    public void changeWorkflowForItem(int itemId, int workflowId, List<String> validStateNames) throws PSORMException
    {
       Validate.notNull(validStateNames);
-            
+
       if (!findCheckedOutContentIds(Arrays.asList(itemId)).isEmpty())
       {
-         throw new IllegalArgumentException("Item with id " + itemId + " is checked out.");         
+         throw new IllegalArgumentException("Item with id " + itemId + " is checked out.");
       }
-      
+
       IPSItemEntry itemEntry = findItemEntry(itemId);
       if (itemEntry == null)
       {
          throw new IllegalArgumentException("Item with id " + itemId + " does not exist.");
       }
-      
+
       if (itemEntry.isFolder())
       {
          throw new IllegalArgumentException("Item with id " + itemId + " is a folder.");
       }
-      
+
       int itemWf = itemEntry.getWorkflowAppId();
       String itemState = itemEntry.getStateName();
-      
+
       // skip if already in the correct workflow
       if (itemWf == workflowId)
          return;
-      
+
       // If not a valid state, change to default
       if (!validStateNames.contains(itemState))
          itemState = validStateNames.get(0);
-      
+
       Map<Integer, String> wfStateIdNameMap = getStateIdNameMap(workflowId,
             new HashMap<>());
       Map<String, Integer> wfStateNameIdMap = MapUtils.invertMap(wfStateIdNameMap);
-      
+
       Integer targetStateId = wfStateNameIdMap.get(itemState);
       if (targetStateId == null)
          throw new RuntimeException("State name " + itemState + " not found in workflow with id: " + workflowId);
-      
+
       PSRequest userReq = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
       String roleName = userReq.getUserSession().getUserRoles().get(0);
       ms_itemCount.set(0);
@@ -1820,10 +1820,10 @@ public class PSCmsObjectMgr
    {
       Session session = getSession();
       Validate.notNull(usersMap);
- 
+
       if (usersMap.size()>0)
       {
-         
+
          IPSSystemService svc = PSSystemServiceLocator.getSystemService();
          try {
          List<PSComponentSummary> summaries = findComponentSummariesByCheckedOutUsers(usersMap.keySet()).collect(java.util.stream.Collectors.toList());
@@ -1836,9 +1836,9 @@ public class PSCmsObjectMgr
             int tip = summary.getTipRevision();
             IPSItemEntry itemEntry = findItemEntry(id);
             summary.setEditRevision(-1);
-            summary.setCurrRevision(tip);   
+            summary.setCurrRevision(tip);
             summary.setCheckoutUserName("");
-            
+
             PSContentStatusHistory newHistory = new PSContentStatusHistory();
             newHistory.setActor("rxserver");
             newHistory.setCheckoutUserName("");
@@ -1846,7 +1846,7 @@ public class PSCmsObjectMgr
             newHistory.setEventTime(now);
             newHistory.setId(-1);
             newHistory.setIsValidValue(summary.isValidState(summary.getState())? "Y" : "N");
-        
+
             newHistory.setLastModifiedDate(summary.getContentLastModifiedDate());
             newHistory.setLastModifierName(summary.getContentLastModifier());
             newHistory.setRevision(tip);
@@ -1861,19 +1861,19 @@ public class PSCmsObjectMgr
                 newHistory.setSessionId(StringUtils.defaultString(sess.getId()));
             else
                 newHistory.setSessionId("");
-            
+
             session.update(summary);
             svc.saveContentStatusHistory(newHistory);
-            
+
             //  Need to update change listeners of checkin
                PSEditorChangeEvent e = new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_CHECKIN,
                      summary.getContentId(), tip, -1, -1, summary.getContentTypeId());
-     
+
             PSCommandHandler handler = workflowHandlers.get(summary.getContentTypeId());
-            
+
             if (handler!=null)
                handler.updateChangeListners(e);
-            
+
             logger.debug("Force Checked in {} for user {}",summary.getContentId(), checkedOutTo);
          }
          }
@@ -1883,9 +1883,9 @@ public class PSCmsObjectMgr
                     PSExceptionUtils.getMessageForLog(e));
          }
 
-         
+
       }
-         
+
    }
 
    public void changeWorfklowForItems(List<Integer> folderIds, int workflowId, List<String> validStateNames)
@@ -1893,68 +1893,68 @@ public class PSCmsObjectMgr
    {
       Validate.notNull(folderIds);
       Validate.notNull(validStateNames);
-      
+
       PSRequest userReq = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
       String roleName = validateWorkflowAdmin(workflowId, userReq.getUserSession().getUserRoles());
-      
+
       // build map of state id to list of items to move to that state
       Map<Integer, List<IPSItemEntry>> entriesByTargetState = new HashMap<>();
-      
+
       // get map of state names to ids
       Map<Integer, String> wfStateIdNameMap = getStateIdNameMap(workflowId,
             new HashMap<>());
       Map<String, Integer> wfStateNameIdMap = MapUtils.invertMap(wfStateIdNameMap);
-      
+
       PSServerFolderProcessor proc = PSServerFolderProcessor.getInstance();
-      
+
       int itemCount = 0;
       int folderCount = folderIds.size();
       PSNotificationHelper.notifyEvent(EventType.WORKFLOW_FOLDER_ASSIGNMENT_QUEUEING, folderCount);
-      
+
       try
       {
          for (Integer folderId : folderIds)
          {
             PSLocator loc = new PSLocator(folderId);
             List<Integer> contentIds = new ArrayList<>(proc.getChildIds(loc, false));
-            
+
             Set<Integer> checkedOutContent = findCheckedOutContentIds(contentIds);
             contentIds.removeAll(checkedOutContent);
-            
+
             // add items to correct list in target state map
             List<IPSItemEntry> itemEntries = findItemEntries(contentIds, null);
             for (IPSItemEntry itemEntry : itemEntries)
             {
                if (itemEntry.isFolder())
                   continue;
-               
+
                int itemWf = itemEntry.getWorkflowAppId();
                String itemState = itemEntry.getStateName();
-               
+
                // skip if already in the correct workflow
                if (itemWf == workflowId)
                   continue;
-               
+
                // If not a valid state, change to default
                if (!validStateNames.contains(itemState))
                   itemState = validStateNames.get(0);
-               
+
                Integer targetStateId = wfStateNameIdMap.get(itemState);
                if (targetStateId == null)
                   throw new RuntimeException(
                         "State name " + itemState + " not found in workflow with id: " + workflowId);
-               
+
                List<IPSItemEntry> stateEntries = entriesByTargetState.get(targetStateId);
                if (stateEntries == null)
                {
                   stateEntries = new ArrayList<>();
                   entriesByTargetState.put(targetStateId, stateEntries);
                }
-               
+
                stateEntries.add(itemEntry);
                itemCount++;
             }
-            
+
             folderCount--;
             PSNotificationHelper.notifyEvent(EventType.WORKFLOW_FOLDER_ASSIGNMENT_QUEUEING, new Integer(-1));
          }
@@ -1967,10 +1967,10 @@ public class PSCmsObjectMgr
                     folderCount * -1);
          }
       }
-      
+
       PSNotificationHelper.notifyEvent(EventType.WORKFLOW_FOLDER_ASSIGNMENT_PROCESSING, itemCount);
       ms_itemCount.set(itemCount);
-      
+
       // now perform an update for each state
       try
       {
@@ -1988,17 +1988,17 @@ public class PSCmsObjectMgr
                     itemCount * -1);
          }
       }
-      
+
    }
 
    /**
     * Validate the current user is in the workflow admin role
-    * 
+    *
     * @param workflowId The id of the workflow to check, assumed valid.
     * @param roles List of the user's roles, assumed not <code>null</code>.
-    * 
+    *
     * @return The Admin role name.
-    * 
+    *
     * @throws RuntimeException if the user is not an admin.
     */
    private String validateWorkflowAdmin(int workflowId, List<String> roles)
@@ -2006,21 +2006,21 @@ public class PSCmsObjectMgr
       PSWorkflow workflow = loadWorkflow(workflowId);
       if (workflow == null)
          throw new RuntimeException("No workflow found for id: " + workflowId);
-      
+
       String adminRole = workflow.getAdministratorRole();
       if (!roles.contains(adminRole))
          throw new RuntimeException("User must be a member of the workflow admin role: " + adminRole);
-      
+
       return adminRole;
    }
 
    /**
     * For the given list of content ids, return a set of those that are
     * currently checked out.
-    * 
+    *
     * @param ids The list to check, assumed not <code>null</code>.
     * @return The set, never <code>null</code>, may be empty.
-    * 
+    *
     * @throws PSORMException If there is an error querying the repository.
     */
    private Set<Integer> findCheckedOutContentIds(List<Integer> ids) throws PSORMException
@@ -2029,7 +2029,7 @@ public class PSCmsObjectMgr
       {
          return Collections.emptySet();
       }
-      
+
       Session session = getSession();
 
          Set<Long> rval;
@@ -2051,7 +2051,7 @@ public class PSCmsObjectMgr
                results.add(n.intValue());
             }
          }
-         
+
          return results;
 
       }
@@ -2059,7 +2059,7 @@ public class PSCmsObjectMgr
    /**
     * Update the workflow and state ids in the CONTENTSTATUS tablef or the
     * supplied items, also add a CONTENTSTATUSHISTORY entry.
-    * 
+    *
     * @param workflowId The workflow id to use for the update
     * @param stateId The state id to use for the update
     * @param itemEntries The list of items to update, assumed not
@@ -2074,17 +2074,17 @@ public class PSCmsObjectMgr
    {
       Collection<Integer> ids = new ArrayList<>();
       List<PSContentStatusHistory> histories = new ArrayList<>();
-      
+
       Date now = new Date();
-      
+
       IPSStatesContext state = loadWorkflowState(workflowId, stateId).orElse(null);
-      
+
       String sessid = req.getUserSessionId();
       String user = req.getUserSession().getRealAuthenticatedUserEntry();
       for (IPSItemEntry entry : itemEntries)
       {
          ids.add(entry.getContentId());
-         
+
          PSContentStatusHistory hist = new PSContentStatusHistory();
          hist.setId(-1L);
          hist.setActor(user);
@@ -2102,10 +2102,10 @@ public class PSCmsObjectMgr
          hist.setTransitionId(0);
          hist.setWorkflowId(workflowId);
          hist.setTransitionLabel("Change Workflow");
-         
+
          histories.add(hist);
       }
-      
+
       Session s = getSession();
 
          int count=0;
@@ -2113,27 +2113,27 @@ public class PSCmsObjectMgr
          {
             // will get from second level cache
             PSComponentSummary summary = (PSComponentSummary)s.get(PSComponentSummary.class, id);
-         
+
             summary.setWorkflowAppId(workflowId);
             summary.setContentStateId(stateId);
-            
+
             if (++count % BATCH_SIZE == 0)
             {
                //flush a batch of updates and release memory:
                s.flush();
                s.clear();
             }
-            
+
          }
 
-      
+
       // update the item cache
       PSItemSummaryCache cache = PSItemSummaryCache.getInstance();
       if (cache != null)
       {
          cache.updateWorkflowAndState(ids, workflowId, stateId);
       }
-      
+
       // add content status history entries
       IPSSystemService svc = PSSystemServiceLocator.getSystemService();
       for (PSContentStatusHistory hist : histories)
@@ -2149,7 +2149,7 @@ public class PSCmsObjectMgr
          if (itemCount > 0)
          {
             PSNotificationHelper.notifyEvent(EventType.WORKFLOW_FOLDER_ASSIGNMENT_PROCESSING, -1);
-            itemCount--;    
+            itemCount--;
             ms_itemCount.set(itemCount);
          }
       }
@@ -2192,7 +2192,7 @@ public class PSCmsObjectMgr
 
       return itemCount;
    }
-   
+
    public void setRevisionLocks(List<Integer> ids)
    {
       Session session = getSession();
@@ -2214,10 +2214,10 @@ public class PSCmsObjectMgr
          PSContentEditorHandler ceh = (PSContentEditorHandler) requestHandler;
          PSCommandHandler workflowCommandHandler = ceh.getCommandHandler(PSWorkflowCommandHandler.COMMAND_NAME);
          workflowHandlers.put(ceh.getContentTypeId(),workflowCommandHandler);
-      
+
       }
    }
-   
+
    @Override
    public void shutdownHandler(IPSRequestHandler requestHandler)
    {
@@ -2226,7 +2226,7 @@ public class PSCmsObjectMgr
          PSContentEditorHandler ceh = (PSContentEditorHandler) requestHandler;
          workflowHandlers.remove(ceh.getContentTypeId());
       }
-      
+
    }
 
     public void updateSummaryDateFieldBatch(String fieldName, Date dateToSet, List<Integer> ids, boolean updateExisting)
@@ -2269,5 +2269,5 @@ public class PSCmsObjectMgr
         }
     }
 
-       
+
 }

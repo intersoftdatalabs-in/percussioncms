@@ -365,7 +365,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
     PSKey key = null;
 
     try {
-      @SuppressWarnings("unchecked")
+
       Class<? extends PSKey> c = (Class<? extends PSKey>) Class.forName(strClassName);
       Constructor<? extends PSKey> ctor = c.getConstructor(Element.class);
       key = ctor.newInstance(el);

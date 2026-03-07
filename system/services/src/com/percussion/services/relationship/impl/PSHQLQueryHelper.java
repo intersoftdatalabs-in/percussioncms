@@ -43,9 +43,9 @@ class PSHQLQueryHelper  implements IPSQueryHelper
     * Creates an instance
     *
     * @param filter the filter contains the query criteria.
-    * @param configMap it maps config id to config object, 
+    * @param configMap it maps config id to config object,
     *   never <code>null</code> or empty.
-    * @param nameMapToId it maps config name to config id, never 
+    * @param nameMapToId it maps config name to config id, never
     *   <code>null</code> or empty.
     */
    public PSHQLQueryHelper(PSRelationshipFilter filter,
@@ -126,12 +126,12 @@ class PSHQLQueryHelper  implements IPSQueryHelper
 
    /**
     * Executes the query which is specified by the filter.
-    * @param sess the session object which contains the data needed for 
+    * @param sess the session object which contains the data needed for
     *   executing the query, may not be <code>null</code>.
     * @return the result set of the query, never <code>null</code>, but may be
     *   empty.
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSRelationshipData> executeQuery(Session sess)
    {
       appendOwnerJoinCriteria();
@@ -140,7 +140,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
 
       return (List<PSRelationshipData>) getQuery(sess).list();
    }
-   
+
    /**
     * Append the criteria that requires join the owner id (of the
     * relationship table) to the content id (of the contentstatus table).
@@ -359,16 +359,16 @@ class PSHQLQueryHelper  implements IPSQueryHelper
 
    /**
     * Gets the relationship name ids from the supplied filter. It looks for the
-    * relationship names from {@link PSRelationshipFilter#getNames()}, 
-    * {@link PSRelationshipFilter#getCategory()} and 
+    * relationship names from {@link PSRelationshipFilter#getNames()},
+    * {@link PSRelationshipFilter#getCategory()} and
     * {@link PSRelationshipFilter#getType()}.
-    * 
+    *
     * @param filter the filter, assumed not <code>null</code>.
-    * 
+    *
     * @return the ids. It may be empty if there is no names, category or type
     *    specified in the given filter.
     */
-   @SuppressWarnings("unchecked")
+
    private Set<Integer> getRelationshipNameIds(PSRelationshipFilter filter)
    {
       if (filter.getNames().isEmpty() && filter.getCategory() == null
@@ -386,7 +386,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
          if (id != null)
             ids.add(id);
          else
-            ids.add(-1); // add an unknown  
+            ids.add(-1); // add an unknown
       }
 
       // get the names from the category
@@ -427,11 +427,11 @@ class PSHQLQueryHelper  implements IPSQueryHelper
 
    /**
     * Gets all configuration ids for a given relationship type.
-    * 
-    * @param type the relationship type, it is either 
+    *
+    * @param type the relationship type, it is either
     * {@link PSRelationshipFilter#FILTER_TYPE_SYSTEM} or
     * {@link PSRelationshipFilter#FILTER_TYPE_USER}
-    *  
+    *
     * @return the config ids, may be empty, but never <code>null</code>.
     */
    private Set<Integer> getConfigIdsFromType(String type)
@@ -598,12 +598,12 @@ class PSHQLQueryHelper  implements IPSQueryHelper
    {
       if (!m_filter.getLimitToCrossSiteLinks())
          return;
-      
+
       appendAndWhere();
       m_qryBuffer.append("((" + FN_FOLDER_ID + " is not null) or (" + FN_SITE_ID + " is not null))");
-      m_isAddAND = true;      
+      m_isAddAND = true;
    }
-   
+
    /**
     * Append the property restriction (that is specified in the filter) to
     * the constructed HQL.
@@ -725,7 +725,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
     * relationships table ({@link IPSConstants#PSX_RELATIONSHIPS}). Never
     * <code>null</code>, but may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    private Collection<Map.Entry<String, String>> m_pduProps = Collections.emptyList();
 
    /**
@@ -733,7 +733,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
     * properties table ({@link IPSConstants#PSX_RELATIONSHIPPROPERTIES}).
     * Never <code>null</code>, but may be empty.
     */
-   @SuppressWarnings("unchecked")
+
    private Collection<Map.Entry<String, String>> m_customProps = Collections.emptyList();
 
    /**
@@ -773,7 +773,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
    private Map<Integer, PSRelationshipConfig> m_configMap = null;
 
    /**
-    * It maps the config name to its config id. It is initialized by 
+    * It maps the config name to its config id. It is initialized by
     * {@link #loadConfigs()}.
     */
    private Map<String, Integer> m_nameMapToId = null;

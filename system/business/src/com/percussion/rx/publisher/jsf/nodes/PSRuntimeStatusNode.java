@@ -49,13 +49,13 @@ public class PSRuntimeStatusNode extends PSNodeBase
     * The outcome of this node.
     */
    public static final String STATUS_VIEW = "pub-runtime-status-view";
-   
+
    /**
     * The runtime navigation node, It is also the parent of this node.
-    * Never <code>null</code> after the constructor. 
+    * Never <code>null</code> after the constructor.
     */
    private PSRuntimeNavigation m_runtimeNav;
-   
+
    /**
     * Constructs an instance of the node.
     * @param title the title of the node, may not be <code>null</code> or empty.
@@ -107,13 +107,13 @@ public class PSRuntimeStatusNode extends PSNodeBase
          rxpub.cancelPublishingJob(m_jobId);
       }
    }
-   
+
    /**
     * Determines whether a job is terminated from its state.
-    *  
-    * @param state the state of the job, assumed not <code>null</code>.  
-    * 
-    * @return <code>true</code> if it is terminated; otherwise return 
+    *
+    * @param state the state of the job, assumed not <code>null</code>.
+    *
+    * @return <code>true</code> if it is terminated; otherwise return
     *    <code>false</code>.
     */
    /**
@@ -124,18 +124,18 @@ public class PSRuntimeStatusNode extends PSNodeBase
    private boolean isTerminated(IPSPublisherJobStatus.State state) {
       return state.isTerminal();
    }
-   
+
    /**
     * Creates an entry for a given job.
-    * 
+    *
     * @param jobId the job id, assumed not <code>null</code>.
     * @param edition the edition of the job, assumed not <code>null</code>
     *    or empty.
     * @param status the status of the job, assumed not <code>null</code>.
-    * 
+    *
     * @return the created entry, never <code>null</code>.
     */
-   @SuppressWarnings("unchecked")
+
    /**
     * Creates a job status entry for a given job.
     */
@@ -240,7 +240,7 @@ public class PSRuntimeStatusNode extends PSNodeBase
     * Gets the active jobs for the current node. The current node can be
     * the node that associate with this backing bean, the "Sites" node or
     * a node that associate with a specific site.
-    * 
+    *
     * @return entries of all active jobs, never <code>null</code>, maybe empty.
     */
    /**
@@ -269,7 +269,7 @@ public class PSRuntimeStatusNode extends PSNodeBase
       }
       return reval;
    }
-   
+
    /**
     * Gets the help topic for this node.
     */

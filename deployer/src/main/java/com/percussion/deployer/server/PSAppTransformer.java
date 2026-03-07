@@ -233,11 +233,11 @@ public class PSAppTransformer {
                   mappings.add(mapping);
                 }
               } else {
-                @SuppressWarnings("unchecked")
+
                 var paramMap =
                     (java.util.Map<String, String>) PSDeployComponentUtils.parseParams(val, null);
                 for (var entry : paramMap.entrySet()) {
-                  @SuppressWarnings("unchecked")
+
                   List<PSParam> params =
                       (List<PSParam>) PSDeployComponentUtils.convertToParams(entry);
                   // curCtx is modified above, so create an effectively final copy

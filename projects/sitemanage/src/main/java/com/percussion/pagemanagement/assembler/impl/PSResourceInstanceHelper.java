@@ -97,7 +97,7 @@ public class PSResourceInstanceHelper {
     this.assemblyService = assemblyService;
   }
 
-  @SuppressWarnings("unchecked")
+
   private List<PSResourceLinkAndLocation> executeResourceLinkScript(
       PSResourceInstance resourceInstance, String script)
       throws IPSAssetService.PSAssetServiceException {

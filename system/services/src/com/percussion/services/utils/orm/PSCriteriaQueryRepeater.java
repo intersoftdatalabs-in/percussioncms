@@ -32,7 +32,7 @@ import org.hibernate.Session;
  * in that its use is simpler and more natural and does not require SQL.
  * <p>
  * A typical usage would be as follows:
- * 
+ *
  * <pre>
  * Session session = getSession();
  * try
@@ -57,7 +57,7 @@ import org.hibernate.Session;
  *    releaseSession(session);
  * }
  * </pre>
- * 
+ *
  * @param <E> The type of the data object that is being loaded.
  */
 public abstract class PSCriteriaQueryRepeater<E>
@@ -68,9 +68,9 @@ public abstract class PSCriteriaQueryRepeater<E>
     * {@link #query(List, Session, Class)} method to add the restrictions to
     * a subset of the ids that are involved in the search. It is usually
     * implemented anonymously.
-    * 
+    *
     * @param c The criteria to use, will never be <code>null</code>.
-    * 
+    *
     * @param ids The subset of ids small enough to prevent a problem with
     * hibernate. The subset is taken from the list supplied to the
     * {@link #query(List, Session, Class)} method. Will never be
@@ -91,7 +91,7 @@ public abstract class PSCriteriaQueryRepeater<E>
     * Makes 1 or more queries (depending on the number of ids supplied) against
     * hibernate to perform a search to load a set of objects of the supplied
     * <code>clazz</code>.
-    * 
+    *
     * @param ids The ids of the objects being loaded. Never <code>null</code>.
     * If empty, no results are returned.
     * @param sess Used to create the query. Never <code>null</code>.
@@ -101,12 +101,12 @@ public abstract class PSCriteriaQueryRepeater<E>
     * be less than the number of ids supplied and the order is undefined. Never
     * <code>null</code>.
     */
-   @SuppressWarnings("unchecked")
+
    public List<E> query(List<IPSGuid> ids, Session sess, Class clazz)
    {
       if (ids == null)
          throw new IllegalArgumentException("ids cannot be null");
-      
+
       final int MAX = 950;
       int totalIds = ids.size();
       int loops = (totalIds-1)/MAX + 1;
@@ -133,7 +133,7 @@ public abstract class PSCriteriaQueryRepeater<E>
          if (dbResults != null)
             results.addAll(dbResults);
       }
-      
+
       return results;
    }
 }

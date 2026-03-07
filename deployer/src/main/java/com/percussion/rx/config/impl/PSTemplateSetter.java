@@ -161,7 +161,7 @@ public class PSTemplateSetter extends PSSimplePropertySetter {
    * @param template the template, assumed not <code>null</code>.
    * @param propValue the value of the new binding, may not be <code>null</code>, but may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   private void setBindings(PSAssemblyTemplate template, Object propValue) {
     if (!(propValue instanceof Map))
       throw new PSConfigException("The value type of the " + BINDINGS + " must be Map");
@@ -235,7 +235,7 @@ public class PSTemplateSetter extends PSSimplePropertySetter {
    * @param seq the sequence object in question, may not be <code>null</code>.
    * @return the sequence object in the expected type.
    */
-  @SuppressWarnings("unchecked")
+
   private List<String> getSequenceList(Object seq) {
     if (!(seq instanceof List))
       throw new PSConfigException("\"" + BINDING_SEQ + "\" property must be \"List\" type.");
@@ -264,7 +264,7 @@ public class PSTemplateSetter extends PSSimplePropertySetter {
    * @param obj the {@link #BINDING_SET} property value. It may not be <code>null</code>, but may be
    *     empty if clear the bindings of the template.
    */
-  @SuppressWarnings("unchecked")
+
   private void setBindingSet(IPSAssemblyTemplate template, Object obj) {
     if (!(obj instanceof List))
       throw new PSConfigException("The value type of the " + BINDING_SET + " must be List");

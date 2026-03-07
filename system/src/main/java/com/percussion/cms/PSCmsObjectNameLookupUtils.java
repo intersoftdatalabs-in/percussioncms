@@ -37,7 +37,7 @@ public class PSCmsObjectNameLookupUtils {
    * @param request The current request, may not be <code>null</code>.
    * @return The map used as the cache, never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public static Map<String, Object> initLookupCache(IPSRequestContext request) {
     if (request == null) {
       throw new IllegalArgumentException("request may not be null");

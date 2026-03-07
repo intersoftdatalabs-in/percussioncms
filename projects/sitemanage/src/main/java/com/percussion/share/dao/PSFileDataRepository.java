@@ -200,7 +200,7 @@ public abstract class PSFileDataRepository<T> {
    *
    * @return never {@code null}.
    */
-  @SuppressWarnings("unchecked")
+
   protected Collection<File> getFiles() throws IOException {
     return FileUtils.listFiles(getRoot(), new String[] {getFileExt()}, false);
   }

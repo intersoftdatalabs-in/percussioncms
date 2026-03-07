@@ -173,7 +173,7 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
     return baos.toByteArray();
   }
 
-  @SuppressWarnings("unchecked")
+
   public static void logRequestAttributes(HttpServletRequest request, String message) {
     if (!log.isDebugEnabled()) return;
     log.debug("logging request attributes for " + message);

@@ -200,12 +200,12 @@ public final class PSDataConverter {
 
     // If same or compatible class and Comparable, use Comparable
     if (a.getClass().isInstance(b) && a instanceof Comparable) {
-      @SuppressWarnings("unchecked")
+
       Comparable<Object> ca = (Comparable<Object>) a;
       return ca.compareTo(b);
     }
     if (b.getClass().isInstance(a) && b instanceof Comparable) {
-      @SuppressWarnings("unchecked")
+
       Comparable<Object> cb = (Comparable<Object>) b;
       return -cb.compareTo(a);
     }

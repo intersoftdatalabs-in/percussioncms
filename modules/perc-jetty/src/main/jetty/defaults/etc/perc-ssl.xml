@@ -1,0 +1,23 @@
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN"
+          "http://www.eclipse.org/jetty/configure_9_3.dtd">
+<!-- Tweak SsslContextFactory Includes / Excludes -->
+<Configure id="sslContextFactory"
+	class="org.eclipse.jetty.util.ssl.SslContextFactory$Server">
+	<!-- Mitigate SLOTH Attack -->
+	<Set name="IncludeCipherSuites">
+		<Array type="String">
+			<Item>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</Item>
+			<Item>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</Item>
+			<Item>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</Item>
+			<Item>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</Item>
+		</Array>
+	</Set>
+	<Set name="IncludeProtocols">
+		<Array type="String">
+			<Item>TLSv1.2</Item>
+		</Array>
+	</Set>
+	<Set name="KeyStoreType">
+		<Property name="jetty.sslContext.keystoreType" default="JKS" />
+	</Set>
+</Configure>

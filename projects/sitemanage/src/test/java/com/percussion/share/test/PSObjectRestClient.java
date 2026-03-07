@@ -158,7 +158,7 @@ public class PSObjectRestClient extends PSRestClient {
     return sw.getBuffer().toString();
   }
 
-  @SuppressWarnings("unchecked")
+
   protected <T> T objectFromResponseBody(String response, Class<T> type) {
     try {
       var context = JAXBContext.newInstance(type);
@@ -177,7 +177,7 @@ public class PSObjectRestClient extends PSRestClient {
     }
   }
 
-  @SuppressWarnings("unchecked")
+
   protected <T> List<T> objectsFromResponseBody(String response, Class<T> type) {
     // JAXB can't handle lists that well without help. CXF has the help built in.
     try {

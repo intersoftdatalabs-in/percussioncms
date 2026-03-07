@@ -36,7 +36,7 @@ public class HibernateNode_statusDAO implements Node_statusDAO {
     return session.get(Node_status.class, id);
   }
 
-  @SuppressWarnings("unchecked")
+
   public Collection<Node_status> getAllNode_statuss() {
     Session session = sessionFactory.getCurrentSession();
     return (Collection<Node_status>) (Collection<?>) session.createQuery("from Node_status nod", Node_status.class).list();

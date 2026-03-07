@@ -36,8 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class provides convenient methods to catalog the definitions of 
- * utilities ($tools...) and RX extensions ($rx...), which implements JEXL 
+ * This class provides convenient methods to catalog the definitions of
+ * utilities ($tools...) and RX extensions ($rx...), which implements JEXL
  * interface,{@link PSServiceJexlEvaluatorBase#IPSJEXL_EXPRESSION}.
  */
 public class PSJexlExtensionHelper
@@ -46,11 +46,11 @@ public class PSJexlExtensionHelper
 
    /**
     * Catalog all JEXL extensions from the extension manager.
-    * 
+    *
     * @return the JEXL extensions. It is <code>null</code> if couldn't catalog
     *    the extensions.
     */
-   @SuppressWarnings("unchecked")
+
    public static Collection<IPSExtensionDef> getJexlExtensionDefs()
    {
       List<IPSExtensionDef> defs = new ArrayList<>();
@@ -66,7 +66,7 @@ public class PSJexlExtensionHelper
             def = emgr.getExtensionDef(refs.next());
             defs.add(def);
          }
-         
+
          return defs;
       }
       catch (PSException e)
@@ -75,13 +75,13 @@ public class PSJexlExtensionHelper
          return null;
       }
    }
-   
+
    /**
     * Get the velocity tools and catalog their methods
-    * 
+    *
     * @return the list of extension defs to return, never <code>null</code>
-    */   
-   @SuppressWarnings("unchecked")
+    */
+
    public static List<IPSExtensionDef> getVelocityTools()
    {
       List<IPSExtensionDef> rval = new ArrayList<>();

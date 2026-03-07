@@ -39,7 +39,7 @@ public class PSContentTypeSummaryConverter extends PSConverter
       super(beanUtils);
    }
 
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object convert(@SuppressWarnings("unused") Class type, Object value)
    {
@@ -52,7 +52,7 @@ public class PSContentTypeSummaryConverter extends PSConverter
          PSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, orig.getId());
 
          PSContentTypeSummary dest = (PSContentTypeSummary) result;
-         dest.setGuid(guid);         
+         dest.setGuid(guid);
          return dest;
       }
       else
@@ -63,7 +63,7 @@ public class PSContentTypeSummaryConverter extends PSConverter
 
          PSDesignGuid guid = new PSDesignGuid(orig.getGuid());
          dest.setId(guid.getValue());
-         
+
          return dest;
       }
    }

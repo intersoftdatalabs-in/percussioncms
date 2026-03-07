@@ -96,7 +96,7 @@ public class PSCategoryDao implements IPSCategoryDao {
       try {
         var result = query.list();
         if (result != null) {
-          @SuppressWarnings("unchecked")
+
           List<Object> objList = (List<Object>) result;
           pageIds.addAll(
               objList.stream()

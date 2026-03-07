@@ -37,23 +37,23 @@ import java.io.FileWriter;
 
 /**
  * Test the db assembly plugin
- * 
+ *
  * @author dougrand
  */
 public class PSDatabaseAssemblerTest extends PSBaseXmlConfigTest
 {
    private static File ms_test = new File(
          "UnitTestResources/com/percussion/tablefactory/multichild.xml");
-   
+
    private static File ms_test_out = new File(
    "UnitTestResources/com/percussion/tablefactory/multichild_out.xml");
-   
+
    static IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
 
    /**
     * @throws Exception
     */
-   @SuppressWarnings("unchecked")
+
    public void testDBAssembly() throws Exception
    {
       DocumentBuilderFactory f = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
@@ -71,85 +71,85 @@ public class PSDatabaseAssemblerTest extends PSBaseXmlConfigTest
       Document doc = builder.parse(ms_test);
 
       PSJexlEvaluator bindings = setupBindings(doc);
-      
+
       PSDatabaseAssembler dbassembler = new PSDatabaseAssembler();
       IPSAssemblyResult item = new PSAssemblyWorkItem();
       PSAssemblyTemplate tempt = new PSAssemblyTemplate();
-      tempt.setTemplate("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-            "<tabledefset>\n" + 
-            "  <tabledef allowSchemaChanges=\"n\" alter=\"n\" create=\"y\" delolddata=\"n\" isView=\"n\" name=\"TEST_PARENT\">\n" + 
-            "     <rowdef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"CONTENTID\">\n" + 
-            "           <jdbctype>INTEGER</jdbctype>\n" + 
-            "           <allowsnull>no</allowsnull>\n" + 
-            "        </columndef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"TITLE\">\n" + 
-            "           <jdbctype>VARCHAR</jdbctype>\n" + 
-            "           <size>50</size>\n" + 
-            "           <allowsnull>yes</allowsnull>\n" + 
-            "        </columndef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"BODY\">\n" + 
-            "           <jdbctype>CLOB</jdbctype>\n" + 
-            "           <allowsnull>yes</allowsnull>\n" + 
-            "        </columndef>         \n" + 
-            "     </rowdef>\n" + 
-            "     <primarykey action=\"c\">\n" + 
-            "        <name>CONTENTID</name>\n" + 
-            "     </primarykey>\n" + 
-            "  </tabledef>\n" + 
-            "  <tabledef allowSchemaChanges=\"n\" alter=\"n\" create=\"y\" delolddata=\"n\" isView=\"n\" name=\"TEST_CHILD1\">\n" + 
-            "     <rowdef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"CONTENTID\">\n" + 
-            "           <jdbctype>INTEGER</jdbctype>\n" + 
-            "           <allowsnull>no</allowsnull>\n" + 
-            "        </columndef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"ROWID\">\n" + 
-            "           <jdbctype>INTEGER</jdbctype>\n" + 
-            "           <allowsnull>no</allowsnull>\n" + 
-            "        </columndef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"DESCRIPTION\">\n" + 
-            "           <jdbctype>VARCHAR</jdbctype>\n" + 
-            "           <size>50</size>\n" + 
-            "           <allowsnull>yes</allowsnull>\n" + 
-            "        </columndef>\n" + 
-            "     </rowdef>\n" + 
-            "     <primarykey action=\"c\">\n" + 
-            "        <name>ROWID</name>\n" + 
-            "     </primarykey>\n" + 
-            "     <foreignkey action=\"c\">\n" + 
-            "        <fkColumn>\n" + 
-            "           <name>CONTENTID</name>\n" + 
-            "           <externalTable>TEST_PARENT</externalTable>\n" + 
-            "           <externalColumn>CONTENTID</externalColumn>\n" + 
-            "        </fkColumn>\n" + 
-            "     </foreignkey>\n" + 
-            "  </tabledef>\n" + 
-            "  <tabledef allowSchemaChanges=\"n\" alter=\"n\" create=\"y\" delolddata=\"n\" isView=\"n\" name=\"TEST_CHILD2\">\n" + 
-            "     <rowdef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"CONTENTID\">\n" + 
-            "           <jdbctype>INTEGER</jdbctype>\n" + 
-            "           <allowsnull>no</allowsnull>\n" + 
-            "        </columndef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"ROWID\">\n" + 
-            "           <jdbctype>INTEGER</jdbctype>\n" + 
-            "           <allowsnull>no</allowsnull>\n" + 
-            "        </columndef>\n" + 
-            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"REGION\">\n" + 
-            "           <jdbctype>INTEGER</jdbctype>\n" + 
-            "           <allowsnull>yes</allowsnull>\n" + 
-            "        </columndef>\n" + 
-            "     </rowdef>\n" + 
-            "     <primarykey action=\"c\">\n" + 
-            "        <name>ROWID</name>\n" + 
-            "     </primarykey>\n" + 
-            "     <foreignkey action=\"c\">\n" + 
-            "        <fkColumn>\n" + 
-            "           <name>CONTENTID</name>\n" + 
-            "           <externalTable>TEST_PARENT</externalTable>\n" + 
-            "           <externalColumn>CONTENTID</externalColumn>\n" + 
-            "        </fkColumn>\n" + 
-            "     </foreignkey>\n" + 
-            "  </tabledef>\n" + 
+      tempt.setTemplate("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<tabledefset>\n" +
+            "  <tabledef allowSchemaChanges=\"n\" alter=\"n\" create=\"y\" delolddata=\"n\" isView=\"n\" name=\"TEST_PARENT\">\n" +
+            "     <rowdef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"CONTENTID\">\n" +
+            "           <jdbctype>INTEGER</jdbctype>\n" +
+            "           <allowsnull>no</allowsnull>\n" +
+            "        </columndef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"TITLE\">\n" +
+            "           <jdbctype>VARCHAR</jdbctype>\n" +
+            "           <size>50</size>\n" +
+            "           <allowsnull>yes</allowsnull>\n" +
+            "        </columndef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"BODY\">\n" +
+            "           <jdbctype>CLOB</jdbctype>\n" +
+            "           <allowsnull>yes</allowsnull>\n" +
+            "        </columndef>         \n" +
+            "     </rowdef>\n" +
+            "     <primarykey action=\"c\">\n" +
+            "        <name>CONTENTID</name>\n" +
+            "     </primarykey>\n" +
+            "  </tabledef>\n" +
+            "  <tabledef allowSchemaChanges=\"n\" alter=\"n\" create=\"y\" delolddata=\"n\" isView=\"n\" name=\"TEST_CHILD1\">\n" +
+            "     <rowdef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"CONTENTID\">\n" +
+            "           <jdbctype>INTEGER</jdbctype>\n" +
+            "           <allowsnull>no</allowsnull>\n" +
+            "        </columndef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"ROWID\">\n" +
+            "           <jdbctype>INTEGER</jdbctype>\n" +
+            "           <allowsnull>no</allowsnull>\n" +
+            "        </columndef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"DESCRIPTION\">\n" +
+            "           <jdbctype>VARCHAR</jdbctype>\n" +
+            "           <size>50</size>\n" +
+            "           <allowsnull>yes</allowsnull>\n" +
+            "        </columndef>\n" +
+            "     </rowdef>\n" +
+            "     <primarykey action=\"c\">\n" +
+            "        <name>ROWID</name>\n" +
+            "     </primarykey>\n" +
+            "     <foreignkey action=\"c\">\n" +
+            "        <fkColumn>\n" +
+            "           <name>CONTENTID</name>\n" +
+            "           <externalTable>TEST_PARENT</externalTable>\n" +
+            "           <externalColumn>CONTENTID</externalColumn>\n" +
+            "        </fkColumn>\n" +
+            "     </foreignkey>\n" +
+            "  </tabledef>\n" +
+            "  <tabledef allowSchemaChanges=\"n\" alter=\"n\" create=\"y\" delolddata=\"n\" isView=\"n\" name=\"TEST_CHILD2\">\n" +
+            "     <rowdef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"CONTENTID\">\n" +
+            "           <jdbctype>INTEGER</jdbctype>\n" +
+            "           <allowsnull>no</allowsnull>\n" +
+            "        </columndef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"ROWID\">\n" +
+            "           <jdbctype>INTEGER</jdbctype>\n" +
+            "           <allowsnull>no</allowsnull>\n" +
+            "        </columndef>\n" +
+            "        <columndef action=\"c\" limitSizeForIndex=\"n\" name=\"REGION\">\n" +
+            "           <jdbctype>INTEGER</jdbctype>\n" +
+            "           <allowsnull>yes</allowsnull>\n" +
+            "        </columndef>\n" +
+            "     </rowdef>\n" +
+            "     <primarykey action=\"c\">\n" +
+            "        <name>ROWID</name>\n" +
+            "     </primarykey>\n" +
+            "     <foreignkey action=\"c\">\n" +
+            "        <fkColumn>\n" +
+            "           <name>CONTENTID</name>\n" +
+            "           <externalTable>TEST_PARENT</externalTable>\n" +
+            "           <externalColumn>CONTENTID</externalColumn>\n" +
+            "        </fkColumn>\n" +
+            "     </foreignkey>\n" +
+            "  </tabledef>\n" +
             "</tabledefset>");
 
       bindings.bind("$sys.template",tempt.getTemplate());
@@ -158,18 +158,18 @@ public class PSDatabaseAssemblerTest extends PSBaseXmlConfigTest
       IPSAssemblyResult result = dbassembler.assembleSingle(item);
 
       String resultstring = new String(result.getResultData());
-      
+
       File temp = getTempXmlFile();
       FileWriter w = new FileWriter(temp);
       w.write(resultstring);
       w.close();
-      
+
       compareXmlDocs(ms_test_out,temp);
-      
+
       deleteTmpFiles();
    }
 
-   @SuppressWarnings("unchecked")
+
    private PSJexlEvaluator setupBindings(Document doc)
    {
       PSJexlEvaluator eval = new PSJexlEvaluator();
@@ -193,7 +193,7 @@ public class PSDatabaseAssemblerTest extends PSBaseXmlConfigTest
       int count = children.getLength();
       int childindex = 0;
       int rowindex = 0;
-      
+
       String name = ((Element) el).getAttribute("name");
       if (index < 0)
          eval.bind("$db.parent",name);
@@ -214,7 +214,7 @@ public class PSDatabaseAssemblerTest extends PSBaseXmlConfigTest
                Node col = columns.item(j);
                if (! (col instanceof Element)) continue;
                Element colel = (Element) col;
-               
+
                String colelname = col.getNodeName();
 
                if (colelname.equals("column"))

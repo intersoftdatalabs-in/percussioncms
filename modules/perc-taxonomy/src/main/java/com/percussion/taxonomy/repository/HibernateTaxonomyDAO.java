@@ -53,7 +53,7 @@ public class HibernateTaxonomyDAO implements TaxonomyDAO {
     return query.list();
   }
 
-  @SuppressWarnings("unchecked")
+
   public Collection getAllTaxonomys() {
     Session session = sessionFactory.getCurrentSession();
     Query<Taxonomy> query = session.createQuery("from Taxonomy tax order by lower(name) asc", Taxonomy.class);

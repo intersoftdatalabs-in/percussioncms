@@ -104,7 +104,7 @@ public class PSResultSetTest
    }
 
    @BeforeEach
-   @SuppressWarnings("unchecked")
+
    public void setUp()
    {
       m_columns = new Vector[3];

@@ -131,7 +131,7 @@ public class PSWorkflowAction extends PSAAActionBase {
    * @param params it contains other parameters, assumed not <code>null</code> or empty.
    * @throws PSAAClientActionException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private void transitionItem(List<IPSGuid> ids, String comment, Map<String, Object> params)
       throws PSAAClientActionException {
     try {

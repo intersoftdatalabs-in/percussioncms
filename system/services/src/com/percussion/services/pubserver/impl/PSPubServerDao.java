@@ -52,7 +52,7 @@ public class PSPubServerDao
    private Session getSession(){
       return entityManager.unwrap(Session.class);
    }
-   
+
    /**
     * Logger for the site manager
     */
@@ -73,7 +73,7 @@ public class PSPubServerDao
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.pubservermgr.IPSPubServerManager#createServer(
     * com.percussion.services.sitemgr.IPSSite)
@@ -101,7 +101,7 @@ public class PSPubServerDao
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.pubservermgr.IPSPubServerManager#findServer(com
     * .percussion.utils.guid.IPSGuid)
@@ -109,14 +109,14 @@ public class PSPubServerDao
    public java.util.Optional<PSPubServer> findPubServer(IPSGuid serverId)
    {
       notNull(serverId);
-      
+
       return java.util.Optional.ofNullable(findServerFromDatabase(serverId));
 
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.pubservermgr.IPSPubServerManager#findServer(long)
     */
@@ -134,15 +134,15 @@ public class PSPubServerDao
    {
       if (m_guidMgr == null)
          m_guidMgr = PSGuidManagerLocator.getGuidMgr();
-      
+
       return m_guidMgr;
    }
-   
+
    IPSGuidManager m_guidMgr = null;
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.pubservermgr.IPSPubServerManager#loadServer(com
     * .percussion.utils.guid.IPSGuid)
@@ -165,15 +165,15 @@ public class PSPubServerDao
 
       return pubServer;
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.pubservermgr.IPSPubServerManager#findServersBySite
     * (com.percussion.utils.guid.IPSGuid)
     */
-   @SuppressWarnings("unchecked")
+
    public List<PSPubServer> findPubServersBySite(IPSGuid siteId)
    {
       notNull(siteId);
@@ -186,7 +186,7 @@ public class PSPubServerDao
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.pubservermgr.IPSPubServerManager#saveServer(com
     * .percussion.services.pubservermgr.data.PSPubServer)
@@ -204,7 +204,7 @@ public class PSPubServerDao
    }
 
    /**
-    * Sets the persisted IDs for the properties of the supplied publish server if needed. 
+    * Sets the persisted IDs for the properties of the supplied publish server if needed.
     * @param pubServer the publish server in question, assumed not <code>null</code>.
     */
    private void setValidPersistedIds(PSPubServer pubServer)
@@ -219,10 +219,10 @@ public class PSPubServerDao
          }
       }
    }
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.pubservermgr.IPSPubServerManager#deleteServer(
     * com.percussion.services.pubservermgr.data.PSPubServer)
@@ -238,9 +238,9 @@ public class PSPubServerDao
 
    /**
     * Look up the specified server from the database.
-    * 
+    *
     * @param serverId the ID of the server, assumed not <code>null</code>.
-    * 
+    *
     * @return the specified server, it may be <code>null</code> if the server
     *         does not exist.
     */

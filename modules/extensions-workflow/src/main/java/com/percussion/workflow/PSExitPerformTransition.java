@@ -1273,7 +1273,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
    *     .
    * @throws SQLException if an SQL error occurs
    */
-  @SuppressWarnings("unchecked")
+
   private static void addRoleApproval(
       PSContentApprovalsContext cac, Map roleIdNameMap, HashSet userRoles, String userName)
       throws SQLException {

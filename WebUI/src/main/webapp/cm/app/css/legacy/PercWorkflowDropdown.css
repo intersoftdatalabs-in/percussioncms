@@ -1,0 +1,84 @@
+#perc-dropdown-page-workflow .perc-dropdown-title {
+  /*width: 29px;
+    height: 29px;
+    padding: 0;*/
+}
+/*#perc-dropdown-page-workflow .perc-dropdown.sf-menu li li
+{
+    background-color: transparent;
+}*/
+#perc-dropdown-page-workflow ul ul {
+  left: auto !important;
+  right: 2px !important;
+  top: 70% !important;
+  margin-top: 0 !important;
+  background-color: #ffffff;
+}
+#perc-dropdown-page-workflow .perc-dropdown.sf-menu li {
+  background-color: inherit;
+}
+#perc-dropdown-page-workflow .perc-dropdown.sf-menu a {
+  border-width: 0;
+  padding-right: 13px;
+}
+#perc-dropdown-page-workflow > a:first-child span {
+  display: none;
+}
+#perc-dropdown-page-workflow .perc-dropdown.sf-menu li li a.perc-drop-disabled {
+  background-color: #ffffff;
+}
+#perc-dropdown-page-workflow .perc-dropdown.sf-menu li li a {
+  /*background-color: #0086a8;*/
+}
+a.perc-dropdown-title.perc-workflow-split-button-arrow:after {
+  content: "\25bc";
+  position: absolute;
+  top: 3px;
+  left: 9px;
+}
+a.perc-dropdown-title.perc-workflow-split-button-arrow {
+  padding: 0;
+}
+.perc-workflow-split-button-right {
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+  border-left-style: unset;
+  float: left;
+  height: 25px !important;
+  border-width: 2px !important;
+  border-style: outset !important;
+  border-left: 1px solid #ffffff !important;
+  width: 15px !important;
+  color: #ffffff !important;
+  padding: 0px 16px 0px 0px !important;
+}
+#perc-dropdown-page-workflow .perc-dropdown.sf-menu li li {
+  background: #ffffff none repeat scroll 0 0;
+}
+#perc-dropdown-page-workflow .sf-menu ul {
+}
+#perc-dropdown-page-workflow,
+#perc-dropdown-page-workflow > a,
+#perc-dropdown-page-workflow > div {
+  height: 27px;
+}
+#perc-dropdown-page-workflow .perc-workflow-split-button-left {
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+  border-top-style: outset !important;
+  border-right-style: unset;
+  float: left;
+  margin: 0;
+}
+#perc-dropdown-page-workflow > a,
+#perc-dropdown-page-workflow li.current > a {
+  margin: 0 !important;
+}
+#perc-dropdown-page-workflow {
+  margin-right: 8px;
+  margin-top: 13px;
+}
+#perc-dropdown-page-workflow > a {
+  overflow: auto;
+  vertical-align: top; /* Safari Fix */
+}

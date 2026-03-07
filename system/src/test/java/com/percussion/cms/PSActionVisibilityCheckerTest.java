@@ -34,7 +34,7 @@ public class PSActionVisibilityCheckerTest
    // legacy constructor removed - tests use @Test methods now
 
 
-   @SuppressWarnings("unchecked")
+
    @Test
    public void testBasics()
    {
@@ -115,7 +115,7 @@ public class PSActionVisibilityCheckerTest
       assertTrue(checker.isVisible((PSActionVisibilityGlobalState) null, os));
    }
 
-   @SuppressWarnings("unchecked")
+
    private void checkGlobalVisibilityRoles()
    {
       PSActionVisibilityContexts vcs = new PSActionVisibilityContexts();
@@ -142,7 +142,7 @@ public class PSActionVisibilityCheckerTest
       assertTrue(checker.isVisible(gs, (Collection) null));
    }
 
-   @SuppressWarnings("unchecked")
+
    private void genericCheckGlobalVisibility(String contextId)
    {
       PSActionVisibilityContexts vcs = new PSActionVisibilityContexts();
@@ -161,7 +161,7 @@ public class PSActionVisibilityCheckerTest
       assertTrue(checker.isVisible(gs, (Collection) null));
    }
 
-   @SuppressWarnings("unchecked")
+
    private void genericCheckObjectVisibility(String contextId)
    {
       PSActionVisibilityContexts vcs = new PSActionVisibilityContexts();
@@ -180,7 +180,7 @@ public class PSActionVisibilityCheckerTest
       assertTrue(checker.isVisible((PSActionVisibilityGlobalState) null, os));
    }
 
-   @SuppressWarnings("unchecked")
+
    private void checkVisibilityCheckoutStatus()
    {
       String contextId = PSActionVisibilityContext.VIS_CONTEXT_CHECKOUT_STATUS;
@@ -334,7 +334,7 @@ public class PSActionVisibilityCheckerTest
          return o == null ? super.getLocale() : o.toString();
       }
 
-      @SuppressWarnings("unchecked")
+
       @Override
       public Collection<String> getRoles()
       {

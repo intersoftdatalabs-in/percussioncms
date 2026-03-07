@@ -33,7 +33,7 @@ import com.percussion.soln.p13n.delivery.data.DeliverySnippetItem;
 
 
 /**
- * 
+ *
  * Useful Web utils for the delivery service.
  * @author adamgent
  *
@@ -45,15 +45,15 @@ public class DeliveryWebUtils {
         JSON_REQUEST_CONFIG.setRootClass(DeliveryRequest.class);
         JSON_REQUEST_CONFIG.registerJsonValueProcessor(Date.class, new JsDateJsonValueProcessor());
     }
-    
-    @SuppressWarnings("unchecked")
+
+
     public static DeliveryRequest jsonToRequest(String json) {
 
         JSONObject jsonObj = JSONObject.fromObject(json);
         JSONObject jsonList = jsonObj.optJSONObject("listItem");
-        JSONArray jsonSnippets = 
+        JSONArray jsonSnippets =
             jsonList != null ? jsonList.optJSONArray("snippets") : null;
-        Collection<DeliverySnippetItem> snippetCollection = 
+        Collection<DeliverySnippetItem> snippetCollection =
             jsonSnippets != null ? JSONArray.toCollection(jsonSnippets, DeliverySnippetItem.class) : null;
         List<DeliverySnippetItem> snippets = snippetCollection != null ? new ArrayList<DeliverySnippetItem>(snippetCollection) : null;
         DeliveryRequest dr = (DeliveryRequest) JSONObject.toBean(jsonObj, JSON_REQUEST_CONFIG);
@@ -62,21 +62,21 @@ public class DeliveryWebUtils {
         }
         return dr;
     }
-    
-    
-    
+
+
+
     public static String requestToJson(DeliveryRequest request) {
         return JSONObject.fromObject(request).toString();
     }
-    
+
     public static String responseToJson(DeliveryResponse response) {
         JSONObject obj = JSONObject.fromObject(response);
         return obj.toString();
     }
-    
+
     public static DeliveryResponse jsonToResponse(String json) {
         return (DeliveryResponse) JSONObject.toBean(JSONObject.fromObject(json), DeliveryResponse.class);
-    
+
     }
 
 }

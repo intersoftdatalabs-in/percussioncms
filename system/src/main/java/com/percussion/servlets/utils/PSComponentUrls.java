@@ -45,7 +45,7 @@ public class PSComponentUrls {
    *
    * @param request the servlet request, never <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   public PSComponentUrls(HttpServletRequest request) {
     if (request == null) {
       throw new IllegalArgumentException("request may not be null");

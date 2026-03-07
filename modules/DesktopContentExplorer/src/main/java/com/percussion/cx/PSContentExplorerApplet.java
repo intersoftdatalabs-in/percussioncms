@@ -1893,7 +1893,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *
    * @return Never <code>null</code>.
    */
-  @SuppressWarnings("unchecked")
+
   public Set getFlaggedFolderSet() {
     return new HashSet(ms_flaggedFolders);
   }
@@ -1905,7 +1905,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *     empty and must be a numeric string.
    * @param add if set to <code>true</code> will add the folderid to the set else it will remove it
    */
-  @SuppressWarnings("unchecked")
+
   public void toggleFlaggedFolder(String folderid, boolean add) {
     if (folderid == null || folderid.trim().length() == 0)
       throw new IllegalArgumentException("folderid cannot be null or empty.");
@@ -1930,7 +1930,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @throws SAXException
    * @throws ParserConfigurationException
    */
-  @SuppressWarnings("unchecked")
+
   public void loadFlaggedFoldersSet()
       throws IOException, SAXException, ParserConfigurationException {
     Set flags = new HashSet();

@@ -584,7 +584,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @return the specified action. Never <code>null</code>.
    * @throws PSContentExplorerException if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private PSMenuAction addChildMenuActions(PSMenuAction action, PSSelection selection)
       throws PSContentExplorerException {
     Iterator childActions = null;
@@ -4789,7 +4789,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     applied.
    * @throws PSContentExplorerException
    */
-  @SuppressWarnings("unchecked")
+
   private Map prepareSearchFilterMap(PSNode searchNode) throws PSContentExplorerException {
 
     Map fm = new HashMap();
@@ -4877,7 +4877,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   }
 
   /** Helper function to hide or show the New Search node based whther it was initialized or not. */
-  @SuppressWarnings("unchecked")
+
   private void hideOrShowNewSearchNode() {
     if (m_searchResultsNode == null) return; // Should never happen
 

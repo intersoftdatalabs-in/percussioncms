@@ -1116,7 +1116,7 @@ public class PSRelationshipDbProcessor {
    * @param relationships a set of relationships to be deleted, not <code>null</code>, may be empty.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
-  @SuppressWarnings("unchecked") // rel iterator
+   // rel iterator
   public void deleteRelationships(PSRelationshipSet relationships) throws PSCmsException {
     if (relationships == null) throw new IllegalArgumentException("relationships cannot be null");
 

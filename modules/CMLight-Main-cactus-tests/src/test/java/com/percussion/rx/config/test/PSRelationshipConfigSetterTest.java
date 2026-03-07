@@ -57,7 +57,7 @@ public class PSRelationshipConfigSetterTest extends PSConfigurationTest {
     validateDefaultConfiguration();
   }
 
-  @SuppressWarnings("unchecked")
+
   private void validateDefaultConfiguration() throws PSNotFoundException {
     PSRelationshipConfig cfg = getRelationshipConfig();
     List<PSCloneOverrideField> cloneFields = cfg.getCloneOverrideFieldList();
@@ -89,7 +89,7 @@ public class PSRelationshipConfigSetterTest extends PSConfigurationTest {
     assertNull(effect);
   }
 
-  @SuppressWarnings("unchecked")
+
   private void validateLocalConfiguration() throws PSNotFoundException {
     PSRelationshipConfig config = getRelationshipConfig();
     List<PSCloneOverrideField> cloneFields = config.getCloneOverrideFieldList();

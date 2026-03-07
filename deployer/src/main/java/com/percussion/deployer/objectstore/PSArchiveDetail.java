@@ -253,7 +253,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof PSArchiveDetail)) return false;

@@ -331,7 +331,7 @@ public class PSPublishHandler implements MessageListener, IPSNotificationListene
     *
     * @param work the to be processed work item, assumed not <code>null</code>.
     */
-   @SuppressWarnings("unchecked")
+
    private void processWorkItem(IPSAssemblyItem work)
    {
       try

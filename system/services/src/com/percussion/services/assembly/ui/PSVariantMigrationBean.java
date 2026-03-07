@@ -843,7 +843,7 @@ public class PSVariantMigrationBean
     * @param v the variant info, assumed not <code>null</code>
     * @return the source or empty if there's a problem
     */
-   @SuppressWarnings("unchecked")
+
    private String getSource(Variant v)
    {
       IPSRhythmyxInfo info = PSRhythmyxInfoLocator.getRhythmyxInfo();

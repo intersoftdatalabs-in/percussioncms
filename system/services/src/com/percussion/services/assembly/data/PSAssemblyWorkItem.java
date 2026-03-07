@@ -1068,7 +1068,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
             }
             m_filter = f;
          }
-      
+
       return m_filter;
    }
 
@@ -1130,7 +1130,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
    /*
     * //see base class method for details
     */
-   @SuppressWarnings("unchecked")
+
    public IPSAssemblyItem pageClone()
    {
       try
@@ -1168,7 +1168,7 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
     *
     * @see java.lang.Object#clone()
     */
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object clone()
    {

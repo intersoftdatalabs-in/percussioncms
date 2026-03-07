@@ -213,7 +213,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
+
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {

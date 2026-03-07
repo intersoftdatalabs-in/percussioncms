@@ -56,7 +56,7 @@ public class PSSearchParamsConverter extends PSConverter
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object convert(@SuppressWarnings("unused") Class type, Object value)
    {

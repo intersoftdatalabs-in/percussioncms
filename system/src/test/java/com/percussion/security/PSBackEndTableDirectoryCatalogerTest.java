@@ -48,7 +48,7 @@ public class PSBackEndTableDirectoryCatalogerTest
     *
     * @throws Exception if the test fails
     */
-   @SuppressWarnings("unchecked")
+
    @Test
    public void testCataloger() throws Exception
    {

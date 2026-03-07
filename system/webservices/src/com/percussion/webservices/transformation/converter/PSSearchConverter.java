@@ -24,8 +24,8 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.Converter;
 
 /**
- * Converts objects between the classes 
- * <code>com.percussion.search.objectstore.PSWSSearchRequest</code> and 
+ * Converts objects between the classes
+ * <code>com.percussion.search.objectstore.PSWSSearchRequest</code> and
  * <code>com.percussion.webservices.content.PSSearch</code>.
  */
 public class PSSearchConverter extends PSConverter
@@ -41,37 +41,37 @@ public class PSSearchConverter extends PSConverter
    /* (non-Javadoc)
     * @see PSConverter#convert(Class, Object)
     */
-   @SuppressWarnings("unchecked")
+
    @Override
    public Object convert(Class type, Object value)
    {
       if (value == null)
          return null;
-      
+
       if (isClientToServer(value))
       {
-         com.percussion.webservices.content.PSSearch source = 
+         com.percussion.webservices.content.PSSearch source =
             (com.percussion.webservices.content.PSSearch) value;
-         
+
          Converter converter = getConverter(PSSearchParams.class);
          PSWSSearchParams params = (PSWSSearchParams) converter.convert(
             PSWSSearchParams.class, source.getPSSearchParams());
-         
+
          PSWSSearchRequest target = new PSWSSearchRequest(params);
          target.setCaseInsensitiveSearch(source.isUseDbCaseSensitivity());
          target.setUseExternalSearchEngine(source.isUseExternalSearchEngine());
-         
+
          return target;
       }
       else
       {
          PSWSSearchRequest source = (PSWSSearchRequest) value;
-         
+
          Converter converter = getConverter(PSWSSearchParams.class);
          PSSearchParams params = (PSSearchParams) converter.convert(
             PSSearchParams.class, source.getSearchParams());
 
-         com.percussion.webservices.content.PSSearch target = 
+         com.percussion.webservices.content.PSSearch target =
             new com.percussion.webservices.content.PSSearch();
          target.setPSSearchParams(params);
          target.setUseDbCaseSensitivity(source.isCaseInsensitiveSearch());

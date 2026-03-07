@@ -33,7 +33,7 @@ public class PSCopier {
    * @param input the input map, never <code>null</code>
    * @return a deep copied map, never <code>null</code>
    */
-  @SuppressWarnings("unchecked")
+
   public static Map deepCopy(Map input) {
     Map rval = new HashMap();
     Iterator<Map.Entry> eiter = input.entrySet().iterator();

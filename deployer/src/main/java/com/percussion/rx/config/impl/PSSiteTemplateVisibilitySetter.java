@@ -150,7 +150,7 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
    * @return <code>true</code> if the Site was modified by this method.
    * @throws Exception if an error occurs.
    */
-  @SuppressWarnings("unchecked")
+
   private boolean applyToSite(IPSSite site, ObjectState state, Object propValue) throws Exception {
     var curList = convertObjectToList(propValue);
     var prevList = getPrevTemplates();
@@ -178,7 +178,7 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
    * @param propValue the object in question, it may be <code>null</code>.
    * @return the converted list, never <code>null</code>, may be empty.
    */
-  @SuppressWarnings("unchecked")
+
   private Collection<String> convertObjectToList(Object propValue) {
     if (propValue == null) return Collections.emptyList();
 

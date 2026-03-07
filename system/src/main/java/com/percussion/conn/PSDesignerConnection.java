@@ -600,7 +600,7 @@ public class PSDesignerConnection {
   }
 
   /** this method uses the Java Socket class for communication. */
-  @SuppressWarnings("unchecked")
+
   private Document makeSocketRequest(Document req)
       throws PSServerException,
           PSAuthorizationException,

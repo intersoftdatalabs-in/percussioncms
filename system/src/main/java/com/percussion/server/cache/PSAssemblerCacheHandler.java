@@ -66,7 +66,7 @@ import org.xml.sax.SAXException;
  * editor resource for modify and workflow requests, the relationship handler for any relationship
  * changes or any update resources that delete from the CONTENTSTATUS table.
  */
-@SuppressWarnings("unchecked")
+
 public class PSAssemblerCacheHandler extends PSCacheHandler
     implements IPSTableChangeListener, IPSEditorChangeListener, IPSRelationshipChangeListener {
 

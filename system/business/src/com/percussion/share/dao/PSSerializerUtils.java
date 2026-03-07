@@ -84,7 +84,7 @@ public class PSSerializerUtils
         try {
             var reader = new InputStreamReader(new ByteArrayInputStream(dataField.getBytes(StandardCharsets.UTF_8)));
             var unmarshaller = Objects.requireNonNull(PSJaxbContext.createUnmarshaller(type));
-            @SuppressWarnings("unchecked")
+
             T object = (T) unmarshaller.unmarshal(reader);
             return object;
         } catch (JAXBException e) {
@@ -119,7 +119,7 @@ public class PSSerializerUtils
         var schema = schemaFactory.newSchema(source);
         var unmarshaller = PSJaxbContext.createUnmarshaller(type);
         unmarshaller.setSchema(schema);
-        @SuppressWarnings("unchecked")
+
         T result = (T) unmarshaller.unmarshal(stream);
         return result;
     }
@@ -181,7 +181,7 @@ public class PSSerializerUtils
     public static <T> T clone(T from) {
         var err = "Cannot clone bean";
         try {
-            @SuppressWarnings("unchecked")
+
             T result = (T) BeanUtils.cloneBean(from);
             return result;
         } catch (Exception e) {

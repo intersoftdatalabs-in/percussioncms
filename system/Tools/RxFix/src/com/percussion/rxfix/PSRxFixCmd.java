@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * Command for running rxfix from the command line (or from ant using the java
  * task)
- * 
+ *
  * @author dougrand
  */
 public class PSRxFixCmd
@@ -199,7 +199,7 @@ public class PSRxFixCmd
     * The driver for the database connection
     */
    private String m_driver;
-   
+
    /**
     * The external driver location
     */
@@ -218,7 +218,7 @@ public class PSRxFixCmd
 
    /**
     * Gets the list of results, never <code>null</code>, may be empty.
-    * 
+    *
     * @return the list of results, never <code>null</code>, may be empty. See
     *         {@link PSFixResult#toString()} for more information.
     */
@@ -290,7 +290,7 @@ public class PSRxFixCmd
    {
       m_driverLocation = driverLocation;
    }
-   
+
    /**
     * @param fixnames
     */
@@ -301,10 +301,10 @@ public class PSRxFixCmd
 
    /**
     * Setup the fix and execute
-    * 
+    *
     * @param args
     */
-   @SuppressWarnings("unchecked")
+
    public static void main(String[] args)
    {
       PSRxFixCmd cmd = new PSRxFixCmd();
@@ -350,11 +350,11 @@ public class PSRxFixCmd
          else
          {
             vars.put("url", m_url + ":" + m_host);
-            
+
             String propsStr = "           <prop key=\"username\">" + m_user
                   + "</prop>\n" + "           <prop key=\"password\">"
                   + m_password + "</prop>\n";
-            
+
             if (PSJdbcUtils.isExternalDriver(PSJdbcUtils.getDriverFromUrl(
                   vars.get("url"))))
             {
@@ -362,7 +362,7 @@ public class PSRxFixCmd
                   + "<prop key=\"driverLocation\">" + m_driverLocation
                   + "</prop>\n";
             }
-            
+
             vars.put("props", propsStr);
          }
          w.write(ms_template.expand(vars));
@@ -413,10 +413,10 @@ public class PSRxFixCmd
       }
 
    }
-   
+
    /**
     * Logs output to System.out and adds to list of results.
-    * 
+    *
     * @param str the text to be logged, assumed not <code>null</code>.
     */
    private void logAndSaveInfo(String str)
@@ -424,10 +424,10 @@ public class PSRxFixCmd
       System.out.println(str);
       m_results.add(str);
    }
-   
+
    /**
     * Logs output to System.err and adds to list of results.
-    * 
+    *
     * @param str the text to be logged, assumed not <code>null</code>.
     */
    private void logAndSaveError(String str)

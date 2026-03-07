@@ -1,0 +1,26 @@
+#perc-comments-container .perc-comments-row {
+  font-family: Open Sans, sans-serif;
+  font-weight: normal;
+  font-size: 12px;
+}
+#perc-comments-container .perc-comments-row:not(:first-child) {
+  margin-top: 20px;
+}
+#perc-comments-container .perc-comments-header {
+  margin-bottom: 10px;
+}
+#perc-comments-container .perc-comment-madeby {
+  font-weight: bold;
+}
+#perc-comments-container .perc-comment-type {
+  font-style: italic;
+}
+#perc-comments-container .perc-comment-sep {
+  border: 0;
+  height: 1px;
+  background: #333;
+  background-image: -webkit-linear-gradient(left, #ccc, #1f88b1, #ccc);
+  background-image: -moz-linear-gradient(left, #ccc, #1f88b1, #ccc);
+  background-image: -ms-linear-gradient(left, #ccc, #1f88b1, #ccc);
+  background-image: -o-linear-gradient(left, #ccc, #1f88b1, #ccc);
+}

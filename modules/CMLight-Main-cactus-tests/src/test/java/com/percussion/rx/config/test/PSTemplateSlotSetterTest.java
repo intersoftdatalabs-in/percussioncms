@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author YuBingChen
  */
-@SuppressWarnings("unchecked")
+
 
 public class PSTemplateSlotSetterTest extends PSConfigurationTest // TestCase
 {

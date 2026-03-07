@@ -21,6 +21,10 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+			</plugin>
 				<version>${maven.compiler.plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>

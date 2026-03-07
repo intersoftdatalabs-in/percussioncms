@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author dougrand
- * 
+ *
  * This class verifies that all files were installed correctly
  */
 public class PSVerifyInstalledFiles implements IPSVerify
@@ -46,7 +46,7 @@ public class PSVerifyInstalledFiles implements IPSVerify
     * Initialized in the calls to <code>generate</code>
     */
    private File m_rxdir = null;
-   
+
    /**
     * These rules are used for generating the bill of materials file from a
     * known good Rhythmyx installation.
@@ -60,9 +60,9 @@ public class PSVerifyInstalledFiles implements IPSVerify
    private static final Object[] RULES =
    {
          Pattern.compile("/_.*"), "IGNORE", // Installer detritus
-         // Binaries and libraries are platform specific 
-         Pattern.compile("/bin/.*"), "IGNORE", 
-         // Old dynamic apps  
+         // Binaries and libraries are platform specific
+         Pattern.compile("/bin/.*"), "IGNORE",
+         // Old dynamic apps
          Pattern.compile("/\056sys.*"), "IGNORE",
          // ECC
          Pattern.compile("/EnterpriseContentConnector\056.*"), "ECC",
@@ -94,24 +94,24 @@ public class PSVerifyInstalledFiles implements IPSVerify
          Pattern.compile("/JRE/.*"), "Java",
          // Exits
          Pattern.compile("/Exits/.*"), "Exits",
-         Pattern.compile("/Docs/.*"), "Docs", 
+         Pattern.compile("/Docs/.*"), "Docs",
          // Sample content - being removed from 5.5
-         Pattern.compile("/rx_.*"), "IGNORE", 
+         Pattern.compile("/rx_.*"), "IGNORE",
          // Zho
          Pattern.compile("/rxs_.*"), "FastForward",
          // Ignore log files
          Pattern.compile("/.*\056log"), "IGNORE",
          // All Remaining files are part of the server
-         Pattern.compile("/.*"), "Server" 
+         Pattern.compile("/.*"), "Server"
    };
-   
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rxverify.IPSVerify#verify(java.util.Map, java.io.File)
     */
    // TODO: Remove me @SuppressFBWarnings({"PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_IN"})
-   @SuppressWarnings("unchecked")
+
    public void verify(File rxdir, File originalRxDir,
          PSInstallation installation)
    throws NoSuchAlgorithmException, DigestException, IOException
@@ -193,7 +193,7 @@ public class PSVerifyInstalledFiles implements IPSVerify
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see com.percussion.rxverify.IPSVerify#generate(java.io.File,
     *      com.percussion.rxverify.PSInstallation)
     */
@@ -211,12 +211,12 @@ public class PSVerifyInstalledFiles implements IPSVerify
       m_rxdir = rxdir;
       generate2(rxdir, installation);
    }
-   
+
    /**
     * Does the actual generation after {@link #generate(File, PSInstallation)}
     * sets the {@link #m_rxdir} instance variable
     */
-   private void generate2(File rxdir, PSInstallation installation) 
+   private void generate2(File rxdir, PSInstallation installation)
    throws NoSuchAlgorithmException, DigestException, IOException
    {
       // Recurse into sub-directories
@@ -239,7 +239,7 @@ public class PSVerifyInstalledFiles implements IPSVerify
 
    /**
     * Generate a relative path using information about the rhythmyx directory
-    * 
+    *
     * @param file a file that must exist under the same directory as specified
     *           in the instance variable {@link #m_rxdir}or an exception will
     *           be thrown
@@ -261,7 +261,7 @@ public class PSVerifyInstalledFiles implements IPSVerify
 
    /**
     * Finds the rule that matches a given passed relative path
-    * 
+    *
     * @param relativePath relative path, assumed not <code>null</code> or
     *           empty
     * @return the matching category from the rules or "UNKNOWN" if nothing

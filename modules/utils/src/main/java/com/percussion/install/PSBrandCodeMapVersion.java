@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** This class represents a single version of the brand code map. */
-@SuppressWarnings("unchecked")
+
 public class PSBrandCodeMapVersion {
   /**
    * Constructor

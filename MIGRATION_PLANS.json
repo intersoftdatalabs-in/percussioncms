@@ -1,0 +1,612 @@
+[
+  {
+    "filename": "PSLicenseNetSuiteMethod.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/licensemanagement/data/PSLicenseNetSuiteMethod.java",
+    "complexity": "simple",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Constructor",
+        "pattern": "public PSLicenseNetSuiteMethod(JSONObject methodInfo)",
+        "replacement": "public PSLicenseNetSuiteMethod(Map<String, Object> methodInfo)",
+        "notes": "Change parameter type from JSONObject to generic Map"
+      },
+      {
+        "location": "Constructor body",
+        "pattern": "id = methodInfo.getString(\"id\");",
+        "replacement": "id = String.valueOf(methodInfo.get(\"id\"));",
+        "notes": "Replace JSONObject.getString() with Map.get()"
+      },
+      {
+        "location": "Constructor body (all similar lines)",
+        "pattern": "methodName = methodInfo.getString(\"methodName\");",
+        "replacement": "methodName = String.valueOf(methodInfo.get(\"methodName\"));",
+        "notes": "Apply to methodType and url similarly"
+      }
+    ],
+    "special_notes": "Simple constructor parameter migration. No serialization/deserialization needed. Update all getString() calls to use Map.get() with String.valueOf() wrapper."
+  },
+  {
+    "filename": "PSMetadataTagsHelper.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/pagemanagement/assembler/PSMetadataTagsHelper.java",
+    "complexity": "simple",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONException;",
+        "new": "import com.fasterxml.jackson.core.JsonProcessingException;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method signatures",
+        "pattern": "throws JSONException",
+        "replacement": "throws JsonProcessingException",
+        "notes": "Replace exception type in method signatures"
+      }
+    ],
+    "special_notes": "Very minimal json-lib usage. Only exception type needs changing. No actual serialization/deserialization code. Can be done in 2-3 replacements."
+  },
+  {
+    "filename": "PSAssetUploadServlet.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/assetmanagement/service/impl/PSAssetUploadServlet.java",
+    "complexity": "simple",
+    "import_changes": [
+      {
+        "old": "import org.codehaus.jettison.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method doPost()",
+        "pattern": "var jsonObject = new JSONObject();",
+        "replacement": "var jsonObject = new HashMap<String, Object>();",
+        "notes": "Replace jettison JSONObject with HashMap"
+      },
+      {
+        "location": "Method doPost()",
+        "pattern": "jsonObject.put(\"result\", newAsset.getName());",
+        "replacement": "jsonObject.put(\"result\", newAsset.getName());",
+        "notes": "No change needed - HashMap.put() works the same"
+      },
+      {
+        "location": "Method doPost()",
+        "pattern": "out.print(jsonObject.toString());",
+        "replacement": "out.print(OBJECT_MAPPER.writeValueAsString(jsonObject));",
+        "notes": "Replace toString() with Jackson serialization"
+      }
+    ],
+    "special_notes": "Uses Jettison (not net.sf.json-lib). Only 1 JSONObject instantiation. Add static OBJECT_MAPPER field. Wrap serialization in try-catch for JsonProcessingException."
+  },
+  {
+    "filename": "PSORemoteContentTools.java",
+    "filepath": "/home/nate/projects/percussioncms/modules/perc-toolkit/src/main/java/com/percussion/pso/jexl/PSORemoteContentTools.java",
+    "complexity": "simple",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Multiple methods (getRemoteJSONContent overloads)",
+        "pattern": "return JSONObject.fromObject(response.body());",
+        "replacement": "return OBJECT_MAPPER.readValue(response.body(), Map.class);",
+        "notes": "Replace JSONObject.fromObject() with Jackson readValue(). Return type becomes JsonNode or Map instead of JSONObject"
+      },
+      {
+        "location": "Method return types",
+        "pattern": "public JSONObject getRemoteJSONContent(...)",
+        "replacement": "public Map<String, Object> getRemoteJSONContent(...)",
+        "notes": "Change all 4 overloaded method return types from JSONObject to Map"
+      }
+    ],
+    "special_notes": "4 overloaded methods all use JSONObject.fromObject(). Return type should change to Map<String, Object> or JsonNode. Update method documentation to reflect JSON type change. No serialization needed, only deserialization."
+  },
+  {
+    "filename": "PSCloudService.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/cloudservice/impl/PSCloudService.java",
+    "complexity": "simple",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method getActiveState()",
+        "pattern": "var states = new JSONObject();",
+        "replacement": "var states = new HashMap<String, Object>();",
+        "notes": "Replace JSONObject with HashMap"
+      },
+      {
+        "location": "Method getActiveState(), loop body",
+        "pattern": "states.put(type.toString(), valid);",
+        "replacement": "states.put(type.toString(), valid);",
+        "notes": "No change needed - HashMap.put() syntax identical"
+      },
+      {
+        "location": "Method getActiveState(), return",
+        "pattern": "return states;",
+        "replacement": "return new ObjectMapper().writeValueAsString(states);",
+        "notes": "Need to serialize Map to JSON string if return type is String. Check actual return type."
+      },
+      {
+        "location": "Method (around line 207)",
+        "pattern": "var ci = new JSONObject();",
+        "replacement": "var ci = new HashMap<String, Object>();",
+        "notes": "Replace second JSONObject with HashMap"
+      }
+    ],
+    "special_notes": "2 JSONObject instantiations. Verify return types - if methods return String, need Jackson serialization. If they return JSONObject, need to return JsonNode or Map instead."
+  },
+  {
+    "filename": "PSFormDataService.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/assetmanagement/forms/service/impl/PSFormDataService.java",
+    "complexity": "medium",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONArray;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      },
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.JsonNode;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method getAllFormData() and getFormData()",
+        "pattern": "var formInfo = (JSONArray) getJson.get(\"formsInfo\");",
+        "replacement": "var formInfoNode = getJson.get(\"formsInfo\");\n      List<JsonNode> formInfo = formInfoNode.isArray() ? (List<JsonNode>) formInfoNode : null;",
+        "notes": "Replace JSONArray cast with JsonNode array handling using Jackson"
+      },
+      {
+        "location": "Loop iteration",
+        "pattern": "var formObj = formInfo.getJSONObject(i);",
+        "replacement": "var formObj = formInfo.get(i);",
+        "notes": "Replace JSONArray.getJSONObject() with JsonNode.get()"
+      },
+      {
+        "location": "Method mergeFormData()",
+        "pattern": "private void mergeFormData(JSONObject obj, PSFormSummary sum)",
+        "replacement": "private void mergeFormData(JsonNode obj, PSFormSummary sum)",
+        "notes": "Change parameter type from JSONObject to JsonNode"
+      }
+    ],
+    "special_notes": "Uses JSONArray with cast operations and getJSONObject() calls. getJson appears to be a Map from delivery client. May need to check getJsonObject() return type. Replace JSONObject/JSONArray operations with Jackson JsonNode equivalents."
+  },
+  {
+    "filename": "PSWidgetService.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSWidgetService.java",
+    "complexity": "medium",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONArray;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method (around line 128)",
+        "pattern": "var jsonArray = JSONArray.fromObject(data);\n          for (var iter = jsonArray.iterator(); iter.hasNext(); ) {",
+        "replacement": "var objectMapper = new ObjectMapper();\n          var jsonArray = objectMapper.readValue(data.toString(), List.class);\n          for (var iter = jsonArray.iterator(); iter.hasNext(); ) {",
+        "notes": "Replace JSONArray.fromObject() with Jackson readValue() to List"
+      }
+    ],
+    "special_notes": "Single JSONArray usage. Need to understand what 'data' is (String, Object, or something else). May need to use ObjectNode or List<JsonNode> depending on usage pattern."
+  },
+  {
+    "filename": "PSCommentsService.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/comments/service/impl/PSCommentsService.java",
+    "complexity": "medium",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONNull;",
+        "new": ""
+      },
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "New JSONObject instantiations",
+        "pattern": "var postJson = new JSONObject();",
+        "replacement": "var postJson = new HashMap<String, Object>();",
+        "notes": "3 occurrences - replace with HashMap"
+      },
+      {
+        "location": "getJsonObject() calls",
+        "pattern": ".getJsonObject(",
+        "replacement": ".get(",
+        "notes": "Replace delivery client's getJsonObject() with standard Map/JsonNode operations"
+      },
+      {
+        "location": "getJSONArray() calls",
+        "pattern": ".getJSONArray(\"comments\");",
+        "replacement": ".get(\"comments\");",
+        "notes": "Replace JSONArray access"
+      },
+      {
+        "location": "JSONNull check",
+        "pattern": "if (!(jsonComment.get(\"username\") instanceof JSONNull))",
+        "replacement": "if (jsonComment.get(\"username\") != null)",
+        "notes": "Replace JSONNull instanceof check with null check"
+      }
+    ],
+    "special_notes": "Uses JSONNull checks (3+ places). Multiple JSONObject instantiations. Contains getJsonObject/getJSONArray from delivery client. Need to verify if getJsonObject returns Map or JSONObject and handle accordingly."
+  },
+  {
+    "filename": "PSPageUtils.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/pagemanagement/assembler/PSPageUtils.java",
+    "complexity": "medium",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONArray;",
+        "new": ""
+      },
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      },
+      {
+        "old": "import net.sf.json.JSONSerializer;",
+        "new": "import com.fasterxml.jackson.databind.JsonNode;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method (around line 990)",
+        "pattern": "JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(metadata);",
+        "replacement": "var objectMapper = new ObjectMapper();\n      var jsonObject = objectMapper.valueToTree(metadata);",
+        "notes": "Replace JSONSerializer.toJSON() with Jackson valueToTree()"
+      },
+      {
+        "location": "Loop over keys",
+        "pattern": "for (Object key : jsonObject.keySet()) {\n      Object value = jsonObject.get(key);",
+        "replacement": "var fieldNames = jsonObject.fieldNames();\n      while (fieldNames.hasNext()) {\n        String key = fieldNames.next();\n        JsonNode value = jsonObject.get(key);",
+        "notes": "Replace JSONObject.keySet() iteration with JsonNode.fieldNames() iteration"
+      },
+      {
+        "location": "Method getPagesForCalendar()",
+        "pattern": "JSONArray pagesForCal = new JSONArray();",
+        "replacement": "List<Map<String, Object>> pagesForCal = new ArrayList<>();",
+        "notes": "Replace JSONArray with List of Maps"
+      },
+      {
+        "location": "Method getPagesForCalendar(), object creation",
+        "pattern": "JSONObject pageCalItem = new JSONObject();",
+        "replacement": "var pageCalItem = new HashMap<String, Object>();",
+        "notes": "Replace JSONObject with HashMap"
+      },
+      {
+        "location": "Method getPagesForCalendar(), return",
+        "pattern": "return new JSONArray();",
+        "replacement": "return new ArrayList<>();",
+        "notes": "Return empty ArrayList instead of JSONArray"
+      },
+      {
+        "location": "Method around line 1987",
+        "pattern": "JSONArray jsonArray = JSONArray.fromObject(fieldValue);",
+        "replacement": "var jsonArray = OBJECT_MAPPER.readValue(fieldValue.toString(), List.class);",
+        "notes": "Replace JSONArray.fromObject() with Jackson readValue()"
+      },
+      {
+        "location": "Loop over array",
+        "pattern": "for (int n = 0; n < jsonArray.size(); n++) {",
+        "replacement": "for (int n = 0; n < jsonArray.size(); n++) {",
+        "notes": "Can keep same loop structure if using List"
+      }
+    ],
+    "special_notes": "Complex file with multiple JSONObject/JSONArray usages. Uses JSONSerializer.toJSON() for object transformation. Multiple instantiations and iterations. Return types need careful consideration - may need to return JsonNode or serialized JSON strings depending on API contracts."
+  },
+  {
+    "filename": "PSItemService.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java",
+    "complexity": "medium",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONArray;",
+        "new": ""
+      },
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method (around line 484)",
+        "pattern": "JSONObject result = new JSONObject();",
+        "replacement": "var result = new HashMap<String, Object>();",
+        "notes": "Replace JSONObject with HashMap"
+      },
+      {
+        "location": "Array creations",
+        "pattern": "JSONArray pageArray = new JSONArray();",
+        "replacement": "List<Map<String, Object>> pageArray = new ArrayList<>();",
+        "notes": "Replace all JSONArray instantiations with ArrayList of Maps"
+      },
+      {
+        "location": "Object creation in loops",
+        "pattern": "JSONObject templateItem = new JSONObject();",
+        "replacement": "var templateItem = new HashMap<String, Object>();",
+        "notes": "Replace all JSONObject instantiations with HashMap"
+      }
+    ],
+    "special_notes": "6 JSONObject and 2 JSONArray instantiations. Straightforward replacements. Return type likely String (serialized JSON) or Map/JsonNode. Add OBJECT_MAPPER field if returning JSON strings."
+  },
+  {
+    "filename": "PSSiteimprove.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/integrations/siteimprove/rest/PSSiteimprove.java",
+    "complexity": "medium",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method (around line 144)",
+        "pattern": "var jsonMap = new JSONObject();",
+        "replacement": "var jsonMap = new HashMap<String, Object>();",
+        "notes": "Replace first JSONObject instantiation"
+      },
+      {
+        "location": "Method (around line 179)",
+        "pattern": "var publishSettingsJSON = new JSONObject();",
+        "replacement": "var publishSettingsJSON = new HashMap<String, Object>();",
+        "notes": "Replace second JSONObject instantiation"
+      }
+    ],
+    "special_notes": "2 JSONObject instantiations. Simple replacements with HashMap. Return types need checking to determine if serialization needed."
+  },
+  {
+    "filename": "PSMetadataServiceRestClient.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/test/java/com/percussion/metadata/web/service/PSMetadataServiceRestClient.java",
+    "complexity": "medium",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method save()",
+        "pattern": "public void save(JSONObject obj)",
+        "replacement": "public void save(Map<String, Object> obj)",
+        "notes": "Change parameter type from JSONObject to Map"
+      },
+      {
+        "location": "Method save(), body",
+        "pattern": "POST(getPath(), obj.toString());",
+        "replacement": "POST(getPath(), OBJECT_MAPPER.writeValueAsString(obj));",
+        "notes": "Use Jackson serialization instead of toString()"
+      },
+      {
+        "location": "Method getCurrentGadgets()",
+        "pattern": "var jsonObject = (JSONObject) JSONObject.fromObject(metadata.getData()).get(\"DashboardConfig\");",
+        "replacement": "var jsonNode = OBJECT_MAPPER.readTree(metadata.getData());\n      var jsonObject = jsonNode.get(\"DashboardConfig\");",
+        "notes": "Replace JSONObject.fromObject() with Jackson readTree()"
+      },
+      {
+        "location": "Method getCurrentGadgets()",
+        "pattern": "config = (PSDashboardConfiguration) JSONObject.toBean(jsonObject, PSDashboardConfiguration.class, classMap);",
+        "replacement": "config = OBJECT_MAPPER.treeToValue(jsonObject, PSDashboardConfiguration.class);",
+        "notes": "Replace JSONObject.toBean() with Jackson treeToValue(). May need custom deserialization for classMap handling."
+      },
+      {
+        "location": "Multiple methods",
+        "pattern": "var userConfig = new JSONObject();",
+        "replacement": "var userConfig = new HashMap<String, Object>();",
+        "notes": "Replace all JSONObject() instantiations in getMetadataJson* methods"
+      },
+      {
+        "location": "JSONObject serialization",
+        "pattern": "metadataJson.put(\"metadata\", JSONObject.fromObject(metadata));",
+        "replacement": "metadataJson.put(\"metadata\", OBJECT_MAPPER.valueToTree(metadata));",
+        "notes": "Replace JSONObject.fromObject() with Jackson valueToTree()"
+      }
+    ],
+    "special_notes": "Complex method with JSONObject.toBean() pattern requiring custom deserialization. Uses classMap for nested class mappings. Method save() signature change. Multiple instantiations and serialization calls. Requires careful migration due to toBean() complexity."
+  },
+  {
+    "filename": "PSSiteimproveEditionTask.java",
+    "filepath": "/home/nate/projects/percussioncms/projects/sitemanage/src/main/java/com/percussion/integrations/siteimprove/task/impl/PSSiteimproveEditionTask.java",
+    "complexity": "medium",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method perform(), line 237",
+        "pattern": "var credentialsJSON = JSONObject.fromObject(credentialsData);",
+        "replacement": "var credentialsJSON = OBJECT_MAPPER.readValue(credentialsData, Map.class);",
+        "notes": "Replace JSONObject.fromObject() with Jackson readValue()"
+      },
+      {
+        "location": "Method perform(), line 260",
+        "pattern": "var siteConfigurationJson = JSONObject.fromObject(siteConfigurationData);",
+        "replacement": "var siteConfigurationJson = OBJECT_MAPPER.readValue(siteConfigurationData, Map.class);",
+        "notes": "Replace second JSONObject.fromObject() call"
+      },
+      {
+        "location": "Variable types",
+        "pattern": "var credentialsJSON = ... // was JSONObject",
+        "replacement": "Map<String, Object> credentialsJSON = ...",
+        "notes": "Update variable declarations to use proper Map types"
+      }
+    ],
+    "special_notes": "2 JSONObject.fromObject() calls on metadata data strings. Need to add static OBJECT_MAPPER field. Simple pattern matching - deserialize metadata into Map."
+  },
+  {
+    "filename": "DeliveryWebUtils.java",
+    "filepath": "/home/nate/projects/percussioncms/modules/p13n-api/src/main/java/com/percussion/soln/p13n/delivery/web/DeliveryWebUtils.java",
+    "complexity": "complex",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONArray;",
+        "new": ""
+      },
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      },
+      {
+        "old": "import net.sf.json.JsonConfig;",
+        "new": ""
+      },
+      {
+        "old": "import net.sf.json.processors.JsDateJsonValueProcessor;",
+        "new": "import com.fasterxml.jackson.databind.module.SimpleModule;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Static initializer",
+        "pattern": "private static final JsonConfig JSON_REQUEST_CONFIG = new JsonConfig();\n    static {\n        JSON_REQUEST_CONFIG.setRootClass(DeliveryRequest.class);\n        JSON_REQUEST_CONFIG.registerJsonValueProcessor(Date.class, new JsDateJsonValueProcessor());\n    }",
+        "replacement": "private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();\n    static {\n        SimpleModule module = new SimpleModule();\n        module.addDeserializer(Date.class, new JsonDeserializer<Date>() {\n            @Override\n            public Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {\n                // Custom date deserialization\n                return new Date(p.readValueAsLong());\n            }\n        });\n        OBJECT_MAPPER.registerModule(module);\n    }",
+        "notes": "Replace JsonConfig with Jackson ObjectMapper and custom deserializer module"
+      },
+      {
+        "location": "Method jsonToRequest()",
+        "pattern": "JSONObject jsonObj = JSONObject.fromObject(json);\n        JSONObject jsonList = jsonObj.optJSONObject(\"listItem\");\n        JSONArray jsonSnippets = jsonList != null ? jsonList.optJSONArray(\"snippets\") : null;\n        Collection<DeliverySnippetItem> snippetCollection = jsonSnippets != null ? JSONArray.toCollection(jsonSnippets, DeliverySnippetItem.class) : null;",
+        "replacement": "JsonNode jsonNode = OBJECT_MAPPER.readTree(json);\n        JsonNode jsonList = jsonNode.get(\"listItem\");\n        JsonNode jsonSnippets = jsonList != null ? jsonList.get(\"snippets\") : null;\n        Collection<DeliverySnippetItem> snippetCollection = null;\n        if (jsonSnippets != null && jsonSnippets.isArray()) {\n            snippetCollection = OBJECT_MAPPER.convertValue(jsonSnippets, new TypeReference<List<DeliverySnippetItem>>() {});\n        }",
+        "notes": "Replace JSONObject operations with Jackson JsonNode operations and convertValue"
+      },
+      {
+        "location": "Method jsonToRequest(), toBean call",
+        "pattern": "DeliveryRequest dr = (DeliveryRequest) JSONObject.toBean(jsonObj, JSON_REQUEST_CONFIG);",
+        "replacement": "DeliveryRequest dr = OBJECT_MAPPER.treeToValue(jsonNode, DeliveryRequest.class);",
+        "notes": "Replace toBean() with treeToValue()"
+      },
+      {
+        "location": "Method requestToJson()",
+        "pattern": "return JSONObject.fromObject(request).toString();",
+        "replacement": "return OBJECT_MAPPER.writeValueAsString(request);",
+        "notes": "Use Jackson serialization"
+      },
+      {
+        "location": "Method responseToJson()",
+        "pattern": "JSONObject obj = JSONObject.fromObject(response);\n        return obj.toString();",
+        "replacement": "return OBJECT_MAPPER.writeValueAsString(response);",
+        "notes": "Simplify to direct serialization"
+      },
+      {
+        "location": "Method jsonToResponse()",
+        "pattern": "return (DeliveryResponse) JSONObject.toBean(JSONObject.fromObject(json), DeliveryResponse.class);",
+        "replacement": "return OBJECT_MAPPER.readValue(json, DeliveryResponse.class);",
+        "notes": "Use Jackson readValue for direct deserialization"
+      }
+    ],
+    "special_notes": "COMPLEX: Uses JsonConfig with custom JsDateJsonValueProcessor for Date handling. Requires custom Jackson module setup for date deserialization. JSONArray.toCollection() pattern needs TypeReference for proper type conversion. May need additional imports (TypeReference, JsonDeserializer, JsonParser)."
+  },
+  {
+    "filename": "VisitorTrackingWebUtils.java",
+    "filepath": "/home/nate/projects/percussioncms/modules/p13n-api/src/main/java/com/percussion/soln/p13n/tracking/web/VisitorTrackingWebUtils.java",
+    "complexity": "complex",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      },
+      {
+        "old": "import net.sf.json.JsonConfig;",
+        "new": ""
+      },
+      {
+        "old": "import net.sf.json.processors.JsDateJsonValueProcessor;",
+        "new": "import com.fasterxml.jackson.databind.module.SimpleModule;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Static initializer",
+        "pattern": "private static final JsonConfig JSON_CONFIG = new JsonConfig();\n    static {\n        JSON_CONFIG.registerJsonValueProcessor(Date.class, new JsDateJsonValueProcessor());\n        JSON_CONFIG.setExcludes(new String[] {\"location\", \"request\"});\n        JSON_CONFIG.setIgnoreTransientFields(true);\n    }",
+        "replacement": "private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();\n    static {\n        SimpleModule module = new SimpleModule();\n        module.addDeserializer(Date.class, new JsonDeserializer<Date>() {\n            @Override\n            public Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {\n                // Custom date deserialization matching JsDateJsonValueProcessor\n                return new Date(p.readValueAsLong());\n            }\n        });\n        OBJECT_MAPPER.registerModule(module);\n        OBJECT_MAPPER.setVisibilityChecker(OBJECT_MAPPER.getVisibilityChecker()\n            .withFieldVisibility(JsonAutoDetect.Visibility.ANY));\n    }",
+        "notes": "Replace JsonConfig with ObjectMapper and custom deserializer. Handle field exclusion and transient field ignoring with Jackson annotations on target class"
+      },
+      {
+        "location": "Method responseToJson()",
+        "pattern": "JSONObject obj = JSONObject.fromObject(response, JSON_CONFIG);\n        return obj.toString();",
+        "replacement": "return OBJECT_MAPPER.writeValueAsString(response);",
+        "notes": "Use Jackson serialization directly"
+      },
+      {
+        "location": "Method jsonToTrackingResponse()",
+        "pattern": "return (VisitorTrackingResponse) JSONObject.toBean(JSONObject.fromObject(json), VisitorTrackingResponse.class);",
+        "replacement": "return OBJECT_MAPPER.readValue(json, VisitorTrackingResponse.class);",
+        "notes": "Use Jackson readValue for direct deserialization"
+      }
+    ],
+    "special_notes": "COMPLEX: Uses JsonConfig with custom JsDateJsonValueProcessor and field exclusion/transient filtering. Fields to exclude (\"location\", \"request\") and transient field handling need to be managed via Jackson annotations (@JsonIgnore, @JsonIgnoreProperties) on the VisitorTrackingResponse class instead. May require modifying target DTOs. Consider using @JsonAnySetter/@JsonAnyGetter for flexible serialization."
+  },
+  {
+    "filename": "PSSerializerUtils.java",
+    "filepath": "/home/nate/projects/percussioncms/system/business/src/com/percussion/share/dao/PSSerializerUtils.java",
+    "complexity": "complex",
+    "import_changes": [
+      {
+        "old": "import net.sf.json.JSONArray;",
+        "new": ""
+      },
+      {
+        "old": "import net.sf.json.JSONException;",
+        "new": "import com.fasterxml.jackson.core.JsonProcessingException;"
+      },
+      {
+        "old": "import net.sf.json.JSONNull;",
+        "new": ""
+      },
+      {
+        "old": "import net.sf.json.JSONObject;",
+        "new": "import com.fasterxml.jackson.databind.ObjectMapper;"
+      },
+      {
+        "old": "import net.sf.json.JSONSerializer;",
+        "new": "import com.fasterxml.jackson.databind.JsonNode;"
+      }
+    ],
+    "code_replacements": [
+      {
+        "location": "Method deserializeObject(), around line 218",
+        "pattern": "var obj = JSONArray.fromObject('[' + json + ']');",
+        "replacement": "var objectMapper = new ObjectMapper();\n            var obj = objectMapper.readValue('[' + json + ']', List.class);",
+        "notes": "Replace JSONArray.fromObject() with Jackson readValue to List"
+      },
+      {
+        "location": "Method deserializeObject(), type checking section",
+        "pattern": "if (pre instanceof JSONArray) {\n                data = new ArrayList<Object>((JSONArray) pre);\n            } else if (pre instanceof JSONObject) {\n                data = JSONObject.toBean((JSONObject) pre);\n            } else if (pre instanceof JSONNull) {\n                data = null;",
+        "replacement": "if (pre instanceof List) {\n                data = new ArrayList<Object>((List<?>) pre);\n            } else if (pre instanceof Map) {\n                data = (Map<String, Object>) pre;\n            } else if (pre == null) {\n                data = null;",
+        "notes": "Replace JSONArray/JSONObject/JSONNull type checks with List/Map/null type checks"
+      },
+      {
+        "location": "Method deserializeObject(), catch clause",
+        "pattern": "} catch (JSONException e) {",
+        "replacement": "} catch (JsonProcessingException e) {",
+        "notes": "Replace JSONException with JsonProcessingException"
+      },
+      {
+        "location": "Method serializeObject(), around line 244",
+        "pattern": "var data = JSONSerializer.toJSON(Collections.singletonList(obj)).toString();",
+        "replacement": "var objectMapper = new ObjectMapper();\n        var data = objectMapper.writeValueAsString(Collections.singletonList(obj));",
+        "notes": "Replace JSONSerializer.toJSON() with Jackson serialization"
+      }
+    ],
+    "special_notes": "COMPLEX: Core serialization utility handling JSONArray, JSONObject, and JSONNull checks. Method returns complex types (data could be different types). Complex instanceof chain needs careful conversion. Potential null handling edge cases. May need to review calling code to ensure compatibility with Map/List types instead of JSONObject/JSONArray."
+  }
+]

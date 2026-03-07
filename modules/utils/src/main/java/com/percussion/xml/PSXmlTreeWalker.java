@@ -731,7 +731,7 @@ public class PSXmlTreeWalker implements Serializable {
    * @param elements a list containing the String names of the elements to examine
    * @return the name of the node to use as the iterator (may be <code>null</code>)
    */
-  @SuppressWarnings("unchecked")
+
   public static String getLowestLevelElement(List elements) {
     int size = elements.size();
     if (size == 0) return null;

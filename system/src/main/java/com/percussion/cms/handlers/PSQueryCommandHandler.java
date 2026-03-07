@@ -182,7 +182,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
    * @param resultSetCleanupList a list of result set objects that need cleanup when done with the
    *     request.
    */
-  @SuppressWarnings("unchecked")
+
   private void executeQueryRequest(
       PSRequest req, PSExecutionData data, List execDataCleanupList, List resultSetCleanupList)
       throws PSUnsupportedConversionException,
@@ -679,7 +679,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
    * @return A map containing all of the parent ids found in the page info, as keys, and their list
    *     of child page ids as the value for the entry.
    */
-  @SuppressWarnings("unchecked")
+
   protected Map createPageMap(Map pageInfo) {
     Map idMap = new HashMap();
     Iterator pi = pageInfo.entrySet().iterator();

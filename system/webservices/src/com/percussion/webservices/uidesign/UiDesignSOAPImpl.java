@@ -766,7 +766,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see UiDesign#saveActions(SaveActionsRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveActions(SaveActionsRequest saveActionsRequest)
       throws RemoteException, PSErrorsFault, com.percussion.webservices.uidesign.InvalidSessionFaultMessage,
       PSContractViolationFault, com.percussion.webservices.uidesign.NotAuthorizedFaultMessage
@@ -801,7 +801,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see UiDesign#saveDisplayFormats(SaveDisplayFormatsRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveDisplayFormats(SaveDisplayFormatsRequest request)
       throws RemoteException, PSErrorsFault, PSInvalidSessionFault,
       PSContractViolationFault, PSNotAuthorizedFault
@@ -836,7 +836,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see UiDesign#saveSearches(SaveSearchesRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveSearches(SaveSearchesRequest saveSearchesRequest)
       throws RemoteException, PSErrorsFault, PSInvalidSessionFault,
       PSContractViolationFault, PSNotAuthorizedFault
@@ -870,7 +870,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see UiDesign#saveViews(SaveViewsRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveViews(SaveViewsRequest saveViewsRequest)
       throws RemoteException, PSErrorsFault, PSInvalidSessionFault,
       PSContractViolationFault, PSNotAuthorizedFault
@@ -904,7 +904,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see UiDesign#createHierarchyNodes(CreateHierarchyNodesRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public PSHierarchyNode[] createHierarchyNodes(
       CreateHierarchyNodesRequest createHierarchyNodesRequest)
       throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
@@ -1334,7 +1334,7 @@ public class UiDesignSOAPImpl extends PSBaseSOAPImpl
     *
     * @see UiDesign#saveHierarchyNodes(SaveHierarchyNodesRequest)
     */
-   @SuppressWarnings("unchecked")
+
    public void saveHierarchyNodes(
       SaveHierarchyNodesRequest saveHierarchyNodesRequest)
       throws RemoteException, PSErrorsFault, PSInvalidSessionFault,

@@ -93,7 +93,7 @@ public class PSTemplateSetterTest extends PSConfigurationTest {
    *
    * @throws Exception if an error occurs
    */
-  @SuppressWarnings("unchecked")
+
   public void testAddPropertyDefs() throws Exception {
     PSTemplateSetter setter = new PSTemplateSetter();
     IPSAssemblyTemplate template = getTemplate("rffPgCiGeneric");

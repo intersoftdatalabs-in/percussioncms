@@ -142,7 +142,7 @@ public class XmlUploader
          Integer timeout = new Integer((String) args.get(Utils.TIMEOUT_OPTION));
          m_timeout = timeout * 1000; // Convert to millis
       }
-      
+
       // get the log file
       String logFilename = (String) args.get( Utils.LOGFILE_OPTION );
       if ((logFilename == null) || (logFilename.trim().length() == 0))
@@ -158,7 +158,7 @@ public class XmlUploader
             if (!logFile.isFile()) {
                logFile.createNewFile();
             }
-            
+
             log.info( "[Init] Logging to {}", logFile.getAbsolutePath());
          }
          catch (IOException e)
@@ -1094,7 +1094,7 @@ public class XmlUploader
     * The singleton instance of the logger. All methods use this guy to display
     * status and error messages.
     */
-   private static final Logger log = LogManager.getLogger();
+   private static final Logger log = LogManager.getLogger(XmlUploader.class);
 
    /**
     * A debugging flag. If <code>true</code>, additional debugging information
