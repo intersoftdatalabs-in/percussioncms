@@ -167,11 +167,11 @@ echo   "                  be added to changelist description)"
 echo
 echo   "PKGUPDATE      Update package source with your updated package"
 echo   "               (package must be checked out first - see PKGCKOUT)"
-echo   "               (Updated package must be placed in (source dir)/system/Packages)"
+echo   "               (Updated package must be placed in modules/perc-packages/src/main/resources/Packages)"
 echo   "   eg:         pkgbuild PKGUPDATE package.ppkg changelistnumber"
 echo
 echo   "PKGADD         Check in new package"
-echo   "               (New package must be placed in (source dir)\system\Packages)"
+echo   "               (New package must be placed in modules/perc-packages/src/main/resources/Packages)"
 echo   "   eg:         pkgbuild PKADD package.ppkg (optional - any additional text will"
 echo   "                  be added to changelist description)"
 echo

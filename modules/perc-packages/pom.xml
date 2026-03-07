@@ -9,22 +9,9 @@
     </parent>
     <artifactId>perc-packages</artifactId>
     <properties>
-        <REFRESH_PROP_NAME>REFRESH</REFRESH_PROP_NAME>
-        <assembly-directory>${basedir}/target/distribution</assembly-directory>
-        <db.backend>DERBY</db.backend>
-        <db.class>org.apache.derby.jdbc.EmbeddedDriver</db.class>
-        <db.driver>derby</db.driver>
-        <db.name/>
-        <db.pass.enc>7cf3be70d83a6948</db.pass.enc>
-        <db.schema>CMDB</db.schema>
-        <db.server>CMDB;create=true</db.server>
-        <db.user>CMDB</db.user>
-        <derby-home>${basedir}/target/derby-home</derby-home>
-        <ds.name>PercussionData</ds.name>
-        <exts.store>${basedir}/target/distribution/Extensions</exts.store>
-        <jetty-directory>${basedir}/target/jetty</jetty-directory>
-        <pkg.tmp.dir>${basedir}/target/distribution/Packages</pkg.tmp.dir>
-        <rxapps-directory>${basedir}/target/rxapps</rxapps-directory>
+        <packages.source.dir>${basedir}/src/main/resources/Packages</packages.source.dir>
+        <packages.output.dir>${basedir}/target/distribution/Packages</packages.output.dir>
+        <packages.temp.dir>${basedir}/target/temp/Packages</packages.temp.dir>
     </properties>
     <dependencies/>
     <build>
@@ -32,56 +19,37 @@
             <resource>
                 <filtering>true</filtering>
                 <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>Packages/**</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>Packages/**</include>
+                </includes>
             </resource>
         </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.3.0</version>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${maven.execmaven.plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>build-packages</id>
                         <goals>
-                            <goal>set-system-properties</goal>
+                            <goal>java</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
-                            <properties>
-                                <property>
-                                    <name>derby.system.home</name>
-                                    <value>${derby-home}</value>
-                                </property>
-                            </properties>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>${maven.antrun.plugin.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.percussion</groupId>
-                        <artifactId>perc-ant</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>populate-perc-distribution-with-packages</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                        <configuration>
-                            <target>
-                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <taskdef loaderref="perc.loader" resource="com/percussion/ant/antlib.xml"/>
-                                <taskdef loaderref="perc.loader" resource="net/sf/antcontrib/antlib.xml"/>
-                                <ant antfile="${basedir}/packages-ant.xml" inheritRefs="true">
-                                    <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                </ant>
-                            </target>
+                            <mainClass>com.percussion.packages.PSPackageBuilder</mainClass>
+                            <arguments>
+                                <argument>${packages.source.dir}</argument>
+                                <argument>${packages.output.dir}</argument>
+                                <argument>${packages.temp.dir}</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
