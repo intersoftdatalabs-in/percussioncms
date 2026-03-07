@@ -48,6 +48,25 @@ modules/jcadf-master/audit_events.json
 # maven
 **/target
 
+# WebUI generated frontend outputs (do not commit)
+WebUI/target/generated-webui/
+WebUI/war/modern/
+WebUI/war/jslibMin/
+WebUI/war/cssMin/
+WebUI/src/main/webapp/cm/modern/
+WebUI/src/main/webapp/cm/jslibMin/
+WebUI/src/main/webapp/cm/cssMin/
+
+# Node/npm artifacts in WebUI
+WebUI/src/main/frontend/node_modules/
+WebUI/src/main/frontend/node/
+WebUI/src/main/frontend/.vite/
+WebUI/src/main/frontend/dist/
+
+# WebUI build logs
+WebUI/build.log
+WebUI/rxBuild.log
+
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
@@ -163,3 +182,22 @@ docker/logs
 
 # Local Agents file
 AGENTS.local.md
+
+# Generated frontend outputs (do not commit)
+WebUI/target/generated-webui/
+WebUI/war/modern/
+WebUI/war/jslibMin/
+WebUI/war/cssMin/
+WebUI/src/main/webapp/cm/modern/
+WebUI/src/main/webapp/cm/jslibMin/
+WebUI/src/main/webapp/cm/cssMin/
+
+# Node/npm artifacts
+WebUI/src/main/frontend/node_modules/
+WebUI/src/main/frontend/node/
+WebUI/src/main/frontend/.vite/
+WebUI/src/main/frontend/dist/
+
+# Build logs
+WebUI/build.log
+WebUI/rxBuild.log
