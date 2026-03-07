@@ -258,14 +258,9 @@
                                 <copy todir="${assembly-directory}/upstream">
                                     <fileset dir="${jetty-directory}/jetty-home-${jetty.version}/"/>
                                 </copy>
-                                <!--Copying the Jetty jar having fix from jetty project for bug CMS-6724 -->
-                                <copy todir="${assembly-directory}/upstream/lib/">
-                                    <fileset dir="${basedir}/../../system/Tools/jetty/upstream/lib/"/>
-                                </copy>
+                                <!-- Copy custom Jetty overlays from Maven standard location -->
                                 <copy todir="${assembly-directory}">
-                                    <fileset dir="${basedir}/../../system/Tools/jetty">
-                                        <exclude name="jetty-distribution-*"/>
-                                    </fileset>
+                                    <fileset dir="${basedir}/src/main/jetty"/>
                                 </copy>
                             </target>
                         </configuration>
@@ -321,6 +316,10 @@
                         <phase>package</phase>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
