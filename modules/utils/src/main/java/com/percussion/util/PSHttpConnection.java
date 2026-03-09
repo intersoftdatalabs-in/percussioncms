@@ -26,7 +26,10 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Base64;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -83,7 +86,7 @@ public class PSHttpConnection {
    *
    * @throws IOException if an error occurs during send/receive data
    */
-  public String postData(URL url, Map<String, String> paramMap) throws IOException, PSException {
+  public String postData(URL url, Map<String, ?> paramMap) throws IOException, PSException {
     if (url == null) throw new IllegalArgumentException("url may not be null");
     if (paramMap == null) throw new IllegalArgumentException("paramMap may not be null");
 
@@ -199,14 +202,14 @@ public class PSHttpConnection {
    * @param paramsMap The to be examed parameters, assume not <code>null</code>.
    * @return The unique boundary string.
    */
-  private String getBoundary(Map<String, String> paramsMap) {
+  private String getBoundary(Map<String, ?> paramsMap) {
     String boundary = ms_boundary;
     boolean done = false;
 
     while (!done) {
-      Iterator<String> values = paramsMap.values().iterator();
+      Iterator<?> values = paramsMap.values().iterator();
       while (values.hasNext()) {
-        String value = values.next();
+        String value = String.valueOf(values.next());
         if (value.indexOf(boundary) >= 0) // if not unique, get new one
         { // and try again
           boundary = getNewBoundary(boundary);
@@ -227,18 +230,8 @@ public class PSHttpConnection {
    *     input data.
    */
   private static String getNewBoundary(String boundary) {
-    byte[] bytes = boundary.getBytes();
-
-    try (java.io.ByteArrayInputStream in = new java.io.ByteArrayInputStream(bytes)) {
-      try (java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
-
-        PSBase64Encoder.encode(in, out);
-
-        return new String(out.toByteArray());
-      }
-    } catch (java.io.IOException e) {
-      throw new RuntimeException(e.toString());
-    }
+    byte[] bytes = boundary.getBytes(StandardCharsets.UTF_8);
+    return Base64.getEncoder().encodeToString(bytes);
   }
 
   /**
@@ -322,10 +315,12 @@ public class PSHttpConnection {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 
           try (InputStream in = connection.getInputStream()) {
-            readData = IOTools.copyStream(in, os);
+            if (in == null) throw new IllegalArgumentException("Supplied streams must not be null.");
+            readData = in.transferTo(os);
           } catch (IOException e) {
             try (InputStream in = connection.getErrorStream()) {
-              readData = IOTools.copyStream(in, os);
+              if (in == null) throw new IllegalArgumentException("Supplied streams must not be null.");
+              readData = in.transferTo(os);
             }
           }
 
@@ -340,9 +335,9 @@ public class PSHttpConnection {
           String rcvContentType = connection.getHeaderField("Content-Type");
           String charset = StandardCharsets.UTF_8.name();
           if (rcvContentType != null) {
-            Map params = new HashMap();
+            Map<String, String> params = new HashMap<>();
             PSBaseHttpUtils.parseContentType(rcvContentType, params);
-            charset = (String) params.get("charset");
+            charset = params.get("charset");
             if (charset == null) charset = StandardCharsets.UTF_8.name();
             else charset = Charset.forName(charset).name();
           }
@@ -401,7 +396,8 @@ public class PSHttpConnection {
       }
 
       ByteArrayOutputStream os = new ByteArrayOutputStream();
-      long readData = IOTools.copyStream(in, os);
+      if (in == null) throw new IllegalArgumentException("Supplied streams must not be null.");
+      long readData = in.transferTo(os);
 
       // Make sure received all the data if specified "Content-Length"
       if ((contentLength > 0) && contentLength != readData) {
@@ -413,9 +409,9 @@ public class PSHttpConnection {
       String rcvContentType = connection.getHeaderField("Content-Type");
       String charset = StandardCharsets.UTF_8.name();
       if (rcvContentType != null) {
-        Map params = new HashMap();
+        Map<String, String> params = new HashMap<>();
         PSBaseHttpUtils.parseContentType(rcvContentType, params);
-        charset = (String) params.get("charset");
+        charset = params.get("charset");
         if (charset == null) charset = StandardCharsets.UTF_8.name();
         else charset = Charset.forName(charset).name();
       }
@@ -475,8 +471,8 @@ public class PSHttpConnection {
     else sUrl = sUrl + "&pssessionid=" + getPsSessionId();
 
     try {
-      return new URL(sUrl);
-    } catch (MalformedURLException e) {
+      return URI.create(sUrl).toURL();
+    } catch (IllegalArgumentException | MalformedURLException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new RuntimeException(e);
@@ -492,7 +488,12 @@ public class PSHttpConnection {
     if (ms_psSessionId != null) return ms_psSessionId;
 
     try {
-      URL url = new URL(ms_baseUrl, GET_SESSIONID_URL);
+      URL url = null;
+      try {
+        url = ms_baseUrl.toURI().resolve(GET_SESSIONID_URL).toURL();
+      } catch (URISyntaxException | MalformedURLException e) {
+        throw new RuntimeException(e);
+      }
       String response = PSHttpConnection.postData(url, "", null);
       // the response is in the following format:
       //

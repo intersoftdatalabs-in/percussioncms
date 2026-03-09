@@ -24,7 +24,7 @@ import java.util.Comparator;
  * types of string sorts based on how it is constructed. In order to do the comparison, the <code>
  * toString()</code> method will be called on each object supplied.
  */
-public class PSStringComparator implements Comparator {
+public class PSStringComparator implements Comparator<Object> {
   /**
    * Constructor for this class, specifiying type of sorting.
    *

@@ -34,15 +34,19 @@ public class PSCopier {
    * @return a deep copied map, never <code>null</code>
    */
 
-  public static Map deepCopy(Map input) {
-    Map rval = new HashMap();
-    Iterator<Map.Entry> eiter = input.entrySet().iterator();
+  public static <K, V> Map<K, V> deepCopy(Map<K, V> input) {
+    Map<K, V> rval = new HashMap<>();
+    Iterator<? extends Map.Entry<K, V>> eiter = input.entrySet().iterator();
     while (eiter.hasNext()) {
-      Map.Entry entry = eiter.next();
-      if (entry.getValue() instanceof Map) {
-        rval.put(entry.getKey(), deepCopy((Map) entry.getValue()));
+      Map.Entry<K, V> entry = eiter.next();
+      V value = entry.getValue();
+      if (value instanceof Map) {
+        Map<?, ?> nested = (Map<?, ?>) value;
+        @SuppressWarnings("unchecked")
+        V copiedValue = (V) deepCopy(nested);
+        rval.put(entry.getKey(), copiedValue);
       } else {
-        rval.put(entry.getKey(), entry.getValue());
+        rval.put(entry.getKey(), value);
       }
     }
     return rval;

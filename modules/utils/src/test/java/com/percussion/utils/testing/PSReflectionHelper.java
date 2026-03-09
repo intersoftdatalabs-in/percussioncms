@@ -163,7 +163,7 @@ public class PSReflectionHelper {
       if (fieldname == null || fieldname.trim().length() == 0) {
         throw new IllegalArgumentException("fieldname must never be null or empty");
       }
-      return (Accessor) mi_fieldMap.get(fieldname);
+      return mi_fieldMap.get(fieldname);
     }
 
     /**
@@ -349,12 +349,12 @@ public class PSReflectionHelper {
    */
   private static boolean testSet(Object keySet1, Object keySet2) {
     for (Iterator iter = ((Set) keySet1).iterator(); iter.hasNext(); ) {
-      Object element = (Object) iter.next();
+      Object element = iter.next();
       // Now, if the element is mutable, walk the other set
       // looking for an == match
       if (isNotImmutable(element)) {
         for (Iterator iter2 = ((Set) keySet2).iterator(); iter2.hasNext(); ) {
-          Object comparison = (Object) iter2.next();
+          Object comparison = iter2.next();
           if (element == comparison) {
             return false;
           }
@@ -482,7 +482,7 @@ public class PSReflectionHelper {
       throw new IllegalArgumentException("Class may never be null");
     }
     if (AccessorMap.ms_classAccessors.get(clazz) != null)
-      return (AccessorMap) AccessorMap.ms_classAccessors.get(clazz);
+      return AccessorMap.ms_classAccessors.get(clazz);
 
     List<Method> setters = findSetMethods(clazz, filter);
     List<Method> getters = findGetMethods(clazz, filter);
@@ -664,7 +664,17 @@ public class PSReflectionHelper {
     } else if (clazz.isInterface()) {
       return getProxyInstance(clazz);
     } else {
-      return clazz.newInstance();
+      try {
+        return clazz.getDeclaredConstructor().newInstance();
+      } catch (NoSuchMethodException nsme) {
+        InstantiationException ie = new InstantiationException(nsme.getMessage());
+        ie.initCause(nsme);
+        throw ie;
+      } catch (InvocationTargetException ite) {
+        InstantiationException ie = new InstantiationException(ite.getMessage());
+        ie.initCause(ite);
+        throw ie;
+      }
     }
   }
 

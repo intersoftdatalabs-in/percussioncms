@@ -120,7 +120,7 @@ public class PSFilenameFilter implements FilenameFilter {
         // is an entry in file extensions list
         Iterator<String> iter = m_fileExtensions.iterator();
         while (iter.hasNext()) {
-          if (fileExtension.equalsIgnoreCase((String) iter.next())) {
+          if (fileExtension.equalsIgnoreCase(iter.next())) {
             accept = true;
             break;
           }

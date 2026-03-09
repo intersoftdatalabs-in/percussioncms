@@ -62,6 +62,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  *
  * @author dougrand
  */
+@SuppressWarnings("this-escape")
 public class PSGuid extends Number implements IPSGuid {
   /** */
   private static final long serialVersionUID = 3134898757562243271L;
@@ -202,7 +203,7 @@ public class PSGuid extends Number implements IPSGuid {
    * @param uuid the unique id of the object. Unique ids may be repeated across different types.
    *     Only the lower 32 bits are used.
    */
-  protected void assemble(long hostid, PSTypeEnum type, long uuid) {
+  protected final void assemble(long hostid, PSTypeEnum type, long uuid) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
 
     long hostval = hostid << HOST_POS;
@@ -224,7 +225,7 @@ public class PSGuid extends Number implements IPSGuid {
    * @param type the type of the GUID being created, may be <code>null</code>, in which case there
    *     must be three components.
    */
-  protected void assemble(String guid, PSTypeEnum type, boolean forceType) {
+  protected final void assemble(String guid, PSTypeEnum type, boolean forceType) {
     if (StringUtils.isBlank(guid))
       throw new IllegalArgumentException("guid may not be null or empty");
 
@@ -327,7 +328,7 @@ public class PSGuid extends Number implements IPSGuid {
    *
    * @param hostid a new host id value, must fit in 24 bits and be a positive number.
    */
-  public void setHostId(long hostid) {
+  public final void setHostId(long hostid) {
     if (hostid > BIT24 || hostid < 0)
       throw new IllegalArgumentException(
           "hostid must be a non-negative number that fits in 24 bits");
@@ -351,7 +352,7 @@ public class PSGuid extends Number implements IPSGuid {
    *
    * @param type a new type value, must fit in 8 bits and be a positive number.
    */
-  public void setType(short type) {
+  public final void setType(short type) {
     if (type > BIT8 || type < 0)
       throw new IllegalArgumentException("Type must be a non-negative number that fits in 8 bits");
 
@@ -374,7 +375,7 @@ public class PSGuid extends Number implements IPSGuid {
    *
    * @param uuid the new uuid value, must fit in 32 bits and be a positive number.
    */
-  public void setUUID(int uuid) {
+  public final void setUUID(int uuid) {
     if (uuid < 0) throw new IllegalArgumentException("UUID must be a non-negative number");
 
     if (getUUID() != 0) throw new IllegalStateException("The UUID must not already be set");

@@ -26,6 +26,7 @@ package com.percussion.error;
  * @since 1.0
  */
 public class PSNotLockedException extends PSException {
+  private static final long serialVersionUID = 1L;
   /**
    * Construct an exception for messages taking only a single argument.
    *

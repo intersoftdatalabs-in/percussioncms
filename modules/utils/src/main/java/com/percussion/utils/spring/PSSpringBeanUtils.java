@@ -53,7 +53,7 @@ public class PSSpringBeanUtils {
       throws PSInvalidXmlException {
     IPSBeanConfig bean;
     try {
-      bean = (IPSBeanConfig) Class.forName(className).newInstance();
+      bean = (IPSBeanConfig) Class.forName(className).getDeclaredConstructor().newInstance();
       bean.fromXml(data);
 
       return bean;

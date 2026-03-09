@@ -26,6 +26,7 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -168,7 +169,7 @@ public class PSDisplayChoices implements Cloneable {
    *     construction. Use {@link #areChoicesLoaded()} to determine the meaning of an empty result.
    */
   public Iterator<PSEntry> getChoices() {
-    if (m_choices == null) return PSIteratorUtils.emptyIterator();
+    if (m_choices == null) return Collections.emptyIterator();
 
     return m_choices.iterator();
   }

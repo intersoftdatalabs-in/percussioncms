@@ -39,8 +39,8 @@ import com.percussion.security.PSSecurityToken;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -105,7 +105,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class
@@ -119,7 +119,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
 
     PSComponentSummary sum = getFolderSummary(getRelationshipProcessor(tok), id);
     if (sum != null) {
-      Iterator sums = getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
+      Iterator<PSComponentSummary> sums = getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
       if (sums.hasNext()) dep = createDependency(m_def, id, sum.getName());
     }
 
@@ -161,7 +161,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
     // get all child item summaries and save them
     PSComponentSummary sum = getFolderSummary(getRelationshipProcessor(tok), dep.getDependencyId());
     if (sum != null) {
-      Iterator sums = getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
+      Iterator<PSComponentSummary> sums = getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
       while (sums.hasNext()) {
         PSComponentSummary itemSum = (PSComponentSummary) sums.next();
         files.add(createDependencyFile(itemSum));
@@ -222,8 +222,9 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
           PSTransactionSummary.ACTION_DELETED);
 
       // now add new relationships
-      List adds = new ArrayList();
-      Iterator files = getDependencyFilesFromArchive(archive, dep);
+      List<PSLocator> adds = new ArrayList<>();
+      @SuppressWarnings("unchecked")
+      Iterator<PSDependencyFile> files = getDependencyFilesFromArchive(archive, dep);
       while (files.hasNext()) {
         Element root = getElementFromFile(archive, dep, (PSDependencyFile) files.next());
         PSComponentSummary srcSum = new PSComponentSummary(root);

@@ -71,6 +71,7 @@ import org.apache.commons.lang3.StringUtils;
  * @version 1.0
  * @since 1.0
  */
+@SuppressWarnings("this-escape")
 public class PSException extends java.lang.Exception implements IPSException {
 
   private static transient IPSErrorManager errorManager = new PSErrorManagerDefaultImpl();
@@ -407,7 +408,7 @@ public class PSException extends java.lang.Exception implements IPSException {
    * @param args May be <code>null</code>. Any <code>null</code> entry will be replaced with "".
    *     </code>.
    */
-  private void setArgs(Object[] args) {
+  private final void setArgs(Object[] args) {
     if (null != args) {
       // check that no entries are null
       for (int i = 0; i < args.length; i++) {

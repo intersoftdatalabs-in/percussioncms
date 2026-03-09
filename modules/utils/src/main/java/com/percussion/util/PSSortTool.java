@@ -34,7 +34,7 @@ public class PSSortTool {
    * @param list to sort, never <code> null </code>.
    * @param comper comparator, never <code> null </code>.
    */
-  public static void QuickSort(AbstractList list, Comparator comper) {
+  public static <T> void QuickSort(AbstractList<T> list, Comparator<? super T> comper) {
     if (list == null) throw new IllegalArgumentException("list may not be null");
 
     if (comper == null) throw new IllegalArgumentException("comper may not be null");
@@ -46,7 +46,7 @@ public class PSSortTool {
    * Iterative (non-recursive) QuickSort with median-of-three partitioning to avoid slow behavior on
    * mostly-sorted lists.
    */
-  public static void QuickSort(Object[] list, Comparator comper) {
+  public static <T> void QuickSort(T[] list, Comparator<? super T> comper) {
     class StackItem {
       public int left;
       public int right;
@@ -73,7 +73,7 @@ public class PSSortTool {
     l = 0;
     r = list.length - 1;
 
-    Object a, b, c;
+    T a, b, c;
 
     // main loop
     while (true) {
@@ -193,17 +193,17 @@ public class PSSortTool {
     }
   }
 
-  public static void MergeSort(Object[] a, Comparator c) {
-    Object aux[] = (Object[]) a.clone();
+  public static <T> void MergeSort(T[] a, Comparator<? super T> c) {
+    T[] aux = a.clone();
     mergeSort(aux, a, 0, a.length, c);
   }
 
-  private static void mergeSort(Object src[], Object dest[], int low, int high, Comparator c) {
+  private static <T> void mergeSort(T src[], T dest[], int low, int high, Comparator<? super T> c) {
     int length = high - low;
 
     // Insertion sort on smallest arrays
     if (length < 7) {
-      Object temp;
+      T temp;
       for (int i = low; i < high; i++)
         for (int j = i; j > low && c.compare(dest[j - 1], dest[j]) > 0; j--) {
           temp = dest[j];

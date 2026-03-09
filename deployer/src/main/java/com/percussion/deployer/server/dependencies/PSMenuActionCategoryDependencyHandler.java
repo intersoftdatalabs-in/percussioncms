@@ -27,6 +27,7 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.utils.collections.PSIteratorUtils;
+import java.util.Collections;
 import java.util.Iterator;
 
 /**
@@ -61,7 +62,7 @@ public class PSMenuActionCategoryDependencyHandler extends PSMenuActionObjectDep
       throw new IllegalArgumentException("Invalid arguments provided.");
     }
 
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

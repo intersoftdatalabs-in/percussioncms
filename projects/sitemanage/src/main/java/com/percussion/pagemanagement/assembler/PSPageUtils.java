@@ -147,8 +147,11 @@ import javax.xml.XMLConstants;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -186,7 +189,7 @@ public class PSPageUtils extends PSJexlUtilBase {
   private static final String CATEGORY_URL = "../rx_resources/category/category.xml";
 
   private CacheManager cacheMgr;
-  private Cache linkCache;
+  private Cache<String, Boolean> linkCache;
 
   @IPSJexlMethod(
       description =
@@ -230,7 +233,7 @@ public class PSPageUtils extends PSJexlUtilBase {
       },
       returns = "boolean")
   public boolean isLinkGood(String link, String context, boolean dontCache) {
-    net.sf.ehcache.Element cachedLink = null;
+    Boolean cachedLink = null;
     try {
       log.debug("Checking link: {} in context: {} dontCache= {}", link, context, dontCache);
       if (!dontCache) {
@@ -246,11 +249,8 @@ public class PSPageUtils extends PSJexlUtilBase {
           int responseCode = connection.getResponseCode();
           log.debug("Got response code of {}  for {}", responseCode, link);
           boolean result = (200 <= responseCode && responseCode <= 399);
-          var newLink = new net.sf.ehcache.Element(link, result);
-          newLink.setTimeToIdle(1800);
-          newLink.setTimeToLive(1800);
           if (!dontCache) {
-            linkCache.put(newLink);
+            linkCache.put(link, result);
             log.debug("Caching link: {} with result of {}", link, result);
           }
           return result;
@@ -263,8 +263,8 @@ public class PSPageUtils extends PSJexlUtilBase {
         log.debug(
             "Returning cached link result for link: {} status: {}",
             link,
-            cachedLink.getObjectValue());
-        return (Boolean) cachedLink.getObjectValue();
+            cachedLink);
+        return cachedLink;
       }
     } catch (Exception e) {
       log.error("Error checking link: {} Error: {}", link, PSExceptionUtils.getMessageForLog(e));
@@ -2628,11 +2628,16 @@ public class PSPageUtils extends PSJexlUtilBase {
     IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
     this.cacheMgr = cache.getManager();
 
-    if (!cacheMgr.cacheExists(LINKCHECK_CACHENAME)) {
-      cacheMgr.addCache(LINKCHECK_CACHENAME);
+    this.linkCache = cacheMgr.getCache(LINKCHECK_CACHENAME, String.class, Boolean.class);
+    if (this.linkCache == null) {
+      this.linkCache = cacheMgr.createCache(LINKCHECK_CACHENAME,
+          CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                  String.class, Boolean.class,
+                  ResourcePoolsBuilder.heap(10000))
+              .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(
+                  java.time.Duration.ofSeconds(1800)))
+              .build());
     }
-
-    linkCache = cacheMgr.getCache(LINKCHECK_CACHENAME);
   }
 
   /**

@@ -183,7 +183,7 @@ public class PSLineBreaker {
    * @throws IndexOutOfBoundsException if no more lines are available.
    */
   public String next() {
-    return (String) m_lines.get(m_index++);
+    return m_lines.get(m_index++);
   }
 
   /**
@@ -209,7 +209,7 @@ public class PSLineBreaker {
   /*
    * the list of lines
    */
-  private ArrayList m_lines = new ArrayList();
+  private ArrayList<String> m_lines = new ArrayList<>();
 
   /*
    * the current index

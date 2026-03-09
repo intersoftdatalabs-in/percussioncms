@@ -303,7 +303,7 @@ public class PSXmlSerializationHelper {
               Class implclass = ms_typeMap.get(name);
               if (implclass != null) {
                 try {
-                  return implclass.newInstance();
+                  return implclass.getDeclaredConstructor().newInstance();
                 } catch (Exception e) {
                   log.error(
                       "Could not instantiate, Error: {}", PSExceptionUtils.getMessageForLog(e));

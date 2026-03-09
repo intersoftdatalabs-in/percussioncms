@@ -19,6 +19,8 @@ package com.percussion.utils.thread;
 
 public class PSThreadInterruptedException extends RuntimeException {
 
+  private static final long serialVersionUID = 1L;
+
   public PSThreadInterruptedException() {
     super();
   }

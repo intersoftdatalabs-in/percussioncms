@@ -82,9 +82,9 @@ public class PSErrorManager {
               .getContextClassLoader()
               .loadClass(ERROR_MGR_CLASS)
               .asSubclass(IPSErrorManager.class)
+              .getDeclaredConstructor()
               .newInstance();
-
-    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+    } catch (ReflectiveOperationException e) {
       System.out.println(PSExceptionUtils.getMessageForLog(e));
     }
     errorManagerInstance.init();

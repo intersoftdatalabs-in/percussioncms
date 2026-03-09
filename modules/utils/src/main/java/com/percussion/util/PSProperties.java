@@ -42,9 +42,11 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>Written for Java version 1.4
  */
+@SuppressWarnings("this-escape")
 public class PSProperties extends java.util.Properties {
 
   private static final Logger log = LogManager.getLogger(PSProperties.class);
+  private static final long serialVersionUID = 1L;
 
   /**
    * Constant for the name of the config file containing name/value pairs for any module we install.
@@ -52,10 +54,10 @@ public class PSProperties extends java.util.Properties {
   private static final String FILE_PROPS = "init.properties";
 
   /** Use a Vector to keep a copy of lines that are a comment or 'blank' */
-  public Vector lineData = new Vector(0, 1);
+  public Vector<String> lineData = new Vector<>(0, 1);
 
   /** Use a Vector to keep a copy of lines containing a key, i.e. they are a property. */
-  public Vector keyData = new Vector(0, 1);
+  public Vector<String> keyData = new Vector<>(0, 1);
 
   /**
    * Construct a collection of properties by loading them from the specified properties file.
@@ -87,10 +89,10 @@ public class PSProperties extends java.util.Properties {
    * @exception NumberFormatException if the value cannot be converted
    */
   public int getInt(String key) throws NumberFormatException {
-    String value = (String) get(key);
+    String value = getProperty(key);
     if (value == null) throw new NumberFormatException("null cannot be used as an int value");
 
-    return (new Integer(value)).intValue();
+    return Integer.parseInt(value);
   }
 
   /**
@@ -103,10 +105,10 @@ public class PSProperties extends java.util.Properties {
    * @exception NumberFormatException if the value cannot be converted
    */
   public int getInt(String key, int defaultValue) throws NumberFormatException {
-    String value = (String) get(key);
+    String value = getProperty(key);
     if (value == null) return defaultValue;
 
-    return (new Integer(value)).intValue();
+    return Integer.parseInt(value);
   }
 
   /**
@@ -313,15 +315,15 @@ public class PSProperties extends java.util.Properties {
     StringBuilder s = new StringBuilder();
 
     for (int i = 0; i < lineData.size(); i++) {
-      line = (String) lineData.get(i);
-      key = (String) keyData.get(i);
-      if ((String) get(key) == null) {
+      line = lineData.get(i);
+      key = keyData.get(i);
+      if (getProperty(key) == null) {
         continue;
       }
       if (key.length() > 0) { // This is a 'property' line, so rebuild it
         formatForOutput(key, s, true);
         s.append('=');
-        formatForOutput((String) get(key), s, false);
+        formatForOutput(getProperty(key), s, false);
         writer.println(s);
       } else { // was a blank or comment line, so just restore it
         writer.println(line);
@@ -389,7 +391,7 @@ public class PSProperties extends java.util.Properties {
     // add new entries at end but just update existing entries.
     if (!this.containsKey(keyString)) {
       lineData.add("");
-      keyData.add(keyString);
+      keyData.add(String.valueOf(keyString));
     }
     return super.put(keyString, value);
   }

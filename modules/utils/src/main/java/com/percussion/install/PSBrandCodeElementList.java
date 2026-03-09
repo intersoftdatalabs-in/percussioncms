@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /** This class stores an array of <code>PSBrandCodeElement</code> objects. */
+@SuppressWarnings("this-escape")
 public class PSBrandCodeElementList {
   /**
    * Constructor.
@@ -84,7 +85,7 @@ public class PSBrandCodeElementList {
 
     PSBrandCodeElement ret = null;
     for (int i = 0; i < m_elementList.size(); i++) {
-      PSBrandCodeElement bce = (PSBrandCodeElement) m_elementList.get(i);
+      PSBrandCodeElement bce = m_elementList.get(i);
       if (bce.hasAttributeWithValue(attrName, attrValue)) {
         ret = bce;
         break;
@@ -158,7 +159,7 @@ public class PSBrandCodeElementList {
    * @throws CodeException if the elements in this list does not have all the required attributes
    *     defined.
    */
-  public void fromXml(Element sourceNode) throws CodeException {
+  public final void fromXml(Element sourceNode) throws CodeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     Element el = null;
@@ -192,7 +193,7 @@ public class PSBrandCodeElementList {
     // create the root element
     Element root = doc.createElement(m_name);
     for (int i = 0; i < m_elementList.size(); i++) {
-      PSBrandCodeElement bce = (PSBrandCodeElement) m_elementList.get(i);
+      PSBrandCodeElement bce = m_elementList.get(i);
       root.appendChild(bce.toXml(doc));
     }
     return root;

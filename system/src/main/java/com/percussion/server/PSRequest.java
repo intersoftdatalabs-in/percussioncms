@@ -297,7 +297,7 @@ public class PSRequest {
    *     <code>null</code>, might be empty.
    */
   public Iterator<Serializable> getOriginals() {
-    if (m_clones == null) return PSIteratorUtils.emptyIterator();
+    if (m_clones == null) return Collections.emptyIterator();
 
     return m_clones.keySet().iterator();
   }
@@ -309,7 +309,7 @@ public class PSRequest {
    *     </code>, might be empty.
    */
   public Iterator<Serializable> getClones() {
-    if (m_clones == null) return PSIteratorUtils.emptyIterator();
+    if (m_clones == null) return Collections.emptyIterator();
 
     return m_clones.values().iterator();
   }
@@ -335,7 +335,7 @@ public class PSRequest {
    *     null</code>, might be empty.
    */
   public Iterator<Serializable> getRelationships() {
-    if (m_relationships == null) return PSIteratorUtils.emptyIterator();
+    if (m_relationships == null) return Collections.emptyIterator();
 
     return m_relationships.iterator();
   }

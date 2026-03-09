@@ -40,6 +40,7 @@ import org.w3c.dom.Text;
  * parameter. There can be multiple elelements with the same name so that multi-valued HTML
  * parameter is supported.
  */
+@SuppressWarnings("this-escape")
 public class PSHtmlParamDocument {
   private static final Logger log = LogManager.getLogger(PSHtmlParamDocument.class);
 
@@ -152,11 +153,10 @@ public class PSHtmlParamDocument {
    * @param params must not be <code>null</code>.
    * @throws IllegalArgumentException if the parameter set is <code>null</code>.
    */
-  public void setParams(Map<String, ?> params) {
+  public final void setParams(Map<String, ?> params) {
     if (params == null) throw new IllegalArgumentException("params must not be null");
-    // unchecked assignment: we trust caller to supply correct types
-
-    Map<String, Object> tmp = (Map<String, Object>) params;
+    // copy values into a properly typed map
+    Map<String, Object> tmp = new java.util.HashMap<>(params);
     m_params = tmp;
   }
 

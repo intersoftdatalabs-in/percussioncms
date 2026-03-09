@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Configure id='wac'
-	class="org.eclipse.jetty.ee8.webapp.WebAppContext">
+	class="org.eclipse.jetty.ee10.webapp.WebAppContext">
 	<New id="cf" class="org.eclipse.jetty.plus.jndi.Resource">
 		<Arg>
 			<Ref refid='wac' />

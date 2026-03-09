@@ -24,6 +24,8 @@ import java.util.Locale;
  * <p>Please use this conservatively.
  */
 public class PSRuntimeException extends RuntimeException implements IPSException {
+  private static final long serialVersionUID = 1L;
+
   private PSRuntimeException() {
     super();
   }

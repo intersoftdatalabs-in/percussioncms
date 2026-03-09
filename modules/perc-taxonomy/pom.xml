@@ -97,13 +97,13 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>8.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>8.2.0-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>

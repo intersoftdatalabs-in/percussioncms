@@ -305,22 +305,17 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- Hibernate support beans -->
 	<bean id="sys_transactionManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sys_sessionFactory" />
-		<property name="globalRollbackOnParticipationFailure"
-			value="false" />
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="sys_sessionFactory" />
 	</bean>
 
-	<bean id="sys_sessionFactory" depends-on="sys_cacheManager"
+	<bean id="sys_sessionFactory"
 		class="com.percussion.services.datasource.PSSessionFactoryBean">
 
 		<property name="packagesToScan" value="com.percussion" />
 
 		<property name="hibernateProperties">
 			<props>
-				<prop key="hibernate.current_session_context_class">
-					org.springframework.orm.hibernate5.SpringSessionContext
-				</prop>
 				<prop key="spring.jpa.hibernate.naming.implicit-strategy">
 					org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl
 				</prop>
@@ -362,25 +357,13 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		class="com.percussion.services.assembly.impl.finder.PSAutoFinderUtils">
 	</bean>
 
-	<bean id="sys_cacheManager"
-		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-		<property name="shared" value="true" />
-		<property name="cacheManagerName" value="sys_cacheManager" />
-		<property name="configLocation"
-			value="classpath:/ehcache.xml" />
-	</bean>
+	<!-- Ehcache 3.x CacheManager: extracted from sys_cacheAccessor -->
+	<bean id="sys_cacheManager" factory-bean="sys_cacheAccessor" factory-method="getManager" />
 
 	<bean id="sys_datasourceManager"
 		class="com.percussion.services.datasource.impl.PSDatasourceManager">
 		<property name="defaultHibernateProperties">
 			<props>
-
-
-				<prop key="hibernate.current_session_context_class">
-					org.springframework.orm.hibernate5.SpringSessionContext
-				</prop>
-
-
 				<prop key="spring.jpa.hibernate.naming.implicit-strategy">
 					org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl
 				</prop>
@@ -732,11 +715,6 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<bean id="sys_purgeHelper"
 		class="com.percussion.services.purge.impl.PSSqlPurgeHelper">
-	</bean>
-
-	<bean id="sys_autotuneCache"
-		class="com.percussion.server.cache.PSAutotuneCache">
-		<property name="cacheAccessor" ref="sys_cacheAccessor" />
 	</bean>
 
 </beans>

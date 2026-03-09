@@ -49,6 +49,7 @@ import org.w3c.dom.Element;
  * build during the build procedure.
  */
 
+@SuppressWarnings("this-escape")
 public class Code {
 
   private static final Logger log = LogManager.getLogger(Code.class);
@@ -123,7 +124,7 @@ public class Code {
    *
    * @throws CodeException if any error occurs parsing the Component mapping Xml file.
    */
-  private void init() throws CodeException {
+  private final void init() throws CodeException {
     m_brandCodeMap = PSBrandCodeMap.newInstance();
   }
 
@@ -280,7 +281,7 @@ public class Code {
    * @param strCode the brand code in string format, assumed not <code>null</code> and non-empty
    * @throws CodeException if the brand code is invalid
    */
-  private void fromString(String strCode) throws CodeException {
+  private final void fromString(String strCode) throws CodeException {
     // get the 3 parts
     StringTokenizer tokens = new StringTokenizer(strCode, "-");
     if (tokens.countTokens() != 5) throw new CodeException(getResources().getString("invalidcode"));

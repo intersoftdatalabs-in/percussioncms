@@ -1271,7 +1271,8 @@ public class PSSqlHelper {
     StringWriter sw = null;
     try {
       sw = new StringWriter();
-      IOTools.writeStream(clobReader, sw);
+      if (clobReader == null) throw new IllegalArgumentException("clobReader may not be null");
+      clobReader.transferTo(sw);
       columnValue = sw.toString();
     } finally {
       if (clobReader != null) {

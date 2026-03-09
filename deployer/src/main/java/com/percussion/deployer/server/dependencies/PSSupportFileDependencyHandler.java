@@ -31,6 +31,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.collections.PSIteratorUtils;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -196,7 +197,7 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
                     getFileFromApp(tok, appName, appFile),
                     appFile))
             .iterator()
-        : PSIteratorUtils.emptyIterator();
+        : Collections.emptyIterator();
   }
 
   /**

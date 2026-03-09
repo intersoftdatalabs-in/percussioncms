@@ -17,10 +17,9 @@
 
 package com.percussion.utils.testing;
 
-import com.percussion.util.IOTools;
+import com.percussion.util.PSResourceUtils;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -41,10 +40,7 @@ public class PSTestResourceUtils {
     File ret = File.createTempFile("test", "tmp", dir);
     ret.deleteOnExit();
 
-    InputStream is = clazz.getResourceAsStream(resourcePath);
-
-    IOTools.copyStreamToFile(is, ret);
-    return ret;
+    return PSResourceUtils.getFile(clazz, resourcePath, dir);
   }
 
   public static File getFakeRxDir() throws IOException {

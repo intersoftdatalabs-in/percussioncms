@@ -26,9 +26,13 @@ import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
-import net.sf.ehcache.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
@@ -37,65 +41,53 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Modern Java 11 EHCache-based implementation of {@link IPSCacheAccess}.
+ * Ehcache 3.x-based implementation of {@link IPSCacheAccess}.
  *
- * <p>This implementation provides comprehensive cache access using EHCache as the underlying
- * cache provider. It includes thread-safe operations, enhanced validation, and integration
- * with the notification service for cache invalidation.
+ * <p>This implementation uses the Ehcache 3.x programmatic API to manage
+ * named cache regions. Each region is a {@code Cache<Serializable, Serializable>}
+ * created on demand with default heap-based resource pools.
  *
- * <p>Key features include:
- * <ul>
- *   <li>Thread-safe cache operations with comprehensive error handling</li>
- *   <li>Automatic cache invalidation via notification service integration</li>
- *   <li>Enhanced validation using modern Java 11 patterns</li>
- *   <li>Comprehensive statistics gathering for monitoring</li>
- *   <li>TTL/TTI support for cache entry lifecycle management</li>
- * </ul>
- *
- * <p>This class is configured as a Spring bean and automatically integrates with
- * the notification service for cache invalidation when objects are saved or deleted.
+ * <p>Note: TTL/TTI configuration in Ehcache 3.x is managed at the cache configuration
+ * level rather than per-entry. The {@code setTimeToIdle} and {@code setTimeToLive}
+ * methods log a warning and return {@code false}.
  *
  * @author dougrand
- * @since Java 11 Modernization
+ * @since Ehcache 3.x Migration
  */
 @PSBaseBean("sys_cacheAccessor")
 public final class PSEhCacheAccessor implements IPSCacheAccess {
 
-    /**
-     * Logger for cache operations and debugging.
-     */
     private static final Logger log = LogManager.getLogger(IPSConstants.CACHING_LOG);
 
-    /**
-     * The EHCache manager instance managing all cache regions.
-     */
+    private static final int DEFAULT_HEAP_ENTRIES = 10_000;
+
     private final CacheManager manager;
 
-    /**
-     * Notification service for cache invalidation events.
-     * Initialized by Spring dependency injection.
-     */
+    /** Tracks all known region names for iteration in clear() and getStatistics(). */
+    private final Set<String> regionNames = ConcurrentHashMap.newKeySet();
+
     private IPSNotificationService notificationService;
 
     /**
-     * Creates a new cache accessor with default EHCache manager configuration.
+     * Creates a new cache accessor with a default Ehcache 3.x CacheManager.
      */
     public PSEhCacheAccessor() {
-        this.manager = CacheManager.create();
-        log.info("EHCache manager initialized with {} cache regions", manager.getCacheNames().length);
+        this.manager = CacheManagerBuilder.newCacheManagerBuilder().build(true);
+        log.info("Ehcache 3.x manager initialized");
     }
 
     /**
      * Creates a cache accessor with a specific cache manager.
      *
      * @param cacheManager the cache manager to use, must not be null
-     * @throws IllegalArgumentException if cacheManager is null
      */
     public PSEhCacheAccessor(CacheManager cacheManager) {
         this.manager = Objects.requireNonNull(cacheManager, "Cache manager cannot be null");
-        log.info("EHCache accessor initialized with provided manager");
+        log.info("Ehcache 3.x accessor initialized with provided manager");
     }
 
     @Override
@@ -103,10 +95,9 @@ public final class PSEhCacheAccessor implements IPSCacheAccess {
         Objects.requireNonNull(key, "Cache key cannot be null");
         Objects.requireNonNull(data, "Cache data cannot be null");
         validateRegion(region);
-        validateCacheManager();
 
-        var cache = getCache(region);
-        cache.put(new Element(key, data));
+        var cache = getOrCreateCache(region);
+        cache.put(key, data);
 
         if (log.isDebugEnabled()) {
             log.debug("Saved object with key '{}' to cache region '{}'", key, region);
@@ -117,22 +108,20 @@ public final class PSEhCacheAccessor implements IPSCacheAccess {
     public Optional<Serializable> get(Serializable key, String region) {
         Objects.requireNonNull(key, "Cache key cannot be null");
         validateRegion(region);
-        validateCacheManager();
 
-        var cache = getCache(region);
+        var cache = getOrCreateCache(region);
         try {
-            var element = cache.get(key);
-            var result = element != null ? element.getObjectValue() : null;
+            var result = cache.get(key);
 
             if (log.isDebugEnabled()) {
                 log.debug("Retrieved object with key '{}' from cache region '{}': {}",
                     key, region, result != null ? "found" : "not found");
             }
 
-            return Optional.ofNullable((Serializable) result);
-        } catch (CacheException e) {
-            log.error("Error retrieving object with key '{}' from cache region '{}'", key, region, e);
-            // Return empty Optional instead of throwing exception for better resilience
+            return Optional.ofNullable(result);
+        } catch (Exception e) {
+            log.error("Error retrieving object with key '{}' from cache region '{}'",
+                key, region, e);
             return Optional.empty();
         }
     }
@@ -141,129 +130,84 @@ public final class PSEhCacheAccessor implements IPSCacheAccess {
     public void evict(Serializable key, String region) {
         Objects.requireNonNull(key, "Cache key cannot be null");
         validateRegion(region);
-        validateCacheManager();
 
-        var cache = getCache(region);
-        var wasRemoved = cache.remove(key);
+        var cache = getOrCreateCache(region);
+        cache.remove(key);
 
         if (log.isDebugEnabled()) {
-            log.debug("Evicted object with key '{}' from cache region '{}': {}",
-                key, region, wasRemoved ? "success" : "not found");
+            log.debug("Evicted object with key '{}' from cache region '{}'", key, region);
         }
     }
 
     @Override
     public void clear() {
-        validateCacheManager();
-
-        var regionNames = manager.getCacheNames();
         for (var name : regionNames) {
-            clear(name);
+            clearRegion(name);
         }
-
-        log.info("Cleared all {} EHCache regions", regionNames.length);
+        log.info("Cleared all Ehcache regions");
     }
 
     @Override
     public void clear(String region) {
         validateRegion(region);
-        validateCacheManager();
-
-        var cache = manager.getEhcache(region);
-        if (cache != null) {
-            cache.removeAll();
-            log.debug("Cleared cache region '{}'", region);
-        } else {
-            log.warn("Cannot clear unknown cache region: '{}'", region);
-        }
+        clearRegion(region);
     }
 
     @Override
     public void clearRelationships() {
         log.debug("Clearing relationship cache regions");
-        clear(CONTENT_FINDER_RELS);
-        clear(RELATIONSHIP_DATA);
+        clearRegion(CONTENT_FINDER_RELS);
+        clearRegion(RELATIONSHIP_DATA);
     }
 
     @Override
     public List<PSCacheStatisticsSnapshot> getStatistics() {
-        validateCacheManager();
-
         var statList = new ArrayList<PSCacheStatisticsSnapshot>();
-        var regionNames = manager.getCacheNames();
 
         for (var name : regionNames) {
-            var cache = manager.getEhcache(name);
+            var cache = manager.getCache(name, Serializable.class, Serializable.class);
             if (cache != null) {
-                var cacheStat = getCacheStatistics(cache);
-                cacheStat.setName(name);
-                statList.add(cacheStat);
+                // Ehcache 3.x statistics require an external StatisticsService;
+                // return zero-valued snapshots with the region name.
+                var snapshot = new PSCacheStatisticsSnapshot(0, 0, 0, 0, 0, 0, 0);
+                snapshot.setName(name);
+                statList.add(snapshot);
             }
         }
 
-        // Sort by region name for consistent output
-        statList.sort(Comparator.comparing(PSCacheStatisticsSnapshot::getName, String.CASE_INSENSITIVE_ORDER));
+        statList.sort(Comparator.comparing(
+            PSCacheStatisticsSnapshot::getName, String.CASE_INSENSITIVE_ORDER));
 
         log.debug("Generated statistics for {} cache regions", statList.size());
-        return List.copyOf(statList); // Return immutable list
+        return List.copyOf(statList);
     }
 
     @Override
     public boolean setTimeToIdle(Serializable key, String region, int timeToIdleSeconds) {
         Objects.requireNonNull(key, "Cache key cannot be null");
         validateRegion(region);
-        validateTimeToIdle(timeToIdleSeconds);
-        validateCacheManager();
-
-        var cache = manager.getCache(region);
-        if (cache == null) {
-            throw new IllegalArgumentException("Cache region not found: " + region);
+        if (timeToIdleSeconds < 0) {
+            throw new IllegalArgumentException(
+                "Time-to-idle cannot be negative: " + timeToIdleSeconds);
         }
 
-        try {
-            var element = cache.get(key);
-            if (element != null) {
-                element.setEternal(false);
-                element.setTimeToIdle(timeToIdleSeconds);
-
-                log.debug("Set time-to-idle for key '{}' in region '{}' to {} seconds",
-                    key, region, timeToIdleSeconds);
-                return true;
-            }
-            return false;
-        } catch (CacheException e) {
-            log.error("Error setting time-to-idle for key '{}' in region '{}'", key, region, e);
-            throw new IllegalStateException("Failed to set time-to-idle for key: " + key, e);
-        }
+        log.warn("setTimeToIdle is not supported per-entry in Ehcache 3.x. "
+            + "Configure TTI in the cache definition. Key: '{}', Region: '{}'", key, region);
+        return false;
     }
 
     @Override
     public boolean setTimeToLive(Serializable key, String region, int timeToLiveSeconds) {
         Objects.requireNonNull(key, "Cache key cannot be null");
         validateRegion(region);
-        validateTimeToLive(timeToLiveSeconds);
-        validateCacheManager();
-
-        var cache = manager.getCache(region);
-        if (cache == null) {
-            throw new IllegalArgumentException("Cache region not found: " + region);
+        if (timeToLiveSeconds < 0) {
+            throw new IllegalArgumentException(
+                "Time-to-live cannot be negative: " + timeToLiveSeconds);
         }
 
-        try {
-            var element = cache.get(key);
-            if (element != null) {
-                element.setEternal(false);
-                element.setTimeToLive(timeToLiveSeconds);
-
-                log.debug("Set time-to-live for key '{}' in region '{}' to {} seconds",
-                    key, region, timeToLiveSeconds);
-                return true;
-            }
-            return false;
-        } catch (CacheException e) {
-            log.error("Error setting time-to-live for key '{}' in region '{}'", key, region, e);
-            throw new IllegalStateException("Failed to set time-to-live for key: " + key, e);
-        }
+        log.warn("setTimeToLive is not supported per-entry in Ehcache 3.x. "
+            + "Configure TTL in the cache definition. Key: '{}', Region: '{}'", key, region);
+        return false;
     }
 
     @Override
@@ -271,27 +215,15 @@ public final class PSEhCacheAccessor implements IPSCacheAccess {
         return manager;
     }
 
-    /**
-     * Gets the notification service.
-     *
-     * @return the notification service, may be null if not configured
-     */
     public Optional<IPSNotificationService> getNotificationService() {
         return Optional.ofNullable(notificationService);
     }
 
-    /**
-     * Sets the notification service and registers cache invalidation listener.
-     *
-     * @param notificationService the notification service, must not be null
-     * @throws IllegalArgumentException if notificationService is null
-     */
     @Autowired
     public void setNotificationService(IPSNotificationService notificationService) {
         this.notificationService = Objects.requireNonNull(notificationService,
             "Notification service cannot be null");
 
-        // Register invalidation listener
         this.notificationService.addListener(EventType.OBJECT_INVALIDATION,
             new PSEhCacheNotificationListener());
 
@@ -299,8 +231,34 @@ public final class PSEhCacheAccessor implements IPSCacheAccess {
     }
 
     /**
-     * Validates that a cache region name is valid.
+     * Returns the cache for the given region, creating it on demand if necessary.
      */
+    private Cache<Serializable, Serializable> getOrCreateCache(String region) {
+        var cache = manager.getCache(region, Serializable.class, Serializable.class);
+        if (cache == null) {
+            cache = manager.createCache(region,
+                CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                        Serializable.class, Serializable.class,
+                        ResourcePoolsBuilder.heap(DEFAULT_HEAP_ENTRIES))
+                    .build());
+            regionNames.add(region);
+            log.debug("Created new cache region: '{}'", region);
+        } else if (!regionNames.contains(region)) {
+            regionNames.add(region);
+        }
+        return cache;
+    }
+
+    private void clearRegion(String name) {
+        var cache = manager.getCache(name, Serializable.class, Serializable.class);
+        if (cache != null) {
+            cache.clear();
+            log.debug("Cleared cache region '{}'", name);
+        } else {
+            log.warn("Cannot clear unknown cache region: '{}'", name);
+        }
+    }
+
     private void validateRegion(String region) {
         Objects.requireNonNull(region, "Cache region cannot be null");
         if (region.trim().isEmpty()) {
@@ -309,70 +267,7 @@ public final class PSEhCacheAccessor implements IPSCacheAccess {
     }
 
     /**
-     * Validates that the cache manager is configured.
-     */
-    private void validateCacheManager() {
-        if (manager == null) {
-            throw new IllegalStateException("Cache manager is not configured");
-        }
-    }
-
-    /**
-     * Validates time-to-idle value.
-     */
-    private void validateTimeToIdle(int timeToIdleSeconds) {
-        if (timeToIdleSeconds < 0) {
-            throw new IllegalArgumentException("Time-to-idle cannot be negative: " + timeToIdleSeconds);
-        }
-    }
-
-    /**
-     * Validates time-to-live value.
-     */
-    private void validateTimeToLive(int timeToLiveSeconds) {
-        if (timeToLiveSeconds < 0) {
-            throw new IllegalArgumentException("Time-to-live cannot be negative: " + timeToLiveSeconds);
-        }
-    }
-
-    /**
-     * Gets a cache instance, throwing exception if not found.
-     */
-    private Ehcache getCache(String region) {
-        var cache = manager.getEhcache(region);
-        if (cache == null) {
-            throw new IllegalArgumentException("Cache region not found: " + region);
-        }
-        return cache;
-    }
-
-    /**
-     * Generates statistics for a specific cache region.
-     */
-    private PSCacheStatisticsSnapshot getCacheStatistics(Ehcache cache) {
-        Objects.requireNonNull(cache, "Cache cannot be null");
-
-        var stats = cache.getStatistics();
-
-        var memItems = stats.getSize();
-        var memUsage = stats.getLocalHeapSizeInBytes();
-        var misses = stats.cacheMissCount();
-        var totalHits = stats.cacheHitCount();
-        var diskHits = stats.localDiskHitCount();
-        var diskItems = stats.localDiskPutAddedCount();
-
-        // Estimate disk usage based on memory usage ratio
-        var diskUsage = 0L;
-        if (diskItems > 0 && memItems > 0) {
-            diskUsage = diskItems * (memUsage / memItems);
-        }
-
-        return new PSCacheStatisticsSnapshot(diskHits, diskItems, diskUsage,
-                memItems, memUsage, misses, totalHits);
-    }
-
-    /**
-     * Modern Java 11 notification listener for cache invalidation events.
+     * Notification listener for cache invalidation events.
      */
     public static class PSEhCacheNotificationListener implements IPSNotificationListener {
 
@@ -381,12 +276,10 @@ public final class PSEhCacheAccessor implements IPSCacheAccess {
             Objects.requireNonNull(notification, "Notification cannot be null");
 
             var target = notification.getTarget();
-            if (target instanceof IPSGuid) {
-                var guid = (IPSGuid) target;
+            if (target instanceof IPSGuid guid) {
                 try {
                     var cache = PSCacheAccessLocator.getCacheAccess();
                     cache.evict(guid, IPSCacheAccess.IN_MEMORY_STORE);
-
                     log.debug("Cache invalidation: evicted GUID '{}' from in-memory store", guid);
                 } catch (Exception e) {
                     log.error("Error during cache invalidation for GUID '{}'", guid, e);

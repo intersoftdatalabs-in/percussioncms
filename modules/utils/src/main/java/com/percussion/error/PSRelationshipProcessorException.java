@@ -18,6 +18,7 @@ package com.percussion.error;
 
 /** Generic exception class to be used for relationship processing errors. */
 public class PSRelationshipProcessorException extends PSException {
+  private static final long serialVersionUID = 1L;
   /**
    * Pass-through constructor to super class.
    *

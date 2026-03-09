@@ -69,8 +69,7 @@
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
-            <scope>provided</scope>
+            <artifactId>ojdbc17</artifactId>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -234,7 +233,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.oracle.database.jdbc</groupId>
-                                    <artifactId>ojdbc11</artifactId>
+                                    <artifactId>ojdbc17</artifactId>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
@@ -252,6 +251,21 @@
                         <groupId>com.percussion</groupId>
                         <artifactId>perc-system</artifactId>
                         <version>${project.version}</version>
+                        <exclusions>
+                            <!-- Exclude old JAXB artifacts that no longer exist in Maven Central -->
+                            <exclusion>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.istack</groupId>
+                                <artifactId>istack-commons-runtime</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.xml.fastinfoset</groupId>
+                                <artifactId>FastInfoset</artifactId>
+                            </exclusion>
+                        </exclusions>
                     </dependency>
                 </dependencies>
                 <executions>

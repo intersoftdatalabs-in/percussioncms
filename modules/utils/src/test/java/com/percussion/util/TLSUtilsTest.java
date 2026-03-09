@@ -18,8 +18,27 @@
 package com.percussion.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+
+import java.io.PrintStream;
+import java.io.OutputStream;
 
 public class TLSUtilsTest {
+
+  private PrintStream originalOut;
+  private final PrintStream silentOut = new PrintStream(OutputStream.nullOutputStream());
+
+  @BeforeEach
+  public void muteOutput() {
+    originalOut = System.out;
+    System.setOut(silentOut);
+  }
+
+  @AfterEach
+  public void restoreOutput() {
+    System.setOut(originalOut);
+  }
 
   @Test
   public void getEnabledCiphers() {

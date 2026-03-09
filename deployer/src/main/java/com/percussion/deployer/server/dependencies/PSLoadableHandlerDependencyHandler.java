@@ -26,8 +26,8 @@ import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequestHandlerConfiguration;
 import com.percussion.server.PSRequestHandlerDef;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,14 +54,15 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
       throw new IllegalArgumentException("dep wrong type");
 
     // there are no children
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class
+  @SuppressWarnings("unchecked")
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    Iterator defs = getReqHandlerCfg().getHandlerDefs();
+    Iterator<PSRequestHandlerDef> defs = getReqHandlerCfg().getHandlerDefs();
     List<PSDependency> result = new ArrayList<>();
     while (defs != null && defs.hasNext()) {
       PSRequestHandlerDef def = (PSRequestHandlerDef) defs.next();
@@ -78,7 +79,7 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
       throw new IllegalArgumentException("id may not be null or empty");
 
     PSDependency dep = null;
-    Iterator deps = getDependencies(tok);
+    Iterator<PSDependency> deps = getDependencies(tok);
     while (deps.hasNext() && dep == null) {
       PSDependency test = (PSDependency) deps.next();
       if (id.equals(test.getDependencyId())) dep = test;
@@ -94,7 +95,7 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
    * @return An empty iterator, never <code>null</code>.
    */
   public Iterator<String> getChildTypes() {
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

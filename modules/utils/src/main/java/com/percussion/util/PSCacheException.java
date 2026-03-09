@@ -25,6 +25,8 @@ import com.percussion.error.PSException;
  */
 public class PSCacheException extends PSException {
 
+  private static final long serialVersionUID = 1L;
+
   /**
    * Pass-through constructor to super class.
    *

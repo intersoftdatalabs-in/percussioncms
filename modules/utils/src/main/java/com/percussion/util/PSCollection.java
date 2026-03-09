@@ -29,7 +29,7 @@ import java.util.Objects;
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSCollection extends PSConcurrentList {
   /**
    * Construct a collection object to store objects of the specified type.
@@ -75,7 +75,7 @@ public class PSCollection extends PSConcurrentList {
       Object o = i.next();
       if (m_memberClass == null) m_memberClass = o.getClass();
 
-      add(o);
+      super.add(o);
     }
   }
 

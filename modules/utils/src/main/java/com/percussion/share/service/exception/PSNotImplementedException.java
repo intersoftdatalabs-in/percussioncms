@@ -24,6 +24,8 @@ package com.percussion.share.service.exception;
  */
 public class PSNotImplementedException extends RuntimeException {
 
+  private static final long serialVersionUID = 1L;
+
   public PSNotImplementedException(String message) {
     super(message);
   }

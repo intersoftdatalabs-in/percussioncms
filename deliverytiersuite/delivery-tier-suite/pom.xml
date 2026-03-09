@@ -395,7 +395,7 @@
             </dependency>
             <dependency>
                 <groupId>com.percussion</groupId>
-                <artifactId>rxutils</artifactId>
+                <artifactId>utils</artifactId>
                 <version>${project.parent.version}</version>
                 <classifier>sources</classifier>
                 <scope>test</scope>
@@ -420,7 +420,7 @@
             </dependency>
             <dependency>
                 <groupId>com.percussion</groupId>
-                <artifactId>rxutils</artifactId>
+                <artifactId>utils</artifactId>
                 <version>${project.parent.version}</version>
                 <exclusions>
                     <exclusion>
@@ -443,7 +443,7 @@
             </dependency>
             <dependency>
                 <groupId>com.percussion</groupId>
-                <artifactId>rxutils</artifactId>
+                <artifactId>utils</artifactId>
                 <version>${project.parent.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
@@ -482,17 +482,6 @@
                     <exclusion>
                         <groupId>jakarta.servlet</groupId>
                         <artifactId>jakarta.servlet-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>${ehcache.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -599,17 +588,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache-core</artifactId>
-                <version>${ehcache-core.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>${commons-collections.version}</version>
@@ -685,8 +663,7 @@
             <dependency>
                 <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
-                <version>${ehcache-core.version}</version>
-            </dependency>
+                <version>${ehcache-core.version}</version>                <classifier>jakarta</classifier>            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>

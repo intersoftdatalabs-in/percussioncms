@@ -59,8 +59,23 @@ public class PSDriverHelper {
     File jarfile = new File(driverPath);
     URL[] urls = new URL[] {jarfile.toURI().toURL()};
     ClassLoader loader = new URLClassLoader(urls);
-    Class driverClazz = Class.forName(driverClass, true, loader);
-    Object objDriver = driverClazz.newInstance();
+    Class<?> driverClazz = Class.forName(driverClass, true, loader);
+    Object objDriver;
+    try {
+      objDriver = driverClazz.getDeclaredConstructor().newInstance();
+    } catch (InstantiationException ie) {
+      throw ie;
+    } catch (IllegalAccessException iae) {
+      throw iae;
+    } catch (NoSuchMethodException nsme) {
+      InstantiationException ie = new InstantiationException(nsme.getMessage());
+      ie.initCause(nsme);
+      throw ie;
+    } catch (java.lang.reflect.InvocationTargetException ite) {
+      InstantiationException ie = new InstantiationException(ite.getMessage());
+      ie.initCause(ite);
+      throw ie;
+    }
     if (objDriver instanceof Driver) {
       driver = (Driver) objDriver;
     } else {

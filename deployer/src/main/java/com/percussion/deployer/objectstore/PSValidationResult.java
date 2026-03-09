@@ -19,8 +19,8 @@ package com.percussion.deployer.objectstore;
 
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.util.Collections;
 import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,8 +48,8 @@ public class PSValidationResult implements IPSDeployComponent {
 
     // keep a copy of the dependency with no chilren or ancestors
     m_dep = (PSDependency) dep.clone();
-    m_dep.setDependencies(PSIteratorUtils.emptyIterator());
-    m_dep.setAncestors(PSIteratorUtils.emptyIterator());
+    m_dep.setDependencies(Collections.emptyIterator());
+    m_dep.setAncestors(Collections.emptyIterator());
 
     m_isError = isError;
     m_isAllowSkip = isAllowSkip;

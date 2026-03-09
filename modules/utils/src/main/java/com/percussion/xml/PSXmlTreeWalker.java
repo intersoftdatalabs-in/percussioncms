@@ -732,7 +732,7 @@ public class PSXmlTreeWalker implements Serializable {
    * @return the name of the node to use as the iterator (may be <code>null</code>)
    */
 
-  public static String getLowestLevelElement(List elements) {
+  public static String getLowestLevelElement(List<String> elements) {
     int size = elements.size();
     if (size == 0) return null;
 
@@ -740,7 +740,7 @@ public class PSXmlTreeWalker implements Serializable {
       /* in this case, back up one level so we support multiple rows.  If
        * we are on the root, then just pass that back.
        */
-      String elem = (String) elements.get(0);
+      String elem = elements.get(0);
       int pos = elem.lastIndexOf('/');
       if (pos != -1) {
         elem = elem.substring(0, pos);
@@ -1242,7 +1242,7 @@ public class PSXmlTreeWalker implements Serializable {
 
   static {
     try {
-      Class x =
+      Class<?> x =
           Thread.currentThread().getContextClassLoader().loadClass("com.icl.saxon.Controller");
       ms_saxon_loaded = x != null;
     } catch (LinkageError | ClassNotFoundException e) {

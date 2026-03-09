@@ -100,7 +100,7 @@ public class PSOutputEscaping {
     String current = null;
     for (int i = 0; i < str.length(); i++) {
       current = str.substring(i, i + 1);
-      if (ms_escapeMap.containsKey(current)) out.append((String) ms_escapeMap.get(current));
+      if (ms_escapeMap.containsKey(current)) out.append(ms_escapeMap.get(current));
       else out.append(current);
     }
     return out.toString();
@@ -115,7 +115,7 @@ public class PSOutputEscaping {
   public static final String APOS = "&apos;";
 
   /** Map of character to entity mappings */
-  public static final Map ms_escapeMap = new HashMap();
+  public static final Map<String, String> ms_escapeMap = new HashMap<>();
 
   static {
     ms_escapeMap.put("&", AMP);

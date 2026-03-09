@@ -159,7 +159,6 @@
 			<entry key="requireCacheControl" default="true" />
 			<entry key="cacheControl"
 				default="no-cache='Set-Cookie, Set-Cookie2',must-revalidate" />
-			<entry key="autotuneCachePercentage" default="60" />
 			<entry key="brokenManagedLinkBehavior" default="deadLink" />
 			<entry key="caseSensitiveUrl" default="true" />
 			<entry key="communities_enabled" value="yes" default="yes"

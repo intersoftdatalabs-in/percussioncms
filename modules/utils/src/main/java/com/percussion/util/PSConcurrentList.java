@@ -17,9 +17,7 @@
 
 package com.percussion.util;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -41,12 +39,12 @@ public class PSConcurrentList<T> implements List<T> {
 
 
   public PSConcurrentList(Class<T> clazz) {
-    list = (List<T>) Arrays.asList(Array.newInstance(clazz, 0));
+    list = new ArrayList<>();
   }
 
 
   public PSConcurrentList(Class<?> clazz, int capacity) {
-    list = (List<T>) Arrays.asList(Array.newInstance(clazz, capacity));
+    list = new ArrayList<>(capacity);
   }
 
   public PSConcurrentList(List<T> list) {
@@ -651,7 +649,7 @@ public class PSConcurrentList<T> implements List<T> {
       list = copy;
 
     } finally {
-      rentrantLock.lock();
+      rentrantLock.unlock();
     }
   }
 }

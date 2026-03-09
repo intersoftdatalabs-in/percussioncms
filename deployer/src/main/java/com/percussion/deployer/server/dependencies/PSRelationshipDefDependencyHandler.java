@@ -42,12 +42,12 @@ import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.config.PSConfigManager;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -83,7 +83,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
     var cfgSet = PSRelationshipCommandHandler.getConfigurationSet();
     var cfg = cfgSet.getConfig(dep.getDependencyId());
     if (cfg == null) {
-      return PSIteratorUtils.emptyIterator();
+      return Collections.emptyIterator();
     }
 
     var childDeps = new HashSet<PSDependency>();
@@ -153,7 +153,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
     var cfgSet = PSRelationshipCommandHandler.getConfigurationSet();
     var cfg = cfgSet.getConfig(dep.getDependencyId());
     if (cfg == null) {
-      return PSIteratorUtils.emptyIterator();
+      return Collections.emptyIterator();
     }
 
     var doc = PSXmlDocumentBuilder.createXmlDocument();

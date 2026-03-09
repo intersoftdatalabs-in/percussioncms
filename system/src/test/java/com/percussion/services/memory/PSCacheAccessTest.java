@@ -19,15 +19,14 @@
 package com.percussion.services.memory;
 
 
+import com.percussion.services.memory.impl.PSEhCacheAccessor;
 import com.percussion.utils.timing.PSStopwatch;
-import net.sf.ehcache.CacheManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Disabled;
 
-import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -45,38 +44,18 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author dougrand
  */
 
-@Disabled("Temporarily disabled — failing in perc-system test run")
 @DisplayName("Cache Access Service Tests")
 class PSCacheAccessTest {
-
-   /**
-    * Testing cache configuration for EHCache.
-    */
-   private static final String EHCACHE_CONFIG = """
-         <ehcache>
-             <defaultCache
-                 maxElementsInMemory="10000"
-                 eternal="false"
-                 timeToIdleSeconds="3000"
-                 timeToLiveSeconds="3000" />
-             <cache name="object"
-                 maxElementsInMemory="1000"
-                 eternal="false"
-                 overflowToDisk="false"
-                 timeToIdleSeconds="5"
-                 timeToLiveSeconds="10" />
-             <cache name="region2"
-                 maxElementsInMemory="1000"
-                 eternal="false"
-                 overflowToDisk="false"
-                 timeToIdleSeconds="500"
-                 timeToLiveSeconds="10000" />
-         </ehcache>""";
 
    /**
     * Test cache region name.
     */
    private static final String TEST_REGION = "object";
+
+   /**
+    * Shared cache accessor instance for all tests.
+    */
+   private static IPSCacheAccess cache;
 
    /**
     * Test data class for cache operations.
@@ -147,15 +126,20 @@ class PSCacheAccessTest {
    }
 
    @BeforeAll
-   static void setupCache() throws Exception {
-      CacheManager.create(new ByteArrayInputStream(EHCACHE_CONFIG.getBytes()));
+   static void setupCache() {
+      cache = new PSEhCacheAccessor();
+   }
+
+   @AfterAll
+   static void tearDown() {
+      if (cache != null) {
+         cache.getManager().close();
+      }
    }
 
    @Test
    @DisplayName("Basic cache operations: save, get, evict")
    void testBasicCacheOperations() throws Exception {
-      var cache = PSCacheAccessLocator.getCacheAccess();
-
       // Test save and get
       cache.save("testKey", "testValue", TEST_REGION);
       var result = cache.get("testKey", TEST_REGION);
@@ -180,7 +164,6 @@ class PSCacheAccessTest {
    @Test
    @DisplayName("Cache performance comparison with HashMap")
    void testCachePerformance() throws Exception {
-      var cache = PSCacheAccessLocator.getCacheAccess();
       var stopwatch = new PSStopwatch();
       var mapStore = new HashMap<String, Object>();
 
@@ -233,8 +216,6 @@ class PSCacheAccessTest {
    @Test
    @DisplayName("Cache statistics and region management")
    void testCacheStatistics() throws Exception {
-      var cache = PSCacheAccessLocator.getCacheAccess();
-
       // Save some test data
       cache.save("stat1", "value1", TEST_REGION);
       cache.save("stat2", "value2", TEST_REGION);
@@ -255,8 +236,6 @@ class PSCacheAccessTest {
    @Test
    @DisplayName("Cache validation and error handling")
    void testCacheValidation() {
-      var cache = PSCacheAccessLocator.getCacheAccess();
-
       // Test null key validation
       assertThrows(NullPointerException.class, () ->
          cache.save(null, "value", TEST_REGION), "Should throw on null key");

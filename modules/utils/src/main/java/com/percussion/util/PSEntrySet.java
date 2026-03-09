@@ -104,12 +104,12 @@ public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {
     if (!(o instanceof java.util.Map.Entry)) return false;
 
 
-    java.util.Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) o;
-    K key = entry.getKey();
-    V val = entry.getValue();
+    java.util.Map.Entry<?, ?> entry = (java.util.Map.Entry<?, ?>) o;
+    Object key = entry.getKey();
+    Object val = entry.getValue();
 
     return ((m_key == null) ? (key == null) : m_key.equals(key))
-        && ((m_value == null) ? (val == null) : m_value.equals(val));
+      && ((m_value == null) ? (val == null) : m_value.equals(val));
   }
 
   /**

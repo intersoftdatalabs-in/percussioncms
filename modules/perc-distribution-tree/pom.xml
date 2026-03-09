@@ -136,7 +136,7 @@
         <!-- Use legacy javax JAX-RS API for Java 11/Tomcat 9 stack -->
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
             <!-- Exclude large transitives not needed by the preinstall classes.
@@ -401,8 +401,23 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.percussion</groupId>
-                        <artifactId>rxutils</artifactId>
+                        <artifactId>utils</artifactId>
                         <version>${project.version}</version>
+                        <exclusions>
+                            <!-- Exclude old JAXB artifacts that no longer exist in Maven Central -->
+                            <exclusion>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.istack</groupId>
+                                <artifactId>istack-commons-runtime</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.xml.fastinfoset</groupId>
+                                <artifactId>FastInfoset</artifactId>
+                            </exclusion>
+                        </exclusions>
                     </dependency>
                     <dependency>
                         <groupId>com.percussion</groupId>
@@ -418,11 +433,41 @@
                         <groupId>com.percussion</groupId>
                         <artifactId>perc-ant</artifactId>
                         <version>${project.version}</version>
+                        <exclusions>
+                            <!-- Exclude old JAXB artifacts that no longer exist in Maven Central -->
+                            <exclusion>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.istack</groupId>
+                                <artifactId>istack-commons-runtime</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.xml.fastinfoset</groupId>
+                                <artifactId>FastInfoset</artifactId>
+                            </exclusion>
+                        </exclusions>
                     </dependency>
                     <dependency>
                         <groupId>com.percussion</groupId>
                         <artifactId>perc-legacy</artifactId>
                         <version>${project.version}</version>
+                        <exclusions>
+                            <!-- Exclude old JAXB artifacts that no longer exist in Maven Central -->
+                            <exclusion>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.istack</groupId>
+                                <artifactId>istack-commons-runtime</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.xml.fastinfoset</groupId>
+                                <artifactId>FastInfoset</artifactId>
+                            </exclusion>
+                        </exclusions>
                     </dependency>
                     <dependency>
                         <groupId>jakarta.servlet</groupId>
@@ -437,6 +482,32 @@
                             <exclusion>
                                 <groupId>ant</groupId>
                                 <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <!-- Provide modern JAXB runtime for Jakarta EE compatibility -->
+                    <dependency>
+                        <groupId>org.glassfish.jaxb</groupId>
+                        <artifactId>jaxb-runtime</artifactId>
+                        <version>${jaxb.runtime.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.percussion</groupId>
+                        <artifactId>perc-system</artifactId>
+                        <version>${project.version}</version>
+                        <exclusions>
+                            <!-- Exclude old JAXB artifacts that no longer exist in Maven Central -->
+                            <exclusion>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.istack</groupId>
+                                <artifactId>istack-commons-runtime</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.sun.xml.fastinfoset</groupId>
+                                <artifactId>FastInfoset</artifactId>
                             </exclusion>
                         </exclusions>
                     </dependency>

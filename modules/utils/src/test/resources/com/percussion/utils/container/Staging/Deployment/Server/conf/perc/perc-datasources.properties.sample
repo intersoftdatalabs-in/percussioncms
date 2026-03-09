@@ -16,7 +16,7 @@ db.password=ENC(2sU2TZ627xkhnsXip/5mgw\=\=)
 db.schema=APP
 
 # the JDBC driver class name
-# "Oracle" - oracle.jdbc.driver.OracleDriver
+# "Oracle" - oracle.jdbc.OracleDriver
 # "MySQL"/"MariaDB"  - org.mariadb.jdbc.Driver
 # "MS SQL" - net.sourceforge.jtds.jdbc.Driver
 # "Derby"  - org.apache.derby.jdbc.ClientDriver
@@ -45,8 +45,8 @@ datasource=percDataSource
 # name of the bean with hibernate properties
 hibernateProperties=percHibernateProperties
 
-# Dialect for current database type. 
-# The following is a list of dialects that may be used for different databases / drivers 
+# Dialect for current database type.
+# The following is a list of dialects that may be used for different databases / drivers
 # "Oracle" - org.hibernate.dialect.Oracle10gDialect
 # "MySQL" / "MariaDB"  - org.hibernate.dialect.MySQL5InnoDBDialect
 # "MS SQL" - com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect
