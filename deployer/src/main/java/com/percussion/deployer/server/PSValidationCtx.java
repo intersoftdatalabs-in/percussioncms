@@ -24,7 +24,6 @@ import com.percussion.deployer.objectstore.PSIdMap;
 import com.percussion.deployer.objectstore.PSImportDescriptor;
 import com.percussion.deployer.objectstore.PSImportPackage;
 import com.percussion.deployer.objectstore.PSValidationResult;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.*;
 
 /** Encapsulates various objects used to perform validation across multiple packages. */
@@ -197,7 +196,7 @@ public class PSValidationCtx {
     Objects.requireNonNull(dep, "dep may not be null");
     var ancList = m_absentAncs.get(dep.getKey());
     if (ancList == null) {
-      return PSIteratorUtils.emptyIterator();
+      return Collections.emptyIterator();
     }
     return ancList.iterator();
   }

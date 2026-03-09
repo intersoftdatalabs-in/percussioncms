@@ -61,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>${project.parent.version}</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
@@ -349,7 +349,7 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -531,9 +531,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-        </dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>            <classifier>jakarta</classifier>        </dependency>
         <dependency>
             <groupId>com.github.dfabulich</groupId>
             <artifactId>sitemapgen4j</artifactId>

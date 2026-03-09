@@ -19,8 +19,7 @@ package com.percussion.pso.imageedit.services.cache.impl;
 import com.percussion.pso.imageedit.data.ImageData;
 import com.percussion.pso.imageedit.data.ImageMetaData;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
+import org.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +28,7 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
   private static final Logger log = LogManager.getLogger(ImageCacheManagerImpl.class);
   private long counter;
 
-  private Cache cache;
+  private Cache<String, ImageData> cache;
 
   public ImageCacheManagerImpl() {
     counter = 1;
@@ -38,8 +37,7 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
   public String addImage(ImageData data) {
     String imageKey = generateKey(data);
     log.debug("new image key is {}", imageKey);
-    Element element = new Element(imageKey, data);
-    cache.put(element);
+    cache.put(imageKey, data);
 
     return imageKey;
   }
@@ -48,11 +46,7 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
    * @see ImageCacheManager#getImage(String)
    */
   public ImageData getImage(String imageKey) {
-    Element elem = cache.get(imageKey);
-    if (elem == null) {
-      return null;
-    }
-    return (ImageData) elem.getValue();
+    return cache.get(imageKey);
   }
 
   public ImageMetaData getImageMetaData(String imageKey) {
@@ -64,7 +58,7 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
   }
 
   public boolean hasImage(String imageKey) {
-    return cache.isKeyInCache(imageKey);
+    return cache.containsKey(imageKey);
   }
 
   /**
@@ -89,14 +83,14 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
   /**
    * @return the cache
    */
-  public Cache getCache() {
+  public Cache<String, ImageData> getCache() {
     return cache;
   }
 
   /**
    * @param cache the cache to set
    */
-  public void setCache(Cache cache) {
+  public void setCache(Cache<String, ImageData> cache) {
     this.cache = cache;
   }
 }

@@ -255,7 +255,7 @@ public class PSBrandCodeData {
     if (propertyId < 0) throw new IllegalArgumentException("Invalid property id");
 
     if (!m_propertiesMap.containsKey("" + propertyId)) return 0;
-    String propValue = (String) m_propertiesMap.get("" + propertyId);
+    String propValue = m_propertiesMap.get("" + propertyId);
     return Integer.parseInt(propValue);
   }
 

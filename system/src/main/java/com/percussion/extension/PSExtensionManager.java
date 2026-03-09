@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
@@ -93,7 +94,7 @@ public class PSExtensionManager implements IPSExtensionManager {
     PSExtensionDef hhDef =
         new PSExtensionDef(
             hhRef,
-            PSIteratorUtils.iterator(IPSExtensionHandler.class.getName()),
+            List.of(IPSExtensionHandler.class.getName()).iterator(),
             null,
             hhProps,
             null);

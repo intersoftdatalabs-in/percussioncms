@@ -101,7 +101,7 @@ public class PSUserInfo implements IPSCmsComponent {
       PSRemoteAppletRequester requestor = new PSRemoteAppletRequester(connection, urlBase);
       //    System.out.println("getting doc");
       Document doc =
-          requestor.getDocument("sys_psxCms/userinfo.xml", new HashMap<Object, Object>());
+          requestor.getDocument("sys_psxCms/userinfo.xml", new HashMap<String, Object>());
       //      System.out.println("got doc"+doc);
       //        System.out.println("Server returned userinfo "+PSXMLDomUtil.toString(doc));
       fromXml(doc.getDocumentElement());

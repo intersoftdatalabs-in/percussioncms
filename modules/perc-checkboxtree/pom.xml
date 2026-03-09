@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

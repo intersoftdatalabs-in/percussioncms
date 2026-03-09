@@ -198,8 +198,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <!-- <bean id="jacksonContextResolver" class="com.percussion.sitemanage.json.JacksonContextResolver"> </bean> -->
 
-
-    <bean id="jacksonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider">
+    <!-- JacksonJaxbJsonProvider was removed in Jackson 2.15+. Using JacksonJsonProvider instead -->
+    <bean id="jacksonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
     </bean>
 
     <jaxrs:server id="category-jax-rs" address="/categorymanagement">
@@ -1828,10 +1828,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
 
     <bean id="removePostEditionTasks" class="com.percussion.share.extension.PSRemovePostEditionTasks">
-        <property name="startupProcessManager" ref="sys_startupProcessManager"/>
-    </bean>
-
-    <bean id="autotuneCache" class="com.percussion.share.extension.PSAutotuneCacheStartup">
         <property name="startupProcessManager" ref="sys_startupProcessManager"/>
     </bean>
 

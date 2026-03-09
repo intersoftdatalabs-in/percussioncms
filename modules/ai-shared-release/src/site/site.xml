@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 http://maven.apache.org/xsd/decoration-1.8.0.xsd">
+
+    <edit>${project.scm.url}</edit>
+
+    <skin>
+        <groupId>io.github.stevecrox.maven.skins</groupId>
+        <artifactId>bootstrap-site-skin</artifactId>
+        <version>${skin.last.release.version}</version>
+    </skin>
+
+    <publishDate position="right"/>
+    <version position="right"/>
+
+    <custom>
+        <bootstrapSkin>
+            <gitHub>
+                <organisation>percussion</organisation>
+                <repository>percussioncms</repository>
+            </gitHub>
+            <navbar>
+                <icon>
+                    <href>./index.html</href>
+                    <height>2rem</height>
+                    <width>2.5rem</width>
+                </icon>
+            </navbar>
+        </bootstrapSkin>
+    </custom>
+
+    <body>
+        <menu ref="parent"/>
+        <menu ref="reports"/>
+    </body>
+</project>

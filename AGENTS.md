@@ -45,6 +45,7 @@ This repository is a large mono-repo with many submodules.  This code base has a
 
 * Always work with the #codebase directory as the root for all file paths.
 * Always use the #codebase context when resolving missing interfaces or classes.
+* Follow Java coding standards defined in `modules/ai-shared-develop/src/main/resources/instructions/java-coding-standards.md` for all Java code changes.
 * Write clean, maintainable code that follows the existing style and conventions of the project.
 * Ensure that your code is well-documented with comments where necessary.
 * Follow the existing package structure and naming conventions. Google Code Style is the preferred standard for all languages.

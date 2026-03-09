@@ -33,14 +33,13 @@ public class PSMapUtils {
         .allMatch(e -> Arrays.equals(e.getValue(), second.get(e.getKey())));
   }
 
-  public static boolean areEqualWithArrayListValue(
-      Map<String, List> first, Map<String, List> second) {
+    public static boolean areEqualWithArrayListValue(
+      Map<String, List<?>> first, Map<String, List<?>> second) {
     if (first.size() != second.size()) {
       return false;
     }
 
-    Map.Entry<String, List> matchedEntry = null;
-    for (Map.Entry<String, List> e : first.entrySet()) {
+    for (Map.Entry<String, List<?>> e : first.entrySet()) {
       if (!second.containsKey(e.getKey())) {
         return false;
       }

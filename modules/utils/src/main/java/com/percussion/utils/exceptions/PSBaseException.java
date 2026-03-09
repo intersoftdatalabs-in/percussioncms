@@ -30,6 +30,7 @@ import java.util.ResourceBundle;
  * qualified properties file name.
  */
 public abstract class PSBaseException extends Exception {
+  private static final long serialVersionUID = 1L;
   /**
    * Construct an exception for messages taking an array of arguments. Be sure to store the
    * arguments in the correct order in the array, where {0} in the string is array element 0, etc.

@@ -18,13 +18,10 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
 	<context:component-scan base-package="com.percussion.pso.restservice" />
 
-	<bean id="methodCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-		<property name="cacheManager">
-			<ref bean="sys_cacheManager" />
-		</property>
-		<property name="cacheName">
-			<value>com.percussion.pso.restservice.cache.METHOD_CACHE</value>
-		</property>
+	<bean id="methodCache" class="com.percussion.services.memory.PSEhCacheFactoryBean">
+		<property name="cacheManager" ref="sys_cacheManager" />
+		<property name="cacheName"
+			value="com.percussion.pso.restservice.cache.METHOD_CACHE" />
 	</bean>
 
 	<bean id="methodCacheInterceptor"

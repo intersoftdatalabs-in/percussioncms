@@ -23,10 +23,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class PSResourceUtils {
 
-  public static String getResourcePath(Class clazz, String resourcePath) {
+  public static String getResourcePath(Class<?> clazz, String resourcePath) {
     URL url = clazz.getResource(resourcePath);
     if (url == null) throw new IllegalArgumentException("Cannot load resource " + resourcePath);
     return url.getPath();
@@ -39,13 +40,17 @@ public class PSResourceUtils {
    * @param dir  May be null
    * @return
    */
-  public static File getFile(Class clazz, String resourcePath, File dir) throws IOException {
+  public static File getFile(Class<?> clazz, String resourcePath, File dir) throws IOException {
     File ret = File.createTempFile("test", "tmp", dir);
     ret.deleteOnExit();
 
     InputStream is = clazz.getResourceAsStream(resourcePath);
+    if (is == null) throw new IllegalArgumentException("Cannot load resource " + resourcePath);
 
-    IOTools.copyStreamToFile(is, ret);
+    try (InputStream in = is) {
+      Files.copy(in, ret.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
     return ret;
   }
 
@@ -58,7 +63,7 @@ public class PSResourceUtils {
     return ret;
   }
 
-  public static File getFakeRxDirFile(Class clazz, String resourcePath) throws IOException {
+  public static File getFakeRxDirFile(Class<?> clazz, String resourcePath) throws IOException {
     return getFile(clazz, resourcePath, getFakeRxDir());
   }
 }

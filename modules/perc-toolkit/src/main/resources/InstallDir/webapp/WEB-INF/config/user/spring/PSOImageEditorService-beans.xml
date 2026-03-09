@@ -23,7 +23,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                <property name="code" value="thumb"/>
                <property name="label" value="Smallest Image"/>
                <property name="height" value="100" />
-               <property name="width" value="100"/> 
+               <property name="width" value="100"/>
                <property name="binaryTemplate" value="imedBnThumb"/>
                <property name="snippetTemplate" value="imedSnThumb"/>
             </bean>
@@ -31,7 +31,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                <property name="code" value="midsize"/>
                <property name="label" value="Midsize Image"/>
                <property name="height" value="250" />
-               <property name="width" value="350"/> 
+               <property name="width" value="350"/>
                <property name="binaryTemplate" value="imedBnMidsize"/>
                <property name="snippetTemplate" value="imedSnMidsize"/>
             </bean>
@@ -39,7 +39,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                <property name="code" value="midheight"/>
                <property name="label" value="Midheight Image"/>
                <property name="height" value="250" />
-               <property name="width" value="0"/> 
+               <property name="width" value="0"/>
                <property name="binaryTemplate" value="imedBnMidsize"/>
                <property name="snippetTemplate" value="imedSnMidsize"/>
             </bean>
@@ -47,7 +47,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                <property name="code" value="midwidth"/>
                <property name="label" value="Midwidth Image"/>
                <property name="height" value="0" />
-               <property name="width" value="200"/> 
+               <property name="width" value="200"/>
                <property name="binaryTemplate" value="imedBnMidsize"/>
                <property name="snippetTemplate" value="imedSnMidsize"/>
             </bean>
@@ -55,31 +55,21 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
       </property>
       <property name="sizedImageNodeName" value="sized"/>
       <property name="sizedImagePropertyName" value="size_code" />
-      <property name="failureImagePath" value="rx_resources/addins/psoimageeditor/images/failure.jpg" />  
+      <property name="failureImagePath" value="rx_resources/addins/psoimageeditor/images/failure.jpg" />
    </bean>
 
- 
-   
-   <!-- Cache beans used for image cache -->
-   <bean id="imageEditorCacheManager"
-   	class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" name="imageCacheManager">
-	 <property name="cacheManagerName" value="imageEditorCacheManager"/>
-      <property name="shared" value="true"/>
-	</bean>
 
+
+   <!-- Cache beans used for image cache (Ehcache 3.x) -->
    <bean id="ImageMetaDataCacheRegion"
-   	class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-   	<property name="cacheManager">
-   		<ref local="imageEditorCacheManager" />
-   	</property>
-   	<property name="cacheName" 
+   	class="com.percussion.services.memory.PSEhCacheFactoryBean">
+   	<property name="cacheManager" ref="sys_cacheManager" />
+   	<property name="cacheName"
    		value="com.percussion.pso.imageeditor.ImageMetaData" />
-   	<property name="eternal" value="no" />
-   	<property name="diskPersistent" value="yes" />
-   	<property name="maxElementsInMemory" value="2000" /> 
-   	<property name="overflowToDisk" value="yes" />
+   	<property name="eternal" value="false" />
+   	<property name="maxElementsInMemory" value="2000" />
    	<property name="timeToIdle" value="3600" />
-   	<property name="timeToLive" value="3600" />  
+   	<property name="timeToLive" value="3600" />
    </bean>
 
    <bean id="imedImageMetaDataCacheImpl"

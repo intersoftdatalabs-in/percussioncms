@@ -32,6 +32,7 @@ import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.utils.collections.PSIteratorUtils;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -126,7 +127,7 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
       }
       return ids.iterator();
     } else {
-      return PSIteratorUtils.emptyIterator();
+      return Collections.emptyIterator();
     }
   }
 

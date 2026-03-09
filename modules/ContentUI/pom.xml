@@ -21,7 +21,7 @@
         <!-- Core Percussion dependencies -->
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

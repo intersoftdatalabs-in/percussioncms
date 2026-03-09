@@ -17,20 +17,16 @@ http://www.springframework.org/schema/beans/spring-beans.xsd">
 		<property name="compression" value=".85" />
 	</bean>
 
-	<!-- Cache beans used for image cache -->
+	<!-- Cache beans used for image cache (Ehcache 3.x) -->
 	<bean id="imageWidgetDataCacheRegion"
-		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		class="com.percussion.services.memory.PSEhCacheFactoryBean">
 		<property name="cacheManager" ref="sys_cacheManager" />
 		<property name="cacheName"
 			value="com.percussion.widgets.image.data.ImageData" />
-		<property name="eternal" value="no" />
-		<property name="diskPersistent" value="yes" />
+		<property name="eternal" value="false" />
 		<property name="maxElementsInMemory" value="200" />
-		<property name="overflowToDisk" value="yes" />
 		<property name="timeToIdle" value="3600" />
 		<property name="timeToLive" value="3600" />
-		<!-- Not supported property in updated ehcache <property name="diskStorePath"
-			value="user.dir/perc-image-cache" /> -->
 	</bean>
 
 	<bean id="imageWidgetCacheManager"

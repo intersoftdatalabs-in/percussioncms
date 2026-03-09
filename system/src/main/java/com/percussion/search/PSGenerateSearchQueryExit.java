@@ -284,7 +284,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
               null,
               PSDisplayFieldElementBuilder.DIMENSION_SINGLE,
               mnemonic,
-              new PSDisplayChoices(PSIteratorUtils.iterator(choice), null),
+              new PSDisplayChoices(List.of(choice).iterator(), null),
               isCaseSensitive ? "y" : "n",
               communityId));
     }
@@ -344,7 +344,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
             null,
             PSDisplayFieldElementBuilder.DIMENSION_ARRAY,
             mnemonic,
-            new PSDisplayChoices(PSIteratorUtils.iterator(choice), null),
+            new PSDisplayChoices(List.of(choice).iterator(), null),
             expandQuery ? PSCommonSearchUtils.BOOL_YES : PSCommonSearchUtils.BOOL_NO,
             communityId));
   }

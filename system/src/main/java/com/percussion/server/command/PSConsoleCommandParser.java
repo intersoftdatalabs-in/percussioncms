@@ -375,8 +375,5 @@ public class PSConsoleCommandParser {
 
     ms_cmdSet.put("search queue", "resume");
     ms_cmdSet.put("search queue resume", PSConsoleCommandSearchQueueResume.class);
-
-    ms_cmdSet.put("autotune", "cache");
-    ms_cmdSet.put("autotune cache", PSConsoleCommandAutotuneCache.class);
   }
 }

@@ -253,15 +253,15 @@ public class PSArchiveDetail implements IPSDeployComponent {
   }
 
   @Override
-
+  @SuppressWarnings("unchecked")
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof PSArchiveDetail)) return false;
     PSArchiveDetail that = (PSArchiveDetail) o;
     return Objects.equals(m_exportDescriptor, that.m_exportDescriptor)
         && PSMapUtils.areEqualWithArrayListValue(
-            (Map<String, List>) (Map<?, ?>) m_externalDbmsMap,
-            (Map<String, List>) (Map<?, ?>) that.m_externalDbmsMap);
+            (Map<String, List<?>>) (Map<?, ?>) m_externalDbmsMap,
+            (Map<String, List<?>>) (Map<?, ?>) that.m_externalDbmsMap);
   }
 
   @Override

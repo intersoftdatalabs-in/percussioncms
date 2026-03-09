@@ -24,6 +24,7 @@ import java.util.Date;
  * A file filter that allows filtering on attributes, length, last modified, and name pattern
  * matching
  */
+@SuppressWarnings("this-escape")
 public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter {
   /** Bit fields for allowable attributes */
   public static final int IS_DIRECTORY = 1;
@@ -114,7 +115,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * necessary (but not sufficient) that the file's length (as returned by java.io.File.length()) is
    * >= <CODE>minLength</CODE> AND <= <CODE>maxLength</CODE>.
    */
-  public void setMinMaxLength(long minLength, long maxLength) {
+  public final void setMinMaxLength(long minLength, long maxLength) {
     if (minLength >= maxLength)
       throw new IllegalArgumentException(
           "minLength (" + minLength + ") >= maxLength (" + maxLength + ")");
@@ -131,7 +132,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * java.io.File.lastModified()) is >= <CODE>earliestModified</CODE> AND <= <CODE>latestModified
    * </CODE>.
    */
-  public void setEarliestLatestModified(Date earliestModified, Date latestModified) {
+  public final void setEarliestLatestModified(Date earliestModified, Date latestModified) {
     if (latestModified.compareTo(earliestModified) <= 0)
       throw new IllegalArgumentException("lastModified <= earliestModified");
 
@@ -144,7 +145,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * (but not sufficient) that the file's name (as returned by java.io.File.getName()) matches at
    * least one of the added pattern matchers.
    */
-  public void addNamePattern(PSPatternMatcher namePattern) {
+  public final void addNamePattern(PSPatternMatcher namePattern) {
     if (m_namePatterns == null) m_namePatterns = new java.util.ArrayList<PSPatternMatcher>();
     m_namePatterns.add(namePattern);
   }
@@ -154,7 +155,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * not sufficient) that the file's name (as returned by java.io.File.getName()) matches the given
    * pattern matcher.
    */
-  public void setNamePattern(PSPatternMatcher namePattern) {
+  public final void setNamePattern(PSPatternMatcher namePattern) {
     m_namePatterns = new java.util.ArrayList<PSPatternMatcher>();
     m_namePatterns.add(namePattern);
   }
@@ -164,7 +165,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * necessary (but not sufficient) that for each attribute that a file possesses, the corresponding
    * bit in <CODE>allowableAttributes</CODE> is turned on.
    */
-  public void setAllowableAttributes(int allowableAttributes) {
+  public final void setAllowableAttributes(int allowableAttributes) {
     m_allowableAttributes = allowableAttributes;
   }
 

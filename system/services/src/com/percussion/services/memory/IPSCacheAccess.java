@@ -19,7 +19,7 @@
 package com.percussion.services.memory;
 
 import com.percussion.server.cache.PSCacheStatisticsSnapshot;
-import net.sf.ehcache.CacheManager;
+import org.ehcache.CacheManager;
 
 import java.io.Serializable;
 import java.util.List;

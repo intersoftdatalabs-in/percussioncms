@@ -21,11 +21,10 @@ import com.percussion.widgets.image.data.CachedImageMetaData;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.data.ImageMetaData;
 import com.percussion.widgets.image.services.ImageCacheManager;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ehcache.Cache;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -43,7 +42,7 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     private static final Logger log = LogManager.getLogger(ImageCacheManagerImpl.class);
 
     private final AtomicLong counter = new AtomicLong(1L);
-    private volatile Cache cache;
+    private volatile Cache<String, ImageData> cache;
 
     /**
      * Default constructor initializing the cache manager.
@@ -59,8 +58,7 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
         var imageKey = generateKey(data);
         log.debug("Generated new image key: {}", imageKey);
 
-        var element = new Element(imageKey, data);
-        cache.put(element);
+        cache.put(imageKey, data);
 
         log.debug("Successfully cached image with key: {}", imageKey);
         return imageKey;
@@ -70,21 +68,14 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     public ImageData getImage(String imageKey) {
         Objects.requireNonNull(imageKey, "Image key must not be null");
 
-        var element = cache.get(imageKey);
-        if (element == null) {
+        var result = cache.get(imageKey);
+        if (result == null) {
             log.debug("No image found for key: {}", imageKey);
             return null;
         }
 
-        var objectValue = element.getObjectValue();
-        if (objectValue instanceof ImageData) {
-            ImageData imageData = (ImageData) objectValue;
-            log.debug("Retrieved image data for key: {}", imageKey);
-            return imageData;
-        }
-
-        log.warn("Cached value is not ImageData for key: {}", imageKey);
-        return null;
+        log.debug("Retrieved image data for key: {}", imageKey);
+        return result;
     }
 
     @Override
@@ -105,7 +96,7 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     public boolean hasImage(String imageKey) {
         Objects.requireNonNull(imageKey, "Image key must not be null");
 
-        var exists = cache.isKeyInCache(imageKey);
+        var exists = cache.containsKey(imageKey);
         log.debug("Image key {} exists in cache: {}", imageKey, exists);
         return exists;
     }
@@ -114,27 +105,33 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     public void removeImage(String imageKey) {
         Objects.requireNonNull(imageKey, "Image key must not be null");
 
-        var removed = cache.remove(imageKey);
-        log.debug("Removed image with key {}: {}", imageKey, removed);
+        cache.remove(imageKey);
+        log.debug("Removed image with key {}", imageKey);
     }
 
     @Override
 
     public Set<String> getAllKeys() {
-        var keys = (Set<String>) cache.getKeys();
+        var keys = new java.util.HashSet<String>();
+        cache.forEach(entry -> keys.add(entry.getKey()));
         log.debug("Retrieved {} cache keys", keys.size());
         return Set.copyOf(keys);
     }
 
     @Override
     public void clearCache() {
-        cache.removeAll();
+        cache.clear();
         log.info("Cache cleared successfully");
     }
 
     @Override
     public long getCacheSize() {
-        var size = cache.getSize();
+        // Ehcache 3.x Cache does not have a getSize() method;
+        // iterate to count entries.
+        long size = 0;
+        for (var ignored : cache) {
+            size++;
+        }
         log.debug("Current cache size: {}", size);
         return size;
     }
@@ -164,22 +161,21 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     }
 
     /**
-     * Gets the underlying EhCache instance.
+     * Gets the underlying Ehcache 3.x cache instance.
      *
      * @return the cache instance, may be {@code null} if not initialized
      */
-    public Cache getCache() {
+    public Cache<String, ImageData> getCache() {
         return cache;
     }
 
     /**
-     * Sets the EhCache instance for this manager.
+     * Sets the Ehcache 3.x cache instance for this manager.
      *
      * @param cache the cache instance to set, must not be {@code null}
-     * @throws IllegalArgumentException if cache is {@code null}
      */
-    public void setCache(Cache cache) {
+    public void setCache(Cache<String, ImageData> cache) {
         this.cache = Objects.requireNonNull(cache, "Cache must not be null");
-        log.info("Cache instance set: {}", cache.getName());
+        log.info("Image cache instance set");
     }
 }

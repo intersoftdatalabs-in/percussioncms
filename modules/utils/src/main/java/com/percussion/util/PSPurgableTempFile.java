@@ -22,6 +22,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -69,7 +70,7 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
       throws IOException {
     super(calculatePath(prefix, suffix, dir));
 
-    m_contentProperties = new HashMap();
+    m_contentProperties = new HashMap<>();
 
     try {
       if (contentType != null)
@@ -177,7 +178,7 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
    * @return the encoding type as a string
    */
   public String getCharacterSetEncoding() {
-    return (String) m_contentProperties.get("charset");
+    return m_contentProperties.get("charset");
   }
 
   /**
@@ -220,7 +221,7 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
    * the content-type string for possible attributes. Never modified after construction. Never
    * <code>null</code> after construction. May be empty.
    */
-  HashMap m_contentProperties = null;
+  private Map<String, String> m_contentProperties = null;
 
   /**
    * The temp directory is calculated based on the user's configuration. This is done on class load.

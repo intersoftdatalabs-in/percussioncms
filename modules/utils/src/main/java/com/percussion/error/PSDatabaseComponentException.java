@@ -18,6 +18,7 @@ package com.percussion.error;
 
 /** Exception class to handle Database component specific exceptions. */
 public class PSDatabaseComponentException extends PSException {
+  private static final long serialVersionUID = 1L;
   /**
    * Construct an exception for messages taking only a single argument.
    *

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.commons.collections4.Predicate;
 
 /**
  * Iterator for multi maps that supports result filtering. Remove is not supported by this class.
@@ -28,15 +27,15 @@ import org.apache.commons.collections4.Predicate;
  * @author dougrand
  * @param <M>
  */
-public class PSMultiMapIterator<M> implements Iterator {
+public class PSMultiMapIterator<M> implements Iterator<M> {
   /** The current element iterator. Initialized and updated in the next method. */
-  private Iterator m_iter = null;
+  private Iterator<M> m_iter = null;
 
   /** The source key iterator. Initialized in the ctor and updated in the next method. */
-  private Iterator m_keyIter = null;
+  private Iterator<?> m_keyIter = null;
 
   /** The source map, initialized in the ctor and never modified. */
-  private Map m_sourceMap = null;
+  private Map<?, ? extends Collection<? extends M>> m_sourceMap = null;
 
   /**
    * The current next value, <code>null</code> initially, updated in the {@link #findNext()} and
@@ -48,7 +47,7 @@ public class PSMultiMapIterator<M> implements Iterator {
    * If specified, this predicate limits the values returned by the iterator to those whose keys
    * match the predicate. Initialized in the ctor and never updated. May be <code>null</code>.
    */
-  private Predicate m_filterPredicate = null;
+  private org.apache.commons.collections4.Predicate<Object> m_filterPredicate = null;
 
   /**
    * Ctor
@@ -56,10 +55,11 @@ public class PSMultiMapIterator<M> implements Iterator {
    * @param map the map, never <code>null</code>
    * @param filter filter predicate, may be <code>null</code> if no filtering is desired
    */
-  public PSMultiMapIterator(Map map, Predicate filter) {
+  @SuppressWarnings("unchecked")
+  public PSMultiMapIterator(Map<?, ? extends Collection<? extends M>> map, org.apache.commons.collections4.Predicate<?> filter) {
     m_sourceMap = map;
     m_keyIter = map.keySet().iterator();
-    m_filterPredicate = filter;
+    m_filterPredicate = (org.apache.commons.collections4.Predicate<Object>) filter;
     m_next = null;
   }
 
@@ -80,7 +80,7 @@ public class PSMultiMapIterator<M> implements Iterator {
   private M findNext() {
     while (true) {
       if (m_iter != null && m_iter.hasNext()) {
-        return (M) m_iter.next();
+        return m_iter.next();
       } else {
         if (m_keyIter.hasNext()) {
           Object nextKey = m_keyIter.next();
@@ -91,10 +91,10 @@ public class PSMultiMapIterator<M> implements Iterator {
               continue; // Skip to next
             }
           }
-          Collection values = (Collection) m_sourceMap.get(nextKey);
+          Collection<? extends M> values = m_sourceMap.get(nextKey);
           // Copy values to a list avoid mutator issues
-          Collection ivalues = new ArrayList();
-          ivalues.addAll(values);
+          ArrayList<M> ivalues = new ArrayList<>();
+          if (values != null) ivalues.addAll(values);
           m_iter = ivalues.iterator();
         } else {
           return null;

@@ -75,7 +75,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.percussion</groupId>
-			<artifactId>rxutils</artifactId>
+			<artifactId>utils</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -103,7 +103,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.percussion</groupId>
-			<artifactId>rxutils</artifactId>
+			<artifactId>utils</artifactId>
 			<version>${project.parent.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
@@ -607,8 +607,9 @@
 			<artifactId>commons-beanutils</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
+			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
+			<classifier>jakarta</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>

@@ -28,7 +28,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -251,8 +253,8 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   public ResultSet getAttributes(String[] objectTypes) throws SQLException {
     PSResultSet rs = super.getEmptyAttributes();
     if (m_userAttributes.length > 0) {
-      Iterator<String> types = PSIteratorUtils.iterator(objectTypes);
-      Iterator attribs = PSIteratorUtils.iterator(m_userAttributes);
+      Iterator<String> types = Arrays.asList(objectTypes).iterator();
+      Iterator<String> attribs = Arrays.asList(m_userAttributes).iterator();
       while (types.hasNext()) {
         String type = (String) types.next();
         if (!type.equalsIgnoreCase(USER_OBJECT_NAME)) continue;

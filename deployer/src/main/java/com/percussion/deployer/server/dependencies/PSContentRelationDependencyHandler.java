@@ -68,6 +68,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -148,7 +149,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     if (tok == null) {
       throw new IllegalArgumentException("tok may not be null");
     }
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

@@ -17,8 +17,7 @@
 package com.percussion.pso.restservice.utils;
 
 import java.io.Serializable;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
+import org.ehcache.Cache;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.logging.log4j.LogManager;
@@ -35,14 +34,14 @@ public class MethodCacheInterceptor implements MethodInterceptor, InitializingBe
   private static final Logger logger = LogManager.getLogger(MethodCacheInterceptor.class);
 
   /** Field cache. */
-  private Cache cache;
+  private Cache<String, Serializable> cache;
 
   /**
    * sets cache name to be used
    *
    * @param cache Cache
    */
-  public void setCache(Cache cache) {
+  public void setCache(Cache<String, Serializable> cache) {
     this.cache = cache;
   }
 
@@ -73,18 +72,19 @@ public class MethodCacheInterceptor implements MethodInterceptor, InitializingBe
 
     logger.debug("looking for method result in cache");
     String cacheKey = getCacheKey(targetName, methodName, arguments);
-    Element element = cache.get(cacheKey);
-    if (element == null) {
+    Serializable cachedValue = cache.get(cacheKey);
+    if (cachedValue == null) {
       // call target/sub-interceptor
       logger.debug("calling intercepted method");
       result = invocation.proceed();
 
       // cache method result
       logger.debug("caching result");
-      element = new Element(cacheKey, (Serializable) result);
-      cache.put(element);
+      cache.put(cacheKey, (Serializable) result);
+    } else {
+      result = cachedValue;
     }
-    return element.getValue();
+    return result;
   }
 
   /**

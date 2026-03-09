@@ -132,8 +132,6 @@ public class PSAaRelationshipConverter extends PSRelationshipConverter
                java.math.BigInteger bi;
                if (sortVal instanceof jakarta.xml.bind.JAXBElement) {
                   bi = (java.math.BigInteger) ((jakarta.xml.bind.JAXBElement<?>) sortVal).getValue();
-               } else if (sortVal instanceof javax.xml.bind.JAXBElement) {
-                  bi = (java.math.BigInteger) ((javax.xml.bind.JAXBElement<?>) sortVal).getValue();
                } else if (sortVal instanceof java.math.BigInteger) {
                   bi = (java.math.BigInteger) sortVal;
                } else {

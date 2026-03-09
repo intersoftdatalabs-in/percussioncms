@@ -24,12 +24,12 @@ import java.util.*;
  */
 public abstract class PSIteratorUtils {
   /** Returns an iterator over this object. */
-  public static Iterator iterator(Object o) {
+  public static Iterator<Object> iterator(Object o) {
     return iterator(o, 1);
   }
 
   /** Returns an iterator over this object N times. */
-  public static Iterator iterator(Object o, int numIterations) {
+  public static Iterator<Object> iterator(Object o, int numIterations) {
     return new CountedIterator(o, numIterations);
   }
 
@@ -39,12 +39,12 @@ public abstract class PSIteratorUtils {
    * @deprecated Use Collections.emptyIterator
    */
   @Deprecated
-  public static Iterator emptyIterator() {
+  public static Iterator<Object> emptyIterator() {
     return Collections.emptyIterator();
   }
 
   /** Returns a double iterator over the two given objects. */
-  public static Iterator iterator(Object a, Object b) {
+  public static Iterator<Object> iterator(Object a, Object b) {
     return new DoubleIterator(a, b);
   }
 
@@ -54,18 +54,18 @@ public abstract class PSIteratorUtils {
    * @param i The iterator to wrap. May not be <code>null</code>.
    * @throws IllegalArgumentException If it is <code>null</code>
    */
-  public static Iterator protectedIterator(Iterator i) {
+  public static Iterator<Object> protectedIterator(Iterator<?> i) {
     if (i == null) throw new IllegalArgumentException("Iterator must be supplied.");
 
     return new ProtectedIterator(i);
   }
 
   /** Returns an iterator over the given array. */
-  public static Iterator iterator(Object[] array) {
+  public static Iterator<Object> iterator(Object[] array) {
     return new ArrayIterator(array);
   }
 
-  public static Iterator joinedIterator(Iterator first, Iterator second) {
+  public static Iterator<Object> joinedIterator(Iterator<?> first, Iterator<?> second) {
     return new JoinedIterator(first, second);
   }
 
@@ -87,7 +87,7 @@ public abstract class PSIteratorUtils {
     return entries;
   }
 
-  private static class CountedIterator implements Iterator {
+  private static class CountedIterator implements Iterator<Object> {
     /** Constructs a counted iterator over a single object N times. */
     CountedIterator(Object o, int iterations) {
       if (iterations < 0) throw new IllegalArgumentException("iterations must be >= 0");
@@ -128,7 +128,7 @@ public abstract class PSIteratorUtils {
   }
 
   /** An iterator over two objects. */
-  private static class DoubleIterator implements Iterator {
+  private static class DoubleIterator implements Iterator<Object> {
     DoubleIterator(Object a, Object b) {
       m_a = a;
       m_b = b;
@@ -164,7 +164,7 @@ public abstract class PSIteratorUtils {
     private Object m_b;
   }
 
-  private static class ArrayIterator implements Iterator {
+  private static class ArrayIterator implements Iterator<Object> {
     ArrayIterator(Object[] array) {
       if (array == null) m_arr = new Object[0];
       else m_arr = array;
@@ -193,8 +193,8 @@ public abstract class PSIteratorUtils {
     private int m_len;
   }
 
-  private static class JoinedIterator implements Iterator {
-    JoinedIterator(Iterator first, Iterator second) {
+  private static class JoinedIterator implements Iterator<Object> {
+    JoinedIterator(Iterator<?> first, Iterator<?> second) {
       m_first = first;
       m_second = second;
     }
@@ -226,12 +226,12 @@ public abstract class PSIteratorUtils {
       throw new NoSuchElementException();
     }
 
-    private Iterator m_first;
-    private Iterator m_second;
+    private Iterator<?> m_first;
+    private Iterator<?> m_second;
   }
 
   /** This class wraps an iterator and does not allow remove() to be called. */
-  private static class ProtectedIterator implements Iterator {
+  private static class ProtectedIterator implements Iterator<Object> {
     /**
      * Create a protected iterator by wrapping the specified iterator and delegating all
      * non-destructive calls to that iterator.
@@ -239,7 +239,7 @@ public abstract class PSIteratorUtils {
      * @param i The iterator to wrap, may not be <code>null</code>.
      * @throws IllegalArgumentException If it is <code>null</code>.
      */
-    public ProtectedIterator(Iterator i) {
+    public ProtectedIterator(Iterator<?> i) {
       if (i == null) throw new IllegalArgumentException("Iterator must be supplied");
 
       m_iterator = i;
@@ -263,6 +263,6 @@ public abstract class PSIteratorUtils {
     }
 
     /** The iterator to proxy. Initialized in constructor, never <code>null</code> thereafter. */
-    Iterator m_iterator = null;
+    Iterator<?> m_iterator = null;
   }
 }

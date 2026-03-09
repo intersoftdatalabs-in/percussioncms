@@ -45,9 +45,9 @@ import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +99,7 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
     }
 
     var dep = getDependency(tok, m_def.getObjectType());
-    return dep != null ? List.of(dep).iterator() : PSIteratorUtils.emptyIterator();
+    return dep != null ? List.of(dep).iterator() : Collections.emptyIterator();
   }
 
   // see base class

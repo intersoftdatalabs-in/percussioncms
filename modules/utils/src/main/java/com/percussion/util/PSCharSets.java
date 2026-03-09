@@ -45,7 +45,7 @@ public class PSCharSets {
    */
   public static String getStdName(String encodingAlias) {
     String ret = encodingAlias;
-    PSEncoding enc = (PSEncoding) ms_encodings.get(encodingAlias.toUpperCase());
+    PSEncoding enc = ms_encodings.get(encodingAlias.toUpperCase());
     if (enc != null) ret = enc.getStdName();
 
     // DBG>
@@ -63,7 +63,7 @@ public class PSCharSets {
    */
   public static String getJavaName(String encodingAlias) {
     String ret = encodingAlias;
-    PSEncoding enc = (PSEncoding) ms_encodings.get(encodingAlias.toUpperCase());
+    PSEncoding enc = ms_encodings.get(encodingAlias.toUpperCase());
     if (enc != null) ret = enc.getJavaName();
 
     // DBG>
@@ -157,8 +157,8 @@ public class PSCharSets {
     ms_encodings.put(enc.getJavaName().toUpperCase(), enc);
 
     // add this encoding under all its aliases
-    for (Iterator i = enc.aliases(); i.hasNext(); ) {
-      String alias = i.next().toString();
+    for (Iterator<String> i = enc.aliases(); i.hasNext(); ) {
+      String alias = i.next();
       ms_encodings.put(alias.toUpperCase(), enc);
     }
   }
@@ -224,7 +224,7 @@ public class PSCharSets {
       m_aliases.add(alias);
     }
 
-    public Iterator aliases() {
+    public Iterator<String> aliases() {
       return m_aliases.iterator();
     }
 

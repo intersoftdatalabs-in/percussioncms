@@ -351,14 +351,20 @@ public class PSBaseHttpUtils {
         else if (urlDecode) value = URLDecoder.decode(value, "UTF8");
         if (results.containsKey(name)) {
           Object current = results.get(name);
-          List<String> values;
-          if (!(current instanceof List)) {
-            values = new ArrayList<>();
+          if (current instanceof List) {
+            @SuppressWarnings("unchecked")
+            List<String> values = (List<String>) current;
+            values.add(value);
             results.put(name, values);
-            values.add((String) current);
-          } else values = (List<String>) current;
-          values.add(value);
-        } else results.put(name, value);
+          } else {
+            List<String> values = new ArrayList<>();
+            values.add(current == null ? null : current.toString());
+            values.add(value);
+            results.put(name, values);
+          }
+        } else {
+          results.put(name, value);
+        }
       }
       return results;
     } catch (UnsupportedEncodingException e) {
@@ -427,9 +433,9 @@ public class PSBaseHttpUtils {
     for (String key : params.keySet()) {
       Object o = params.get(key);
       if (o instanceof Collection) {
-        Collection<String> values = (Collection<String>) o;
-        for (String value : values) appendKeyValuePair(result, key, value, urlEncode);
-      } else appendKeyValuePair(result, key, o.toString(), urlEncode);
+        Collection<?> values = (Collection<?>) o;
+        for (Object value : values) appendKeyValuePair(result, key, String.valueOf(value), urlEncode);
+      } else appendKeyValuePair(result, key, String.valueOf(o), urlEncode);
     }
     // strip off trailing '?' or '&'
     return result.substring(0, result.length() - 1);

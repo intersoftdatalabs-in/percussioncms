@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
  * This class stores the tag name of the wrapped element and the name and value of all the attribute
  * of this element defined in the component map xml.
  */
+@SuppressWarnings("this-escape")
 public class PSBrandCodeElement {
   /**
    * Constructor.
@@ -73,7 +74,7 @@ public class PSBrandCodeElement {
    * @throws CodeException if the element does not have all the attributes defined as specified in
    *     the <code>m_reqAttrNames</code> array.
    */
-  public void fromXml(Element sourceNode) throws CodeException {
+  public final void fromXml(Element sourceNode) throws CodeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     m_name = sourceNode.getTagName();
@@ -127,7 +128,7 @@ public class PSBrandCodeElement {
     if ((attrValue == null) || (attrValue.trim().length() < 1))
       throw new IllegalArgumentException("attrValue may not be null or empty");
     if (hasAttribute(attrName)) {
-      String mapAttrValue = (String) m_attrMap.get(attrName);
+      String mapAttrValue = m_attrMap.get(attrName);
       if (mapAttrValue.equalsIgnoreCase(attrValue)) return true;
     }
     return false;
@@ -147,7 +148,7 @@ public class PSBrandCodeElement {
    *     specified attribute.
    */
   public String getAttributeValue(String attrName, boolean required) throws CodeException {
-    if (hasAttribute(attrName)) return (String) m_attrMap.get(attrName);
+    if (hasAttribute(attrName)) return m_attrMap.get(attrName);
     // this element does not have the specified attribute
     if (required) {
       throw new CodeException("Attribute : " + attrName + " not found for element : " + m_name);

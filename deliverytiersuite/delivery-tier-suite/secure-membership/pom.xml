@@ -103,7 +103,7 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
             <exclusions>

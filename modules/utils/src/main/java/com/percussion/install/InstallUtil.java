@@ -19,7 +19,6 @@ package com.percussion.install;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
-import com.percussion.util.IOTools;
 import com.percussion.util.PSOsTool;
 import com.percussion.util.PSProperties;
 import com.percussion.util.PSSqlHelper;
@@ -543,7 +542,7 @@ public class InstallUtil {
     File prevFile = new File(root, ORIG_REPOSITORY_PROPS_FILE);
     File curFile = new File(root, REPOSITORY_PROPS_FILE);
     if (curFile.exists()) {
-      IOTools.copyFileStreams(curFile, prevFile);
+      copyFiles(curFile, prevFile);
     }
   }
 
@@ -567,7 +566,7 @@ public class InstallUtil {
     File prevFile = new File(root, ORIG_REPOSITORY_PROPS_FILE);
     File curFile = new File(root, REPOSITORY_PROPS_FILE);
     if (prevFile.exists()) {
-      IOTools.copyFileStreams(prevFile, curFile);
+      copyFiles(prevFile, curFile);
       prevFile.delete();
     }
   }
@@ -1085,7 +1084,7 @@ public class InstallUtil {
       Class<?> systemDriver = Class.forName(className);
       logInfo("Successfully loaded driver " + className + " from system classpath");
       try {
-        Object driverObj = systemDriver.newInstance();
+        Object driverObj = systemDriver.getDeclaredConstructor().newInstance();
         if (driverObj instanceof Driver) {
           DriverManager.registerDriver((Driver) driverObj);
           logInfo("Registered driver " + className);
@@ -1161,7 +1160,18 @@ public class InstallUtil {
               driverClass = Class.forName(className, true, loader);
               InstallUtil.logInfo("Loaded " + className);
               if (driverClass != null) {
-                Object objDriver = driverClass.newInstance();
+                Object objDriver;
+                try {
+                  objDriver = driverClass.getDeclaredConstructor().newInstance();
+                } catch (NoSuchMethodException nsme) {
+                  InstantiationException ie = new InstantiationException(nsme.getMessage());
+                  ie.initCause(nsme);
+                  throw ie;
+                } catch (java.lang.reflect.InvocationTargetException ite) {
+                  InstantiationException ie = new InstantiationException(ite.getMessage());
+                  ie.initCause(ite);
+                  throw ie;
+                }
                 if (objDriver != null) {
                   if (objDriver instanceof Driver) m_extDriver = (Driver) objDriver;
                 }
@@ -1213,7 +1223,18 @@ public class InstallUtil {
 
             System.setProperty("jdbc.drivers", className);
             driverClass = Class.forName(className, true, loader);
-            Object objDriver = driverClass.newInstance();
+            Object objDriver;
+            try {
+              objDriver = driverClass.getDeclaredConstructor().newInstance();
+            } catch (NoSuchMethodException nsme) {
+              InstantiationException ie = new InstantiationException(nsme.getMessage());
+              ie.initCause(nsme);
+              throw ie;
+            } catch (java.lang.reflect.InvocationTargetException ite) {
+              InstantiationException ie = new InstantiationException(ite.getMessage());
+              ie.initCause(ite);
+              throw ie;
+            }
             logInfo("Successfully loaded driver " + className);
             if (objDriver instanceof Driver) {
               m_extDriver = (Driver) objDriver;

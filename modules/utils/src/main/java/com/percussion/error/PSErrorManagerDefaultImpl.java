@@ -21,6 +21,7 @@ import com.percussion.log.PSLogInformation;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSMapClassToObject;
 import java.net.URL;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -106,7 +107,7 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
     for (Enumeration<String> e = bun.getKeys(); e.hasMoreElements(); ) {
       key = e.nextElement();
       try {
-        pageMap.addReplaceMapping(Class.forName(key), new URL(bun.getString(key)));
+        pageMap.addReplaceMapping(Class.forName(key), URI.create(bun.getString(key)).toURL());
       } catch (java.net.MalformedURLException | ClassNotFoundException ex) {
         log.error(PSExceptionUtils.getMessageForLog(ex));
       }

@@ -27,12 +27,12 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
+            <artifactId>utils</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
@@ -75,7 +75,7 @@
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
+            <artifactId>ojdbc17</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>

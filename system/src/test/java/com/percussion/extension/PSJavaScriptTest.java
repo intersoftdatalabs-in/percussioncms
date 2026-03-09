@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -66,7 +67,7 @@ public class PSJavaScriptTest
          initParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
 
          IPSExtensionDef def = new PSExtensionDef( ref,
-            PSIteratorUtils.iterator( IPSExtensionHandler.class.getName()),
+            List.of( IPSExtensionHandler.class.getName()).iterator(),
             null,
             initParams, null );
          Iterator res = PSIteratorUtils.emptyIterator();

@@ -80,7 +80,6 @@ public class DtsStartWrapper extends StartWrapper {
     cmd.put("-Dfile.encoding", "UTF-8");
     cmd.put("-Xmx1024m", "");
     cmd.put("-Djava.util.logging.manager", "org.apache.juli.ClassLoaderLogManager");
-    cmd.put("-Dnet.sf.ehcache.skipUpdateCheck", "true");
     cmd.put("-Djava.net.preferIPv4Stack", "true");
     cmd.put("-Djava.endorsed.dirs", "Server" + FS + "endorsed");
     cmd.put("-Dcatalina.base", "Server");

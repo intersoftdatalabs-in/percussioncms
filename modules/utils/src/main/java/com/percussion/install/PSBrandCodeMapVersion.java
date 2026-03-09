@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
 
 /** This class represents a single version of the brand code map. */
 
+@SuppressWarnings("this-escape")
 public class PSBrandCodeMapVersion {
   /**
    * Constructor
@@ -416,7 +417,7 @@ public class PSBrandCodeMapVersion {
    *     equal <code>EL_MAP</code>
    * @throws CodeException if any error occurs constructing the object from the Xml representation.
    */
-  public void fromXml(Element sourceNode) throws CodeException {
+  public final void fromXml(Element sourceNode) throws CodeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
     if (!(sourceNode.getTagName().equals(IPSBrandCodeMap.EL_MAP)))
       throw new IllegalArgumentException("invalid sourceNode element");

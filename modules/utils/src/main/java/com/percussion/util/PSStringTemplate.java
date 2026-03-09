@@ -45,6 +45,7 @@ public class PSStringTemplate {
    */
   /** Used for exceptions in template handling */
   public static class PSStringTemplateException extends Exception {
+    private static final long serialVersionUID = 1L;
     /**
      * Ctor for a template exception with a message.
      *
@@ -84,9 +85,9 @@ public class PSStringTemplate {
      *     </code> or all lookups will fail. A <code>
      * toString</code> is performed on the value before use.
      */
-    public PSMapDictionary(Map dict) {
+    public PSMapDictionary(Map<String, ?> dict) {
       if (null == dict) {
-        dict = new HashMap();
+        dict = new HashMap<String, Object>();
       }
       m_dictionary = dict;
     }
@@ -107,7 +108,7 @@ public class PSStringTemplate {
     }
 
     /** Set in ctor, then never <code>null</code>, may be empty. */
-    private Map m_dictionary;
+    private Map<String, ?> m_dictionary;
   }
 
   /**
@@ -170,7 +171,7 @@ public class PSStringTemplate {
    *     but any class that implements a useful and predictable {@link Object#toString()} method
    *     will work.
    */
-  public String expand(Map dict) throws PSStringTemplateException {
+  public String expand(Map<String, ?> dict) throws PSStringTemplateException {
     if (dict == null) {
       throw new IllegalArgumentException("dict must never be null");
     }
