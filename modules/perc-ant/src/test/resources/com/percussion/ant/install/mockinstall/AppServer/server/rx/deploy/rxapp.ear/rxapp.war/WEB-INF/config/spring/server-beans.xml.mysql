@@ -19,9 +19,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd
 http://www.springframework.org/schema/util
 http://www.springframework.org/schema/util/spring-util.xsd">
    <tx:annotation-driven transaction-manager="sys_transactionManager"/>
-   <bean class="com.percussion.services.PSResourceHelper" id="sys_dummy">
-
-   </bean>
    <bean class="com.percussion.services.general.impl.PSRhythmyxInfo" id="sys_rhythmyxinfo">
 
       <property name="bindings">

@@ -12,10 +12,6 @@ http://www.springframework.org/schema/util/spring-util.xsd">
 	<tx:annotation-driven
 		transaction-manager="sys_transactionManager" />
 
-	<bean id="sys_dummy"
-		class="com.percussion.services.PSResourceHelper">
-	</bean>
-
 	<bean id="sys_rhythmyxinfo"
 		class="com.percussion.services.general.impl.PSRhythmyxInfo">
 		<property name="bindings">
