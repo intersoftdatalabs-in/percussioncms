@@ -747,6 +747,10 @@
 			<artifactId>spring-jms</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.jms</groupId>
+			<artifactId>jakarta.jms-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.github.dfabulich</groupId>
 			<artifactId>sitemapgen4j</artifactId>
 		</dependency>
