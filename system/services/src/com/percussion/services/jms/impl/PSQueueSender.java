@@ -22,14 +22,14 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSender;
-import javax.jms.QueueSession;
-import javax.naming.NamingException;
+import jakarta.jms.JMSException;
+import jakarta.jms.ObjectMessage;
+import jakarta.jms.Queue;
+import jakarta.jms.QueueConnection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
+import jakarta.naming.NamingException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,8 +37,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * The implementation of the {@link IPSQueueSender} interface.
  * The (spring bean's) properties of {@link #getJndiConnectionFactory()}
- * and {@link #getJndiQueue()} are expected to be configured (or wired) by 
- * spring framework. 
+ * and {@link #getJndiQueue()} are expected to be configured (or wired) by
+ * spring framework.
  */
 public class PSQueueSender implements IPSQueueSender
 {
@@ -51,57 +51,56 @@ public class PSQueueSender implements IPSQueueSender
     * The connection factory. It is set by Spring bean framework.
     * It is not <code>null</code> if configured properly.
     */
-   private QueueConnectionFactory m_connectionFactory;
-   
+   private ConnectionFactory m_connectionFactory;
+
    /**
     * The JMS point to point queue. It is set by Spring bean framework.
     * It is not <code>null</code> if configured properly.
     */
    private Queue m_queue = null;
-   
+
    /**
     * A wapper class of {@link QueueSender}. It sets delivery mode to
     * {@link javax.jms.DeliveryMode#PERSISTENT} and the send message will be
-    * retain indefinitely by the message system. 
+    * retain indefinitely by the message system.
     */
    private class PSSender
    {
       /**
-       * The queue connection created by the connection factory, never 
+       * The queue connection created by the connection factory, never
        * <code>null</code> or modified after the call of {@link #open()}.
        */
       QueueConnection mi_conn;
 
       /**
-       * The queue session, never <code>null</code> or modified after the call 
+       * The queue session, never <code>null</code> or modified after the call
        * of {@link #open()}.
        */
-      QueueSession mi_session;
+      Session mi_session;
 
       /**
-       * The queue sender, never <code>null</code>after the call of 
+       * The message producer, never <code>null</code>after the call of
        * {@link #open()}.
        */
-      QueueSender mi_sender;
-      
+      MessageProducer mi_sender;
+
       /**
        * Creates connection, session and sender of the message queue.
-       * 
+       *
        * @throws JMSException if failed to create sender.
        */
       void open() throws JMSException
       {
-         mi_conn = getConnectionFactory().createQueueConnection();
-         mi_session = mi_conn.createQueueSession(false,
-               QueueSession.AUTO_ACKNOWLEDGE);
+         mi_conn = getConnectionFactory().createConnection();
+         mi_session = mi_conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          mi_conn.start();
-         mi_sender = mi_session.createSender(getDestination());
-         
-         mi_sender.setDeliveryMode(javax.jms.DeliveryMode.NON_PERSISTENT);
-         
+         mi_sender = mi_session.createProducer(getDestination());
+
+         mi_sender.setDeliveryMode(jakarta.jms.DeliveryMode.NON_PERSISTENT);
+
          mi_sender.setTimeToLive(0);
       }
-      
+
       /**
        * Sends a specified message to the queue.
        * @param msg the message to send, assumed not <code>null</code>.
@@ -113,7 +112,7 @@ public class PSQueueSender implements IPSQueueSender
          omsg.setObject(msg);
          mi_sender.send(omsg);
       }
-      
+
       /**
        * A wrapper method of {@link javax.jms.MessageProducer#setPriority(int)}
        * @param priority the new priority.
@@ -141,7 +140,7 @@ public class PSQueueSender implements IPSQueueSender
       {
          return mi_sender.getPriority();
       }
-      
+
       /**
        * Close connection/session to the queue and release all resources that
        * hold by the sender.
@@ -160,7 +159,7 @@ public class PSQueueSender implements IPSQueueSender
          }
       }
    }
-   
+
    /*
     * //see interface method for details
     */
@@ -168,7 +167,7 @@ public class PSQueueSender implements IPSQueueSender
    {
       if (msg == null)
          throw new IllegalArgumentException("message cannot be null.");
-      
+
       if (priority < IPSQueueSender.PRIORITY_LOWEST
             || priority > IPSQueueSender.PRIORITY_HIGHEST)
       {
@@ -176,7 +175,7 @@ public class PSQueueSender implements IPSQueueSender
                + IPSQueueSender.PRIORITY_LOWEST + " and "
                + IPSQueueSender.PRIORITY_HIGHEST);
       }
-      
+
       PSSender sender = new PSSender();
       try
       {
@@ -192,7 +191,7 @@ public class PSQueueSender implements IPSQueueSender
       {
          sender.close();
       }
-      
+
    }
 
    /*
@@ -202,7 +201,7 @@ public class PSQueueSender implements IPSQueueSender
    {
       sendMessage(msg, IPSQueueSender.PRIORITY_LOWEST);
    }
-   
+
    /*
     * //see interface method for details
     */
@@ -211,7 +210,7 @@ public class PSQueueSender implements IPSQueueSender
    {
       sendMessages(msgs.iterator(), priority);
    }
-   
+
    public void sendMessages(Iterator< ? extends Serializable> msgs,
          int priority)
    {
@@ -219,7 +218,7 @@ public class PSQueueSender implements IPSQueueSender
       // synchronizing this method prevents other messages from being sent until this
       // one has finished, this could take a long time if it is processing all content list
       // items.
-      
+
       if (msgs == null)
          throw new IllegalArgumentException("message's list cannot be null.");
 
@@ -230,10 +229,10 @@ public class PSQueueSender implements IPSQueueSender
                + IPSQueueSender.PRIORITY_LOWEST + " and "
                + IPSQueueSender.PRIORITY_HIGHEST);
       }
-      
+
       if ( ! msgs.hasNext() )
          return;
-      
+
       PSSender sender = new PSSender();
       try
       {
@@ -245,7 +244,7 @@ public class PSQueueSender implements IPSQueueSender
             try {
             Serializable msg = msgs.next();
             sender.send(msg);
-            } 
+            }
             catch (Exception e)
             {
                ms_log.error("Error when open JMS connection or send message", e);
@@ -273,13 +272,13 @@ public class PSQueueSender implements IPSQueueSender
    {
       sendMessages(msgs, IPSQueueSender.PRIORITY_LOWEST);
    }
-   
+
    /**
     * Gets the Connection Factory used to connect to the message queue.
-    * @return the Connection Factory, never <code>null</code> when it is 
+    * @return the Connection Factory, never <code>null</code> when it is
     * properly configured.
     */
-   public QueueConnectionFactory getConnectionFactory()
+   public ConnectionFactory getConnectionFactory()
    {
       return m_connectionFactory;
    }
@@ -288,14 +287,14 @@ public class PSQueueSender implements IPSQueueSender
     * Sets the Connection Factory used to connect to the message queue. This is
     * called by Spring bean framework.
     */
-   public void setConnectionFactory(QueueConnectionFactory factory)
+   public void setConnectionFactory(ConnectionFactory factory)
    {
       if (factory == null)
          throw new IllegalArgumentException("factory may not be null.");
-      
+
       m_connectionFactory = factory;
    }
-   
+
    /**
     * Gets the message Queue.
     * @return the message queue, never <code>null</code>.
@@ -305,18 +304,18 @@ public class PSQueueSender implements IPSQueueSender
    public Queue getDestination()
    {
       return m_queue;
-   }   
+   }
 
    /**
-    * Sets the property of JNDI name that references to a point to point queue. 
-    * @param jndiName the new JNDI name of the queue, must not be 
+    * Sets the property of JNDI name that references to a point to point queue.
+    * @param jndiName the new JNDI name of the queue, must not be
     *    <code>null</code> or empty.
     */
    public void setDestination(Queue q)
    {
       if (q == null)
          throw new IllegalArgumentException("q must not be null.");
-      
+
       m_queue = q;
-   }   
+   }
 }

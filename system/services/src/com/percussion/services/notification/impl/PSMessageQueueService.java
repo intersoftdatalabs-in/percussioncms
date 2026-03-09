@@ -31,10 +31,10 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
+import jakarta.jms.ObjectMessage;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

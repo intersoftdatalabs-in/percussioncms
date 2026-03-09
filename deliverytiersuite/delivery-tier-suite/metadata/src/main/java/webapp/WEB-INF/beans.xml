@@ -101,8 +101,8 @@
 
    <tx:annotation-driven transaction-manager="txManager"/>
 
-   <bean id="txManager" class="org.springframework.orm.jpa.hibernate.HibernateTransactionManager">
-      <property name="sessionFactory" ref="metadataSessionFactory" />
+   <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+      <property name="entityManagerFactory" ref="sessionFactoryProxy" />
       <property name="nestedTransactionAllowed" value="true" />
    </bean>
 

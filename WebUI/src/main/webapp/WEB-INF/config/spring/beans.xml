@@ -472,7 +472,7 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<property name="lookupOnStartup" value="false" />
 		<property name="cache" value="true" />
 		<property name="proxyInterface"
-			value="javax.jms.QueueConnectionFactory" />
+			value="jakarta.jms.ConnectionFactory" />
 	</bean>
 
 	<bean id="sys_crossSiteRemoveQL"
@@ -579,7 +579,7 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 			value="java:comp/env/queue/emailQueue" />
 		<property name="lookupOnStartup" value="false" />
 		<property name="cache" value="true" />
-		<property name="proxyInterface" value="javax.jms.Queue" />
+		<property name="proxyInterface" value="jakarta.jms.Queue" />
 	</bean>
 
 	<bean id="sys_notificationQueueDestination"
@@ -588,7 +588,7 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 			value="java:comp/env/queue/notificationQueue" />
 		<property name="lookupOnStartup" value="false" />
 		<property name="cache" value="true" />
-		<property name="proxyInterface" value="javax.jms.Queue" />
+		<property name="proxyInterface" value="jakarta.jms.Queue" />
 	</bean>
 
 	<bean id="sys_publishQueueDestination"
@@ -597,7 +597,7 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 			value="java:comp/env/queue/publishQueue" />
 		<property name="lookupOnStartup" value="false" />
 		<property name="cache" value="true" />
-		<property name="proxyInterface" value="javax.jms.Queue" />
+		<property name="proxyInterface" value="jakarta.jms.Queue" />
 	</bean>
 
 	<bean id="sys_managedNavService"

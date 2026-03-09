@@ -79,8 +79,8 @@
 		transaction-manager="txManager" />
 
 	<bean id="txManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-		<property name="sessionFactory" ref="feedsSessionFactory" />
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="sessionFactoryProxy" />
 	</bean>
 
 	<bean id="feedsDao"

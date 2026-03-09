@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.ObjectMessage;
 import java.io.Serializable;
 
 import static org.mockito.ArgumentMatchers.any;

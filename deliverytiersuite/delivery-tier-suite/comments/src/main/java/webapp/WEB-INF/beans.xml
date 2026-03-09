@@ -72,8 +72,8 @@
 
     <tx:annotation-driven transaction-manager="txManager"/>
 
-    <bean id="txManager" class="org.springframework.orm.hibernate6.HibernateTransactionManager">
-        <property name="sessionFactory" ref="commentsSessionFactory" />
+    <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="sessionFactoryProxy" />
     </bean>
 
     <!-- Hibernate SessionFactory -->
