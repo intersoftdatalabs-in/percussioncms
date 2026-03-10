@@ -16,6 +16,7 @@
  */
 package com.percussion.services.legacy.data;
 
+import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.services.legacy.IPSItemEntry;
 
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,7 @@ public class PSItemEntry implements IPSItemEntry {
     protected  String lastModifier;
     protected  Date postedDate;
     protected Date createdDate;
-    
+
     // Workflow information
     protected int workflowAppId;
     protected int stateId;
@@ -270,13 +271,12 @@ public class PSItemEntry implements IPSItemEntry {
     }
 
     /**
-     * Legacy compatibility: whether this entry represents a folder. Many
-     * legacy callers expect an isFolder() method. We default to false to be
-     * conservative; callers that require real folder detection should use
-     * the item summary APIs.
+     * Whether this entry represents a folder, based on the object type.
+     *
+     * @return {@code true} if {@code objectType == PSCmsObject.TYPE_FOLDER}
      */
     public boolean isFolder() {
-        return false;
+        return objectType == PSCmsObject.TYPE_FOLDER;
     }
 
     /**
