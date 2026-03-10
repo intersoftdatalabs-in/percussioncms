@@ -30,7 +30,7 @@
     <header>
         <prop type="supportedlanguage">en-us</prop>
         <prop type="supportedlanguage">es</prop>
-		<prop type="supportedlanguage">hi</prop>
+		    <prop type="supportedlanguage">hi</prop>
     </header>
     <body>
     <!--  Example Entry
@@ -6908,7 +6908,7 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
                     </tuv>
                     <tuv xml:lang="hi">
                         <seg>बुकमार्कलेट जोड़ें</seg>
-                    </tuv> 
+                    </tuv>
  </tu>
      <tu tuid="perc.ui.gadgets.sitewideFramework@Sitewide Framework">
                      <prop type="sectionname" xml:lang="en-us">Sitewide Framework Gadget</prop>

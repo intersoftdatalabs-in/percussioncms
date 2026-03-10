@@ -66,6 +66,13 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
+        <!-- i18n resources module -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-i18n</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-start</artifactId>
@@ -398,6 +405,25 @@
                                 </artifactItem>
                             </artifactItems>
                             <excludes>META-INF/**</excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>extract-i18n-resources</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-i18n</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/rxconfig</outputDirectory>
+                                    <includes>i18n/**</includes>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
