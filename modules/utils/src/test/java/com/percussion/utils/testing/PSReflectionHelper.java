@@ -727,7 +727,7 @@ public class PSReflectionHelper {
   private static Integer getNextIntegerValue() {
     ms_nextValue++;
 
-    return new Integer((int) ms_nextValue);
+    return Integer.valueOf((int) ms_nextValue);
   }
 
   /**

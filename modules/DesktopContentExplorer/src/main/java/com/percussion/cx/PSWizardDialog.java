@@ -73,7 +73,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
    */
   public void onNext() {
     try {
-      Integer key = new Integer(m_pageIndex);
+      Integer key = Integer.valueOf(m_pageIndex);
       IPSWizardPanel panel = (IPSWizardPanel) m_pages.get(key);
       panel.validatePanel();
 
@@ -81,7 +81,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
         m_cards.next(m_mainPanel);
         ++m_pageIndex;
 
-        key = new Integer(m_pageIndex);
+        key = Integer.valueOf(m_pageIndex);
         m_skippedPages.put(key, m_pages.get(key));
         panel = (IPSWizardPanel) m_pages.get(key);
       }
@@ -103,7 +103,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
     m_cards.previous(m_mainPanel);
     --m_pageIndex;
 
-    Integer key = new Integer(m_pageIndex);
+    Integer key = Integer.valueOf(m_pageIndex);
     IPSWizardPanel panel = (IPSWizardPanel) m_skippedPages.get(key);
     while (panel != null) {
       m_skippedPages.remove(key);
@@ -111,7 +111,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
       m_cards.previous(m_mainPanel);
       --m_pageIndex;
 
-      key = new Integer(m_pageIndex);
+      key = Integer.valueOf(m_pageIndex);
       panel = (IPSWizardPanel) m_skippedPages.get(key);
     }
 
@@ -138,7 +138,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
   public Object[] getData() {
     Object[] data = new Object[m_pages.size()];
     for (int i = 0; i < m_pages.size(); i++)
-      data[i] = ((IPSWizardPanel) m_pages.get(new Integer(i))).getData();
+      data[i] = ((IPSWizardPanel) m_pages.get(Integer.valueOf(i))).getData();
 
     return data;
   }
@@ -184,7 +184,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
       Object[] page = (Object[]) pages[i];
       System.out.println("create page " + (String) page[PAGE_PANEL]);
 
-      Integer key = new Integer(i);
+      Integer key = Integer.valueOf(i);
       PSWizardPanel pagePanel = instantiate((String) page[PAGE_PANEL]);
       if (pagePanel == null)
         throw new IllegalArgumentException(

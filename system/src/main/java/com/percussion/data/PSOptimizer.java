@@ -224,7 +224,7 @@ public abstract class PSOptimizer {
       if (iTemp == null) // if we haven't added a step for this B.E. yet
       {
         // add to hash to mark this as done
-        connKeys.put(driverServerCombo, new Integer(loginCount));
+        connKeys.put(driverServerCombo, Integer.valueOf(loginCount));
         loginCount++;
 
         PSBackEndLogin beLogin = new PSBackEndLogin(beTable.getDataSource());

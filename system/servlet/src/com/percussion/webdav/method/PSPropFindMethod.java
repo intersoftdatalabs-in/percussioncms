@@ -1024,7 +1024,7 @@ public class PSPropFindMethod extends PSWebdavMethod
          {
             ComponentStatus comp = (ComponentStatus) compList.next();
             PSComponentSummary summary = comp.mi_summary;
-            idList.add(new Integer(summary.getCurrentLocator().getId()));            
+            idList.add(Integer.valueOf(summary.getCurrentLocator().getId()));            
             Long contentTypeId = comp.getContentTypeId();
                
             if (!contentTypeIdSet.contains(contentTypeId))

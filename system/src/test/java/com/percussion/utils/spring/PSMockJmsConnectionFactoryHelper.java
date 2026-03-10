@@ -121,12 +121,12 @@ public class PSMockJmsConnectionFactoryHelper
          String type = destination.getValue();
          if (type.equals("topic"))
          {
-            Topic t = destmgr.createTopic(jndiname);
+            Topic t = (Topic) destmgr.createTopic(jndiname);
             m_helper.addBareBinding(jndiname, t);
          }
          else if (type.equals("queue"))
          {
-            Queue q = destmgr.createQueue(jndiname);
+            Queue q = (Queue) destmgr.createQueue(jndiname);
             m_helper.addBareBinding(jndiname, q);
          }
          else

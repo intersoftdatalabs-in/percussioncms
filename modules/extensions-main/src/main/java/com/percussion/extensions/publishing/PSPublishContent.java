@@ -309,7 +309,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
             "Error while parsing value for workflow id");
       }
       try {
-        editionId = new Integer(PSXMLDomUtil.getElementData(edition));
+        editionId = Integer.valueOf(PSXMLDomUtil.getElementData(edition));
       } catch (Exception th) {
         throw new PSExtensionException(
             IPSExtensionErrors.BAD_PUBLISH_CONTENT_FILE_DATA,

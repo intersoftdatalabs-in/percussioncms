@@ -294,11 +294,11 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
       }
     }
 
-    transformer.setParameter(RxFileManager.MAJOR_VERSION_PROP_KEY, new Integer(majorVersion));
+    transformer.setParameter(RxFileManager.MAJOR_VERSION_PROP_KEY, Integer.valueOf(majorVersion));
 
-    transformer.setParameter(RxFileManager.MINOR_VERSION_PROP_KEY, new Integer(minorVersion));
+    transformer.setParameter(RxFileManager.MINOR_VERSION_PROP_KEY, Integer.valueOf(minorVersion));
 
-    transformer.setParameter(RxFileManager.BUILD_NUMBER_PROP_KEY, new Integer(buildNumber));
+    transformer.setParameter(RxFileManager.BUILD_NUMBER_PROP_KEY, Integer.valueOf(buildNumber));
   }
 
   /**

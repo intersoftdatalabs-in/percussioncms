@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-package com.percussion.delivery.rdbms;
+package com.percussion.junitrunners;
 
-import org.hibernate.dialect.DerbyDialect;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class DerbyTenOneFourDialect extends DerbyDialect {
-
-  public DerbyTenOneFourDialect() {
-    super();
-  }
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface Concurrent {
+  int threads() default 5;
 }

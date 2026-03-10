@@ -97,7 +97,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   @Override
   public void savePkgInfo(PSPkgInfo obj) {
     Objects.requireNonNull(obj, "obj may not be null");
-    getSession().saveOrUpdate(obj);
+    getSession().merge(obj);
   }
 
   @Override
@@ -117,7 +117,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
     if (resultList.isEmpty()) {
       return;
     }
-    session.delete(resultList.get(0));
+    session.remove(resultList.get(0));
   }
 
   @Override
@@ -182,7 +182,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   public void savePkgElement(PSPkgElement obj) {
     Objects.requireNonNull(obj, "obj may not be null");
     log.debug("Trying to save PackageElement: {}", obj);
-    getSession().saveOrUpdate(obj);
+    getSession().merge(obj);
     log.debug("PackageElement save completed for: {}", obj);
   }
 
@@ -199,7 +199,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
     if (resultList.isEmpty()) {
       return;
     }
-    session.delete(resultList.get(0));
+    session.remove(resultList.get(0));
   }
 
   @Override
@@ -364,7 +364,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   @Override
   public void savePkgDependency(PSPkgDependency pkgDependency) {
     Objects.requireNonNull(pkgDependency, "pkgDependency may not be null");
-    getSession().saveOrUpdate(pkgDependency);
+    getSession().merge(pkgDependency);
   }
 
   @Override
@@ -379,7 +379,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
     if (pkgDep == null) {
       return;
     }
-    session.delete(pkgDep);
+    session.remove(pkgDep);
   }
 
   @Override

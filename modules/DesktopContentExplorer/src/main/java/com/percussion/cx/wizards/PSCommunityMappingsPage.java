@@ -255,7 +255,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
         if (source == null || target == null) break;
 
         if (source.getId() != target.getId())
-          put(new Integer(source.getId()), new Integer(target.getId()));
+          put(Integer.valueOf(source.getId()), Integer.valueOf(target.getId()));
       }
     }
   }

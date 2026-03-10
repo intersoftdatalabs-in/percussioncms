@@ -171,7 +171,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
          */
         if (null != params[4] && 0 != params[4].toString().trim().length()) {
           try {
-            requiredAccessLevel = new Integer(params[4].toString());
+            requiredAccessLevel = Integer.valueOf(params[4].toString());
           } catch (Exception e) {
             requiredAccessLevel = PSWorkFlowUtils.ASSIGNMENT_TYPE_READER;
           }

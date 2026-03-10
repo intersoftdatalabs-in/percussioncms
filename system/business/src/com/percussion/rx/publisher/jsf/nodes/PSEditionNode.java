@@ -1281,7 +1281,7 @@ public class PSEditionNode extends PSDesignNode
          if (StringUtils.isNotBlank(mi_authtype)
                && StringUtils.isNumeric(mi_authtype))
          {
-            authtype = new Integer(mi_authtype);
+            authtype = Integer.valueOf(mi_authtype);
          }
          wrapper.getEclist().setAuthtype(authtype);
          wrapper.init();

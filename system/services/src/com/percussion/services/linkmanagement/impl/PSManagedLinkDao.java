@@ -98,7 +98,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
         Session session = getSession();
         try
         {
-            session.saveOrUpdate(link);
+            session.merge(link);
         }
         catch (HibernateException e)
         {
@@ -127,7 +127,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
         Session session = getSession();
         try
         {
-            session.delete(link);
+            session.remove(link);
         }
         catch (HibernateException e)
         {
@@ -151,7 +151,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
             for (PSManagedLink link : links)
             {
                 log.debug("Deleting managed link with id: " + link.getLinkId());
-                session.delete(link);
+                session.remove(link);
             }
         }
         catch (HibernateException e)

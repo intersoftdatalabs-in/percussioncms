@@ -680,8 +680,8 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
       // get the original site and/or folder IDs if there is any
       String sSiteId = rel.getProperty(PSRelationshipConfig.PDU_SITEID);
       String sFolderId = rel.getProperty(PSRelationshipConfig.PDU_FOLDERID);
-      Integer origSiteId = StringUtils.isBlank(sSiteId) ? null : new Integer(sSiteId);
-      Integer origFolderId = StringUtils.isBlank(sFolderId) ? null : new Integer(sFolderId);
+      Integer origSiteId = StringUtils.isBlank(sSiteId) ? null : Integer.valueOf(sSiteId);
+      Integer origFolderId = StringUtils.isBlank(sFolderId) ? null : Integer.valueOf(sFolderId);
 
       IPSSiteManager smgr = PSSiteManagerLocator.getSiteManager();
       IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
@@ -943,7 +943,7 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
           findOrigRelationship(request, relationship, origRels.iterator());
 
       if (origRel != null) {
-        relateMap.put(new Integer(origRel.m_relationship.getId()), relationship);
+        relateMap.put(Integer.valueOf(origRel.m_relationship.getId()), relationship);
         origRels.remove(origRel);
       }
     }

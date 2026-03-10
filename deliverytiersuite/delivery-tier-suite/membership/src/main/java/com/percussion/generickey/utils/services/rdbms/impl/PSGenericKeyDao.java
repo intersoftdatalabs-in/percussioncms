@@ -92,7 +92,7 @@ public class PSGenericKeyDao implements IPSGenericKeyDao {
     Session session = getSession();
     try {
       validateNewKey(resetKey.getGenericKey(), session);
-      session.saveOrUpdate(resetKey);
+      session.persist(resetKey);
       session.flush();
     } finally {
       // session.close();
@@ -104,7 +104,7 @@ public class PSGenericKeyDao implements IPSGenericKeyDao {
     Validate.notNull(resetKey);
     Session session = getSession();
     try {
-      session.delete(resetKey);
+      session.remove(resetKey);
       session.flush();
     } finally {
       // session.close();

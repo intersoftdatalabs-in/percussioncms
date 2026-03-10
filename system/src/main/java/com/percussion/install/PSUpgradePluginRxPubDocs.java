@@ -161,7 +161,7 @@ public class PSUpgradePluginRxPubDocs implements IPSUpgradePlugin {
 
         if (foundVariantId && rs.getInt("VARIANTID") == -1 && strVariantId.length() > 0) {
           // Found a variantid, now put it in VARIANTID column
-          rs.updateInt("VARIANTID", (new Integer(strVariantId)).intValue());
+          rs.updateInt("VARIANTID", (Integer.valueOf(strVariantId)).intValue());
           rs.updateRow();
           rowsModified++;
           modifications = true;

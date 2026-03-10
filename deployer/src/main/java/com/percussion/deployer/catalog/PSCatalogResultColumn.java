@@ -54,7 +54,7 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
    * @return <code>true</code> if the validation is successful, otherwise <code>false</code>
    */
   static boolean validateType(int type) {
-    return ms_typeObjects.containsValue(new Integer(type));
+    return ms_typeObjects.containsValue(Integer.valueOf(type));
   }
 
   /**

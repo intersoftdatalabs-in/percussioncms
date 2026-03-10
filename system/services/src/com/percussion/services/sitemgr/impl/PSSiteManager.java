@@ -222,7 +222,7 @@ public class PSSiteManager implements IPSSiteManager {
         Objects.requireNonNull(site, "site cannot be null");
         // Site is expected to be an entity instance (PSSite); delegate to Hibernate
         try {
-            getSession().delete(site);
+            getSession().remove(site);
         } catch (Exception e) {
             log.warn("Failed to delete site {}: {}", site, e.getMessage());
             throw e;
@@ -450,7 +450,7 @@ public class PSSiteManager implements IPSSiteManager {
     public void deleteSite(IPSSite site) {
         Objects.requireNonNull(site, "site cannot be null");
 
-        getSession().delete(site);
+        getSession().remove(site);
         PSNotificationHelper.notifyEvent(EventType.SITE_DELETED, site.getGUID());
 
         // the object will be evicted by the framework,
@@ -622,7 +622,7 @@ public class PSSiteManager implements IPSSiteManager {
             throw new IllegalStateException("Cannot save a cloned Location Scheme object");
         }
 
-        getSession().saveOrUpdate(scheme);
+        getSession().merge(scheme);
 
         // the object will be evicted by the framework,
         // see PSEhCacheAccessor.notifyEvent()
@@ -632,14 +632,14 @@ public class PSSiteManager implements IPSSiteManager {
     public void saveSchemeImpl(IPSLocationScheme scheme) {
         Objects.requireNonNull(scheme, "scheme cannot be null");
         // Minimal direct save implementation
-        getSession().saveOrUpdate(scheme);
+        getSession().merge(scheme);
     }
 
     @Override
     @Transactional(noRollbackFor = PSNotFoundException.class)
     public void deleteScheme(IPSLocationScheme scheme) {
         Objects.requireNonNull(scheme, "scheme cannot be null");
-        getSession().delete(scheme);
+        getSession().remove(scheme);
 
         // the object will be evicted by the framework,
         // see PSEhCacheAccessor.notifyEvent()
@@ -654,14 +654,14 @@ public class PSSiteManager implements IPSSiteManager {
                 IPSPublishingContext context = loadContextModifiable(scheme.getContextId());
                 if (context.getDefaultSchemeId() != null && context.getDefaultSchemeId().equals(scheme.getGUID())) {
                     context.setDefaultSchemeId(null);
-                    getSession().saveOrUpdate(context);
+                    getSession().merge(context);
                 }
             } catch (PSNotFoundException e) {
                 // If context doesn't exist, just proceed with delete
                 log.debug("Context for scheme not found: {}", scheme.getContextId(), e);
             }
         }
-        getSession().delete(scheme);
+        getSession().remove(scheme);
     }
 
     /**
@@ -1239,7 +1239,7 @@ public class PSSiteManager implements IPSSiteManager {
       {
          throw new IllegalArgumentException("context may not be null");
       }
-      getSession().delete(context);
+      getSession().remove(context);
 
       // the object will be evicted by the framework,
       // see PSEhCacheAccessor.notifyEvent()
@@ -1255,7 +1255,7 @@ public class PSSiteManager implements IPSSiteManager {
       {
          throw new IllegalArgumentException("context may not be null");
       }
-      getSession().delete(context);
+      getSession().remove(context);
    }
 
    @Override
@@ -1272,7 +1272,7 @@ public class PSSiteManager implements IPSSiteManager {
       {
          throw new IllegalArgumentException("context may not be null");
       }
-      getSession().saveOrUpdate(context);
+      getSession().merge(context);
    }
 
    /**
@@ -1286,7 +1286,7 @@ public class PSSiteManager implements IPSSiteManager {
       {
          throw new IllegalArgumentException("context may not be null");
       }
-      getSession().saveOrUpdate(context);
+      getSession().merge(context);
    }
 
    @Override

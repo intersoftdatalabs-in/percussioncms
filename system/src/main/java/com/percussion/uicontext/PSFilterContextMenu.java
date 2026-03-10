@@ -115,7 +115,7 @@ public class PSFilterContextMenu implements IPSResultDocumentProcessor {
     try {
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
       List<Integer> ids = new ArrayList<>();
-      ids.add(new Integer(contentid));
+      ids.add(Integer.valueOf(contentid));
       List<PSComponentSummary> summaries = cms.loadComponentSummaries(ids);
       if (ids.size() == 0) {
         throw new RuntimeException("Could not find content item for id " + contentid);

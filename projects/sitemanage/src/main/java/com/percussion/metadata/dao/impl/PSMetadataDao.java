@@ -50,7 +50,7 @@ public class PSMetadataDao implements com.percussion.metadata.dao.IPSMetadataDao
   public PSMetadata create(PSMetadata data) throws IPSGenericDao.SaveException {
     var session = getSession();
     try {
-      session.save(data);
+      session.persist(data);
     } catch (HibernateException e) {
       var msg = "create(PSMetadata data) database error " + e.getMessage();
       log.error(msg);
@@ -79,7 +79,7 @@ public class PSMetadataDao implements com.percussion.metadata.dao.IPSMetadataDao
   public void delete(PSMetadata data) throws IPSGenericDao.DeleteException {
     var session = getSession();
     try {
-      session.delete(data);
+      session.remove(data);
     } catch (HibernateException e) {
       var msg = "delete(PSMetadata data) database error " + e.getMessage();
       log.error(msg);
@@ -105,7 +105,7 @@ public class PSMetadataDao implements com.percussion.metadata.dao.IPSMetadataDao
         throw new IPSGenericDao.SaveException(emsg);
       }
       existing.setData(data.getData());
-      session.update(existing);
+      session.merge(existing);
     } catch (HibernateException he) {
       var emsg = "save(PSMetadata data) database error " + he.getMessage();
       log.error(emsg);

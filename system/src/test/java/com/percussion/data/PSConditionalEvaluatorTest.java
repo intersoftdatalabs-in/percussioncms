@@ -507,29 +507,29 @@ public class PSConditionalEvaluatorTest
       left.clear();
       right.clear();
 
-      left.add(new Integer(1));
-      right.add(new Integer(0));
-      right.add(new Integer(2));
+      left.add(Integer.valueOf(1));
+      right.add(Integer.valueOf(0));
+      right.add(Integer.valueOf(2));
       testBetweenCase(left, right);
       testLikeCase(left, right, false, false);
 
-      right.add(new Integer(1));
+      right.add(Integer.valueOf(1));
       testLikeCase(left, right, false, true);
 
       //greater than
       left.clear();
       right.clear();
 
-      left.add(new Integer(2));
-      right.add(new Integer(0));
+      left.add(Integer.valueOf(2));
+      right.add(Integer.valueOf(0));
       testGreaterThan(left, right);
 
       //less than
       left.clear();
       right.clear();
 
-      left.add(new Integer(1));
-      right.add(new Integer(2));
+      left.add(Integer.valueOf(1));
+      right.add(Integer.valueOf(2));
       testLessThan(left, right);
       testLikeCase(left, right, false, false);
    }

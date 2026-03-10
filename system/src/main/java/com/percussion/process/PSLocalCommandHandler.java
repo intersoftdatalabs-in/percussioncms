@@ -279,7 +279,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   private static synchronized int storeAction(PSProcessAction action) {
     int nextHandle;
     nextHandle = ms_nextHandle++;
-    ms_spawnedActions.put(new Integer(nextHandle), action);
+    ms_spawnedActions.put(Integer.valueOf(nextHandle), action);
     return nextHandle;
   }
 
@@ -290,7 +290,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * @return The originally stored action, or <code>null</code> if the handle is not in the map.
    */
   private static PSProcessAction getAction(int handle) {
-    return (PSProcessAction) ms_spawnedActions.get(new Integer(handle));
+    return (PSProcessAction) ms_spawnedActions.get(Integer.valueOf(handle));
   }
 
   /**
@@ -301,7 +301,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    *     handle.
    */
   private static PSProcessAction removeAction(int handle) {
-    return (PSProcessAction) ms_spawnedActions.remove(new Integer(handle));
+    return (PSProcessAction) ms_spawnedActions.remove(Integer.valueOf(handle));
   }
 
   /**

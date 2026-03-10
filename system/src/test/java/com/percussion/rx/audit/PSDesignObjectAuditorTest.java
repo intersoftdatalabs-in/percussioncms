@@ -80,7 +80,7 @@ public class PSDesignObjectAuditorTest
       
       
       // test update
-      id.mi_version = new Integer(2);
+      id.mi_version = Integer.valueOf(2);
       auditData = auditor.createAuditData("saveSomething", id);
       assertFalse(auditData.isEmpty());
       data = auditData.iterator().next();

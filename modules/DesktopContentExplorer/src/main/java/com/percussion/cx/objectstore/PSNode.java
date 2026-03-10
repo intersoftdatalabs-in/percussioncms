@@ -2070,10 +2070,10 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     ms_dataTypes.add(DATA_TYPE_DATE);
     ms_dataTypes.add(DATA_TYPE_IMAGE);
 
-    ms_nodeOrder.put(TYPE_FOLDER, new Integer(1));
-    ms_nodeOrder.put(TYPE_SITE, new Integer(1));
-    ms_nodeOrder.put(TYPE_SITESUBFOLDER, new Integer(1));
-    ms_nodeOrder.put(TYPE_ITEM, new Integer(2));
+    ms_nodeOrder.put(TYPE_FOLDER, Integer.valueOf(1));
+    ms_nodeOrder.put(TYPE_SITE, Integer.valueOf(1));
+    ms_nodeOrder.put(TYPE_SITESUBFOLDER, Integer.valueOf(1));
+    ms_nodeOrder.put(TYPE_ITEM, Integer.valueOf(2));
 
     ms_searchTypes.add(TYPE_NEW_SRCH);
     ms_searchTypes.add(TYPE_EMPTY_SRCH);

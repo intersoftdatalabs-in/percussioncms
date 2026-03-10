@@ -214,7 +214,7 @@ public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSCont
           }
         };
 
-    if (mnem != 0) menuAction.putValue(Action.MNEMONIC_KEY, new Integer((int) mnem));
+    if (mnem != 0) menuAction.putValue(Action.MNEMONIC_KEY, Integer.valueOf((int) mnem));
 
     if (accKey != null) menuAction.putValue(Action.ACCELERATOR_KEY, accKey);
 
@@ -303,7 +303,7 @@ public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSCont
 
         subMenu.getAction().putValue(Action.NAME, label);
         char mnem = PSContentExplorerApplet.getResourceMnemonic(getClass(), "Group", 'G');
-        subMenu.getAction().putValue(Action.MNEMONIC_KEY, new Integer(mnem));
+        subMenu.getAction().putValue(Action.MNEMONIC_KEY, Integer.valueOf(mnem));
       }
     }
   }

@@ -286,7 +286,7 @@ IPSEditionContentList, Cloneable
       int atId = PSXmlUtils.checkAttributeInt(elem, XML_ATTR_AUTHTYPE_NAME,
             false);
       if (atId != -1)
-         setAuthtype(new Integer(atId));
+         setAuthtype(Integer.valueOf(atId));
       else
          setAuthtype(null);
             
@@ -302,9 +302,9 @@ IPSEditionContentList, Cloneable
          if (pk == null)
             pk = new PSEditionContentListPK();
 
-         pk.setContentlistid((new Integer(fields[0])).longValue());
-         pk.setEditionclistid((new Integer(fields[1])).longValue());
-         pk.setEditionid((new Integer(fields[2])).longValue());
+         pk.setContentlistid((Integer.valueOf(fields[0])).longValue());
+         pk.setEditionclistid((Integer.valueOf(fields[1])).longValue());
+         pk.setEditionid((Integer.valueOf(fields[2])).longValue());
       }
       catch (Exception e)
       {
@@ -317,7 +317,7 @@ IPSEditionContentList, Cloneable
       int seq = PSXmlUtils.checkAttributeInt(elem, XML_ATTR_SEQUENCE_NAME,
             false);
       if (seq != -1)
-         setSequence(new Integer(seq));
+         setSequence(Integer.valueOf(seq));
       else
          setSequence(null);
    }

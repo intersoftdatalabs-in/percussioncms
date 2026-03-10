@@ -152,11 +152,11 @@ public class PSActionVisibilityCheckerTest
       PSActionVisibilityChecker checker = new PSActionVisibilityChecker(300,
             true, vcs);
       Map<String, Object> stateMap = new HashMap<String, Object>();
-      stateMap.put(contextId, new Integer(200));
+      stateMap.put(contextId, Integer.valueOf(200));
       GenericGlobalState gs = new GenericGlobalState(stateMap);
       assertFalse(checker.isVisible(gs, (Collection) null));
 
-      stateMap.put(contextId, new Integer(300));
+      stateMap.put(contextId, Integer.valueOf(300));
       gs.reset(stateMap);
       assertTrue(checker.isVisible(gs, (Collection) null));
    }
@@ -171,11 +171,11 @@ public class PSActionVisibilityCheckerTest
       PSActionVisibilityChecker checker = new PSActionVisibilityChecker(300,
             true, vcs);
       Map<String, Object> stateMap = new HashMap<String, Object>();
-      stateMap.put(contextId, new Integer(200));
+      stateMap.put(contextId, Integer.valueOf(200));
       GenericObjectState os = new GenericObjectState(stateMap);
       assertFalse(checker.isVisible((PSActionVisibilityGlobalState) null, os));
 
-      stateMap.put(contextId, new Integer(300));
+      stateMap.put(contextId, Integer.valueOf(300));
       os.reset(stateMap);
       assertTrue(checker.isVisible((PSActionVisibilityGlobalState) null, os));
    }

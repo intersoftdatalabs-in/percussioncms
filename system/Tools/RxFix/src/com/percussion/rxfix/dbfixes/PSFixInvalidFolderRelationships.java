@@ -90,7 +90,7 @@ public class PSFixInvalidFolderRelationships extends PSFixDBBase implements IPSF
          while (rs.next())
          {
             int rid = rs.getInt(1);
-            rids.add(new Integer(rid));
+            rids.add(Integer.valueOf(rid));
          }
 
          if (rids.size() == 0)

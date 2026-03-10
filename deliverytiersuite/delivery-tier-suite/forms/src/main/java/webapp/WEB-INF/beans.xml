@@ -19,12 +19,12 @@
          <list>
             <value>db.password</value>
             <value>email.password</value>
-            <value>recaptcha.secret</value>            
+            <value>recaptcha.secret</value>
          </list>
       </property>
       <property name="locations">
-         <!-- One or more locations of the property files. Properties with 
-            the same name override based on the order the file appears in the list last 
+         <!-- One or more locations of the property files. Properties with
+            the same name override based on the order the file appears in the list last
             one defined wins -->
          <list>
             <value>WEB-INF/perc-security.properties</value>
@@ -35,8 +35,8 @@
             <value>file:${catalina.home}/conf/perc/perc-security.properties</value>
          </list>
       </property>
-      <!-- Local properties to default to if no file exists or the properties 
-         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the 
+      <!-- Local properties to default to if no file exists or the properties
+         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the
          properties file where the password will be encrypted -->
       <property name="properties">
          <props>
@@ -49,12 +49,12 @@
             <prop key="db.schema">APP</prop>
             <prop key="datasource">percDataSource</prop>
             <prop key="hibernateProperties">percHibernateProperties</prop>
-            <prop key="hibernate.dialect">com.percussion.delivery.rdbms.DerbyTenOneFourDialect</prop>
+            <prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
             <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
             <prop key="hibernate.cache.use_second_level_cache">false</prop>
             <prop key="hibernate.cache.use_query_cache">false</prop>
             <prop key="hibernate.hbm2ddl.auto">update</prop>
-                        
+
             <!-- default properties for email service -->
             <prop key="email.hostName"></prop>
             <prop key="email.portNumber"></prop>
@@ -64,7 +64,7 @@
             <prop key="email.fromAddress"></prop>
             <prop key="email.fromName"></prop>
             <prop key="email.sslPort"></prop>
-            <prop key="email.bounceAddress"></prop>   
+            <prop key="email.bounceAddress"></prop>
             <prop key="recaptcha.on">false</prop>
             <prop key="recaptcha.secret"></prop>
             <prop key="recaptcha.url">https://www.google.com/recaptcha/api/siteverify</prop>
@@ -78,7 +78,7 @@
          class="com.percussion.delivery.utils.spring.PSPropertyPlaceholderConfigurer">
       <property name="properties" ref="propertyPlaceholderProps" />
    </bean>
-   
+
    <bean id="emailProperties"
       class="org.springframework.beans.factory.config.PropertiesFactoryBean">
       <property name="properties">
@@ -94,9 +94,9 @@
              <prop key="email.sslPort">${email.sslPort}</prop>
              <prop key="email.bounceAddress">${email.bounceAddress}</prop>
          </props>
-      </property>   
+      </property>
    </bean>
-      
+
     <import resource="perc-datasources.xml" />
     <import resource="file:${catalina.home}/conf/perc/*-datasources.xml" />
    <import resource="security.xml" />
@@ -117,23 +117,23 @@
       <property name="packagesToScan" value="com.percussion.delivery.forms.data" />
       <property name="entityManagerFactoryInterface" value="jakarta.persistence.EntityManagerFactory" />
    </bean>
-   
-   
+
+
    <bean id="recaptchaService" class="com.percussion.delivery.forms.impl.PSRecaptchaService" autowire="constructor">
       <constructor-arg index = "0" value = "${recaptcha.on}"/>
       <constructor-arg index = "1" value = "${recaptcha.url}"/>
       <constructor-arg index = "2" value = "${recaptcha.secret}"/>
       <constructor-arg index = "3" value = "${recaptcha.userAgent}"/>
    </bean>
-   
+
    <bean id="emailHelper" class="com.percussion.delivery.utils.PSEmailHelper" autowire="constructor">
       <constructor-arg ref="emailProperties"/>
    </bean>
-      
+
    <!-- Define Form DAO bean -->
    <bean id="formDao" class="com.percussion.delivery.forms.impl.rdbms.PSFormDao">
    </bean>
-   
+
    <!-- Define Form Service bean -->
    <bean id="formService" class="com.percussion.delivery.forms.impl.PSFormService" >
       <constructor-arg ref="formDao"/>
@@ -144,7 +144,7 @@
       	<ref bean="recaptchaService" />
       </property>
    </bean>
-   
+
    <bean id="formRestService" class="com.percussion.delivery.forms.impl.PSFormRestService">
      <constructor-arg index = "0" ref="formService" />
       <constructor-arg index = "1" value="${enabledCiphers}" />

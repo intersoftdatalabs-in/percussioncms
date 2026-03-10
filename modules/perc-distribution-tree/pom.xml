@@ -59,6 +59,13 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
+        <!-- OpenAPI Web Application for isolated Swagger/OpenAPI delivery -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-openapi-webapp</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-start</artifactId>

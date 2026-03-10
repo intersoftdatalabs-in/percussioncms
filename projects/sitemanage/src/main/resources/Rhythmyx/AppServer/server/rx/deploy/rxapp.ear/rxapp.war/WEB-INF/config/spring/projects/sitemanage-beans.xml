@@ -23,8 +23,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <context:component-scan
             base-package="com.percussion.recent,com.percussion.redirect,com.percussion.metadata,com.percussion.pathmanagement,com.percussion.integritymanagement,com.percussion.pagemanagement,com.percussion.sitemanage,com.percussion.assetmanagement,com.percussion.utils,com.percussion.searchmanagement,com.percussion.share,com.percussion.user.service.impl,com.percussion.theme,com.percussion.itemmanagement,com.percussion.comments.service.impl,com.percussion.siteimportsummary,com.percussion.pubserver,com.percussion.monitor,com.percussion.apibridge,com.percussion.rest,com.percussion,com.percussion.licensemanagement">
-        <context:include-filter type="annotation" expression="com.percussion.util.PSSiteManageBean"/>
-        <context:exclude-filter type="annotation" expression="com.percussion.util.PSBaseBean"/>
+        <context:include-filter type="annotation" expression="com.percussion.system.utils.PSSiteManageBean"/>
+        <context:exclude-filter type="annotation" expression="com.percussion.system.utils.PSBaseBean"/>
     </context:component-scan>
 
     <jaxrs:server id="licensemanagement-jax-rs" address="/licensemanagement">
@@ -63,25 +63,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <bean id="springWebApplicationContextSetter"
           class="com.percussion.share.spring.PSSpringWebApplicationContextSetter"/>
 
-    <bean id="openApiFeature" class="org.apache.cxf.jaxrs.openapi.OpenApiFeature">
-        <property name="title" value="Percussion CMS REST API"/>
-        <property name="version" value="${project.parent.version}"/>
-        <property name="description" value="Public CMS REST API"/>
-        <property name="contactEmail" value="percussion.support@intsof.com"/>
-        <property name="contactName" value="Intersoft Data Labs - Percussion CMS Support" />
-        <property name="contactUrl" value="https://percussionsupport.intsof.com/" />
-        <property name="runAsFilter" value="false" />
-        <property name="license" value="Apache License, Version 2.0"/>
-        <property name="licenseUrl" value="https://www.apache.org/licenses/LICENSE-2.0"/>
-        <property name="supportSwaggerUi" value="true"/>
-        <property name="swaggerUiVersion" value="${swagger.ui.version}"/>
-        <property name="swaggerUiMavenGroupAndArtifact" value="org.webjars.swagger-ui"/>
-        <property name="scan" value="true" />
-        <property name="readAllResources" value="true" />
-        <property name="resourcePackages" value="com.percussion.rest" />
-        <property name="useContextBasedConfig" value="false"/>
-        <property name="prettyPrint" value="true"/>
-    </bean>
+    <!-- OpenAPI/Swagger feature moved to perc-openapi-webapp for build-time generation.
+         This decouples OpenAPI delivery from the main Rhythmyx runtime, enabling
+         Jackson 3 migration without Swagger runtime compatibility issues. -->
 
     <!-- Used to Authorize API access -->
     <bean id="authorizationFilter" class="com.percussion.servlets.PSRestApiAuthFilter" />
@@ -125,7 +109,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="authorizationFilter" />
         </jaxrs:providers>
         <jaxrs:features>
-                <ref bean="openApiFeature" />
             <cxf:logging/>
         </jaxrs:features>
     </jaxrs:server>

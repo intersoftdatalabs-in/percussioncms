@@ -82,7 +82,7 @@ public class PSFixInvalidFolders extends PSFixDBBase implements IPSFix
             String title = rs.getString(2);
             if (title == null)
                title = ""; //$NON-NLS-1$
-            invalidFolders.put(new Integer(rs.getInt(1)), title);
+            invalidFolders.put(Integer.valueOf(rs.getInt(1)), title);
          }
          rs.close();
          st.close();
@@ -130,7 +130,7 @@ public class PSFixInvalidFolders extends PSFixDBBase implements IPSFix
                         .expand(m_defDict));
             rs = query_relatiosnhips.executeQuery();
             while (rs.next())
-               ridSet.add(new Integer(rs.getInt(1)));
+               ridSet.add(Integer.valueOf(rs.getInt(1)));
             rs.close();
             query_relatiosnhips.close();
             m_defDict.remove(IN_CLAUSE);

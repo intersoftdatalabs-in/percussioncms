@@ -121,10 +121,10 @@ public class PSFixOrphanedSlots extends PSFixDBBase implements IPSFix
          PreparedStatement st = PSPreparedStatement.getPreparedStatement(c,
                ms_slotIdTypes.expand(m_defDict));
          ResultSet rs = st.executeQuery();
-         while (rs.next())
-         {
-            inlineSlots.add(new Integer(rs.getInt(1)));
-         }
+                  while (rs.next())
+                  {
+                        inlineSlots.add(Integer.valueOf(rs.getInt(1)));
+                  }
          rs.close();
          st.close();
 
@@ -152,10 +152,10 @@ public class PSFixOrphanedSlots extends PSFixDBBase implements IPSFix
             stslots.setInt(1, contenttypeid);
             ResultSet rsslots = stslots.executeQuery();
             Set variantslots = new HashSet();
-            while (rsslots.next())
-            {
-               variantslots.add(new Integer(rsslots.getInt(1)));
-            }
+                        while (rsslots.next())
+                        {
+                              variantslots.add(Integer.valueOf(rsslots.getInt(1)));
+                        }
 
             // Create the union
             Set union = new HashSet();
@@ -185,10 +185,10 @@ public class PSFixOrphanedSlots extends PSFixDBBase implements IPSFix
             List removedRelationships = new ArrayList();
 
             // Loop over the orphaned relationships
-            while (rsorphanedrid.next())
-            {
-               int rid = rsorphanedrid.getInt(1);
-               removedRelationships.add(new Integer(rid));
+                        while (rsorphanedrid.next())
+                        {
+                              int rid = rsorphanedrid.getInt(1);
+                              removedRelationships.add(Integer.valueOf(rid));
 
                if (!preview)
                {

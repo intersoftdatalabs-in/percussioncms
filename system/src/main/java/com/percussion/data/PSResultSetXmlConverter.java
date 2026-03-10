@@ -276,7 +276,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     java.util.Stack stack = data.getResultSetStack();
     if (stack.size() > 1)
       throw new PSConversionException(
-          IPSDataErrors.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, new Integer(stack.size()));
+          IPSDataErrors.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
     else if (stack.size() == 0)
       throw new PSConversionException(IPSDataErrors.NO_DATA_FOR_CONVERSION);
 
@@ -498,7 +498,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       if ((m_maxRowsPerPage > 0) && dh.isTraceEnabled(traceResourceHandlerFlag)) {
         int curpage = ((curRowNumber) / m_maxRowsPerPage) + 1;
         Object[] args = {
-          new Integer(m_maxRowsPerPage), new Integer(curpage), "traceResourceHandler_pageResults"
+          Integer.valueOf(m_maxRowsPerPage), Integer.valueOf(curpage), "traceResourceHandler_pageResults"
         };
         dh.printTrace(traceResourceHandlerFlag, args);
 
@@ -530,7 +530,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
 
         if (dh.isTraceEnabled(traceResourceHandlerFlag)) {
           if (((rowsSelected / 10) > 0) && (rowsSelected % 10 == 0)) {
-            Object[] args = {new Integer(rowsSelected), "traceResourceHandler_mapResultsCount"};
+            Object[] args = {Integer.valueOf(rowsSelected), "traceResourceHandler_mapResultsCount"};
             dh.printTrace(traceResourceHandlerFlag, args);
           }
         }
@@ -549,7 +549,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
         dh.printTrace(traceResultSetFlag, resultArgs);
       }
       if (dh.isTraceEnabled(traceResourceHandlerFlag)) {
-        Object[] args = {new Integer(rowsSelected), "traceResourceHandler_mapResultsTotal"};
+        Object[] args = {Integer.valueOf(rowsSelected), "traceResourceHandler_mapResultsTotal"};
         dh.printTrace(traceResourceHandlerFlag, args);
       }
 
@@ -1242,7 +1242,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
           PSXmlNode xNode = (PSXmlNode) kids.get(i);
           if (xNode.getName().equals(name)) {
             if (i != nodeNo) nodeSwap(kids, i /* fromIndex */, nodeNo /* toIndex */);
-            ((Object[]) data)[1] = new Integer(nodeNo + 1);
+            ((Object[]) data)[1] = Integer.valueOf(nodeNo + 1);
             curNode = xNode; // mark it as found
             break; // found it, stop searching
           }
@@ -1274,7 +1274,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       }
 
       // and the children
-      Object[] childData = {curNode, new Integer(onChild)};
+      Object[] childData = {curNode, Integer.valueOf(onChild)};
       node.childrenAccept(this, childData);
 
       return null;

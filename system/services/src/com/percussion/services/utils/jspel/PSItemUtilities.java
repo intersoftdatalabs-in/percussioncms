@@ -232,7 +232,7 @@ public class PSItemUtilities
       try
       {
          PSComponentSummary sum = fproc.getSummary(path);
-         return sum != null ? new Integer(sum.getContentId()) : null;
+         return sum != null ? Integer.valueOf(sum.getContentId()) : null;
       }
       catch (PSCmsException e)
       {

@@ -376,7 +376,7 @@ public class PSUrlUtils {
         */
         wasHttps = false;
         allowHttps = false;
-        port = new Integer(PSServer.getListenerPort());
+        port = Integer.valueOf(PSServer.getListenerPort());
       }
     } else {
       String tempHostName = PSServer.getProperty("publicCmsHostname");

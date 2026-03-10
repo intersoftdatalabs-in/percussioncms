@@ -71,7 +71,7 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
       int i = 0;
 
       for (PSDbCookieConsent consent : consents) {
-        session.saveOrUpdate(consent);
+        session.merge(consent);
         if (++i % 50 == 0) {
           session.flush();
           session.clear();
@@ -195,7 +195,7 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
         String s = cookieConsent.getSiteName();
         Integer c = results.get(s);
         if (c == null) {
-          c = new Integer(1);
+          c = Integer.valueOf(1);
         } else {
           c = c + 1;
         }

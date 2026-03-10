@@ -96,7 +96,7 @@ public class PSUserItemsDao implements IPSUserItemsDao
       Session session = getSession();
       try
       {
-          session.saveOrUpdate(userItem);
+          session.merge(userItem);
       }
       catch (HibernateException e)
       {
@@ -158,7 +158,7 @@ public class PSUserItemsDao implements IPSUserItemsDao
       Session session = getSession();
       try
       {
-          session.delete(userItem);
+          session.remove(userItem);
       }
       catch (HibernateException e)
       {

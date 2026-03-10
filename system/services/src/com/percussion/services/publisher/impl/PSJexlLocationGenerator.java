@@ -140,7 +140,7 @@ public class PSJexlLocationGenerator implements IPSAssemblyLocation
 
       if (StringUtils.isNotBlank(pagestr) && StringUtils.isNumeric(pagestr))
       {
-         Integer page = new Integer(pagestr);
+         Integer page = Integer.valueOf(pagestr);
          jexlEvaluator.bind("$sys.page", page);
          if (page > 1 && usePageSuffix)
          {

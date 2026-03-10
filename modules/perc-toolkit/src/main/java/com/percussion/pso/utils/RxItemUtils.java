@@ -123,7 +123,7 @@ public class RxItemUtils {
       return ZERO;
     }
     if (StringUtils.isNumeric(fval)) {
-      return new Integer(fval);
+      return Integer.valueOf(fval);
     }
     log.info("numeric field contains non numeric data " + fieldName + " - " + fval);
     return ZERO;
@@ -287,5 +287,5 @@ public class RxItemUtils {
   }
 
   private static final String EMPTY = "";
-  private static final Number ZERO = new Integer(0);
+  private static final Number ZERO = Integer.valueOf(0);
 }

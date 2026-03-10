@@ -260,9 +260,9 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
     }
 
     HashMap columnNames = new HashMap();
-    columnNames.put("OBJECT_TYPE", new Integer(1));
-    columnNames.put("OBJECT_ID", new Integer(2));
-    columnNames.put("OBJECT_NAME", new Integer(3));
+    columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
+    columnNames.put("OBJECT_ID", Integer.valueOf(2));
+    columnNames.put("OBJECT_NAME", Integer.valueOf(3));
 
     List[] results = new List[] {obType, obId, obName};
 

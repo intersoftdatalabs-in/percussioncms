@@ -658,11 +658,11 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
 
           assignmentType = (Integer) assignmentTypeMap.get(roleID);
 
-          adhocType = new Integer(PSWorkFlowUtils.ADHOC_DISABLED);
+          adhocType = Integer.valueOf(PSWorkFlowUtils.ADHOC_DISABLED);
           if (adhocAnonymousStateRoleIDs.contains(roleID)) {
-            adhocType = new Integer(PSWorkFlowUtils.ADHOC_ANONYMOUS);
+            adhocType = Integer.valueOf(PSWorkFlowUtils.ADHOC_ANONYMOUS);
           } else if (adhocNormalStateRoleIDs.contains(roleID)) {
-            adhocType = new Integer(PSWorkFlowUtils.ADHOC_ENABLED);
+            adhocType = Integer.valueOf(PSWorkFlowUtils.ADHOC_ENABLED);
           }
 
           elemAssignedRole = doc.createElement(ELEMENT_ASSIGNEDROLE);

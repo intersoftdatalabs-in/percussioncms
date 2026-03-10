@@ -53,6 +53,15 @@ public class PSJndiUtils {
 
   private static final Logger log = LogManager.getLogger(PSJndiUtils.class);
 
+  private static final String DEFAULT_PASSWORD_FILTER_EXTENSION =
+      "Java/global/percussion/filter/sys_DefaultPasswordFilter";
+
+  private static final String LEGACY_DEFAULT_PASSWORD_FILTER_EXTENSION =
+      "Java/global/percussion/filter/defaultPasswordFilter";
+
+  private static final String DEFAULT_PASSWORD_FILTER_CLASS =
+      "com.percussion.filter.DefaultPasswordFilter";
+
   /** Do not instantiate this class, all functionality exposed is static. */
   private PSJndiUtils() {
     // hidden constructor to prevent instantiation.
@@ -114,10 +123,51 @@ public class PSJndiUtils {
 
       return (IPSPasswordFilter) ext;
     } catch (PSNotFoundException | PSExtensionException e) {
+      IPSPasswordFilter defaultFilter = createDefaultPasswordFilterFallback(extensionName, e);
+      if (defaultFilter != null) {
+        return defaultFilter;
+      }
       throw new PSRuntimeException(
           IPSSecurityErrors.DIR_PASSWORD_FILTER_INIT_ERROR,
           new Object[] {extensionName, e.toString()});
     }
+  }
+
+  static boolean isDefaultPasswordFilterExtension(String extensionName) {
+    if (extensionName == null) {
+      return false;
+    }
+    return DEFAULT_PASSWORD_FILTER_EXTENSION.equals(extensionName)
+        || LEGACY_DEFAULT_PASSWORD_FILTER_EXTENSION.equals(extensionName);
+  }
+
+  private static IPSPasswordFilter createDefaultPasswordFilterFallback(
+      String extensionName, Exception lookupError) {
+    if (!isDefaultPasswordFilterExtension(extensionName)) {
+      return null;
+    }
+
+    try {
+      Class<?> filterClass = Class.forName(DEFAULT_PASSWORD_FILTER_CLASS);
+      Object filter = filterClass.getDeclaredConstructor().newInstance();
+      if (filter instanceof IPSPasswordFilter) {
+        log.warn(
+            "Falling back to built-in password filter class {} because extension {} could not "
+                + "be prepared.",
+            DEFAULT_PASSWORD_FILTER_CLASS,
+            extensionName,
+            lookupError);
+        return (IPSPasswordFilter) filter;
+      }
+    } catch (ReflectiveOperationException | LinkageError e) {
+      log.warn(
+          "Unable to initialize fallback password filter class {} for extension {}.",
+          DEFAULT_PASSWORD_FILTER_CLASS,
+          extensionName,
+          e);
+    }
+
+    return null;
   }
 
   /**

@@ -239,7 +239,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
     // TODO: this is not sys_community or sys_communityid, the app expects
     // something entirely different.  This should be fixed when time.
 
-    params.put("communityid", new Integer(communityid));
+    params.put("communityid", Integer.valueOf(communityid));
     Document doc = makeRequest(COMMUNITY_ROLE_LOOKUP_URL, request, params, true);
 
     return extractRoleListFromDoc(doc);

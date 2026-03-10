@@ -1788,7 +1788,7 @@ public class PSField extends PSComponent {
           data = node.getAttribute(TRANSITION_ID_ATTR);
           if (data != null && data.trim().length() != 0) {
             try {
-              transId = new Integer(data);
+              transId = Integer.valueOf(data);
             } catch (NumberFormatException e) {
               Object[] args = {OCCURRENCE_ELEM, TRANSITION_ID_ATTR, data};
               throw new PSUnknownNodeTypeException(

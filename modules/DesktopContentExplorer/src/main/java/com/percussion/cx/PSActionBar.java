@@ -362,8 +362,8 @@ public class PSActionBar extends JPanel
       MessageFormat fmt = new MessageFormat(resultlabel);
       Object args[] =
           new Object[] {
-            new Integer(node.getSearchResultCount()),
-            node.isTruncated() ? new Integer(1) : new Integer(0)
+            Integer.valueOf(node.getSearchResultCount()),
+            node.isTruncated() ? Integer.valueOf(1) : Integer.valueOf(0)
           };
       String label = fmt.format(args).toString();
       m_resultsLabel.setText(label);
@@ -436,8 +436,8 @@ public class PSActionBar extends JPanel
     MessageFormat fmt = new MessageFormat(resultlabel);
     Object args[] =
         new Object[] {
-          new Integer(node.getSearchResultCount()),
-          node.isTruncated() ? new Integer(1) : new Integer(0)
+          Integer.valueOf(node.getSearchResultCount()),
+          node.isTruncated() ? Integer.valueOf(1) : Integer.valueOf(0)
         };
     String label = fmt.format(args).toString();
     m_resultsLabel.setText(label);

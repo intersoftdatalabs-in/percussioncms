@@ -47,7 +47,7 @@ public class PSIdNameService implements IPSIdNameService {
 
   public synchronized void deleteAll() {
     var session = getSession();
-    loadAll().forEach(session::delete);
+    loadAll().forEach(session::remove);
     clearCache();
   }
 
@@ -55,7 +55,7 @@ public class PSIdNameService implements IPSIdNameService {
     if (mapping == null) {
       throw new IllegalArgumentException("mapping may not be null");
     }
-    getSession().saveOrUpdate(mapping);
+    getSession().merge(mapping);
     clearCache();
   }
 

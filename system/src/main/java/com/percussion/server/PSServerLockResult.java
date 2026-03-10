@@ -98,7 +98,7 @@ public class PSServerLockResult {
     if (m_lockerMap != null) {
       int[] requested = m_lock.getLockedResources();
       for (int i = 0; i < requested.length; i++) {
-        Integer resource = new Integer(requested[i]);
+        Integer resource = Integer.valueOf(requested[i]);
         if (m_lockerMap.containsKey(resource)) locks.add(resource);
       }
     }
@@ -118,7 +118,7 @@ public class PSServerLockResult {
    *     resource is locked. Never empty.
    */
   public String getResourceLocker(int resource) {
-    Integer key = new Integer(resource);
+    Integer key = Integer.valueOf(resource);
     String locker = null;
     PSServerLock lock = getConflictLock(resource);
     if (lock != null) locker = lock.getLocker();
@@ -135,7 +135,7 @@ public class PSServerLockResult {
    *     is locked. Never empty.
    */
   public Date getLockTime(int resource) {
-    Integer key = new Integer(resource);
+    Integer key = Integer.valueOf(resource);
     Date locktime = null;
     PSServerLock lock = getConflictLock(resource);
     if (lock != null) locktime = lock.getLockTime();
@@ -184,7 +184,7 @@ public class PSServerLockResult {
    */
   private PSServerLock getConflictLock(int resource) {
     PSServerLock lock = null;
-    if (m_lockerMap != null) lock = (PSServerLock) m_lockerMap.get(new Integer(resource));
+    if (m_lockerMap != null) lock = (PSServerLock) m_lockerMap.get(Integer.valueOf(resource));
 
     return lock;
   }
@@ -203,7 +203,7 @@ public class PSServerLockResult {
     while (conflicts.hasNext()) {
       PSServerLock conflict = (PSServerLock) conflicts.next();
       int[] resources = conflict.getLockedResources();
-      for (int i = 0; i < resources.length; i++) map.put(new Integer(resources[i]), conflict);
+      for (int i = 0; i < resources.length; i++) map.put(Integer.valueOf(resources[i]), conflict);
     }
     return map;
   }

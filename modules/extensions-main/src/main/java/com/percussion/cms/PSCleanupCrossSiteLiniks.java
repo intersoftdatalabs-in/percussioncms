@@ -791,7 +791,7 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
    * @return the site def; it may be <code>null</code> if cannot find a site with the specified id.
    */
   private PSSite getSite(String sSiteId) {
-    Integer siteid = new Integer(sSiteId.trim());
+    Integer siteid = Integer.valueOf(sSiteId.trim());
     return m_siteDefMap.get(siteid);
   }
 
@@ -803,7 +803,7 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
    *     exist.
    */
   private PSLocator getSiteRoot(int siteid) {
-    return m_siteRootMap.get(new Integer(siteid));
+    return m_siteRootMap.get(Integer.valueOf(siteid));
   }
 
   /**
@@ -818,7 +818,7 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
     Iterator sites = siteList.iterator();
     while (sites.hasNext()) {
       PSSite s = (PSSite) sites.next();
-      Integer siteid = new Integer(s.getId());
+      Integer siteid = Integer.valueOf(s.getId());
       PSLocator root = getRootLocator(s);
       if (root != null) {
         m_siteRootMap.put(siteid, root);

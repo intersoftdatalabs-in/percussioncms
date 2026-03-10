@@ -51,7 +51,7 @@ public class PSCreatePortalPropertyList extends PSSimpleJavaUdfExtension {
 
     if (((size - 1) % PROPERTY_PARAMSIZE) != 0) {
       int errorCode = 0;
-      Object args[] = {new Integer(PROPERTY_PARAMSIZE)};
+      Object args[] = {Integer.valueOf(PROPERTY_PARAMSIZE)};
       String errorMsg = "Each property requires \"{0}\" parameters.";
 
       throw new PSConversionException(errorCode, MessageFormat.format(errorMsg, args));

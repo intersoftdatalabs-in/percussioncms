@@ -209,7 +209,7 @@ public class PSItemRelationshipsManager {
         node.setProperties(props);
         resList.add(node);
       } else {
-        idList.add(new Integer(dependent.getCurrentLocator().getId()));
+        idList.add(Integer.valueOf(dependent.getCurrentLocator().getId()));
       }
     }
 

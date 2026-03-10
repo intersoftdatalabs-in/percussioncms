@@ -479,7 +479,7 @@ public class PSFileSystemStatement implements Statement {
       col = (ASTDerivedColumn) selectList.jjtGetChild(i);
       ref = (ASTColumnReference) col.jjtGetChild(0);
       String colName = ref.getColumn();
-      m_columnNames.put(colName, new Integer(i + 1));
+      m_columnNames.put(colName, Integer.valueOf(i + 1));
 
       int colConst = getColumnConstant(colName);
       columnIndexes[i] = colConst;

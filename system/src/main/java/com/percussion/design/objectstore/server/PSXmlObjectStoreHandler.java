@@ -746,7 +746,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
     String app = walker.getElementData("name");
     if (app == null) {
-      int applid = (new Integer(walker.getElementData("applid"))).intValue();
+      int applid = (Integer.valueOf(walker.getElementData("applid"))).intValue();
 
       app = getApplicationNameFromId(applid);
     }
@@ -1067,7 +1067,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
       String uniqueId = walker.getElementData(ATTR_UNIQUEID);
       String app = walker.getElementData("applid");
       if ((app != null) && (app.length() != 0)) {
-        int applid = (new Integer(app)).intValue();
+        int applid = (Integer.valueOf(app)).intValue();
         applicationName = getApplicationNameFromId(applid);
         application = getApplicationObject(applicationName);
 

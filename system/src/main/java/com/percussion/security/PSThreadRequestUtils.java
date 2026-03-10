@@ -253,7 +253,7 @@ public class PSThreadRequestUtils {
       PSRequest request = getPSRequest();
       com.percussion.security.PSSecurityToken tok = request.getSecurityToken();
       accessLevel = systemAclHandler.getUserAccessLevel(tok);
-      PSRequestInfo.setRequestInfo("USER_ACCESS_LEVEL", new Integer(accessLevel));
+      PSRequestInfo.setRequestInfo("USER_ACCESS_LEVEL", Integer.valueOf(accessLevel));
     } else {
       accessLevel = accessLevel.intValue();
     }

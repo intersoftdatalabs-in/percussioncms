@@ -56,7 +56,7 @@ public class PSNavFolderCacheFlushEffect extends PSNavAbstractEffect implements 
           PSLocator depLoc = rel.getDependent();
           PSComponentSummary summary = PSNavUtil.getItemSummary(req, depLoc);
           if (summary.isItem()) {
-            PSCacheProxy.flushAssemblers(null, new Integer(depLoc.getId()), null, null);
+            PSCacheProxy.flushAssemblers(null, Integer.valueOf(depLoc.getId()), null, null);
           }
         }
       }

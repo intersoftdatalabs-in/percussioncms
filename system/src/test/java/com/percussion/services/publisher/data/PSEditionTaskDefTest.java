@@ -93,7 +93,7 @@ public class PSEditionTaskDefTest
       task1.setExtensionName(
             "Java/global/percussion/system/sys_editionCommandTask");
       task1.setSequence(1);
-      task1.setVersion(new Integer(0));
+      task1.setVersion(Integer.valueOf(0));
 
       String str = task1.toXML();
       PSEditionTaskDef task2 = new PSEditionTaskDef(new PSGuid("0-115-101"),

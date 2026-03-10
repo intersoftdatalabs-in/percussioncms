@@ -88,7 +88,7 @@ class JJTSQLParserState {
   }
 
   void openNodeScope(Node n) {
-    marks.push(new Integer(mk));
+    marks.push(Integer.valueOf(mk));
     mk = sp;
     n.jjtOpen();
   }

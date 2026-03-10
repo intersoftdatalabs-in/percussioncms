@@ -174,13 +174,13 @@ public class PSVelocityListTool {
   public Integer size(Object list) {
     if (isArray(list)) {
       // Thanks to Eric Fixler for this refactor.
-      return new Integer(Array.getLength(list));
+      return Integer.valueOf(Array.getLength(list));
     }
     if (!isList(list)) {
       return null;
     }
 
-    return new Integer(((List) list).size());
+    return Integer.valueOf(((List) list).size());
   }
 
   /**

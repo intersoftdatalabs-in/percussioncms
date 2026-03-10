@@ -111,7 +111,7 @@ public class PSSiteFolderContentListLinkGenerator {
       URL assembler =
           PSUrlUtils.createUrl(
               host,
-              new Integer(port),
+              Integer.valueOf(port),
               variantAssemblerBase,
               paramMap.entrySet().iterator(),
               null,

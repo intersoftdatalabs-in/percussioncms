@@ -69,7 +69,7 @@ public class PSImportLogDao implements IPSImportLogDao {
     }
     var session = getSession();
     try {
-      session.saveOrUpdate(logEntry);
+      session.merge(logEntry);
     } catch (HibernateException e) {
       var msg = "Database error: " + e.getMessage();
       log.error(msg, e);
@@ -98,7 +98,7 @@ public class PSImportLogDao implements IPSImportLogDao {
     Validate.notNull(logEntry, "Log entry must not be null");
     var session = getSession();
     try {
-      session.delete(logEntry);
+      session.remove(logEntry);
     } catch (HibernateException e) {
       var msg = "Database error: " + e.getMessage();
       log.error(msg, e);

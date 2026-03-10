@@ -100,9 +100,9 @@ public class PSCloneSiteFolderRequestTest
    public void testPublicAPI() throws Exception
    {
       Map communityMappings = new HashMap();
-      communityMappings.put(new Integer(1), new Integer(2));
-      communityMappings.put(new Integer(3), new Integer(4));
-      communityMappings.put(new Integer(5), new Integer(6));
+      communityMappings.put(Integer.valueOf(1), Integer.valueOf(2));
+      communityMappings.put(Integer.valueOf(3), Integer.valueOf(4));
+      communityMappings.put(Integer.valueOf(5), Integer.valueOf(6));
 
       PSCloningOptions options = new PSCloningOptions(
          PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",

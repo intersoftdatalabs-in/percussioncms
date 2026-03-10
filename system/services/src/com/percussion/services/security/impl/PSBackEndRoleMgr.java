@@ -99,7 +99,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
      * Used to set/get email on the subject
      */
     private static final String EMAIL_ATTRIBUTE_NAME = "sys_email";
-  
+
 
     /**
      * Default ctor, sets up necessary eviction handler.
@@ -257,7 +257,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
         }
 
         // Persist the role
-        getSession().saveOrUpdate(role);
+        getSession().merge(role);
         ms_log.info("Role description is updated for the role: " + roleName);
 
         return role;
@@ -610,7 +610,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
             }
 
             // Persist the role
-            getSession().saveOrUpdate(role);
+            getSession().merge(role);
             ms_log.info("Role '" + name + "' added to Role Configuration.");
         }
 
@@ -645,7 +645,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
         // Delete role name if found
         if (role != null) {
             // Delete the role
-            getSession().delete(role);
+            getSession().remove(role);
             ms_log.info("Role '" + name + "' removed from Role Configuration.");
         }
     }
@@ -685,7 +685,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
 
         try {
             PSCommunity community = loadCommunity(id);
-            s.delete(community);
+            s.remove(community);
 
             // cleanup community compontents
             StringBuilder b = new StringBuilder();
@@ -795,7 +795,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
 
         try {
             if (community.getVersion() == null) {
-                session.save(community);
+                session.persist(community);
 
                 // This code has been duplicated in PSCommunityDefDependencyHandler
                 // class to get the same functionality. As this code is a hack for

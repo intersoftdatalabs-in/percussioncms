@@ -82,7 +82,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
 
    @Basic
    @Column(name = "SORTORDER")
-   private Integer sortOrder = new Integer(-1);
+   private Integer sortOrder = Integer.valueOf(-1);
 
    @Basic
    @Column(name = "CONTENTVALID")

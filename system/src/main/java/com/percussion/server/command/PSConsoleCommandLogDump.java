@@ -117,18 +117,18 @@ public class PSConsoleCommandLogDump extends PSConsoleCommand {
           until = parseDate(tokCmd, tokValue);
         } else if ("type".equals(tokCmd)) {
           try {
-            queryTypes.add(new Integer(tokValue));
+            queryTypes.add(Integer.valueOf(tokValue));
           } catch (NumberFormatException e) {
             Object[] args = {ms_cmdName, tokCmd + " " + tokValue};
             throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_INVALID_ARGS, args);
           }
         } else if ("server".equals(tokCmd)) {
-          applications.add(new Integer(0));
+          applications.add(Integer.valueOf(0));
         } else if ("application".equals(tokCmd)) {
           // locate the application id for the given app name
 
           // requiring id now
-          applications.add(new Integer(tokValue));
+          applications.add(Integer.valueOf(tokValue));
         } else if ("mailto".equals(tokCmd)) {
           m_recipients.add(tokValue);
         } else {

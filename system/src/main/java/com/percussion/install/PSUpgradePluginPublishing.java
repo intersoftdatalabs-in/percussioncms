@@ -320,14 +320,14 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
         String insertStmt =
             "INSERT INTO " + newPubStatusTable + " VALUES(?, 0, ?, ?, ?, ?, ?, ?, ?, NULL)";
         Object[] bindValue = new Object[8];
-        bindValue[0] = new Integer(id);
+        bindValue[0] = Integer.valueOf(id);
         bindValue[1] = start;
         bindValue[2] = end;
-        bindValue[3] = new Integer(editionid);
-        bindValue[4] = new Integer(endingStatus.ordinal());
-        bindValue[5] = new Integer(delivered);
-        bindValue[6] = new Integer(removed);
-        bindValue[7] = new Integer(failed);
+        bindValue[3] = Integer.valueOf(editionid);
+        bindValue[4] = Integer.valueOf(endingStatus.ordinal());
+        bindValue[5] = Integer.valueOf(delivered);
+        bindValue[6] = Integer.valueOf(removed);
+        bindValue[7] = Integer.valueOf(failed);
 
         rowCount += executeUpdate(conn, insertStmt, bindValue);
 
@@ -432,10 +432,10 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
 
           List bindValues = new ArrayList();
           bindValues.add(referenceid);
-          bindValues.add(new Integer(pubstatusval.getPublicationId()));
-          bindValues.add(new Integer(contentid));
-          bindValues.add(new Integer(revisionid));
-          bindValues.add(new Integer(variantid));
+          bindValues.add(Integer.valueOf(pubstatusval.getPublicationId()));
+          bindValues.add(Integer.valueOf(contentid));
+          bindValues.add(Integer.valueOf(revisionid));
+          bindValues.add(Integer.valueOf(variantid));
 
           String paramstr;
           String publocation = rs1.getString(8);
@@ -449,9 +449,9 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
           int elapsetime = rs1.getInt(9);
 
           bindValues.add(pubdate);
-          bindValues.add(new Integer(operation));
-          bindValues.add(new Integer(elapsetime));
-          bindValues.add(new Integer(status));
+          bindValues.add(Integer.valueOf(operation));
+          bindValues.add(Integer.valueOf(elapsetime));
+          bindValues.add(Integer.valueOf(status));
 
           String insertStmt =
               "INSERT INTO "

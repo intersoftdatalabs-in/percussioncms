@@ -125,7 +125,7 @@ public class PSActionMenuVisibility implements Serializable{
     @JoinColumn(name = "ACTIONID")
     private PSActionMenu menu;
 
-    @MapsId("contextId")
+    @MapsId("contextid")
     @ManyToOne
     @JoinColumn(name="VISIBILITYCONTEXT")
     private PSUiContext context;

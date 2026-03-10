@@ -36,7 +36,7 @@ public class PSFileDigestService implements IPSFileDigestService
          throws NoSuchAlgorithmException, IOException
    {
       notNull(fis);
-      
+
       String hexDigest = "";
       try
       {
@@ -77,7 +77,7 @@ public class PSFileDigestService implements IPSFileDigestService
 
    /**
     * Used to configure the checksum generation algorithm.
-    * 
+    *
     * @param algorithm
     */
    public void setAlgorithm(String algorithm)

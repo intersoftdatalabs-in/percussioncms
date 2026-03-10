@@ -432,7 +432,7 @@ public class PSContentList implements IPSContentList {
             editionType = "2"; // Default
         }
 
-        Integer et = new Integer(editionType);
+        Integer et = Integer.valueOf(editionType);
 
         return PSEditionType.valueOf(et);
     }

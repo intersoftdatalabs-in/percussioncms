@@ -225,7 +225,7 @@ public class PSNavLink {
       URL intURL =
           PSUrlUtils.createUrl(
               "127.0.0.1",
-              new Integer(req.getOriginalPort()),
+              Integer.valueOf(req.getOriginalPort()),
               variant.getAssemblyUrl(),
               params.entrySet().iterator(),
               (String) null, // no Anchor

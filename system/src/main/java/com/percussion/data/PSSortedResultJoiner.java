@@ -80,7 +80,7 @@ public class PSSortedResultJoiner extends PSQueryJoiner {
     java.util.Stack stack = data.getResultSetStack();
     if (stack.size() < 2) {
       throw new PSSqlException(
-          IPSDataErrors.SORTED_JOINER_2_RESULT_SETS_REQD, new Integer(stack.size()), "25000");
+          IPSDataErrors.SORTED_JOINER_2_RESULT_SETS_REQD, Integer.valueOf(stack.size()), "25000");
     }
 
     // pop off the result sets (right is on top, then left)

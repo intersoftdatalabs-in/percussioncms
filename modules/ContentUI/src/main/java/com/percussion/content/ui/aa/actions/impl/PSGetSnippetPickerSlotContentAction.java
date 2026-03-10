@@ -142,7 +142,7 @@ public class PSGetSnippetPickerSlotContentAction extends PSAAActionBase {
       obj.relId = rel.getId();
       obj.sortRank = Integer.parseInt(rel.getProperty(IPSHtmlParameters.SYS_SORTRANK));
       objects.add(obj);
-      idList.add(new Integer(rel.getDependent().getId()));
+      idList.add(Integer.valueOf(rel.getDependent().getId()));
     }
     Collections.sort(objects);
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();

@@ -158,11 +158,11 @@ class PSCacheMemoryManager extends Thread
 
     if (m_shutdown) return;
 
-    Integer cacheId = new Integer(cache.getCacheId());
+    Integer cacheId = Integer.valueOf(cache.getCacheId());
     if (m_caches.get(cacheId) != null) return;
 
     synchronized (m_monitor) {
-      m_caches.put(new Integer(cache.getCacheId()), cache);
+      m_caches.put(Integer.valueOf(cache.getCacheId()), cache);
 
       /**
        * The cache handler already signed us up for modified events, so don't register again.
@@ -562,7 +562,7 @@ class PSCacheMemoryManager extends Thread
    * @param item the item to flush, assumed not <code>null</code>.
    */
   private void flushItem(PSCacheItem item) {
-    PSMultiLevelCache cache = (PSMultiLevelCache) m_caches.get(new Integer(item.getCacheId()));
+    PSMultiLevelCache cache = (PSMultiLevelCache) m_caches.get(Integer.valueOf(item.getCacheId()));
 
     cache.flush(item.getKeys());
   }

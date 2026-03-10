@@ -96,7 +96,7 @@ public class PSPageCache extends Thread {
     int id = ms_nextId++;
     if (ms_nextId == Integer.MAX_VALUE) ms_nextId = 0;
 
-    ms_cache.put(new Integer(id), list);
+    ms_cache.put(Integer.valueOf(id), list);
 
     return id;
   }

@@ -264,7 +264,7 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
       if (rel.getDependentObjectType() == PSCmsObject.TYPE_ITEM) {
         if (!bExclude) // collect the item
         {
-          Integer depId = new Integer(dependentId);
+          Integer depId = Integer.valueOf(dependentId);
           ParentFolder parentFolder = new ParentFolder(folderId, folderPath);
           Set<ParentFolder> pFolderSet = null;
           if (siteItems.get(depId) == null) {
@@ -439,7 +439,7 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
         else getLastPubRev4QEState = false;
 
         // create the content list item
-        Iterator pfIter = ((Set) siteItems.get(new Integer(contentId))).iterator();
+        Iterator pfIter = ((Set) siteItems.get(Integer.valueOf(contentId))).iterator();
         while (pfIter.hasNext()) {
           parentFolder = (ParentFolder) pfIter.next();
 
@@ -469,13 +469,13 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
           // stateFlag is in lower case character
           if (getLastPubRev4QEState) {
             Set<PSContentListItem> itemSet = null;
-            if (m_quickEditCList.get(new Integer(contentId)) == null) {
+            if (m_quickEditCList.get(Integer.valueOf(contentId)) == null) {
               itemSet = new HashSet<>();
             } else {
-              itemSet = m_quickEditCList.get(new Integer(contentId));
+              itemSet = m_quickEditCList.get(Integer.valueOf(contentId));
             }
             itemSet.add(item);
-            m_quickEditCList.put(new Integer(contentId), itemSet);
+            m_quickEditCList.put(Integer.valueOf(contentId), itemSet);
           }
         }
       }

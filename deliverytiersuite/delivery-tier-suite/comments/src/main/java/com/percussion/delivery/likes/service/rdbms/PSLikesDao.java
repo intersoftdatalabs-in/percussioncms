@@ -88,7 +88,7 @@ public class PSLikesDao implements IPSLikesDao {
     try {
       int i = 0;
       for (IPSLikes like : likes) {
-        session.saveOrUpdate(like);
+        session.merge(like);
         if (++i % 50 == 0) {
           session.flush();
           session.clear();
@@ -124,8 +124,8 @@ public class PSLikesDao implements IPSLikesDao {
   public void save(IPSLikes like) throws Exception {
     PSLikes hlike = new PSLikes(like);
     hlike.setLikeId(like.getLikeId());
-    getSession().saveOrUpdate(hlike);
-    like.setLikeId(hlike.getLikeId());
+    PSLikes managed = getSession().merge(hlike);
+    like.setLikeId(managed.getLikeId());
   }
 
   public IPSLikes create(String site, String likeId, String type) throws Exception {
@@ -154,7 +154,7 @@ public class PSLikesDao implements IPSLikesDao {
 
         int newTotal = isInc ? count + 1 : count - 1;
         like.setTotal(newTotal);
-        session.saveOrUpdate(like);
+        session.merge(like);
 
         return newTotal;
       }

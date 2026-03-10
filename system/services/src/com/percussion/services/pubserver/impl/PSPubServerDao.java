@@ -199,7 +199,7 @@ public class PSPubServerDao
 
       setValidPersistedIds(pubServer);
 
-      getSession().saveOrUpdate(pubServer);
+      getSession().merge(pubServer);
 
    }
 
@@ -232,7 +232,7 @@ public class PSPubServerDao
    {
       notNull (pubServer);
 
-      getSession().delete(pubServer);
+      getSession().remove(pubServer);
 
    }
 

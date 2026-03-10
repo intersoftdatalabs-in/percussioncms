@@ -101,7 +101,7 @@ public class DeliverySegmentUtil {
         public int compare(Segment a, Segment b) {
             int aw = deliveryContext.getVisitorSegmentWeight(a);
             int bw = deliveryContext.getVisitorSegmentWeight(b);
-            return new Integer(aw).compareTo(bw);
+            return Integer.valueOf(aw).compareTo(bw);
         }
     
     }

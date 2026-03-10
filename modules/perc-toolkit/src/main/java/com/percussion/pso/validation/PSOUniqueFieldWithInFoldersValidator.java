@@ -101,7 +101,7 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
     boolean xpv = h.getOptionalParameterAsBoolean("excludePromotableVersions", false);
     String checkPaths = h.getOptionalParameter("checkPaths", null);
 
-    Number contentId = new Integer(0);
+    Number contentId = Integer.valueOf(0);
     try {
       if (actionType.equals("UPDATE")) {
         contentId = h.getRequiredParameterAsNumber("sys_contentid");

@@ -82,9 +82,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
 
       try {
         if (ms_correctParamCount != nParamCount) {
-          String[] exParams = {
-            new Integer(ms_correctParamCount).toString(), String.valueOf(nParamCount)
-          };
+          String[] exParams = { Integer.toString(ms_correctParamCount), String.valueOf(nParamCount) };
           throw new PSInvalidNumberOfParametersException(
               lang, IPSExtensionErrors.INVALID_PARAM_NUM, exParams);
         }
@@ -190,7 +188,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     if (contentID < 1)
       throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING);
 
-    sContentID = new Integer(contentID).toString();
+    sContentID = Integer.toString(contentID);
 
     Optional<IPSWorkflowAppsContext> wacOpt;
     PSContentStatusContext csc = null;
@@ -352,7 +350,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
       PSContentStatusContext csc,
       Params localParams)
       throws SQLException {
-    String sContentID = new Integer(contentID).toString();
+    String sContentID = Integer.toString(contentID);
 
     PSContentTypesContext ctc = null;
     String sUpdateRequest = null;

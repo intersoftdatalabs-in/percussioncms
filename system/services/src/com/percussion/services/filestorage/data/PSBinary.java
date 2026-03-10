@@ -26,8 +26,7 @@ import org.apache.tika.metadata.TikaCoreProperties;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -71,7 +70,7 @@ public class PSBinary implements Serializable
     */
    private static final long serialVersionUID = 1L;
 
-  
+
    /**
     * The logger for this class
     */
@@ -102,8 +101,7 @@ public class PSBinary implements Serializable
    /**
     * The metadata known for the item.
     */
-   @LazyCollection(LazyCollectionOption.TRUE)
-   @OneToMany(mappedBy = "binary", cascade = CascadeType.ALL)
+   @OneToMany(mappedBy = "binary", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
    @Fetch(FetchMode.SELECT)
    // @JoinColumn( name="BINARY_ID", referencedColumnName="ID", nullable=false)
    Set<PSBinaryMetaEntry> metaEntries = new HashSet<>();
@@ -140,6 +138,7 @@ public class PSBinary implements Serializable
     * If there was any error in extracting the item.  The
     * error should be stored in the items metadata.
     */
+   @JdbcTypeCode(java.sql.Types.SMALLINT)
    @Column(name = "EXTRACT_ERROR")
    private boolean extractError;
 
@@ -153,11 +152,12 @@ public class PSBinary implements Serializable
    /**
     * Whether the item has been marked for re-extraction of the metadata.
     */
+   @JdbcTypeCode(java.sql.Types.SMALLINT)
    @Column(name = "REPARSE_META")
    private boolean reparseMeta;
 
 
-   
+
    public PSBinary(String hash, PSBinaryData data, Set<PSBinaryMetaEntry> metaEntries)
    {
       this.hash = hash;
@@ -166,7 +166,7 @@ public class PSBinary implements Serializable
       this.setData(data);
       this.setMetaEntries(metaEntries);
    }
-   
+
    /**
     * @return the date last accessed set to midnight on the day
     */
@@ -245,7 +245,7 @@ public class PSBinary implements Serializable
 
    /**
     * @return the mime type
-    */ 
+    */
    public String getMimeType()
    {
       return mimeType;

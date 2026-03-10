@@ -92,7 +92,7 @@ public class UiDesignTestCase extends PSUiTestBase
    @Test
    public void testSearch() throws Exception
    {
-      UiDesignSOAPStub binding = getDesignBinding(new Integer(600000));
+      UiDesignSOAPStub binding = getDesignBinding(Integer.valueOf(600000));
       PSTestUtils.setSessionHeader(binding, m_session);
 
       // Test operation
@@ -201,7 +201,7 @@ public class UiDesignTestCase extends PSUiTestBase
    @Test
    public void testView() throws Exception
    {
-      UiDesignSOAPStub binding = getDesignBinding(new Integer(600000));
+      UiDesignSOAPStub binding = getDesignBinding(Integer.valueOf(600000));
       PSTestUtils.setSessionHeader(binding, m_session);
 
       // Test operation
@@ -383,7 +383,7 @@ public class UiDesignTestCase extends PSUiTestBase
    @Test
    public void testFindAction() throws Exception
    {
-      UiDesignSOAPStub binding = getDesignBinding(new Integer(600000));
+      UiDesignSOAPStub binding = getDesignBinding(Integer.valueOf(600000));
       PSTestUtils.setSessionHeader(binding, m_session);
 
       PSObjectSummary[] allActions = findActionsByType(null, null, null,
@@ -415,7 +415,7 @@ public class UiDesignTestCase extends PSUiTestBase
    @Test
    public void testAction() throws Exception
    {
-      UiDesignSOAPStub binding = getDesignBinding(new Integer(600000));
+      UiDesignSOAPStub binding = getDesignBinding(Integer.valueOf(600000));
       PSTestUtils.setSessionHeader(binding, m_session);
 
       // Test operation
@@ -702,7 +702,7 @@ public class UiDesignTestCase extends PSUiTestBase
     */
    public void testDisplayFormat() throws Exception
    {
-      UiDesignSOAPStub binding = getDesignBinding(new Integer(600000));
+      UiDesignSOAPStub binding = getDesignBinding(Integer.valueOf(600000));
       PSTestUtils.setSessionHeader(binding, m_session);
 
       // Test operation

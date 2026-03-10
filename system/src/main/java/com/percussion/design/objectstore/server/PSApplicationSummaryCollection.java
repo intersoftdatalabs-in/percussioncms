@@ -58,14 +58,14 @@ public class PSApplicationSummaryCollection {
    * @return int
    */
   synchronized int addSummary(PSApplication app, boolean allocateId) {
-    Integer idInt = new Integer(app.getId());
+    Integer idInt = Integer.valueOf(app.getId());
     int id = idInt.intValue();
     if (allocateId) {
       id = m_highestKnownId;
       while (true) {
         if (id < 1) break; // handle rare case of max positive int # of apps
 
-        idInt = new Integer(id);
+        idInt = Integer.valueOf(id);
         Object taken = m_appSumsById.get(idInt);
         if (taken == null) {
           break;
@@ -98,7 +98,7 @@ public class PSApplicationSummaryCollection {
    *     </CODE> if no such summary exists.
    */
   synchronized PSApplicationSummary getSummary(int appId) {
-    return (PSApplicationSummary) m_appSumsById.get(new Integer(appId));
+    return (PSApplicationSummary) m_appSumsById.get(Integer.valueOf(appId));
   }
 
   /**
@@ -126,7 +126,7 @@ public class PSApplicationSummaryCollection {
    * @param appId The application id.
    */
   synchronized void removeSummary(int appId) {
-    PSApplicationSummary sum = (PSApplicationSummary) m_appSumsById.remove(new Integer(appId));
+    PSApplicationSummary sum = (PSApplicationSummary) m_appSumsById.remove(Integer.valueOf(appId));
     if (sum != null) m_appIdsByName.remove(sum.getName().toLowerCase());
   }
 

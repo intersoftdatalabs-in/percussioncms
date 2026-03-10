@@ -1348,7 +1348,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
       if (config.getId() > PSRelationshipConfig.ID_TRANSLATION_MANDATORY) {
         String sqlStmt = "INSERT INTO " + getRelNameTable() + " VALUES(?, ?, 0)";
         Object[] bindValue = new Object[2];
-        bindValue[0] = new Integer(config.getId());
+        bindValue[0] = Integer.valueOf(config.getId());
         bindValue[1] = config.getName();
 
         executeUpdate(logger, conn, sqlStmt, bindValue);
@@ -1486,44 +1486,44 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
 
     String name = "Java/global/percussion/relationship/effect/sys_TouchParentFolderEffect";
     List exeCtxs = new ArrayList();
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_CONSTRUCTION));
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_DESTRUCTION));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CONSTRUCTION));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_DESTRUCTION));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/fastforward/managednav/rxs_NavFolderEffect";
     exeCtxs = new ArrayList();
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_CONSTRUCTION));
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_DESTRUCTION));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CONSTRUCTION));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_DESTRUCTION));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_isCloneExists";
     exeCtxs = new ArrayList();
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_CLONE));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CLONE));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_PublishMandatory";
     exeCtxs = new ArrayList();
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_WORKFLOW));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_WORKFLOW));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_UnpublishMandatory";
     exeCtxs = new ArrayList();
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_WORKFLOW));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_WORKFLOW));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_AttachTranslatedFolder";
     exeCtxs = new ArrayList();
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_CONSTRUCTION));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CONSTRUCTION));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_Promote";
     exeCtxs = new ArrayList();
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_POST_WORKFLOW));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_POST_WORKFLOW));
     ms_knownExeCtx.put(name, exeCtxs);
 
     name = "Java/global/percussion/relationship/effect/sys_AddCloneToFolder";
     exeCtxs = new ArrayList();
-    exeCtxs.add(new Integer(IPSExecutionContext.RS_PRE_CONSTRUCTION));
+    exeCtxs.add(Integer.valueOf(IPSExecutionContext.RS_PRE_CONSTRUCTION));
     ms_knownExeCtx.put(name, exeCtxs);
   }
 
@@ -1687,7 +1687,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
         try {
           Integer.parseInt(value);
         } catch (NumberFormatException e) {
-          invalidRows.add(new Integer(rid));
+          invalidRows.add(Integer.valueOf(rid));
         }
       }
 
@@ -1772,7 +1772,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
         String newValue = value.replaceAll(" ", "");
         if (newValue.equals(value) || configNames.get(newValue) == null) continue;
 
-        updateVals.put(new Integer(actionid), newValue);
+        updateVals.put(Integer.valueOf(actionid), newValue);
       }
 
       Set keys = updateVals.keySet();

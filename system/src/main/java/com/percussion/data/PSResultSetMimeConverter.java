@@ -144,7 +144,7 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
     Stack stack = data.getResultSetStack();
     if (stack.size() > 1)
       throw new PSConversionException(
-          IPSDataErrors.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, new Integer(stack.size()));
+          IPSDataErrors.CANNOT_CONVERT_MULTIPLE_RESULT_SETS, Integer.valueOf(stack.size()));
     else if (stack.size() == 0)
       throw new PSConversionException(IPSDataErrors.NO_DATA_FOR_CONVERSION);
 

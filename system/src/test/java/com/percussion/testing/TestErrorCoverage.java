@@ -161,7 +161,7 @@ public class TestErrorCoverage
          int code = field.getInt(null);
 
          // check for duplicate IDs
-         Integer codeInt = new Integer(code);
+         Integer codeInt = Integer.valueOf(code);
          Object prevEntry = m_codes.get(codeInt);
          if (null != prevEntry)
          {

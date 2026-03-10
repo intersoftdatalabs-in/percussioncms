@@ -91,8 +91,8 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
   /* IMPLEMENTATION OF PSAbstractMultipleRecordWorkflowContext METHODS */
 
   protected void AccumulateCurrentDataSet() {
-    m_nNotificationIDList.add(new Integer(m_nNotificationID));
-    m_nStateRoleRecipientTypesList.add(new Integer(m_nStateRoleRecipientTypes));
+    m_nNotificationIDList.add(Integer.valueOf(m_nNotificationID));
+    m_nStateRoleRecipientTypesList.add(Integer.valueOf(m_nStateRoleRecipientTypes));
     m_sAdditionalRecipientListList.add(m_sAdditionalRecipientList);
     m_sCCListList.add(m_sCCList);
 

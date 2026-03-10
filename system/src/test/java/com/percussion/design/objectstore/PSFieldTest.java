@@ -89,8 +89,8 @@ public class PSFieldTest
       testTo.setDefault(new PSBackEndColumn(table, "DEFAULT"));
       testTo.setOccurrenceDimension(testTo.OCCURRENCE_DIMENSION_COUNT, null);
       testTo.setOccurrenceCount(12, null);
-      testTo.setOccurrenceDimension(testTo.OCCURRENCE_DIMENSION_COUNT, new Integer(1));
-      testTo.setOccurrenceCount(12, new Integer(1));
+      testTo.setOccurrenceDimension(testTo.OCCURRENCE_DIMENSION_COUNT, Integer.valueOf(1));
+      testTo.setOccurrenceCount(12, Integer.valueOf(1));
       testTo.setValidationRules(fieldValidation);
       testTo.setInputTranslation(inputTranslation);
       testTo.setOutputTranslation(outputTranslation);

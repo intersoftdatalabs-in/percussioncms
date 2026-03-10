@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 /** Provides the API implementation for the Display Format Resource. */
-@PSSiteManageBean
+@PSSiteManageBean("restDisplayFormatResource")
 @Lazy
 public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
 

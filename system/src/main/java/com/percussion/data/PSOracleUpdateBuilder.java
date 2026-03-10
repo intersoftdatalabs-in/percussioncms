@@ -412,8 +412,8 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   protected IPSLobColumnInitializer m_lobColumnInitializer = null;
 
   /** The value representing a Blob type value in a data type map. */
-  private static Integer BLOB_TYPE_VALUE = new Integer(java.sql.Types.BLOB);
+  private static Integer BLOB_TYPE_VALUE = Integer.valueOf(java.sql.Types.BLOB);
 
   /** The value representing a Clob type value in a data type map. */
-  private static Integer CLOB_TYPE_VALUE = new Integer(java.sql.Types.CLOB);
+  private static Integer CLOB_TYPE_VALUE = Integer.valueOf(java.sql.Types.CLOB);
 }

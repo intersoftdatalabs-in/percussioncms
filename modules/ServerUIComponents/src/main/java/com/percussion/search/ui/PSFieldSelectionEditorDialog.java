@@ -1263,7 +1263,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
        * but also enforce the dependencies among them.
        */
       Set notSelectedIndexes = new HashSet();
-      for (int i = 0; i < data.size(); i++) notSelectedIndexes.add(new Integer(i));
+      for (int i = 0; i < data.size(); i++) notSelectedIndexes.add(Integer.valueOf(i));
 
       Set selectedIndexes =
           new TreeSet(
@@ -1285,7 +1285,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
       for (int j = maxIndex; j >= minIndex; j--) {
         if (!lsm.isSelectedIndex(j)) continue;
 
-        Integer selInd = new Integer(j);
+        Integer selInd = Integer.valueOf(j);
         selectedIndexes.add(selInd);
         notSelectedIndexes.remove(selInd);
       }

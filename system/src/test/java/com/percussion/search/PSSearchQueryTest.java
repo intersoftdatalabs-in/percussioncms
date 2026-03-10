@@ -179,7 +179,7 @@ public class PSSearchQueryTest
          //now limit the result set size
          Map control = new HashMap();
          int limit = 2;
-         control.put(PSSearchQuery.QUERYPROP_MAXRESULTS, new Integer(limit));
+         control.put(PSSearchQuery.QUERYPROP_MAXRESULTS, Integer.valueOf(limit));
          results = sq.performSearch(ctypeIds, "red", null, control);
          assertEquals(limit, results.size(), "Too many docs when maxResults set");
 

@@ -127,14 +127,14 @@ public class AbstractControllerWithSecurityChecks {
       } // Default case if everything fails
 
       if (request.getParameter("nodeID") != null && request.getParameter("nodeID").length() > 0) {
-        this.nodeID = new Integer(Integer.parseInt(request.getParameter("nodeID")));
+        this.nodeID = Integer.valueOf(Integer.parseInt(request.getParameter("nodeID")));
         if (this.nodeID <= 0) {
           throw new Exception("Invalid nodeID param");
         }
       }
       if (request.getParameter("parentID") != null
           && request.getParameter("parentID").length() > 0) {
-        this.parentID = new Integer(Integer.parseInt(request.getParameter("parentID")));
+        this.parentID = Integer.valueOf(Integer.parseInt(request.getParameter("parentID")));
         if (this.parentID < 0) {
           throw new Exception("Invalid parentID param");
         }

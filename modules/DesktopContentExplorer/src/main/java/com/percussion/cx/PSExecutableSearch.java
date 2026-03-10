@@ -326,7 +326,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
           if (!StringUtils.isBlank(strContentId)) {
             Integer contentId;
             try {
-              contentId = new Integer(dirty.getContentId());
+              contentId = Integer.valueOf(dirty.getContentId());
             } catch (NumberFormatException e) {
               // not a searchable node, skip
               continue;
@@ -441,7 +441,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
         while (rows.hasNext()) {
           IPSSearchResultRow row = (IPSSearchResultRow) rows.next();
           if (!dirtySet.contains(
-              new Integer(row.getColumnValue(IPSHtmlParameters.SYS_CONTENTID)))) {
+              Integer.valueOf(row.getColumnValue(IPSHtmlParameters.SYS_CONTENTID)))) {
             newRowList.add(row);
           }
         }
@@ -676,7 +676,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
       IPSSearchResultRow row = (IPSSearchResultRow) rows.next();
       String title = row.getColumnDisplayValue("sys_title");
       String ctypeId = row.getColumnValue(PROPERTY_CONTENTTYPEID).toString();
-      Integer contentId = new Integer(row.getColumnValue(PROPERTY_CONTENTID));
+      Integer contentId = Integer.valueOf(row.getColumnValue(PROPERTY_CONTENTID));
 
       String nodeType =
           (ctypeId.equals(Integer.toString(PSFolder.FOLDER_CONTENT_TYPE_ID)))

@@ -52,7 +52,9 @@
         <module>modules/extensions-serverutils</module>
         <module>PCM-PkgMgtUI</module>
         <module>modules/perc-common-ui-bundle</module>
+        <module>modules/perc-openapi-generator-plugin</module>
         <module>WebUI</module>
+        <module>modules/perc-openapi-webapp</module>
         <module>modules/perc-thumbnail</module>
         <module>projects/sitemanage</module>
         <module>modules/perc-checkboxtree</module>
@@ -120,8 +122,8 @@
         <gson.version>2.13.2</gson.version>
         <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
-        <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
-        <hibernate.version>6.6.42.Final</hibernate.version>
+        <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
+        <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
@@ -134,6 +136,7 @@
         <jakarta.inject.version>2.0.1</jakarta.inject.version>
         <jakarta.jackson.version>2.20.1</jakarta.jackson.version>
         <jakarta.jms.api.version>3.1.0</jakarta.jms.api.version>
+        <java.cache.api.version>1.1.1</java.cache.api.version>
         <jakarta.json.api.version>2.1.3</jakarta.json.api.version>
         <jakarta.mail.api.version>2.1.5</jakarta.mail.api.version>
         <jakarta.persistence.version>3.2.0</jakarta.persistence.version>
@@ -352,6 +355,11 @@
                 <groupId>jakarta.annotation</groupId>
                 <artifactId>jakarta.annotation-api</artifactId>
                 <version>${jakarta.annotation.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>${java.cache.api.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.servlet</groupId>
@@ -626,11 +634,23 @@
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-jaxrs2</artifactId>
                 <version>${swagger.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-jaxb-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-jaxrs2-servlet-initializer-v2</artifactId>
                 <version>${swagger.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-jaxb-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
@@ -649,6 +669,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+               <groupId>org.hibernate.orm</groupId>
+               <artifactId>hibernate-community-dialects</artifactId>
+               <version>${hibernate.version}</version>
+           </dependency>
             <dependency>
                 <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-hikaricp</artifactId>

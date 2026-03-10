@@ -4368,7 +4368,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       String contentId =
           PSUrlUtils.getUrlParameterValue(homePageUrl, IPSHtmlParameters.SYS_CONTENTID);
       if (contentId != null) {
-        Integer cid = tracker.getItemTargetId(new Integer(contentId));
+        Integer cid = tracker.getItemTargetId(Integer.valueOf(contentId));
         if (cid != null) {
           homePageUrl =
               PSUrlUtils.replaceUrlParameterValue(
@@ -4389,7 +4389,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
       String siteId = PSUrlUtils.getUrlParameterValue(homePageUrl, IPSHtmlParameters.SYS_SITEID);
       if (siteId != null) {
-        Integer sid = (Integer) options.getSiteMappings().get(new Integer(siteId));
+        Integer sid = (Integer) options.getSiteMappings().get(Integer.valueOf(siteId));
         if (sid != null) {
           homePageUrl =
               PSUrlUtils.replaceUrlParameterValue(
@@ -4448,7 +4448,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     Iterator walker = summaries.iterator();
     while (walker.hasNext()) {
       PSComponentSummary summary = (PSComponentSummary) walker.next();
-      communities.add(new Integer(summary.getCommunityId()));
+      communities.add(Integer.valueOf(summary.getCommunityId()));
     }
 
     return communities;
@@ -4609,7 +4609,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
         // change the community if mapped
         Integer newCommunity =
-            (Integer) options.getCommunityMappings().get(new Integer(newFolder.getCommunityId()));
+            (Integer) options.getCommunityMappings().get(Integer.valueOf(newFolder.getCommunityId()));
         if (newCommunity != null) {
           context.setSessionPrivateObject(IPSHtmlParameters.SYS_COMMUNITY, newCommunity.toString());
           newFolder.setCommunityId(newCommunity.intValue());
@@ -4889,7 +4889,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
               String originalSiteId = relationship.getProperty(IPSHtmlParameters.SYS_SITEID);
               if (originalSiteId != null && originalSiteId.trim().length() > 0) {
                 Integer newSiteId =
-                    (Integer) options.getSiteMappings().get(new Integer(originalSiteId));
+                    (Integer) options.getSiteMappings().get(Integer.valueOf(originalSiteId));
                 if (newSiteId != null) {
                   newRelationship.setProperty(IPSHtmlParameters.SYS_SITEID, newSiteId.toString());
 
@@ -4918,7 +4918,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
             }
 
             Integer newDependentId =
-                tracker.getItemTargetId(new Integer(relationship.getDependent().getId()));
+                tracker.getItemTargetId(Integer.valueOf(relationship.getDependent().getId()));
             if (newDependentId != null && updateDependentId)
               newRelationship.setDependent(new PSLocator(newDependentId.intValue(), -1));
 
@@ -4939,7 +4939,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
             newRelationships.add(newRelationship);
 
             if (newRelationship.isInlineRelationship()) {
-              Integer key = new Integer(relationship.getId());
+              Integer key = Integer.valueOf(relationship.getId());
               inlineRelationships.put(key, newRelationship);
             }
 
@@ -5361,7 +5361,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
                   + "dependent with owner id="
                   + owner.getId());
         }
-        result.add(new Object[] {itemEntry.getName(), new Integer(id)});
+        result.add(new Object[] {itemEntry.getName(), Integer.valueOf(id)});
       }
     } else // get the child items from repository
     {
@@ -5374,7 +5374,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
         for (int i = 0; i < children.length; i++) {
           item =
               new Object[] {
-                children[i].getName(), new Integer(children[i].getCurrentLocator().getId())
+                children[i].getName(), Integer.valueOf(children[i].getCurrentLocator().getId())
               };
           result.add(item);
         }
@@ -5439,7 +5439,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       item =
           new Object[] {
             itemEntry.getName(),
-            new Integer(itemEntry.getContentId()),
+            Integer.valueOf(itemEntry.getContentId()),
             itemEntry.getObjectType(),
             new Long(itemEntry.getContentTypeId())
           };
@@ -5456,7 +5456,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       item =
           new Object[] {
             summary.getName(),
-            new Integer(summary.getCurrentLocator().getId()),
+            Integer.valueOf(summary.getCurrentLocator().getId()),
             summary.getObjectType(),
             new Long(summary.getContentTypeId())
           };

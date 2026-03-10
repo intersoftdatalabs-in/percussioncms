@@ -5,7 +5,7 @@
 <hibernate-configuration>
 	<session-factory>
 		<!-- Database connection properties -->
-		<property name="hibernate.dialect">org.hibernate.dialect.DerbyDialect</property>
+		<property name="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</property>
 		<property name="hibernate.connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</property>
 		<property name="hibernate.connection.url">jdbc:derby:memory:perccomments;create=true</property>
 		<property name="hibernate.connection.username">test</property>

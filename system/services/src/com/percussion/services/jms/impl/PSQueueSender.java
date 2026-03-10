@@ -25,11 +25,11 @@ import java.util.List;
 import jakarta.jms.JMSException;
 import jakarta.jms.ObjectMessage;
 import jakarta.jms.Queue;
-import jakarta.jms.QueueConnection;
+import jakarta.jms.Connection;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.MessageProducer;
 import jakarta.jms.Session;
-import jakarta.naming.NamingException;
+import javax.naming.NamingException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,7 +70,7 @@ public class PSQueueSender implements IPSQueueSender
        * The queue connection created by the connection factory, never
        * <code>null</code> or modified after the call of {@link #open()}.
        */
-      QueueConnection mi_conn;
+      Connection mi_conn;
 
       /**
        * The queue session, never <code>null</code> or modified after the call

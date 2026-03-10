@@ -91,7 +91,7 @@ http://www.springframework.org/schema/util/spring-util.xsd">
                     <value>org.hibernate.dialect.DB2Dialect</value>
                 </entry>
                 <entry key="derby">
-                    <value>com.percussion.services.datasource.DerbyTenOneFourDialect</value>
+                    <value>org.hibernate.community.dialect.DerbyDialect</value>
                 </entry>
                 <entry key="mysql">
                     <value>org.hibernate.dialect.MySQLInnoDBDialect</value>

@@ -76,7 +76,7 @@ public class PSFixOrphanedFolders extends PSFixDBBase implements IPSFix
             String title = rs.getString(2);
             if (title == null)
                title = "";
-            orphans.put(new Integer(rs.getInt(1)), title);
+            orphans.put(Integer.valueOf(rs.getInt(1)), title);
          }
          rs.close();
          st.close();

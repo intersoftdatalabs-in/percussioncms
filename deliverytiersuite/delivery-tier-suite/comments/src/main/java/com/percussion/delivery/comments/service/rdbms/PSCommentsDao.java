@@ -175,8 +175,8 @@ public class PSCommentsDao implements IPSCommentsDao {
   public void save(IPSComment comment) throws Exception {
     PSComment hComment = new PSComment(comment);
     hComment.setId(comment.getId());
-    getSession().saveOrUpdate(hComment);
-    comment.setId(hComment.getId());
+    PSComment managed = getSession().merge(hComment);
+    comment.setId(managed.getId());
   }
 
   /*
@@ -270,7 +270,7 @@ public class PSCommentsDao implements IPSCommentsDao {
     Session session = getSession();
 
     IPSDefaultModerationState st = new PSDefaultModerationState(sitename, state.toString());
-    session.saveOrUpdate(st);
+    session.merge(st);
     session.flush();
   }
 }

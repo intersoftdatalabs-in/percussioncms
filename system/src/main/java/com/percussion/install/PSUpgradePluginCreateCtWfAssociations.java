@@ -216,7 +216,7 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
       Statement stmt = conn.createStatement();
       ResultSet rs = stmt.executeQuery(SQL_STMT);
       while (rs.next()) {
-        wfList.add(new Integer(rs.getInt("WORKFLOWAPPID")));
+        wfList.add(Integer.valueOf(rs.getInt("WORKFLOWAPPID")));
       }
     } catch (Exception e) {
       String msg = "Failed to get the workflows.";
@@ -251,7 +251,7 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
       while (rs.next()) {
         ctWfs.add(
             new CtWfAssociation(
-                new Integer(rs.getInt("CONTENTTYPEID")), new Integer(rs.getInt("WORKFLOWID"))));
+                Integer.valueOf(rs.getInt("CONTENTTYPEID")), Integer.valueOf(rs.getInt("WORKFLOWID"))));
       }
     } catch (Exception e) {
       String msg = "Failed to get the workflow associations.";

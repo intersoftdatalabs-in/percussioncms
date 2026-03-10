@@ -188,7 +188,7 @@ public class PermissionsTestExitHandler implements
          // Shouldn't happen!
          throw new PSConversionException(e.getErrorCode(), e.getErrorArguments());
       }
-      return new Integer(47);
+      return Integer.valueOf(47);
    }
 
 
@@ -278,15 +278,15 @@ public class PermissionsTestExitHandler implements
    private static HashMap ms_HtmlParamValues = new HashMap();
 
    static {
-      ms_HtmlParamValues.put("AWT", new Integer(CHECK_AWT));
-      ms_HtmlParamValues.put("Net", new Integer(CHECK_NET));
-      ms_HtmlParamValues.put("Prop", new Integer(CHECK_PROP));      
-      ms_HtmlParamValues.put("Reflect", new Integer(CHECK_REFLECT));
-      ms_HtmlParamValues.put("Runtime", new Integer(CHECK_RUNTIME));      
-      ms_HtmlParamValues.put("Security", new Integer(CHECK_SECURITY));
-      ms_HtmlParamValues.put("Serializable", new Integer(CHECK_SERIALIZE));
-      ms_HtmlParamValues.put("File", new Integer(CHECK_FILE));
-      ms_HtmlParamValues.put("Socket", new Integer(CHECK_SOCKET));
+      ms_HtmlParamValues.put("AWT", Integer.valueOf(CHECK_AWT));
+      ms_HtmlParamValues.put("Net", Integer.valueOf(CHECK_NET));
+      ms_HtmlParamValues.put("Prop", Integer.valueOf(CHECK_PROP));      
+      ms_HtmlParamValues.put("Reflect", Integer.valueOf(CHECK_REFLECT));
+      ms_HtmlParamValues.put("Runtime", Integer.valueOf(CHECK_RUNTIME));      
+      ms_HtmlParamValues.put("Security", Integer.valueOf(CHECK_SECURITY));
+      ms_HtmlParamValues.put("Serializable", Integer.valueOf(CHECK_SERIALIZE));
+      ms_HtmlParamValues.put("File", Integer.valueOf(CHECK_FILE));
+      ms_HtmlParamValues.put("Socket", Integer.valueOf(CHECK_SOCKET));
 
 //      try {
 //         ms_ExtensionDef = 

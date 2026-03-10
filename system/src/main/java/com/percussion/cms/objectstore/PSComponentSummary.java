@@ -73,8 +73,8 @@ import org.w3c.dom.Element;
       name = "summary.loadComponentSummaries",
       query = " from PSComponentSummary where m_contentId in (:ids)")
 })
-@DynamicInsert(true)
-@DynamicUpdate(true)
+@DynamicInsert
+@DynamicUpdate
 public class PSComponentSummary extends PSDbComponent implements Serializable {
   /** Serial id identifies versions of serialized data */
   private static final long serialVersionUID = 1L;
@@ -172,7 +172,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
    * @return The locator, never <code>null</code>.
    */
   public PSLocator getCurrentLocator() {
-    if (m_currRevision == null) m_currRevision = new Integer(0);
+    if (m_currRevision == null) m_currRevision = Integer.valueOf(0);
 
     if (m_currentLocator == null) m_currentLocator = new PSLocator(m_contentId, m_currRevision);
 

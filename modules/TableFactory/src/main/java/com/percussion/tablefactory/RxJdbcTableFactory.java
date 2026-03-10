@@ -1864,7 +1864,7 @@ public class RxJdbcTableFactory {
           // try to get the type and set it
           try {
             Integer jType =
-                new Integer(java.sql.Types.class.getField(wfColumn.getColDataType()).getInt(null));
+                Integer.valueOf(java.sql.Types.class.getField(wfColumn.getColDataType()).getInt(null));
 
             pStmt.setObject(wfIndex, wfColumn.getColValue(), jType.intValue());
           } catch (java.lang.NoSuchFieldException e) {
@@ -2076,9 +2076,9 @@ public class RxJdbcTableFactory {
                   if (iBackupRows != iOrigRowCount) {
                     return "Table upgrade aborted. Copying of backup failed to copy rows. "
                         + "Original table had "
-                        + new Integer(iOrigRowCount).toString()
+                        + Integer.valueOf(iOrigRowCount).toString()
                         + " rows but the backup row count is "
-                        + new Integer(iBackupRows).toString();
+                        + Integer.valueOf(iBackupRows).toString();
                   }
 
                   boolean bUpgradeOk = true;
@@ -2143,9 +2143,9 @@ public class RxJdbcTableFactory {
                         sStatus =
                             "Table upgrade aborted. Copying of backup failed to copy rows. "
                                 + "Original table had "
-                                + new Integer(iOrigRowCount).toString()
+                                + Integer.valueOf(iOrigRowCount).toString()
                                 + " rows but the backup row count is "
-                                + new Integer(iBackupRows).toString();
+                                + Integer.valueOf(iBackupRows).toString();
                         bUpgradeOk = false;
                       }
                     } catch (SQLException sqle) {
@@ -2211,9 +2211,9 @@ public class RxJdbcTableFactory {
                     if (iBackupRows != iOrigRowCount) {
                       return "Table backup restoration aborted. Copying of backup failed to copy"
                           + " rows. Original table had "
-                          + new Integer(iOrigRowCount).toString()
+                          + Integer.valueOf(iOrigRowCount).toString()
                           + " rows but the backup row count is "
-                          + new Integer(iBackupRows).toString();
+                          + Integer.valueOf(iBackupRows).toString();
                     }
                   }
 

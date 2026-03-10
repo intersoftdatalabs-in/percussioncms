@@ -129,7 +129,7 @@ public class PSRxFixCmd
                + "                    <value>org.hibernate.dialect.SQLServerDialect</value>\n"
                + "                </entry>\n"
                + "                <entry key=\"oracle:thin\">\n"
-               + "                    <value>org.hibernate.dialect.Oracle9iDialect</value>\n"
+               + "                    <value>org.hibernate.dialect.OracleDialect</value>\n"
                + "                </entry>\n"
                + "                <entry key=\"db2\">\n"
                + "                    <value>org.hibernate.dialect.DB2Dialect</value>\n"

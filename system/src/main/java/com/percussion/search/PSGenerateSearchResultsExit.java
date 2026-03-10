@@ -548,7 +548,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
             assemblyUrlInt =
                 PSUrlUtils.createUrl(
                         "127.0.0.1",
-                        new Integer(request.getServerListenerPort()),
+                        Integer.valueOf(request.getServerListenerPort()),
                         baseAssemblyUrl,
                         assemblyParams.entrySet().iterator(),
                         null,

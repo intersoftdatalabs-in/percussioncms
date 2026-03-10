@@ -358,8 +358,8 @@ public class PSLockMethod extends PSWebdavMethod
          {
             PSLocator locator = m_compSummary.getEditLocator();
             Object[] args = { new Long(id), m_compSummary.getName(),
-                  new Integer(locator.getId()),
-                  new Integer(locator.getRevision()) };
+                  Integer.valueOf(locator.getId()),
+                  Integer.valueOf(locator.getRevision()) };
             throw new PSWebdavException(
                   IPSWebdavErrors.CONTENTTYPE_NOT_CONFIGURED, args,
                   PSWebdavStatus.SC_PRECONDITION_FAILED);

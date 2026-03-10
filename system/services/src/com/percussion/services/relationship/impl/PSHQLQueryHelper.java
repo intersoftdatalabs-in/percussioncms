@@ -191,7 +191,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
          m_qryBuffer.append("c.m_objectType").append(EQ).append(
                FN_OWNER_OBJTYPE);
          m_paramNames.add(FN_OWNER_OBJTYPE);
-         m_paramValues.add(new Integer(m_filter.getOwnerObjectType()));
+         m_paramValues.add(Integer.valueOf(m_filter.getOwnerObjectType()));
          m_isAddAND = true;
       }
    }
@@ -248,7 +248,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
          m_qryBuffer.append("c.m_objectType").append(EQ).append(
                FN_DEPENDENT_OBJTYPE);
          m_paramNames.add(FN_DEPENDENT_OBJTYPE);
-         m_paramValues.add(new Integer(m_filter.getDependentObjectType()));
+         m_paramValues.add(Integer.valueOf(m_filter.getDependentObjectType()));
          m_isAddAND = true;
       }
 
@@ -284,7 +284,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
          m_qryBuffer.append(R_TABLE).append(FN_OWNERID).append(EQ).append(
                FN_OWNERID);
          m_paramNames.add(FN_OWNERID);
-         m_paramValues.add(new Integer(m_filter.getOwner().getId()));
+         m_paramValues.add(Integer.valueOf(m_filter.getOwner().getId()));
          m_isAddAND = true;
 
          if (m_filter.getLimitToOwnerRevision())
@@ -294,7 +294,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
             m_qryBuffer.append(R_TABLE).append(FN_OWNER_REV).append(EQ).append(
                   FN_OWNER_REV);
             m_paramNames.add(FN_OWNER_REV);
-            m_paramValues.add(new Integer(m_filter.getOwner().getRevision()));
+            m_paramValues.add(Integer.valueOf(m_filter.getOwner().getRevision()));
             m_isAddAND = true;
          }
       }
@@ -307,7 +307,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
             m_qryBuffer.append(R_TABLE).append(FN_DEPENDENTID).append(EQ)
                   .append(FN_DEPENDENTID);
             m_paramNames.add(FN_DEPENDENTID);
-            m_paramValues.add(new Integer(m_filter.getDependent().getId()));
+            m_paramValues.add(Integer.valueOf(m_filter.getDependent().getId()));
          }
          else
          {
@@ -328,7 +328,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
 
          m_qryBuffer.append(R_TABLE).append(FN_RID).append(EQ).append(FN_RID);
          m_paramNames.add(FN_RID);
-         m_paramValues.add(new Integer(m_filter.getRelationshipId()));
+         m_paramValues.add(Integer.valueOf(m_filter.getRelationshipId()));
          m_isAddAND = true;
       }
       Set<Integer> ids = getRelationshipNameIds(m_filter);
@@ -638,7 +638,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
                m_qryBuffer.append(R_TABLE).append(FN_FOLDER_ID).append(EQ)
                      .append(FN_FOLDER_ID);
                m_paramNames.add(FN_FOLDER_ID);
-               m_paramValues.add(new Integer(prop.getValue()));
+               m_paramValues.add(Integer.valueOf(prop.getValue()));
                m_isAddAND = true;
             }
             else if (prop.getKey().equalsIgnoreCase(
@@ -674,7 +674,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
                m_qryBuffer.append(R_TABLE).append(FN_SORT_RANK).append(EQ)
                      .append(FN_SORT_RANK);
                m_paramNames.add(FN_SORT_RANK);
-               m_paramValues.add(new Integer(prop.getValue()));
+               m_paramValues.add(Integer.valueOf(prop.getValue()));
                m_isAddAND = true;
             }
             else if (prop.getKey().equalsIgnoreCase(

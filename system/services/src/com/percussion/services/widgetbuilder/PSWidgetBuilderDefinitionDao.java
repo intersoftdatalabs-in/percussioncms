@@ -95,7 +95,7 @@ public class PSWidgetBuilderDefinitionDao implements IPSWidgetBuilderDefinitionD
 
         var session = getSession();
         try {
-            session.saveOrUpdate(definition);
+            session.merge(definition);
             session.flush();
             log.debug("Successfully saved widget builder definition with ID: {}",
                      definition.getWidgetBuilderDefinitionId());
@@ -137,7 +137,7 @@ public class PSWidgetBuilderDefinitionDao implements IPSWidgetBuilderDefinitionD
         if (definition.isPresent()) {
             var session = getSession();
             try {
-                session.delete(definition.get());
+                session.remove(definition.get());
                 session.flush();
                 log.debug("Successfully deleted widget builder definition with ID: {}", definitionId);
             } catch (HibernateException e) {
@@ -195,5 +195,14 @@ public class PSWidgetBuilderDefinitionDao implements IPSWidgetBuilderDefinitionD
      */
     protected IPSGuidManager getGuidManager() {
         return guidManager;
+    }
+
+    /**
+     * Sets the GUID manager for legacy Spring XML property wiring compatibility.
+     *
+     * @param guidManager the GUID manager, never null
+     */
+    public void setGuidManager(IPSGuidManager guidManager) {
+        this.guidManager = Objects.requireNonNull(guidManager, "guidManager cannot be null");
     }
 }

@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.ws.rs.Consumes;
@@ -64,7 +64,7 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
         .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
         .setAnnotationIntrospector(
             AnnotationIntrospector.pair(
-                new JaxbAnnotationIntrospector(TypeFactory.defaultInstance()),
+            new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance()),
                 new JacksonAnnotationIntrospector()))
         .registerModule(new ParameterNamesModule())
         .registerModule(new Jdk8Module())

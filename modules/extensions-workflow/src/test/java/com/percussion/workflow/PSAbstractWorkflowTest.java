@@ -228,9 +228,9 @@ public abstract class PSAbstractWorkflowTest {
       stmt.setString(1, sKey);
       rs = stmt.executeQuery();
       if (false == rs.next()) {
-        iResult = new Integer(1);
+        iResult = Integer.valueOf(1);
       } else {
-        iResult = new Integer(rs.getInt(1) + 1);
+        iResult = Integer.valueOf(rs.getInt(1) + 1);
       }
 
       rs.close();

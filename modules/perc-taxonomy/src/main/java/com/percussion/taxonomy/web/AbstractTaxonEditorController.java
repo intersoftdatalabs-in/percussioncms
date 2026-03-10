@@ -91,8 +91,8 @@ public abstract class AbstractTaxonEditorController extends AbstractControllerWi
     }
     for (Related_node related_node : related_nodes) {
       ids.put(
-          new Integer(related_node.getRelated_node().getId()),
-          new Integer(related_node.getRelated_node().getId()));
+          Integer.valueOf(related_node.getRelated_node().getId()),
+          Integer.valueOf(related_node.getRelated_node().getId()));
     }
 
     return ids;

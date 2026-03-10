@@ -158,7 +158,7 @@
          }
       }
    }
-   pageContext.setAttribute("count", new Integer(count));
+   pageContext.setAttribute("count", Integer.valueOf(count));
    pageContext.setAttribute("exceptionMsg", exceptionMsg);
 %>
 <html>

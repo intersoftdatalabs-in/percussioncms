@@ -41,7 +41,7 @@ public class PSModifyPlanSet {
   public void addPlan(PSModifyPlan plan) {
     if (plan == null) throw new IllegalArgumentException("plan may not be null");
 
-    Integer key = new Integer(plan.getType());
+    Integer key = Integer.valueOf(plan.getType());
 
     if (m_plans.containsKey(key)) throw new IllegalArgumentException("plan type already added");
 
@@ -56,7 +56,7 @@ public class PSModifyPlanSet {
    *     been added.
    */
   public PSModifyPlan getPlan(int type) {
-    return (PSModifyPlan) m_plans.get(new Integer(type));
+    return (PSModifyPlan) m_plans.get(Integer.valueOf(type));
   }
 
   /**

@@ -1661,11 +1661,11 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
     List table_schem = Collections.nCopies(table_name.size(), null);
 
     java.util.HashMap columnNames = new java.util.HashMap();
-    columnNames.put("TABLE_CAT", new Integer(1));
-    columnNames.put("TABLE_SCHEM", new Integer(2));
-    columnNames.put("TABLE_NAME", new Integer(3));
-    columnNames.put("TABLE_TYPE", new Integer(4));
-    columnNames.put("REMARKS", new Integer(5));
+    columnNames.put("TABLE_CAT", Integer.valueOf(1));
+    columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
+    columnNames.put("TABLE_NAME", Integer.valueOf(3));
+    columnNames.put("TABLE_TYPE", Integer.valueOf(4));
+    columnNames.put("REMARKS", Integer.valueOf(5));
 
     return new PSResultSet(
         new List[] {table_cat, table_schem, table_name, table_type, remarks},
@@ -1703,7 +1703,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
     table_type.add("XSL");
     table_type.add("DTD");
     java.util.HashMap columnNames = new java.util.HashMap();
-    columnNames.put("TABLE_TYPE", new Integer(1));
+    columnNames.put("TABLE_TYPE", Integer.valueOf(1));
     return new PSResultSet(new List[] {table_type}, columnNames, ms_getTableTypesRSMeta);
   }
 
@@ -1793,7 +1793,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
       // int => index of column in table (starting at 1)
       List ordinal_position = new ArrayList(10);
 
-      final Integer zero = new Integer(0);
+      final Integer zero = Integer.valueOf(0);
       int numRows = 0;
 
       // if they request all known CGI variables, then we don't need
@@ -1832,7 +1832,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
         for (int columnNumber = 0; columnNumber < column_name.size(); columnNumber++) {
           numRows++;
           table_name.add(tableNamePattern);
-          ordinal_position.add(new Integer(columnNumber + 1));
+          ordinal_position.add(Integer.valueOf(columnNumber + 1));
         }
       }
       // otherwise, we go to the file system and read the XML files to
@@ -1880,46 +1880,46 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
             numRows++;
             table_name.add(fileName);
             column_name.add((String) j.next());
-            ordinal_position.add(new Integer(ordinalPos));
+            ordinal_position.add(Integer.valueOf(ordinalPos));
           }
         }
       }
 
       List table_cat = Collections.nCopies(numRows, catalog);
       List table_schem = Collections.nCopies(numRows, null);
-      List data_type = Collections.nCopies(numRows, new Integer(java.sql.Types.VARCHAR));
+      List data_type = Collections.nCopies(numRows, Integer.valueOf(java.sql.Types.VARCHAR));
       List type_name = Collections.nCopies(numRows, "java.lang.String");
-      List column_size = Collections.nCopies(numRows, new Integer(Integer.MAX_VALUE));
+      List column_size = Collections.nCopies(numRows, Integer.valueOf(Integer.MAX_VALUE));
       List buffer_length = Collections.nCopies(numRows, zero);
       List decimal_digits = Collections.nCopies(numRows, zero);
       List num_prec_radix = Collections.nCopies(numRows, zero);
-      List nullable = Collections.nCopies(numRows, new Integer(columnNoNulls));
+      List nullable = Collections.nCopies(numRows, Integer.valueOf(columnNoNulls));
       List remarks = Collections.nCopies(numRows, null);
       List column_def = Collections.nCopies(numRows, null);
       List sql_data_type = Collections.nCopies(numRows, zero);
       List sql_datetime_sub = Collections.nCopies(numRows, zero);
-      List char_octet_length = Collections.nCopies(numRows, new Integer(Integer.MAX_VALUE));
+      List char_octet_length = Collections.nCopies(numRows, Integer.valueOf(Integer.MAX_VALUE));
       List is_nullable = Collections.nCopies(numRows, "");
 
       HashMap columnNames = new HashMap(18);
-      columnNames.put("TABLE_CAT", new Integer(1));
-      columnNames.put("TABLE_SCHEM", new Integer(2));
-      columnNames.put("TABLE_NAME", new Integer(3));
-      columnNames.put("COLUMN_NAME", new Integer(4));
-      columnNames.put("DATA_TYPE", new Integer(5));
-      columnNames.put("TYPE_NAME", new Integer(6));
-      columnNames.put("COLUMN_SIZE", new Integer(7));
-      columnNames.put("BUFFER_LENGTH", new Integer(8));
-      columnNames.put("DECIMAL_DIGITS", new Integer(9));
-      columnNames.put("NUM_PREC_RADIX", new Integer(10));
-      columnNames.put("NULLABLE", new Integer(11));
-      columnNames.put("REMARKS", new Integer(12));
-      columnNames.put("COLUMN_DEF", new Integer(13));
-      columnNames.put("SQL_DATA_TYPE", new Integer(14));
-      columnNames.put("SQL_DATETIME_SUB", new Integer(15));
-      columnNames.put("CHAR_OCTET_LENGTH", new Integer(16));
-      columnNames.put("ORDINAL_POSITION", new Integer(17));
-      columnNames.put("IS_NULLABLE", new Integer(18));
+      columnNames.put("TABLE_CAT", Integer.valueOf(1));
+      columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
+      columnNames.put("TABLE_NAME", Integer.valueOf(3));
+      columnNames.put("COLUMN_NAME", Integer.valueOf(4));
+      columnNames.put("DATA_TYPE", Integer.valueOf(5));
+      columnNames.put("TYPE_NAME", Integer.valueOf(6));
+      columnNames.put("COLUMN_SIZE", Integer.valueOf(7));
+      columnNames.put("BUFFER_LENGTH", Integer.valueOf(8));
+      columnNames.put("DECIMAL_DIGITS", Integer.valueOf(9));
+      columnNames.put("NUM_PREC_RADIX", Integer.valueOf(10));
+      columnNames.put("NULLABLE", Integer.valueOf(11));
+      columnNames.put("REMARKS", Integer.valueOf(12));
+      columnNames.put("COLUMN_DEF", Integer.valueOf(13));
+      columnNames.put("SQL_DATA_TYPE", Integer.valueOf(14));
+      columnNames.put("SQL_DATETIME_SUB", Integer.valueOf(15));
+      columnNames.put("CHAR_OCTET_LENGTH", Integer.valueOf(16));
+      columnNames.put("ORDINAL_POSITION", Integer.valueOf(17));
+      columnNames.put("IS_NULLABLE", Integer.valueOf(18));
 
       return new PSResultSet(
           new List[] {
@@ -2772,7 +2772,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
       for (int i = 0; i < serverVariableFields.length; i++) {
         numRows++;
         ms_cgiVars.add(serverVariableFields[i].get(null).toString());
-        ms_cgiVarsOrdinals.add(new Integer(numRows));
+        ms_cgiVarsOrdinals.add(Integer.valueOf(numRows));
       }
     } catch (IllegalAccessException e) {
       // some sort of unexpected problem with reflection

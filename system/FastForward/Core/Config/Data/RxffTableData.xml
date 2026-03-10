@@ -8623,7 +8623,7 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="SITENAME">Enterprise_Investments</column>
 			<column name="SITEDESC">Represents the Enterprise Investments web site</column>
 			<column name="BASEURL">http://127.0.0.1:9992/EI_Home</column>
-			<column name="ROOT">../EI_Home.war</column>
+			<column name="ROOT">../EI_Home</column>
 			<column name="IPADDRESS">127.0.0.1</column>
 			<column name="PORT">21</column>
 			<column name="USERID"/>
@@ -8647,7 +8647,7 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="SITENAME">Corporate_Investments</column>
 			<column name="SITEDESC">Represents the Corporate Investments web site</column>
 			<column name="BASEURL">http://127.0.0.1:9992/CI_Home</column>
-			<column name="ROOT">../CI_Home.war</column>
+			<column name="ROOT">../CI_Home</column>
 			<column name="IPADDRESS">127.0.0.1</column>
 			<column name="PORT">21</column>
 			<column name="USERID"/>

@@ -33,8 +33,8 @@ public class PSDataComparisonTest
    {
       Long lSmall = new Long(10);
       Long lBig = new Long(20);
-      Integer iSmall = new Integer(10);
-      Integer iBig = new Integer(20);
+      Integer iSmall = Integer.valueOf(10);
+      Integer iBig = Integer.valueOf(20);
       String sSmall = new String("10");
       String sBig = new String("20");
       Double dSmall = new Double(10);
@@ -105,8 +105,8 @@ public class PSDataComparisonTest
    {
       int ret;
 
-      Integer i1 = new Integer(1);
-      Integer i2 = new Integer(0);
+      Integer i1 = Integer.valueOf(1);
+      Integer i2 = Integer.valueOf(0);
       Long l1 = new Long(1);
       Long l2 = new Long(0);
 

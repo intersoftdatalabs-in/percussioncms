@@ -195,7 +195,7 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
     String propName;
 
     while (rs.next()) {
-      propId = new Integer(rs.getInt(propIdColumn));
+      propId = Integer.valueOf(rs.getInt(propIdColumn));
       propName = rs.getString(propColumn);
 
       // if custom prop, add id

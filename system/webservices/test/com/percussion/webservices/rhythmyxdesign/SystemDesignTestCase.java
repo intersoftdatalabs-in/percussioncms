@@ -1022,7 +1022,7 @@ public class SystemDesignTestCase extends PSSystemTestBase
    @Test
    public void testSystemDesignSOAPRelationshipType() throws Exception
    {
-      SystemDesignSOAPStub binding = getDesignBinding(new Integer(60000));
+      SystemDesignSOAPStub binding = getDesignBinding(Integer.valueOf(60000));
       PSTestUtils.setSessionHeader(binding, m_session);
 
       PSRelationshipConfig config;

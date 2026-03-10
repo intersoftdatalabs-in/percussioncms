@@ -59,7 +59,7 @@ public class PSPollsDao implements IPSPollsDao {
   public void save(IPSPoll poll) {
     var session = getSession();
     try {
-      session.saveOrUpdate(poll);
+      session.merge(poll);
     } finally {
       // session.close();
     }

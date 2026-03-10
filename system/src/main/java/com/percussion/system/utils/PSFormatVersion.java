@@ -405,17 +405,17 @@ public class PSFormatVersion {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
 
     m_buildNumber = getAttribute(tree, KEY_BUILD_NUMBER, true);
-    m_buildId = (new Integer(getAttribute(tree, KEY_BUILD_ID, true))).intValue();
-    m_majorVersion = (new Integer(getAttribute(tree, KEY_MAJOR_VERSION, true))).intValue();
-    m_minorVersion = (new Integer(getAttribute(tree, KEY_MINOR_VERSION, true))).intValue();
-    m_microVersion = (new Integer(getAttribute(tree, KEY_MICRO_VERSION, false, "0"))).intValue();
+    m_buildId = (Integer.valueOf(getAttribute(tree, KEY_BUILD_ID, true))).intValue();
+    m_majorVersion = (Integer.valueOf(getAttribute(tree, KEY_MAJOR_VERSION, true))).intValue();
+    m_minorVersion = (Integer.valueOf(getAttribute(tree, KEY_MINOR_VERSION, true))).intValue();
+    m_microVersion = (Integer.valueOf(getAttribute(tree, KEY_MICRO_VERSION, false, "0"))).intValue();
     m_versionString = getAttribute(tree, KEY_VERSION_STRING, true);
     m_optionalId = getAttribute(tree, KEY_OPTIONAL_ID, false);
 
     // we may not have an iterface version
     try {
       m_interfaceVersion =
-          (new Integer(getAttribute(tree, KEY_INTERFACE_VERSION, true))).intValue();
+          (Integer.valueOf(getAttribute(tree, KEY_INTERFACE_VERSION, true))).intValue();
     } catch (PSUnknownNodeTypeException e) {
       // in this case set it to zero
       m_interfaceVersion = 0;

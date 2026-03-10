@@ -123,7 +123,7 @@ public class PSDisplayFormatTableModel extends PSTableModel {
                 } else if (PSNode.DATA_TYPE_NUMBER.equals(colType)) {
                   if (((String) obj).length() > 0) {
                     try {
-                      obj = new Integer((String) obj);
+                      obj = Integer.valueOf((String) obj);
                     } catch (NumberFormatException e) {
                       /*
                        * Let it be string. Some times the column type

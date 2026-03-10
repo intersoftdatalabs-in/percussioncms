@@ -1088,7 +1088,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
       throw new IllegalArgumentException("contentid must not be blank");
     Integer id = null;
     try {
-      id = new Integer(contentid);
+      id = Integer.valueOf(contentid);
     } catch (Exception e) {
       throw new IllegalArgumentException("contentid must not be an Integer");
     }

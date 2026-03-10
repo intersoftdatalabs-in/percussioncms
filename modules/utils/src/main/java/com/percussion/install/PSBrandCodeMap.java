@@ -45,7 +45,7 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
    * @see com.percussion.install.IPSBrandCodeMap
    */
   public boolean isValidBrandCodeMapVersion(int bcmv) {
-    return m_brandCodeMapVersions.containsKey(new Integer(bcmv));
+    return m_brandCodeMapVersions.containsKey(Integer.valueOf(bcmv));
   }
 
   public boolean supportsExtendedProductInfo(int brandCodeMapVersion) throws CodeException {
@@ -304,7 +304,7 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
       if (version < 1) throw new CodeException(errMsg);
 
       PSBrandCodeMapVersion mapVersion = new PSBrandCodeMapVersion(version, el);
-      m_brandCodeMapVersions.put(new Integer(version), mapVersion);
+      m_brandCodeMapVersions.put(Integer.valueOf(version), mapVersion);
     }
   }
 
@@ -359,7 +359,7 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
    */
   private Integer verifyBrandCodeMapVersion(int brandCodeMapVersion) throws CodeException {
     if (brandCodeMapVersion > 0) {
-      Integer ret = new Integer(brandCodeMapVersion);
+      Integer ret = Integer.valueOf(brandCodeMapVersion);
       if (m_brandCodeMapVersions.containsKey(ret)) return ret;
     }
     throw new CodeException("Invalid current brand code map version : " + brandCodeMapVersion);

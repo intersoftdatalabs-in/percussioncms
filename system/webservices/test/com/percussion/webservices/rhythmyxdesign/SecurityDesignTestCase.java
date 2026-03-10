@@ -1123,7 +1123,7 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
          // get the visible workflows for all communities
          request = new GetVisibilityByCommunityRequest();
          request.setId(communityIds);
-         request.setType(new Integer(PSTypeEnum.WORKFLOW.getOrdinal()));
+         request.setType(Integer.valueOf(PSTypeEnum.WORKFLOW.getOrdinal()));
          visibilities = binding.getVisibilityByCommunity(request);
          assertTrue(visibilities != null
             && visibilities.length == communityIds.length);
@@ -1142,7 +1142,7 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
          {
             request = new GetVisibilityByCommunityRequest();
             request.setId(communityIds);
-            request.setType(new Integer(PSTypeEnum.CONFIGURATION.getOrdinal()));
+            request.setType(Integer.valueOf(PSTypeEnum.CONFIGURATION.getOrdinal()));
             binding.getVisibilityByCommunity(request);
             assertFalse("Should have thrown exception", true);
          }
@@ -1175,7 +1175,7 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
          // get the visible templates for the Default community
          request = new GetVisibilityByCommunityRequest();
          request.setId(new long[] { defaultCommunity.getId() });
-         request.setType(new Integer(PSTypeEnum.TEMPLATE.getOrdinal()));
+         request.setType(Integer.valueOf(PSTypeEnum.TEMPLATE.getOrdinal()));
          visibilities = binding.getVisibilityByCommunity(request);
          assertTrue(visibilities != null && visibilities.length == 1);
          PSObjectSummary[] visibleObjects = visibilities[0].getVisibleObjects();
@@ -1228,10 +1228,10 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
 
    /**
     * Create an assembly template for testing.
-    * 
+    *
     * @param name the template name, assumed not <code>null</code> or empty.
     * @param session the session used, assumed not <code>null</code> or empty.
-    * @return the new template created, saved and released, never 
+    * @return the new template created, saved and released, never
     *    <code>null</code>.
     * @throws Exception for any error.
     */
@@ -1263,7 +1263,7 @@ public class SecurityDesignTestCase extends PSSecurityTestBase
 
    /**
     * Delete the supplied template.
-    * 
+    *
     * @param name the template name to delete, assumed not <code>null</code> or
     *    empty.
     * @param session the session to use, assumed not <code>null</code> or

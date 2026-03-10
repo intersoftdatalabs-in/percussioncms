@@ -97,7 +97,6 @@ import org.hibernate.Cache;
 import org.hibernate.CacheMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.query.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -493,7 +492,7 @@ public class PSCmsObjectMgr
     public Stream<PSPersistentPropertyMeta> saveAllPersistentMeta(List<PSPersistentPropertyMeta> list) {
 
         Session s = getSession();
-        list.forEach(pm -> s.saveOrUpdate(pm));
+        list.forEach(pm -> s.merge(pm));
 
         return list.stream();
     }
@@ -506,7 +505,7 @@ public class PSCmsObjectMgr
     public void deleteAllPersistentMeta(List<PSPersistentPropertyMeta> list) {
 
         Session s = getSession();
-        list.forEach(pm -> s.delete(pm));
+        list.forEach(pm -> s.remove(pm));
     }
 
     /***
@@ -629,7 +628,7 @@ public class PSCmsObjectMgr
       if (prop == null)
          throw new IllegalArgumentException("prop may not be null.");
 
-      getSession().delete(prop);
+      getSession().remove(prop);
    }
 
    /*
@@ -644,7 +643,7 @@ public class PSCmsObjectMgr
       if (prop == null)
          throw new IllegalArgumentException("prop may not be null.");
 
-      getSession().update(prop);
+      getSession().merge(prop);
    }
 
    /*
@@ -656,7 +655,7 @@ public class PSCmsObjectMgr
     */
    public void saveLocale(PSLocale locale)
    {
-      getSession().saveOrUpdate(locale);
+      getSession().merge(locale);
    }
 
    /*
@@ -667,7 +666,7 @@ public class PSCmsObjectMgr
     */
    public void deleteLocale(PSLocale locale)
    {
-      getSession().delete(locale);
+      getSession().remove(locale);
    }
 
 
@@ -799,14 +798,14 @@ public class PSCmsObjectMgr
    public void saveComponentSummaries(List<PSComponentSummary> summaries) throws PSORMException
    {
       Session session = getSession();
-      summaries.forEach(sum -> session.saveOrUpdate(sum));
+      summaries.forEach(sum -> session.merge(sum));
 
    }
 
    public void deleteComponentSummaries(List<PSComponentSummary> summaries) throws PSORMException
    {
       Session session = getSession();
-      summaries.forEach(sum -> session.delete(sum));
+      summaries.forEach(sum -> session.remove(sum));
    }
 
    public void evictComponentSummaries(List<Integer> ids)
@@ -991,7 +990,7 @@ public class PSCmsObjectMgr
                setRelationshipConfigSet(config, configSet);
          }
 
-         s.update(config);
+         s.merge(config);
 
    }
 
@@ -1048,7 +1047,7 @@ public class PSCmsObjectMgr
             rconfig.setId(id);
             isResetId = true;
             cfgName = new PSRelationshipConfigName(rconfig.getName(), id);
-            s.save(cfgName);
+            s.persist(cfgName);
          }
       }
 
@@ -1101,7 +1100,7 @@ public class PSCmsObjectMgr
             if (!cfgName.getName().equalsIgnoreCase(config.getName()))
             {
                cfgName.setName(config.getName());
-               s.update(cfgName); // update with the new name
+               s.merge(cfgName); // update with the new name
             }
          }
          else
@@ -1116,7 +1115,7 @@ public class PSCmsObjectMgr
                isResetId = true;
             }
             cfgName = new PSRelationshipConfigName(config.getName(), id);
-            s.save(cfgName);
+            s.persist(cfgName);
          }
       }
 
@@ -1126,7 +1125,7 @@ public class PSCmsObjectMgr
       {
          try
          {
-            s.delete(name);
+            s.remove(name);
          }
          catch (Exception e)
          {
@@ -1862,7 +1861,7 @@ public class PSCmsObjectMgr
             else
                 newHistory.setSessionId("");
 
-            session.update(summary);
+            session.merge(summary);
             svc.saveContentStatusHistory(newHistory);
 
             //  Need to update change listeners of checkin
@@ -1956,7 +1955,7 @@ public class PSCmsObjectMgr
             }
 
             folderCount--;
-            PSNotificationHelper.notifyEvent(EventType.WORKFLOW_FOLDER_ASSIGNMENT_QUEUEING, new Integer(-1));
+            PSNotificationHelper.notifyEvent(EventType.WORKFLOW_FOLDER_ASSIGNMENT_QUEUEING, Integer.valueOf(-1));
          }
       }
       finally
@@ -2201,7 +2200,7 @@ public class PSCmsObjectMgr
          List<PSComponentSummary> summaries = loadComponentSummaries(ids);
          for (PSComponentSummary summary : summaries)
          {
-            session.update(summary);
+            session.merge(summary);
          }
 
       }

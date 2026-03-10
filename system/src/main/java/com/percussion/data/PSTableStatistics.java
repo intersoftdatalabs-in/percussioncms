@@ -98,7 +98,7 @@ class PSTableStatistics {
         // consistent hashing
         String[] idxCols = curIdxStat.getSortedColumns();
         int cardinality = curIdxStat.getCardinality();
-        m_uniqueCounts.put(getColumnListString(idxCols), new Integer(cardinality));
+        m_uniqueCounts.put(getColumnListString(idxCols), Integer.valueOf(cardinality));
       }
     }
     // if the index stats did not give us the table cardinality,
@@ -283,7 +283,7 @@ class PSTableStatistics {
         }
 
         // store the results in the ConcurrentHashMap for future use
-        cardinality = new Integer(card);
+        cardinality = Integer.valueOf(card);
         m_uniqueCounts.put(columnList, cardinality);
       } finally {
         try {

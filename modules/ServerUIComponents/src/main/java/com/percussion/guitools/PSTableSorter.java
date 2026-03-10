@@ -554,7 +554,7 @@ public class PSTableSorter extends PSTableMap {
   public void sortByColumn(int column, boolean ascending) {
     m_bAscending = ascending;
 
-    Integer sortColIndex = new Integer(column);
+    Integer sortColIndex = Integer.valueOf(column);
     if (m_sortingColumns.indexOf(sortColIndex) != -1) m_sortingColumns.remove(sortColIndex);
     m_sortingColumns.add(0, sortColIndex);
 

@@ -114,10 +114,10 @@ public class PSUrlUtilsTest
         PSServer.ms_listenerPort = 9992;
         
         PSMockRequestContext reqContextMock = new PSMockRequestContext();
-        URL createdURL = PSUrlUtils.createUrl("server", new Integer("9990"), "test/base.htm", map.entrySet().iterator(), anchor, reqContextMock, true);
+        URL createdURL = PSUrlUtils.createUrl("server", Integer.valueOf("9990"), "test/base.htm", map.entrySet().iterator(), anchor, reqContextMock, true);
         assertEquals("http://server:9990/test/base.htm?p2=v2#a", createdURL.toString());
         
-        createdURL = PSUrlUtils.createUrl("server", new Integer("9989"), "test/base.htm", map.entrySet().iterator(), anchor, reqContextMock, true);
+        createdURL = PSUrlUtils.createUrl("server", Integer.valueOf("9989"), "test/base.htm", map.entrySet().iterator(), anchor, reqContextMock, true);
         assertEquals("http://server:9989/test/base.htm?p2=v2#a", createdURL.toString());
             
         reqContextMock = new PSMockRequestContext();

@@ -25,6 +25,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
@@ -42,7 +43,7 @@ import org.hibernate.annotations.*;
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSMetadataEntry")
-@Table(name = "PERC_PAGE_METADATA")
+@Table(name = "PERC_PAGE_METADATA", indexes = {@Index(name = "typeIndex", columnList = "type")})
 public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
 
   @Id
@@ -67,7 +68,6 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
   @Basic @Nationalized private String linktext_lower;
 
   @Basic
-  @Index(name = "typeIndex")
   @Nationalized
   private String type;
 

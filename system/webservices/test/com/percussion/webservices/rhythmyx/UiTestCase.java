@@ -76,7 +76,7 @@ public class UiTestCase extends PSUiTestBase
    @Test
    public void testUiSOAPLoadDisplayFormats() throws Exception
    {
-      UiSOAPStub binding = getBinding(new Integer(600000));
+      UiSOAPStub binding = getBinding(Integer.valueOf(600000));
       PSTestUtils.setSessionHeader(binding, m_session);
 
       LoadDisplayFormatsRequest req = new LoadDisplayFormatsRequest();

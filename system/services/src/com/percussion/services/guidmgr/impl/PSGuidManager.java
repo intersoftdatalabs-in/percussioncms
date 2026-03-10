@@ -173,7 +173,7 @@ public class PSGuidManager implements IPSGuidManager
                hostid = rand.nextInt() & 0x00FFFFFF;
             }
             host.setValue(hostid);
-            sess.saveOrUpdate(host);
+            sess.merge(host);
             if (ip1 == null)
             {
                ip1 = new PSGuidGeneratorData(IP_KEY1, 0);
@@ -184,8 +184,8 @@ public class PSGuidManager implements IPSGuidManager
             }
             ip1.setValue(PSConversions.byteArrayToLong(hostip, 0));
             ip2.setValue(PSConversions.byteArrayToLong(hostip, 8));
-            sess.saveOrUpdate(ip1);
-            sess.saveOrUpdate(ip2);
+            sess.merge(ip1);
+            sess.merge(ip2);
          }
 
          ms_hostId = host.getValue();
@@ -448,7 +448,7 @@ public class PSGuidManager implements IPSGuidManager
          int next = current + blocksize;
          data.setNext(next);
          try {
-            s.update(data);
+            s.merge(data);
             s.flush();
          } catch (HibernateException e1) {
             throw new RuntimeException("Could not create or save next number info");
@@ -548,7 +548,7 @@ public class PSGuidManager implements IPSGuidManager
       data.setValue(next);
       try
       {
-         s.update(data);
+         s.merge(data);
       }
       catch (HibernateException e1)
       {

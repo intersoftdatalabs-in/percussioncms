@@ -71,7 +71,7 @@ public final class PSTouchParentHelper
    protected int touchItemAndParents(IPSRequestContext request,
          PSRelationship rel) throws Exception
    {
-      Integer dependentId = new Integer(rel.getDependent().getId());
+      Integer dependentId = Integer.valueOf(rel.getDependent().getId());
       return touchItemAndParents(request, dependentId);
    }
 
@@ -150,7 +150,7 @@ public final class PSTouchParentHelper
       // process a group (1000 items) at a time
       for (int i = 0; i < locators.length; i++)
       {
-         id = new Integer(locators[i].getPartAsInt("CONTENTID"));
+         id = Integer.valueOf(locators[i].getPartAsInt("CONTENTID"));
          if (processedIds.contains(id))
             continue;
 

@@ -59,7 +59,7 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
   public java.sql.ResultSet getServers() throws SQLException {
 
     HashMap cols = new HashMap(1);
-    cols.put("SERVER_NAME", new Integer(1));
+    cols.put("SERVER_NAME", Integer.valueOf(1));
 
     /* the native method returns an array of strings with each string
      * representing one DSN

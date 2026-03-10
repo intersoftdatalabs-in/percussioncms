@@ -1028,7 +1028,7 @@
 								file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.properties"
 								summary="yes">
 								<replacetoken><![CDATA[org.hibernate.dialect.MySQLInnoDBDialect]]></replacetoken>
-								<replacevalue><![CDATA[org.hibernate.dialect.MySQL5InnoDBDialect]]></replacevalue>
+								<replacevalue><![CDATA[org.hibernate.dialect.MySQLDialect]]></replacevalue>
 							</replace>
 						</then>
 					</if>

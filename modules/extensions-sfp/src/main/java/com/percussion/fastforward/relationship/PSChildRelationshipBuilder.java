@@ -171,7 +171,7 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
     // remove any relationships from the set that are not being removed
     for (Iterator iter = relationships.iterator(); iter.hasNext(); ) {
       PSRelationship r = (PSRelationship) iter.next();
-      Integer ownerId = new Integer(r.getOwner().getId());
+      Integer ownerId = Integer.valueOf(r.getOwner().getId());
       if (!idsToRemove.contains(ownerId)) {
         iter.remove();
       }
@@ -216,7 +216,7 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
         convertedList.add((Integer) id);
       } else {
         try {
-          convertedList.add(new Integer(id.toString()));
+          convertedList.add(Integer.valueOf(id.toString()));
         } catch (NumberFormatException e) {
           // skip any non-parsables
           m_log.warn("skipping non-parsable element in array <" + id + ">");

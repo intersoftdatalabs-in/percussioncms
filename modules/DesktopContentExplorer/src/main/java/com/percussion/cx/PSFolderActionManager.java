@@ -583,7 +583,7 @@ public class PSFolderActionManager {
         // add the source-target site map to our copy options
         String sourceId = PSXMLDomUtil.getAttributeTrimmed(root, "sourceSiteId");
         String copyId = PSXMLDomUtil.getAttributeTrimmed(root, "copySiteId");
-        options.addSiteMapping(new Integer(sourceId), new Integer(copyId));
+        options.addSiteMapping(Integer.valueOf(sourceId), Integer.valueOf(copyId));
       }
     } catch (Exception e) {
       throw new PSCmsException(IPSContentExplorerErrors.GENERAL_ERROR, e.getMessage());

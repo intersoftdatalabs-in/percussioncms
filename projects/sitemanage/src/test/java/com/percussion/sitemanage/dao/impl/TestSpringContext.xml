@@ -16,7 +16,7 @@
 		</property>
 		<property name="jpaProperties">
 			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.DerbyTenSevenDialect</prop>
+				<prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
 				<prop key="hibernate.physical_naming_strategy">org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy</prop>
 				<prop key="hibernate.implicit_naming_strategy">org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</prop>
 			</props>

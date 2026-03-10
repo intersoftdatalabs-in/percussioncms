@@ -189,7 +189,7 @@ public abstract class PSJdbcTableComponent {
   public int hashCode() {
     int hash = 0;
     if (null != m_name) hash += m_name.hashCode();
-    hash += (new Integer(m_action)).hashCode();
+    hash += (Integer.valueOf(m_action)).hashCode();
     return hash;
   }
 

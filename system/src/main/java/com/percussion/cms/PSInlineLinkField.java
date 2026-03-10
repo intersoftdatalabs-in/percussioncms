@@ -564,7 +564,7 @@ public class PSInlineLinkField {
     String relationshipid = elem.getAttribute(IPSHtmlParameters.SYS_RELATIONSHIPID);
     if (relationshipid.trim().length() == 0) return;
 
-    PSRelationship relationship = (PSRelationship) relationshipMap.get(new Integer(relationshipid));
+    PSRelationship relationship = (PSRelationship) relationshipMap.get(Integer.valueOf(relationshipid));
 
     if (relationship == null) return;
     else if (modified != null) modified.add(relationship);

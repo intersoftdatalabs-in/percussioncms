@@ -260,7 +260,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
       version = workflow.getVersion();
     } else {
       // workflow doesn't exist
-      version = new Integer(0);
+      version = Integer.valueOf(0);
     }
 
     // update the version in dependency table data

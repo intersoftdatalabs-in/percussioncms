@@ -339,7 +339,7 @@ public class PSPublishingContext implements IPSCatalogItem,
          setDescription(null);
             
       int idAttr = PSXmlUtils.checkAttributeInt(elem, XML_ATTR_ID_NAME, true);
-      setId(new Integer(idAttr));
+      setId(Integer.valueOf(idAttr));
       
       String nameAttr = PSXmlUtils.checkAttribute(elem, XML_ATTR_NAME, true);
       setName(nameAttr);

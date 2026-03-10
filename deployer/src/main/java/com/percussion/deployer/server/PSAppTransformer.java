@@ -2756,7 +2756,7 @@ public class PSAppTransformer {
         ((IPSMutatableReplacementValue) value).setValueText(newValue);
       } else if (value instanceof PSNumericLiteral) {
         int newId = getNewId(mapping, idMap);
-        ((PSNumericLiteral) value).setNumber(new Integer(newId));
+        ((PSNumericLiteral) value).setNumber(Integer.valueOf(newId));
       }
     }
   }

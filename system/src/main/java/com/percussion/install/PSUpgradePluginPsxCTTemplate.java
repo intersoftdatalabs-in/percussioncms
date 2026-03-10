@@ -350,7 +350,7 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
     ResultSet rs = stmt.executeQuery(queryStmt);
     Map labelsIds = new HashMap();
 
-    while (rs.next()) labelsIds.put(new Integer(rs.getInt(2)), rs.getString(1));
+    while (rs.next()) labelsIds.put(Integer.valueOf(rs.getInt(2)), rs.getString(1));
 
     int rowsUpdated = 0;
     Iterator keyIter = labelsIds.keySet().iterator();

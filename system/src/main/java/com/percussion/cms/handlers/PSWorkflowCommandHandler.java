@@ -875,7 +875,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
       Map params = request.getParameters();
 
       // get parent page with pageId = 0
-      Integer parentPageId = new Integer(0);
+      Integer parentPageId = Integer.valueOf(0);
       params.put(PSContentEditorHandler.PAGE_ID_PARAM_NAME, parentPageId.toString());
       String cmdHandlerName = PSEditCommandHandler.COMMAND_NAME;
       Document doc = rh.makeInternalRequest(request, cmdHandlerName);
@@ -922,7 +922,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
             // remove the child row id param name. Assume parent page
             // does not have this parameter.
             params.remove(PSContentEditorHandler.CHILD_ROW_ID_PARAM_NAME);
-            childMap.put(new Integer(rownum), childDoc);
+            childMap.put(Integer.valueOf(rownum), childDoc);
           }
           /*
            * if child Map is empty that means that the table has no row.
@@ -932,10 +932,10 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
           if (childMap.isEmpty()) {
             params.put(PSContentEditorHandler.PAGE_ID_PARAM_NAME, Integer.toString(childPageId));
             Document childDoc = rh.makeInternalRequest(request, cmdHandlerName);
-            childMap.put(new Integer(childPageId), childDoc);
+            childMap.put(Integer.valueOf(childPageId), childDoc);
           }
-          mi_pageMap.put(new Integer(childPageId), childMap);
-          int max = getMaxErrorsToStop(new Integer(childPageId));
+          mi_pageMap.put(Integer.valueOf(childPageId), childMap);
+          int max = getMaxErrorsToStop(Integer.valueOf(childPageId));
           if (max < maxErrorsToStop) maxErrorsToStop = max;
         }
       }

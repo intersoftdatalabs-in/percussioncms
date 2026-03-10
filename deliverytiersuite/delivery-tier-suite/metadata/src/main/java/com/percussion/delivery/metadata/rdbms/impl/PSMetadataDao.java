@@ -99,7 +99,7 @@ public class PSMetadataDao implements IPSMetadataDao {
       Transaction tx = null;
       try (Session session = getSession()) {
         tx = session.beginTransaction();
-        session.delete(entry);
+        session.remove(entry);
         tx.commit();
         return true;
       } catch (Exception e) {

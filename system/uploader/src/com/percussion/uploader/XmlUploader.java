@@ -139,7 +139,7 @@ public class XmlUploader
       }
       if (args.containsKey(Utils.TIMEOUT_OPTION))
       {
-         Integer timeout = new Integer((String) args.get(Utils.TIMEOUT_OPTION));
+         Integer timeout = Integer.valueOf((String) args.get(Utils.TIMEOUT_OPTION));
          m_timeout = timeout * 1000; // Convert to millis
       }
 

@@ -1560,11 +1560,11 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
 
     // build the column name -> number mapping
     HashMap columnNames = new HashMap();
-    columnNames.put("TABLE_CAT", new Integer(1));
-    columnNames.put("TABLE_SCHEM", new Integer(2));
-    columnNames.put("TABLE_NAME", new Integer(3));
-    columnNames.put("TABLE_TYPE", new Integer(4));
-    columnNames.put("REMARKS", new Integer(5));
+    columnNames.put("TABLE_CAT", Integer.valueOf(1));
+    columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
+    columnNames.put("TABLE_NAME", Integer.valueOf(3));
+    columnNames.put("TABLE_TYPE", Integer.valueOf(4));
+    columnNames.put("REMARKS", Integer.valueOf(5));
 
     // put it all in the result set and return it
     return new PSResultSet(
@@ -1652,7 +1652,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
         });
 
     java.util.HashMap columnNames = new java.util.HashMap();
-    columnNames.put("TABLE_CAT", new Integer(1));
+    columnNames.put("TABLE_CAT", Integer.valueOf(1));
     return new PSResultSet(new ArrayList[] {v}, columnNames, ms_getCatalogsRSMeta);
   }
 
@@ -1674,7 +1674,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     v.add("DIRECTORY");
     v.add("FILE");
     java.util.HashMap columnNames = new java.util.HashMap();
-    columnNames.put("TABLE_TYPE", new Integer(1));
+    columnNames.put("TABLE_TYPE", Integer.valueOf(1));
     return new PSResultSet(new ArrayList[] {v}, columnNames, ms_getTableTypesRSMeta);
   }
 
@@ -1827,7 +1827,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
      */
     ArrayList is_nullable = new ArrayList();
 
-    Integer zero = new Integer(0);
+    Integer zero = Integer.valueOf(0);
 
     /* this is not a Phase 1 thing (contents not supported)
     if (columnNameFilt.doesMatchPattern("contents"))
@@ -1835,19 +1835,19 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     table_schem.add(null);
     table_name.add(null);
     column_name.add("fullname");
-    data_type.add(new Integer(java.sql.Types.VARCHAR));
+    data_type.add(Integer.valueOf(java.sql.Types.VARCHAR));
     type_name.add("java.lang.String");
-    column_size.add(new Integer(1024));
+    column_size.add(Integer.valueOf(1024));
     buffer_length.add(zero);
     decimal_digits.add(zero);
     num_prec_radix.add(zero);
-    nullable.add(new Integer(columnNoNulls));
+    nullable.add(Integer.valueOf(columnNoNulls));
     remarks.add(null);
     column_def.add(null);
     sql_data_type.add(zero);
     sql_datetime_sub.add(zero);
-    char_octet_length.add(new Integer(2048));
-    ordinal_position.add(new Integer(5));
+    char_octet_length.add(Integer.valueOf(2048));
+    ordinal_position.add(Integer.valueOf(5));
     is_nullable.add("");
     }
     */
@@ -1856,19 +1856,19 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
       table_schem.add(null);
       table_name.add(null);
       column_name.add("fullname");
-      data_type.add(new Integer(java.sql.Types.VARCHAR));
+      data_type.add(Integer.valueOf(java.sql.Types.VARCHAR));
       type_name.add("java.lang.String");
-      column_size.add(new Integer(1024));
+      column_size.add(Integer.valueOf(1024));
       buffer_length.add(zero);
       decimal_digits.add(zero);
       num_prec_radix.add(zero);
-      nullable.add(new Integer(columnNoNulls));
+      nullable.add(Integer.valueOf(columnNoNulls));
       remarks.add(null);
       column_def.add(null);
       sql_data_type.add(zero);
       sql_datetime_sub.add(zero);
-      char_octet_length.add(new Integer(2048));
-      ordinal_position.add(new Integer(3));
+      char_octet_length.add(Integer.valueOf(2048));
+      ordinal_position.add(Integer.valueOf(3));
       is_nullable.add("");
     }
     if (columnNameFilt.doesMatchPattern("length")) {
@@ -1876,20 +1876,20 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
       table_schem.add(null);
       table_name.add(null);
       column_name.add("length");
-      data_type.add(new Integer(java.sql.Types.BIGINT));
+      data_type.add(Integer.valueOf(java.sql.Types.BIGINT));
       type_name.add("long");
       // there are 19 digits in 2^64, so precision is 19
-      column_size.add(new Integer(19));
+      column_size.add(Integer.valueOf(19));
       buffer_length.add(zero);
       decimal_digits.add(zero);
       num_prec_radix.add(zero);
-      nullable.add(new Integer(columnNoNulls));
+      nullable.add(Integer.valueOf(columnNoNulls));
       remarks.add(null);
       column_def.add(null);
       sql_data_type.add(zero);
       sql_datetime_sub.add(zero);
-      char_octet_length.add(new Integer(8));
-      ordinal_position.add(new Integer(5));
+      char_octet_length.add(Integer.valueOf(8));
+      ordinal_position.add(Integer.valueOf(5));
       is_nullable.add("");
     }
     if (columnNameFilt.doesMatchPattern("modified")) {
@@ -1897,20 +1897,20 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
       table_schem.add(null);
       table_name.add(null);
       column_name.add("modified");
-      data_type.add(new Integer(java.sql.Types.DATE));
+      data_type.add(Integer.valueOf(java.sql.Types.DATE));
       type_name.add("java.util.Date");
       // there are 19 digits in 2^64, so precision is 19
-      column_size.add(new Integer(19));
+      column_size.add(Integer.valueOf(19));
       buffer_length.add(zero);
       decimal_digits.add(zero);
       num_prec_radix.add(zero);
-      nullable.add(new Integer(columnNoNulls));
+      nullable.add(Integer.valueOf(columnNoNulls));
       remarks.add(null);
       column_def.add(null);
       sql_data_type.add(zero);
       sql_datetime_sub.add(zero);
-      char_octet_length.add(new Integer(8));
-      ordinal_position.add(new Integer(4));
+      char_octet_length.add(Integer.valueOf(8));
+      ordinal_position.add(Integer.valueOf(4));
       is_nullable.add("");
     }
     if (columnNameFilt.doesMatchPattern("name")) {
@@ -1918,19 +1918,19 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
       table_schem.add(null);
       table_name.add(null);
       column_name.add("name");
-      data_type.add(new Integer(java.sql.Types.VARCHAR));
+      data_type.add(Integer.valueOf(java.sql.Types.VARCHAR));
       type_name.add("java.lang.String");
-      column_size.add(new Integer(1024));
+      column_size.add(Integer.valueOf(1024));
       buffer_length.add(zero);
       decimal_digits.add(zero);
       num_prec_radix.add(zero);
-      nullable.add(new Integer(columnNoNulls));
+      nullable.add(Integer.valueOf(columnNoNulls));
       remarks.add(null);
       column_def.add(null);
       sql_data_type.add(zero);
       sql_datetime_sub.add(zero);
-      char_octet_length.add(new Integer(2048));
-      ordinal_position.add(new Integer(2));
+      char_octet_length.add(Integer.valueOf(2048));
+      ordinal_position.add(Integer.valueOf(2));
       is_nullable.add("");
     }
     if (columnNameFilt.doesMatchPattern("path")) {
@@ -1938,41 +1938,41 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
       table_schem.add(null);
       table_name.add(null);
       column_name.add("path");
-      data_type.add(new Integer(java.sql.Types.VARCHAR));
+      data_type.add(Integer.valueOf(java.sql.Types.VARCHAR));
       type_name.add("java.lang.String");
-      column_size.add(new Integer(1024));
+      column_size.add(Integer.valueOf(1024));
       buffer_length.add(zero);
       decimal_digits.add(zero);
       num_prec_radix.add(zero);
-      nullable.add(new Integer(columnNoNulls));
+      nullable.add(Integer.valueOf(columnNoNulls));
       remarks.add(null);
       column_def.add(null);
       sql_data_type.add(zero);
       sql_datetime_sub.add(zero);
-      char_octet_length.add(new Integer(2048));
-      ordinal_position.add(new Integer(1));
+      char_octet_length.add(Integer.valueOf(2048));
+      ordinal_position.add(Integer.valueOf(1));
       is_nullable.add("");
     }
 
     java.util.HashMap columnNames = new java.util.HashMap();
-    columnNames.put("TABLE_CAT", new Integer(1));
-    columnNames.put("TABLE_SCHEM", new Integer(2));
-    columnNames.put("TABLE_NAME", new Integer(3));
-    columnNames.put("COLUMN_NAME", new Integer(4));
-    columnNames.put("DATA_TYPE", new Integer(5));
-    columnNames.put("TYPE_NAME", new Integer(6));
-    columnNames.put("COLUMN_SIZE", new Integer(7));
-    columnNames.put("BUFFER_LENGTH", new Integer(8));
-    columnNames.put("DECIMAL_DIGITS", new Integer(9));
-    columnNames.put("NUM_PREC_RADIX", new Integer(10));
-    columnNames.put("NULLABLE", new Integer(11));
-    columnNames.put("REMARKS", new Integer(12));
-    columnNames.put("COLUMN_DEF", new Integer(13));
-    columnNames.put("SQL_DATA_TYPE", new Integer(14));
-    columnNames.put("SQL_DATETIME_SUB", new Integer(15));
-    columnNames.put("CHAR_OCTET_LENGTH", new Integer(16));
-    columnNames.put("ORDINAL_POSITION", new Integer(17));
-    columnNames.put("IS_NULLABLE", new Integer(18));
+    columnNames.put("TABLE_CAT", Integer.valueOf(1));
+    columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
+    columnNames.put("TABLE_NAME", Integer.valueOf(3));
+    columnNames.put("COLUMN_NAME", Integer.valueOf(4));
+    columnNames.put("DATA_TYPE", Integer.valueOf(5));
+    columnNames.put("TYPE_NAME", Integer.valueOf(6));
+    columnNames.put("COLUMN_SIZE", Integer.valueOf(7));
+    columnNames.put("BUFFER_LENGTH", Integer.valueOf(8));
+    columnNames.put("DECIMAL_DIGITS", Integer.valueOf(9));
+    columnNames.put("NUM_PREC_RADIX", Integer.valueOf(10));
+    columnNames.put("NULLABLE", Integer.valueOf(11));
+    columnNames.put("REMARKS", Integer.valueOf(12));
+    columnNames.put("COLUMN_DEF", Integer.valueOf(13));
+    columnNames.put("SQL_DATA_TYPE", Integer.valueOf(14));
+    columnNames.put("SQL_DATETIME_SUB", Integer.valueOf(15));
+    columnNames.put("CHAR_OCTET_LENGTH", Integer.valueOf(16));
+    columnNames.put("ORDINAL_POSITION", Integer.valueOf(17));
+    columnNames.put("IS_NULLABLE", Integer.valueOf(18));
 
     return new PSResultSet(
         new ArrayList[] {
@@ -2184,17 +2184,17 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
     table_schem.add(schema);
     table_name.add(table);
     column_name.add("fullname");
-    key_seq.add(new Integer(1));
+    key_seq.add(Integer.valueOf(1));
     pk_name.add(null);
 
     java.util.HashMap columnNames = new java.util.HashMap();
 
-    columnNames.put("TABLE_CAT", new Integer(1));
-    columnNames.put("TABLE_SCHEM", new Integer(2));
-    columnNames.put("TABLE_NAME", new Integer(3));
-    columnNames.put("COLUMN_NAME", new Integer(4));
-    columnNames.put("KEY_SEQ", new Integer(5));
-    columnNames.put("PK_NAME", new Integer(6));
+    columnNames.put("TABLE_CAT", Integer.valueOf(1));
+    columnNames.put("TABLE_SCHEM", Integer.valueOf(2));
+    columnNames.put("TABLE_NAME", Integer.valueOf(3));
+    columnNames.put("COLUMN_NAME", Integer.valueOf(4));
+    columnNames.put("KEY_SEQ", Integer.valueOf(5));
+    columnNames.put("PK_NAME", Integer.valueOf(6));
 
     return new PSResultSet(
         new ArrayList[] {table_cat, table_schem, table_name, column_name, key_seq, pk_name},

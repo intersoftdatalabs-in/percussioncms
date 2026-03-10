@@ -39,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
  * parameter, we need to build the following Object array:
  *
  * <PRE><CODE>
- *    Object[] args = { new Integer(1), new Date() };
+ *    Object[] args = { Integer.valueOf(1), new Date() };
  * </CODE></PRE>
  *
  * When the message is retrieved from the exception, it will look as follows:

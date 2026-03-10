@@ -279,7 +279,7 @@ public class PSOSimpleSqlQuery {
       if (ms_log.isDebugEnabled()) {
         int j = i + 1;
         Object[] msg = new Object[4];
-        msg[0] = new Integer(j);
+        msg[0] = Integer.valueOf(j);
         msg[1] = meta.getColumnName(j);
         msg[2] = meta.getColumnTypeName(j);
         msg[3] = meta.getColumnClassName(j);

@@ -59,7 +59,7 @@ public class PSONextNumberUDF extends PSSimpleJavaUdfExtension implements IPSUdf
     }
 
     try {
-      return new Integer(PSIdGenerator.getNextId(keyName));
+      return Integer.valueOf(PSIdGenerator.getNextId(keyName));
     } catch (SQLException ex) {
       String emsg = "Database Error Allocating ID";
       log.error("Database Error Allocating ID Error: {}", ex.getMessage());

@@ -305,7 +305,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
     // throw exception if insufficient number of params provided
     if (reqParamsCount != providedParamsCount) {
       Object[] args =
-          new Object[] {new Integer(providedParamsCount), dbFuncName, new Integer(reqParamsCount)};
+          new Object[] {Integer.valueOf(providedParamsCount), dbFuncName, Integer.valueOf(reqParamsCount)};
       throw new PSDataExtractionException(
           IPSObjectStoreErrors.DATABASE_FUNCTION_CALL_PARAM_COUNT_MISMATCH, args);
     }

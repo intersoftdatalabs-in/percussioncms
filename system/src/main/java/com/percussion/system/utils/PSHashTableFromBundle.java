@@ -44,7 +44,7 @@ import java.util.ResourceBundle;
  *         {
  *            try
  *            {
- *               put(new Integer(key), new URL(value));
+ *               put(Integer.valueOf(key), new URL(value));
  *            }
  *            catch (java.net.MalformedURLException e) {}
  *         }
@@ -94,6 +94,6 @@ public class PSHashTableFromBundle extends Hashtable {
    * be somehow built using a string.
    */
   protected void putHash(int key, String value) {
-    put(new Integer(key), value);
+    put(Integer.valueOf(key), value);
   }
 }

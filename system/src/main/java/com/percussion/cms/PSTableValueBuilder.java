@@ -214,10 +214,10 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
     Map allParams = def.getInitParams();
     List cmdParams = (List) allParams.get(PSEditCommandHandler.COMMAND_NAME);
     Object[][] vals = {
-      {new Integer(MODIFY_INDEX), "com.percussion.rowModifyImage"},
-      {new Integer(DELETE_INDEX), "com.percussion.rowDeleteImage"},
-      {new Integer(MOVEUP_INDEX), "com.percussion.rowMoveUpImage"},
-      {new Integer(MOVEDOWN_INDEX), "com.percussion.rowMoveDownImage"},
+      {Integer.valueOf(MODIFY_INDEX), "com.percussion.rowModifyImage"},
+      {Integer.valueOf(DELETE_INDEX), "com.percussion.rowDeleteImage"},
+      {Integer.valueOf(MOVEUP_INDEX), "com.percussion.rowMoveUpImage"},
+      {Integer.valueOf(MOVEDOWN_INDEX), "com.percussion.rowMoveDownImage"},
     };
 
     for (int i = 0; i < vals.length; i++) {
@@ -436,7 +436,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
       params.add(new PSMapPair(commandParamName, PSEditCommandHandler.COMMAND_NAME));
       params.add(new PSMapPair(rowIdParamName, rowId));
       PSPageInfo info =
-          (PSPageInfo) docContext.getPageInfoMap().get(new Integer(m_parentBuilder.getPageId()));
+          (PSPageInfo) docContext.getPageInfoMap().get(Integer.valueOf(m_parentBuilder.getPageId()));
       params.add(new PSMapPair(pageIdParamName, info.getPageIdList().next().toString()));
       params.add(new PSMapPair(IPSHtmlParameters.SYS_VIEW, view));
       elem = m_parentBuilder.createActionElement(doc, "Edit", params.iterator(), true);

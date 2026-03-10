@@ -434,7 +434,7 @@ public class PSCloningOptions extends PSComponent {
           throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
         }
 
-        m_communityMappings.put(new Integer(sourceId), new Integer(targetId));
+        m_communityMappings.put(Integer.valueOf(sourceId), Integer.valueOf(targetId));
 
         mapping = walker.getNextElement(true);
       }
@@ -464,7 +464,7 @@ public class PSCloningOptions extends PSComponent {
           throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
         }
 
-        m_siteMappings.put(new Integer(sourceId), new Integer(targetId));
+        m_siteMappings.put(Integer.valueOf(sourceId), Integer.valueOf(targetId));
 
         mapping = walker.getNextElement(true);
       }

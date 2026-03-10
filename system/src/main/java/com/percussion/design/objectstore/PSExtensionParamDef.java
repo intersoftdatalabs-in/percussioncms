@@ -100,7 +100,7 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
       return new IllegalArgumentException("Exit param name empty");
     else if (name.length() > EXIT_PARAM_MAX_NAME_LEN) {
       @SuppressWarnings("unused")
-      Object[] args = {new Integer(EXIT_PARAM_MAX_NAME_LEN), new Integer(name.length())};
+      Object[] args = {Integer.valueOf(EXIT_PARAM_MAX_NAME_LEN), Integer.valueOf(name.length())};
       return new IllegalArgumentException("Exit param name too big");
     }
 
@@ -134,7 +134,7 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   private static IllegalArgumentException validateDataType(String dataType) {
     if ((null != dataType) && (dataType.length() > EXIT_PARAM_MAX_DT_LEN)) {
       @SuppressWarnings("unused")
-      Object[] args = {new Integer(EXIT_PARAM_MAX_DT_LEN), new Integer(dataType.length())};
+      Object[] args = {Integer.valueOf(EXIT_PARAM_MAX_DT_LEN), Integer.valueOf(dataType.length())};
       return new IllegalArgumentException("Exit param name too big");
     }
 

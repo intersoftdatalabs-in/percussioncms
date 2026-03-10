@@ -171,8 +171,8 @@ public class PSFieldRetriever {
   private Map prepareParams(PSLocator itemId, String fieldName, int childRowId) {
     Map<String, Object> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_COMMAND, IPSMimeContentTypes.MIME_ENC_BINARY);
-    params.put(IPSHtmlParameters.SYS_CONTENTID, new Integer(itemId.getId()));
-    params.put(IPSHtmlParameters.SYS_REVISION, new Integer(itemId.getRevision()));
+    params.put(IPSHtmlParameters.SYS_CONTENTID, Integer.valueOf(itemId.getId()));
+    params.put(IPSHtmlParameters.SYS_REVISION, Integer.valueOf(itemId.getRevision()));
     params.put(IPSConstants.SUBMITNAME_PARAM_NAME, fieldName);
 
     if (childRowId >= 0) params.put("sys_childrowid", Integer.toString(childRowId));

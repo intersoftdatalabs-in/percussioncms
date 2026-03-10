@@ -456,7 +456,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
 
     Object link =
         previewUrlGenerator.call(
-            new Integer(contentid.intValue()), new Integer(revision.intValue()));
+            Integer.valueOf(contentid.intValue()), Integer.valueOf(revision.intValue()));
     return (String) link;
   }
 

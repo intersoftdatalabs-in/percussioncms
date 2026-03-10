@@ -143,9 +143,9 @@ public class PSCloningOptionsTest
    public void testPublicAPI() throws Exception
    {
       Map communityMappings = new HashMap();
-      communityMappings.put(new Integer(1), new Integer(2));
-      communityMappings.put(new Integer(3), new Integer(4));
-      communityMappings.put(new Integer(5), new Integer(6));
+      communityMappings.put(Integer.valueOf(1), Integer.valueOf(2));
+      communityMappings.put(Integer.valueOf(3), Integer.valueOf(4));
+      communityMappings.put(Integer.valueOf(5), Integer.valueOf(6));
 
       PSCloningOptions options_1 = new PSCloningOptions(
          PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
@@ -185,9 +185,9 @@ public class PSCloningOptionsTest
          PSCloningOptions.TYPE_SITE_SUBFOLDER, "folderName",
          PSCloningOptions.COPY_NAVIGATION_CONTENT,
          PSCloningOptions.COPYCONTENT_AS_LINK, null);
-      options_4.addSiteMapping(new Integer(100), new Integer(201));
-      options_4.addSiteMapping(new Integer(101), new Integer(202));
-      options_4.addSiteMapping(new Integer(102), new Integer(203));
+      options_4.addSiteMapping(Integer.valueOf(100), Integer.valueOf(201));
+      options_4.addSiteMapping(Integer.valueOf(101), Integer.valueOf(202));
+      options_4.addSiteMapping(Integer.valueOf(102), Integer.valueOf(203));
       PSCloningOptions options_4_copy =
          new PSCloningOptions(options_4.toXml(doc), null, null);
       assertTrue(options_4.equals(options_4_copy));
@@ -196,9 +196,9 @@ public class PSCloningOptionsTest
          PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
          PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
          communityMappings);
-      options_5.addSiteMapping(new Integer(100), new Integer(201));
-      options_5.addSiteMapping(new Integer(101), new Integer(202));
-      options_5.addSiteMapping(new Integer(102), new Integer(203));
+      options_5.addSiteMapping(Integer.valueOf(100), Integer.valueOf(201));
+      options_5.addSiteMapping(Integer.valueOf(101), Integer.valueOf(202));
+      options_5.addSiteMapping(Integer.valueOf(102), Integer.valueOf(203));
       PSCloningOptions options_5_copy =
          new PSCloningOptions(options_5.toXml(doc), null, null);
       assertTrue(options_5.equals(options_5_copy));

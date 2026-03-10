@@ -54,7 +54,7 @@ import java.util.MissingResourceException;
  *    // let's assume the returned message is:
  *    //    "param 1={0}, param 2 date={1,date}, param 2 time={1,time}"
  *
- *    Object[] args = { new Integer(1), new Date() };
+ *    Object[] args = { Integer.valueOf(1), new Date() };
  *
  *    String displayMsg = PSErrorManager.createMessage(msg, args);
  *

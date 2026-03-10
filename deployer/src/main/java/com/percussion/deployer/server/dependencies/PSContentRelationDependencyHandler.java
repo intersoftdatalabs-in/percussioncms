@@ -338,7 +338,7 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
 
         // save old id and object in the map for inline link processing
         if (newSlotId != null && PSInlineLinkField.isInlineSlot(newSlotId))
-          relationshipMap.put(new Integer(rel.getId()), rel);
+          relationshipMap.put(Integer.valueOf(rel.getId()), rel);
 
         // make sure we insert - new id will be set on the object when saved
         rel.setId(-1);

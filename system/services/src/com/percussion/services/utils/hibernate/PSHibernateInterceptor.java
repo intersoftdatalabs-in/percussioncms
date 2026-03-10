@@ -23,7 +23,6 @@ import com.percussion.services.security.data.PSAccessLevelImpl;
 import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.utils.guid.IPSGuid;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -31,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.EmptyInterceptor;
+import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.hibernate.type.Type;
@@ -46,7 +45,7 @@ import org.hibernate.type.Type;
  *
  * @author dougrand
  */
-public class PSHibernateInterceptor extends EmptyInterceptor {
+public class PSHibernateInterceptor implements Interceptor {
 
     /**
      * Serialization global id
@@ -129,7 +128,7 @@ public class PSHibernateInterceptor extends EmptyInterceptor {
 
     @Override
     public void onDelete(Object entity,
-                        @SuppressWarnings("unused") Serializable id,
+                        @SuppressWarnings("unused") Object id,
                         @SuppressWarnings("unused") Object[] state,
                         @SuppressWarnings("unused") String[] propertyNames,
                         @SuppressWarnings("unused") Type[] types) {
@@ -163,7 +162,7 @@ public class PSHibernateInterceptor extends EmptyInterceptor {
 
     @Override
     public boolean onSave(Object entity,
-                         @SuppressWarnings("unused") Serializable id,
+                         @SuppressWarnings("unused") Object id,
                          @SuppressWarnings("unused") Object[] state,
                          @SuppressWarnings("unused") String[] propertyNames,
                          @SuppressWarnings("unused") Type[] types) {
@@ -178,7 +177,7 @@ public class PSHibernateInterceptor extends EmptyInterceptor {
 
     @Override
     public boolean onLoad(Object entity,
-                         @SuppressWarnings("unused") Serializable id,
+                         @SuppressWarnings("unused") Object id,
                          @SuppressWarnings("unused") Object[] state,
                          @SuppressWarnings("unused") String[] propertyNames,
                          @SuppressWarnings("unused") Type[] types) {
@@ -192,8 +191,6 @@ public class PSHibernateInterceptor extends EmptyInterceptor {
 
     @Override
     public void afterTransactionBegin(Transaction tx) {
-        super.afterTransactionBegin(tx);
-
         var stack = ms_pendingChanges.get();
         stack.push(new HashSet<>());
         ms_log.debug("Transaction begun, pushed new change set. Stack depth: {}", stack.size());
@@ -201,8 +198,6 @@ public class PSHibernateInterceptor extends EmptyInterceptor {
 
     @Override
     public void afterTransactionCompletion(Transaction tx) {
-        super.afterTransactionCompletion(tx);
-
         var stack = ms_pendingChanges.get();
         if (stack.isEmpty()) {
             ms_log.warn("Transaction completed but no pending changes found");

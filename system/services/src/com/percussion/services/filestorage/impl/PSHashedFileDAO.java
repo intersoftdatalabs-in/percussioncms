@@ -81,7 +81,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
 
    /**
-    * 
+    *
     */
    public PSHashedFileDAO()
    {
@@ -94,10 +94,10 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
    public void save(PSBinary binary)
    {
-      getSession().saveOrUpdate(binary);
-      getSession().saveOrUpdate(binary.getData());
+      getSession().merge(binary);
+      getSession().merge(binary.getData());
    }
-  
+
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSHashedFileDAO#findOrCreateMetaKey(java.lang.String, boolean)
     */
@@ -179,14 +179,14 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
       return result;
    }
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSHashedFileDAO#deleteOlderThan(int)
     */
    public long deleteOlderThan(int days)
-   { 
+   {
 
-      
+
       Date testDate = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -days);
 
       int deleteddata =  getSession().createQuery(
@@ -203,12 +203,12 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
             "delete from PSBinary b where (b.lastAccessedDate < :testDate )")
             .setParameter("testDate", testDate)
             .executeUpdate();
-      
+
       log.debug("Delete updated {} entities",deletedEntities);
 
       return deletedEntities;
    }
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSHashedFileDAO#delete(java.lang.String)
     */
@@ -224,8 +224,8 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
    {
       if (file != null)
       {
-         getSession().delete(file.getData());
-         getSession().delete(file);
+         getSession().remove(file.getData());
+         getSession().remove(file);
       }
    }
 
@@ -242,12 +242,12 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
       binary.getMetaEntries().clear();
       for (PSBinaryMetaEntry entry : entries)
       {
-         session.delete(entry);
+         session.remove(entry);
       }
       session.flush();
    }
 
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSHashedFileDAO#getAllHashes(java.util.Set)
     */
@@ -327,7 +327,9 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
    public void setReparseAllMeta()
    {
 
-      Query query = getSession().createQuery("update PSBinary set reparseMeta=1");
+      var query =
+         getSession().createMutationQuery("update PSBinary set reparseMeta = :reparseMeta");
+      query.setParameter("reparseMeta", Boolean.TRUE);
       int rowCount = query.executeUpdate();
       log.debug("Marked " + rowCount + " items for reparse");
 
@@ -351,13 +353,17 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
     */
    @Override
    public List<PSBinary> getReparseBatch(int batchSize) {
-      Query<PSBinary> q = getSession().createQuery("select distinct b from PSBinary b where b.reparseMeta = true", PSBinary.class);
+      Query<PSBinary> q =
+         getSession().createQuery(
+            "select distinct b from PSBinary b where b.reparseMeta = :reparseMeta",
+            PSBinary.class);
+      q.setParameter("reparseMeta", Boolean.TRUE);
       q.setFirstResult(1);
       q.setMaxResults(batchSize);
       return q.list();
    }
 
-   
+
    /**
     * @return if PSX_BINARYSTORE table exists
     */
@@ -412,7 +418,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
 
    public Blob createBlob(InputStream is, long l)
    {
-      return org.hibernate.engine.jdbc.BlobProxy.generateProxy(is, l);
+      return org.hibernate.engine.jdbc.proxy.BlobProxy.generateProxy(is, l);
    }
 
 }

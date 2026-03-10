@@ -143,8 +143,8 @@ public class PSQueryJoinerTest
                break;
 
             case Types.INTEGER:
-               leftData = new Integer(i%4);
-               rightData = new Integer(i%3);
+               leftData = Integer.valueOf(i%4);
+               rightData = Integer.valueOf(i%3);
                break;
 
             case Types.BIGINT:
@@ -336,10 +336,10 @@ public class PSQueryJoinerTest
       PSExecutionData data = new PSExecutionData(null, null, null);
 
       HashMap leftNames = new HashMap();
-      leftNames.put("leftCol", new Integer(1));
+      leftNames.put("leftCol", Integer.valueOf(1));
 
       HashMap rightNames = new HashMap();
-      rightNames.put("rightCol", new Integer(1));
+      rightNames.put("rightCol", Integer.valueOf(1));
 
       PSResultSet leftRs = new PSResultSet(new ArrayList[] { leftColumn} , leftNames, leftSchema);
       PSResultSet rightRs = new PSResultSet(new ArrayList[] { rightColumn}, rightNames, rightSchema);
@@ -562,7 +562,7 @@ public class PSQueryJoinerTest
             list.add(randomObject(type));
          }
          cols[i-1] = list;
-         colNames.put(schema.getColumnName(i), new Integer(i));
+         colNames.put(schema.getColumnName(i), Integer.valueOf(i));
       }
 
       if (sorted)
@@ -603,7 +603,7 @@ public class PSQueryJoinerTest
       case Types.SMALLINT:
          // fall thru
       case Types.INTEGER:
-         return new Integer(ms_rand.nextInt());
+         return Integer.valueOf(ms_rand.nextInt());
       case Types.NULL:
          return null;
       case Types.LONGVARCHAR:

@@ -213,7 +213,7 @@ public class PSContentTypeModel extends PSDesignModel
             ms_logger.warn(MessageFormat.format(msg, args));
             continue;
          }
-         workFlows.add(new Integer(temp.get(0).getGUID().longValue() + ""));
+         workFlows.add(Integer.valueOf(temp.get(0).getGUID().longValue() + ""));
       }
       if (!workFlows.isEmpty())
       {

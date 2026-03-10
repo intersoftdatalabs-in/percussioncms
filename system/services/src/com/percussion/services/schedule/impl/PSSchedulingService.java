@@ -424,7 +424,7 @@ public class PSSchedulingService implements IPSSchedulingService {
          throw new IllegalArgumentException(
                "Notification template may not be null");
       }
-      getSession().saveOrUpdate(notificationTemplate);
+      getSession().merge(notificationTemplate);
    }
 
    // see base
@@ -510,7 +510,7 @@ public class PSSchedulingService implements IPSSchedulingService {
       if (taskLog == null)
          throw new IllegalArgumentException("taskLog may not be null");
 
-      getSession().saveOrUpdate(taskLog);
+      getSession().merge(taskLog);
    }
 
    // see base

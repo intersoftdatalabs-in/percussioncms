@@ -191,7 +191,7 @@ public class PSContentService implements IPSContentService {
       validateKeywordId(keyword.getGUID());
 
       var session = getSession();
-      session.saveOrUpdate(keyword);
+      session.merge(keyword);
 
       var existingChoices = findKeywordChoices(keyword.getValue(), null);
 
@@ -206,7 +206,7 @@ public class PSContentService implements IPSContentService {
             existing.setValue(choice.getValue());
             existing.setSequence(choice.getSequence());
 
-            session.update(existing);
+            session.merge(existing);
             existingChoices.remove(existing);
          } else {
             var guidManager = PSGuidManagerLocator.getGuidMgr();
@@ -235,7 +235,7 @@ public class PSContentService implements IPSContentService {
             throw new IllegalArgumentException(
                   "The method should be called for a keyword choice only. id: " + id);
          }
-         getSession().delete(keyword);
+         getSession().remove(keyword);
       } catch (PSContentException e) {
          // ignore non existing keyword
       }
@@ -260,10 +260,10 @@ public class PSContentService implements IPSContentService {
 
          if (!keyword.getChoices().isEmpty()) {
             var choices = findKeywordChoices(keyword.getValue(), null);
-            choices.forEach(choice -> getSession().delete(choice));
+            choices.forEach(choice -> getSession().remove(choice));
          }
 
-         getSession().delete(keyword);
+         getSession().remove(keyword);
       } catch (PSContentException e) {
          // ignore non existing keyword
       }
@@ -334,7 +334,7 @@ public class PSContentService implements IPSContentService {
       if (autoTranslation == null) {
          throw new IllegalArgumentException("autoTranslation cannot be null");
       }
-      getSession().saveOrUpdate(autoTranslation);
+      getSession().merge(autoTranslation);
    }
 
    /* (non-Javadoc)
@@ -348,7 +348,7 @@ public class PSContentService implements IPSContentService {
       var session = getSession();
       var autoTranslation = session.get(PSAutoTranslation.class, id.longValue());
       if (autoTranslation != null) {
-         session.delete(autoTranslation);
+         session.remove(autoTranslation);
       }
    }
 
@@ -386,7 +386,7 @@ public class PSContentService implements IPSContentService {
       if (property == null) {
          throw new IllegalArgumentException("property cannot be null");
       }
-      getSession().saveOrUpdate(property);
+      getSession().merge(property);
    }
 
    @Override
@@ -398,7 +398,7 @@ public class PSContentService implements IPSContentService {
       var session = getSession();
       var property = session.get(PSFolderProperty.class, id.longValue());
       if (property != null) {
-         session.delete(property);
+         session.remove(property);
       }
    }
 

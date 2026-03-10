@@ -99,7 +99,7 @@ public class PSActionPanelServlet extends HttpServlet {
 
     MultiMap siteinfo = PSItemUtilities.getItemSiteInfo(cid);
     boolean showpanel = false;
-    Integer fid = StringUtils.isNotBlank(folderid) ? new Integer(folderid) : null;
+    Integer fid = StringUtils.isNotBlank(folderid) ? Integer.valueOf(folderid) : null;
     Long sid = StringUtils.isNotBlank(siteid) ? new Long(siteid) : null;
 
     if (fid != null) {

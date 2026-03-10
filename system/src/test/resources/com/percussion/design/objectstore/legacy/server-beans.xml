@@ -4,18 +4,18 @@
   PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
    <bean class="com.percussion.services.PSResourceHelper" id="dummy">
-	
+
    </bean>
    <bean class="com.percussion.services.general.impl.PSRhythmyxInfo" id="sys_rhythmyxinfo">
-		
+
       <property name="bindings">
-			
+
          <map>
             <entry key="UNIT_TESTING" value="false"/>
          </map>
-		
+
       </property>
-	
+
    </bean>
    <bean class="com.percussion.utils.jdbc.PSDatasourceResolver" id="sys_datasourceResolver">
       <property name="repositoryDatasource" value="RhythmyxData"/>
@@ -43,27 +43,27 @@
       </property>
    </bean>
    <bean class="com.percussion.services.datasource.PSHibernateDialectConfig" id="sys_hibernateDialects">
-		
+
       <property name="dialects">
-			
+
          <map>
-               <entry key="sqlserver" value="org.hibernate.dialect.SQLServer2012Dialect;"/>
-                <entry key="jtds:sqlserver" value="org.hibernate.dialect.SQLServer2012Dialect"/>
-                <entry key="inetdae7" value="org.hibernate.dialect.SQLServer2012Dialect"/>
+                <entry key="sqlserver" value="org.hibernate.dialect.SQLServerDialect"/>
+                <entry key="jtds:sqlserver" value="org.hibernate.dialect.SQLServerDialect"/>
+                <entry key="inetdae7" value="org.hibernate.dialect.SQLServerDialect"/>
                 <entry key="oracle:thin" value="org.hibernate.dialect.OracleDialect"/>
                 <entry key="db2" value="org.hibernate.dialect.DB2Dialect"/>
-			
+
          </map>
-		
-      </property>		
-	
+
+      </property>
+
    </bean>
    <bean class="com.percussion.services.security.impl.PSRoleMgr" id="sys_roleMgr">
       <property name="subjectCatalogers">
          <list/>
-      </property>    
+      </property>
       <property name="roleCatalogers">
          <list/>
-      </property>          
+      </property>
    </bean>
 </beans>

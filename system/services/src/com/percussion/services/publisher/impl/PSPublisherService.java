@@ -441,7 +441,7 @@ public class PSPublisherService
 
       for (IPSContentList g : lists)
       {
-         s.saveOrUpdate(g);
+         s.merge(g);
       }
 
    }
@@ -460,7 +460,7 @@ public class PSPublisherService
       {
          throw new IllegalArgumentException("clist may not be null");
       }      
-      getSession().saveOrUpdate(clist);
+      getSession().merge(clist);
    }
 
    @Override
@@ -487,7 +487,7 @@ public class PSPublisherService
 
       for (IPSContentList g : lists)
       {
-         s.delete(g);
+         s.remove(g);
       }
 
    }
@@ -2415,7 +2415,7 @@ public class PSPublisherService
       {
          throw new IllegalArgumentException("list may not be null");
       }
-      getSession().delete(list);
+      getSession().remove(list);
    }
 
    @Transactional
@@ -2430,7 +2430,7 @@ public class PSPublisherService
 
          for (IPSPubStatus status : statusList)
          {
-            s.delete(status);
+            s.remove(status);
          }
 
 
@@ -2450,7 +2450,7 @@ public class PSPublisherService
       {
          throw new IllegalArgumentException("list may not be null");
       }
-      getSession().saveOrUpdate(list);
+      getSession().merge(list);
    }
 
 
@@ -2516,19 +2516,19 @@ public class PSPublisherService
             // Note: this updates PSPubItem, which is OK.  Also updates PSSiteItem
             // as well down below so both are kept in sync.
             PSPubItem pubItem = createOrUpdatePubItem(status, s);
-            s.saveOrUpdate(pubItem);
+            s.merge(pubItem);
             if (status.getState().equals(ItemState.DELIVERED))
             {
                if (pubItem.getOperation().equals(IPSSiteItem.Operation.UNPUBLISH))
                {
                   PSSiteItem wrapperItem = new PSSiteItem();
                   wrapperItem.referenceId = pubItem.getUnpublishRefId();
-                  s.delete(wrapperItem);
+                  s.remove(wrapperItem);
                }  
                else
                {
                   PSSiteItem siteItem = createSiteItem(status,pubItem,s);
-                  s.saveOrUpdate(siteItem);
+                  s.merge(siteItem);
                }
             }
             if ( ++count % BATCH_SIZE == 0 ) {
@@ -2611,7 +2611,7 @@ public class PSPublisherService
          PSPubItem pubItem = getPubItem(status, imap);
          if (pubItem != null)
          {
-            s.saveOrUpdate(pubItem);
+            s.merge(pubItem);
             itemStatuses.add(status);
          }
       }
@@ -2795,7 +2795,7 @@ public class PSPublisherService
       }
       if (siteItem != null)
       {
-         s.delete(siteItem);
+         s.remove(siteItem);
          // Make this a new item
          siteItem.referenceId = status.getReferenceId();
       }
@@ -2853,7 +2853,7 @@ public class PSPublisherService
       {
          stat.setPubServerId(editionPublishing.getPubServerId().longValue());
       }
-      getSession().save(stat);
+      getSession().persist(stat);
    }
 
    public String getServerId()
@@ -2874,7 +2874,7 @@ public class PSPublisherService
       stat.setEndDate(end);
       stat.setEndingStatus(endingStatus);
       getCountsForPubStatus(stat);
-      getSession().update(stat);
+      getSession().merge(stat);
    }
    
    @Transactional
@@ -2883,7 +2883,7 @@ public class PSPublisherService
       PSPubStatus stat = 
          (PSPubStatus) getSession().get(PSPubStatus.class, statusid);
       getCountsForPubStatus(stat);
-      getSession().update(stat);
+      getSession().merge(stat);
       return stat;
    }
 
@@ -2893,7 +2893,7 @@ public class PSPublisherService
       if (deliveryType == null)
          throw new IllegalArgumentException("deliveryType may not be null");
 
-      getSession().delete(deliveryType);
+      getSession().remove(deliveryType);
 
    }
 
@@ -2906,7 +2906,7 @@ public class PSPublisherService
       }
       deleteEditionTasks(edition);
       deleteEditionContentLists(edition);
-      getSession().delete(edition);
+      getSession().remove(edition);
 
    }
 
@@ -3036,7 +3036,7 @@ public class PSPublisherService
       if (deliveryType == null)
          throw new IllegalArgumentException("deliveryType may not be null");
 
-      getSession().saveOrUpdate(deliveryType);
+      getSession().merge(deliveryType);
 
    }
 
@@ -3049,7 +3049,7 @@ public class PSPublisherService
       if (edition == null)
          throw new IllegalArgumentException("edition may not be null");
       
-      getSession().saveOrUpdate(edition);
+      getSession().merge(edition);
 
    }
 
@@ -3084,7 +3084,7 @@ public class PSPublisherService
       {
          throw new IllegalArgumentException("task may not be null");
       }
-      getSession().delete(task);
+      getSession().remove(task);
    }
 
    public List<IPSEditionTaskDef> loadEditionTasks(IPSGuid editionid)
@@ -3125,7 +3125,7 @@ public class PSPublisherService
          }
       }
       
-      getSession().saveOrUpdate(task);
+      getSession().merge(task);
    }
 
    @Transactional
@@ -3293,7 +3293,7 @@ public class PSPublisherService
    @Transactional
    public void saveEditionTaskLog(IPSEditionTaskLog log)
    {
-      getSession().saveOrUpdate(log);
+      getSession().merge(log);
    }
 
    public List<Long> findRefIdForJob(long jobid, List<PSSortCriterion> sort)
@@ -3600,7 +3600,7 @@ public class PSPublisherService
       Session session = getSession();
 
          Query q =session.createQuery("select sr.name, p.date, p.operation, p.status, p.message, p.statusId,p.contentId, p.revisionId,p.location from PSPubItem p, PSPubStatus s, PSPubServer sr where p.statusId = s.statusId and s.pubServerId = sr.serverId and p.contentId = :contentId order by p.date desc");
-         q.setParameter("contentId", new Integer(lguid.getContentId()));
+         q.setParameter("contentId", Integer.valueOf(lguid.getContentId()));
          List<Object[]> rows = q.list();
          Set<Integer> statusIds = new HashSet<>();
          for(Object[] row : rows){

@@ -465,15 +465,15 @@ public abstract class PSSecurityProvider implements IPSSecurityProvider {
   public static final String PROVIDER_NAME = "providerName";
 
   static {
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_WEB, new Integer(SP_TYPE_WEB_SERVER));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_SPNEGO, new Integer(SP_TYPE_SPNEGO));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_HOST, new Integer(SP_TYPE_HOST_ADDRESS));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_ODBC, new Integer(SP_TYPE_ODBC));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_BETABLE, new Integer(SP_TYPE_BETABLE));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_DIRCONN, new Integer(SP_TYPE_DIRCONN));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_ROLE, new Integer(SP_TYPE_ROLE));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_ANY, new Integer(SP_TYPE_ANY));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_INTERNAL, new Integer(SP_TYPE_RXINTERNAL));
-    ms_mapTypeName2TypeId.put(XML_FLAG_SP_J2EE, new Integer(SP_TYPE_J2EE));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_WEB, Integer.valueOf(SP_TYPE_WEB_SERVER));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_SPNEGO, Integer.valueOf(SP_TYPE_SPNEGO));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_HOST, Integer.valueOf(SP_TYPE_HOST_ADDRESS));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_ODBC, Integer.valueOf(SP_TYPE_ODBC));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_BETABLE, Integer.valueOf(SP_TYPE_BETABLE));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_DIRCONN, Integer.valueOf(SP_TYPE_DIRCONN));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_ROLE, Integer.valueOf(SP_TYPE_ROLE));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_ANY, Integer.valueOf(SP_TYPE_ANY));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_INTERNAL, Integer.valueOf(SP_TYPE_RXINTERNAL));
+    ms_mapTypeName2TypeId.put(XML_FLAG_SP_J2EE, Integer.valueOf(SP_TYPE_J2EE));
   }
 }

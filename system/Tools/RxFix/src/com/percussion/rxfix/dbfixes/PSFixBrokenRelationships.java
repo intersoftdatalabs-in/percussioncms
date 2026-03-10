@@ -92,7 +92,7 @@ public class PSFixBrokenRelationships extends PSFixDBBase implements IPSFix
          while (rs.next())
          {
             int rid = rs.getInt(1);
-            rids.add(new Integer(rid));
+            rids.add(Integer.valueOf(rid));
          }
 
          if (rids.size() == 0)

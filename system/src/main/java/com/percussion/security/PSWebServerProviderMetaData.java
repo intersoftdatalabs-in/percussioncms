@@ -127,9 +127,9 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
       attribDesc.add("");
     }
 
-    columnNames.put("OBJECT_TYPE", new Integer(1));
-    columnNames.put("ATTRIBUTE_NAME", new Integer(2));
-    columnNames.put("ATTRIBUTE_DESC", new Integer(3));
+    columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
+    columnNames.put("ATTRIBUTE_NAME", Integer.valueOf(2));
+    columnNames.put("ATTRIBUTE_DESC", Integer.valueOf(3));
 
     return new PSResultSet(
         new java.util.ArrayList[] {obType, attribName, attribDesc},

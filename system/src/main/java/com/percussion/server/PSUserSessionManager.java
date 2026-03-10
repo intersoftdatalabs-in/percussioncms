@@ -491,7 +491,7 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
         if (full) anonymous.appendChild(sess.getUserSessionStatus(doc));
       }
     }
-    sessionCount = new Integer(ms_Sessions.size());
+    sessionCount = Integer.valueOf(ms_Sessions.size());
 
     anonymous.setAttribute("count", Integer.toString(anonymousCount));
     authenticated.setAttribute("count", Integer.toString(authenticatedCount));
@@ -507,7 +507,7 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
     manager.setAttribute("isAlive", ms_SessionManager.isAlive() ? "yes" : "no");
     manager.setAttribute("enabled", areSessionsEnabled() ? "yes" : "no");
     manager.setAttribute("sessionTimeout", ms_userTimeout + "ms");
-    manager.setAttribute("maximalOpenUserSessions", new Integer(ms_maxOpenUserSessions).toString());
+    manager.setAttribute("maximalOpenUserSessions", Integer.valueOf(ms_maxOpenUserSessions).toString());
     manager.appendChild(sessions);
 
     return manager;

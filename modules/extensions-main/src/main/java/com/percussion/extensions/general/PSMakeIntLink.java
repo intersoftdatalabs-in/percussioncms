@@ -151,7 +151,7 @@ public class PSMakeIntLink extends PSSimpleJavaUdfExtension implements IPSUdfPro
       result =
           PSUrlUtils.createUrl(
               "127.0.0.1",
-              new Integer(request.getServerListenerPort()),
+              Integer.valueOf(request.getServerListenerPort()),
               sourceUrl,
               paramMap.entrySet().iterator(),
               null,

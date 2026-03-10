@@ -124,7 +124,7 @@ public final class PSContentChangeService implements IPSContentChangeService,
             var existingEvent = session.get(PSContentChangeEvent.class, primaryKey);
 
             if (existingEvent == null) {
-                session.saveOrUpdate(changeEvent);
+                session.merge(changeEvent);
                 updateCache(changeEvent);
                 log.debug("Saved content change event: {}", changeEvent);
             } else {

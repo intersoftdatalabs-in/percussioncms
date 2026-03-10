@@ -459,7 +459,7 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
           List rowData = new ArrayList(1);
           rowData.add(value);
           mergedData.add(rowData);
-          colToIndex.put(colName, new Integer(colIndex++));
+          colToIndex.put(colName, Integer.valueOf(colIndex++));
           cols.add(col);
         }
         metaDataList.add(new PSMapPair(md, cols));
@@ -523,7 +523,7 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
                   table.getConnectionDetail().getOrigin(),
                   table.getConnectionDetail().getDriver());
           m_colIndexToMetaData.put(
-              new Integer(mergedColIndex++), new PSMapPair(new Integer(idx), md));
+              Integer.valueOf(mergedColIndex++), new PSMapPair(Integer.valueOf(idx), md));
         }
       }
     }
@@ -721,7 +721,7 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
     private ResultSetMetaData getOriginalMetaData(int index) throws SQLException {
       if (index < 1 || index > getColumnCount()) throw new SQLException("Invalid column index");
 
-      PSMapPair entry = (PSMapPair) m_colIndexToMetaData.get(new Integer(index));
+      PSMapPair entry = (PSMapPair) m_colIndexToMetaData.get(Integer.valueOf(index));
       return (ResultSetMetaData) entry.getValue();
     }
 
@@ -736,7 +736,7 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
     private int getOriginalIndex(int index) throws SQLException {
       if (index < 1 || index > getColumnCount()) throw new SQLException("Invalid column index");
 
-      PSMapPair entry = (PSMapPair) m_colIndexToMetaData.get(new Integer(index));
+      PSMapPair entry = (PSMapPair) m_colIndexToMetaData.get(Integer.valueOf(index));
       return ((Integer) entry.getKey()).intValue();
     }
 

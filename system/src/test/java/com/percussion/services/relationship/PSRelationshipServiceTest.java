@@ -62,9 +62,9 @@ public class PSRelationshipServiceTest
       PSRelationshipFilter filter = new PSRelationshipFilter();
       filter.setLimitToCrossSiteLinks(true);
       List<Integer> ids = new ArrayList<Integer>();
-      ids.add(new Integer(504));
-      ids.add(new Integer(489));
-      ids.add(new Integer(490));
+      ids.add(Integer.valueOf(504));
+      ids.add(Integer.valueOf(489));
+      ids.add(Integer.valueOf(490));
       filter.setDependentIds(ids);
 
       List<PSRelationship> rels = ms_svc.findByFilter(filter);
@@ -119,8 +119,8 @@ public class PSRelationshipServiceTest
    {
       // Test find persisted rids
       ArrayList<Integer> ids = new ArrayList<Integer>();
-      ids.add(new Integer(1));
-      ids.add(new Integer(-1));
+      ids.add(Integer.valueOf(1));
+      ids.add(Integer.valueOf(-1));
       List<Integer>ids_2 = ms_svc.findPersistedRid(ids);
       assertTrue(ids_2.size() == 1);
 

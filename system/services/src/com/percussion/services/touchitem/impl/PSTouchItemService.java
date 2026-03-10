@@ -268,7 +268,7 @@ public class PSTouchItemService
          }
          
          int cid = ((PSLegacyGuid) itemId).getContentId();
-         ids.add(new Integer(cid));
+         ids.add(Integer.valueOf(cid));
       }
       cmsMgr.touchItems(ids);
       

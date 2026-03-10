@@ -42,7 +42,7 @@ import com.percussion.soln.segment.Segments;
 //import static org.junit.matchers.JUnitMatchers.*;
 
 /**
- * Scenario description: 
+ * Scenario description:
  * @author adamgent, Apr 11, 2008
  */
 @ExtendWith(MockitoExtension.class)
@@ -79,13 +79,13 @@ public class ProfileEditControllerTest {
         request.setParameter("userId", "test_user");
         request.setParameter("segmentWeights[1]", "1");
         MockHttpServletResponse response = new MockHttpServletResponse();
-        
 
-        
-        /* 
+
+
+        /*
          * Expect: to get Reference Data for View and NOT to save the profile
          */
-        context.checking(new Expectations() {{ 
+        context.checking(new Expectations() {{
             one(dataService).retrieveTestProfiles();
             one(segmentTreeFactory).createSegmentTreeFromService(segmentService);
             one(segmentService).retrieveAllSegments();
@@ -97,19 +97,19 @@ public class ProfileEditControllerTest {
          * When: Handle request
          */
         controller.handleRequest(request, response);
-        
+
         /*
          * Then: We should now have a profile in the session.
          */
         VisitorProfile profile = VisitorTrackingWebUtils.getVisitorProfileFromSession(request.getSession());
         assertNotNull("We should have a profile in the session", profile);
-        assertEquals("Profile should have segment weight", 
-                (Integer) profile.getSegmentWeights().get("1"), new Integer(1));
+        assertEquals("Profile should have segment weight",
+                (Integer) profile.getSegmentWeights().get("1"), Integer.valueOf(1));
 
         context.assertIsSatisfied();
     }
 
-    
+
     @Test
     public void shouldReplaceProfileWithAnEmptyProfile() throws Exception {
         /*
@@ -123,13 +123,13 @@ public class ProfileEditControllerTest {
         oldProfile.setUserId("old");
         VisitorTrackingWebUtils.setVisitorProfileToSession(request.getSession(),oldProfile);
         MockHttpServletResponse response = new MockHttpServletResponse();
-        
 
-        
-        /* 
+
+
+        /*
          * Expect: to get Reference Data for View and NOT to save the profile
          */
-        context.checking(new Expectations() {{ 
+        context.checking(new Expectations() {{
             one(dataService).retrieveTestProfiles();
             one(segmentTreeFactory).createSegmentTreeFromService(segmentService);
             one(segmentService).retrieveAllSegments();
@@ -141,7 +141,7 @@ public class ProfileEditControllerTest {
          * When: Handle request
          */
         controller.handleRequest(request, response);
-        
+
         /*
          * Then: We should now have a profile in the session.
          */
@@ -152,7 +152,7 @@ public class ProfileEditControllerTest {
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void shouldSaveProfileOnlyToSession() throws Exception {
         /*
@@ -165,26 +165,26 @@ public class ProfileEditControllerTest {
         request.setParameter("segmentWeights[1]", "1");
         request.setParameter("id", "1");
         MockHttpServletResponse response = new MockHttpServletResponse();
-        
 
-        
-        /* 
+
+
+        /*
          * Expect: to get Reference Data for the View, retrieve the requested profile
          *        and NOT to save the profile.
          */
         final VisitorProfile createdProfile = new VisitorProfile();
         createdProfile.getSegmentWeights().put("1", 1);
         createdProfile.setId(1L);
-        
-        context.checking(new Expectations() {{ 
+
+        context.checking(new Expectations() {{
             one(dataService).retrieveTestProfiles();
             one(segmentTreeFactory).createSegmentTreeFromService(segmentService);
             one(segmentService).retrieveAllSegments();
             will(returnValue(new Segments()));
-            
+
             one(dataService).find(1L);
             will(returnValue(createdProfile));
-            
+
             never(dataService).save(with(any(VisitorProfile.class)));
         }});
 
@@ -192,7 +192,7 @@ public class ProfileEditControllerTest {
          * When: Handle request
          */
         controller.handleRequest(request, response);
-        
+
         /*
          * Then: We should now have a profile in the session.
          */
@@ -200,14 +200,14 @@ public class ProfileEditControllerTest {
         assertSame("Our created profile should be the same object as the one in the session",
                 createdProfile, profile);
         assertNotNull("We should have a profile in the session", profile);
-        assertEquals("Profile should have segment weight", 
-                (Integer) profile.getSegmentWeights().get("1"), new Integer(1));
+        assertEquals("Profile should have segment weight",
+                (Integer) profile.getSegmentWeights().get("1"), Integer.valueOf(1));
 
         context.assertIsSatisfied();
     }
-    
-    
-    
+
+
+
     @Test
     public void shouldSaveProfileToRepositoryAndSession() throws Exception {
         /*
@@ -225,25 +225,25 @@ public class ProfileEditControllerTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         VisitorProfile oldProfile = new VisitorProfile();
         VisitorTrackingWebUtils.setVisitorProfileToSession(request.getSession(), oldProfile);
-        
 
-        
-        /* 
+
+
+        /*
          * Expect: to get Reference Data for the View, retrieve the requested profile
          */
         final VisitorProfile createdProfile = new VisitorProfile();
         createdProfile.getSegmentWeights().put("1", 1);
         createdProfile.setId(1L);
-        
-        context.checking(new Expectations() {{ 
+
+        context.checking(new Expectations() {{
             one(dataService).retrieveTestProfiles();
             one(segmentTreeFactory).createSegmentTreeFromService(segmentService);
             one(segmentService).retrieveAllSegments();
             will(returnValue(new Segments()));
-            
+
             one(dataService).find(1L);
             will(returnValue(createdProfile));
-            
+
             one(dataService).save(with(same(createdProfile)));
         }});
 
@@ -251,7 +251,7 @@ public class ProfileEditControllerTest {
          * When: Handle request
          */
         controller.handleRequest(request, response);
-        
+
         /*
          * Then: We should now have a profile in the session.
          */
@@ -261,8 +261,8 @@ public class ProfileEditControllerTest {
         assertNotSame("Our session profile should not be the same object as the old session object,",
                 oldProfile, profile);
         assertNotNull("We should have a profile in the session", profile);
-        assertEquals("Profile should have segment weight 2-2", 
-                (Integer) profile.getSegmentWeights().get("2"), new Integer(2));
+        assertEquals("Profile should have segment weight 2-2",
+                (Integer) profile.getSegmentWeights().get("2"), Integer.valueOf(2));
         assertNull("Profile should not have segment weight 1", (Integer) profile.getSegmentWeights().get("1"));
 
         context.assertIsSatisfied();

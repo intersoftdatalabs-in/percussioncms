@@ -67,7 +67,7 @@ public class PSRequestWaitTooLongError extends PSLogError {
      *     [1] = m_size
      * to format the submessage text
      */
-    Object[] args = {m_sessId, new Integer(m_size)};
+    Object[] args = {m_sessId, Integer.valueOf(m_size)};
     msgs[0] =
         new PSLogSubMessage(
             IPSServerErrors.REQUEST_WAIT_TOO_LONG,

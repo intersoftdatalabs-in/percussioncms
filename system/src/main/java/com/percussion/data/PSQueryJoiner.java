@@ -122,12 +122,12 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
     int colNo = 1;
     for (i = 0; i < lCols.length; i++)
       if (lMap.get(lCols[i]) != null) {
-        m_columnHash.put(lCols[i], new Integer(colNo));
+        m_columnHash.put(lCols[i], Integer.valueOf(colNo));
         colNo++;
       }
     for (i = 0; i < rCols.length; i++)
       if (rMap.get(rCols[i]) != null) {
-        m_columnHash.put(rCols[i], new Integer(colNo));
+        m_columnHash.put(rCols[i], Integer.valueOf(colNo));
         colNo++;
       }
 
@@ -265,7 +265,7 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
 
   private HashMap getColumnMap(String[] cols, int base) {
     HashMap colMap = new HashMap();
-    for (int i = 0; i < cols.length; i++) colMap.put(cols[i], new Integer(i + base));
+    for (int i = 0; i < cols.length; i++) colMap.put(cols[i], Integer.valueOf(i + base));
     return colMap;
   }
 

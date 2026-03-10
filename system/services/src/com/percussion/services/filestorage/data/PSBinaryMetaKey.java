@@ -27,13 +27,14 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
 
 @Entity
 @Table(name="PSX_BINARYMETAKEY")
 public class PSBinaryMetaKey implements Serializable
 {
    /**
-    * 
+    *
     */
    private static final long serialVersionUID = 1L;
    @Id
@@ -43,17 +44,18 @@ public class PSBinaryMetaKey implements Serializable
    int id;
    @Column(name = "NAME", nullable = false, unique = true)
    String name;
-   
+
+   @JdbcTypeCode(java.sql.Types.SMALLINT)
    @Column(name = "ENABLED")
    private boolean enabled;
-   
- 
+
+
    @Version
    @Column(name = "version")
    private Integer version;
-   
-   
-   
+
+
+
    public Integer getVersion()
    {
       return version;
@@ -66,19 +68,19 @@ public class PSBinaryMetaKey implements Serializable
    }
 
    public PSBinaryMetaKey() {
-      
+
    }
    public PSBinaryMetaKey(String key)
    {
       this(key,true);
    }
-   
+
    public PSBinaryMetaKey(String key,boolean enabled)
    {
       setEnabled(enabled);
       setName(key);
    }
-   
+
    public int getId()
    {
       return id;
@@ -117,7 +119,7 @@ public class PSBinaryMetaKey implements Serializable
          return false;
       return true;
    }
-   
+
    public boolean isEnabled()
    {
       return enabled;
@@ -128,6 +130,6 @@ public class PSBinaryMetaKey implements Serializable
    {
       this.enabled = enabled;
    }
-   
-   
+
+
 }

@@ -8,6 +8,6 @@
 	<Parameter name="soln.p13n.jdbc.username" value="" />
 	<Parameter name="soln.p13n.jdbc.password" value="" />
 	<Parameter name="soln.p13n.hibernate.dialect"
-		value="org.hibernate.dialect.DerbyDialect" />
+value="org.hibernate.community.dialect.DerbyDialect" />
 
 </Context>

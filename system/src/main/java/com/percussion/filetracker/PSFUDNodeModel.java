@@ -97,5 +97,5 @@ public class PSFUDNodeModel extends AbstractTreeTableModel {
   protected static Class[] ms_cTypes = {PSFUDTreeTableModel.class, Integer.class, String.class};
 
   // The the returned file length for directories.
-  public static final Integer ZERO = new Integer(0);
+  public static final Integer ZERO = Integer.valueOf(0);
 }

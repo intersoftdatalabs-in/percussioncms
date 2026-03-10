@@ -159,7 +159,7 @@ public class FolderAdaptor implements IFolderAdaptor {
 
   @Autowired
   public FolderAdaptor(
-      IPSPathService pathService,
+      @Qualifier("pathService") IPSPathService pathService,
       IPSFolderHelper folderHelper,
       @Qualifier("siteSectionService") IPSSiteSectionService sectionService,
       IPSManagedNavService navSrv,

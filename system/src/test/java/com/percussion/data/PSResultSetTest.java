@@ -125,9 +125,9 @@ public class PSResultSetTest
       }
 
       m_columnNames = new java.util.HashMap<String, Integer>();
-      m_columnNames.put("a", new Integer(1));
-      m_columnNames.put("b", new Integer(2));
-      m_columnNames.put("c", new Integer(3));
+      m_columnNames.put("a", Integer.valueOf(1));
+      m_columnNames.put("b", Integer.valueOf(2));
+      m_columnNames.put("c", Integer.valueOf(3));
    }
 
    private Vector[] m_columns;

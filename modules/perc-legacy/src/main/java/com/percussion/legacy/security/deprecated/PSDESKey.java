@@ -124,7 +124,7 @@ public class PSDESKey implements IPSSecretKey {
               + (m_permutedChoiceOne[temp + 5] << 2)
               + (m_permutedChoiceOne[temp + 6] << 1)
               + m_permutedChoiceOne[temp + 7]);
-      oneInteger = new Integer(temp0);
+      oneInteger = Integer.valueOf(temp0);
       m_encodedKey[i] = oneInteger.byteValue();
     }
 

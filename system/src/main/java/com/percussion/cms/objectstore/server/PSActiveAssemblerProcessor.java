@@ -356,7 +356,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
 
       Integer intRank = null;
       try {
-        intRank = new Integer(sortRank);
+        intRank = Integer.valueOf(sortRank);
       } catch (NumberFormatException nfe) {
         Object[] args = {
           "" + owner.getId(),

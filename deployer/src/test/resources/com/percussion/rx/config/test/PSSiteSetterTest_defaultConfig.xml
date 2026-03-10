@@ -50,7 +50,7 @@
 		<!-- Properties for the CI Site -->
 
 		<property name="CmsPath" value="//Sites/CorporateInvestments" />
-		<property name="PublishedPath" value="../CI_Home.war" />
+		<property name="PublishedPath" value="../CI_Home" />
 		<property name="PublishedUrl"
 			value="http://127.0.0.1:9992/CI_Home" />
 		<property name="globalTemplateName"

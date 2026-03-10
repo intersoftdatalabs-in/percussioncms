@@ -135,7 +135,7 @@ public class PSWorkflowInfo extends PSComponent {
     ArrayList values = new ArrayList();
     StringTokenizer st = new StringTokenizer(valuesString, ",");
     while (st.hasMoreTokens()) {
-      values.add(new Integer(st.nextToken()));
+      values.add(Integer.valueOf(st.nextToken()));
     }
     setValues(values);
   }

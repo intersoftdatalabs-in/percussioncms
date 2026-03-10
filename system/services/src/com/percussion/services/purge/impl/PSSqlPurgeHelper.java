@@ -116,7 +116,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     * well as content unless the items are also linked to other folders not
     * being purged. No effects will be run on this action to prevent any side
     * effects, all relationships to and from the items will be removed.
-    * 
+    *
     * @param item
     * @return number of items purged
     * @throws PSException
@@ -129,7 +129,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     * This is a fast Database method for purging Navon and Navtree items from a
     * folder and subfolders. This will prevent inconsistent navigation making
     * sure navon items are not left without a parent.
-    * 
+    *
     * @param item
     * @return number of items purged
     * @throws PSException
@@ -141,7 +141,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 
    /**
     * Gets the navigation content type IDs.
-    * 
+    *
     * @return the content type IDs, never <code>null</code>.
     */
    private List<Integer> getNavContentTypeIds()
@@ -167,7 +167,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     * remove from folder on a folder functionality. This mechanism is not
     * normally recommended as it will orphan all the other content making it
     * only available from search.
-    * 
+    *
     * @param items
     * @return number of items purged
     * @throws PSException
@@ -184,7 +184,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     * well as content unless the items are also linked to other folders not
     * being purged. No effects will be run on this action to prevent any side
     * effects, all relationships to and from the items will be removed.
-    * 
+    *
     * @param items
     * @return number of items purged
     * @throws PSException
@@ -199,7 +199,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     * well as content unless the items are also linked to other folders not
     * being purged. No effects will be run on this action to prevent any side
     * effects, all relationships to and from the items will be removed.
-    * 
+    *
     * @param items
     * @return number of items purged
     * @throws PSException
@@ -216,7 +216,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     * effects, all relationships to and from the items will be removed. If
     * typeFilter is not null, only the specified content type ids will be
     * removed.
-    * 
+    *
     * @param parent - the parent folder if available. items will not be purged
     *           from this folder if they are linked elsewhere.
     * @param items
@@ -225,9 +225,9 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     * @throws PSException
     */
    public int purgeAll(PSLocator parent, Collection<PSLocator> items, List<Integer> typeFilter) throws PSException, PSValidationException {
-      
+
       Session session = getSession();
-      
+
       int count = 0;
       Map<Integer, List<String>> contentTypeTableMap = new HashMap<>();
       Set<Integer> ids = new HashSet<>();
@@ -235,7 +235,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
       {
          ids.add(item.getId());
       }
-      
+
       Map<Integer, Set<Integer>> contentTypeMap = processItems(parent, ids, typeFilter);
 
       // Get the type tables first. if there are any errors we will throw
@@ -287,7 +287,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
                      deleteBatch(tables, batch, ceh);
 
                      batch.clear();
-                     
+
                   }
                }
                deleteBatch(tables, batch, ceh);
@@ -310,7 +310,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     * To be called only for non Oracle databases to prevnt locking.
     * READ_UNCOMMITTED is not supported and not required in the same way on
     * oracle.
-    * 
+    *
     * @param data
     * @return number of items purged
     * @throws Exception
@@ -324,7 +324,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
    /**
     * To be called only for Oracle databases to prevnt locking. READ_UNCOMMITTED
     * is not supported and not required in the same way on oracle.
-    * 
+    *
     * @param data
     * @return number of items purged
     * @throws Exception
@@ -337,7 +337,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.purge.IPSSqlPurgeHelper#purgeRevisions(com.percussion
     * .services.purge.data.RevisionData)
@@ -355,20 +355,20 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
    /**
     * Uses direct database access to purge revision items matching provided
     * critera
-    * 
+    *
     * min cond. # 1) ALWAYS keep minimum number X of revisions to keep [number]
     * min cond. date 2) ALWAYS keep all revisions D younger than number of days
     * [number]
-    * 
+    *
     * if after that anything is left, than:
-    * 
+    *
     * max cond # 3) delete all revisions above Y number (count) (delete
     * [Y+1,....max]) max cond date 4) delete all revisions above E days old
     * (delete [E+1,....max])
-    * 
+    *
     * Y must be greater than X (if set); error if not. E must be greater than D
     * (if set); error if not.
-    * 
+    *
     * @param data
     * @return number of revisions purged
     * @throws Exception
@@ -718,7 +718,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
    /**
     * Creates a map of content items in the selected ids, folders and subfolders
     * with the content type id as the key.
-    * 
+    *
     * @param items
     * @param typeFilter
     * @return
@@ -766,7 +766,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 
    /**
     * Check if the user has admin access to the specified folders.
-    * 
+    *
     * @param folders
     * @throws PSCmsException
     */
@@ -785,7 +785,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 
    /**
     * Merge two content type -> id maps.
-    * 
+    *
     * @param contentTypeMap
     * @param folderContentTypeMap
     */
@@ -806,7 +806,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
    /**
     * Removes from the content type map any items that are in folders other than
     * those specified in foldersToCheck.
-    * 
+    *
     * @param foldersToCheck
     * @param folderContentTypeMap
     * @throws PSCmsException
@@ -865,7 +865,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
    /**
     * From the set of ids and the optional type filter calculates the content
     * type id and builds the map of content items against the type id.
-    * 
+    *
     * @param ids
     * @param typeFilter
     * @return
@@ -901,7 +901,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
    /**
     * Given a set of folder ids, will create a content type map for all the
     * subfolder content.
-    * 
+    *
     * @param folderIds
     * @param contentTypeMap
     * @throws PSCmsException
@@ -944,7 +944,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 
    /**
     * gets a set of ids within the folder, ignores all permissions.
-    * 
+    *
     * @param id
     * @return set of content ids
     * @throws PSCmsException
@@ -956,7 +956,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 
    /**
     * gets a set of ids within the folders, ignores all permissions.
-    * 
+    *
     * @param ids
     * @return set of content ids
     * @throws PSCmsException
@@ -982,7 +982,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
    /**
     * Purge content through sql for the set of ids by deleting from the
     * specified table names.
-    * 
+    *
     * @param tables
     * @param ids
     * @param ceh
@@ -993,7 +993,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
       if (ids == null || ids.isEmpty())
          return Collections.emptySet();
 
-      
+
       List<Integer> localContent = new ArrayList<>();
       try
       {
@@ -1008,7 +1008,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
       {
         ms_logger.error("Error getting local content query for delete");
       }
-     
+
       // Clean up managed links for item
       getSession()
             .createQuery("DELETE FROM PSManagedLink ml WHERE ml.childId IN (:ids) or ml.parentId in (:ids)")
@@ -1061,8 +1061,8 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
             query.executeUpdate();
          }
       }
-      
-      
+
+
       PSItemSummaryCache itemCache = PSItemSummaryCache.getInstance();
       Map<String, String> cacheData = new HashMap<>();
       // Notify purge event.
@@ -1077,7 +1077,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
                   cacheData);
             itemCache.tableChanged(deleteEvent);
          }
-         // notify other handlers 
+         // notify other handlers
 
       }
       if (!localContent.isEmpty())
@@ -1148,13 +1148,13 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 
    /**
     * Updates both folder and assembly caches for the modified relationships.
-    * 
+    *
     * @param relationships the modified relationships, assumed not
     *           <code>null</code>.
     */
    private void updateCaches(PSRelationshipSet relationships)
    {
-      
+
       // notify relationship change listeners.
       PSRelationshipChangeEvent event = new PSRelationshipChangeEvent(
             PSRelationshipChangeEvent.ACTION_REMOVE, relationships);
@@ -1178,9 +1178,9 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
       // if caching not enabled, handler will be null
       if (!(handler instanceof PSAssemblerCacheHandler))
          return;
-      
+
       ((PSAssemblerCacheHandler) handler).relationshipChanged(event);
- 
+
    }
 
    /**
@@ -1247,5 +1247,5 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
       }
 
    }
-   
+
 }

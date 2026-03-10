@@ -121,7 +121,7 @@ public class PSConsoleCommandDumpItemSummaryCache extends PSConsoleCommandCache 
         cacheElm = itemEl;
       } else {
         throw new PSConsoleCommandException(
-            IPSServerErrors.CANNOT_FIND_CACHED_ITEMSUMMARY, new Object[] {new Integer(id)});
+            IPSServerErrors.CANNOT_FIND_CACHED_ITEMSUMMARY, new Object[] {Integer.valueOf(id)});
       }
     } else {
       cacheElm = cache.getCacheStatistics(doc);

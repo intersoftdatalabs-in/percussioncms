@@ -192,7 +192,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
       PSIdMapping ctxMapping =
           getIdMapping(ctx, String.valueOf(ctxId.longValue()), DEPENDENCY_TYPE);
 
-      if (ctxMapping != null) context.setId(new Integer(ctxMapping.getTargetId()));
+      if (ctxMapping != null) context.setId(Integer.valueOf(ctxMapping.getTargetId()));
     }
   }
 

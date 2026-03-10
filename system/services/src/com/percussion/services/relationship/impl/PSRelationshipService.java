@@ -475,7 +475,7 @@ public class PSRelationshipService implements IPSRelationshipService {
 
       // do save
       if (!rdata.isPersisted())
-         sess.save(rdata);
+         sess.persist(rdata);
       else
          rdata = (PSRelationshipData) sess.merge(rdata);
 
@@ -692,12 +692,12 @@ public class PSRelationshipService implements IPSRelationshipService {
          prop.setRid(rdata.getId()); // make sure set to correct parent id
          if (!prop.isPersisted()) // not exist in repository
          {
-            sess.save(prop);
+            sess.persist(prop);
             prop.setPersisted(true);
          }
          else
          {
-            sess.update(prop);
+            sess.merge(prop);
          }
       }
    }
@@ -855,7 +855,7 @@ public class PSRelationshipService implements IPSRelationshipService {
       try
       {
          List rels = sess.createCriteria(PSRelationshipData.class).add(
-               Restrictions.eq("owner_id", new Integer(ownderId))).list();
+               Restrictions.eq("owner_id", Integer.valueOf(ownderId))).list();
          return rels;
       }
       finally
@@ -949,7 +949,7 @@ public class PSRelationshipService implements IPSRelationshipService {
            PSRelationshipData rdata)
    {
       Session session = getSession();
-      session.update(rdata);
+      session.merge(rdata);
    }
 
    @Override

@@ -71,7 +71,7 @@ public class PSUserLoginDao implements IPSUserLoginDao {
         log.warn(emsg);
         return;
       }
-      session.delete(login);
+      session.remove(login);
     } catch (HibernateException he) {
       psUserManagementEvent =
           new PSUserManagementEvent(
@@ -189,7 +189,7 @@ public class PSUserLoginDao implements IPSUserLoginDao {
         throw new IPSGenericDao.SaveException(emsg);
       }
       l2.setPassword(login.getPassword());
-      session.update(l2);
+      session.merge(l2);
     } catch (HibernateException he) {
       psUserManagementEvent =
           new PSUserManagementEvent(
@@ -215,7 +215,7 @@ public class PSUserLoginDao implements IPSUserLoginDao {
     String emsg;
     var session = getSession();
     try {
-      session.save(login);
+      session.persist(login);
       psUserManagementEvent =
           new PSUserManagementEvent(
               PSSecurityFilter.getCurrentRequest().getServletRequest(),

@@ -47,6 +47,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
@@ -142,16 +143,32 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
     */
    public PSItemFilterRuleDef()
    {
-      filter_rule_id = PSGuidHelper.generateNext(
-            PSTypeEnum.ITEM_FILTER_RULE_DEF).longValue();
+      // Required by Hibernate. Avoid service lookups during entity bootstrap.
    }
+
    public PSItemFilterRuleDef(boolean forClient)
    {
       if(!forClient) {
-         filter_rule_id = PSGuidHelper.generateNext(
-                 PSTypeEnum.ITEM_FILTER_RULE_DEF).longValue();
+         initializeRuleIdIfNeeded(true);
       }else{
          isClientSide = true;
+      }
+   }
+
+   /**
+    * Assign an identifier right before insert if one was not explicitly set.
+    */
+   @PrePersist
+   protected void ensureRuleIdForPersist()
+   {
+      initializeRuleIdIfNeeded(true);
+   }
+
+   private void initializeRuleIdIfNeeded(boolean includeClientSide)
+   {
+      if (filter_rule_id == 0L && (includeClientSide || !isClientSide))
+      {
+         filter_rule_id = PSGuidHelper.generateNext(PSTypeEnum.ITEM_FILTER_RULE_DEF).longValue();
       }
    }
 
@@ -252,6 +269,7 @@ public class PSItemFilterRuleDef implements IPSItemFilterRuleDef,
    @IPSXmlSerialization(suppress = true)
    public IPSGuid getGUID()
    {
+      initializeRuleIdIfNeeded(false);
       return new PSGuid(PSTypeEnum.ITEM_FILTER_RULE_DEF, filter_rule_id);
    }
 

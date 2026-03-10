@@ -138,7 +138,7 @@ public class PSContentTypeWorkflow
     */
    public void setWorkflowId(IPSGuid guid)
    {
-      m_workflowid = new Integer(guid.longValue()+"");
+      m_workflowid = Integer.valueOf(guid.longValue()+"");
    }
 
    @Override

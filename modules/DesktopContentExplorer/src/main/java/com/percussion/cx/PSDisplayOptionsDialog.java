@@ -415,7 +415,7 @@ public class PSDisplayOptionsDialog extends PSDialog {
       m_fontSizeField.setPreferredSize(new Dimension(40, 20));
       m_fontSizeField.setMinimumSize(new Dimension(40, 20));
       m_fontSizeField.setMaximumSize(new Dimension(70, 20));
-      for (int i = 1; i < 30; i++) m_fontSizeField.addItem(new Integer(i));
+      for (int i = 1; i < 30; i++) m_fontSizeField.addItem(Integer.valueOf(i));
 
       m_boldFontCheck = new JCheckBox(m_applet.getResourceString(getClass(), "@" + labels[0]));
       m_boldFontCheck.setMnemonic(
@@ -482,7 +482,7 @@ public class PSDisplayOptionsDialog extends PSDialog {
       if (font == null) throw new IllegalArgumentException("font may not be null.");
 
       m_fontNameField.setSelectedItem(font.getName());
-      m_fontSizeField.setSelectedItem(new Integer(font.getSize()));
+      m_fontSizeField.setSelectedItem(Integer.valueOf(font.getSize()));
       m_boldFontCheck.setSelected(font.isBold());
       m_italicFontCheck.setSelected(font.isItalic());
     }
@@ -502,7 +502,7 @@ public class PSDisplayOptionsDialog extends PSDialog {
         style = Font.BOLD | Font.ITALIC;
 
       String str = m_fontSizeField.getSelectedItem().toString();
-      int size = (new Integer(str)).intValue();
+      int size = (Integer.valueOf(str)).intValue();
 
       return new Font((String) m_fontNameField.getSelectedItem(), style, size);
     }

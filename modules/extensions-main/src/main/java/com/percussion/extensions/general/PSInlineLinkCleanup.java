@@ -423,7 +423,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
       }
 
       // trace message
-      Object[] args = {new Integer(result.size()), table};
+      Object[] args = {Integer.valueOf(result.size()), table};
       traceMessage(request, "Retrieved {0} items from table \"{1}\"", args);
 
       return result;
@@ -454,7 +454,7 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
-            Object[] args1 = {new Integer(locator.getId()), new Integer(locator.getRevision())};
+            Object[] args1 = {Integer.valueOf(locator.getId()), Integer.valueOf(locator.getRevision())};
 
             traceMessage(request, "Failed process item (id={0}, rev={1}).", args1);
           }

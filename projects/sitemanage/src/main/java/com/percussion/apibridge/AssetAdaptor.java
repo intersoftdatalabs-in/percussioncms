@@ -114,7 +114,9 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
 
   @Autowired private final IPSWorkflowHelper workflowHelper;
 
-  @Autowired private IPSPathService pathService;
+  @Autowired
+  @Qualifier("pathService")
+  private IPSPathService pathService;
 
   public static final String IMAGE_THUMB_PREFIX = "thumb_";
 

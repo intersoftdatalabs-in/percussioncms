@@ -1020,7 +1020,7 @@ public class PSDbmsHelper {
       try {
         while (tables.hasMoreElements()) {
           String key = (String) tables.nextElement();
-          m_tableTypes.put(key, new Integer(bundle.getString(key)));
+          m_tableTypes.put(key, Integer.valueOf(bundle.getString(key)));
         }
       } catch (NumberFormatException e) {
         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.toString());

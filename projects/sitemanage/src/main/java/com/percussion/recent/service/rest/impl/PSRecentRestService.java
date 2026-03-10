@@ -43,6 +43,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +61,7 @@ public class PSRecentRestService implements IPSRecentRestService {
   private static final Logger log = LogManager.getLogger(PSRecentRestService.class);
 
   @Autowired
-  public PSRecentRestService(IPSRecentService recentService) {
+  public PSRecentRestService(@Lazy IPSRecentService recentService) {
     this.recentService = recentService;
   }
 

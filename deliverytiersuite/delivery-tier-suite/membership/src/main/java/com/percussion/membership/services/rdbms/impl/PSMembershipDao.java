@@ -149,8 +149,12 @@ public class PSMembershipDao implements IPSMembershipDao {
 
     Session session = getSession();
 
-    if (member.getId().equals("0")) validateNewMember(member.getUserId(), session);
-    session.saveOrUpdate(member);
+    if (member.getId().equals("0")) {
+      validateNewMember(member.getUserId(), session);
+      session.persist(member);
+    } else {
+      session.merge(member);
+    }
     session.flush();
   }
 
@@ -202,7 +206,7 @@ public class PSMembershipDao implements IPSMembershipDao {
       throw new Exception("Action not allowed.");
     }
 
-    session.saveOrUpdate(member);
+    session.merge(member);
     session.flush();
   }
 

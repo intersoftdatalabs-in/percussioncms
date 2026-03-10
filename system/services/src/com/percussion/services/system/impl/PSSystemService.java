@@ -184,7 +184,7 @@ public class PSSystemService
       try
       {
          PSSharedProperty property = loadSharedProperty(id);
-         getSession().delete(property);
+         getSession().remove(property);
       }
       catch (PSSystemException e)
       {
@@ -214,7 +214,7 @@ public class PSSystemService
             session.persist(property);
          }
          else
-            session.update(property);
+            session.merge(property);
       }
       finally
       {
@@ -426,7 +426,7 @@ public class PSSystemService
    public void deleteContentStatusHistory(PSContentStatusHistory entity)
    {
       notNull(entity);
-      getSession().delete(entity);
+      getSession().remove(entity);
    }
 
    /**
@@ -442,13 +442,13 @@ public class PSSystemService
 
       if (entity.getId() >= 0L)
       {
-         getSession().update(entity);
+         getSession().merge(entity);
          return;
       }
 
       IPSGuid id = m_guidMgr.createGuid(PSTypeEnum.ITEM_HISTORY);
       entity.setId(id.longValue());
-      getSession().save(entity);
+      getSession().persist(entity);
    }
 
    /**

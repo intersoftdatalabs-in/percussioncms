@@ -382,7 +382,7 @@ public class PSAclService implements IPSAclService
                PSAclImpl dup = getSession().get(PSAclImpl.class, acl.getObjectId() & BIT32);
                if (dup != null) {
                   ms_objectIdToAclIdMap.remove(acl.getObjectId());
-                  getSession().delete(acl);
+                  getSession().remove(acl);
                } else {
                   acl.setObjectId(acl.getObjectId() & BIT32);
                }
@@ -655,7 +655,7 @@ public class PSAclService implements IPSAclService
             IPSAcl acl = acls.isEmpty() ? null : acls.get(0);
             if (acl != null) {
                ms_objectIdToAclIdMap.remove(acl.getObjectGuid());
-               getSession().delete(acl);
+               getSession().remove(acl);
             }
          } catch (DataAccessException e) {
             throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e, aclGuid.longValue(),
@@ -742,7 +742,7 @@ public class PSAclService implements IPSAclService
          for (IPSAcl acl : acls) {
             if (acl != null) {
                ms_objectIdToAclIdMap.remove(acl.getObjectGuid());
-               getSession().delete(acl);
+               getSession().remove(acl);
             }
          }
       } catch (DataAccessException e) {

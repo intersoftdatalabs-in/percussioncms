@@ -99,7 +99,7 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
         new Comparator<IPSGuid>() {
           /** Sorts by UUID in ascending order. */
           public int compare(IPSGuid o1, IPSGuid o2) {
-            return (new Integer(o1.getUUID())).compareTo(o2.getUUID());
+            return (Integer.valueOf(o1.getUUID())).compareTo(o2.getUUID());
           }
         });
     Set<Integer> wfInts = new HashSet<>();
@@ -149,7 +149,7 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
       List<Integer> wfIds = wfInfo.getWorkflowIds();
       List<IPSGuid> removals = new ArrayList<>();
       for (IPSGuid guid : wfGuids) {
-        if (wfIds.contains(new Integer(guid.getUUID()))) {
+        if (wfIds.contains(Integer.valueOf(guid.getUUID()))) {
           removals.add(guid);
         }
       }
@@ -236,7 +236,7 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
     List<Integer> wfInts = wfInfo.getWorkflowIds();
     if (wfInts.isEmpty()) {
       return;
-    } else if (!wfInts.contains(new Integer(editor.getWorkflowId()))) {
+    } else if (!wfInts.contains(Integer.valueOf(editor.getWorkflowId()))) {
       int smallestWfId = wfInts.get(0);
       Logger log = LogManager.getLogger(this.getClass());
       log.warn(

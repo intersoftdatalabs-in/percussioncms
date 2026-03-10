@@ -50,7 +50,7 @@ import javax.naming.NamingException;
  * entry in CONTENTSTATUS. It also removes the same CONTENTIDs
  * from PSX_OBJECTRELATIONSHIP and CONTENTSTATUSHISTORY as well
  * if they exist.
- * 
+ *
  * @author chriswright
  *
  */
@@ -62,26 +62,26 @@ public class PSFixStaleDataForContentTypes extends PSFixDBBase implements IPSFix
     */
    PSStringTemplate ms_selectContentStatusHistory = new PSStringTemplate(
          "SELECT COUNT(*) FROM {schema}.CONTENTSTATUSHISTORY WHERE CONTENTID = ?");
-   
+
    /**
     * Select count from PSX_OBJECTRELATIONSHIP where owner and dependent
     *  IDs are from orphaned content type entry.
     */
    PSStringTemplate ms_selectObjectRelationship = new PSStringTemplate(
-         "SELECT COUNT(*) FROM {schema}." + IPSConstants.PSX_RELATIONSHIPS 
+         "SELECT COUNT(*) FROM {schema}." + IPSConstants.PSX_RELATIONSHIPS
          + " WHERE DEPENDENT_ID = ? OR OWNER_ID = ?");
-   
+
    /**
     * Delete a specified relationship row from CONTENTSTATUSHISTORY
     */
    PSStringTemplate ms_deleteContentHistory = new PSStringTemplate(
          "DELETE FROM {schema}.CONTENTSTATUSHISTORY WHERE CONTENTID = ?");
-   
+
    /**
     * Delete a specified relationship row from PSX_OBJECTRELATIONSHIP
     */
    PSStringTemplate ms_deleteObjectRelationship = new PSStringTemplate(
-         "DELETE FROM {schema}." + IPSConstants.PSX_RELATIONSHIPS 
+         "DELETE FROM {schema}." + IPSConstants.PSX_RELATIONSHIPS
          + " WHERE DEPENDENT_ID = ? OR OWNER_ID = ?");
 
    public PSFixStaleDataForContentTypes() throws NamingException, SQLException
@@ -112,12 +112,12 @@ public class PSFixStaleDataForContentTypes extends PSFixDBBase implements IPSFix
                Collection<Integer> contentIds = new ArrayList<Integer>();
                ResultSet rs = selectQuery.executeQuery();
                // content IDs related to table that do not exist in content status
-               while (rs.next())
-               {
-                  int cid = rs.getInt(1);
-                  contentIds.add(new Integer(cid));
-               }
-               
+                  while (rs.next())
+                  {
+                     int cid = rs.getInt(1);
+                     contentIds.add(Integer.valueOf(cid));
+                  }
+
                if (contentIds.size() == 0)
                {
                   continue;
@@ -129,40 +129,40 @@ public class PSFixStaleDataForContentTypes extends PSFixDBBase implements IPSFix
                      // get count of content status history IDs that would be deleted
                      PreparedStatement selectContentHistory =
                            PSPreparedStatement.getPreparedStatement(
-                                 c, 
+                                 c,
                                  ms_selectContentStatusHistory.expand(m_defDict));
-                     
+
                      selectContentHistory.setInt(1, cid);
-                     
+
                      rs = selectContentHistory.executeQuery();
-                     
+
                      while (rs.next()) {
                         contentStatusCount += rs.getInt(1);
                      }
-                     
+
                      selectContentHistory.close();
-                     
+
                      // get count of object relationship IDs that would be deleted
                      PreparedStatement selectObjRelHistory =
                            PSPreparedStatement.getPreparedStatement(
-                                 c, 
+                                 c,
                                  ms_selectObjectRelationship.expand(m_defDict));
-                     
+
                      selectObjRelHistory.setInt(1, cid);
                      selectObjRelHistory.setInt(2, cid);
-                     
+
                      rs = selectObjRelHistory.executeQuery();
-                     
+
                      while (rs.next()) {
                         objRelCount += rs.getInt(1);
                      }
-                     
+
                      selectObjRelHistory.close();
                   }
-                  
+
                   logPreview(idsToString(contentIds), "Would be remved for content type: " + obj.getCtName()
                         + " with table name: " + tableName);
-                  
+
                   selectQuery.close();
                }
                else
@@ -170,7 +170,7 @@ public class PSFixStaleDataForContentTypes extends PSFixDBBase implements IPSFix
                   // delete statement for content type
                   PreparedStatement deleteQuery =
                         PSPreparedStatement.getPreparedStatement(
-                              c, 
+                              c,
                               obj.getDeleteQueries().get(tableName).expand(m_defDict));
                   // delete statement for content status history
                   PreparedStatement deleteContentHistory =
@@ -194,9 +194,9 @@ public class PSFixStaleDataForContentTypes extends PSFixDBBase implements IPSFix
                      deleteContentHistory.execute();
                      deleteObjRel.execute();
                   }
-                  
+
                   logInfo(idsToString(contentIds), "Have been removed from: " + tableName);
-                  
+
                   deleteQuery.close();
                   deleteContentHistory.close();
                   deleteObjRel.close();
@@ -204,7 +204,7 @@ public class PSFixStaleDataForContentTypes extends PSFixDBBase implements IPSFix
                rs.close();
             } // end inner for loop
          } // end outer for loop
-         
+
          log(preview ? Status.PREVIEW : Status.INFO, String.valueOf(contentStatusCount), "Total items to be deleted from content status history table.");
          log(preview ? Status.PREVIEW : Status.INFO, String.valueOf(objRelCount), "Total items to be removed from object relationship table.");
       } // end try
@@ -292,7 +292,7 @@ public class PSFixStaleDataForContentTypes extends PSFixDBBase implements IPSFix
 /**
  * Used to maintain relationship between table name and related select/delete
  * queries.
- * 
+ *
  * @author chriswright
  *
  */

@@ -123,5 +123,8 @@ public class PSRestApiAuthFilter implements ContainerRequestFilter {
     return ret;
   }
 
-  private static String[] allowedPaths = {"/rest/openapi.json"};
+  private static String[] allowedPaths = {
+      // OpenAPI/Swagger endpoint moved to perc-openapi-webapp for build-time generation.
+      // This decouples OpenAPI delivery from the main Rhythmyx runtime.
+  };
 }

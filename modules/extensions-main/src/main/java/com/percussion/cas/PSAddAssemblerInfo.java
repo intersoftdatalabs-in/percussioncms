@@ -329,7 +329,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
         URL url =
             PSUrlUtils.createUrl(
                 "127.0.0.1",
-                new Integer(request.getServerListenerPort()),
+                Integer.valueOf(request.getServerListenerPort()),
                 PUBLICATIONURL,
                 paramMap.entrySet().iterator(),
                 null,
@@ -351,7 +351,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
         url =
             PSUrlUtils.createUrl(
                 "127.0.0.1",
-                new Integer(request.getServerListenerPort()),
+                Integer.valueOf(request.getServerListenerPort()),
                 VARIANTURL,
                 vurlParamMap.entrySet().iterator(),
                 null,

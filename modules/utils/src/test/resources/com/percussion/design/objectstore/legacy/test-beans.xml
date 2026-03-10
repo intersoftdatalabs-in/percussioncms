@@ -46,13 +46,13 @@ http://www.springframework.org/schema/util/spring-util.xsd">
 		<property name="dialects">
 			<util:map>
 				<entry key="sqlserver">
-					<value> "org.hibernate.dialect.SQLServer2012Dialect"</value>
+					<value>org.hibernate.dialect.SQLServerDialect</value>
 				</entry>
 				<entry key="jtds:sqlserver">
-					<value>org.hibernate.dialect.SQLServer2012Dialect</value>
+					<value>org.hibernate.dialect.SQLServerDialect</value>
 				</entry>
 				<entry key="inetdae7">
-					<value>org.hibernate.dialect.SQLServer2012Dialect</value>
+					<value>org.hibernate.dialect.SQLServerDialect</value>
 				</entry>
 				<entry key="oracle:thin">
 					<value>org.hibernate.dialect.OracleDialect</value>

@@ -885,7 +885,7 @@ public class PSWorkflowService
       {
          throw new IllegalArgumentException("adhoc may not be null");
       }
-      getSession().delete(adhoc);
+      getSession().remove(adhoc);
    }
 
 
@@ -925,7 +925,7 @@ public class PSWorkflowService
       {
          throw new IllegalArgumentException("adhoc may not be null");
       }
-      getSession().saveOrUpdate(adhoc);
+      getSession().merge(adhoc);
    }
 
    @Transactional
@@ -943,7 +943,7 @@ public class PSWorkflowService
          {
             throw new Exception("The workflow '"+ workflow.getName() + "' cannot be deleted because is the default workflow.");
          }
-         getSession().delete(workflow);
+         getSession().remove(workflow);
          m_cache.evict(wfid, CACHE_REGION);
          return true;
       }
@@ -959,7 +959,7 @@ public class PSWorkflowService
          throw new IllegalArgumentException("workflow may not be null");
       }
 
-      getSession().saveOrUpdate(workflow);
+      getSession().merge(workflow);
 
       m_cache.evict(workflow.getGUID(), CACHE_REGION);
    }
@@ -1005,7 +1005,7 @@ public class PSWorkflowService
       if (!approvals.isEmpty())
       {
          Session session = getSession();
-         approvals.forEach(session::delete);
+         approvals.forEach(session::remove);
       }
 
    }
@@ -1045,7 +1045,7 @@ public class PSWorkflowService
       {
          throw new IllegalArgumentException("adhoc may not be null");
       }
-      getSession().saveOrUpdate(approval);
+      getSession().merge(approval);
    }
 
    public List<PSMenuAction> getAllWorkflowActions(List<IPSGuid> contentids,

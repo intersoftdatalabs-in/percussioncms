@@ -473,7 +473,7 @@ public class PSJdbcRowData {
    */
   public int hashCode() {
     int hash = 0;
-    hash += (new Integer(m_action)).hashCode();
+    hash += (Integer.valueOf(m_action)).hashCode();
     hash += m_columns.hashCode();
 
     return hash;

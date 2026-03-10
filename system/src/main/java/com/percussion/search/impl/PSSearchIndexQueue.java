@@ -160,7 +160,7 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
     Session sess = getSession();
     try {
       item.setQueueId(PSIdGenerator.getNextId(PSSearchIndexEventQueue.QUEUE_THREAD_NAME));
-      sess.save(item);
+      sess.persist(item);
       updatePollTime(item.getCreated());
       return (item.getQueueId());
     } catch (SQLException e) {

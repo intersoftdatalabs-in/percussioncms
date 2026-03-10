@@ -1774,7 +1774,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
           String colName = (String) selectCols.get(k);
           // --+trace("SELECT column: " + colName);
           finalColumns[k] = parentJoinResult.getColumnData(colName);
-          colNameMap.put(colName, new Integer(k + 1));
+          colNameMap.put(colName, Integer.valueOf(k + 1));
         }
         finalResultSet = new PSResultSet(finalColumns, colNameMap, null);
       } catch (Throwable t) {

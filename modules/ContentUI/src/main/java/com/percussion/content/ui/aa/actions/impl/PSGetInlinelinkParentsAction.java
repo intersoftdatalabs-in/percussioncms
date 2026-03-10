@@ -89,7 +89,7 @@ public class PSGetInlinelinkParentsAction extends PSAAActionBase {
       String p;
       for (PSAaRelationship r : rels) {
         p = r.getProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP);
-        if (StringUtils.isNotBlank(p)) ids.add(new Integer(r.getOwner().getId()));
+        if (StringUtils.isNotBlank(p)) ids.add(Integer.valueOf(r.getOwner().getId()));
       }
     } catch (PSErrorException e) {
       throw new RuntimeException(e); // unknown exception
@@ -122,7 +122,7 @@ public class PSGetInlinelinkParentsAction extends PSAAActionBase {
     for (int i = 0; i < jarray.length(); i++) {
       try {
         int n = jarray.getInt(i);
-        ids.add(new Integer(n));
+        ids.add(Integer.valueOf(n));
       } catch (JSONException e) {
         throw new IllegalArgumentException(
             "Parameter '" + MANAGED_IDS + "' must be a JSON array of integers.");

@@ -68,7 +68,7 @@ public class PSDesignObjectAuditService implements IPSDesignObjectAuditService {
    /**
     * Set the audit configuration on this class, usually called by Spring
     * framework via dependency injection.
-    * 
+    *
     * @param config The config, may not be <code>null</code>.
     */
    public void setConfig(IPSDesignObjectAuditConfig config) {
@@ -86,7 +86,7 @@ public class PSDesignObjectAuditService implements IPSDesignObjectAuditService {
       var entry = new PSAuditLogEntry();
       var guidMgr = PSGuidManagerLocator.getGuidMgr();
       entry.setGUID(guidMgr.createGuid(PSTypeEnum.INTERNAL));
-      
+
       return entry;
    }
 
@@ -94,7 +94,7 @@ public class PSDesignObjectAuditService implements IPSDesignObjectAuditService {
    @Transactional
    public void saveAuditLogEntry(PSAuditLogEntry entry) {
       Objects.requireNonNull(entry, "entry may not be null");
-      getSession().save(entry);
+      getSession().persist(entry);
    }
 
    @Override
@@ -137,7 +137,7 @@ public class PSDesignObjectAuditService implements IPSDesignObjectAuditService {
       var session = getSession();
 
       // Use Stream API for efficient batch processing
-      entries.forEach(session::save);
+      entries.forEach(session::persist);
    }
 
    @Override

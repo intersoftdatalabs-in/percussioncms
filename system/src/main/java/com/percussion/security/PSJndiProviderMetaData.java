@@ -91,7 +91,7 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
     ArrayList serverNameCol = new ArrayList(1);
     HashMap columnNames = new HashMap();
 
-    columnNames.put("SERVER_NAME", new Integer(1));
+    columnNames.put("SERVER_NAME", Integer.valueOf(1));
     return new PSResultSet(new ArrayList[] {serverNameCol}, columnNames, ms_GetServerRSMeta);
   }
 
@@ -113,7 +113,7 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
     List objectTypeCol = getSupportedTypes();
 
     HashMap columnNames = new HashMap();
-    columnNames.put("OBJECT_TYPE", new Integer(1));
+    columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
 
     return new PSResultSet(new List[] {objectTypeCol}, columnNames, ms_GetObjectTypesRSMeta);
   }

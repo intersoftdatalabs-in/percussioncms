@@ -10,7 +10,7 @@ ext
 ee10-deploy
 http
 gzip
-plus
+ee10-plus
 ee10-jstl
 jaas
 fcgi

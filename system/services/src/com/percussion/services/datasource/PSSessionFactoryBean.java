@@ -16,7 +16,6 @@
  */
 package com.percussion.services.datasource;
 
-import com.percussion.services.utils.hibernate.PSHibernateInterceptor;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.jdbc.IPSConnectionInfo;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
@@ -223,9 +222,10 @@ public class PSSessionFactoryBean extends LocalSessionFactoryBean {
             super.setHibernateProperties(hibernateProperties);
             super.afterPropertiesSet();
 
-            // Configure interceptor after session factory creation
-            this.getConfiguration().setInterceptor(
-                new PSHibernateInterceptor(interceptEvents));
+            // TODO: Re-enable interceptor support for Hibernate 7.x
+            // Interceptor functionality needs to be refactored for Hibernate 7.x compatibility
+            // this.getConfiguration().setInterceptor(
+            //     new PSHibernateInterceptor(interceptEvents));
 
         } catch (Exception e) {
             var errorMsg = "Failed to initialize the hibernate configuration: " +

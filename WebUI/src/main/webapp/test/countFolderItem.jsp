@@ -186,9 +186,9 @@ table#results th{
 				Long typeId = new Long(item.getContentTypeId());
 				Integer count = (Integer)countMap.get(typeId);
 				if (count == null)
-					count = new Integer(1);
+					count = Integer.valueOf(1);
 				else
-					count = new Integer(count.intValue() + 1);	
+					count = Integer.valueOf(count.intValue() + 1);	
 				countMap.put(typeId, count);
 			}
 		}

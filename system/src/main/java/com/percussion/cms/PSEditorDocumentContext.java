@@ -380,7 +380,7 @@ public class PSEditorDocumentContext {
    * @throws PSNotFoundException if there is no entry in the page map for the supplied id.
    */
   public int getChildId(int pageId) throws PSNotFoundException {
-    PSPageInfo info = (PSPageInfo) m_pageInfo.get(new Integer(pageId));
+    PSPageInfo info = (PSPageInfo) m_pageInfo.get(Integer.valueOf(pageId));
     if (null == info) {
       String[] args = {"page", "" + pageId};
       throw new PSNotFoundException(IPSServerErrors.CE_MISSING_PAGEMAP_ENTRY, args);

@@ -397,7 +397,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
           jdbcType = PSSqlHelper.convertNativeDataType(jdbcType, strColType, m_driver);
 
           /* store it as just the column */
-          m_dataTypes.put(colName.toLowerCase(), new Integer(jdbcType));
+          m_dataTypes.put(colName.toLowerCase(), Integer.valueOf(jdbcType));
         }
 
       } finally {
@@ -424,8 +424,8 @@ public class PSTableMetaData implements IPSConnectionInfo {
       Map.Entry entry = (Map.Entry) entries.next();
       String key = (String) entry.getKey();
       Integer val = (Integer) entry.getValue();
-      dtMap.put(new String(key), new Integer(val.intValue()));
-      dtMap.put(alias.toLowerCase() + "." + key, new Integer(val.intValue()));
+      dtMap.put(new String(key), Integer.valueOf(val.intValue()));
+      dtMap.put(alias.toLowerCase() + "." + key, Integer.valueOf(val.intValue()));
     }
 
     return dtMap;

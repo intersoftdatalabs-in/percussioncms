@@ -69,7 +69,7 @@ public class PSDESDecryptor implements IPSDecryptor {
 
     try {
       while ((byteAsInt = in.read()) != -1) { // read in next byte
-        m_dataList.add(new Integer(byteAsInt));
+        m_dataList.add(Integer.valueOf(byteAsInt));
       }
 
       int dataListSize = m_dataList.size();
@@ -404,7 +404,7 @@ public class PSDESDecryptor implements IPSDecryptor {
               + (decryptedBlock[temp + 5] << 2)
               + (decryptedBlock[temp + 6] << 1)
               + decryptedBlock[temp + 7]);
-      oneInteger = new Integer(temp0);
+      oneInteger = Integer.valueOf(temp0);
       m_oneDecodedDataBlock[i] = oneInteger.byteValue();
     }
   }

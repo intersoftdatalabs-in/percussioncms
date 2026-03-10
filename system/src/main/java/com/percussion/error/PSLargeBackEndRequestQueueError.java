@@ -77,7 +77,7 @@ public class PSLargeBackEndRequestQueueError extends PSLargeRequestQueueError {
      *    [3] = m_server
      * to format the the submessage text
      */
-    Object[] args = {m_sessId, new Integer(m_size), m_driver, m_server};
+    Object[] args = {m_sessId, Integer.valueOf(m_size), m_driver, m_server};
     msgs[0] =
         new PSLogSubMessage(
             IPSBackEndErrors.REQUEST_QUEUE_FULL,

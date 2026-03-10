@@ -100,7 +100,7 @@ public class PSPreviewCommandHandler extends PSQueryCommandHandler {
     }
     PSDisplayMapper dispMapper = pipe.getMapper().getUIDefinition().getDisplayMapper();
 
-    m_contentTypeId = new Integer((int) ce.getContentType());
+    m_contentTypeId = Integer.valueOf((int) ce.getContentType());
     m_editHandler = eh;
     m_previewBuilder =
         new PSPreviewDocumentBuilder(ce, ctx, dispMapper, ROOT_PARENT_PAGE_ID, false);

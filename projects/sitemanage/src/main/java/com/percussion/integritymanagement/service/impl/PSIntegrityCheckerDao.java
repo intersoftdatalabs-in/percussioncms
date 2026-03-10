@@ -82,7 +82,7 @@ public class PSIntegrityCheckerDao
   public void delete(PSIntegrityStatus intStatus) {
     var session = getSession();
     try {
-      session.delete(intStatus);
+      session.remove(intStatus);
     } finally {
       session.flush();
     }
@@ -94,7 +94,7 @@ public class PSIntegrityCheckerDao
     var session = getSession();
     try {
       setValidPersistedIds(status);
-      session.saveOrUpdate(status);
+      session.merge(status);
     } finally {
       session.flush();
     }

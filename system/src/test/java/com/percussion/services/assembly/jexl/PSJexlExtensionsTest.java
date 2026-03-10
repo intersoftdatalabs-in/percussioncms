@@ -437,8 +437,8 @@ public class PSJexlExtensionsTest
    {
       List<Map<String,Object>> input = new ArrayList<Map<String,Object>>();
       
-      input.add(getMapListEntry("x", new Integer(1)));
-      input.add(getMapListEntry("x", new Integer(2)));
+      input.add(getMapListEntry("x", Integer.valueOf(1)));
+      input.add(getMapListEntry("x", Integer.valueOf(2)));
       input.add(getMapListEntry("x", "3"));
       input.add(getMapListEntry("y", "4"));
       

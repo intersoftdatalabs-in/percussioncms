@@ -30,7 +30,7 @@
 		<property name="properties">
 			<props>
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
-				<prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
+				<prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
 				<!-- This EL avoids setting default_schema when it's empty. -->
 				<prop
 					key="hibernate.default_schema#{'${db.schema}'.length() == 0 ? '.null' : ''}">${db.schema}</prop>

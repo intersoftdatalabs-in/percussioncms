@@ -98,7 +98,7 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
     Collection<PSDbBlogPostVisit> dbVisits = convertToDbVisits(visits);
     for (PSDbBlogPostVisit visit : dbVisits) {
 
-      session.saveOrUpdate(visit);
+      session.merge(visit);
 
       // To avoid OutOfMemory exceptions in case of a lot of entries
       // to be added, flush and clear session after 50 newly added
@@ -241,7 +241,7 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
 
     for (PSDbBlogPostVisit visit : results) {
       visit.setPagepath(visit.getPagepath().replaceAll(prevSiteName, newSiteName));
-      session.saveOrUpdate(visit);
+      session.merge(visit);
     }
   }
 

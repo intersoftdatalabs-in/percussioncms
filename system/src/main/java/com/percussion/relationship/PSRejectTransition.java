@@ -52,7 +52,7 @@ public class PSRejectTransition extends PSException {
    * @param revisionId - the revisionid on which the error occurred. May be 0.
    */
   public PSRejectTransition(int msgCode, int contentId, int revisionId) {
-    this(msgCode, new Integer[] {new Integer(contentId), new Integer(revisionId)});
+    this(msgCode, new Integer[] {Integer.valueOf(contentId), Integer.valueOf(revisionId)});
   }
 
   /**

@@ -57,7 +57,7 @@ public class PSFormDao implements IPSFormDao {
       throw new IllegalArgumentException("clist may not be null");
     }
 
-    entityManager.merge(form);
+    entityManager.persist(form);
   }
 
   /* (non-Javadoc)

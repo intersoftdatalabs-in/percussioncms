@@ -177,7 +177,7 @@ public class PSSecurityProviderInstance extends PSComponent {
 
   private static PSIllegalArgumentException validateName(String name) {
     if ((null != name) && (name.length() > MAX_NAME_LEN)) {
-      Object[] args = {new Integer(MAX_NAME_LEN), new Integer(name.length())};
+      Object[] args = {Integer.valueOf(MAX_NAME_LEN), Integer.valueOf(name.length())};
       return new PSIllegalArgumentException(IPSObjectStoreErrors.SPINST_NAME_TOO_BIG, args);
     }
     return null;

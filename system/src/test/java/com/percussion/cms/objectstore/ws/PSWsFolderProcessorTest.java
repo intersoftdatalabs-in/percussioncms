@@ -253,8 +253,8 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
       names.add("sys_contentcreateddate");
       names.add("sys_contentlastmodifieddate");
       List<Integer> ids = new ArrayList<Integer>();
-      ids.add(new Integer(2));
-      ids.add(new Integer(3));
+      ids.add(Integer.valueOf(2));
+      ids.add(Integer.valueOf(3));
       IPSExecutableSearch search =
          PSExecutableSearchFactory.createExecutableSearch(requester, names,
             ids);

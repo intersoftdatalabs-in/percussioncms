@@ -156,8 +156,8 @@ public abstract class PSJoinFormatter {
         reorderedJoins.add(storeAtPos, join);
         lastOuterJoin++;
 
-        if (lPos == null) tableIndex.put(lTable, new Integer(storeAtPos));
-        if (rPos == null) tableIndex.put(rTable, new Integer(storeAtPos));
+        if (lPos == null) tableIndex.put(lTable, Integer.valueOf(storeAtPos));
+        if (rPos == null) tableIndex.put(rTable, Integer.valueOf(storeAtPos));
       } else // always add inner joins to the end
       reorderedJoins.add(join);
     }

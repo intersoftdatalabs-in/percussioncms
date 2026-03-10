@@ -698,21 +698,21 @@ public class PSAAObjectId {
 
   // Static initialization of indices with parameters
   static {
-    m_indices.put(PARAM_NODE_TYPE, new Integer(0));
-    m_indices.put(IPSHtmlParameters.SYS_CONTENTID, new Integer(1));
-    m_indices.put(IPSHtmlParameters.SYS_VARIANTID, new Integer(2));
-    m_indices.put(IPSHtmlParameters.SYS_SITEID, new Integer(3));
-    m_indices.put(IPSHtmlParameters.SYS_FOLDERID, new Integer(4));
-    m_indices.put(IPSHtmlParameters.SYS_CONTEXT, new Integer(5));
-    m_indices.put(IPSHtmlParameters.SYS_AUTHTYPE, new Integer(6));
-    m_indices.put(IPSHtmlParameters.SYS_CONTENTTYPEID, new Integer(7));
-    m_indices.put(PARAM_CHECKEDOUT_STATUS, new Integer(8));
-    m_indices.put(IPSHtmlParameters.SYS_SLOTID, new Integer(9));
-    m_indices.put(IPSHtmlParameters.SYS_RELATIONSHIPID, new Integer(10));
-    m_indices.put(PARAM_FIELD_NAME, new Integer(11));
-    m_indices.put(PARAM_PARENT_ID, new Integer(12));
-    m_indices.put(PARAM_FIELD_LABEL, new Integer(13));
-    m_indices.put(IPSHtmlParameters.SYS_SORTRANK, new Integer(14));
+    m_indices.put(PARAM_NODE_TYPE, Integer.valueOf(0));
+    m_indices.put(IPSHtmlParameters.SYS_CONTENTID, Integer.valueOf(1));
+    m_indices.put(IPSHtmlParameters.SYS_VARIANTID, Integer.valueOf(2));
+    m_indices.put(IPSHtmlParameters.SYS_SITEID, Integer.valueOf(3));
+    m_indices.put(IPSHtmlParameters.SYS_FOLDERID, Integer.valueOf(4));
+    m_indices.put(IPSHtmlParameters.SYS_CONTEXT, Integer.valueOf(5));
+    m_indices.put(IPSHtmlParameters.SYS_AUTHTYPE, Integer.valueOf(6));
+    m_indices.put(IPSHtmlParameters.SYS_CONTENTTYPEID, Integer.valueOf(7));
+    m_indices.put(PARAM_CHECKEDOUT_STATUS, Integer.valueOf(8));
+    m_indices.put(IPSHtmlParameters.SYS_SLOTID, Integer.valueOf(9));
+    m_indices.put(IPSHtmlParameters.SYS_RELATIONSHIPID, Integer.valueOf(10));
+    m_indices.put(PARAM_FIELD_NAME, Integer.valueOf(11));
+    m_indices.put(PARAM_PARENT_ID, Integer.valueOf(12));
+    m_indices.put(PARAM_FIELD_LABEL, Integer.valueOf(13));
+    m_indices.put(IPSHtmlParameters.SYS_SORTRANK, Integer.valueOf(14));
   }
 
   // For testing

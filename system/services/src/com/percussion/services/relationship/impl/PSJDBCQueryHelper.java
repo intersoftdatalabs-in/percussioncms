@@ -301,7 +301,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
             }
 
             m_qryBuffer.append("c.OBJECTTYPE").append(EQ);
-            m_paramValues.add(new Integer(m_filter.getOwnerObjectType()));
+            m_paramValues.add(Integer.valueOf(m_filter.getOwnerObjectType()));
             m_isAddAND = true;
         }
     }
@@ -357,7 +357,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
             }
 
             m_qryBuffer.append("c.OBJECTTYPE").append(EQ);
-            m_paramValues.add(new Integer(m_filter.getDependentObjectType()));
+            m_paramValues.add(Integer.valueOf(m_filter.getDependentObjectType()));
             m_isAddAND = true;
         }
 
@@ -444,7 +444,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
             appendAndWhere();
 
             m_qryBuffer.append(R_TABLE).append(FN_OWNERID).append(EQ);
-            m_paramValues.add(new Integer(m_filter.getOwner().getId()));
+            m_paramValues.add(Integer.valueOf(m_filter.getOwner().getId()));
             m_isAddAND = true;
 
             if (m_filter.getLimitToOwnerRevision() || useOwnerRevision(ids)) {
@@ -454,7 +454,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
                 appendAndWhere();
 
                 m_qryBuffer.append(R_TABLE).append(FN_OWNER_REV).append(EQ);
-                m_paramValues.add(new Integer(m_filter.getOwner().getRevision()));
+                m_paramValues.add(Integer.valueOf(m_filter.getOwner().getRevision()));
                 m_isAddAND = true;
             }
         }
@@ -465,13 +465,13 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
 
             if (m_filter.getDependents().size() == 1) {
                 m_qryBuffer.append(R_TABLE).append(FN_DEPENDENTID).append(EQ);
-                m_paramValues.add(new Integer(m_filter.getDependent().getId()));
+                m_paramValues.add(Integer.valueOf(m_filter.getDependent().getId()));
             } else {
                 appendInClause(R_TABLE_DEPENDENTID, m_filter.getDependents(),
                     false);
 
                 for (PSLocator loc : m_filter.getDependents())
-                    m_paramValues.add(new Integer(loc.getId()));
+                    m_paramValues.add(Integer.valueOf(loc.getId()));
             }
 
             m_isAddAND = true;
@@ -481,7 +481,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
             appendAndWhere();
 
             m_qryBuffer.append(R_TABLE).append(FN_RID).append(EQ);
-            m_paramValues.add(new Integer(m_filter.getRelationshipId()));
+            m_paramValues.add(Integer.valueOf(m_filter.getRelationshipId()));
             m_isAddAND = true;
         }
 
@@ -775,7 +775,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
                 if (prop.getKey()
                             .equalsIgnoreCase(PSRelationshipConfig.PDU_FOLDERID)) {
                     m_qryBuffer.append(R_TABLE).append(FN_FOLDER_ID).append(EQ);
-                    m_paramValues.add(new Integer(prop.getValue()));
+                    m_paramValues.add(Integer.valueOf(prop.getValue()));
                     m_isAddAND = true;
                 } else if (prop.getKey()
                                    .equalsIgnoreCase(PSRelationshipConfig.PDU_INLINERELATIONSHIP)) {
@@ -795,7 +795,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
                 } else if (prop.getKey()
                                    .equalsIgnoreCase(PSRelationshipConfig.PDU_SORTRANK)) {
                     m_qryBuffer.append(R_TABLE).append(FN_SORT_RANK).append(EQ);
-                    m_paramValues.add(new Integer(prop.getValue()));
+                    m_paramValues.add(Integer.valueOf(prop.getValue()));
                     m_isAddAND = true;
                 } else if (prop.getKey()
                                    .equalsIgnoreCase(PSRelationshipConfig.PDU_VARIANTID)) {

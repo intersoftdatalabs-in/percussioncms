@@ -262,7 +262,7 @@ public class PSLinkUtils extends PSJexlUtilBase
             .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
       PSRequestContext ctx = new PSRequestContext(req);
       return PSUrlUtils.createUrl("127.0.0.1",
-            new Integer(ctx.getServerListenerPort()), path, null, null, ctx,
+            Integer.valueOf(ctx.getServerListenerPort()), path, null, null, ctx,
             false).toExternalForm();
    }
 }

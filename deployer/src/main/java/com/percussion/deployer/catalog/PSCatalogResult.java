@@ -81,7 +81,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
    * @param data the data to add.
    */
   public void addNumericColumn(int data) {
-    m_columns.add(new Integer(data));
+    m_columns.add(Integer.valueOf(data));
   }
 
   /**
@@ -125,7 +125,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
 
       case PSCatalogResultColumn.TYPE_NUMERIC:
         try {
-          obj = new Integer(data);
+          obj = Integer.valueOf(data);
         } catch (NumberFormatException e) {
           errorTypeConv = true;
         }

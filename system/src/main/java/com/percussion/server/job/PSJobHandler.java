@@ -215,7 +215,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
 
     // start and store it
     runner.start();
-    m_jobRunners.put(new Integer(jobId), runner);
+    m_jobRunners.put(Integer.valueOf(jobId), runner);
 
     // prepare response
     Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -270,7 +270,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     String id = reqRoot.getAttribute("id");
     Integer jobId;
     try {
-      jobId = new Integer(id);
+      jobId = Integer.valueOf(id);
     } catch (NumberFormatException e) {
       Object[] msgArgs = {reqRoot.getTagName(), "id", id};
       PSUnknownNodeTypeException une =
@@ -326,7 +326,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     String id = reqRoot.getAttribute("id");
     Integer jobId;
     try {
-      jobId = new Integer(id);
+      jobId = Integer.valueOf(id);
     } catch (NumberFormatException e) {
       Object[] msgArgs = {reqRoot.getTagName(), "id", id};
       PSUnknownNodeTypeException une =
@@ -363,7 +363,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
    */
   public void jobCompleted(long jobId) {
     // remove listener
-    PSJobRunner job = (PSJobRunner) m_jobRunners.get(new Integer((int) jobId));
+    PSJobRunner job = (PSJobRunner) m_jobRunners.get(Integer.valueOf((int) jobId));
     if (job != null) job.removeJobListener(this);
 
     // unlock handler

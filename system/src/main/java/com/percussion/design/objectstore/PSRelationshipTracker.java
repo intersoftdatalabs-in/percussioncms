@@ -45,8 +45,8 @@ public class PSRelationshipTracker {
 
     if (target == null) throw new IllegalArgumentException("target cannot be null");
 
-    Integer sourceId = new Integer(source.getId());
-    Integer targetId = new Integer(target.getId());
+    Integer sourceId = Integer.valueOf(source.getId());
+    Integer targetId = Integer.valueOf(target.getId());
     Object test = m_sourceTargetItemMap.put(sourceId, targetId);
     if (test == null) {
       PSActiveAssemblerProcessor processor = PSActiveAssemblerProcessor.getInstance();
@@ -65,7 +65,7 @@ public class PSRelationshipTracker {
 
     if (target == null) throw new IllegalArgumentException("target cannot be null");
 
-    m_sourceTargetFolderMap.put(new Integer(source.getId()), target);
+    m_sourceTargetFolderMap.put(Integer.valueOf(source.getId()), target);
   }
 
   /**
@@ -91,7 +91,7 @@ public class PSRelationshipTracker {
   public PSLocator getFolderTarget(PSLocator source) {
     if (source == null) throw new IllegalArgumentException("source cannot be null");
 
-    return (PSLocator) m_sourceTargetFolderMap.get(new Integer(source.getId()));
+    return (PSLocator) m_sourceTargetFolderMap.get(Integer.valueOf(source.getId()));
   }
 
   /**

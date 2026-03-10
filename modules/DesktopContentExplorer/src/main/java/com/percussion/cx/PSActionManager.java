@@ -1385,7 +1385,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
         if (!node.areDynamicPropsLoaded()) {
           try {
-            idList.add(new Integer(strContentId));
+            idList.add(Integer.valueOf(strContentId));
             nodeMap.put(strContentId, node);
             String ctID = node.getProp(PROPERTY_CONTENTTYPEID);
             if (ctID.trim().length() > 0) ctTypeIDs.add(ctID);
@@ -1481,7 +1481,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
       PSProperties nodeProps = node.getProperties();
       if (nodeProps != null) {
-        contentIds.add(new Integer(strContentId));
+        contentIds.add(Integer.valueOf(strContentId));
         nodeMap.put(strContentId, node);
         String ctId = node.getProp(PROPERTY_CONTENTTYPEID);
         if (ctId.trim().length() > 0) ctypeIds.add(ctId);
@@ -2105,7 +2105,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    */
   private boolean inSameState(Map itemIdToStateIdOriginal, String contentId)
       throws PSContentExplorerException {
-    Integer cid = new Integer(contentId);
+    Integer cid = Integer.valueOf(contentId);
     Map itemIdToStateIdCur = new HashMap();
     getItemIdToStateIdMap(Collections.singletonList(cid), itemIdToStateIdCur);
     Integer originalState = (Integer) itemIdToStateIdOriginal.get(cid);
@@ -2143,7 +2143,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         Node n = nl.item(i);
         String cid = PSXMLDomUtil.getAttributeTrimmed((Element) n, "contentId");
         String wfId = PSXMLDomUtil.getAttributeTrimmed((Element) n, "wfStateId");
-        results.put(new Integer(cid), new Integer(wfId));
+        results.put(Integer.valueOf(cid), Integer.valueOf(wfId));
       }
     } catch (MalformedURLException e) {
       throw new PSContentExplorerException(0, e.getLocalizedMessage());

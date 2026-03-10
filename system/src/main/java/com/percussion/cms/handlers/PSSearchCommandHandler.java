@@ -996,7 +996,7 @@ public class PSSearchCommandHandler extends PSCommandHandler
           List list = PSStringOperation.getSplittedList(data, ',');
           Iterator iter = list.iterator();
           while (iter.hasNext()) {
-            ls.add(new PSNumericLiteral(new Integer((String) iter.next()), df));
+            ls.add(new PSNumericLiteral(Integer.valueOf((String) iter.next()), df));
           }
           rightVal = ls;
           if ((ms_contentStatusContentIdColumn != null)
@@ -1027,7 +1027,7 @@ public class PSSearchCommandHandler extends PSCommandHandler
             rightVal = new PSFunctionCall(function, funcParams, null, null);
           }
         } else {
-          rightVal = new PSNumericLiteral(new Integer(data), df);
+          rightVal = new PSNumericLiteral(Integer.valueOf(data), df);
         }
       } else if (dataType.equals(PSField.DT_DATETIME)
           || dataType.equals(PSField.DT_DATE)

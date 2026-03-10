@@ -45,7 +45,7 @@
                 <prop key="db.schema">APP</prop>
                 <prop key="datasource">percDataSource</prop>
                 <prop key="hibernateProperties">percHibernateProperties</prop>
-                <prop key="hibernate.dialect">com.percussion.delivery.rdbms.DerbyTenOneFourDialect</prop>
+                <prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
                 <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
                 <prop key="hibernate.cache.use_second_level_cache">false</prop>
                 <prop key="hibernate.cache.use_query_cache">false</prop>
@@ -80,7 +80,7 @@
 
     <!-- Hibernate SessionFactory -->
     <bean id="feedsSessionFactory" name="feedsSessionFactoryName"
-          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" lazy-init="true">
+          class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean" lazy-init="true">
         <property name="dataSource">
             <ref bean="${datasource}" />
         </property>

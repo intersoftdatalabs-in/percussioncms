@@ -91,7 +91,7 @@ public class PSServerLockManager {
       if ((flag & flags) == flag) {
         PSServerLock lock = getCurrentLock(flag);
         if (lock != null) conflicts.add(lock);
-        lockedResourceList.add(new Integer(flag));
+        lockedResourceList.add(Integer.valueOf(flag));
       }
     }
 
@@ -104,7 +104,7 @@ public class PSServerLockManager {
     PSServerLock lock = new PSServerLock(lockId, locker, lockedResources);
 
     if (conflicts.isEmpty()) {
-      m_locks.put(new Integer(lockId), lock);
+      m_locks.put(Integer.valueOf(lockId), lock);
       result = new PSServerLockResult(lock);
     } else result = new PSServerLockResult(lock, conflicts);
 
@@ -119,7 +119,7 @@ public class PSServerLockManager {
    *     released.
    */
   public synchronized boolean releaseLock(int lockId) {
-    return m_locks.remove(new Integer(lockId)) != null;
+    return m_locks.remove(Integer.valueOf(lockId)) != null;
   }
 
   /**
@@ -143,7 +143,7 @@ public class PSServerLockManager {
    *     </code> flags.
    */
   public PSServerLock getCurrentLock(int resource) {
-    if (!ms_resourceMap.containsKey(new Integer(resource)))
+    if (!ms_resourceMap.containsKey(Integer.valueOf(resource)))
       throw new IllegalArgumentException("invalid lock resource: " + resource);
 
     PSServerLock lock = null;
@@ -214,7 +214,7 @@ public class PSServerLockManager {
    *     </code>.
    */
   public static String getResourceName(int resource) {
-    String key = (String) ms_resourceMap.get(new Integer(resource));
+    String key = (String) ms_resourceMap.get(Integer.valueOf(resource));
     if (key != null) {
       try {
         key = PSServer.getRes().getString(RESOURCE_NAME_PREFIX + key);
@@ -265,6 +265,6 @@ public class PSServerLockManager {
 
   static {
     ms_resourceMap = new HashMap(1);
-    ms_resourceMap.put(new Integer(RESOURCE_PUBLISHER), "publisher");
+    ms_resourceMap.put(Integer.valueOf(RESOURCE_PUBLISHER), "publisher");
   }
 }

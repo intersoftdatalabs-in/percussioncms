@@ -75,7 +75,7 @@ public class PSPublishingContextTest
       context.setDefaultSchemeId(new PSGuid("0-10-314"));
       context.setDescription("This is a test description");
       context.setGUID(new PSGuid("0-113-1"));
-      context.setId(new Integer(1));
+      context.setId(Integer.valueOf(1));
       context.setName("Publish");
           
       return context;

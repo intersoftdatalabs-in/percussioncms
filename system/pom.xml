@@ -145,10 +145,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
 		</dependency>
 		<dependency>
@@ -168,6 +164,10 @@
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-community-dialects</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
@@ -209,7 +209,7 @@
 			<groupId>jakarta.faces</groupId>
 			<artifactId>jakarta.faces-api</artifactId>
 			<version>4.0.1</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.activation</groupId>
@@ -223,6 +223,10 @@
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-jcache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
 		</dependency>
 		<!-- Commons -->
 		<dependency>
@@ -317,14 +321,16 @@
 			<artifactId>myfaces-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.myfaces.core</groupId>
+			<artifactId>myfaces-impl</artifactId>
+		</dependency>
+		<!-- Compile-time only: old JSF API for code that uses javax.faces package names -->
+		<!-- At runtime, myfaces-impl provides the actual org.apache.myfaces implementations -->
+		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-api</artifactId>
 			<version>2.2.20</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.myfaces.core</groupId>
-			<artifactId>myfaces-impl</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.el</groupId>
@@ -338,16 +344,8 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate.orm</groupId>
-			<artifactId>hibernate-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>jakarta.xml.soap</groupId>
 			<artifactId>jakarta.xml.soap-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.owasp</groupId>
-			<artifactId>csrfguard</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>saxon</groupId>
@@ -688,7 +686,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-jaxb-annotations</artifactId>
+			<artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
+			<version>${jakarta.jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -754,21 +753,12 @@
 			<groupId>com.github.dfabulich</groupId>
 			<artifactId>sitemapgen4j</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>swagger-ui</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-jaxrs2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-jaxrs2-servlet-initializer-v2</artifactId>
-		</dependency>
+		<!-- Swagger annotations kept for source-level OpenAPI documentation support.
+		     All runtime Swagger/OpenAPI features moved to perc-openapi-webapp. -->
 		<dependency>
 			<groupId>io.swagger.core.v3</groupId>
 			<artifactId>swagger-annotations</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mozilla</groupId>

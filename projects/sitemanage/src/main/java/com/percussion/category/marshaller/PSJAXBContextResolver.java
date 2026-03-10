@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
 import com.percussion.category.data.PSDateAdapter;
@@ -51,7 +51,7 @@ public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {
         .setAnnotationIntrospector(
             AnnotationIntrospector.pair(
                 new JacksonAnnotationIntrospector(),
-                new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
+            new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
   }
 
   @Override

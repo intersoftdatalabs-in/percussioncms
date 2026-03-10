@@ -1562,7 +1562,7 @@ public class PSAssemblyService implements IPSAssemblyService
          //
          // so we arse not check the saved object against the object stored in
          // "memory" region of EHcache, which is the same way in 6.5.2.
-         session.saveOrUpdate(var);
+         session.merge(var);
          session.flush();
 
          // the object will be evicted by the framework,
@@ -1875,7 +1875,7 @@ public class PSAssemblyService implements IPSAssemblyService
       try
       {
          var template = loadTemplate(id, false);
-         session.delete(template);
+         session.remove(template);
          // The saved object will be (indirectly) evicted by the framework
       }
       catch (DataAccessException e)
@@ -1967,7 +1967,7 @@ public class PSAssemblyService implements IPSAssemblyService
       var session = entityManager.unwrap(Session.class);
       try
       {
-         session.saveOrUpdate( slot );
+         session.merge( slot );
       }
       catch (Exception e)
       {
@@ -2058,7 +2058,7 @@ public class PSAssemblyService implements IPSAssemblyService
       {
          var session = entityManager.unwrap(Session.class);
          var slot = loadSlot(id);
-         session.delete(slot);
+         session.remove(slot);
       }
       catch (DataAccessException e)
       {

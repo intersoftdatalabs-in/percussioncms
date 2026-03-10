@@ -419,9 +419,9 @@ public class PSSearchViewActionManager {
               temp = item.getAttribute("sys_contentid").trim();
               typeid = item.getAttribute("sys_contenttypeid").trim();
               if (typeid.length() > 0) {
-                typeList.add(new Integer(typeid));
+                typeList.add(Integer.valueOf(typeid));
               }
-              idList.add(new Integer(temp));
+              idList.add(Integer.valueOf(temp));
               // Stop extracting results after max
               if (search.getMaximumResultSize() > 0
                   && idList.size() >= search.getMaximumResultSize()) break;

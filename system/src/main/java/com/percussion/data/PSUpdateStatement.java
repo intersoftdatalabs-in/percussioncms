@@ -172,7 +172,7 @@ public class PSUpdateStatement extends PSStatement {
   protected void traceRowAction(PSRequest request, String type, int count) {
     PSDebugLogHandler dh = (PSDebugLogHandler) request.getLogHandler();
     if (dh.isTraceEnabled(PSTraceMessageFactory.RESOURCE_HANDLER_FLAG)) {
-      Object[] args = {new Integer(count), type};
+      Object[] args = {Integer.valueOf(count), type};
       dh.printTrace(PSTraceMessageFactory.RESOURCE_HANDLER_FLAG, args);
     }
   }

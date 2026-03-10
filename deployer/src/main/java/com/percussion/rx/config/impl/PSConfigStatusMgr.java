@@ -60,7 +60,7 @@ public class PSConfigStatusMgr implements IPSConfigStatusMgr {
   @Override
   public void saveConfigStatus(PSConfigStatus obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null");
-    getSession().saveOrUpdate(obj);
+    getSession().merge(obj);
   }
 
   @Override
@@ -123,7 +123,7 @@ public class PSConfigStatusMgr implements IPSConfigStatusMgr {
   @Override
   public void deleteConfigStatus(long statusID) throws PSNotFoundException {
     var cfgStatus = loadConfigStatusModifiable(statusID);
-    getSession().delete(cfgStatus);
+    getSession().remove(cfgStatus);
   }
 
   @Override
@@ -139,7 +139,7 @@ public class PSConfigStatusMgr implements IPSConfigStatusMgr {
         builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
     criteria.orderBy(
         builder.asc(critRoot.get("configName")), builder.asc(critRoot.get("dateApplied")));
-    entityManager.createQuery(criteria).getResultList().forEach(sess::delete);
+        entityManager.createQuery(criteria).getResultList().forEach(sess::remove);
   }
 
   @Override

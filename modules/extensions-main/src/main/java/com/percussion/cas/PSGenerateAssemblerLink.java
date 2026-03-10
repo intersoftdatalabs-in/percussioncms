@@ -162,7 +162,7 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
     try {
       return PSUrlUtils.createUrl(
           "127.0.0.1",
-          new Integer(request.getServerListenerPort()),
+          Integer.valueOf(request.getServerListenerPort()),
           assemblyBaseURL,
           paramMap.entrySet().iterator(),
           null,

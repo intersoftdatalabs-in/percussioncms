@@ -641,7 +641,7 @@ public class PSCms {
       boolean matchesDefault = false;
       while (it.hasNext()) {
         String id = it.next();
-        Integer workflowId = new Integer(id);
+        Integer workflowId = Integer.valueOf(id);
 
         if (defaultWorkflowId.equals(id)) matchesDefault = true;
 

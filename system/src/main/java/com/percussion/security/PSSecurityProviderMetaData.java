@@ -56,7 +56,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    */
   protected PSResultSet getEmptyServers() {
     HashMap columnNames = new HashMap();
-    columnNames.put("SERVER_NAME", new Integer(1));
+    columnNames.put("SERVER_NAME", Integer.valueOf(1));
     return createEmptyResultSet(columnNames, ms_GetServerRSMeta);
   }
 
@@ -85,7 +85,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    */
   protected PSResultSet getEmptyObjectTypes() {
     HashMap columnNames = new HashMap();
-    columnNames.put("OBJECT_TYPE", new Integer(1));
+    columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
     return createEmptyResultSet(columnNames, ms_GetObjectTypesRSMeta);
   }
 
@@ -118,9 +118,9 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    */
   protected PSResultSet getEmptyObjects() {
     HashMap columnNames = new HashMap();
-    columnNames.put("OBJECT_TYPE", new Integer(1));
-    columnNames.put("OBJECT_ID", new Integer(2));
-    columnNames.put("OBJECT_NAME", new Integer(3));
+    columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
+    columnNames.put("OBJECT_ID", Integer.valueOf(2));
+    columnNames.put("OBJECT_NAME", Integer.valueOf(3));
     return createEmptyResultSet(columnNames, ms_GetObjectsRSMeta);
   }
 
@@ -179,9 +179,9 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    */
   protected PSResultSet getEmptyAttributes() {
     HashMap columnNames = new HashMap();
-    columnNames.put("OBJECT_TYPE", new Integer(1));
-    columnNames.put("ATTRIBUTE_NAME", new Integer(2));
-    columnNames.put("ATTRIBUTE_DESC", new Integer(3));
+    columnNames.put("OBJECT_TYPE", Integer.valueOf(1));
+    columnNames.put("ATTRIBUTE_NAME", Integer.valueOf(2));
+    columnNames.put("ATTRIBUTE_DESC", Integer.valueOf(3));
     return createEmptyResultSet(columnNames, ms_GetAttributesRSMeta);
   }
 

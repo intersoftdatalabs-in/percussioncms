@@ -1433,7 +1433,7 @@ public class PSContentDesignWs extends PSContentBaseWs implements
          List<Integer> wfs = new ArrayList<>();
          for (IPSGuid wfguid : wfguids)
          {
-            wfs.add(new Integer("" + wfguid.longValue()));
+            wfs.add(Integer.valueOf("" + wfguid.longValue()));
          }
          PSWorkflowInfo wfInfo = new PSWorkflowInfo(
                PSWorkflowInfo.TYPE_INCLUSIONARY, wfs);

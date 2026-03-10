@@ -1144,7 +1144,7 @@ public class PSResultSet implements ResultSet {
    */
   public void updateInt(int columnIndex, int x) throws SQLException {
     doCheck(columnIndex);
-    m_data[columnIndex - 1].set(m_rowIndex, new Integer(x));
+    m_data[columnIndex - 1].set(m_rowIndex, Integer.valueOf(x));
   }
 
   /**
@@ -2077,7 +2077,7 @@ public class PSResultSet implements ResultSet {
     java.util.HashMap nameMap = new java.util.HashMap();
     for (int colNo = 1; colNo <= colCount; colNo++) {
       data[colNo - 1] = new java.util.ArrayList();
-      nameMap.put(meta.getColumnName(colNo), new Integer(colNo));
+      nameMap.put(meta.getColumnName(colNo), Integer.valueOf(colNo));
     }
 
     setResultData(data, nameMap);

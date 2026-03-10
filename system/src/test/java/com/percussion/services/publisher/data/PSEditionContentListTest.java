@@ -47,9 +47,9 @@ public class PSEditionContentListTest
             new PSGuid("0-110-301"),
             new PSGuid("0-105-401"));
       ecl1.setAssemblyContextId(new PSGuid("0-100-501"));
-      ecl1.setAuthtype(new Integer(1));
+      ecl1.setAuthtype(Integer.valueOf(1));
       ecl1.setDeliveryContextId(new PSGuid("0-100-601"));
-      ecl1.setSequence(new Integer(2));
+      ecl1.setSequence(Integer.valueOf(2));
 
       String str = ecl1.toXML();
       PSEditionContentList ecl2 = new PSEditionContentList(

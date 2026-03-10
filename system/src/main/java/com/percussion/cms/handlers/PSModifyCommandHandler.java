@@ -1086,7 +1086,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
 
           // need to create a query to retreive current sort rank values
           String queryReqName = createSequenceQueryDataSet(mapper, fieldSet);
-          m_seqQueryResources.put(new Integer(setId), queryReqName);
+          m_seqQueryResources.put(Integer.valueOf(setId), queryReqName);
         }
       }
     }
@@ -1128,7 +1128,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
     }
 
     // Add the plan set to the map under this mapper's id
-    m_modifyPlanSets.put(new Integer(setId), modifyPlanSet);
+    m_modifyPlanSets.put(Integer.valueOf(setId), modifyPlanSet);
   }
 
   /**
@@ -1553,7 +1553,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
     IPSInternalResultHandler rh = null;
     ResultSet rs = null;
 
-    String resourceName = (String) m_seqQueryResources.get(new Integer(mapperId));
+    String resourceName = (String) m_seqQueryResources.get(Integer.valueOf(mapperId));
 
     PSExecutionData execData = null;
     try {

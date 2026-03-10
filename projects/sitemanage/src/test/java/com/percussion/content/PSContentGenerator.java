@@ -526,7 +526,7 @@ public class PSContentGenerator {
       randCount = r.nextInt(count + 1);
     }
     while (choices.size() < randCount) {
-      choices.add(new Integer(r.nextInt(values.size())));
+      choices.add(Integer.valueOf(r.nextInt(values.size())));
     }
 
     Iterator<String> iter = values.iterator();
@@ -534,7 +534,7 @@ public class PSContentGenerator {
     int i = 0;
     while (iter.hasNext()) {
       String value = iter.next();
-      if (choices.contains(new Integer(i))) {
+      if (choices.contains(Integer.valueOf(i))) {
         results.add(value);
       }
       i++;

@@ -79,7 +79,7 @@ import static org.apache.commons.lang3.Validate.notNull;
  * @author stephenbolton
  *
  */
-public class PSDbStorageService implements IPSFileStorageService, InitializingBean 
+public class PSDbStorageService implements IPSFileStorageService, InitializingBean
 {
 
     private static final String AUTO_IMPORT_BINARIES_TXT = "autoImportBinaries.txt";
@@ -115,7 +115,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    private static ImpExpThread impExpThread;
 
    private TikaConfig tikaConfig = null;
-   
+
    private IPSHashedFileDAO hashDao = null;
 
    private IPSFileDigestService digestService;
@@ -125,12 +125,12 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
     */
    public PSDbStorageService()
    {
-     
+
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#store(java.io
     * .File)
@@ -168,7 +168,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
       {
          metadata.add(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
       }
-       
+
       try
       {
          MediaType mimetype = tikaConfig.getDetector().detect(
@@ -182,14 +182,14 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
       {
          log.debug("Cannot extract mimetype from file "+file.getAbsolutePath());
       }
- 
+
       return type;
-      
+
    }
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#reparseMeta(
     * java.lang.String)
@@ -209,7 +209,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#store(java.io
     * .InputStream, com.percussion.services.filestorage.data.PSMeta,
@@ -224,7 +224,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#delete(java.
     * lang.String)
@@ -239,7 +239,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#getMeta(java
     * .lang.String)
@@ -265,7 +265,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#getStream(java
     * .lang.String)
@@ -290,7 +290,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#fileExists(java
     * .lang.String)
@@ -303,7 +303,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#getAlgorithm()
     */
@@ -315,7 +315,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#getText(java
     * .lang.String)
@@ -339,7 +339,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#countOlderThan
     * (int)
@@ -352,7 +352,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSFileStorageService#deleteOlderThan
     * (int)
@@ -364,11 +364,11 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    }
 
    /**
-    * 
+    *
     * Populates The {@link PSMeta} object with information extracted from the
     * {@link File} or {@link PSPurgableTempFile} this includes the mime type and
     * encoding as well as the original file name.
-    * 
+    *
     * @param file
     * @return
     */
@@ -457,7 +457,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
     * Extract the Tika based metadata from the file. The initial meta object
     * should contain information like filename and type to support the
     * extraction.
-    * 
+    *
     * @param file
     * @param meta The initial metadata object.
     * @return PSMeta object contains hashmap of metadata as well as getters
@@ -504,7 +504,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
             // try to close input stream to release any  memory first before logging.
             IOUtils.closeQuietly(is);
             log.error("Out of memory error while processing document "+meta.getOriginalFilename()
-                  + " with length "+meta.getLength() + " and hash " + meta.getHash()  
+                  + " with length "+meta.getLength() + " and hash " + meta.getHash()
                   + " you may need to increase the Xmx value in RhythmyxServer.bin.lax or RhythmyxServer.lax file. "
                   + "This may just be a document that cannot be handled currently by the underlying Tika processor. " +
                   "This Document will be skipped");
@@ -529,7 +529,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /**
     * Calculate the Hash value for a file
-    * 
+    *
     * @param file
     * @return The hash itself
     * @throws FileNotFoundException
@@ -555,7 +555,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    /**
     * Convert a stream to a {@link PSPurgableTempFile}, used for reprocessing
     * the metadata if required.
-    * 
+    *
     * @param is
     * @param contentType
     * @param filename
@@ -578,9 +578,9 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /**
     * Utility method to get the stracktrace from a throwable object.
-    * 
+    *
     * @param t throwable object.
-    * 
+    *
     * @return the stacktrace, never <code>null</code>.
     */
    private String getStackTrace(Throwable t)
@@ -599,12 +599,12 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
     * specified tika metadata accordingly. The stream is closed by this method.
     * If an error occurs, a  property will be added to the
     * metadata with a value which contains the error.
-    * 
+    *
     * @param input stream.
     * @param meta metadata.
     * @param maxLength the maximum length of the returned string of text in
     *           bytes.
-    * 
+    *
     * @return the extracted text, never <code>null</code>.
     */
    private String getText(InputStream input, PSMeta meta, int maxLength)
@@ -632,7 +632,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    /**
     * To avoid unpredictable excess memory use, extractor will only extract
     * getMaxStringLength() first characters extracted from the input document..
-    * 
+    *
     * @return size default is
     */
    private static int getMaxStringLength()
@@ -800,7 +800,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    {
       return hashDao.hasLegacyTable();
    }
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSFileStorageService#exportAllLegacyBinary(java.lang.String)
     */
@@ -837,8 +837,8 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    {
       return (impExpThread!=null && impExpThread.isAlive());
    }
-   
-   
+
+
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSFileStorageService#isReparseMetaRunning()
     */
@@ -846,7 +846,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    {
       return (reparseThread!=null && reparseThread.isAlive());
    }
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSFileStorageService#importAllBinary(java.lang.String)
     */
@@ -892,9 +892,9 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    /**
     * A Thread to reparse all the metadata asynchronously
     * @author stephenbolton
-    * 
+    *
     */
-   
+
    private class ReparseThread extends Thread
    {
 
@@ -917,14 +917,24 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
          log.debug("Starting ReparseThread");
          boolean moreItems = true;
          // If checking on server startup wait for 5 min before starting
-         
+
          int count = 0;
          while (moreItems)
          {
-            int batchCount = PSDbStorageService.this.reparseBatch(BATCH_SIZE);
-            count += batchCount;
-            moreItems = batchCount == BATCH_SIZE;
-            log.debug("Re-parsed {} Binary Items. Total {}" ,batchCount, count);
+            try
+            {
+               int batchCount = PSDbStorageService.this.reparseBatch(BATCH_SIZE);
+               count += batchCount;
+               moreItems = batchCount == BATCH_SIZE;
+               log.debug("Re-parsed {} Binary Items. Total {}" ,batchCount, count);
+            }
+            catch (Exception e)
+            {
+               // Route background thread failures through Log4j so they are persisted in server.log.
+               log.error("Error while reparsing metadata batch. Stopping reparse thread.", e);
+               moreItems = false;
+               continue;
+            }
             try
             {
                sleep(10);
@@ -1072,14 +1082,14 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
                      if (log.isInfoEnabled()) {
                         if (!fileInDb) {
                            log.info("Importing file "+mainFile);
-                        } 
+                        }
                         else
                         {
                            log.info("Skipping Import existing file "+mainFile);
                         }
-                        
+
                      }
-                 
+
                      if (!fileInDb)
                      {
                         FileOutputStream shaOutputStream = null;
@@ -1096,12 +1106,12 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
                         catch (Exception e)
                         {
                           log.error("Could not import item " +mainFile.getAbsolutePath(), e);
-                        } 
-                        finally 
+                        }
+                        finally
                         {
                            IOUtils.closeQuietly(shaOutputStream);
                         }
-                        
+
                      }
                   }
                }
@@ -1111,7 +1121,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
       /**
        * Export all binary items and store in the basePath folder.  The files
-       * will be stored in folders based upon their hash to ensure uniqueness and to 
+       * will be stored in folders based upon their hash to ensure uniqueness and to
        * make sure that not too many folders/files are created under one folder.  Two
        * characters of the hash ensure a maximum of 256 subfolder.
        */
@@ -1153,7 +1163,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
        * @param hash the file hash
        * @param filename the filame to create the file with
        * @param inputStream The stream containing the file contents
-       * @throws IOException 
+       * @throws IOException
        */
       private void exportFile(String hash, String filename, InputStream inputStream) throws IOException
       {
@@ -1164,11 +1174,11 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
          if (shaFiles!=null) {
             for (File testfile : shaFiles)
             {
-   
+
                String sha1FileString = null;
-   
+
                sha1FileString = loadSha1File(testfile);
-   
+
                if (sha1FileString != null && sha1FileString.equalsIgnoreCase(hash))
                   foundHash = true;
             }
@@ -1204,7 +1214,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
        * Loads in a file containing an sha1 hash and return the hash value
        * @param testfile
        * @return
-       * @throws IOException 
+       * @throws IOException
        */
       private String loadSha1File(File testfile) throws IOException
       {
@@ -1227,7 +1237,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
        * with no folder containing too many entries.
        * @param hash
        * @return
-       * @throws IOException 
+       * @throws IOException
        */
       private File getPathfromHash(String hash) throws IOException
       {
@@ -1241,7 +1251,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
          File dir = new File(basePath + File.separator + f1 + File.separator + f2 + File.separator + f3
                + File.separator + f4);
          FileUtils.forceMkdir(dir);
-         
+
          return dir;
       }
 
@@ -1267,7 +1277,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
        * Is this a legacy export.  This will export from the old
        * PSX_BINARYSTORE table and the result can be imported into the
        * new table structure.
-       * 
+       *
        * @param isLegacy
        */
       public void setLegacy(boolean isLegacy) {
@@ -1288,10 +1298,10 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
       // Default to automatically add metadata keys when they are found
       // in documents.  A customer may want to have a fixed set to prevent users relying
       // on others and/or to reduce database storage requirements.
-   
+
       String prop = PSServer.getProperty(AUTO_ENABLE_BINARY_METADATA_KEYS);
-      boolean autoEnable = (prop!=null && prop.equalsIgnoreCase("false"))? false: true;  
-      
+      boolean autoEnable = (prop!=null && prop.equalsIgnoreCase("false"))? false: true;
+
       Set<PSBinaryMetaEntry> entries = new HashSet<>();
 
       for (Entry<String, String> entry : meta.entrySet())
@@ -1327,7 +1337,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /**
     * update the database with the metadata for a particular hash
-    * 
+    *
     * @param hash
     * @param meta
     */
@@ -1346,7 +1356,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSHashedFileDAO#create(java.lang.
     * String, java.io.InputStream, java.lang.String,
@@ -1371,7 +1381,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see
     * com.percussion.services.filestorage.IPSHashedFileDAO#getMeta(java.lang
     * .String)
@@ -1441,7 +1451,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
          log.debug("hash found =" + hash);
          if (hashesToTouchBatch.size()>=1000)
          {
-            
+
             hashDao.touch(hashesToTouchBatch);
             hashesToTouchBatch.clear();
          }
@@ -1463,7 +1473,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    /**
     * Defines which hashing algorithm to use. This cannot be modified after
     * items are in the system.
-    * 
+    *
     * @param digestService
     */
    public void setDigestService(IPSFileDigestService digestService)
@@ -1474,7 +1484,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    /**
     * Generate an error message and add the error to the MetaData to make it
     * availiable to the user.
-    * 
+    *
     * @param meta
     * @param e the Exception
     */
@@ -1488,7 +1498,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    /**
     * Delete the existing metadata for an item and recreate it using the known
     * original filename, type and encoding to help in extraction
-    * 
+    *
     * @param binary
     * @return
     */
@@ -1545,7 +1555,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
 
    /**
     * Kick of a thread to process reparsing of items that have been marked in
-    * the database. 
+    * the database.
     */
    private synchronized boolean processReparseMeta()
    {
@@ -1579,13 +1589,13 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
       {
          log.error("Error initializing TikaConfig", e);
       }
-      
+
       //Check for auto install binaries e.g. fast forward
        importAllBinary(null);
       // Check if any any items still need re-parsing after startup;
        processReparseMeta();
-      
+
    }
 
-  
+
 }

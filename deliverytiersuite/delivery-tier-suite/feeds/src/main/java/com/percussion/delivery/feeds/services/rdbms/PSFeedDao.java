@@ -134,7 +134,7 @@ public class PSFeedDao implements IPSFeedDao {
 
     Session session = getSession();
     IPSConnectionInfo info = new PSConnectionInfo(url, user, pass, encrypted);
-    session.saveOrUpdate(info);
+    session.merge(info);
   }
 
   /*
@@ -150,7 +150,7 @@ public class PSFeedDao implements IPSFeedDao {
     List<IPSFeedDescriptor> prepared = prepareDescriptors(descriptors);
     for (IPSFeedDescriptor p : prepared) {
       try {
-        session.saveOrUpdate(p);
+        session.merge(p);
       } catch (Exception e) {
         log.error(
             "Skipping feed: {} on site {} with link: {} due to error: {} ",
@@ -176,7 +176,7 @@ public class PSFeedDao implements IPSFeedDao {
     Session session = getSession();
     List<IPSFeedDescriptor> prepared = prepareDescriptors(descriptors);
     for (IPSFeedDescriptor p : prepared) {
-      session.delete(p);
+      session.remove(p);
     }
   }
 

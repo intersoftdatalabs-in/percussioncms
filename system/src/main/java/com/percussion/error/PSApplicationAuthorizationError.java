@@ -86,7 +86,7 @@ public class PSApplicationAuthorizationError extends PSLogError {
             PSErrorManager.createMessage(IPSServerErrors.AUTHORIZATION_ERROR, args, loc));
 
     /* use the errorCode/errorString to format the second submessage */
-    Object[] nativeArgs = {new Integer(m_errorCode), m_errorString};
+    Object[] nativeArgs = {Integer.valueOf(m_errorCode), m_errorString};
     msgs[1] =
         new PSLogSubMessage(
             m_errorCode,

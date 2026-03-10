@@ -222,7 +222,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
       version = community.getVersion() + 1;
     } catch (PSServiceSecurityException e) {
       // community doesn't exist
-      version = new Integer(0);
+      version = Integer.valueOf(0);
     }
 
     // update the version in dependency table data

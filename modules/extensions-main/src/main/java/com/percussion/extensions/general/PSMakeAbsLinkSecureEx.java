@@ -233,7 +233,7 @@ public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements I
     Integer port = null;
     if (portString != null) {
       try {
-        port = new Integer(portString);
+        port = Integer.valueOf(portString);
       } catch (NumberFormatException e) {
         throw new PSConversionException(0, "port parameter must be a parsable integer.");
       }

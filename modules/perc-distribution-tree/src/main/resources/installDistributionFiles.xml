@@ -86,6 +86,18 @@
 			</patternset>
 		</unzip>
 
+		<!-- Unpack perc-openapi-webapp WAR to /openapi context -->
+		<echo>Unpacking perc-openapi-webapp WAR...</echo>
+		<mkdir dir="${assembly-directory}/jetty/base/webapps/openapi" />
+		<unzip dest="${assembly-directory}/jetty/base/webapps/openapi" overwrite="true">
+			<fileset dir="../../modules/perc-openapi-webapp/target">
+				<include name="perc-openapi-webapp-${project.version}.war" />
+			</fileset>
+			<patternset>
+				<exclude name="META-INF/**" />
+			</patternset>
+		</unzip>
+
 		<copy todir="${assembly-directory}/Docs">
 			<fileset dir="{basedir}/../../../system/Docs" />
 		</copy>

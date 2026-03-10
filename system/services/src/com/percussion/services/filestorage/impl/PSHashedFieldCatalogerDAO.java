@@ -54,7 +54,7 @@ public class PSHashedFieldCatalogerDAO implements IPSHashedFieldCatalogerDAO
     * The default empty constructor
     */
    public PSHashedFieldCatalogerDAO() {
-      
+
    }
 
    /* (non-Javadoc)
@@ -67,7 +67,7 @@ public class PSHashedFieldCatalogerDAO implements IPSHashedFieldCatalogerDAO
          save(column);
       }
    }
-   
+
    /* (non-Javadoc)
     * @see com.percussion.services.filestorage.IPSHashedFieldCatalogerDAO#getStoredColumns()
     */
@@ -85,7 +85,7 @@ public class PSHashedFieldCatalogerDAO implements IPSHashedFieldCatalogerDAO
    @Override
    public void remove(PSHashedColumn col)
    {
-      getSession().delete(col);
+      getSession().remove(col);
       getSession().flush();
    }
 
@@ -98,7 +98,7 @@ public class PSHashedFieldCatalogerDAO implements IPSHashedFieldCatalogerDAO
       HashedColumnsPK pk = new PSHashedColumn.HashedColumnsPK(newCol.getTablename(), newCol.getColumnName());
       PSHashedColumn dbCol = getSession().get(PSHashedColumn.class, pk);
       if (dbCol == null)
-         getSession().saveOrUpdate(newCol);
+         getSession().persist(newCol);
    }
 
 

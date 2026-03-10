@@ -60,8 +60,8 @@ public class PSFieldSetTest
       PSField f1 = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
       f1.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_COUNT, null);
       f1.setOccurrenceCount(12, null);
-      f1.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_COUNT, new Integer(1));
-      f1.setOccurrenceCount(12, new Integer(1));
+      f1.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_COUNT, Integer.valueOf(1));
+      f1.setOccurrenceCount(12, Integer.valueOf(1));
       PSField f2 = new PSField("field_2", new PSBackEndColumn(table, "DISPLAYTITLE"));
       PSField f3 = new PSField("field_3", new PSBackEndColumn(table, "DISPLAYTITLE"));
       PSFieldSet fs1 = new PSFieldSet("fieldSet_1", f1);

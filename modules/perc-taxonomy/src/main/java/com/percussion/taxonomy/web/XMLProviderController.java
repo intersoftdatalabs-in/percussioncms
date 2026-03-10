@@ -272,7 +272,7 @@ public class XMLProviderController extends AbstractXMLProviderController {
 
         // find matching node name value
         for (Object[] obj : unfilted_nodes) {
-          Integer obj_id = new Integer(String.valueOf(obj[0]));
+          Integer obj_id = Integer.valueOf(String.valueOf(obj[0]));
           if (obj_id == node.getId()) {
             tripletPlusTwo = obj;
           }
@@ -282,7 +282,7 @@ public class XMLProviderController extends AbstractXMLProviderController {
         String parent_abbr = "";
         if (node.getParent() != null) {
           for (Object[] obj : unfilted_nodes) {
-            Integer obj_id = new Integer(String.valueOf(obj[0]));
+            Integer obj_id = Integer.valueOf(String.valueOf(obj[0]));
             if (obj_id == node.getParent().getId()) {
               parent_abbr = obj[2].toString();
               if (StringUtils.contains(parent_abbr, "(")

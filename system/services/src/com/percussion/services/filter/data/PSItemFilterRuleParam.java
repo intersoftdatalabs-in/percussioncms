@@ -18,7 +18,6 @@ package com.percussion.services.filter.data;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidHelper;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -28,18 +27,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Represents a single parameter for the rule definition
- * 
+ *
  * @author dougrand
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, 
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
       region = "PSItemFilterRuleParam")
 @Table(name = "PSX_ITEM_FILTER_RULE_PARAM")
 public class PSItemFilterRuleParam implements Serializable
@@ -48,28 +49,28 @@ public class PSItemFilterRuleParam implements Serializable
     * Serial id identifies versions of serialized data
     */
    private static final long serialVersionUID = 1L;
-   
+
    /**
     * Primary key
     */
    @Id
    @Column(name = "FILTER_RULE_PARAM_ID")
    Long id;
-   
+
    /**
     * Hibernate version column
     */
    @Version
    @Column(name = "VERSION", nullable = false)
    Integer version = 0;
-   
+
    /**
     * The name for the given parameter
     */
    @Basic
    @Column(name = "NAME", nullable = false)
    String name;
-   
+
    /**
     * The value for the given parameter
     */
@@ -85,24 +86,51 @@ public class PSItemFilterRuleParam implements Serializable
    PSItemFilterRuleDef ruleDef;
 
    /**
+    * Tracks client-side construction semantics where id generation is deferred.
+    */
+   @Transient
+   private transient boolean clientSide;
+
+   /**
     * Default ctor
     */
    public PSItemFilterRuleParam()
    {
-      id = PSGuidHelper.generateNextLong(PSTypeEnum.INTERNAL);
+      // Required by Hibernate. Avoid service lookups during entity bootstrap.
    }
 
    public PSItemFilterRuleParam(boolean clientSide)
    {
+      this.clientSide = clientSide;
       if(!clientSide)
-         id = PSGuidHelper.generateNextLong(PSTypeEnum.INTERNAL);
+      {
+         initializeIdIfNeeded(true);
+      }
    }
-   
+
+   /**
+    * Assign an identifier right before insert if one was not explicitly set.
+    */
+   @PrePersist
+   protected void ensureIdForPersist()
+   {
+      initializeIdIfNeeded(true);
+   }
+
+   private void initializeIdIfNeeded(boolean includeClientSide)
+   {
+      if (id == null && (includeClientSide || !clientSide))
+      {
+         id = PSGuidHelper.generateNextLong(PSTypeEnum.INTERNAL);
+      }
+   }
+
    /**
     * @return Returns the id.
     */
    public Long getId()
    {
+      initializeIdIfNeeded(false);
       return id;
    }
 

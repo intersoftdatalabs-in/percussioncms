@@ -336,7 +336,7 @@ public class PSCalculationTest
 
       didThrow = false;
       try{
-         result = calculate.divide(o1, new Integer(0));
+         result = calculate.divide(o1, Integer.valueOf(0));
       } catch (IllegalArgumentException e){
          didThrow = true;
       }
@@ -377,7 +377,7 @@ public class PSCalculationTest
 
       didThrow = false;
       try{
-         result = calculate.numberVerify(new Integer(0));
+         result = calculate.numberVerify(Integer.valueOf(0));
       } catch (IllegalArgumentException e){
          didThrow = true;
       }

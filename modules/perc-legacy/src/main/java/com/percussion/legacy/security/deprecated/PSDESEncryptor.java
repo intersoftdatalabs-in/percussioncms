@@ -168,7 +168,7 @@ public class PSDESEncryptor implements IPSEncryptor {
 
     try {
       while ((byteAsInt = in.read()) != -1) { // read in next byte
-        m_dataList.add(new Integer(byteAsInt));
+        m_dataList.add(Integer.valueOf(byteAsInt));
       }
 
       int dataListSize = m_dataList.size();
@@ -264,7 +264,7 @@ public class PSDESEncryptor implements IPSEncryptor {
    * @param needs number to pad
    */
   private void addPaddings(int needs) {
-    for (int i = 0; i < needs; i++) m_dataList.add(new Integer(0)); // pad zeros
+    for (int i = 0; i < needs; i++) m_dataList.add(Integer.valueOf(0)); // pad zeros
   }
 
   /**
@@ -501,7 +501,7 @@ public class PSDESEncryptor implements IPSEncryptor {
               + (encryptedBlock[temp + 5] << 2)
               + (encryptedBlock[temp + 6] << 1)
               + encryptedBlock[temp + 7]);
-      oneInteger = new Integer(temp0);
+      oneInteger = Integer.valueOf(temp0);
       m_oneEncodedDataBlock[i] = oneInteger.byteValue();
     }
   }

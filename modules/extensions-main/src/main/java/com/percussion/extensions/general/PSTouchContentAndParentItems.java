@@ -77,13 +77,13 @@ public class PSTouchContentAndParentItems extends PSDefaultExtension
     Integer maxRecursionSteps = null;
     if (LOOKUP_RECURSION_STEPS.compareToIgnoreCase(lookupRecursionSteps) == 0) {
       // we want to lookup all the parent items
-      maxRecursionSteps = new Integer(Integer.MAX_VALUE);
+      maxRecursionSteps = Integer.valueOf(Integer.MAX_VALUE);
     } else {
       try {
         // try to parse a given integer
-        maxRecursionSteps = new Integer(lookupRecursionSteps);
+        maxRecursionSteps = Integer.valueOf(lookupRecursionSteps);
 
-        if (maxRecursionSteps.intValue() < 0) maxRecursionSteps = new Integer(Integer.MAX_VALUE);
+        if (maxRecursionSteps.intValue() < 0) maxRecursionSteps = Integer.valueOf(Integer.MAX_VALUE);
       } catch (Exception ex) {
         throw new PSParameterMismatchException(
             PSTouchContentAndParentItems.class
@@ -93,7 +93,7 @@ public class PSTouchContentAndParentItems extends PSDefaultExtension
       }
     }
 
-    Integer contentId = new Integer(sys_contentid);
+    Integer contentId = Integer.valueOf(sys_contentid);
 
     try {
       Collection<Integer> cids = new ArrayList<>();

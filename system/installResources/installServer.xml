@@ -1708,21 +1708,21 @@
 		<PSInstallPatchToolkit />
 
 		<!-- CI_Home -->
-		<mkdir dir="${install.deploy}/CI_Home.war/resources" />
-		<PSCopy todir="${install.deploy}/CI_Home.war/resources">
+		<mkdir dir="${install.deploy}/CI_Home/resources" />
+		<PSCopy todir="${install.deploy}/CI_Home/resources">
 			<fileset
 				dir="${fastforward.coredir}/Content/Applications/web_resources/ApplicationFiles/corporate_investments" />
 		</PSCopy>
-		<PSCopy todir="${install.deploy}/CI_Home.war/WEB-INF"
+		<PSCopy todir="${install.deploy}/CI_Home/WEB-INF"
 			file="${release.tomcatdir}/Tomcat/webapps/CI_Home/WEB-INF/web.xml" />
 
 		<!-- EI_Home -->
-		<mkdir dir="${install.deploy}/EI_Home.war/resources" />
-		<PSCopy todir="${install.deploy}/EI_Home.war/resources">
+		<mkdir dir="${install.deploy}/EI_Home/resources" />
+		<PSCopy todir="${install.deploy}/EI_Home/resources">
 			<fileset
 				dir="${fastforward.coredir}/Content/Applications/web_resources/ApplicationFiles/enterprise_investments" />
 		</PSCopy>
-		<PSCopy todir="${install.deploy}/EI_Home.war/WEB-INF"
+		<PSCopy todir="${install.deploy}/EI_Home/WEB-INF"
 			file="${release.tomcatdir}/Tomcat/webapps/EI_Home/WEB-INF/web.xml" />
 
 		<!-- publogs -->

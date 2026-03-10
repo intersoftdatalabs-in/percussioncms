@@ -463,7 +463,7 @@ public class PSDtd extends DTDGrammar {
 
     int elementDeclIndex = getElementDeclIndex(elementName);
     int contentSpecIndex = -1;
-    Object oContentSpecIndex = m_contentSpecIndexList.get(new Integer(elementDeclIndex));
+    Object oContentSpecIndex = m_contentSpecIndexList.get(Integer.valueOf(elementDeclIndex));
     if (oContentSpecIndex != null) contentSpecIndex = ((Integer) oContentSpecIndex).intValue();
     if (contentSpecIndex != -1) {
       XMLContentSpec contentSpec = new XMLContentSpec();
@@ -581,7 +581,7 @@ public class PSDtd extends DTDGrammar {
    */
   protected void setContentSpecIndex(int elementDeclIndex, int contentSpecIndex) {
     super.setContentSpecIndex(elementDeclIndex, contentSpecIndex);
-    m_contentSpecIndexList.put(new Integer(elementDeclIndex), new Integer(contentSpecIndex));
+    m_contentSpecIndexList.put(Integer.valueOf(elementDeclIndex), Integer.valueOf(contentSpecIndex));
   }
 
   /**

@@ -163,12 +163,12 @@ public class PSHashTableFromBundleTest
    public void setUp()
    {
       m_validTable = new Hashtable(6);
-      m_validTable.put(new Integer(1), "The first number");
-      m_validTable.put(new Integer(2), "A perfect number");
-      m_validTable.put(new Integer(100), "The number of senators");
-      m_validTable.put(new Integer(255), "Two to the eigth power minus one");
-      m_validTable.put(new Integer(1024), "Two to the tenth power");
-      m_validTable.put(new Integer(666), "The number of the beast");
+      m_validTable.put(Integer.valueOf(1), "The first number");
+      m_validTable.put(Integer.valueOf(2), "A perfect number");
+      m_validTable.put(Integer.valueOf(100), "The number of senators");
+      m_validTable.put(Integer.valueOf(255), "Two to the eigth power minus one");
+      m_validTable.put(Integer.valueOf(1024), "Two to the tenth power");
+      m_validTable.put(Integer.valueOf(666), "The number of the beast");
 
       m_invalidTable = new Hashtable(1);
       m_invalidTable.put("Yo" , "NOT The number of senators");

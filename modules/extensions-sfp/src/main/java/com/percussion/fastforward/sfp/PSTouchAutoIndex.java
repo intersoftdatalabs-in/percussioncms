@@ -160,7 +160,7 @@ public class PSTouchAutoIndex extends PSDefaultExtension
         for (Long type : vart.getContentTypes()) {
           ctSet.add(new PSGuid(PSTypeEnum.NODEDEF, type));
         }
-        PSCacheProxy.flushAssemblers(null, null, null, new Integer(vart.getVariantId()));
+        PSCacheProxy.flushAssemblers(null, null, null, Integer.valueOf(vart.getVariantId()));
       }
     }
     return ctSet;

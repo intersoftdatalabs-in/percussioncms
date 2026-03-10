@@ -987,7 +987,7 @@ public class PSApplicationBuilder {
           dtd.addElement(field.getSubmitName(), PSDtdBuilder.OCCURS_ONCE, dtdRoot);
         }
         if (null != table) {
-          groupMap.put(table.getAlias().toLowerCase(), new Integer(groupId));
+          groupMap.put(table.getAlias().toLowerCase(), Integer.valueOf(groupId));
         }
         groupId++;
       }
@@ -1479,7 +1479,7 @@ public class PSApplicationBuilder {
       {
         PSNumericLiteral literalNumber =
             new PSNumericLiteral(
-                new Integer(IPSConstants.INVALID_WORKFLOW_ID), new DecimalFormat("#"));
+                Integer.valueOf(IPSConstants.INVALID_WORKFLOW_ID), new DecimalFormat("#"));
         mapping = new PSSystemMapping(sysTable, "WORKFLOWAPPID", literalNumber);
         mappings.add(mapping);
         mapping = new PSSystemMapping(sysTable, "CONTENTSTATEID", literalOneUdf);
@@ -1504,7 +1504,7 @@ public class PSApplicationBuilder {
 
       // add OBJECTTYPE = objectType of the content editor
       PSNumericLiteral literalNumber =
-          new PSNumericLiteral(new Integer(ce.getObjectType()), new DecimalFormat("#"));
+          new PSNumericLiteral(Integer.valueOf(ce.getObjectType()), new DecimalFormat("#"));
       mapping = new PSSystemMapping(sysTable, "OBJECTTYPE", literalNumber);
 
       mappings.add(mapping);

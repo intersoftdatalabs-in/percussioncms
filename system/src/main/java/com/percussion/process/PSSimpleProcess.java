@@ -78,7 +78,7 @@ public class PSSimpleProcess implements IPSProcess {
         PSProcessDef def = new PSProcessDef(defEl);
         int[] supportedOS = def.getSupportedOS();
         for (int j = 0; j < supportedOS.length; j++)
-          m_processDefs.put(new Integer(supportedOS[j]), def);
+          m_processDefs.put(Integer.valueOf(supportedOS[j]), def);
       }
     }
   }
@@ -96,7 +96,7 @@ public class PSSimpleProcess implements IPSProcess {
   // see interface
   public PSProcessDef getProcessDef() {
     int os = PSProcessManager.getOS();
-    return (PSProcessDef) m_processDefs.get(new Integer(os));
+    return (PSProcessDef) m_processDefs.get(Integer.valueOf(os));
   }
 
   // see interface

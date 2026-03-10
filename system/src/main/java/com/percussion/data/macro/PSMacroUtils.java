@@ -237,7 +237,7 @@ public class PSMacroUtils {
     List<PSComponentSummary> sums = cms.loadComponentSummaries(contentIds);
     for (PSComponentSummary sum : sums) {
       if (sum.getPublicRevision() != -1)
-        result.put(new Integer(sum.getContentId()), new Integer(sum.getPublicRevision()));
+        result.put(Integer.valueOf(sum.getContentId()), Integer.valueOf(sum.getPublicRevision()));
     }
 
     return result;

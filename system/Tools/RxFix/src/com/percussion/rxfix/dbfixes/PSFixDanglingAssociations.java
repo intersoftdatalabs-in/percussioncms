@@ -238,8 +238,8 @@ public class PSFixDanglingAssociations extends PSFixDBBase
                   
                   String association = iter.next();
                   String[] columnArray = association.split(",");
-                  Integer col1 = new Integer(columnArray[0]);
-                  Integer col2 = new Integer(columnArray[1]);
+                  Integer col1 = Integer.valueOf(columnArray[0]);
+                  Integer col2 = Integer.valueOf(columnArray[1]);
                   
                   deleteAssociation.setInt(1, col1.intValue());
                   deleteAssociation.setInt(2, col2.intValue());
@@ -338,9 +338,9 @@ public class PSFixDanglingAssociations extends PSFixDBBase
                   
                   String association = iter.next();
                   String[] columnArray = association.split(",");
-                  Integer col1 = new Integer(columnArray[0]);
-                  Integer col2 = new Integer(columnArray[1]);
-                  Integer col3 = new Integer(columnArray[2]);
+                  Integer col1 = Integer.valueOf(columnArray[0]);
+                  Integer col2 = Integer.valueOf(columnArray[1]);
+                  Integer col3 = Integer.valueOf(columnArray[2]);
                   
                   deleteAssociation.setInt(1, col1.intValue());
                   deleteAssociation.setInt(2, col2.intValue());
@@ -418,9 +418,9 @@ public class PSFixDanglingAssociations extends PSFixDBBase
 
                String association = iter.next();
                String[] columnArray = association.split(",");
-               Integer col1 = new Integer(columnArray[0]);
-               Integer col2 = new Integer(columnArray[1]);
-               Integer col3 = new Integer(columnArray[2]);
+               Integer col1 = Integer.valueOf(columnArray[0]);
+               Integer col2 = Integer.valueOf(columnArray[1]);
+               Integer col3 = Integer.valueOf(columnArray[2]);
 
                deleteAssociation.setInt(1, col1.intValue());
                deleteAssociation.setInt(2, col2.intValue());

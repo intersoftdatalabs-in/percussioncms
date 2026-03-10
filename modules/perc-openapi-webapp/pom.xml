@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.percussion</groupId>
+        <artifactId>core</artifactId>
+        <version>8.2.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>perc-openapi-webapp</artifactId>
+    <packaging>war</packaging>
+    <name>Percussion OpenAPI Web App</name>
+
+    <dependencies>
+        <!-- REST module for scanning OpenAPI annotations -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>rest</artifactId>
+            <version>${project.parent.version}</version>
+            <!-- Needed at compile time for plugin to scan annotations -->
+        </dependency>
+
+        <!-- Swagger UI for OpenAPI documentation -->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>swagger-ui</artifactId>
+        </dependency>
+
+        <!-- Swagger annotations for OpenAPI support (compile-time only) -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JAX-RS API for REST annotations -->
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${jakarta.ws.rs.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Generate OpenAPI spec from REST module annotations -->
+            <plugin>
+                <groupId>com.percussion</groupId>
+                <artifactId>perc-openapi-generator-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>generate-spec</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.basedir}/src/main/webapp/openapi.json</outputFile>
+                            <apiTitle>Percussion CMS REST API</apiTitle>
+                            <apiVersion>${project.version}</apiVersion>
+                            <apiDescription>Public REST API for Percussion CMS content management and delivery</apiDescription>
+                            <!-- Pass REST module JAR for annotation scanning -->
+                            <restModuleJar>${project.basedir}/../../rest/target/rest-${project.version}.jar</restModuleJar>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <packagingExcludes>WEB-INF/lib/**</packagingExcludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

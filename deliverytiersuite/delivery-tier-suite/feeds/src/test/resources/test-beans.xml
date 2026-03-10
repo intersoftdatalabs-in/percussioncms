@@ -41,7 +41,7 @@
 				<prop key="db.username">test</prop>
 				<prop key="db.password">test</prop>
 				<prop key="db.schema">APP</prop>
-				<prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
+				<prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
 				<prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
 				<prop key="tenant.cache.ttl">1440</prop>
 				<prop key="tenant.cache.reauth">true</prop>
@@ -62,7 +62,7 @@
 
 	<!-- Hibernate SessionFactory -->
 	<bean id="feedsSessionFactory"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean">
 		<property name="dataSource">
 			<ref bean="${datasource}" />
 		</property>
@@ -80,7 +80,7 @@
 
 	<bean id="txManager"
 		class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="sessionFactoryProxy" />
+		<property name="entityManagerFactory" ref="feedsSessionFactory" />
 	</bean>
 
 	<bean id="feedsDao"

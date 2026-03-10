@@ -227,7 +227,7 @@ public class PSExtensionParams {
     if (m_paramNames != null && m_paramNames.length > index) {
       return m_paramNames[index];
     } else {
-      return new Integer(index);
+      return Integer.valueOf(index);
     }
   }
 

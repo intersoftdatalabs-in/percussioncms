@@ -240,7 +240,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
       IPSImportLogDao importLogDao,
       IPSSiteImportSummaryService summaryService,
       IPSContentChangeService contentChangeService,
-      IPSRecentService recentService) {
+      @Lazy IPSRecentService recentService) {
     super(dao);
     siteDao = dao;
     this.publishingWs = publishingWs;

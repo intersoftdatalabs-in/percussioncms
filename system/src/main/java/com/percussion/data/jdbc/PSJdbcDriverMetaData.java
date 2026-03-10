@@ -56,7 +56,7 @@ public class PSJdbcDriverMetaData implements IPSDriverMetaData {
    */
   public java.sql.ResultSet getServers() throws SQLException {
     HashMap cols = new HashMap(1);
-    cols.put("SERVER_NAME", new Integer(1));
+    cols.put("SERVER_NAME", Integer.valueOf(1));
 
     /* JDBC does not provide a mechanism for locating servers,
      * so we're returning an empty result set

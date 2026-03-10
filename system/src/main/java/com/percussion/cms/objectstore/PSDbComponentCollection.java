@@ -417,8 +417,8 @@ public class PSDbComponentCollection extends PSDbComponent {
       Object o = thisIter.next();
       if (null != coll.get(o)) {
         Integer count = (Integer) coll.get(o);
-        coll.put(o, new Integer(count.intValue() + 1));
-      } else coll.put(o, new Integer(1));
+        coll.put(o, Integer.valueOf(count.intValue() + 1));
+      } else coll.put(o, Integer.valueOf(1));
     }
 
     // for each other collection object
@@ -427,7 +427,7 @@ public class PSDbComponentCollection extends PSDbComponent {
       if (coll.containsKey(o)) {
         Integer count = (Integer) coll.get(o);
         int newCount = count.intValue() - 1;
-        if (newCount > 0) coll.put(o, new Integer(newCount));
+        if (newCount > 0) coll.put(o, Integer.valueOf(newCount));
         else coll.remove(o);
       } else return false;
     }

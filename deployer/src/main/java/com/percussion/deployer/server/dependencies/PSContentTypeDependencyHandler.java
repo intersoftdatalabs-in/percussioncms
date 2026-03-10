@@ -1454,7 +1454,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       Iterator ids = wfInfo.getValues();
       while (ids.hasNext()) {
         Integer oldId = (Integer) ids.next();
-        newIds.add(new Integer(getNewIdInt(ctx, oldId.toString(), wfType)));
+        newIds.add(Integer.valueOf(getNewIdInt(ctx, oldId.toString(), wfType)));
       }
       wfInfo.setValues(newIds);
     }

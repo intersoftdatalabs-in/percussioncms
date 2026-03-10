@@ -109,7 +109,7 @@ public class PSUiService implements IPSUiService
             deleteHierarchyNodeProperty(property);
 
          // node delete the node
-         getSession().delete(node);
+         getSession().remove(node);
       }
       catch (PSUiException e)
       {
@@ -281,7 +281,7 @@ public class PSUiService implements IPSUiService
          else
          {
             // update node first
-            session.update(node);
+            session.merge(node);
 
             // then update properties
             List<PSHierarchyNodeProperty> existingProperties = loadHierarchyNodeProperties(node.getGUID());
@@ -372,7 +372,7 @@ public class PSUiService implements IPSUiService
          if (node != null)
          {
             node.setParentId(targetId);
-            getSession().update(node);
+            getSession().merge(node);
          }
       }
    }
@@ -450,7 +450,7 @@ public class PSUiService implements IPSUiService
       if (property.getVersion() == null)
          session.persist(property);
       else
-         session.update(property);
+         session.merge(property);
 
    }
 
@@ -464,6 +464,6 @@ public class PSUiService implements IPSUiService
       if (property == null)
          throw new IllegalArgumentException("property cannot be null");
 
-      getSession().delete(property);
+      getSession().remove(property);
    }
 }

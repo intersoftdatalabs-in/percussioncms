@@ -111,7 +111,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
       the_nodes = new ArrayList<Object[]>();
       Collection<Integer> child_ids = children_and_sub_ids(tp.getNodeID(), false);
       for (Object[] obj : unfilted_nodes) {
-        if (!child_ids.contains(new Integer(String.valueOf(obj[0])))) {
+        if (!child_ids.contains(Integer.valueOf(String.valueOf(obj[0])))) {
           the_nodes.add(obj);
         }
       }
@@ -119,7 +119,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
       the_nodes = new ArrayList<Object[]>();
       Collection<Integer> child_ids = children_and_sub_ids(tp.getNodeID(), true); // firstlevelonly
       for (Object[] obj : unfilted_nodes) {
-        Integer obj_id = new Integer(String.valueOf(obj[0]));
+        Integer obj_id = Integer.valueOf(String.valueOf(obj[0]));
         if (child_ids.contains(obj_id)
             && (obj_id.intValue() != tp.getNodeID())
             && obj_id.intValue() != skip_id) {
@@ -129,7 +129,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
     } else if (request_type == TOP_LEVEL_ONLY) {
       the_nodes = new ArrayList<Object[]>();
       for (Object[] obj : unfilted_nodes) {
-        Integer obj_id = new Integer(String.valueOf(obj[0]));
+        Integer obj_id = Integer.valueOf(String.valueOf(obj[0]));
         if (root_nodes.contains(obj_id) && (obj_id.intValue() != skip_id)) {
           the_nodes.add(obj);
         }
@@ -145,7 +145,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
       }
       ids_we_must_have.addAll(root_nodes);
       for (Object[] obj : unfilted_nodes) {
-        if (ids_we_must_have.contains(new Integer(String.valueOf(obj[0])))) {
+        if (ids_we_must_have.contains(Integer.valueOf(String.valueOf(obj[0])))) {
           the_nodes.add(obj);
         }
       }
@@ -259,7 +259,7 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
     if (bottom_node.getParent() != null) {
       for (Node sibling :
           (Collection<Node>) nodeService.getChildNodes(bottom_node.getParent().getId())) {
-        ret.add(new Integer(sibling.getId()));
+        ret.add(Integer.valueOf(sibling.getId()));
       }
       ret.addAll(getSelfAndElders(bottom_node.getParent().getId(), langID));
     }
@@ -272,12 +272,12 @@ public class AbstractXMLProviderController extends AbstractControllerWithSecurit
   protected Collection<Integer> children_and_sub_ids(int nodeID, boolean first_level_only) {
     Collection<Integer> ret = new ArrayList<Integer>();
     for (Node node : (Collection<Node>) nodeService.getChildNodes(nodeID)) {
-      ret.add(new Integer(node.getId()));
+      ret.add(Integer.valueOf(node.getId()));
       if (!first_level_only) {
         ret.addAll(children_and_sub_ids(node.getId(), first_level_only));
       }
     }
-    ret.add(new Integer(nodeID)); // ADD self (required for top level)
+    ret.add(Integer.valueOf(nodeID)); // ADD self (required for top level)
     return ret;
   }
 

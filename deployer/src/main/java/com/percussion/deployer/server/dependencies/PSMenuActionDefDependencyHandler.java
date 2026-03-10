@@ -273,7 +273,7 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
       // add the "old" tgtAction to the list for delete
       tgtAction.markForDeletion();
       compDeletes.add(tgtAction);
-      txnList.add(new Object[] {tgtAction, dep, new Integer(PSTransactionSummary.ACTION_DELETED)});
+      txnList.add(new Object[] {tgtAction, dep, Integer.valueOf(PSTransactionSummary.ACTION_DELETED)});
 
       // keep tgt version information
       srcAction.setVersion(tgtAction.getVersion());
@@ -292,7 +292,7 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
 
     // add source action to list for save (will be inserted using supplied id)
     compInserts.add(srcAction);
-    txnList.add(new Object[] {srcAction, dep, new Integer(PSTransactionSummary.ACTION_CREATED)});
+    txnList.add(new Object[] {srcAction, dep, Integer.valueOf(PSTransactionSummary.ACTION_CREATED)});
 
     // process "parents" - these are actually the child dependencies
     Iterator deps = dep.getDependencies(PSDependency.TYPE_LOCAL);

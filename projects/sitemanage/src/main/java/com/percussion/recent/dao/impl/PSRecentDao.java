@@ -74,27 +74,27 @@ public class PSRecentDao implements IPSRecentDao {
   @Override
   public void saveAll(List<PSRecent> recentList) {
     for (var recent : recentList) {
-      getSession().saveOrUpdate(recent);
+      getSession().merge(recent);
     }
   }
 
   /** {@inheritDoc} */
   @Override
   public void delete(PSRecent recent) {
-    getSession().delete(recent);
+    getSession().remove(recent);
   }
 
   /** {@inheritDoc} */
   @Override
   public void deleteAll(List<PSRecent> recentList) {
     for (var recent : recentList) {
-      getSession().delete(recent);
+      getSession().remove(recent);
     }
   }
 
   /** {@inheritDoc} */
   @Override
   public void save(PSRecent recent) throws SaveException {
-    getSession().saveOrUpdate(recent);
+    getSession().merge(recent);
   }
 }

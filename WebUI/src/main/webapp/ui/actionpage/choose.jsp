@@ -47,7 +47,7 @@ String basePath = request.getScheme() + "://"
 			<%
 				List folders = (List) pageContext.getAttribute("folders");
 				int size = folders.size();
-				pageContext.setAttribute("size", new Integer(size));
+				pageContext.setAttribute("size", Integer.valueOf(size));
 			%>
 			<c:choose>
 				<c:when test="${size < 2}">

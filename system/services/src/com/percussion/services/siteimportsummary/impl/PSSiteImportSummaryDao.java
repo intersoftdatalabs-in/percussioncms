@@ -48,7 +48,7 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
     * Constant for the key used to generate summary ids.
     */
    private static final String SITE_IMPORT_SUMMARY_KEY = "PSX_SITEIMPORTSUMMARY";
-   
+
    private IPSGuidManager m_guidMgr;
 
     @PersistenceContext
@@ -57,7 +57,7 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
     private Session getSession(){
         return entityManager.unwrap(Session.class);
     }
-    
+
     @Transactional
    public void save(PSSiteImportSummary summary) throws PSDataServiceException {
       Validate.notNull(summary);
@@ -65,11 +65,11 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
       {
           summary.setSummaryId(m_guidMgr.createId(SITE_IMPORT_SUMMARY_KEY));
       }
-      
+
       Session session = getSession();
       try
       {
-          session.saveOrUpdate(summary);
+          session.merge(summary);
       }
       catch (HibernateException e)
       {
@@ -81,7 +81,7 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
       {
           session.flush();
 
-      }  
+      }
    }
 
    public PSSiteImportSummary findBySummaryId(int summaryId)
@@ -92,7 +92,7 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
           Query query = session.createQuery("from PSSiteImportSummary where summaryId = :summaryId");
           query.setParameter("summaryId", summaryId);
 
-          List<PSSiteImportSummary> results = query.list(); 
+          List<PSSiteImportSummary> results = query.list();
           if (!results.isEmpty())
           {
              summary = results.get(0);
@@ -112,9 +112,9 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
 
           Query query = session.createQuery("from PSSiteImportSummary where siteId = :siteId");
           query.setParameter("siteId", siteId);
-          
 
-          List<PSSiteImportSummary> results = query.list(); 
+
+          List<PSSiteImportSummary> results = query.list();
           if (!results.isEmpty())
           {
              summary = results.get(0);
@@ -134,7 +134,7 @@ public class PSSiteImportSummaryDao implements IPSSiteImportSummaryDao
       Session session = getSession();
       try
       {
-          session.delete(summary);
+          session.remove(summary);
       }
       catch (HibernateException e)
       {

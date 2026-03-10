@@ -121,10 +121,10 @@ public class PSMetadataTagsHelper {
         if (!arrayList.contains(tag)) {
           int count = tagsMap.get(tag).intValue();
           count++;
-          tagsMap.put(tag, new Integer(count));
+          tagsMap.put(tag, Integer.valueOf(count));
         }
       } else {
-        tagsMap.put(tag, new Integer(1));
+        tagsMap.put(tag, Integer.valueOf(1));
         arrayList.add(tag);
       }
     } catch (Exception e) {

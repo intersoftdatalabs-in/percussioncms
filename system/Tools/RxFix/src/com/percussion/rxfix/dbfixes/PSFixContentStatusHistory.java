@@ -317,7 +317,7 @@ public class PSFixContentStatusHistory extends PSFixDBBase implements IPSFix
          MessageFormat msg = new MessageFormat("Inserted {0} records"
                + " into CONTENTSTATUSHISTORY");
          Object args = new Object[]
-         {new Integer(insertCount)};
+         {Integer.valueOf(insertCount)};
          if (insertCount == 0)
          {
             logPreview(null, "No problems found");
@@ -383,7 +383,7 @@ public class PSFixContentStatusHistory extends PSFixDBBase implements IPSFix
             l.debug("Would insert revision record for content id " + contentid
                   + " rev " + revision);
          }
-         rval.add(new Integer(contentid));
+         rval.add(Integer.valueOf(contentid));
       }
       return rval;
    }
@@ -419,7 +419,7 @@ public class PSFixContentStatusHistory extends PSFixDBBase implements IPSFix
             end = nextid + 20 - 1;
          }
          int contentid = rs.getInt(Q_CONTENTID);
-         rval.add(new Integer(contentid));
+         rval.add(Integer.valueOf(contentid));
          int revision = rs.getInt(Q_CURRENTREV);
          if (!preview)
          {
@@ -428,7 +428,7 @@ public class PSFixContentStatusHistory extends PSFixDBBase implements IPSFix
             insertContentStatusRecord(insert, rs
                   .getTimestamp(Q_LASTMODIFIEDDATE), rs
                   .getString(Q_LASTMODIFIER),
-                  new Integer(rs.getInt(Q_STATEID)), rs.getString(Q_STATENAME),
+                  Integer.valueOf(rs.getInt(Q_STATEID)), rs.getString(Q_STATENAME),
                   rs.getString(Q_TITLE), comment, publicstate, rs
                         .getInt(Q_WORKFLOWAPPID), nextid++, contentid, revision);
          }

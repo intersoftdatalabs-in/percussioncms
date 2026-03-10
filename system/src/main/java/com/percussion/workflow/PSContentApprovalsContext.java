@@ -92,7 +92,7 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
     }
     m_sUserName = PSWorkFlowUtils.trimmedOrNullString(m_Rs.getString("USERNAME"));
 
-    m_roleIdList.add(new Integer(m_Rs.getInt("ROLEID")));
+    m_roleIdList.add(Integer.valueOf(m_Rs.getInt("ROLEID")));
     return bSuccess;
   }
 

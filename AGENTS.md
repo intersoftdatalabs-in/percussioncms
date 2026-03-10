@@ -101,3 +101,21 @@ This repository is a large mono-repo with many submodules.  This code base has a
 * Follow the existing coding style and conventions for JavaScript/TypeScript and React.
 * Use functional components and hooks where appropriate.
 * @WebUI is the target module for all front end code changes, but some shared code may be moved to a common module if necessary.
+
+## Tools for Agent Use
+
+The following tools are used in this project:
+
+./scripts/hot-deploy-local.sh - A script to hot deploy code changes to a local rinstallation.
+
+Help Example:
+
+``` bash
+./scripts/hot-deploy-local.sh --help
+```
+
+Example: Build only system,rest, sitemanage, webui and hot deploy them to a local installation, starting jetty.
+
+``` bash
+./scripts/hot-deploy-local.sh --install-dir /home/nate/installs/cms-8.2-dev --modules system,rest,sitemanage,webui --restart
+```

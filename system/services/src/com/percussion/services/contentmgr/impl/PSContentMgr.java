@@ -201,7 +201,7 @@ public class PSContentMgr  implements IPSContentMgr
       try
       {
          org.hibernate.Session session = getSession();
-         defs.forEach(def -> session.saveOrUpdate(def));
+         defs.forEach(def -> session.merge(def));
       }
       catch (Exception e)
       {
@@ -224,11 +224,11 @@ public class PSContentMgr  implements IPSContentMgr
             {
                for (PSContentTemplateDesc desc : descSet)
                {
-                  s.delete(desc);
+                  s.remove(desc);
                }
             }
             // Remove the object
-            s.delete(def);
+            s.remove(def);
          }
          s.flush();
       }

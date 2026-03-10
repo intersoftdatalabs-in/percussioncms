@@ -240,7 +240,7 @@ public class CookieModule implements HTTPClientModule {
           if (((Integer) lens.elementAt(idx)).intValue() < len) break;
 
         names.insertElementAt(cookie.toExternalForm(), idx);
-        lens.insertElementAt(new Integer(len), idx);
+        lens.insertElementAt(Integer.valueOf(len), idx);
 
         if (cookie instanceof Cookie2) version = Math.max(version, ((Cookie2) cookie).getVersion());
       }

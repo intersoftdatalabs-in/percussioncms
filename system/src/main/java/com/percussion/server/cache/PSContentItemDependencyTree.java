@@ -155,7 +155,7 @@ public class PSContentItemDependencyTree {
         }
         // then fill the dependency map
         if (key == null || key.intValue() != relatedContentId) {
-          key = new Integer(relatedContentId);
+          key = Integer.valueOf(relatedContentId);
           Object test = dependencyMap.get(key);
           if (test != null) value = (List) test;
           else {
@@ -274,7 +274,7 @@ public class PSContentItemDependencyTree {
 
         // then fill the dependency map
         if (key == null || key.intValue() != relatedContentId) {
-          key = new Integer(relatedContentId);
+          key = Integer.valueOf(relatedContentId);
           Object test = dependencyMap.get(key);
           if (test != null) value = (List) test;
           else {
@@ -323,7 +323,7 @@ public class PSContentItemDependencyTree {
 
     ItemSet result = new ItemSet();
 
-    Integer key = new Integer(relatedId);
+    Integer key = Integer.valueOf(relatedId);
     List value = null;
 
     // adding to the dependency map
@@ -340,7 +340,7 @@ public class PSContentItemDependencyTree {
     value.add(dependency);
 
     // get all dependencies of the dependent item
-    add(new Integer(contentId), new Integer(revisionId), result, done);
+    add(Integer.valueOf(contentId), Integer.valueOf(revisionId), result, done);
     return convertSetToList(result);
   }
 
@@ -391,8 +391,8 @@ public class PSContentItemDependencyTree {
         while (items.hasNext()) {
           PSItemDependency item = (PSItemDependency) items.next();
           if (item.getSysId() == sysId) {
-            Integer cid = new Integer(item.getRelatedContentid());
-            Integer rid = new Integer(-1);
+            Integer cid = Integer.valueOf(item.getRelatedContentid());
+            Integer rid = Integer.valueOf(-1);
             add(cid, rid, result, done);
             items.remove();
             return convertSetToList(result);
@@ -426,7 +426,7 @@ public class PSContentItemDependencyTree {
     if (done == null) throw new IllegalArgumentException("done may not be null.");
 
     // update the dependency map
-    Integer cid = new Integer(relatedId);
+    Integer cid = Integer.valueOf(relatedId);
 
     List value = (List) m_dependencyMap.get(cid);
     if (value == null) {
@@ -444,7 +444,7 @@ public class PSContentItemDependencyTree {
     }
 
     ItemSet result = new ItemSet(contentId, revisionId);
-    add(new Integer(contentId), new Integer(revisionId), result, done);
+    add(Integer.valueOf(contentId), Integer.valueOf(revisionId), result, done);
 
     return convertSetToList(result);
   }
@@ -547,7 +547,7 @@ public class PSContentItemDependencyTree {
       List ids = new ArrayList();
       while (items.hasNext()) {
         PSItemDependency item = (PSItemDependency) items.next();
-        ids.add(new Integer(item.getContentId()));
+        ids.add(Integer.valueOf(item.getContentId()));
       }
       return ids.iterator();
     } else return Collections.emptyList().iterator();

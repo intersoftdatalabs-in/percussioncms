@@ -523,8 +523,8 @@
 		<include name="Packages/Percussion/**" />
 		<include name="jetty/upstream/**" />
 		<include name="jetty/defaults/**" />
-		<include name="jetty/base/webapps/CI_Home.war/**" />
-		<include name="jetty/base/webapps/EI_Home.war/**" />
+		<include name="jetty/base/webapps/CI_Home/**" />
+		<include name="jetty/base/webapps/EI_Home/**" />
 		<include name="jetty/base/webapps/Rhythmyx/**" />
 		<include name="jetty/base/webapps/CI_Home.xml" />
 		<include name="jetty/base/webapps/EI_Home.xml" />

@@ -44,12 +44,12 @@ public class PSClipBoard {
 
     if (clip == null) throw new IllegalArgumentException("clip may not be null.");
 
-    m_clip.put(new Integer(type), clip);
+    m_clip.put(Integer.valueOf(type), clip);
   }
 
   /** Clears the content in drag clipboard. */
   public void clearDragClip() {
-    Integer key = new Integer(TYPE_DRAG);
+    Integer key = Integer.valueOf(TYPE_DRAG);
     m_clip.remove(key);
   }
 
@@ -65,7 +65,7 @@ public class PSClipBoard {
   public Iterator getClip(int type) {
     checkType(type);
 
-    PSSelection clip = (PSSelection) m_clip.get(new Integer(type));
+    PSSelection clip = (PSSelection) m_clip.get(Integer.valueOf(type));
     Iterator clippedNodes = null;
     if (clip != null) clippedNodes = clip.getNodeList();
 
@@ -84,7 +84,7 @@ public class PSClipBoard {
   public PSSelection getClipSelection(int type) {
     checkType(type);
 
-    return (PSSelection) m_clip.get(new Integer(type));
+    return (PSSelection) m_clip.get(Integer.valueOf(type));
   }
 
   /**
@@ -98,7 +98,7 @@ public class PSClipBoard {
   public PSNode getClipSource(int type) {
     checkType(type);
 
-    PSSelection clip = (PSSelection) m_clip.get(new Integer(type));
+    PSSelection clip = (PSSelection) m_clip.get(Integer.valueOf(type));
     PSNode clipSource = null;
     if (clip != null) clipSource = clip.getParent();
 

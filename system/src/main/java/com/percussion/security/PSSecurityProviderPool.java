@@ -212,7 +212,7 @@ public class PSSecurityProviderPool {
     if (type == PSSecurityProvider.SP_TYPE_ANY) return getAllProviders();
 
     List<PSSecurityProvider> entries = null;
-    if (ms_providers != null) entries = ms_providers.get(new Integer(type));
+    if (ms_providers != null) entries = ms_providers.get(Integer.valueOf(type));
     else entries = new ArrayList<PSSecurityProvider>();
     int size = (entries == null) ? 0 : entries.size();
     PSSecurityProvider[] ret = new PSSecurityProvider[size];
@@ -347,7 +347,7 @@ public class PSSecurityProviderPool {
     }
 
     // and the providers array list within the hash
-    Integer spKey = new Integer(spType);
+    Integer spKey = Integer.valueOf(spType);
     List<PSSecurityProvider> instList = ms_providers.get(spKey);
     if (instList == null) instList = new ArrayList<PSSecurityProvider>();
     instList.add(sp);

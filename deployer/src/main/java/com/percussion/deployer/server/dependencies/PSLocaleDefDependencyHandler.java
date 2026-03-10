@@ -333,13 +333,13 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
 
       // backup the current info for target locale
       int tgtLocaleID = 0;
-      Integer tgtVersion = new Integer(0);
+      Integer tgtVersion = Integer.valueOf(0);
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
       boolean isNew = true;
       if (tgtLocale == null) {
         tgtLocale = mgr.createLocale("en-us", "en-us");
         tgtLocaleID = 0;
-        tgtVersion = new Integer(0);
+        tgtVersion = Integer.valueOf(0);
       } else {
         isNew = false;
         tgtLocaleID = tgtLocale.getLocaleId();

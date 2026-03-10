@@ -1856,7 +1856,7 @@ public class PSServer {
     Element handlers = doc.createElement("RequestHandlers");
     handlers.setAttribute(
         "size",
-        new Integer(ms_RequestHandlers.size() + ms_rootedRequestHandlers.size()).toString());
+        Integer.valueOf(ms_RequestHandlers.size() + ms_rootedRequestHandlers.size()).toString());
     handlers.appendChild(requestHandlers);
     handlers.appendChild(rootedHandlers);
 
@@ -2019,7 +2019,7 @@ public class PSServer {
       String[] pair = pairString.split(",");
       if (pair.length == 2) {
         try {
-          rows = new Integer(pair[1]);
+          rows = Integer.valueOf(pair[1]);
         } catch (NumberFormatException e) {
           // ignore bad data
           logger.warn("Discard bad Estimate Statistics: '" + pairString + "'");
@@ -2370,7 +2370,7 @@ public class PSServer {
     int flags = events;
     Integer eventsObj = (Integer) listenerEventMap.get(listener);
     if (eventsObj != null) flags = eventsObj.intValue() | events;
-    listenerEventMap.put(listener, new Integer(flags));
+    listenerEventMap.put(listener, Integer.valueOf(flags));
 
     ms_handlerStateListenerMap.put(handlerName, listenerEventMap);
   }
@@ -3065,7 +3065,7 @@ public class PSServer {
       }
     }
 
-    return m_cmsObjectMap.get(new Integer(typeId));
+    return m_cmsObjectMap.get(Integer.valueOf(typeId));
   }
 
   /**
