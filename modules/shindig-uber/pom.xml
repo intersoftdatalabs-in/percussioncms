@@ -159,7 +159,8 @@
             <artifactId>caja</artifactId>
             <!-- required version for beta 5 includes html-sanitize-minified.js and opensocial package.-->
             <version>r3828</version>
-            <scope>compile</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/caja-r3828.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.apache.shindig</groupId>
