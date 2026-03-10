@@ -20,7 +20,6 @@ package com.percussion.cms;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class is used to group information about an item editor which is represented as an xml
@@ -71,8 +70,7 @@ public class PSPageInfo {
    * @param queryHandlers A list of Strings which contain the names of datasets used to obtain data
    *     to fulfill a query. May be <code>null
    *    </code>.
-   * @param pageMap A list of Map.Entry objects whose key is a page id (as an Integer) and whose
-   *     value is a list of complex child page ids. May be <code>null</code> or empty. If supplied,
+   * @param pageMap A list of page ids (as Integers). May be <code>null</code> or empty. If supplied,
    *     the contents are not validated.
    * @throws IllegalArgumentException if the type is not a supported value.
    */
@@ -80,7 +78,7 @@ public class PSPageInfo {
       int type,
       int childId,
       List<String> queryHandlers,
-      List<Map.Entry<Integer, PSPageInfo>> pageMap) {
+      List<Integer> pageMap) {
     if (type < TYPE_FIRST || type > TYPE_LAST)
       throw new IllegalArgumentException("Unsupported type supplied.");
 
@@ -88,7 +86,7 @@ public class PSPageInfo {
     m_childId = childId;
     if (null != queryHandlers) m_handlers.addAll(queryHandlers); // List<String> is parameterized
     if (null != pageMap)
-      m_pageMap.addAll(pageMap); // List<Map.Entry<Integer, PSPageInfo>> is parameterized
+      m_pageMap.addAll(pageMap); // List<Integer> is parameterized
   }
 
   /**
@@ -173,7 +171,7 @@ public class PSPageInfo {
    *
    * @return An iterator over the ids. Never <code>null</code>, may be empty.
    */
-  public Iterator<Map.Entry<Integer, PSPageInfo>> getPageIdList() {
+  public Iterator<Integer> getPageIdList() {
     return m_pageMap.iterator();
   }
 
@@ -200,8 +198,7 @@ public class PSPageInfo {
   private List<String> m_handlers = new ArrayList<>();
 
   /**
-   * A list of Map.Entry objects whose key is a page id (as an Integer) and whose value is a
-   * PSPageInfo object. Never <code>null</code>, may be empty.
+   * A list of page ids (as Integers). Never <code>null</code>, may be empty.
    */
-  private List<Map.Entry<Integer, PSPageInfo>> m_pageMap = new ArrayList<>();
+  private List<Integer> m_pageMap = new ArrayList<>();
 }

@@ -43,12 +43,11 @@ public abstract class PSDataExtractor implements IPSDataExtractor {
   /**
    * Construct the extractor for the specified source objects.
    *
-   * @param source the source object(s) for this extractor, may not be {@code null}
-   * @throws IllegalArgumentException if source is {@code null}
+   * @param source the source object(s) for this extractor, may be {@code null}
    */
   protected PSDataExtractor(IPSReplacementValue[] source) {
     super();
-    m_sourceReplacementValues = Objects.requireNonNull(source, "source array cannot be null");
+    m_sourceReplacementValues = (source == null) ? new IPSReplacementValue[0] : source;
   }
 
   /**

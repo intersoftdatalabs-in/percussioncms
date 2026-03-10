@@ -45,7 +45,6 @@ import com.percussion.util.PSMapPair;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
@@ -125,7 +124,7 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
     which happens to be the only child of this editor. */
     String childPageId = "-99"; // arbitrary, invalid id (they typically start at 0)
     PSPageInfo info = (PSPageInfo) m_docContext.getPageInfoMap().get(Integer.valueOf(getPageId()));
-    Iterator<Map.Entry<Integer, PSPageInfo>> childrenPageIds = info.getPageIdList();
+    Iterator<Integer> childrenPageIds = info.getPageIdList();
     String rowEditorPageId = childrenPageIds.next().toString();
 
     PSCustomActionGroup group =
