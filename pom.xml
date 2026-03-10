@@ -191,8 +191,8 @@
         <shindig.version>1.1-BETA5-incubating</shindig.version>
         <simplexml.version>2.7.1</simplexml.version>
         <sitemap4j.version>1.1.2</sitemap4j.version>
-        <skip.integration.tests>true</skip.integration.tests>
-        <skip.unit.tests>false</skip.unit.tests>
+        <skipTests>false</skipTests>
+        <skipITs>true</skipITs>
         <slf4j.version>2.0.17</slf4j.version>
         <snakeyaml.version>2.6</snakeyaml.version>
         <solr.version>8.11.4</solr.version>
@@ -2628,7 +2628,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.plugin.version}</version>
                 <configuration>
-                    <skipTests>${skip.unit.tests}</skipTests>
+                    <skipTests>${skipTests}</skipTests>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>${surefireArgLine}</argLine>
                     <systemPropertyVariables>
@@ -2686,11 +2686,7 @@
                                     <value>com.percussion.xml.PSSaxParserFactoryImpl</value>
                                 </property>
                             </systemProperties>
-                            <!--
-                                Skips integration tests if the value of skip.integration.tests property
-                                is true
-                            -->
-                            <skipTests>${skip.integration.tests}</skipTests>
+                            <skipTests>${skipITs}</skipTests>
                             <testFailureIgnore>false</testFailureIgnore>
                             <groups>com.percussion.utils.testing.IntegrationTest</groups>
                             <includes>
@@ -2774,8 +2770,8 @@
                 </property>
             </activation>
             <properties>
-                <skip.integration.tests>true</skip.integration.tests>
-                <skip.unit.tests>true</skip.unit.tests>
+                <skipTests>true</skipTests>
+                <skipITs>true</skipITs>
             </properties>
         </profile>
         <profile>
@@ -2783,8 +2779,8 @@
             <properties>
                 <build.profile.id>all-tests</build.profile.id>
                 <!-- All tests are run. -->
-                <skip.integration.tests>false</skip.integration.tests>
-                <skip.unit.tests>false</skip.unit.tests>
+                <skipTests>false</skipTests>
+                <skipITs>false</skipITs>
             </properties>
         </profile>
         <profile>
@@ -2796,8 +2792,8 @@
                 <!-- Used to locate the profile specific configuration file. -->
                 <build.profile.id>integration-test</build.profile.id>
                 <!-- Only integration tests are run. -->
-                <skip.integration.tests>false</skip.integration.tests>
-                <skip.unit.tests>true</skip.unit.tests>
+                    <skipTests>true</skipTests>
+                     <skipITs>false</skipITs>
             </properties>
         </profile>
     </profiles>
