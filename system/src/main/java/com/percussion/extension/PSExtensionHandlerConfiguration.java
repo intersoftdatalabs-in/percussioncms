@@ -152,10 +152,14 @@ class PSExtensionHandlerConfiguration {
       throw new IllegalArgumentException("\"" + context + "\" is not a valid context.");
     }
 
-    Map extensionDefs = (Map) (m_extensionContexts.get(context));
+    Map<String, IPSExtensionDef> extensionDefs = m_extensionContexts.get(context);
     if (extensionDefs == null) return null;
 
-    return extensionDefs.keySet().iterator();
+    // Return the PSExtensionRef from each stored def so callers receive typed refs, not FQN strings.
+    return extensionDefs.values().stream()
+        .map(IPSExtensionDef::getRef)
+        .collect(java.util.stream.Collectors.toList())
+        .iterator();
   }
 
   /**
@@ -180,9 +184,9 @@ class PSExtensionHandlerConfiguration {
   public IPSExtensionDef getExtensionDef(PSExtensionRef ref) {
     if (ref == null) throw new IllegalArgumentException("ref cannot be null");
 
-    Map<PSExtensionRef, IPSExtensionDef> extensionDefs = getExtensionDefMap(ref);
+    Map<String, IPSExtensionDef> extensionDefs = getExtensionDefMap(ref);
 
-    return (IPSExtensionDef) extensionDefs.get(ref);
+    return extensionDefs.get(ref.getFQN());
   }
 
   /**
@@ -195,9 +199,9 @@ class PSExtensionHandlerConfiguration {
   public void removeExtensionDef(PSExtensionRef ref) {
     if (ref == null) throw new IllegalArgumentException("ref cannot be null");
 
-    Map<PSExtensionRef, IPSExtensionDef> extensionDefs = getExtensionDefMap(ref);
+    Map<String, IPSExtensionDef> extensionDefs = getExtensionDefMap(ref);
     if (extensionDefs != null) {
-      extensionDefs.remove(ref);
+      extensionDefs.remove(ref.getFQN());
     }
   }
 
@@ -212,13 +216,14 @@ class PSExtensionHandlerConfiguration {
     if (extensionDef == null) throw new IllegalArgumentException("extensionDef cannot be null");
 
     PSExtensionRef ref = extensionDef.getRef();
-    Map<PSExtensionRef, IPSExtensionDef> extensionDefs = getExtensionDefMap(ref);
+    Map<String, IPSExtensionDef> extensionDefs = getExtensionDefMap(ref);
 
-    extensionDefs.put(ref, extensionDef);
+    // Key by FQN (handler/context/name) so lookups never depend on category.
+    extensionDefs.put(ref.getFQN(), extensionDef);
   }
 
-  private Map<PSExtensionRef, IPSExtensionDef> getExtensionDefMap(PSExtensionRef ref) {
-    Map<PSExtensionRef, IPSExtensionDef> extensionDefs = m_extensionContexts.get(ref.getContext());
+  private Map<String, IPSExtensionDef> getExtensionDefMap(PSExtensionRef ref) {
+    Map<String, IPSExtensionDef> extensionDefs = m_extensionContexts.get(ref.getContext());
     if (extensionDefs == null) {
       synchronized (this) {
         extensionDefs = m_extensionContexts.get(ref.getContext());
@@ -494,7 +499,7 @@ class PSExtensionHandlerConfiguration {
         e = tree.getNextElement("pendingRemoval", nextFlag)) {
       String file = e.getAttribute("name");
       if (file == null || file.length() == 0) {
-        // TODO: log a message that an empty pending-removal was skipped
+        ms_log.warn("Skipping pendingRemoval entry with empty or missing 'name' attribute.");
         continue;
       }
 
@@ -514,13 +519,22 @@ class PSExtensionHandlerConfiguration {
       try {
         IPSExtensionDef def = m_defFactory.fromXml(e);
         if (isExtensionDefined(def.getRef())) {
-          // TODO: log a message that this extension is multiply defined
+          ms_log.warn(
+              "Extension \"{}\" is multiply defined in config file - skipping duplicate.",
+              def.getRef());
           continue;
         }
         addExtensionDef(def);
         loadExtensionMethods(def);
       } catch (PSExtensionException pse) {
-        // TODO: log invalid extension definition in config file
+        String extName = e.getAttribute("name");
+        String context = e.getAttribute("context");
+        ms_log.error(
+            "Failed to load extension definition \"{}{}\": {}",
+            context,
+            extName,
+            pse.getMessage(),
+            pse);
       }
     }
   }
@@ -736,7 +750,13 @@ class PSExtensionHandlerConfiguration {
    * A map from extension contexts to corresponding maps from extension names to extension defs.
    * Never <CODE>null</CODE>, may be empty.
    */
-  private volatile Map<String, Map<PSExtensionRef, IPSExtensionDef>> m_extensionContexts =
+  /**
+   * Outer key: canonical context string (e.g. {@code "global/percussion/filter/"}).
+   * Inner key: fully-qualified extension name (FQN = handler/context/name), which intentionally
+   * excludes category so that lookups always succeed regardless of whether the lookup ref was
+   * constructed with or without a category string.
+   */
+  private volatile Map<String, Map<String, IPSExtensionDef>> m_extensionContexts =
       new ConcurrentHashMap<>(8, 0.9f, 1);
 
   /**
