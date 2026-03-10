@@ -314,7 +314,10 @@ public class PSJaasUtils
          }
       }
 
-      subject.getPrivateCredentials().add(pwd);
+      if (pwd != null)
+      {
+         subject.getPrivateCredentials().add(pwd);
+      }
       subject.getPublicCredentials().add(userEntry.getName());
 
       return subject;
