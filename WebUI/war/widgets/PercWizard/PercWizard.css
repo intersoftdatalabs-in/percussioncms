@@ -20,7 +20,8 @@
 
 .perc-wizard-step-index.perc-wizard-step-active {
   padding-top: 1px;
-  background: url(/cm/app/app/widgets/PercWizard/images/PercWizardActive.png) no-repeat;
+  background: url(/cm/app/app/widgets/PercWizard/images/PercWizardActive.png)
+    no-repeat;
 }
 
 .perc-wizard-step-title.perc-wizard-step-inactive {

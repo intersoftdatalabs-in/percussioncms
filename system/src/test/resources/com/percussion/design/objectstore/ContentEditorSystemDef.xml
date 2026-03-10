@@ -6,12 +6,12 @@
 				<PSXTableLocator alias="">
 					<PSXBackEndCredential id="0">
 						<alias>systemCredential</alias>
-						<datasource/>
+						<datasource />
 					</PSXBackEndCredential>
 				</PSXTableLocator>
-				<PSXTableRef name="RXLOOKUP"/>
-				<PSXTableRef name="NEXTNUMBER"/>
-				<PSXTableRef name="CONTENTSTATUS"/>
+				<PSXTableRef name="RXLOOKUP" />
+				<PSXTableRef name="NEXTNUMBER" />
+				<PSXTableRef name="CONTENTSTATUS" />
 			</PSXTableSet>
 		</PSXContainerLocator>
 	</SystemLocator>
@@ -333,7 +333,7 @@
 							<operator>IS NOT NULL</operator>
 							<value>
 								<PSXTextLiteral id="30">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXConditional>
@@ -346,7 +346,7 @@
 					<PSXExtensionParamValue id="32">
 						<value>
 							<PSXTextLiteral id="33">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
@@ -423,14 +423,14 @@
 					<PSXExtensionParamValue id="54">
 						<value>
 							<PSXTextLiteral id="55">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="56">
 						<value>
 							<PSXTextLiteral id="57">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
@@ -445,7 +445,7 @@
 						<PSXExtensionParamValue id="59">
 							<value>
 								<PSXTextLiteral id="60">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
@@ -522,14 +522,14 @@
 						<PSXExtensionParamValue id="81">
 							<value>
 								<PSXTextLiteral id="82">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="83">
 							<value>
 								<PSXTextLiteral id="84">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
@@ -560,7 +560,7 @@
 						<PSXExtensionParamValue id="89">
 							<value>
 								<PSXTextLiteral id="90">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
@@ -623,28 +623,28 @@
 						<PSXExtensionParamValue id="107">
 							<value>
 								<PSXTextLiteral id="108">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="109">
 							<value>
 								<PSXTextLiteral id="110">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="111">
 							<value>
 								<PSXTextLiteral id="112">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="113">
 							<value>
 								<PSXTextLiteral id="114">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
@@ -688,7 +688,7 @@
 					<PSXExtensionParamValue id="146">
 						<value>
 							<PSXTextLiteral id="147">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
@@ -765,21 +765,21 @@
 					<PSXExtensionParamValue id="166">
 						<value>
 							<PSXTextLiteral id="167">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="168">
 						<value>
 							<PSXTextLiteral id="169">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="170">
 						<value>
 							<PSXTextLiteral id="171">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
@@ -958,21 +958,21 @@
 						<PSXExtensionParamValue id="166">
 							<value>
 								<PSXTextLiteral id="167">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="168">
 							<value>
 								<PSXTextLiteral id="169">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 						<PSXExtensionParamValue id="170">
 							<value>
 								<PSXTextLiteral id="171">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
@@ -1662,19 +1662,23 @@
 			<PSXTableLocator>
 				<PSXBackEndCredential id="275">
 					<alias>contentCredential</alias>
-					<datasource/>
+					<datasource />
 				</PSXBackEndCredential>
 			</PSXTableLocator>
-			<PSXTableRef name="CONTENTSTATUS"/>
+			<PSXTableRef name="CONTENTSTATUS" />
 		</PSXTableSet>
 	</PSXContainerLocator>
-	<PSXFieldSet name="systemFieldset" repeatability="zeroOrMore" supportsSequencing="yes" type="parent">
-		<PSXField defaultSearchLabel="Content start date" forceBinary="no" modificationType="user" name="sys_contentstartdate" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="yes">
+	<PSXFieldSet name="systemFieldset"
+		repeatability="zeroOrMore" supportsSequencing="yes" type="parent">
+		<PSXField defaultSearchLabel="Content start date"
+			forceBinary="no" modificationType="user" name="sys_contentstartdate"
+			showInPreview="yes" showInSummary="yes" userCustomizable="yes"
+			userSearchable="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="276">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTSTARTDATE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
 			<DataType>datetime</DataType>
@@ -1692,46 +1696,59 @@
 						<PSXExtensionParamValue id="0">
 							<value>
 								<PSXTextLiteral id="0">
-									<text/>
+									<text />
 								</PSXTextLiteral>
 							</value>
 						</PSXExtensionParamValue>
 					</PSXExtensionCall>
 				</DataLocator>
 			</DefaultValue>
-			<OccurrenceSettings delimiter=";" dimension="required" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="required" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Content expiration date" forceBinary="no" modificationType="user" name="sys_contentexpirydate" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="yes">
+		<PSXField defaultSearchLabel="Content expiration date"
+			forceBinary="no" modificationType="user" name="sys_contentexpirydate"
+			showInPreview="yes" showInSummary="yes" userCustomizable="yes"
+			userSearchable="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="277">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTEXPIRYDATE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Reminder date" forceBinary="no" modificationType="user" name="sys_reminderdate" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="yes">
+		<PSXField defaultSearchLabel="Reminder date" forceBinary="no"
+			modificationType="user" name="sys_reminderdate" showInPreview="yes"
+			showInSummary="yes" userCustomizable="yes" userSearchable="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="283">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>REMINDERDATE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="System title" forceBinary="no" modificationType="user" name="sys_title" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="yes" systemMandatory="yes">
+		<PSXField defaultSearchLabel="System title" forceBinary="no"
+			modificationType="user" name="sys_title" showInPreview="yes"
+			showInSummary="yes" userCustomizable="yes" userSearchable="yes"
+			systemMandatory="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="278">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>TITLE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="required" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="required" multiValuedType="delimited" />
 			<FieldRules>
-				<PSXFieldValidationRules name="isValidSysTitle">
+				<PSXFieldValidationRules
+					name="isValidSysTitle">
 					<PSXRule boolean="and">
 						<PSXExtensionCallSet id="0">
 							<PSXExtensionCall id="1">
@@ -1746,39 +1763,48 @@
 							</PSXExtensionCall>
 						</PSXExtensionCallSet>
 					</PSXRule>
-					<PSXApplyWhen ifFieldEmpty="yes"/>
+					<PSXApplyWhen ifFieldEmpty="yes" />
 					<ErrorMessage>
 						<PSXDisplayText>This field cannot be empty or contain only spaces</PSXDisplayText>
 					</ErrorMessage>
 				</PSXFieldValidationRules>
 			</FieldRules>
 		</PSXField>
-		<PSXField defaultSearchLabel="Publication date" forceBinary="no" modificationType="user" name="sys_pubdate" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="yes">
+		<PSXField defaultSearchLabel="Publication date"
+			forceBinary="no" modificationType="user" name="sys_pubdate"
+			showInPreview="yes" showInSummary="yes" userCustomizable="yes"
+			userSearchable="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="279">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTPUBLISHDATE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Path name" forceBinary="no" modificationType="user" name="sys_pathname" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="yes">
+		<PSXField defaultSearchLabel="Path name" forceBinary="no"
+			modificationType="user" name="sys_pathname" showInPreview="yes"
+			showInSummary="yes" userCustomizable="yes" userSearchable="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="280">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTPATHNAME</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Suffix" forceBinary="no" modificationType="user" name="sys_suffix" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="yes">
+		<PSXField defaultSearchLabel="Suffix" forceBinary="no"
+			modificationType="user" name="sys_suffix" showInPreview="yes"
+			showInSummary="yes" userCustomizable="yes" userSearchable="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="281">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTSUFFIX</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
 			<DefaultValue>
@@ -1788,7 +1814,8 @@
 					</PSXTextLiteral>
 				</DataLocator>
 			</DefaultValue>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 			<FieldRules>
 				<PSXVisibilityRules dataHiding="xsl">
 					<PSXRule boolean="and">
@@ -1810,12 +1837,15 @@
 				</PSXVisibilityRules>
 			</FieldRules>
 		</PSXField>
-		<PSXField defaultSearchLabel="Community Id" forceBinary="no" modificationType="userCreate" name="sys_communityid" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="yes" systemMandatory="yes">
+		<PSXField defaultSearchLabel="Community Id" forceBinary="no"
+			modificationType="userCreate" name="sys_communityid"
+			showInPreview="yes" showInSummary="yes" userCustomizable="yes"
+			userSearchable="yes" systemMandatory="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="282">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>COMMUNITYID</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
 			<DefaultValue>
@@ -1825,7 +1855,8 @@
 					</PSXUserContext>
 				</DataLocator>
 			</DefaultValue>
-			<OccurrenceSettings delimiter=";" dimension="required" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="required" multiValuedType="delimited" />
 			<FieldRules>
 				<PSXVisibilityRules dataHiding="xsl">
 					<PSXRule boolean="and">
@@ -1852,12 +1883,14 @@
 				</PSXUrlRequest>
 			</PSXChoices>
 		</PSXField>
-		<PSXField forceBinary="no" modificationType="userCreate" name="sys_lang" showInPreview="yes" showInSummary="yes" systemMandatory="yes">
+		<PSXField forceBinary="no" modificationType="userCreate"
+			name="sys_lang" showInPreview="yes" showInSummary="yes"
+			systemMandatory="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="282">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>LOCALE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
 			<DefaultValue>
@@ -1867,7 +1900,8 @@
 					</PSXUserContext>
 				</DataLocator>
 			</DefaultValue>
-			<OccurrenceSettings delimiter=";" dimension="required" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="required" multiValuedType="delimited" />
 			<FieldRules>
 				<PSXVisibilityRules dataHiding="xsl">
 					<PSXRule boolean="and">
@@ -1888,25 +1922,32 @@
 					</PSXRule>
 				</PSXVisibilityRules>
 			</FieldRules>
-			<PSXSearchProperties id="0" defaultSearchLabel="Locale ID" tokenizeSearchContent="yes"/>
+			<PSXSearchProperties id="0"
+				defaultSearchLabel="Locale ID" tokenizeSearchContent="yes" />
 		</PSXField>
-		<PSXField forceBinary="no" modificationType="user" name="sys_currentview" showInPreview="yes" showInSummary="yes" userCustomizable="yes" userSearchable="no" systemMandatory="yes">
+		<PSXField forceBinary="no" modificationType="user"
+			name="sys_currentview" showInPreview="yes" showInSummary="yes"
+			userCustomizable="yes" userSearchable="no" systemMandatory="yes">
 			<DataLocator>
 				<PSXSingleHtmlParameter id="29">
 					<name>sys_view</name>
 				</PSXSingleHtmlParameter>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Workflow" forceBinary="no" modificationType="userCreate" name="sys_workflowid" showInPreview="yes" showInSummary="yes" systemMandatory="yes">
+		<PSXField defaultSearchLabel="Workflow" forceBinary="no"
+			modificationType="userCreate" name="sys_workflowid"
+			showInPreview="yes" showInSummary="yes" systemMandatory="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="282">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>WORKFLOWAPPID</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="required" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="required" multiValuedType="delimited" />
 			<FieldRules>
 				<PSXVisibilityRules dataHiding="xsl">
 					<PSXRule boolean="and">
@@ -1928,7 +1969,9 @@
 				</PSXVisibilityRules>
 			</FieldRules>
 		</PSXField>
-		<PSXField defaultSearchLabel="Assignees" forceBinary="no" modificationType="none" name="sys_assignees" showInPreview="no" showInSummary="no" type="system">
+		<PSXField defaultSearchLabel="Assignees" forceBinary="no"
+			modificationType="none" name="sys_assignees" showInPreview="no"
+			showInSummary="no" type="system">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/workflow/sys_ComputeAssignees</name>
@@ -1937,15 +1980,18 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>CONTENTID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Assignment type ID" forceBinary="no" modificationType="none" name="sys_assignmenttypeid" showInPreview="no" showInSummary="no" type="system">
+		<PSXField defaultSearchLabel="Assignment type ID"
+			forceBinary="no" modificationType="none" name="sys_assignmenttypeid"
+			showInPreview="no" showInSummary="no" type="system">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/workflow/sys_ComputeAssignmenType</name>
@@ -1954,7 +2000,7 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>CONTENTID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
@@ -1988,9 +2034,12 @@
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Assignment type" forceBinary="no" modificationType="none" name="sys_assignmenttype" showInPreview="no" showInSummary="no" type="system">
+		<PSXField defaultSearchLabel="Assignment type"
+			forceBinary="no" modificationType="none" name="sys_assignmenttype"
+			showInPreview="no" showInSummary="no" type="system">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/workflow/sys_ComputeAssignmenType</name>
@@ -1999,7 +2048,7 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>CONTENTID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
@@ -2033,9 +2082,12 @@
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Publishable status" forceBinary="no" modificationType="none" name="sys_publishabletype" showInPreview="no" showInSummary="no" type="system">
+		<PSXField defaultSearchLabel="Publishable status"
+			forceBinary="no" modificationType="none" name="sys_publishabletype"
+			showInPreview="no" showInSummary="no" type="system">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/cms/sys_CmsObjectNameLookup</name>
@@ -2051,7 +2103,7 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>WORKFLOWAPPID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
@@ -2060,15 +2112,18 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>CONTENTSTATEID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Checkout status" forceBinary="no" modificationType="none" name="sys_checkoutstatus" showInPreview="no" showInSummary="no" type="system">
+		<PSXField defaultSearchLabel="Checkout status"
+			forceBinary="no" modificationType="none" name="sys_checkoutstatus"
+			showInPreview="no" showInSummary="no" type="system">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/workflow/sys_ComputeUserCheckoutStatus</name>
@@ -2077,16 +2132,19 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>CONTENTCHECKOUTUSERNAME</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
 			<DataType>image</DataType>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Variant Name" forceBinary="no" modificationType="none" name="sys_variantname" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Variant Name" forceBinary="no"
+			modificationType="none" name="sys_variantname" showInPreview="no"
+			showInSummary="no" type="system" userSearchable="yes">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/generic/sys_MakeIntLink</name>
@@ -2099,9 +2157,13 @@
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Content Type Name" forceBinary="no" modificationType="none" name="sys_contenttypename" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Content Type Name"
+			forceBinary="no" modificationType="none" name="sys_contenttypename"
+			showInPreview="no" showInSummary="no" type="system"
+			userSearchable="yes">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/cms/sys_CmsObjectNameLookup</name>
@@ -2117,53 +2179,66 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>CONTENTTYPEID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Variant" forceBinary="no" modificationType="none" name="sys_variantid" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Variant" forceBinary="no"
+			modificationType="none" name="sys_variantid" showInPreview="no"
+			showInSummary="no" type="system" userSearchable="yes">
 			<DataLocator>
 				<PSXTextLiteral id="0">
 					<text>sys_variantid</text>
 				</PSXTextLiteral>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Site" forceBinary="no" modificationType="none" name="sys_siteid" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Site" forceBinary="no"
+			modificationType="none" name="sys_siteid" showInPreview="no"
+			showInSummary="no" type="system" userSearchable="yes">
 			<DataLocator>
 				<PSXTextLiteral id="0">
 					<text>sys_siteid</text>
 				</PSXTextLiteral>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Folder Path" forceBinary="no" modificationType="none" name="sys_folderid" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Folder Path" forceBinary="no"
+			modificationType="none" name="sys_folderid" showInPreview="no"
+			showInSummary="no" type="system" userSearchable="yes">
 			<DataLocator>
 				<PSXTextLiteral id="0">
 					<text>sys_folderid</text>
 				</PSXTextLiteral>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Workflow State Name" forceBinary="no" modificationType="none" name="sys_statename" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Workflow State Name"
+			forceBinary="no" modificationType="none" name="sys_statename"
+			showInPreview="no" showInSummary="no" type="system"
+			userSearchable="yes">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/cms/sys_CmsObjectNameLookup</name>
@@ -2179,7 +2254,7 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>CONTENTSTATEID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
@@ -2188,33 +2263,38 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>WORKFLOWAPPID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
-            <PSXChoices sortOrder="ascending" type="internalLookup">
-                <PSXUrlRequest>
-                  <Href>../sys_commSupport/communitystatenames.xml</Href>
-                </PSXUrlRequest>
-                <PSXChoiceFilter>
-                  <DependentField fieldRef="sys_workflowid" dependencyType="required"/>
-                  <PSXUrlRequest>
-                     <Href>sys_commSupport/workflowstatenames.xml</Href>
-                  </PSXUrlRequest>
-                </PSXChoiceFilter>
-            </PSXChoices>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
+			<PSXChoices sortOrder="ascending" type="internalLookup">
+				<PSXUrlRequest>
+					<Href>../sys_commSupport/communitystatenames.xml</Href>
+				</PSXUrlRequest>
+				<PSXChoiceFilter>
+					<DependentField fieldRef="sys_workflowid"
+						dependencyType="required" />
+					<PSXUrlRequest>
+						<Href>sys_commSupport/workflowstatenames.xml</Href>
+					</PSXUrlRequest>
+				</PSXChoiceFilter>
+			</PSXChoices>
 		</PSXField>
-		<PSXField defaultSearchLabel="Community Name" forceBinary="no" modificationType="none" name="sys_communityname" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Community Name"
+			forceBinary="no" modificationType="none" name="sys_communityname"
+			showInPreview="no" showInSummary="no" type="system"
+			userSearchable="yes">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/cms/sys_CmsObjectNameLookup</name>
@@ -2230,29 +2310,32 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>COMMUNITYID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Locale Name" forceBinary="no" modificationType="none" name="sys_localename" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Locale Name" forceBinary="no"
+			modificationType="none" name="sys_localename" showInPreview="no"
+			showInSummary="no" type="system" userSearchable="yes">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/cms/sys_CmsObjectNameLookup</name>
@@ -2268,29 +2351,32 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>LOCALE</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Workflow Name" forceBinary="no" modificationType="none" name="sys_workflowname" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<PSXField defaultSearchLabel="Workflow Name" forceBinary="no"
+			modificationType="none" name="sys_workflowname" showInPreview="no"
+			showInSummary="no" type="system" userSearchable="yes">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/cms/sys_CmsObjectNameLookup</name>
@@ -2306,136 +2392,170 @@
 							<PSXBackEndColumn id="0">
 								<tableAlias>CONTENTSTATUS</tableAlias>
 								<column>WORKFLOWAPPID</column>
-								<columnAlias/>
+								<columnAlias />
 							</PSXBackEndColumn>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Content id" forceBinary="no" modificationType="systemCreate" name="sys_contentid" showInPreview="yes" showInSummary="yes" type="system">
+		<PSXField defaultSearchLabel="Content id" forceBinary="no"
+			modificationType="systemCreate" name="sys_contentid"
+			showInPreview="yes" showInSummary="yes" type="system">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTID</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Workflow State ID" forceBinary="no" modificationType="system" name="sys_contentstateid" showInPreview="yes" showInSummary="yes" type="system">
+		<PSXField defaultSearchLabel="Workflow State ID"
+			forceBinary="no" modificationType="system" name="sys_contentstateid"
+			showInPreview="yes" showInSummary="yes" type="system">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTSTATEID</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Checked out user name" forceBinary="no" modificationType="system" name="sys_contentcheckoutusername" showInPreview="yes" showInSummary="yes" type="system">
+		<PSXField defaultSearchLabel="Checked out user name"
+			forceBinary="no" modificationType="system"
+			name="sys_contentcheckoutusername" showInPreview="yes"
+			showInSummary="yes" type="system">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTCHECKOUTUSERNAME</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Last modified by" forceBinary="no" modificationType="system" name="sys_contentlastmodifier" showInPreview="yes" showInSummary="yes" type="system">
+		<PSXField defaultSearchLabel="Last modified by"
+			forceBinary="no" modificationType="system"
+			name="sys_contentlastmodifier" showInPreview="yes"
+			showInSummary="yes" type="system">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTLASTMODIFIER</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Last modified date" forceBinary="no" modificationType="system" name="sys_contentlastmodifieddate" showInPreview="yes" showInSummary="yes" type="system">
+		<PSXField defaultSearchLabel="Last modified date"
+			forceBinary="no" modificationType="system"
+			name="sys_contentlastmodifieddate" showInPreview="yes"
+			showInSummary="yes" type="system">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTLASTMODIFIEDDATE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Object type" forceBinary="no" modificationType="systemCreate" name="sys_objecttype" showInPreview="yes" showInSummary="yes" type="system" userSearchable="no">
+		<PSXField defaultSearchLabel="Object type" forceBinary="no"
+			modificationType="systemCreate" name="sys_objecttype"
+			showInPreview="yes" showInSummary="yes" type="system"
+			userSearchable="no">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>OBJECTTYPE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Content Type" forceBinary="no" modificationType="systemCreate" name="sys_contenttypeid" showInPreview="yes" showInSummary="yes" type="system">
+		<PSXField defaultSearchLabel="Content Type" forceBinary="no"
+			modificationType="systemCreate" name="sys_contenttypeid"
+			showInPreview="yes" showInSummary="yes" type="system">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTTYPEID</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 			<PSXChoices sortOrder="ascending" type="internalLookup">
 				<PSXUrlRequest>
 					<Href>../sys_psxContentEditorCataloger/ContentTypeLookup.xml</Href>
 				</PSXUrlRequest>
 				<PSXChoiceFilter>
-					<DependentField fieldRef="sys_communityid" dependencyType="required"/>
+					<DependentField fieldRef="sys_communityid"
+						dependencyType="required" />
 					<PSXUrlRequest>
 						<Href>sys_psxContentEditorCataloger/ContentTypeCommunityLookup.xml</Href>
 					</PSXUrlRequest>
 				</PSXChoiceFilter>
 			</PSXChoices>
 		</PSXField>
-		<PSXField defaultSearchLabel="Created on" forceBinary="no" modificationType="systemCreate" name="sys_contentcreateddate" showInPreview="yes" showInSummary="yes" type="system">
+		<PSXField defaultSearchLabel="Created on" forceBinary="no"
+			modificationType="systemCreate" name="sys_contentcreateddate"
+			showInPreview="yes" showInSummary="yes" type="system">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTCREATEDDATE</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField defaultSearchLabel="Created by" forceBinary="no" modificationType="systemCreate" name="sys_contentcreatedby" showInPreview="yes" showInSummary="yes" type="system">
+		<PSXField defaultSearchLabel="Created by" forceBinary="no"
+			modificationType="systemCreate" name="sys_contentcreatedby"
+			showInPreview="yes" showInSummary="yes" type="system">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>CONTENTCREATEDBY</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<!--
-          The sys_relevancy field is used to provide the relevancy ranking returned by the 
-          external search engine.  The field value is overwritten by the search engine at
-          the time the search results are processed.  If no rank is available, or if the 
-          search was performed against the internal engine, the value is left at -1.
-      -->
-		<PSXField defaultSearchLabel="Rank" forceBinary="no" modificationType="none" name="sys_relevancy" showInPreview="no" showInSummary="no" type="system" userSearchable="yes">
+		<!-- The sys_relevancy field is used to provide the relevancy ranking returned
+			by the external search engine. The field value is overwritten by the search
+			engine at the time the search results are processed. If no rank is available,
+			or if the search was performed against the internal engine, the value is
+			left at -1. -->
+		<PSXField defaultSearchLabel="Rank" forceBinary="no"
+			modificationType="none" name="sys_relevancy" showInPreview="no"
+			showInSummary="no" type="system" userSearchable="yes">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/generic/sys_Literal</name>
@@ -2449,45 +2569,54 @@
 				</PSXExtensionCall>
 			</DataLocator>
 			<DataType>integer</DataType>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
 		<!-- Thumbnail image column -->
-		<PSXField defaultSearchLabel="Thumbnail" forceBinary="no" modificationType="none" name="sys_thumbnail" showInPreview="no" showInSummary="no" systemMandatory="no" type="system" userCustomizable="yes" userSearchable="yes">
+		<PSXField defaultSearchLabel="Thumbnail" forceBinary="no"
+			modificationType="none" name="sys_thumbnail" showInPreview="no"
+			showInSummary="no" systemMandatory="no" type="system"
+			userCustomizable="yes" userSearchable="yes">
 			<DataLocator>
 				<PSXExtensionCall id="0">
 					<name>Java/global/percussion/generic/sys_Literal</name>
 					<PSXExtensionParamValue id="0">
 						<value>
 							<PSXTextLiteral id="0">
-								<text/>
+								<text />
 							</PSXTextLiteral>
 						</value>
 					</PSXExtensionParamValue>
 				</PSXExtensionCall>
 			</DataLocator>
 			<DataType>image</DataType>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
-		<PSXField forceBinary="no" modificationType="system" name="sys_hibernateVersion" showInPreview="no" showInSummary="no" systemMandatory="yes" userSearchable="no" systemInternal="yes">
+		<PSXField forceBinary="no" modificationType="system"
+			name="sys_hibernateVersion" showInPreview="no" showInSummary="no"
+			systemMandatory="yes" userSearchable="no" systemInternal="yes">
 			<DataLocator>
 				<PSXBackEndColumn id="1">
 					<tableAlias>CONTENTSTATUS</tableAlias>
 					<column>HIB_VER</column>
-					<columnAlias/>
+					<columnAlias />
 				</PSXBackEndColumn>
 			</DataLocator>
-			<OccurrenceSettings delimiter=";" dimension="optional" multiValuedType="delimited"/>
+			<OccurrenceSettings delimiter=";"
+				dimension="optional" multiValuedType="delimited" />
 		</PSXField>
 	</PSXFieldSet>
 	<PSXUIDefinition>
-		<PSXDisplayMapper fieldSetRef="systemFieldset" id="282">
+		<PSXDisplayMapper fieldSetRef="systemFieldset"
+			id="282">
 			<PSXDisplayMapping>
 				<FieldRef>sys_title</FieldRef>
 				<PSXUISet defaultSet="" name="" accessKey="T">
 					<Label>
 						<PSXDisplayText>System Title:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_EditBox"/>
+					<PSXControlRef name="sys_EditBox" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 			<PSXDisplayMapping>
@@ -2496,7 +2625,7 @@
 					<Label>
 						<PSXDisplayText>Start Date:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_CalendarSimple"/>
+					<PSXControlRef name="sys_CalendarSimple" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 			<PSXDisplayMapping>
@@ -2505,7 +2634,7 @@
 					<Label>
 						<PSXDisplayText>Expiration Date:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_CalendarSimple"/>
+					<PSXControlRef name="sys_CalendarSimple" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 			<PSXDisplayMapping>
@@ -2514,7 +2643,7 @@
 					<Label>
 						<PSXDisplayText>Pub Date:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_CalendarSimple"/>
+					<PSXControlRef name="sys_CalendarSimple" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 			<PSXDisplayMapping>
@@ -2523,7 +2652,7 @@
 					<Label>
 						<PSXDisplayText>Path Name:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_EditBox"/>
+					<PSXControlRef name="sys_EditBox" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 			<PSXDisplayMapping>
@@ -2532,7 +2661,7 @@
 					<Label>
 						<PSXDisplayText>Suffix:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_EditBox"/>
+					<PSXControlRef name="sys_EditBox" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 			<PSXDisplayMapping>
@@ -2541,7 +2670,7 @@
 					<Label>
 						<PSXDisplayText>Community:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_DropDownSingle"/>
+					<PSXControlRef name="sys_DropDownSingle" />
 					<PSXChoices sortOrder="ascending" type="internalLookup">
 						<PSXUrlRequest>
 							<Href>../sys_commSupport/communitynamelookup.xml</Href>
@@ -2573,7 +2702,7 @@
 					<Label>
 						<PSXDisplayText>Locale:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_DropDownSingle"/>
+					<PSXControlRef name="sys_DropDownSingle" />
 					<PSXChoices sortOrder="ascending" type="internalLookup">
 						<PSXUrlRequest>
 							<Href>../sys_i18nSupport/languagelookup.xml</Href>
@@ -2590,7 +2719,7 @@
 								<operator>IS NOT NULL</operator>
 								<value>
 									<PSXTextLiteral id="0">
-										<text/>
+										<text />
 									</PSXTextLiteral>
 								</value>
 								<boolean>AND</boolean>
@@ -2603,9 +2732,9 @@
 				<FieldRef>sys_currentview</FieldRef>
 				<PSXUISet defaultSet="" name="">
 					<Label>
-						<PSXDisplayText/>
+						<PSXDisplayText />
 					</Label>
-					<PSXControlRef name="sys_HiddenInput"/>
+					<PSXControlRef name="sys_HiddenInput" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 			<PSXDisplayMapping>
@@ -2614,13 +2743,14 @@
 					<Label>
 						<PSXDisplayText>Workflow:</PSXDisplayText>
 					</Label>
-					<PSXControlRef name="sys_DropDownSingle"/>
+					<PSXControlRef name="sys_DropDownSingle" />
 					<PSXChoices sortOrder="ascending" type="internalLookup">
 						<PSXUrlRequest>
 							<Href>../sys_commSupport/communityworkflows.xml</Href>
 						</PSXUrlRequest>
 						<PSXChoiceFilter>
-							<DependentField fieldRef="sys_communityid" dependencyType="required"/>
+							<DependentField fieldRef="sys_communityid"
+								dependencyType="required" />
 							<PSXUrlRequest>
 								<Href>sys_commSupport/communityworkflowchoices.xml</Href>
 							</PSXUrlRequest>
@@ -2637,7 +2767,7 @@
 								<operator>IS NOT NULL</operator>
 								<value>
 									<PSXTextLiteral id="0">
-										<text/>
+										<text />
 									</PSXTextLiteral>
 								</value>
 								<boolean>AND</boolean>
@@ -2652,16 +2782,16 @@
 					<Label>
 						<PSXDisplayText>Reminder Date:</PSXDisplayText>
 					</Label>
-					<PSXControlRef id="0" name="sys_CalendarSimple"/>
+					<PSXControlRef id="0" name="sys_CalendarSimple" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 			<PSXDisplayMapping>
 				<FieldRef>sys_hibernateVersion</FieldRef>
 				<PSXUISet defaultSet="" name="">
 					<Label>
-						<PSXDisplayText/>
+						<PSXDisplayText />
 					</Label>
-					<PSXControlRef name="sys_HiddenInput"/>
+					<PSXControlRef name="sys_HiddenInput" />
 				</PSXUISet>
 			</PSXDisplayMapping>
 		</PSXDisplayMapper>

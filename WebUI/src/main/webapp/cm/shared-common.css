@@ -816,13 +816,13 @@ textarea {
 .perc-pagingbar-navigator
   .perc-pagingbar-previous.perc-disabled-navigator:hover,
 .perc-pagingbar-navigator .perc-pagingbar-previous.perc-disabled-navigator {
-  background: url(/cm/app/app/images/images/FinderPageArrowLeft_disabled.png) no-repeat
-    scroll 0 0 transparent;
+  background: url(/cm/app/app/images/images/FinderPageArrowLeft_disabled.png)
+    no-repeat scroll 0 0 transparent;
 }
 .perc-pagingbar-navigator .perc-pagingbar-next.perc-disabled-navigator:hover,
 .perc-pagingbar-navigator .perc-pagingbar-next.perc-disabled-navigator {
-  background: url(/cm/app/app/images/images/FinderPageArrowRight_disabled.png) no-repeat
-    scroll 0 0 transparent;
+  background: url(/cm/app/app/images/images/FinderPageArrowRight_disabled.png)
+    no-repeat scroll 0 0 transparent;
 }
 
 .perc-pagingbar-navigator .perc-pagingbar-previous {
@@ -830,17 +830,17 @@ textarea {
     scroll 0 0 transparent;
 }
 .perc-pagingbar-navigator .perc-pagingbar-next {
-  background: url(/cm/app/app/images/images/FinderPageArrowRight_enabled.png) no-repeat
-    scroll 0 0 transparent;
+  background: url(/cm/app/app/images/images/FinderPageArrowRight_enabled.png)
+    no-repeat scroll 0 0 transparent;
 }
 
 .perc-pagingbar-navigator .perc-pagingbar-previous:hover {
-  background: url(/cm/app/app/images/images/FinderPageArrowLeft_over.png) no-repeat
-    scroll 0 0 transparent;
+  background: url(/cm/app/app/images/images/FinderPageArrowLeft_over.png)
+    no-repeat scroll 0 0 transparent;
 }
 .perc-pagingbar-navigator .perc-pagingbar-next:hover {
-  background: url(/cm/app/app/images/images/FinderPageArrowRight_over.png) no-repeat
-    scroll 0 0 transparent;
+  background: url(/cm/app/app/images/images/FinderPageArrowRight_over.png)
+    no-repeat scroll 0 0 transparent;
 }
 
 #perc-region-edit-properties-container,
@@ -7549,7 +7549,8 @@ span.ui-icon.ui-icon-closethick {
 
 .perc-wizard-step-index.perc-wizard-step-active {
   padding-top: 1px;
-  background: url(/cm/app/app/widgets/PercWizard/images/PercWizardActive.png) no-repeat;
+  background: url(/cm/app/app/widgets/PercWizard/images/PercWizardActive.png)
+    no-repeat;
 }
 
 .perc-wizard-step-title.perc-wizard-step-inactive {

@@ -250,7 +250,11 @@ public class PSFolderHelper implements IPSFolderHelper {
   public PSItemProperties findItemPropertiesById(String id, String relationshipTypeName)
       throws DataServiceLoadException, LoadException {
     var item = dataItemSummaryService.find(id, relationshipTypeName);
-    var contentId = ((PSLegacyGuid) idMapper.getGuid(id)).getContentId();
+    var guid = idMapper.getGuid(id);
+    if (guid == null) {
+      throw new DataServiceLoadException("Unable to resolve GUID for id: " + id);
+    }
+    var contentId = ((PSLegacyGuid) guid).getContentId();
     var compSum = getItemSummary(contentId);
 
     var wf = getWorkflow(compSum.getWorkflowAppId());

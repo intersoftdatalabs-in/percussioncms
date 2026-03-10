@@ -446,8 +446,8 @@ del {
 
 /* style for object placeholder*/
 .perc-object-placeholder {
-  background: transparent url(/cm/app/app/images/images/objectPlaceholder.png) no-repeat
-    scroll center center;
+  background: transparent url(/cm/app/app/images/images/objectPlaceholder.png)
+    no-repeat scroll center center;
   border: 1px solid #858690;
   position: relative;
 }

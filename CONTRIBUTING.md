@@ -320,7 +320,6 @@ file and adding the Java debug flags:
 -Xms512m
 -Xmx4096m
 -XX:+HeapDumpOnOutOfMemoryError
--noverify
 -XX:+UseStringDeduplication
 -Dorg.eclipse.jetty.annotations.AnnotationParser.LEVEL=OFF
 -Dfile.encoding=UTF8

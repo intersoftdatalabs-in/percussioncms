@@ -18,13 +18,14 @@
 package com.percussion.xml;
 
 import com.icl.saxon.expr.XPathException;
+import com.percussion.data.PSInternalRequestURIResolver;
 import com.percussion.security.xml.PSSecureXMLUtils;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,6 +45,17 @@ public class PSXPathEvaluatorTest
       PSSecureXMLUtils.setupJAXPDefaults();
    }
 
+   @BeforeAll
+   public static void setup()
+   {
+      PSXmlDocumentBuilder.setInternalRequestURIResolver(new PSInternalRequestURIResolver());
+   }
+
+   @AfterAll
+   public static void teardown()
+   {
+      PSXmlDocumentBuilder.setInternalRequestURIResolver(null);
+   }
 
 
    /**
@@ -53,11 +65,10 @@ public class PSXPathEvaluatorTest
     * expressions against each node.
     */
    @Test
-   @Disabled("TODO: Update for XML Catalog resolver")
    public void testNode() throws Exception
    {
       PSXPathEvaluator xp = new PSXPathEvaluator(
-         new FileInputStream(RESOURCE_PATH + "simple.xml"));
+              PSXPathEvaluatorTest.class.getResourceAsStream("/com/percussion/xml/simple.xml"));
       String xpath =
          "//Control[@paramName='authornames']//ActionLinkList/ActionLink[DisplayLabel='Edit']/Param";
       Iterator it = xp.enumerate(xpath, false);
@@ -100,11 +111,10 @@ public class PSXPathEvaluatorTest
     * input is invalid.
     */
    @Test
-   @Disabled("TODO: Update for XML Catalog resolver")
    public void testStream() throws Exception
    {
       PSXPathEvaluator xp = new PSXPathEvaluator(
-         new FileInputStream( RESOURCE_PATH + "simple.xml" ) );
+              PSXPathEvaluatorTest.class.getResourceAsStream("/com/percussion/xml/simple.xml"));
       testXPaths( xp );
 
       // null stream should throw exception
@@ -126,11 +136,10 @@ public class PSXPathEvaluatorTest
     * input is invalid.
     */
    @Test
-   @Disabled("TODO: Update for XML Catalog resolver")
    public void testDOM() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument(
-         new FileInputStream( RESOURCE_PATH + "simple.xml" ), false);
+              PSXPathEvaluatorTest.class.getResourceAsStream("/com/percussion/xml/simple.xml"), false);
       PSXPathEvaluator xp = new PSXPathEvaluator( doc );
       testXPaths( xp );
 
@@ -193,12 +202,4 @@ public class PSXPathEvaluatorTest
       }
       assertTrue(didThrow, "did not reject syntax error in xpath");
    }
-
-   /**
-    * Defines the path to the files used by this unit test, relative from the
-    * E2 root.
-    */
-   private static final String RESOURCE_PATH =
-      "UnitTestResources/com/percussion/xml/";
-
 }

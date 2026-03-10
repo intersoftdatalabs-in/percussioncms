@@ -62,8 +62,8 @@ public class Person {
     books.add(book);
   }
 
-  public Iterator getBooks() {
-    return books.iterator();
+  public List<Book> getBooks() {
+    return books;
   }
 
   public void setBooks(Collection<Book> books) {

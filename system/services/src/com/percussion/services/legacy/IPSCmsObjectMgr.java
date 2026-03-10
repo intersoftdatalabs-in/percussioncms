@@ -17,6 +17,7 @@
 package com.percussion.services.legacy;
 
 import java.util.Comparator;
+import java.util.HashMap;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCmsObject;
@@ -26,6 +27,7 @@ import com.percussion.design.objectstore.PSRole;
 import com.percussion.i18n.PSLocale;
 import com.percussion.server.PSPersistentPropertyMeta;
 import com.percussion.server.PSPersistentProperty;
+import com.percussion.server.PSUserSession;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.data.IPSIdentifiableItem;
 import com.percussion.services.menus.PSActionMenu;
@@ -492,4 +494,13 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
             }
         }
     }
+
+    /**
+     * Force checkin content for all users in the provided session map.
+     * This method is used during user session cleanup to release checked-out content.
+     *
+     * @param usersMap map of username to PSUserSession, never null
+     * @throws IllegalArgumentException if usersMap is null
+     */
+    void forceCheckinUsers(HashMap<String, PSUserSession> usersMap);
 }

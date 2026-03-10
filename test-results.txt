@@ -1,0 +1,1535 @@
+Using JDK 21 at /usr/lib/jvm/java-1.21.0-openjdk-amd64
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.percussion:perc-system:jar:8.2.0-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.springframework:spring-orm:jar -> version (?) vs ${spring.version} @ line 341, column 15
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.percussion:perc-toolkit:jar:8.2.0-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.springframework:spring-web:jar -> duplicate declaration of version (?) @ line 225, column 21
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.percussion:sitemanage:jar:8.2.0-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.springframework:spring-test:jar -> duplicate declaration of version (?) @ line 398, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: junit:junit:jar -> version (?) vs 4.13.2 @ line 520, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] ---------------------< com.percussion:perc-system >---------------------
+[INFO] Building perc-system 8.2.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] The artifact xml-apis:xml-apis:jar:2.0.2 has been relocated to xml-apis:xml-apis:jar:1.0.b2
+[INFO] 
+[INFO] --- toolchains:3.2.0:toolchain (default) @ perc-system ---
+[INFO] 
+[INFO] --- build-helper:3.6.1:parse-version (parse-version) @ perc-system ---
+[INFO] 
+[INFO] --- antrun:3.2.0:run (default) @ perc-system ---
+[INFO] Executing tasks
+[WARNING]      [echo] Major: 8
+[WARNING]      [echo] Minor: 2
+[WARNING]      [echo] Incremental: 0
+[WARNING]      [echo] Qualifier: SNAPSHOT
+[WARNING]      [echo] BuildNumber: 0
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- build-helper:3.6.1:add-source (add-source) @ perc-system ---
+[INFO] Source directory: /home/nate/projects/percussioncms/system/agenthandler/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/Tools/ImageWidgetService/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/webservices/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/beans/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/i18n/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/release/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/business/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/services/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/servlet/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/Tools/Converters/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/Tools/RxFix/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/uploader/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/Tools/InlineLinkConverter/src added.
+[INFO] Source directory: /home/nate/projects/percussioncms/system/controls/src added.
+[INFO] 
+[INFO] --- resources:3.4.0:resources (default-resources) @ perc-system ---
+[INFO] Copying 2 resources from VersionControl to target/classes/com/percussion/util
+[INFO] Copying 2 resources from VersionControl to target/classes/com/percussion/publisher
+[INFO] Copying 2 resources from VersionControl to target/classes/com/percussion/server/agent
+[INFO] Copying 2 resources from VersionControl to target/classes/com/percussion/i18n/rxlt
+[INFO] Copying 1 resource from agenthandler/src to target/classes
+[INFO] Copying 2 resources from Tools/ImageWidgetService/src to target/classes
+[INFO] Copying 11 resources from beans/src to target/classes
+[INFO] Copying 27 resources from services/src to target/classes
+[INFO] skip non existing resourceDirectory /home/nate/projects/percussioncms/system/i18n/src
+[INFO] Copying 142 resources from src/main/resources to target/classes
+[INFO] Copying 7 resources from business/src to target/classes
+[INFO] Copying 27 resources from services/src to target/classes
+[INFO] Copying 4 resources from servlet/src to target/classes
+[INFO] Copying 2 resources from Tools/Converters/src to target/classes
+[INFO] Copying 1 resource from Tools/RxFix/src to target/classes
+[INFO] Copying 1 resource from uploader/src to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ perc-system ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 2920 source files with javac [forked debug:lines,vars,source release 21] to target/classes
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyshared.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_cs.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_de_DE.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_es.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_fr.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_hu.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_it.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_ja_JP.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_ko_KR.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_pl.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_pt_BR.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_ru.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_zh_CN.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_zh_TW.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/oracle/database/jdbc/ojdbc17/23.26.0.0.0/oraclepki.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/htmlparser/htmlparser/2.1/sax-2.0.1.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/htmlparser/htmlparser/2.1/htmllexer-2.1.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.2.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.3.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.4.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.5.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.6.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.7.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.8.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.9.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/compiler.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/closure-compiler-r1043.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/args4j-2.0.12.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/guava-r08.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/protobuf-java-2.3.0.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/json-20090211.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/ant-1.8.1.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/ant-launcher-1.8.1.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/jsr305-1.3.9.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/js-1.6R7.jar": no such file or directory
+[WARNING] /home/nate/projects/percussioncms/system/services/src/com/percussion/services/pubserver/data/PSPubServerProperty.java:[40,33] [deprecation] PSBase64Decoder in com.percussion.util has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/services/src/com/percussion/services/sitemgr/data/PSSite.java:[76,33] [deprecation] PSBase64Decoder in com.percussion.util has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/services/src/com/percussion/services/sitemgr/data/PSSite.java:[77,33] [deprecation] PSBase64Encoder in com.percussion.util has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[96,9] [rawtypes] found raw type: Iterator
+  missing type arguments for generic class Iterator<E>
+  where E is a type-variable:
+    E extends Object declared in interface Iterator
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[115,36] [deprecation] replace(String,String,String) in StringUtils has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[116,36] [deprecation] replace(String,String,String) in StringUtils has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[163,6] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[167,9] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[184,26] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[219,6] [rawtypes] found raw type: Iterator
+  missing type arguments for generic class Iterator<E>
+  where E is a type-variable:
+    E extends Object declared in interface Iterator
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[552,9] [rawtypes] found raw type: Iterator
+  missing type arguments for generic class Iterator<E>
+  where E is a type-variable:
+    E extends Object declared in interface Iterator
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[564,36] [deprecation] replace(String,String,String) in StringUtils has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[565,36] [deprecation] replace(String,String,String) in StringUtils has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[684,18] [rawtypes] found raw type: Map
+  missing type arguments for generic class Map<K,V>
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/Tools/Converters/src/com/percussion/converters/variantconverter/PSVariantConverter.java:[684,42] [rawtypes] found raw type: HashMap
+  missing type arguments for generic class HashMap<K,V>
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[195,9] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[196,4] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[196,27] [rawtypes] found raw type: ArrayList
+  missing type arguments for generic class ArrayList<E>
+  where E is a type-variable:
+    E extends Object declared in class ArrayList
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[218,23] [unchecked] unchecked call to add(E) as a member of the raw type List
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[238,9] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[253,9] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[270,10] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[271,4] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[271,23] [rawtypes] found raw type: ArrayList
+  missing type arguments for generic class ArrayList<E>
+  where E is a type-variable:
+    E extends Object declared in class ArrayList
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[274,6] [rawtypes] found raw type: Map
+  missing type arguments for generic class Map<K,V>
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[274,23] [rawtypes] found raw type: HashMap
+  missing type arguments for generic class HashMap<K,V>
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[275,16] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[277,54] [unchecked] unchecked method invocation: method getDocument in interface IPSRemoteRequester is applied to given types
+  required: String,Map<String,?>
+  found:    String,Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[277,86] [unchecked] unchecked conversion
+  required: Map<String,?>
+  found:    Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[300,19] [unchecked] unchecked call to add(E) as a member of the raw type List
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[321,9] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[324,4] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[324,23] [rawtypes] found raw type: ArrayList
+  missing type arguments for generic class ArrayList<E>
+  where E is a type-variable:
+    E extends Object declared in class ArrayList
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[327,6] [rawtypes] found raw type: Map
+  missing type arguments for generic class Map<K,V>
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[327,23] [rawtypes] found raw type: HashMap
+  missing type arguments for generic class HashMap<K,V>
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[328,16] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[332,26] [unchecked] unchecked method invocation: method getDocument in interface IPSRemoteRequester is applied to given types
+  required: String,Map<String,?>
+  found:    String,Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[332,70] [unchecked] unchecked conversion
+  required: Map<String,?>
+  found:    Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[350,19] [unchecked] unchecked call to add(E) as a member of the raw type List
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[384,6] [rawtypes] found raw type: Map
+  missing type arguments for generic class Map<K,V>
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[384,23] [rawtypes] found raw type: HashMap
+  missing type arguments for generic class HashMap<K,V>
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[385,16] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[390,26] [unchecked] unchecked method invocation: method getDocument in interface IPSRemoteRequester is applied to given types
+  required: String,Map<String,?>
+  found:    String,Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[390,84] [unchecked] unchecked conversion
+  required: Map<String,?>
+  found:    Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[410,9] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[411,4] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[411,23] [rawtypes] found raw type: ArrayList
+  missing type arguments for generic class ArrayList<E>
+  where E is a type-variable:
+    E extends Object declared in class ArrayList
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[450,23] [unchecked] unchecked call to add(E) as a member of the raw type List
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[548,9] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[550,4] [rawtypes] found raw type: Iterator
+  missing type arguments for generic class Iterator<E>
+  where E is a type-variable:
+    E extends Object declared in interface Iterator
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[551,4] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[551,20] [rawtypes] found raw type: ArrayList
+  missing type arguments for generic class ArrayList<E>
+  where E is a type-variable:
+    E extends Object declared in class ArrayList
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[552,35] [unchecked] unchecked call to add(E) as a member of the raw type List
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[601,9] [deprecation] PSBinaryFileData in com.percussion.HTTPClient has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[602,4] [rawtypes] found raw type: Iterator
+  missing type arguments for generic class Iterator<E>
+  where E is a type-variable:
+    E extends Object declared in interface Iterator
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[620,20] [deprecation] PSBinaryFileData in com.percussion.HTTPClient has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[651,6] [deprecation] PSBinaryFileData in com.percussion.HTTPClient has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[651,35] [deprecation] PSBinaryFileData in com.percussion.HTTPClient has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[757,55] [rawtypes] found raw type: List
+  missing type arguments for generic class List<E>
+  where E is a type-variable:
+    E extends Object declared in interface List
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[961,4] [rawtypes] found raw type: Iterator
+  missing type arguments for generic class Iterator<E>
+  where E is a type-variable:
+    E extends Object declared in interface Iterator
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[963,4] [rawtypes] found raw type: Map
+  missing type arguments for generic class Map<K,V>
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[963,21] [rawtypes] found raw type: HashMap
+  missing type arguments for generic class HashMap<K,V>
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[964,14] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/main/java/com/percussion/cms/objectstore/client/PSRemoteAgent.java:[965,14] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[INFO] 
+[INFO] --- build-helper:3.6.1:add-test-source (add-test-source) @ perc-system ---
+[INFO] Test Source directory: /home/nate/projects/percussioncms/system/src/test/java added.
+[INFO] Test Source directory: /home/nate/projects/percussioncms/system/FastForward/SiteFolderPublishing/Exits/src/test/java added.
+[INFO] Test Source directory: /home/nate/projects/percussioncms/system/Tools/RxFix/test added.
+[INFO] Test Source directory: /home/nate/projects/percussioncms/system/Tools/ImageWidgetService/test added.
+[INFO] Test Source directory: /home/nate/projects/percussioncms/system/release/test added.
+[INFO] 
+[INFO] --- build-helper:3.6.1:add-test-resource (add-test-resource) @ perc-system ---
+[INFO] 
+[INFO] --- resources:3.4.0:testResources (default-testResources) @ perc-system ---
+[INFO] Copying 142 resources from src/test/resources to target/test-classes
+[INFO] Copying 13 resources from Tools/ImageWidgetService/test to target/test-classes
+[INFO] Copying 98 resources from webservices/test to target/test-classes
+[INFO] Copying 142 resources from src/test/resources to target/test-classes
+[INFO] Copying 0 resource from UnitTestResources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ perc-system ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 373 source files with javac [forked debug:lines,vars,source release 21] to target/test-classes
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyshared.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_cs.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_de_DE.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_es.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_fr.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_hu.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_it.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_ja_JP.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_ko_KR.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_pl.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_pt_BR.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_ru.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_zh_CN.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyclient/10.17.1.0/derbyLocale_zh_TW.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyshared.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_cs.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_de_DE.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_es.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_fr.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_hu.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_it.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_ja_JP.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_ko_KR.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_pl.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_pt_BR.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_ru.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_zh_CN.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/apache/derby/derbyshared/10.17.1.0/derbyLocale_zh_TW.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/oracle/database/jdbc/ojdbc17/23.26.0.0.0/oraclepki.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/htmlparser/htmlparser/2.1/sax-2.0.1.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/org/htmlparser/htmlparser/2.1/htmllexer-2.1.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.2.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.3.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.4.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.5.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.6.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.7.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.8.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor-2.4.9.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/yuicompressor.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/compiler.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/closure-compiler-r1043.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/args4j-2.0.12.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/guava-r08.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/protobuf-java-2.3.0.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/json-20090211.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/ant-1.8.1.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/ant-launcher-1.8.1.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/jsr305-1.3.9.jar": no such file or directory
+[WARNING] [path] bad path element "/home/nate/.m2/repository/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/js-1.6R7.jar": no such file or directory
+[WARNING] /home/nate/projects/percussioncms/system/Tools/ImageWidgetService/test/com/percussion/widgets/image/services/impl/ImageReaderTest.java:[27,44] [removal] ImageReader in com.percussion.widgets.image.web.impl has been deprecated and marked for removal
+[WARNING] /home/nate/projects/percussioncms/system/Tools/ImageWidgetService/test/com/percussion/widgets/image/services/impl/ImageReaderTest.java:[212,25] [removal] ImageReader in com.percussion.widgets.image.web.impl has been deprecated and marked for removal
+[WARNING] /home/nate/projects/percussioncms/system/release/test/com/percussion/install/InstallUtilTest.java:[97,30] [deprecation] IOTools in com.percussion.util has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/release/test/com/percussion/install/InstallUtilTest.java:[108,20] [deprecation] IOTools in com.percussion.util has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/release/test/com/percussion/install/InstallUtilTest.java:[114,21] [deprecation] IOTools in com.percussion.util has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/release/test/com/percussion/install/InstallUtilTest.java:[120,20] [deprecation] IOTools in com.percussion.util has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/release/test/com/percussion/install/InstallUtilTest.java:[172,15] [deprecation] writeStringToFile(File,String) in FileUtils has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/release/test/com/percussion/install/InstallUtilTest.java:[178,22] [deprecation] readFileToString(File) in FileUtils has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/HTTPClient/CookieModuleDeserializationTest.java:[68,64] [unchecked] unchecked cast
+  required: Map<String,String>
+  found:    Object
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/HTTPClient/CookieModuleDeserializationTest.java:[100,46] [unchecked] unchecked cast
+  required: Map<String,List<String>>
+  found:    Object
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/HTTPClient/CookieModuleDeserializationTest.java:[124,64] [unchecked] unchecked cast
+  required: Map<String,String>
+  found:    Object
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/testing/PSClientTestCase.java:[51,11] [deprecation] PSEntityResolver in com.percussion.utils.xml has been deprecated
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[132,35] [unchecked] unchecked method invocation: method isVisible in class PSActionVisibilityChecker is applied to given types
+  required: PSActionVisibilityGlobalState,Collection<PSActionVisibilityObjectState>
+  found:    PSActionVisibilityCheckerTest.GenericGlobalState,Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[132,40] [unchecked] unchecked conversion
+  required: Collection<PSActionVisibilityObjectState>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[137,34] [unchecked] unchecked method invocation: method isVisible in class PSActionVisibilityChecker is applied to given types
+  required: PSActionVisibilityGlobalState,Collection<PSActionVisibilityObjectState>
+  found:    PSActionVisibilityCheckerTest.GenericGlobalState,Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[137,39] [unchecked] unchecked conversion
+  required: Collection<PSActionVisibilityObjectState>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[142,34] [unchecked] unchecked method invocation: method isVisible in class PSActionVisibilityChecker is applied to given types
+  required: PSActionVisibilityGlobalState,Collection<PSActionVisibilityObjectState>
+  found:    PSActionVisibilityCheckerTest.GenericGlobalState,Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[142,39] [unchecked] unchecked conversion
+  required: Collection<PSActionVisibilityObjectState>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[157,35] [unchecked] unchecked method invocation: method isVisible in class PSActionVisibilityChecker is applied to given types
+  required: PSActionVisibilityGlobalState,Collection<PSActionVisibilityObjectState>
+  found:    PSActionVisibilityCheckerTest.GenericGlobalState,Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[157,40] [unchecked] unchecked conversion
+  required: Collection<PSActionVisibilityObjectState>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[161,34] [unchecked] unchecked method invocation: method isVisible in class PSActionVisibilityChecker is applied to given types
+  required: PSActionVisibilityGlobalState,Collection<PSActionVisibilityObjectState>
+  found:    PSActionVisibilityCheckerTest.GenericGlobalState,Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[161,39] [unchecked] unchecked conversion
+  required: Collection<PSActionVisibilityObjectState>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSActionVisibilityCheckerTest.java:[343,68] [unchecked] unchecked cast
+  required: Collection<String>
+  found:    Object
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[62,6] [rawtypes] found raw type: Collection
+  missing type arguments for generic class Collection<E>
+  where E is a type-variable:
+    E extends Object declared in interface Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[62,33] [rawtypes] found raw type: ArrayList
+  missing type arguments for generic class ArrayList<E>
+  where E is a type-variable:
+    E extends Object declared in class ArrayList
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[63,26] [unchecked] unchecked method invocation: method setBinaryFields in class PSEditorChangeEvent is applied to given types
+  required: Collection<String>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[63,27] [unchecked] unchecked conversion
+  required: Collection<String>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[66,19] [unchecked] unchecked call to add(E) as a member of the raw type Collection
+  where E is a type-variable:
+    E extends Object declared in interface Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[67,19] [unchecked] unchecked call to add(E) as a member of the raw type Collection
+  where E is a type-variable:
+    E extends Object declared in interface Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[68,26] [unchecked] unchecked method invocation: method setBinaryFields in class PSEditorChangeEvent is applied to given types
+  required: Collection<String>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[68,27] [unchecked] unchecked conversion
+  required: Collection<String>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[70,26] [unchecked] unchecked method invocation: method setBinaryFields in class PSEditorChangeEvent is applied to given types
+  required: Collection<String>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[70,27] [unchecked] unchecked conversion
+  required: Collection<String>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[113,6] [rawtypes] found raw type: Collection
+  missing type arguments for generic class Collection<E>
+  where E is a type-variable:
+    E extends Object declared in interface Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[113,33] [rawtypes] found raw type: ArrayList
+  missing type arguments for generic class ArrayList<E>
+  where E is a type-variable:
+    E extends Object declared in class ArrayList
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[114,19] [unchecked] unchecked call to add(E) as a member of the raw type Collection
+  where E is a type-variable:
+    E extends Object declared in interface Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[115,19] [unchecked] unchecked call to add(E) as a member of the raw type Collection
+  where E is a type-variable:
+    E extends Object declared in interface Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[116,26] [unchecked] unchecked method invocation: method setBinaryFields in class PSEditorChangeEvent is applied to given types
+  required: Collection<String>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/PSEditorChangeEventTest.java:[116,27] [unchecked] unchecked conversion
+  required: Collection<String>
+  found:    Collection
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSActiveAssemblyProcessorProxyTest.java:[47,28] [empty] empty statement after if
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloneSiteFolderRequestTest.java:[102,6] [rawtypes] found raw type: Map
+  missing type arguments for generic class Map<K,V>
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloneSiteFolderRequestTest.java:[102,34] [rawtypes] found raw type: HashMap
+  missing type arguments for generic class HashMap<K,V>
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloneSiteFolderRequestTest.java:[103,27] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloneSiteFolderRequestTest.java:[104,27] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloneSiteFolderRequestTest.java:[105,27] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloningOptionsTest.java:[47,6] [rawtypes] found raw type: Map
+  missing type arguments for generic class Map<K,V>
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloningOptionsTest.java:[47,34] [rawtypes] found raw type: HashMap
+  missing type arguments for generic class HashMap<K,V>
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloningOptionsTest.java:[145,6] [rawtypes] found raw type: Map
+  missing type arguments for generic class Map<K,V>
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloningOptionsTest.java:[145,34] [rawtypes] found raw type: HashMap
+  missing type arguments for generic class HashMap<K,V>
+  where K,V are type-variables:
+    K extends Object declared in class HashMap
+    V extends Object declared in class HashMap
+[WARNING] /home/nate/projects/percussioncms/system/src/test/java/com/percussion/cms/objectstore/PSCloningOptionsTest.java:[146,27] [unchecked] unchecked call to put(K,V) as a member of the raw type Map
+  where K,V are type-variables:
+    K extends Object declared in interface Map
+    V extends Object declared in interface Map
+[INFO] 
+[INFO] --- surefire:3.5.4:test (default-test) @ perc-system ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.percussion.delivery.metadata.solr.impl.SolrConfigLoaderTest
+[INFO ] 2026-03-10 17:36:31.399 [main] Server - RxDir set through detection of current path to /home/nate/.perc_config
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SolrConfig>
+    <SolrServer>
+        <serverType>STAGING</serverType>
+        <solrHost>url</solrHost>
+        <maxErrors>4</maxErrors>
+        <cleanAllOnFullPublish>false</cleanAllOnFullPublish>
+        <metadataMap>
+            <entry key="key" value="value"/>
+        </metadataMap>
+        <enabledSites>
+            <site>sitename</site>
+        </enabledSites>
+        <serverCloudType>false</serverCloudType>
+    </SolrServer>
+</SolrConfig>
+
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.720 s -- in com.percussion.delivery.metadata.solr.impl.SolrConfigLoaderTest
+[INFO] Running com.percussion.design.objectstore.legacy.PSAllowAllCtypeWorkflowsUpdaterTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.001 s -- in com.percussion.design.objectstore.legacy.PSAllowAllCtypeWorkflowsUpdaterTest
+[INFO] Running com.percussion.design.objectstore.legacy.PSBackendTableConverterTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0.001 s -- in com.percussion.design.objectstore.legacy.PSBackendTableConverterTest
+[INFO] Running com.percussion.design.objectstore.legacy.PSLegacyServerConfigTest
+[WARN ] 2026-03-10 17:36:31.771 [main] PSSecureXMLUtils - Caller requested enableExternalEntities=true — overriding to false to prevent XXE (CWE-611). Update the call site to pass false.
+[WARN ] 2026-03-10 17:36:31.771 [main] PSSecureXMLUtils - Caller requested enableExternalParameterEntities=true — overriding to false to prevent XXE (CWE-611). Update the call site to pass false.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.195 s -- in com.percussion.design.objectstore.legacy.PSLegacyServerConfigTest
+[INFO] Running com.percussion.design.objectstore.legacy.PSSecurityProviderConverterTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.design.objectstore.legacy.PSSecurityProviderConverterTest
+[INFO] Running com.percussion.design.objectstore.legacy.PSTableLocatorConverterTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.percussion.design.objectstore.legacy.PSTableLocatorConverterTest
+[INFO] Running com.percussion.design.objectstore.server.PSXmlObjectStoreLockManagerTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 4.036 s -- in com.percussion.design.objectstore.server.PSXmlObjectStoreLockManagerTest
+[INFO] Running com.percussion.design.objectstore.PSObjectStoreTest
+[WARNING] Tests run: 5, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 0 s -- in com.percussion.design.objectstore.PSObjectStoreTest
+[INFO] Running com.percussion.design.objectstore.PSAclEntryTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.design.objectstore.PSAclEntryTest
+[INFO] Running com.percussion.design.objectstore.PSAclTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.design.objectstore.PSAclTest
+[INFO] Running com.percussion.design.objectstore.PSApplicationFileTest
+[INFO ] 2026-03-10 17:36:35.969 [main] Server - Attempting to set initial test JNDI context factory builder via mock builder.
+[INFO ] 2026-03-10 17:36:35.969 [main] Server - SimpleNamingContextBuilder not available on classpath; skipping JNDI mock setup
+[INFO ] 2026-03-10 17:36:35.969 [main] Server - loadGenerated() - no-op stub during jdk-21 stabilization
+[INFO ] 2026-03-10 17:36:35.975 [main] PSContentFactory - Was not able to get server directory from locator (normal for client) Error Application Context cannot be null C:java.util.Objects:L:259
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.030 s -- in com.percussion.design.objectstore.PSApplicationFileTest
+[INFO] Running com.percussion.design.objectstore.PSApplicationFlowTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.percussion.design.objectstore.PSApplicationFlowTest
+[INFO] Running com.percussion.design.objectstore.PSApplicationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in com.percussion.design.objectstore.PSApplicationTest
+[INFO] Running com.percussion.design.objectstore.PSApplyWhenTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.design.objectstore.PSApplyWhenTest
+[INFO] Running com.percussion.design.objectstore.PSAttributeTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.percussion.design.objectstore.PSAttributeTest
+[INFO] Running com.percussion.design.objectstore.PSAuthenticationTest
+authentication 1:
+<?xml version="1.0" encoding="UTF-8"?>
+<PSXAuthentication name="auth1" scheme="simple">
+   <Credentials>
+      <User appendBaseDn="no" attributeName="userAttr">user</User>
+      <Password encrypted="yes">mWU9ZoH5cJjoa9u7oChEx5P8R71QP+/bJIiY/8o3</Password>
+   </Credentials>
+   <FilterExtensionName>filter</FilterExtensionName>
+</PSXAuthentication>
+
+authentication 2:
+<?xml version="1.0" encoding="UTF-8"?>
+<PSXAuthentication name="auth1" scheme="simple">
+   <Credentials>
+      <User appendBaseDn="no" attributeName="userAttr">user</User>
+      <Password encrypted="yes">MlPeGGhIW7oS6w4WQx4M9S51d5tbVGWYq59DDMDi</Password>
+   </Credentials>
+   <FilterExtensionName>filter</FilterExtensionName>
+</PSXAuthentication>
+
+authentication 2 unencrypted:
+<?xml version="1.0" encoding="UTF-8"?>
+<PSXAuthentication name="auth1" scheme="simple">
+   <Credentials>
+      <User appendBaseDn="no" attributeName="userAttr">user</User>
+      <Password encrypted="yes">Ezw7oWXAJMBPBFWwyPHRRK51ZwkiuwNfBz45y2Az</Password>
+   </Credentials>
+   <FilterExtensionName>filter</FilterExtensionName>
+</PSXAuthentication>
+
+authentication 3:
+<?xml version="1.0" encoding="UTF-8"?>
+<PSXAuthentication name="auth3" scheme="simple">
+   <Credentials>
+      <User appendBaseDn="no"/>
+      <Password encrypted="yes">x9Y2U7OKFBFxgQcHeopOYAaT72jaizh/da4PIg==</Password>
+   </Credentials>
+</PSXAuthentication>
+
+authentication 4:
+<?xml version="1.0" encoding="UTF-8"?>
+<PSXAuthentication name="auth3" scheme="simple">
+   <Credentials>
+      <User appendBaseDn="no"/>
+      <Password encrypted="yes">N+hU6o+bictEfsmEDv3CMVR9uEG9jFFM0VAaqA==</Password>
+   </Credentials>
+</PSXAuthentication>
+
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.066 s -- in com.percussion.design.objectstore.PSAuthenticationTest
+[INFO] Running com.percussion.design.objectstore.PSBackEndColumnTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.percussion.design.objectstore.PSBackEndColumnTest
+[INFO] Running com.percussion.design.objectstore.PSBackEndConnectionTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.percussion.design.objectstore.PSBackEndConnectionTest
+[INFO] Running com.percussion.design.objectstore.PSBackEndCredentialTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.design.objectstore.PSBackEndCredentialTest
+[INFO] Running com.percussion.design.objectstore.PSBackEndJoinTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.design.objectstore.PSBackEndJoinTest
+[INFO] Running com.percussion.design.objectstore.PSBackEndTableTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in com.percussion.design.objectstore.PSBackEndTableTest
+[INFO] Running com.percussion.design.objectstore.PSChoicesTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in com.percussion.design.objectstore.PSChoicesTest
+[INFO] Running com.percussion.design.objectstore.PSCloneHandlerConfigTest
+
+
+Configuration: standard
+<?xml version="1.0" encoding="UTF-8"?>
+<PSXCloneHandlerConfig name="standard">
+   <ProcessChecks>
+      <PSXProcessCheck context="relationship" name="rs_cloneshallow" sequence="1">
+         <Conditions>
+            <PSXRule boolean="and">
+               <PSXConditional id="1">
+                  <variable>
+                     <PSXTextLiteral id="1">
+                        <text>1</text>
+                     </PSXTextLiteral>
+                  </variable>
+                  <operator>=</operator>
+                  <value>
+                     <PSXTextLiteral id="1">
+                        <text>2</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+            </PSXRule>
+         </Conditions>
+      </PSXProcessCheck>
+      <PSXProcessCheck context="relationship" name="rs_clonedeep" sequence="1">
+         <Conditions>
+            <PSXRule boolean="and">
+               <PSXConditional id="1">
+                  <variable>
+                     <PSXTextLiteral id="1">
+                        <text>1</text>
+                     </PSXTextLiteral>
+                  </variable>
+                  <operator>=</operator>
+                  <value>
+                     <PSXTextLiteral id="1">
+                        <text>2</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+            </PSXRule>
+         </Conditions>
+      </PSXProcessCheck>
+   </ProcessChecks>
+</PSXCloneHandlerConfig>
+
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.percussion.design.objectstore.PSCloneHandlerConfigTest
+[INFO] Running com.percussion.design.objectstore.PSComponentTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.percussion.design.objectstore.PSComponentTest
+[INFO] Running com.percussion.design.objectstore.PSConditionalExitTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.design.objectstore.PSConditionalExitTest
+[INFO] Running com.percussion.design.objectstore.PSConditionalTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.027 s -- in com.percussion.design.objectstore.PSConditionalTest
+[INFO] Running com.percussion.design.objectstore.PSContainerLocatorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.design.objectstore.PSContainerLocatorTest
+[INFO] Running com.percussion.design.objectstore.PSContentEditorMapperTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.122 s -- in com.percussion.design.objectstore.PSContentEditorMapperTest
+[INFO] Running com.percussion.design.objectstore.PSControlDependencyMapTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in com.percussion.design.objectstore.PSControlDependencyMapTest
+[INFO] Running PSDataMapping - Deserialization Security
+[WARNING] Tests run: 5, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0.048 s -- in PSDataMapping - Deserialization Security
+[INFO] Running com.percussion.design.objectstore.PSDateLiteralTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.percussion.design.objectstore.PSDateLiteralTest
+[INFO] Running com.percussion.design.objectstore.PSDefaultSelectedTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.percussion.design.objectstore.PSDefaultSelectedTest
+[INFO] Running com.percussion.design.objectstore.PSDirectoryTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.design.objectstore.PSDirectoryTest
+[INFO] Running com.percussion.design.objectstore.PSDisplayErrorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.design.objectstore.PSDisplayErrorTest
+[INFO] Running com.percussion.design.objectstore.PSDisplayFieldRefTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.percussion.design.objectstore.PSDisplayFieldRefTest
+[INFO] Running com.percussion.design.objectstore.PSDisplayMapperTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.design.objectstore.PSDisplayMapperTest
+[INFO] Running com.percussion.design.objectstore.PSDisplayMappingTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.percussion.design.objectstore.PSDisplayMappingTest
+[INFO] Running com.percussion.design.objectstore.PSDisplayTextLiteralTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.design.objectstore.PSDisplayTextLiteralTest
+[INFO] Running com.percussion.design.objectstore.PSDisplayTextTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.percussion.design.objectstore.PSDisplayTextTest
+[INFO] Running com.percussion.design.objectstore.PSFieldTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.percussion.design.objectstore.PSFieldTest
+[INFO] Running com.percussion.design.objectstore.PSGroupProviderInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.design.objectstore.PSGroupProviderInstanceTest
+[INFO] Running com.percussion.design.objectstore.PSJdbcDriverConfigTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.percussion.design.objectstore.PSJdbcDriverConfigTest
+[INFO] Running com.percussion.design.objectstore.PSJndiGroupProviderInstanceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.design.objectstore.PSJndiGroupProviderInstanceTest
+[INFO] Running com.percussion.design.objectstore.PSRelationshipConfigSetTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.027 s -- in com.percussion.design.objectstore.PSRelationshipConfigSetTest
+[INFO] Running com.percussion.design.objectstore.PSRelationshipConfigTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.030 s -- in com.percussion.design.objectstore.PSRelationshipConfigTest
+[INFO] Running com.percussion.design.objectstore.PSSearchConfigTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.percussion.design.objectstore.PSSearchConfigTest
+[INFO] Running com.percussion.design.objectstore.PSSearchPropertiesTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.percussion.design.objectstore.PSSearchPropertiesTest
+[INFO] Running com.percussion.design.objectstore.PSServerCacheSettingsTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.design.objectstore.PSServerCacheSettingsTest
+[INFO] Running com.percussion.design.objectstore.PSTraceInfoTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.percussion.design.objectstore.PSTraceInfoTest
+[INFO] Running com.percussion.design.objectstore.PSUISetTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.design.objectstore.PSUISetTest
+[INFO] Running com.percussion.design.objectstore.PSUrlRequestTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.design.objectstore.PSUrlRequestTest
+[INFO] Running com.percussion.design.objectstore.PSViewSetTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.design.objectstore.PSViewSetTest
+[INFO] Running com.percussion.design.objectstore.PSWhereClauseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.design.objectstore.PSWhereClauseTest
+[INFO] Running com.percussion.design.catalog.data.server.PSTableCatalogHandlerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.design.catalog.data.server.PSTableCatalogHandlerTest
+[INFO] Running com.percussion.design.catalog.data.PSColumnCatalogHandlerTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.design.catalog.data.PSColumnCatalogHandlerTest
+[INFO] Running com.percussion.design.catalog.data.PSDatasourceCatalogHandlerTest
+[WARNING] Tests run: 6, Failures: 0, Errors: 0, Skipped: 6, Time elapsed: 0 s -- in com.percussion.design.catalog.data.PSDatasourceCatalogHandlerTest
+[INFO] Running com.percussion.install.InstallUtilTest
+Driver not found on system classpath, attempting other loading methods
+[ERROR] 2026-03-10 17:36:36.689 [main] InstallUtil - ./jetty/base/lib/jdbc C:sun.nio.fs.UnixException:L:92
+./jetty/base/lib/jdbc
+Connecting to: URL= jdbc:jtds:bar UID =admin
+Database Connection failed : No suitable driver found for jdbc:jtds:bar
+[INFO ] 2026-03-10 17:36:36.903 [main] PSLogger - Driver not found on system classpath, attempting other loading methods
+[ERROR] 2026-03-10 17:36:36.904 [main] InstallUtil - ./jetty/base/lib/jdbc C:sun.nio.fs.UnixException:L:92
+[ERROR] 2026-03-10 17:36:36.904 [main] PSLogger - ./jetty/base/lib/jdbc
+[INFO ] 2026-03-10 17:36:36.904 [main] PSLogger - Connecting to: URL= jdbc:jtds:bar UID =admin
+[ERROR] 2026-03-10 17:36:36.905 [main] PSLogger - Database Connection failed : No suitable driver found for jdbc:jtds:bar
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.247 s -- in com.percussion.install.InstallUtilTest
+[INFO] Running com.percussion.install.PSCreateMenuVisibilityAclsTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.install.PSCreateMenuVisibilityAclsTest
+[INFO] Running com.percussion.install.PSNameSpacesUtilTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.install.PSNameSpacesUtilTest
+[INFO] Running com.percussion.install.PSUpgradePluginAddDesignerRoleTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.install.PSUpgradePluginAddDesignerRoleTest
+[INFO] Running com.percussion.install.PSUpgradePluginAddMembershipDeliveryServerTest
+Backing up delivery servers file: /tmp/TestMembershipUpgradePlugin17633496564426657224.xml to: /tmp/TestMembershipUpgradePlugin2369111801418852062.xml.
+Adding Membership service element
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.percussion.install.PSUpgradePluginAddMembershipDeliveryServerTest
+[INFO] Running com.percussion.install.PSUpgradePluginConvertCommunityVisibilityTest
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.percussion.install.PSUpgradePluginConvertCommunityVisibilityTest
+[INFO] Running com.percussion.install.PSUpgradePluginFixWFNotificationTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.002 s -- in com.percussion.install.PSUpgradePluginFixWFNotificationTest
+[INFO] Running com.percussion.install.PSUpgradePluginUpdateCategoryTreeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.install.PSUpgradePluginUpdateCategoryTreeTest
+[INFO] Running com.percussion.install.PSUpgradePluginUpdateWFNotificationTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.install.PSUpgradePluginUpdateWFNotificationTest
+[INFO] Running PSLocalCommandHandler - Path Traversal Prevention (CWE-22)
+[INFO] Running Real-World Attack Scenarios
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in Real-World Attack Scenarios
+[INFO] Running doGetTextFile() - Path Traversal Prevention
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in doGetTextFile() - Path Traversal Prevention
+[INFO] Running Path Validation Edge Cases
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in Path Validation Edge Cases
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in PSLocalCommandHandler - Path Traversal Prevention (CWE-22)
+[INFO] Running com.percussion.process.PSProcessDaemonTest
+[WARNING] Tests run: 11, Failures: 0, Errors: 0, Skipped: 11, Time elapsed: 0 s -- in com.percussion.process.PSProcessDaemonTest
+[INFO] Running com.percussion.process.PSProcessTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.002 s -- in com.percussion.process.PSProcessTest
+[INFO] Running com.percussion.search.objectstore.PSWSSearchFieldTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.percussion.search.objectstore.PSWSSearchFieldTest
+[INFO] Running com.percussion.search.objectstore.PSWSSearchRequestTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.percussion.search.objectstore.PSWSSearchRequestTest
+[INFO] Running com.percussion.search.PSSearchEngineNegativeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.002 s -- in com.percussion.search.PSSearchEngineNegativeTest
+[INFO] Running com.percussion.search.PSSearchEngineTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.percussion.search.PSSearchEngineTest
+[INFO] Running com.percussion.search.PSSearchIndexerTest
+[WARNING] Tests run: 7, Failures: 0, Errors: 0, Skipped: 7, Time elapsed: 0.001 s -- in com.percussion.search.PSSearchIndexerTest
+[INFO] Running com.percussion.search.PSSearchQueryTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.search.PSSearchQueryTest
+[INFO] Running com.percussion.security.PSBackEndTableDirectoryCatalogerTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.security.PSBackEndTableDirectoryCatalogerTest
+[INFO] Running com.percussion.security.PSJndiUtilsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.security.PSJndiUtilsTest
+[INFO] Running com.percussion.security.PSSecurityProviderTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.security.PSSecurityProviderTest
+[INFO] Running com.percussion.server.actions.PSActionSetRequestHandlerTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.server.actions.PSActionSetRequestHandlerTest
+[INFO] Running com.percussion.server.actions.PSActionSetTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s -- in com.percussion.server.actions.PSActionSetTest
+[INFO] Running PSCacheItem - Deserialization Security
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in PSCacheItem - Deserialization Security
+[INFO] Running com.percussion.server.cache.PSCacheItemTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.server.cache.PSCacheItemTest
+[INFO] Running com.percussion.server.cache.PSContentItemDependencyTreeTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.server.cache.PSContentItemDependencyTreeTest
+[INFO] Running com.percussion.server.cache.PSMultiLevelCacheTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.server.cache.PSMultiLevelCacheTest
+[INFO] Running com.percussion.server.job.PSJobHandlerConfigurationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.server.job.PSJobHandlerConfigurationTest
+[INFO] Running com.percussion.server.PSCustomControlManagerTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.percussion.server.PSCustomControlManagerTest
+[INFO] Running com.percussion.server.PSPageCacheTest
+[WARN ] 2026-03-10 17:36:38.112 [main] PSSecureXMLUtils - Caller requested enableExternalEntities=true — overriding to false to prevent XXE (CWE-611). Update the call site to pass false.
+[WARN ] 2026-03-10 17:36:38.112 [main] PSSecureXMLUtils - Caller requested enableExternalParameterEntities=true — overriding to false to prevent XXE (CWE-611). Update the call site to pass false.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.615 s -- in com.percussion.server.PSPageCacheTest
+[INFO] Running com.percussion.server.PSRequestTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.server.PSRequestTest
+[INFO] Running com.percussion.server.PSStartupProcessManagerTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.server.PSStartupProcessManagerTest
+[INFO] Running com.percussion.services.assembly.data.PSTemplateBindingTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.services.assembly.data.PSTemplateBindingTest
+[INFO] Running com.percussion.services.assembly.data.PSTemplateSlotTest
+[WARNING] Tests run: 5, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 0 s -- in com.percussion.services.assembly.data.PSTemplateSlotTest
+[INFO] Running com.percussion.services.assembly.impl.finder.PSSlotItemOrderTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.percussion.services.assembly.impl.finder.PSSlotItemOrderTest
+[INFO] Running com.percussion.services.assembly.impl.PSDivTagCleanupTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.percussion.services.assembly.impl.PSDivTagCleanupTest
+[INFO] Running com.percussion.services.assembly.impl.PSNamespaceCleanupTest
+[WARN ] 2026-03-10 17:36:38.744 [main] PSSecureXMLUtils - Caller requested enableExternalEntities=true for SAXParserFactory — overriding to false to prevent XXE (CWE-611).
+[WARN ] 2026-03-10 17:36:38.745 [main] PSSecureXMLUtils - Caller requested enableExternalParameterEntities=true for SAXParserFactory — overriding to false to prevent XXE (CWE-611).
+ESAPI: WARNING: System property [org.owasp.esapi.opsteam] is not set
+ESAPI: WARNING: System property [org.owasp.esapi.devteam] is not set
+ESAPI: Attempting to load ESAPI.properties via file I/O.
+ESAPI: Attempting to load ESAPI.properties as resource file via file I/O.
+ESAPI: Not found in 'org.owasp.esapi.resources' directory or file not readable: /home/nate/projects/percussioncms/system/ESAPI.properties
+ESAPI: Loading ESAPI.properties via file I/O failed. Exception was: java.io.FileNotFoundException
+ESAPI: Attempting to load ESAPI.properties via the classpath.
+ESAPI: SUCCESSFULLY LOADED ESAPI.properties via the CLASSPATH from 'esapi/' using current thread context class loader!
+ESAPI: SecurityConfiguration for Validator.ConfigurationFile.MultiValued not found in ESAPI.properties. Using default: false
+ESAPI: Attempting to load validation.properties via file I/O.
+ESAPI: Attempting to load validation.properties as resource file via file I/O.
+ESAPI: Not found in 'org.owasp.esapi.resources' directory or file not readable: /home/nate/projects/percussioncms/system/validation.properties
+ESAPI: Loading validation.properties via file I/O failed.
+ESAPI: Attempting to load validation.properties via the classpath.
+ESAPI: SUCCESSFULLY LOADED validation.properties via the CLASSPATH from 'esapi/' using current thread context class loader!
+ESAPI: DefaultSecurityConfiguration: The code to print all the properties is currently commented out
+[WARN ] 2026-03-10 17:36:38.769 [main] PSSecureXMLUtils - Caller requested enableExternalEntities=true for SAXParserFactory — overriding to false to prevent XXE (CWE-611).
+[WARN ] 2026-03-10 17:36:38.769 [main] PSSecureXMLUtils - Caller requested enableExternalParameterEntities=true for SAXParserFactory — overriding to false to prevent XXE (CWE-611).
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.057 s -- in com.percussion.services.assembly.impl.PSNamespaceCleanupTest
+[INFO] Running com.percussion.services.assembly.impl.PSTrackAssemblyErrorsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.services.assembly.impl.PSTrackAssemblyErrorsTest
+[INFO] Running com.percussion.services.assembly.jexl.PSCacheUtilsTest
+[WARNING] Tests run: 6, Failures: 0, Errors: 0, Skipped: 6, Time elapsed: 0 s -- in com.percussion.services.assembly.jexl.PSCacheUtilsTest
+[INFO] Running com.percussion.services.assembly.jexl.PSJexlDbExtensionsTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.services.assembly.jexl.PSJexlDbExtensionsTest
+[INFO] Running com.percussion.services.assembly.jexl.PSJexlExtensionsTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.879 s -- in com.percussion.services.assembly.jexl.PSJexlExtensionsTest
+[INFO] Running com.percussion.services.assembly.ui.PSVariantMigrationBeanTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.services.assembly.ui.PSVariantMigrationBeanTest
+[INFO] Running com.percussion.services.aaclient.PSActionExecutorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.services.aaclient.PSActionExecutorTest
+[INFO] Running com.percussion.services.audit.data.PSAuditLogEntryTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.services.audit.data.PSAuditLogEntryTest
+[INFO] Running com.percussion.services.audit.PSDesignObjectAuditServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.percussion.services.audit.PSDesignObjectAuditServiceTest
+[INFO] Running com.percussion.services.catalog.data.PSObjectSummaryTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.services.catalog.data.PSObjectSummaryTest
+[INFO] Running com.percussion.services.catalog.PSCatalogBasicUnitTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.percussion.services.catalog.PSCatalogBasicUnitTest
+[INFO] Running com.percussion.services.content.data.PSKeywordTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.services.content.data.PSKeywordTest
+[INFO] Running com.percussion.services.content.PSContentServiceTest
+[WARNING] Tests run: 4, Failures: 0, Errors: 0, Skipped: 4, Time elapsed: 0 s -- in com.percussion.services.content.PSContentServiceTest
+[INFO] Running com.percussion.services.contentchange.PSContentChangeServiceTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.services.contentchange.PSContentChangeServiceTest
+[INFO] Running com.percussion.services.contentmgr.data.PSContentNodeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.percussion.services.contentmgr.data.PSContentNodeTest
+[INFO] Running com.percussion.services.contentmgr.data.PSQueryResultTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.percussion.services.contentmgr.data.PSQueryResultTest
+[INFO] Running com.percussion.services.contentmgr.impl.jsrdata.PSJSR170NodeTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.percussion.services.contentmgr.impl.jsrdata.PSJSR170NodeTest
+[INFO] Running com.percussion.services.contentmgr.impl.jsrdata.PSPropertyTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.percussion.services.contentmgr.impl.jsrdata.PSPropertyTest
+[INFO] Running com.percussion.services.contentmgr.impl.legacy.PSBeanGeneratorTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.280 s -- in com.percussion.services.contentmgr.impl.legacy.PSBeanGeneratorTest
+[INFO] Running PSContentMgr SQL Injection Security Tests
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.553 s -- in PSContentMgr SQL Injection Security Tests
+[INFO] Running com.percussion.services.contentmgr.impl.PSContentTypeMgrTest
+[WARNING] Tests run: 8, Failures: 0, Errors: 0, Skipped: 8, Time elapsed: 0 s -- in com.percussion.services.contentmgr.impl.PSContentTypeMgrTest
+[INFO] Running com.percussion.services.contentmgr.impl.PSContentUtilsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.services.contentmgr.impl.PSContentUtilsTest
+[INFO] Running com.percussion.services.contentmgr.PSContentTypeMgrTest
+[WARNING] Tests run: 4, Failures: 0, Errors: 0, Skipped: 4, Time elapsed: 0 s -- in com.percussion.services.contentmgr.PSContentTypeMgrTest
+[INFO] Running com.percussion.services.guidmgr.data.PSGuidTest
+[WARNING] Tests run: 9, Failures: 0, Errors: 0, Skipped: 9, Time elapsed: 0 s -- in com.percussion.services.guidmgr.data.PSGuidTest
+[INFO] Running com.percussion.services.guidmgr.data.PSLegacyGuidTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.percussion.services.guidmgr.data.PSLegacyGuidTest
+[INFO] Running com.percussion.services.integrations.siteimprove.PSSiteImproveProviderServiceTest
+[WARNING] Tests run: 10, Failures: 0, Errors: 0, Skipped: 10, Time elapsed: 0 s -- in com.percussion.services.integrations.siteimprove.PSSiteImproveProviderServiceTest
+[INFO] Running com.percussion.services.legacy.PSCmsObjectMgrTest
+[WARNING] Tests run: 18, Failures: 0, Errors: 0, Skipped: 18, Time elapsed: 0 s -- in com.percussion.services.legacy.PSCmsObjectMgrTest
+[INFO] Running com.percussion.services.linkmanagement.PSManagedLinkDaoTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.services.linkmanagement.PSManagedLinkDaoTest
+[INFO] Running com.percussion.services.locking.data.PSObjectLockTest
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.services.locking.data.PSObjectLockTest
+[INFO] Running com.percussion.services.locking.impl.PSObjectLockServiceTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.services.locking.impl.PSObjectLockServiceTest
+[INFO] Running Cache Access Service Tests
+[INFO ] 2026-03-10 17:36:40.728 [main] Caching - Ehcache 3.x manager initialized
+HashMap PUT (100 items): <Stopwatch stopped elapsed 0.04 ms>
+HashMap GET (100 items): <Stopwatch stopped elapsed 0.02 ms>
+Cache PUT (100 items): <Stopwatch stopped elapsed 1.67 ms>
+Cache GET (100 items): <Stopwatch stopped elapsed 0.82 ms>
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.420 s -- in Cache Access Service Tests
+[INFO] Running PSMessageQueueService Deserialization Security Tests
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.166 s -- in PSMessageQueueService Deserialization Security Tests
+[INFO] Running com.percussion.services.notification.PSNotificationServiceTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.percussion.services.notification.PSNotificationServiceTest
+[INFO] Running com.percussion.services.publisher.data.PSEditionContentListTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.services.publisher.data.PSEditionContentListTest
+[INFO] Running com.percussion.services.publisher.data.PSEditionTaskDefTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.services.publisher.data.PSEditionTaskDefTest
+[INFO] Running com.percussion.services.publisher.impl.PSIteratorChainTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.percussion.services.publisher.impl.PSIteratorChainTest
+[INFO] Running com.percussion.services.publisher.PSPublisherTouchItemsTest
+[WARNING] Tests run: 6, Failures: 0, Errors: 0, Skipped: 6, Time elapsed: 0 s -- in com.percussion.services.publisher.PSPublisherTouchItemsTest
+[INFO] Running com.percussion.services.pubserver.impl.PSPubServerDaoTest
+[WARNING] Tests run: 5, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 0 s -- in com.percussion.services.pubserver.impl.PSPubServerDaoTest
+[INFO] Running com.percussion.services.relationship.PSRelationshipServiceTest
+[WARNING] Tests run: 10, Failures: 0, Errors: 0, Skipped: 10, Time elapsed: 0 s -- in com.percussion.services.relationship.PSRelationshipServiceTest
+[INFO] Running com.percussion.services.schedule.data.PSNotificationTemplateTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.percussion.services.schedule.data.PSNotificationTemplateTest
+[INFO] Running com.percussion.services.schedule.impl.PSSchedulerBeanTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.percussion.services.schedule.impl.PSSchedulerBeanTest
+[INFO] Running com.percussion.services.schedule.PSSchedulingServiceTest
+[WARNING] Tests run: 10, Failures: 0, Errors: 0, Skipped: 10, Time elapsed: 0 s -- in com.percussion.services.schedule.PSSchedulingServiceTest
+[INFO] Running com.percussion.services.security.data.PSCatalogerConfigTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.percussion.services.security.data.PSCatalogerConfigTest
+[INFO] Running com.percussion.services.security.impl.PSAclEntryImplIteratorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.percussion.services.security.impl.PSAclEntryImplIteratorTest
+[INFO] Running com.percussion.services.security.loginmods.PSLoginMgrTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.services.security.loginmods.PSLoginMgrTest
+[INFO] Running com.percussion.services.security.PSAclServiceTest
+[WARNING] Tests run: 6, Failures: 0, Errors: 0, Skipped: 6, Time elapsed: 0 s -- in com.percussion.services.security.PSAclServiceTest
+[INFO] Running com.percussion.services.security.PSJaasUtilsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.percussion.services.security.PSJaasUtilsTest
+[INFO] Running com.percussion.services.sitemgr.PSSiteManagerTest
+[WARNING] Tests run: 11, Failures: 0, Errors: 0, Skipped: 11, Time elapsed: 0.001 s -- in com.percussion.services.sitemgr.PSSiteManagerTest
+[INFO] Running com.percussion.services.system.data.PSSharedPropertyTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.001 s -- in com.percussion.services.system.data.PSSharedPropertyTest
+[INFO] Running PSEmailMessageHandler Deserialization Security Tests
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.073 s -- in PSEmailMessageHandler Deserialization Security Tests
+[INFO] Running com.percussion.services.system.PSAssignmentTypeHelperTest
+[WARNING] Tests run: 5, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 0 s -- in com.percussion.services.system.PSAssignmentTypeHelperTest
+[INFO] Running com.percussion.services.system.PSSystemServiceLocalTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.services.system.PSSystemServiceLocalTest
+[INFO] Running com.percussion.services.ui.data.PSHierarchyNodeTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.services.ui.data.PSHierarchyNodeTest
+[INFO] Running com.percussion.services.utils.hibernate.PSHibernateInterceptorTest
+[WARNING] Tests run: 4, Failures: 0, Errors: 0, Skipped: 4, Time elapsed: 0 s -- in com.percussion.services.utils.hibernate.PSHibernateInterceptorTest
+[INFO] Running com.percussion.services.utils.orm.PSDataCollectionHelperTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.services.utils.orm.PSDataCollectionHelperTest
+[INFO] Running com.percussion.services.utils.xml.PSXStreamObjectStreamTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.services.utils.xml.PSXStreamObjectStreamTest
+[INFO] Running com.percussion.services.workflow.data.PSWorkflowTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.percussion.services.workflow.data.PSWorkflowTest
+[INFO] Running com.percussion.services.workflow.PSWorkflowServiceTest
+[WARNING] Tests run: 16, Failures: 0, Errors: 0, Skipped: 16, Time elapsed: 0 s -- in com.percussion.services.workflow.PSWorkflowServiceTest
+[INFO] Running com.percussion.servlets.PSSecurityFilterIntegrationTest
+[WARN ] 2026-03-10 17:36:41.376 [main] AuditPropertyLoader - Unable to load Audit Log properties file: /home/nate/.perc_config/rxconfig/Server/audit-log.properties (No such file or directory) C:java.io.FileInputStream:L:-2
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.percussion.servlets.PSSecurityFilterIntegrationTest
+[INFO] Running com.percussion.servlets.PSSecurityFilterTest
+[WARN ] 2026-03-10 17:36:41.422 [main] PSServer - An error was encountered while reloading the Server properties from the server.properties file. Error: /home/nate/.perc_config/rxconfig/Server/server.properties (No such file or directory) C:java.io.FileInputStream:L:-2
+[ERROR] Tests run: 7, Failures: 1, Errors: 0, Skipped: 1, Time elapsed: 0.049 s <<< FAILURE! -- in com.percussion.servlets.PSSecurityFilterTest
+[ERROR] com.percussion.servlets.PSSecurityFilterTest.testAllowedOriginsOnInit -- Time elapsed: 0.007 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <false> but was: <true>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:69)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:41)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:35)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:246)
+	at com.percussion.servlets.PSSecurityFilterTest.testAllowedOriginsOnInit(PSSecurityFilterTest.java:230)
+
+[INFO] Running com.percussion.util.PSBaseHttpUtilsTest
+a?x=y&z=&m=n
+a?x=y&z=&m=n
+a?b=&x=y&z=&m=n
+a?b=c&x=y&z=&m=n
+a?b=c&x=y&z=&m=n
+a?%3Fx=y%26&l=1&l=2&l=3
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.percussion.util.PSBaseHttpUtilsTest
+[INFO] Running com.percussion.util.PSFileFilterTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in com.percussion.util.PSFileFilterTest
+[INFO] Running com.percussion.util.PSPathUtilTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.util.PSPathUtilTest
+[INFO] Running com.percussion.util.PSPatternMatcherTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.percussion.util.PSPatternMatcherTest
+[INFO] Running com.percussion.util.PSStopwatchTest
+<Stopwatch stopped elapsed 1,200.11 ms 00:00:01 >
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.506 s -- in com.percussion.util.PSStopwatchTest
+[INFO] Running com.percussion.util.PSStringOperationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.util.PSStringOperationTest
+[INFO] Running com.percussion.util.PSStringTemplateTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.percussion.util.PSStringTemplateTest
+[INFO] Running com.percussion.xml.serialization.junit.PSObjectSerializerRoundTripTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.percussion.xml.serialization.junit.PSObjectSerializerRoundTripTest
+[INFO] Running com.percussion.xml.serialization.junit.PSObjectSerializerTest
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Book.equals:
+  title: false
+  pubDate: false
+Person.equals:
+  name: true
+  address: true
+Book.equals:
+  title: true
+  pubDate: true
+Book.equals:
+  title: true
+  pubDate: true
+Book.equals:
+  title: true
+  pubDate: true
+Book.equals:
+  title: true
+  pubDate: true
+  books: true
+Book.equals:
+  title: true
+  pubDate: true
+Book.equals:
+  title: true
+  pubDate: true
+Book.equals:
+  title: true
+  pubDate: true
+Book.equals:
+  title: true
+  pubDate: true
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.114 s -- in com.percussion.xml.serialization.junit.PSObjectSerializerTest
+[INFO] Running PSDtdTree - Deserialization Security
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in PSDtdTree - Deserialization Security
+[INFO] Running com.percussion.xml.PSDtdTreeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.xml.PSDtdTreeTest
+[INFO] Running com.percussion.xml.PSXPathEvaluatorTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.104 s -- in com.percussion.xml.PSXPathEvaluatorTest
+[INFO] Running com.percussion.xsl.encoding.PSCharacterSetTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.174 s -- in com.percussion.xsl.encoding.PSCharacterSetTest
+[INFO] Running com.percussion.test.install.action.RxFileManagerTest
+[WARNING] Tests run: 14, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.020 s -- in com.percussion.test.install.action.RxFileManagerTest
+[INFO] Running com.percussion.test.util.PSUrlUtilsTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.004 s -- in com.percussion.test.util.PSUrlUtilsTest
+[INFO] Running com.percussion.cms.objectstore.ws.PSWsFolderProcessorTest
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.cms.objectstore.ws.PSWsFolderProcessorTest
+[INFO] Running com.percussion.cms.objectstore.client.PSRemoteAgentTest
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.cms.objectstore.client.PSRemoteAgentTest
+[INFO] Running com.percussion.cms.objectstore.server.util.PSFieldFinderUtilTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.percussion.cms.objectstore.server.util.PSFieldFinderUtilTest
+[INFO] Running com.percussion.cms.objectstore.PSActiveAssemblyProcessorProxyTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.percussion.cms.objectstore.PSActiveAssemblyProcessorProxyTest
+[INFO] Running com.percussion.cms.objectstore.PSCloneSiteFolderRequestTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.cms.objectstore.PSCloneSiteFolderRequestTest
+[INFO] Running com.percussion.cms.objectstore.PSCloningOptionsTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.cms.objectstore.PSCloningOptionsTest
+[INFO] Running com.percussion.cms.objectstore.PSComponentSummaryTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in com.percussion.cms.objectstore.PSComponentSummaryTest
+[INFO] Running com.percussion.cms.objectstore.PSFolderTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.percussion.cms.objectstore.PSFolderTest
+[INFO] Running com.percussion.cms.objectstore.PSKeyTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.cms.objectstore.PSKeyTest
+[INFO] Running com.percussion.cms.objectstore.PSRelationshipFilterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.cms.objectstore.PSRelationshipFilterTest
+[INFO] Running com.percussion.cms.handlers.PSModifyCommandHandlerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.percussion.cms.handlers.PSModifyCommandHandlerTest
+[INFO] Running com.percussion.cms.handlers.PSProxyURLTest
+http://macbook-pro.local:8080/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.percussion.cms.handlers.PSProxyURLTest
+[INFO] Running com.percussion.cms.PSActionVisibilityCheckerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.cms.PSActionVisibilityCheckerTest
+[INFO] Running com.percussion.cms.PSDisplayChoicesTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.cms.PSDisplayChoicesTest
+[INFO] Running com.percussion.cms.PSEditorChangeEventTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.percussion.cms.PSEditorChangeEventTest
+[INFO] Running com.percussion.cms.PSPageInfoTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.percussion.cms.PSPageInfoTest
+[INFO] Running com.percussion.widgets.image.services.impl.ImageReaderTest
+=============================Testing Image Reader
+Format Supported: BIGTIFF
+Format Supported: BMP
+Format Supported: BigTIFF
+Format Supported: CUR
+Format Supported: DCX
+Format Supported: GIF
+Format Supported: HDR
+Format Supported: ICNS
+Format Supported: ICO
+Format Supported: IFF
+Format Supported: JBIG2
+Format Supported: JPEG
+Format Supported: JPEG 2000
+Format Supported: JPEG-LOSSLESS
+Format Supported: JPEG2000
+Format Supported: JPG
+Format Supported: PAM
+Format Supported: PBM
+Format Supported: PCT
+Format Supported: PCX
+Format Supported: PFM
+Format Supported: PGM
+Format Supported: PICT
+Format Supported: PNG
+Format Supported: PNM
+Format Supported: PNTG
+Format Supported: PPM
+Format Supported: PSB
+Format Supported: PSD
+Format Supported: RAW
+Format Supported: RGBE
+Format Supported: SGI
+Format Supported: SVG
+Format Supported: TARGA
+Format Supported: TGA
+Format Supported: THUMBS
+Format Supported: TIF
+Format Supported: TIFF
+Format Supported: Thumbs DB
+Format Supported: WBMP
+Format Supported: WBP
+Format Supported: WEBP
+Format Supported: WMF
+Format Supported: bigtiff
+Format Supported: bmp
+Format Supported: cur
+Format Supported: dcx
+Format Supported: gif
+Format Supported: hdr
+Format Supported: icns
+Format Supported: ico
+Format Supported: iff
+Format Supported: jbig2
+Format Supported: jpeg
+Format Supported: jpeg 2000
+Format Supported: jpeg-lossless
+Format Supported: jpeg2000
+Format Supported: jpg
+Format Supported: pam
+Format Supported: pbm
+Format Supported: pct
+Format Supported: pcx
+Format Supported: pfm
+Format Supported: pgm
+Format Supported: pict
+Format Supported: png
+Format Supported: pnm
+Format Supported: pntg
+Format Supported: ppm
+Format Supported: psb
+Format Supported: psd
+Format Supported: raw
+Format Supported: rgbe
+Format Supported: sgi
+Format Supported: svg
+Format Supported: targa
+Format Supported: tga
+Format Supported: thumbs
+Format Supported: tif
+Format Supported: tiff
+Format Supported: wbmp
+Format Supported: wbp
+Format Supported: webp
+Format Supported: wmf
+[WARNING] Tests run: 13, Failures: 0, Errors: 0, Skipped: 4, Time elapsed: 1.441 s -- in com.percussion.widgets.image.services.impl.ImageReaderTest
+[INFO] Running com.percussion.rxfix.PSRxFixTest
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.rxfix.PSRxFixTest
+[INFO] Running PSInstallation - Deserialization Security
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in PSInstallation - Deserialization Security
+[INFO] Running com.percussion.rxverify.PSVerifyJunitTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.002 s -- in com.percussion.rxverify.PSVerifyJunitTest
+[INFO] Running PSVerify - Deserialization Security
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in PSVerify - Deserialization Security
+[INFO] Running CookieModule - Deserialization Security
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in CookieModule - Deserialization Security
+[INFO] Running com.percussion.HTTPClient.HTTPClientTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.HTTPClient.HTTPClientTest
+[INFO] Running com.percussion.testing.HandlerSampleAbortedTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.percussion.testing.HandlerSampleAbortedTest
+[INFO] Running com.percussion.data.jdbc.PSFileSystemConnectionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.percussion.data.jdbc.PSFileSystemConnectionTest
+[INFO] Running com.percussion.data.jdbc.PSFileSystemStatementTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.percussion.data.jdbc.PSFileSystemStatementTest
+[INFO] Running com.percussion.data.jdbc.PSXmlDatabaseMetaDataTest
+[INFO ] 2026-03-10 17:36:46.103 [main] FileSysDriver - Adding virtual directory: Testing -> /home/nate/projects/percussioncms/system/Testing
+[INFO ] 2026-03-10 17:36:46.123 [main] Testing - Testing	null	SingleEl.xml	SingleElementDocument
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_0/@id
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_0
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_1
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_2
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_3
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_4
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_5
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_6/@id
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_6
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_7
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_8
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild0/SubSubChild0_9
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_0
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_1
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_2
+[INFO ] 2026-03-10 17:36:46.136 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_3
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_4
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_5/@id
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_5
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_6
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_7
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_8
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild1/SubSubChild1_9
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_0
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_1
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_2
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_3
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_4/@id
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_4
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_5
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_6
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_7
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_8
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild2/SubSubChild2_9
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_0
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_1
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_2
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_3/@id
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_3
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_4
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_5
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_6
+[INFO ] 2026-03-10 17:36:46.137 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_7
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_8
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_9/@id
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild3/SubSubChild3_9
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_0
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_1
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_2/@id
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_2
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_3
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_4
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_5
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_6
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_7
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_8/@id
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_8
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild4/SubSubChild4_9
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_0
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_1/@id
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_1
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_2
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_3
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_4
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_5
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_6
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_7/@id
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_7
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_8
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild5/SubSubChild5_9
+[INFO ] 2026-03-10 17:36:46.138 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_0/@id
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_0
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_1
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_2
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_3
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_4
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_5
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_6/@id
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_6
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_7
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_8
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild6/SubSubChild6_9
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_0
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_1
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_2
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_3
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_4
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_5/@id
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_5
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_6
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_7
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_8
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild7/SubSubChild7_9
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_0
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_1
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_2
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_3
+[INFO ] 2026-03-10 17:36:46.139 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_4/@id
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_4
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_5
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_6
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_7
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_8
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild8/SubSubChild8_9
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_0
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_1
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_2
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_3/@id
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_3
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_4
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_5
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_6
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_7
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_8
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_9/@id
+[INFO ] 2026-03-10 17:36:46.140 [main] Testing - Testing	null	MultiEl.xml	MultiElementDocument/Child0/SubChild9/SubSubChild9_9
+[INFO ] 2026-03-10 17:36:46.144 [main] Testing - Testing	null	Extensions	DIRECTORY	1771633422086
+[INFO ] 2026-03-10 17:36:46.144 [main] Testing - Testing	null	Shared	DIRECTORY	1771633422086
+[INFO ] 2026-03-10 17:36:46.144 [main] Testing - Testing	null	applications	DIRECTORY	1741461594137
+[INFO ] 2026-03-10 17:36:46.144 [main] Testing - Testing	null	becredentials	DIRECTORY	1771633422087
+[INFO ] 2026-03-10 17:36:46.145 [main] Testing - Testing	null	beprovider	DIRECTORY	1771633422087
+[INFO ] 2026-03-10 17:36:46.145 [main] Testing - Testing	null	cms	DIRECTORY	1767804050458
+[INFO ] 2026-03-10 17:36:46.145 [main] Testing - Testing	null	com	DIRECTORY	1772478457425
+[INFO ] 2026-03-10 17:36:46.145 [main] Testing - Testing	null	directoryServices	DIRECTORY	1771633422088
+[INFO ] 2026-03-10 17:36:46.145 [main] Testing - Testing	null	java	DIRECTORY	1772476964615
+[INFO ] 2026-03-10 17:36:46.145 [main] Testing - Testing	null	src	DIRECTORY	1772478138873
+[INFO ] 2026-03-10 17:36:46.145 [main] Testing - Testing	null	MultiEl.xml	XML	1773178606106
+[INFO ] 2026-03-10 17:36:46.145 [main] Testing - Testing	null	SingleEl.xml	XML	1773178606104
+[INFO ] 2026-03-10 17:36:46.146 [main] Testing - Testing	null	PSXCgiVar	SERVER-SOFTWARE
+[INFO ] 2026-03-10 17:36:46.146 [main] Testing - Testing	null	PSXCgiVar	PATH-INFO
+[INFO ] 2026-03-10 17:36:46.146 [main] Testing - Testing	null	PSXCgiVar	PATH-TRANSLATED
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	SCRIPT-NAME
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	AUTH-TYPE
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	AUTH-USER
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	AUTH-PASSWORD
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	Content-Type
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	Content-Length
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	Accept
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	User-Agent
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	HTTPS-KEYSIZE
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	PS-Request-Type
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	PS-Application
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	PS-DataSet
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	PS-Relative-Req
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	HTTP-PRAGMA
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	HTTP-CACHE-CONTROL
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	CERT-SUBJECT
+[INFO ] 2026-03-10 17:36:46.147 [main] Testing - Testing	null	PSXCgiVar	CERT-ISSUER
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.068 s -- in com.percussion.data.jdbc.PSXmlDatabaseMetaDataTest
+[INFO] Running com.percussion.data.PSConditionalEvaluatorTest
+[WARNING] Tests run: 7, Failures: 0, Errors: 0, Skipped: 7, Time elapsed: 0.001 s -- in com.percussion.data.PSConditionalEvaluatorTest
+[INFO] Running com.percussion.data.PSDataComparisonTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.data.PSDataComparisonTest
+[INFO] Running com.percussion.data.PSDataConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.percussion.data.PSDataConverterTest
+[INFO] Running com.percussion.data.PSDataExtractorTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.percussion.data.PSDataExtractorTest
+[INFO] Running com.percussion.data.PSQueryJoinerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.percussion.data.PSQueryJoinerTest
+[INFO] Running com.percussion.data.PSRuleListEvaluatorTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.percussion.data.PSRuleListEvaluatorTest
+[INFO] Running com.percussion.data.PSStylesheetCleanupFilterTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.percussion.data.PSStylesheetCleanupFilterTest
+[INFO] Running com.percussion.data.PSStylesheetCleanupUtilsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in com.percussion.data.PSStylesheetCleanupUtilsTest
+[INFO] Running com.percussion.data.PSTableChangeDataTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.percussion.data.PSTableChangeDataTest
+[INFO] Running com.percussion.data.PSViewEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.percussion.data.PSViewEvaluatorTest
+[INFO] Running com.percussion.debug.PSDebugLogHandlerTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.debug.PSDebugLogHandlerTest
+[INFO] Running com.percussion.debug.PSDebugManagerTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.debug.PSDebugManagerTest
+[INFO] Running com.percussion.debug.PSTraceMessageFactoryTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.percussion.debug.PSTraceMessageFactoryTest
+[INFO] Running com.percussion.extension.PSExtensionDefFactoryTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.percussion.extension.PSExtensionDefFactoryTest
+[INFO] Running com.percussion.extension.PSExtensionHandlerHandlerTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.percussion.extension.PSExtensionHandlerHandlerTest
+[INFO] Running com.percussion.extension.PSExtensionManagerTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s -- in com.percussion.extension.PSExtensionManagerTest
+[INFO] Running com.percussion.extension.PSExtensionRefTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.percussion.extension.PSExtensionRefTest
+[INFO] Running com.percussion.extension.PSJavaScriptTest
+[INFO ] 2026-03-10 17:36:46.255 [main] PSExtensionManager - Initializing extension manager.
+[INFO ] 2026-03-10 17:36:46.260 [main] PSExtensionManager - Initialization successful.
+Mgr inited successfully
+JavaScript installed successfully
+JavaScript started successfully
+JavaScript stopped successfully
+[INFO ] 2026-03-10 17:36:46.265 [main] PSExtensionManager - Shutting down extension manager.
+[INFO ] 2026-03-10 17:36:46.266 [main] PSExtensionManager - Shutdown successful.
+mgr shutdown successfully
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.percussion.extension.PSJavaScriptTest
+[INFO] Running com.percussion.extension.PSJexlAnnotationsTest
+A test method
+Param @com.percussion.extension.IPSJexlParam(type="int", name="first", description="first parameter")
+Param @com.percussion.extension.IPSJexlParam(type="", name="second", description="second parameter")
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.percussion.extension.PSJexlAnnotationsTest
+[INFO] Running com.percussion.extension.PSValidateCharactersTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.extension.PSValidateCharactersTest
+[INFO] Running com.percussion.i18n.rxlt.PSJspHandlerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.percussion.i18n.rxlt.PSJspHandlerTest
+[INFO] Running com.percussion.i18n.PSLocaleTest
+<?xml version="1.0" encoding="UTF-8"?>
+<PSXLocale displayName="english" languageString="en-us" status="active"/>
+
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.i18n.PSLocaleTest
+[INFO] Running com.percussion.log.PSLogHandlerTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.percussion.log.PSLogHandlerTest
+[INFO] Running com.percussion.log.PSLogManagerTest
+[INFO ] 2026-03-10 17:36:46.307 [main] LogManager - Starting initialization
+[INFO ] 2026-03-10 17:36:46.307 [main] LogManager - Closing the log manager.
+[INFO ] 2026-03-10 17:36:46.307 [main] LogManager - Queue flushed. Continuing shutdown.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.log.PSLogManagerTest
+[INFO] Running com.percussion.mail.PSMailMessageTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.percussion.mail.PSMailMessageTest
+[INFO] Running com.percussion.rx.delivery.impl.PSDatabaseDeliveryHandlerTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.percussion.rx.delivery.impl.PSDatabaseDeliveryHandlerTest
+[INFO] Running com.percussion.rx.delivery.impl.PSMetadataDeliveryHandlerPerformanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.percussion.rx.delivery.impl.PSMetadataDeliveryHandlerPerformanceTest
+[INFO] Running com.percussion.rx.delivery.impl.PSMetadataDeliveryHandlerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.percussion.rx.delivery.impl.PSMetadataDeliveryHandlerTest
+[INFO] Running com.percussion.rx.publisher.impl.PSPublishHandlerDeserializationTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.160 s -- in com.percussion.rx.publisher.impl.PSPublishHandlerDeserializationTest
+[INFO] Running com.percussion.tablefactory.PSJdbcDbmsDefTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.percussion.tablefactory.PSJdbcDbmsDefTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   PSSecurityFilterTest.testAllowedOriginsOnInit:230 expected: <false> but was: <true>
+[INFO] 
+[ERROR] Tests run: 701, Failures: 1, Errors: 0, Skipped: 271
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  41.839 s
+[INFO] Finished at: 2026-03-10T17:36:46-04:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.4:test (default-test) on project perc-system: There are test failures.
+[ERROR] 
+[ERROR] See /home/nate/projects/percussioncms/system/target/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

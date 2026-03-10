@@ -50,6 +50,8 @@
 		</Console>
 	</Appenders>
 	<Loggers>
+    <Logger name="org.eclipse.jetty.annotations" level="DEBUG"/>
+
 		<AsyncRoot level="info" includeLocation="true"
 			additivity="false">
 			<AppenderRef ref="CONSOLE" />
@@ -155,6 +157,8 @@
 		<!-- AsyncLogger config to be used by global template creation process -->
 		<AsyncLogger name="com.percussion.globaltemplates"
 			level="info" includeLocation="true" additivity="false">
+			<AppenderRef ref="CONSOLE" />
+			<AppenderRef ref="FILE" />
 			<AppenderRef ref="RXGLOBALTEMPLATES" />
 		</AsyncLogger>
 		<!-- Change to INFO to see Metadata extraction errors -->
@@ -167,22 +171,26 @@
 		<AsyncLogger name="org.apache.velocity" level="info"
 			includeLocation="true" additivity="false">
 			<AppenderRef ref="CONSOLE" />
+			<AppenderRef ref="FILE" />
 			<AppenderRef ref="VELOCITY" />
 		</AsyncLogger>
 		<AsyncLogger name="velocity" level="info"
 			includeLocation="true" additivity="false">
 			<AppenderRef ref="CONSOLE" />
+			<AppenderRef ref="FILE" />
 			<AppenderRef ref="VELOCITY" />
 		</AsyncLogger>
 		<AsyncLogger
 			name="com.percussion.services.assembly.impl.plugin.PSVelocityAssembler"
 			level="info" includeLocation="true" additivity="false">
 			<AppenderRef ref="CONSOLE" />
+			<AppenderRef ref="FILE" />
 			<AppenderRef ref="VELOCITY" />
 		</AsyncLogger>
 		<AsyncLogger name="RevisionPurge" level="info"
 			includeLocation="true" additivity="false">
 			<AppenderRef ref="CONSOLE" />
+			<AppenderRef ref="FILE" />
 			<AppenderRef ref="RevisionPurgeApp" />
 		</AsyncLogger>
 		<AsyncLogger name="com.amazonaws" level="error"
@@ -190,6 +198,18 @@
 			<AppenderRef ref="CONSOLE" />
 			<AppenderRef ref="FILE" />
 		</AsyncLogger>
+
+		<!-- Separate loggers for redirected stdout/stderr so redirected
+		     streams write only to the FILE appender (avoid recursion).
+	 >
+		<AsyncLogger name="STDOUT" level="info" includeLocation="true" additivity="false">
+			<AppenderRef ref="FILE" />
+		</AsyncLogger>
+
+		<AsyncLogger name="STDERR" level="error" includeLocation="true" additivity="false">
+			<AppenderRef ref="FILE" />
+		</AsyncLogger>
+
 		<!-- <AsyncLogger name="com.percussion.rx.delivery" level="DEBUG" includeLocation="true">
 			<AppenderRef ref="CONSOLE"/> <AppenderRef ref="FILE"/> </AsyncLogger> -->
 	</Loggers>

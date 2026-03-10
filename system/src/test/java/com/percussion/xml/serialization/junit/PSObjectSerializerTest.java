@@ -21,10 +21,10 @@ import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.xml.serialization.PSObjectSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.xml.sax.SAXException;
 
@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,44 +42,44 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author RammohanVangapalli
  */
 @TestMethodOrder(MethodName.class)
-@Disabled
 public class PSObjectSerializerTest
 {
 
    private static final Logger log = LogManager.getLogger(PSObjectSerializerTest.class);
 
-   static public class PersonList 
+   static public class PersonList
    {
       private final List<Person> mi_people = new ArrayList<>();
-      
+
       public PersonList()
       {
-         // 
+         //
       }
-      
+
       public void addPerson(Person x)
       {
          mi_people.add(x);
       }
-      
+
       public List<Person> getPersons()
       {
          return mi_people;
       }
 
       @Override
-      public boolean equals(Object obj)
-      {
-         return super.equals(obj);
+      public boolean equals(Object o) {
+         if (this == o) return true;
+         if (o == null || getClass() != o.getClass()) return false;
+         PersonList that = (PersonList) o;
+         return mi_people.equals(that.mi_people);
       }
 
       @Override
-      public int hashCode()
-      {
-         return mi_people.hashCode();
+      public int hashCode() {
+         return Objects.hash(mi_people);
       }
    }
-   
+
    /**
     * Test object created in the ctor to be used by the tests, later.
     */
@@ -96,7 +97,7 @@ public class PSObjectSerializerTest
     * clarity. It is not declared final so that it can be reinitialized by
     * testSerialization() depending on which test executed first.
     */
-   static private String serializedString = 
+   static private String serializedString =
       "<person>" +
          "<name>" +
             "<first>Rammohan</first>" +
@@ -133,11 +134,11 @@ public class PSObjectSerializerTest
 
    /**
     * Over ride this method to initialize the person object to be used by tests.
-    * 
+    *
     * @throws Exception error
     */
-   @BeforeEach 
-   public void setUp() throws Exception
+   @BeforeAll
+   public static void setUp() throws Exception
    {
       PSXmlSerializationHelper.addType("person", Person.class);
       PSXmlSerializationHelper.addType("address", Address.class);
@@ -175,39 +176,36 @@ public class PSObjectSerializerTest
     * compares this with th one created directly.
     */
    @Test
-   //TODO: Fix me!  Test is failing on Linux build server
-   @Disabled
    public void test02DeSerialization() throws Exception
    {
       Person personNew = (Person) serializer.fromXmlString(serializedString);
       assertEquals(person, personNew);
    }
-   
+
    /**
-    * Test case serializes a collection and restores it, then compares 
+    * Test case serializes a collection and restores it, then compares
     * for equality
     * @throws Exception error
     */
    @Test
-   //TODO: Fix me!  Test is failing on Linux build server
    @Disabled
    public void test03Collections1() throws Exception
    {
       PSXmlSerializationHelper.addType("p-list",PersonList.class);
       PersonList plist = new PersonList();
-      
+
       Person a = new Person();
       Person b = new Person();
       Person c = new Person();
-      
+
       a.setName(new Name("John", "Doe"));
       b.setName(new Name("Sally", "Fields"));
       c.setName(new Name("Jacob", "Marley"));
-      
+
       plist.addPerson(a);
       plist.addPerson(b);
       plist.addPerson(c);
-      
+
       String ser = serializer.toXmlString(plist);
 
       PersonList deser = (PersonList) serializer.fromXmlString(ser);

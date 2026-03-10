@@ -24,6 +24,12 @@ This repository is a large mono-repo with many submodules.  This code base has a
 * Branch Name: development-8.1.x
   * All code changes on this branch must be compatible with JDK 8.
 
+## Self Documentation
+
+* As you complete tasks and code changes and learn about the codebase, ALWAYS update the relevant README.md, Maven Site documentation, and AGENTS.md file with any new information, instructions, or rules you discover that would be helpful for future agents working on the same codebase. This ensures that knowledge is preserved and shared effectively across the team.
+* If you discover any missing documentation or areas where the existing documentation is unclear or outdated, please make it a priority to update the documentation as part of your task completion. This includes adding new sections, updating existing instructions, removing obsolete information, and ensuring that all information is accurate and easy to understand for future agents.
+* When updating documentation, be sure to follow the existing style and formatting conventions used in the project
+
 ## Building
 
 * Use the provided environment scripts to ensure Maven uses the correct JDK when running locally:

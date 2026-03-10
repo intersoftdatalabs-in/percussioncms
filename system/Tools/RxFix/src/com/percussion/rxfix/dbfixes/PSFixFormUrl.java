@@ -25,6 +25,7 @@ import com.percussion.utils.jdbc.PSConnectionHelper;
 
 import javax.naming.NamingException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -56,12 +57,17 @@ public class PSFixFormUrl extends PSFixDBBase implements IPSFix {
      */
     private void fixContentFormUrl() throws Exception
     {
-
-        logInfo(null,"Finding all forms");
-        PSStringTemplate ms_allForms = new PSStringTemplate("Select CONTENTID, REVISIONID, NAME, RENDEREDFORM FROM "
-                +" {schema}.CT_PERCFORMASSET"
-                + " WHERE RENDEREDFORM LIKE '%\"/perc-form-processor/form%' ");
         try (Connection dbConnection = PSConnectionHelper.getDbConnection()) {
+            // Check if the table exists before attempting to query
+            if (!tableExists(dbConnection, "CT_PERCFORMASSET")) {
+                logInfo(null, "Table CT_PERCFORMASSET does not exist, skipping form URL fix");
+                return;
+            }
+
+            logInfo(null,"Finding all forms");
+            PSStringTemplate ms_allForms = new PSStringTemplate("Select CONTENTID, REVISIONID, NAME, RENDEREDFORM FROM "
+                    +" {schema}.CT_PERCFORMASSET"
+                    + " WHERE RENDEREDFORM LIKE '%\"/perc-form-processor/form%' ");
             try (PreparedStatement st = PSPreparedStatement.getPreparedStatement(
                     dbConnection,
                     ms_allForms.expand(m_defDict))) {
@@ -107,6 +113,21 @@ public class PSFixFormUrl extends PSFixDBBase implements IPSFix {
             fixSuccess=true;
         }
 
+    }
+
+    /**
+     * Checks if a table exists in the database.
+     *
+     * @param connection the database connection
+     * @param tableName the table name to check
+     * @return true if the table exists, false otherwise
+     * @throws SQLException if an error occurs checking the table
+     */
+    private boolean tableExists(Connection connection, String tableName) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        try (ResultSet tables = metaData.getTables(null, null, tableName.toUpperCase(), new String[]{"TABLE"})) {
+            return tables.next();
+        }
     }
     public boolean removeStartupOnSuccess(){
         return fixSuccess;

@@ -1,22 +1,22 @@
 {
-  "openapi" : "3.0.1",
-  "info" : {
-    "title" : "Percussion CMS REST API",
-    "description" : "Public REST API for Percussion CMS content management and delivery",
-    "version" : "8.2.0-SNAPSHOT"
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Percussion CMS REST API",
+    "description": "Public REST API for Percussion CMS content management and delivery",
+    "version": "8.2.0-SNAPSHOT"
   },
-  "paths" : {
-    "/jexl/extensions" : {
-      "get" : {
-        "description" : "REST endpoint: JexlResource.listLocationSchemeGenerators",
-        "operationId" : "listLocationSchemeGenerators",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+  "paths": {
+    "/jexl/extensions": {
+      "get": {
+        "description": "REST endpoint: JexlResource.listLocationSchemeGenerators",
+        "operationId": "listLocationSchemeGenerators",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -24,26 +24,28 @@
         }
       }
     },
-    "/editions/{id}/publish" : {
-      "post" : {
-        "description" : "REST endpoint: EditionsResource.publish",
-        "operationId" : "publish",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+    "/editions/{id}/publish": {
+      "post": {
+        "description": "REST endpoint: EditionsResource.publish",
+        "operationId": "publish",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -51,204 +53,77 @@
         }
       }
     },
-    "/contentlists/{id}" : {
-      "get" : {
-        "description" : "REST endpoint: ContentListsResource.getContentListById",
-        "operationId" : "getContentListById",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
+    "/contentlists/{id}": {
+      "get": {
+        "description": "REST endpoint: ContentListsResource.getContentListById",
+        "operationId": "getContentListById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        }
-      },
-      "delete" : {
-        "description" : "REST endpoint: ContentListsResource.deleteContentList",
-        "operationId" : "deleteContentList",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
-          }
-        }
-      }
-    },
-    "/contentlists/by-edition/{id}" : {
-      "get" : {
-        "description" : "REST endpoint: ContentListsResource.getContentListsByEditionId",
-        "operationId" : "getContentListsByEditionId",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/contentlists/unused/{id}" : {
-      "get" : {
-        "description" : "REST endpoint: ContentListsResource.getUnusedContentLists",
-        "operationId" : "getUnusedContentLists",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/contentlists/" : {
-      "put" : {
-        "description" : "REST endpoint: ContentListsResource.createOrUpdateContentList",
-        "operationId" : "createOrUpdateContentList",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/contentlists/generators" : {
-      "get" : {
-        "description" : "REST endpoint: ContentListsResource.getContentListGenerators",
-        "operationId" : "getContentListGenerators",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/contentlists/expanders" : {
-      "get" : {
-        "description" : "REST endpoint: ContentListsResource.getTemplateExpanders",
-        "operationId" : "getTemplateExpanders",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/deliverytypes/{id}" : {
-      "get" : {
-        "description" : "REST endpoint: DeliveryTypesResource.getDeliveryTypeById",
-        "operationId" : "getDeliveryTypeById",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "delete" : {
-        "description" : "REST endpoint: DeliveryTypesResource.deleteDeliveryType",
-        "operationId" : "deleteDeliveryType",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+      "delete": {
+        "description": "REST endpoint: ContentListsResource.deleteContentList",
+        "operationId": "deleteContentList",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/contentlists/by-edition/{id}": {
+      "get": {
+        "description": "REST endpoint: ContentListsResource.getContentListsByEditionId",
+        "operationId": "getContentListsByEditionId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -256,83 +131,28 @@
         }
       }
     },
-    "/deliverytypes/" : {
-      "get" : {
-        "description" : "REST endpoint: DeliveryTypesResource.getDeliveryTypes",
-        "operationId" : "getDeliveryTypes",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
+    "/contentlists/unused/{id}": {
+      "get": {
+        "description": "REST endpoint: ContentListsResource.getUnusedContentLists",
+        "operationId": "getUnusedContentLists",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        }
-      },
-      "put" : {
-        "description" : "REST endpoint: DeliveryTypesResource.updateDeliveryType",
-        "operationId" : "updateDeliveryType",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/preferences/" : {
-      "get" : {
-        "description" : "REST endpoint: PreferenceResource.getAllUserPreferences",
-        "operationId" : "getAllUserPreferences",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put" : {
-        "description" : "REST endpoint: PreferenceResource.savePreference",
-        "operationId" : "savePreference",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete" : {
-        "description" : "REST endpoint: PreferenceResource.deletePreference",
-        "operationId" : "deletePreference",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -340,17 +160,17 @@
         }
       }
     },
-    "/preferences/all" : {
-      "put" : {
-        "description" : "REST endpoint: PreferenceResource.saveAllUserPreferences",
-        "operationId" : "saveAllUserPreferences",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/contentlists/": {
+      "put": {
+        "description": "REST endpoint: ContentListsResource.createOrUpdateContentList",
+        "operationId": "createOrUpdateContentList",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -358,26 +178,17 @@
         }
       }
     },
-    "/preferences/{preference}" : {
-      "get" : {
-        "description" : "REST endpoint: PreferenceResource.loadPreference",
-        "operationId" : "loadPreference",
-        "parameters" : [ {
-          "name" : "preference",
-          "in" : "path",
-          "description" : "Path parameter: preference",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/contentlists/generators": {
+      "get": {
+        "description": "REST endpoint: ContentListsResource.getContentListGenerators",
+        "operationId": "getContentListGenerators",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -385,28 +196,17 @@
         }
       }
     },
-    "/sites/" : {
-      "get" : {
-        "description" : "REST endpoint: SitesResource.listSites",
-        "operationId" : "listSites",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
-          }
-        }
-      }
-    },
-    "/contenttypes/" : {
-      "get" : {
-        "description" : "REST endpoint: ContentTypesResource.listContentTypes",
-        "operationId" : "listContentTypes",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/contentlists/expanders": {
+      "get": {
+        "description": "REST endpoint: ContentListsResource.getTemplateExpanders",
+        "operationId": "getTemplateExpanders",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -414,128 +214,89 @@
         }
       }
     },
-    "/contenttypes/by-filter" : {
-      "get" : {
-        "description" : "REST endpoint: ContentTypesResource.listContentTypesByFilter",
-        "operationId" : "listContentTypesByFilter",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
+    "/deliverytypes/{id}": {
+      "get": {
+        "description": "REST endpoint: DeliveryTypesResource.getDeliveryTypeById",
+        "operationId": "getDeliveryTypeById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        }
-      }
-    },
-    "/contenttypes/by-site/{id}" : {
-      "get" : {
-        "description" : "REST endpoint: ContentTypesResource.getContentTypesBySite",
-        "operationId" : "getContentTypesBySite",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/folders/by-path/{folderpath:.+}" : {
-      "get" : {
-        "description" : "REST endpoint: FoldersResource.getFolder",
-        "operationId" : "getFolder",
-        "parameters" : [ {
-          "name" : "folderpath",
-          "in" : "path",
-          "description" : "Path parameter: folderpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "put" : {
-        "description" : "REST endpoint: FoldersResource.updateFolder",
-        "operationId" : "updateFolder",
-        "parameters" : [ {
-          "name" : "folderpath",
-          "in" : "path",
-          "description" : "Path parameter: folderpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+      "delete": {
+        "description": "REST endpoint: DeliveryTypesResource.deleteDeliveryType",
+        "operationId": "deleteDeliveryType",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deliverytypes/": {
+      "get": {
+        "description": "REST endpoint: DeliveryTypesResource.getDeliveryTypes",
+        "operationId": "getDeliveryTypes",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "delete" : {
-        "description" : "REST endpoint: FoldersResource.deleteFolder",
-        "operationId" : "deleteFolder",
-        "parameters" : [ {
-          "name" : "folderpath",
-          "in" : "path",
-          "description" : "Path parameter: folderpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "includeSubFolders",
-          "in" : "query",
-          "description" : "Query parameter: includeSubFolders",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+      "put": {
+        "description": "REST endpoint: DeliveryTypesResource.updateDeliveryType",
+        "operationId": "updateDeliveryType",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -543,348 +304,49 @@
         }
       }
     },
-    "/folders/item/{itempath:.+}" : {
-      "delete" : {
-        "description" : "REST endpoint: FoldersResource.deleteFolderItem",
-        "operationId" : "deleteFolderItem",
-        "parameters" : [ {
-          "name" : "itempath",
-          "in" : "path",
-          "description" : "Path parameter: itempath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/folders/move/item" : {
-      "post" : {
-        "description" : "REST endpoint: FoldersResource.moveFolderItem",
-        "operationId" : "moveFolderItem",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/folders/copy/item" : {
-      "post" : {
-        "description" : "REST endpoint: FoldersResource.copyFolderItem",
-        "operationId" : "copyFolderItem",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/folders/copy/folder" : {
-      "post" : {
-        "description" : "REST endpoint: FoldersResource.copyFolder",
-        "operationId" : "copyFolder",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/folders/rename/{folderPath:.+}/{name}" : {
-      "post" : {
-        "description" : "REST endpoint: FoldersResource.renameFolder",
-        "operationId" : "renameFolder",
-        "parameters" : [ {
-          "name" : "folderPath",
-          "in" : "path",
-          "description" : "Path parameter: folderPath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "name",
-          "in" : "path",
-          "description" : "Path parameter: name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/folders/{guid}" : {
-      "get" : {
-        "description" : "REST endpoint: FoldersResource.getFolderById",
-        "operationId" : "getFolderById",
-        "parameters" : [ {
-          "name" : "guid",
-          "in" : "path",
-          "description" : "Path parameter: guid",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/folders/move/folder" : {
-      "post" : {
-        "description" : "REST endpoint: FoldersResource.moveFolder",
-        "operationId" : "moveFolder",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/extensions/list" : {
-      "post" : {
-        "description" : "REST endpoint: ExtensionsResource.getExtensions",
-        "operationId" : "getExtensions",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/velocity/tools" : {
-      "get" : {
-        "description" : "REST endpoint: VelocityResource.listVelocityExtensions",
-        "operationId" : "listVelocityExtensions",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/templates/summaries-by-filter" : {
-      "post" : {
-        "description" : "REST endpoint: TemplatesResource.listTemplateSummariesByFilter",
-        "operationId" : "listTemplateSummariesByFilter",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/contexts/" : {
-      "get" : {
-        "description" : "REST endpoint: ContextsResource.listContexts",
-        "operationId" : "listContexts",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/preferences/": {
+      "get": {
+        "description": "REST endpoint: PreferenceResource.getAllUserPreferences",
+        "operationId": "getAllUserPreferences",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "put" : {
-        "description" : "REST endpoint: ContextsResource.createOrUpdateContext",
-        "operationId" : "createOrUpdateContext",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/contexts/{id}" : {
-      "get" : {
-        "description" : "REST endpoint: ContextsResource.getContextById",
-        "operationId" : "getContextById",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
-          }
-        }
-      },
-      "delete" : {
-        "description" : "REST endpoint: ContextsResource.deleteContext",
-        "operationId" : "deleteContext",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
-          }
-        }
-      }
-    },
-    "/communities/bulk" : {
-      "put" : {
-        "description" : "REST endpoint: CommunityResource.saveCommunities",
-        "operationId" : "saveCommunities",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+      "put": {
+        "description": "REST endpoint: PreferenceResource.savePreference",
+        "operationId": "savePreference",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "post" : {
-        "description" : "REST endpoint: CommunityResource.createCommunities",
-        "operationId" : "createCommunities",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
-          }
-        }
-      },
-      "delete" : {
-        "description" : "REST endpoint: CommunityResource.deleteCommunities",
-        "operationId" : "deleteCommunities",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
-          }
-        }
-      }
-    },
-    "/communities/find" : {
-      "get" : {
-        "description" : "REST endpoint: CommunityResource.findCommunities",
-        "operationId" : "findCommunities",
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "query",
-          "description" : "Query parameter: name",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+      "delete": {
+        "description": "REST endpoint: PreferenceResource.deletePreference",
+        "operationId": "deletePreference",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -892,17 +354,17 @@
         }
       }
     },
-    "/communities/bulk/load" : {
-      "post" : {
-        "description" : "REST endpoint: CommunityResource.loadCommunities",
-        "operationId" : "loadCommunities",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/preferences/all": {
+      "put": {
+        "description": "REST endpoint: PreferenceResource.saveAllUserPreferences",
+        "operationId": "saveAllUserPreferences",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -910,17 +372,28 @@
         }
       }
     },
-    "/communities/visibility" : {
-      "post" : {
-        "description" : "REST endpoint: CommunityResource.getVisibilityByCommunity",
-        "operationId" : "getVisibilityByCommunity",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/preferences/{preference}": {
+      "get": {
+        "description": "REST endpoint: PreferenceResource.loadPreference",
+        "operationId": "loadPreference",
+        "parameters": [
+          {
+            "name": "preference",
+            "in": "path",
+            "description": "Path parameter: preference",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -928,96 +401,28 @@
         }
       }
     },
-    "/communities/switch/{name}" : {
-      "post" : {
-        "description" : "REST endpoint: CommunityResource.switchCommunity",
-        "operationId" : "switchCommunity",
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "path",
-          "description" : "Path parameter: name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
+    "/sites/": {
+      "get": {
+        "description": "REST endpoint: SitesResource.listSites",
+        "operationId": "listSites",
+        "responses": {
+          "200": {
+            "description": "Successful response"
           }
         }
       }
     },
-    "/users/{userName}" : {
-      "get" : {
-        "description" : "REST endpoint: UsersResource.getUserByName",
-        "operationId" : "getUserByName",
-        "parameters" : [ {
-          "name" : "userName",
-          "in" : "path",
-          "description" : "Path parameter: userName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put" : {
-        "description" : "REST endpoint: UsersResource.updateUser",
-        "operationId" : "updateUser",
-        "parameters" : [ {
-          "name" : "userName",
-          "in" : "path",
-          "description" : "Path parameter: userName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete" : {
-        "description" : "REST endpoint: UsersResource.deleteUser",
-        "operationId" : "deleteUser",
-        "parameters" : [ {
-          "name" : "userName",
-          "in" : "path",
-          "description" : "Path parameter: userName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/contenttypes/": {
+      "get": {
+        "description": "REST endpoint: ContentTypesResource.listContentTypes",
+        "operationId": "listContentTypes",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1025,26 +430,17 @@
         }
       }
     },
-    "/users/list/{pattern}" : {
-      "get" : {
-        "description" : "REST endpoint: UsersResource.findUsers",
-        "operationId" : "findUsers",
-        "parameters" : [ {
-          "name" : "pattern",
-          "in" : "path",
-          "description" : "Path parameter: pattern",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/contenttypes/by-filter": {
+      "get": {
+        "description": "REST endpoint: ContentTypesResource.listContentTypesByFilter",
+        "operationId": "listContentTypesByFilter",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1052,17 +448,28 @@
         }
       }
     },
-    "/users/directory/status" : {
-      "get" : {
-        "description" : "REST endpoint: UsersResource.checkDirectoryStatus",
-        "operationId" : "checkDirectoryStatus",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/contenttypes/by-site/{id}": {
+      "get": {
+        "description": "REST endpoint: ContentTypesResource.getContentTypesBySite",
+        "operationId": "getContentTypesBySite",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1070,26 +477,17 @@
         }
       }
     },
-    "/users/directory/list/{pattern}" : {
-      "get" : {
-        "description" : "REST endpoint: UsersResource.searchDirectoryService",
-        "operationId" : "searchDirectoryService",
-        "parameters" : [ {
-          "name" : "pattern",
-          "in" : "path",
-          "description" : "Path parameter: pattern",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/folders/move/folder": {
+      "post": {
+        "description": "REST endpoint: FoldersResource.moveFolder",
+        "operationId": "moveFolder",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1097,94 +495,90 @@
         }
       }
     },
-    "/assets/binary/{assetpath:.+}" : {
-      "get" : {
-        "description" : "REST endpoint: AssetsResource.getBinary",
-        "operationId" : "getBinary",
-        "parameters" : [ {
-          "name" : "assetpath",
-          "in" : "path",
-          "description" : "Path parameter: assetpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/octet-stream" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
+    "/folders/by-path/{folderpath:.+}": {
+      "get": {
+        "description": "REST endpoint: FoldersResource.getFolder",
+        "operationId": "getFolder",
+        "parameters": [
+          {
+            "name": "folderpath",
+            "in": "path",
+            "description": "Path parameter: folderpath",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        }
-      }
-    },
-    "/assets/reports/all-files" : {
-      "get" : {
-        "description" : "REST endpoint: AssetsResource.allFilesReport",
-        "operationId" : "allFilesReport",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/octet-stream" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.bulkupdateFileAssets",
-        "operationId" : "bulkupdateFileAssets",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
+      "put": {
+        "description": "REST endpoint: FoldersResource.updateFolder",
+        "operationId": "updateFolder",
+        "parameters": [
+          {
+            "name": "folderpath",
+            "in": "path",
+            "description": "Path parameter: folderpath",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        }
-      }
-    },
-    "/assets/reports/all-images" : {
-      "get" : {
-        "description" : "REST endpoint: AssetsResource.allImagesReport",
-        "operationId" : "allImagesReport",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/octet-stream" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.bulkupdateImageAssets",
-        "operationId" : "bulkupdateImageAssets",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+      "delete": {
+        "description": "REST endpoint: FoldersResource.deleteFolder",
+        "operationId": "deleteFolder",
+        "parameters": [
+          {
+            "name": "folderpath",
+            "in": "path",
+            "description": "Path parameter: folderpath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeSubFolders",
+            "in": "query",
+            "description": "Query parameter: includeSubFolders",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1192,498 +586,343 @@
         }
       }
     },
-    "/assets/reports/non-ada-compliant-images" : {
-      "get" : {
-        "description" : "REST endpoint: AssetsResource.nonADACompliantImagesReport",
-        "operationId" : "nonADACompliantImagesReport",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
+    "/folders/item/{itempath:.+}": {
+      "delete": {
+        "description": "REST endpoint: FoldersResource.deleteFolderItem",
+        "operationId": "deleteFolderItem",
+        "parameters": [
+          {
+            "name": "itempath",
+            "in": "path",
+            "description": "Path parameter: itempath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/folders/move/item": {
+      "post": {
+        "description": "REST endpoint: FoldersResource.moveFolderItem",
+        "operationId": "moveFolderItem",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/folders/copy/item": {
+      "post": {
+        "description": "REST endpoint: FoldersResource.copyFolderItem",
+        "operationId": "copyFolderItem",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/folders/copy/folder": {
+      "post": {
+        "description": "REST endpoint: FoldersResource.copyFolder",
+        "operationId": "copyFolder",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/folders/rename/{folderPath:.+}/{name}": {
+      "post": {
+        "description": "REST endpoint: FoldersResource.renameFolder",
+        "operationId": "renameFolder",
+        "parameters": [
+          {
+            "name": "folderPath",
+            "in": "path",
+            "description": "Path parameter: folderPath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Path parameter: name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/folders/{guid}": {
+      "get": {
+        "description": "REST endpoint: FoldersResource.getFolderById",
+        "operationId": "getFolderById",
+        "parameters": [
+          {
+            "name": "guid",
+            "in": "path",
+            "description": "Path parameter: guid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extensions/list": {
+      "post": {
+        "description": "REST endpoint: ExtensionsResource.getExtensions",
+        "operationId": "getExtensions",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/velocity/tools": {
+      "get": {
+        "description": "REST endpoint: VelocityResource.listVelocityExtensions",
+        "operationId": "listVelocityExtensions",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/summaries-by-filter": {
+      "post": {
+        "description": "REST endpoint: TemplatesResource.listTemplateSummariesByFilter",
+        "operationId": "listTemplateSummariesByFilter",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contexts/{id}": {
+      "get": {
+        "description": "REST endpoint: ContextsResource.getContextById",
+        "operationId": "getContextById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
           }
         }
       },
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.bulkupdateNonADACompliantImages",
-        "operationId" : "bulkupdateNonADACompliantImages",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
+      "delete": {
+        "description": "REST endpoint: ContextsResource.deleteContext",
+        "operationId": "deleteContext",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
           }
         }
       }
     },
-    "/assets/reports/non-ada-compliant-files" : {
-      "get" : {
-        "description" : "REST endpoint: AssetsResource.nonadacompliantFilesReport",
-        "operationId" : "nonadacompliantFilesReport",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/octet-stream" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.bulkupdateNonADACompliantFiles",
-        "operationId" : "bulkupdateNonADACompliantFiles",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/assets/approve-all/{folderPath:.+}" : {
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.approveAllAssets",
-        "operationId" : "approveAllAssets",
-        "parameters" : [ {
-          "name" : "folderPath",
-          "in" : "path",
-          "description" : "Path parameter: folderPath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/assets/by-path/{assetpath:.+}" : {
-      "get" : {
-        "description" : "REST endpoint: AssetsResource.findByPath",
-        "operationId" : "findByPath",
-        "parameters" : [ {
-          "name" : "assetpath",
-          "in" : "path",
-          "description" : "Path parameter: assetpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put" : {
-        "description" : "REST endpoint: AssetsResource.upsertAssetByPath",
-        "operationId" : "upsertAssetByPath",
-        "parameters" : [ {
-          "name" : "assetpath",
-          "in" : "path",
-          "description" : "Path parameter: assetpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete" : {
-        "description" : "REST endpoint: AssetsResource.deleteSingleAsset",
-        "operationId" : "deleteSingleAsset",
-        "parameters" : [ {
-          "name" : "assetpath",
-          "in" : "path",
-          "description" : "Path parameter: assetpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/assets/import" : {
-      "get" : {
-        "description" : "REST endpoint: AssetsResource.importPreview",
-        "operationId" : "importPreview",
-        "parameters" : [ {
-          "name" : "osPath",
-          "in" : "query",
-          "description" : "Query parameter: osPath",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "assetPath",
-          "in" : "query",
-          "description" : "Query parameter: assetPath",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "replace",
-          "in" : "query",
-          "description" : "Query parameter: replace",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "onlyIfDifferent",
-          "in" : "query",
-          "description" : "Query parameter: onlyIfDifferent",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "autoApprove",
-          "in" : "query",
-          "description" : "Query parameter: autoApprove",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/octet-stream" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/assets/binary/{assetpath:.+}/{forceCheckOut}" : {
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.uploadBinaryToAsset",
-        "operationId" : "uploadBinaryToAsset",
-        "parameters" : [ {
-          "name" : "assetpath",
-          "in" : "path",
-          "description" : "Path parameter: assetpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "forceCheckOut",
-          "in" : "path",
-          "description" : "Path parameter: forceCheckOut",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "assetType",
-          "in" : "query",
-          "description" : "Query parameter: assetType",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/assets/rename/{assetpath:.+}/{name}" : {
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.renameAsset",
-        "operationId" : "renameAsset",
-        "parameters" : [ {
-          "name" : "assetpath",
-          "in" : "path",
-          "description" : "Path parameter: assetpath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "name",
-          "in" : "path",
-          "description" : "Path parameter: name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/assets/archive-all/{folderPath:.+}" : {
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.archiveAllAssets",
-        "operationId" : "archiveAllAssets",
-        "parameters" : [ {
-          "name" : "folderPath",
-          "in" : "path",
-          "description" : "Path parameter: folderPath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/assets/submit-all/{folderPath:.+}" : {
-      "post" : {
-        "description" : "REST endpoint: AssetsResource.submitAllAssets",
-        "operationId" : "submitAllAssets",
-        "parameters" : [ {
-          "name" : "folderPath",
-          "in" : "path",
-          "description" : "Path parameter: folderPath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/acls/community/filter" : {
-      "post" : {
-        "description" : "REST endpoint: AclResource.filterByCommunities",
-        "operationId" : "filterByCommunities",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/acls/community" : {
-      "get" : {
-        "description" : "REST endpoint: AclResource.findObjectsVisibleToCommunities",
-        "operationId" : "findObjectsVisibleToCommunities",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/acls/object" : {
-      "post" : {
-        "description" : "REST endpoint: AclResource.getUserAccessLevel",
-        "operationId" : "getUserAccessLevel",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/acls/user/{aclGuid}" : {
-      "get" : {
-        "description" : "REST endpoint: AclResource.calculateUserAccessLevel",
-        "operationId" : "calculateUserAccessLevel",
-        "parameters" : [ {
-          "name" : "aclGuid",
-          "in" : "path",
-          "description" : "Path parameter: aclGuid",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/acls/" : {
-      "post" : {
-        "description" : "REST endpoint: AclResource.createAcl",
-        "operationId" : "createAcl",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/acls/bulk" : {
-      "get" : {
-        "description" : "REST endpoint: AclResource.loadAcls",
-        "operationId" : "loadAcls",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/contexts/": {
+      "get": {
+        "description": "REST endpoint: ContextsResource.listContexts",
+        "operationId": "listContexts",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "put" : {
-        "description" : "REST endpoint: AclResource.saveAcls",
-        "operationId" : "saveAcls",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+      "put": {
+        "description": "REST endpoint: ContextsResource.createOrUpdateContext",
+        "operationId": "createOrUpdateContext",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/communities/bulk": {
+      "put": {
+        "description": "REST endpoint: CommunityResource.saveCommunities",
+        "operationId": "saveCommunities",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "post" : {
-        "description" : "REST endpoint: AclResource.loadAclsForObjects",
-        "operationId" : "loadAclsForObjects",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+      "post": {
+        "description": "REST endpoint: CommunityResource.createCommunities",
+        "operationId": "createCommunities",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      },
+      "delete": {
+        "description": "REST endpoint: CommunityResource.deleteCommunities",
+        "operationId": "deleteCommunities",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/communities/find": {
+      "get": {
+        "description": "REST endpoint: CommunityResource.findCommunities",
+        "operationId": "findCommunities",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Query parameter: name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1691,26 +930,17 @@
         }
       }
     },
-    "/acls/{guid}" : {
-      "get" : {
-        "description" : "REST endpoint: AclResource.loadAcl",
-        "operationId" : "loadAcl",
-        "parameters" : [ {
-          "name" : "guid",
-          "in" : "path",
-          "description" : "Path parameter: guid",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/communities/bulk/load": {
+      "post": {
+        "description": "REST endpoint: CommunityResource.loadCommunities",
+        "operationId": "loadCommunities",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1718,26 +948,17 @@
         }
       }
     },
-    "/acls/object/{objectGuid}" : {
-      "get" : {
-        "description" : "REST endpoint: AclResource.loadAclForObject",
-        "operationId" : "loadAclForObject",
-        "parameters" : [ {
-          "name" : "objectGuid",
-          "in" : "path",
-          "description" : "Path parameter: objectGuid",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/communities/visibility": {
+      "post": {
+        "description": "REST endpoint: CommunityResource.getVisibilityByCommunity",
+        "operationId": "getVisibilityByCommunity",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1745,94 +966,104 @@
         }
       }
     },
-    "/acls" : {
-      "delete" : {
-        "description" : "REST endpoint: AclResource.deleteAcl",
-        "operationId" : "deleteAcl",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
+    "/communities/switch/{name}": {
+      "post": {
+        "description": "REST endpoint: CommunityResource.switchCommunity",
+        "operationId": "switchCommunity",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Path parameter: name",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
           }
         }
       }
     },
-    "/pages/by-path/{pagepath:.+}" : {
-      "get" : {
-        "description" : "REST endpoint: PagesResource.getPage",
-        "operationId" : "getPage",
-        "parameters" : [ {
-          "name" : "pagepath",
-          "in" : "path",
-          "description" : "Path parameter: pagepath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+    "/users/{userName}": {
+      "get": {
+        "description": "REST endpoint: UsersResource.getUserByName",
+        "operationId": "getUserByName",
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "path",
+            "description": "Path parameter: userName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "put" : {
-        "description" : "REST endpoint: PagesResource.updatePage",
-        "operationId" : "updatePage",
-        "parameters" : [ {
-          "name" : "pagepath",
-          "in" : "path",
-          "description" : "Path parameter: pagepath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+      "put": {
+        "description": "REST endpoint: UsersResource.updateUser",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "path",
+            "description": "Path parameter: userName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "delete" : {
-        "description" : "REST endpoint: PagesResource.deletePage",
-        "operationId" : "deletePage",
-        "parameters" : [ {
-          "name" : "pagepath",
-          "in" : "path",
-          "description" : "Path parameter: pagepath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+      "delete": {
+        "description": "REST endpoint: UsersResource.deleteUser",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "path",
+            "description": "Path parameter: userName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1840,34 +1071,28 @@
         }
       }
     },
-    "/pages/rename/{pagepath:.+}/{name}" : {
-      "post" : {
-        "description" : "REST endpoint: PagesResource.renamePage",
-        "operationId" : "renamePage",
-        "parameters" : [ {
-          "name" : "pagepath",
-          "in" : "path",
-          "description" : "Path parameter: pagepath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+    "/users/directory/list/{pattern}": {
+      "get": {
+        "description": "REST endpoint: UsersResource.searchDirectoryService",
+        "operationId": "searchDirectoryService",
+        "parameters": [
+          {
+            "name": "pattern",
+            "in": "path",
+            "description": "Path parameter: pattern",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        }, {
-          "name" : "name",
-          "in" : "path",
-          "description" : "Path parameter: name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1875,26 +1100,28 @@
         }
       }
     },
-    "/pages/approve-all/{folderPath:.+}" : {
-      "post" : {
-        "description" : "REST endpoint: PagesResource.approveAllPages",
-        "operationId" : "approveAllPages",
-        "parameters" : [ {
-          "name" : "folderPath",
-          "in" : "path",
-          "description" : "Path parameter: folderPath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+    "/users/list/{pattern}": {
+      "get": {
+        "description": "REST endpoint: UsersResource.findUsers",
+        "operationId": "findUsers",
+        "parameters": [
+          {
+            "name": "pattern",
+            "in": "path",
+            "description": "Path parameter: pattern",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1902,26 +1129,17 @@
         }
       }
     },
-    "/pages/archive-all/{folderPath:.+}" : {
-      "post" : {
-        "description" : "REST endpoint: PagesResource.archiveAllPages",
-        "operationId" : "archiveAllPages",
-        "parameters" : [ {
-          "name" : "folderPath",
-          "in" : "path",
-          "description" : "Path parameter: folderPath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/users/directory/status": {
+      "get": {
+        "description": "REST endpoint: UsersResource.checkDirectoryStatus",
+        "operationId": "checkDirectoryStatus",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -1929,296 +1147,82 @@
         }
       }
     },
-    "/pages/change-template" : {
-      "post" : {
-        "description" : "REST endpoint: PagesResource.changePageTemplate",
-        "operationId" : "changePageTemplate",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
+    "/assets/by-path/{assetpath:.+}": {
+      "get": {
+        "description": "REST endpoint: AssetsResource.findByPath",
+        "operationId": "findByPath",
+        "parameters": [
+          {
+            "name": "assetpath",
+            "in": "path",
+            "description": "Path parameter: assetpath",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        }
-      }
-    },
-    "/pages/reports/all-pages/{siteFolderPath:.+}" : {
-      "get" : {
-        "description" : "REST endpoint: PagesResource.allPagesReport",
-        "operationId" : "allPagesReport",
-        "parameters" : [ {
-          "name" : "siteFolderPath",
-          "in" : "path",
-          "description" : "Path parameter: siteFolderPath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/octet-stream" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/pages/{id}" : {
-      "get" : {
-        "description" : "REST endpoint: PagesResource.getPageById",
-        "operationId" : "getPageById",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/pages/submit-all/{folderPath:.+}" : {
-      "post" : {
-        "description" : "REST endpoint: PagesResource.submitAllPages",
-        "operationId" : "submitAllPages",
-        "parameters" : [ {
-          "name" : "folderPath",
-          "in" : "path",
-          "description" : "Path parameter: folderPath",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/locationschemes/generators" : {
-      "get" : {
-        "description" : "REST endpoint: LocationSchemesResource.listLocationSchemeGenerators",
-        "operationId" : "listLocationSchemeGenerators",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/actions/find" : {
-      "get" : {
-        "description" : "REST endpoint: ActionMenuResource.findActions",
-        "operationId" : "findActions",
-        "parameters" : [ {
-          "name" : "name",
-          "in" : "query",
-          "description" : "Query parameter: name",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "label",
-          "in" : "query",
-          "description" : "Query parameter: label",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "dynamic",
-          "in" : "query",
-          "description" : "Query parameter: dynamic",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "item",
-          "in" : "query",
-          "description" : "Query parameter: item",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "cascading",
-          "in" : "query",
-          "description" : "Query parameter: cascading",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/actions" : {
-      "post" : {
-        "description" : "REST endpoint: ActionMenuResource.getAllowedTransitions",
-        "operationId" : "getAllowedTransitions",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
-          }
-        }
-      }
-    },
-    "/actions/find/types" : {
-      "post" : {
-        "description" : "REST endpoint: ActionMenuResource.getAllowedContentTypeMenus",
-        "operationId" : "getAllowedContentTypeMenus",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/actions/find/templates/{id}" : {
-      "get" : {
-        "description" : "REST endpoint: ActionMenuResource.getAllowedTemplateMenus",
-        "operationId" : "getAllowedTemplateMenus",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "Path parameter: id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "isAA",
-          "in" : "query",
-          "description" : "Query parameter: isAA",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/mimetypes" : {
-      "get" : {
-        "description" : "REST endpoint: MimeTypeResource.ping",
-        "operationId" : "ping",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response"
-          }
-        }
-      }
-    },
-    "/roles/{roleName}" : {
-      "get" : {
-        "description" : "REST endpoint: RolesResource.getRoleByName",
-        "operationId" : "getRoleByName",
-        "parameters" : [ {
-          "name" : "roleName",
-          "in" : "path",
-          "description" : "Path parameter: roleName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
           }
         }
       },
-      "delete" : {
-        "description" : "REST endpoint: RolesResource.deleteRole",
-        "operationId" : "deleteRole",
-        "parameters" : [ {
-          "name" : "roleName",
-          "in" : "path",
-          "description" : "Path parameter: roleName",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+      "put": {
+        "description": "REST endpoint: AssetsResource.upsertAssetByPath",
+        "operationId": "upsertAssetByPath",
+        "parameters": [
+          {
+            "name": "assetpath",
+            "in": "path",
+            "description": "Path parameter: assetpath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "REST endpoint: AssetsResource.deleteSingleAsset",
+        "operationId": "deleteSingleAsset",
+        "parameters": [
+          {
+            "name": "assetpath",
+            "in": "path",
+            "description": "Path parameter: assetpath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -2226,17 +1230,59 @@
         }
       }
     },
-    "/roles/" : {
-      "put" : {
-        "description" : "REST endpoint: RolesResource.updateRole",
-        "operationId" : "updateRole",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/assets/import": {
+      "get": {
+        "description": "REST endpoint: AssetsResource.importPreview",
+        "operationId": "importPreview",
+        "parameters": [
+          {
+            "name": "osPath",
+            "in": "query",
+            "description": "Query parameter: osPath",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assetPath",
+            "in": "query",
+            "description": "Query parameter: assetPath",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "replace",
+            "in": "query",
+            "description": "Query parameter: replace",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "onlyIfDifferent",
+            "in": "query",
+            "description": "Query parameter: onlyIfDifferent",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "autoApprove",
+            "in": "query",
+            "description": "Query parameter: autoApprove",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -2244,17 +1290,1086 @@
         }
       }
     },
-    "/roles/list/{pattern}" : {
-      "get" : {
-        "description" : "REST endpoint: RolesResource.findRoles",
-        "operationId" : "findRoles",
-        "responses" : {
-          "200" : {
-            "description" : "Successful response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
+    "/assets/binary/{assetpath:.+}/{forceCheckOut}": {
+      "post": {
+        "description": "REST endpoint: AssetsResource.uploadBinaryToAsset",
+        "operationId": "uploadBinaryToAsset",
+        "parameters": [
+          {
+            "name": "assetpath",
+            "in": "path",
+            "description": "Path parameter: assetpath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "forceCheckOut",
+            "in": "path",
+            "description": "Path parameter: forceCheckOut",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assetType",
+            "in": "query",
+            "description": "Query parameter: assetType",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/rename/{assetpath:.+}/{name}": {
+      "post": {
+        "description": "REST endpoint: AssetsResource.renameAsset",
+        "operationId": "renameAsset",
+        "parameters": [
+          {
+            "name": "assetpath",
+            "in": "path",
+            "description": "Path parameter: assetpath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Path parameter: name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/reports/non-ada-compliant-files": {
+      "get": {
+        "description": "REST endpoint: AssetsResource.nonadacompliantFilesReport",
+        "operationId": "nonadacompliantFilesReport",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "REST endpoint: AssetsResource.bulkupdateNonADACompliantFiles",
+        "operationId": "bulkupdateNonADACompliantFiles",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/archive-all/{folderPath:.+}": {
+      "post": {
+        "description": "REST endpoint: AssetsResource.archiveAllAssets",
+        "operationId": "archiveAllAssets",
+        "parameters": [
+          {
+            "name": "folderPath",
+            "in": "path",
+            "description": "Path parameter: folderPath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/submit-all/{folderPath:.+}": {
+      "post": {
+        "description": "REST endpoint: AssetsResource.submitAllAssets",
+        "operationId": "submitAllAssets",
+        "parameters": [
+          {
+            "name": "folderPath",
+            "in": "path",
+            "description": "Path parameter: folderPath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/binary/{assetpath:.+}": {
+      "get": {
+        "description": "REST endpoint: AssetsResource.getBinary",
+        "operationId": "getBinary",
+        "parameters": [
+          {
+            "name": "assetpath",
+            "in": "path",
+            "description": "Path parameter: assetpath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/reports/all-files": {
+      "get": {
+        "description": "REST endpoint: AssetsResource.allFilesReport",
+        "operationId": "allFilesReport",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "REST endpoint: AssetsResource.bulkupdateFileAssets",
+        "operationId": "bulkupdateFileAssets",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/reports/all-images": {
+      "get": {
+        "description": "REST endpoint: AssetsResource.allImagesReport",
+        "operationId": "allImagesReport",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "REST endpoint: AssetsResource.bulkupdateImageAssets",
+        "operationId": "bulkupdateImageAssets",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/reports/non-ada-compliant-images": {
+      "get": {
+        "description": "REST endpoint: AssetsResource.nonADACompliantImagesReport",
+        "operationId": "nonADACompliantImagesReport",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      },
+      "post": {
+        "description": "REST endpoint: AssetsResource.bulkupdateNonADACompliantImages",
+        "operationId": "bulkupdateNonADACompliantImages",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/approve-all/{folderPath:.+}": {
+      "post": {
+        "description": "REST endpoint: AssetsResource.approveAllAssets",
+        "operationId": "approveAllAssets",
+        "parameters": [
+          {
+            "name": "folderPath",
+            "in": "path",
+            "description": "Path parameter: folderPath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls/object": {
+      "post": {
+        "description": "REST endpoint: AclResource.getUserAccessLevel",
+        "operationId": "getUserAccessLevel",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls/user/{aclGuid}": {
+      "get": {
+        "description": "REST endpoint: AclResource.calculateUserAccessLevel",
+        "operationId": "calculateUserAccessLevel",
+        "parameters": [
+          {
+            "name": "aclGuid",
+            "in": "path",
+            "description": "Path parameter: aclGuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls/": {
+      "post": {
+        "description": "REST endpoint: AclResource.createAcl",
+        "operationId": "createAcl",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls/bulk": {
+      "get": {
+        "description": "REST endpoint: AclResource.loadAcls",
+        "operationId": "loadAcls",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "REST endpoint: AclResource.saveAcls",
+        "operationId": "saveAcls",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "REST endpoint: AclResource.loadAclsForObjects",
+        "operationId": "loadAclsForObjects",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls/{guid}": {
+      "get": {
+        "description": "REST endpoint: AclResource.loadAcl",
+        "operationId": "loadAcl",
+        "parameters": [
+          {
+            "name": "guid",
+            "in": "path",
+            "description": "Path parameter: guid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls/object/{objectGuid}": {
+      "get": {
+        "description": "REST endpoint: AclResource.loadAclForObject",
+        "operationId": "loadAclForObject",
+        "parameters": [
+          {
+            "name": "objectGuid",
+            "in": "path",
+            "description": "Path parameter: objectGuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls": {
+      "delete": {
+        "description": "REST endpoint: AclResource.deleteAcl",
+        "operationId": "deleteAcl",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls/community/filter": {
+      "post": {
+        "description": "REST endpoint: AclResource.filterByCommunities",
+        "operationId": "filterByCommunities",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acls/community": {
+      "get": {
+        "description": "REST endpoint: AclResource.findObjectsVisibleToCommunities",
+        "operationId": "findObjectsVisibleToCommunities",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/by-path/{pagepath:.+}": {
+      "get": {
+        "description": "REST endpoint: PagesResource.getPage",
+        "operationId": "getPage",
+        "parameters": [
+          {
+            "name": "pagepath",
+            "in": "path",
+            "description": "Path parameter: pagepath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "REST endpoint: PagesResource.updatePage",
+        "operationId": "updatePage",
+        "parameters": [
+          {
+            "name": "pagepath",
+            "in": "path",
+            "description": "Path parameter: pagepath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "REST endpoint: PagesResource.deletePage",
+        "operationId": "deletePage",
+        "parameters": [
+          {
+            "name": "pagepath",
+            "in": "path",
+            "description": "Path parameter: pagepath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/rename/{pagepath:.+}/{name}": {
+      "post": {
+        "description": "REST endpoint: PagesResource.renamePage",
+        "operationId": "renamePage",
+        "parameters": [
+          {
+            "name": "pagepath",
+            "in": "path",
+            "description": "Path parameter: pagepath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Path parameter: name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/approve-all/{folderPath:.+}": {
+      "post": {
+        "description": "REST endpoint: PagesResource.approveAllPages",
+        "operationId": "approveAllPages",
+        "parameters": [
+          {
+            "name": "folderPath",
+            "in": "path",
+            "description": "Path parameter: folderPath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/archive-all/{folderPath:.+}": {
+      "post": {
+        "description": "REST endpoint: PagesResource.archiveAllPages",
+        "operationId": "archiveAllPages",
+        "parameters": [
+          {
+            "name": "folderPath",
+            "in": "path",
+            "description": "Path parameter: folderPath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/change-template": {
+      "post": {
+        "description": "REST endpoint: PagesResource.changePageTemplate",
+        "operationId": "changePageTemplate",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/reports/all-pages/{siteFolderPath:.+}": {
+      "get": {
+        "description": "REST endpoint: PagesResource.allPagesReport",
+        "operationId": "allPagesReport",
+        "parameters": [
+          {
+            "name": "siteFolderPath",
+            "in": "path",
+            "description": "Path parameter: siteFolderPath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/{id}": {
+      "get": {
+        "description": "REST endpoint: PagesResource.getPageById",
+        "operationId": "getPageById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/submit-all/{folderPath:.+}": {
+      "post": {
+        "description": "REST endpoint: PagesResource.submitAllPages",
+        "operationId": "submitAllPages",
+        "parameters": [
+          {
+            "name": "folderPath",
+            "in": "path",
+            "description": "Path parameter: folderPath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locationschemes/generators": {
+      "get": {
+        "description": "REST endpoint: LocationSchemesResource.listLocationSchemeGenerators",
+        "operationId": "listLocationSchemeGenerators",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actions/find": {
+      "get": {
+        "description": "REST endpoint: ActionMenuResource.findActions",
+        "operationId": "findActions",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Query parameter: name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "label",
+            "in": "query",
+            "description": "Query parameter: label",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dynamic",
+            "in": "query",
+            "description": "Query parameter: dynamic",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item",
+            "in": "query",
+            "description": "Query parameter: item",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cascading",
+            "in": "query",
+            "description": "Query parameter: cascading",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actions": {
+      "post": {
+        "description": "REST endpoint: ActionMenuResource.getAllowedTransitions",
+        "operationId": "getAllowedTransitions",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/actions/find/types": {
+      "post": {
+        "description": "REST endpoint: ActionMenuResource.getAllowedContentTypeMenus",
+        "operationId": "getAllowedContentTypeMenus",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actions/find/templates/{id}": {
+      "get": {
+        "description": "REST endpoint: ActionMenuResource.getAllowedTemplateMenus",
+        "operationId": "getAllowedTemplateMenus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Path parameter: id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isAA",
+            "in": "query",
+            "description": "Query parameter: isAA",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mimetypes": {
+      "get": {
+        "description": "REST endpoint: MimeTypeResource.ping",
+        "operationId": "ping",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/roles/{roleName}": {
+      "get": {
+        "description": "REST endpoint: RolesResource.getRoleByName",
+        "operationId": "getRoleByName",
+        "parameters": [
+          {
+            "name": "roleName",
+            "in": "path",
+            "description": "Path parameter: roleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "REST endpoint: RolesResource.deleteRole",
+        "operationId": "deleteRole",
+        "parameters": [
+          {
+            "name": "roleName",
+            "in": "path",
+            "description": "Path parameter: roleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles/": {
+      "put": {
+        "description": "REST endpoint: RolesResource.updateRole",
+        "operationId": "updateRole",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles/list/{pattern}": {
+      "get": {
+        "description": "REST endpoint: RolesResource.findRoles",
+        "operationId": "findRoles",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }

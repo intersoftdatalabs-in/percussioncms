@@ -45,7 +45,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jcr.PropertyType;
 import javax.jcr.Value;
@@ -53,10 +52,7 @@ import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import net.sf.cglib.beans.BeanGenerator;
-import net.sf.cglib.core.DefaultNamingPolicy;
-import net.sf.cglib.core.NamingPolicy;
-import net.sf.cglib.core.Predicate;
+
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -114,70 +110,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     */
    private static final Logger ms_logger = LogManager.getLogger("PSTypeConfiguration");
 
-   /**
-    * Generate class names for classes generated that map tables using hibernate
-    */
-   public static class TypeNamingPolicy extends DefaultNamingPolicy
-   {
-      /**
-       * Suffix iterator
-       */
-      static AtomicInteger ms_suffix = new AtomicInteger(0);
 
-      /**
-       * Base name, never <code>null</code> after ctor
-       */
-      String m_baseName;
-
-      /**
-       * Ctor
-       *
-       * @param baseName the base name, assumed not <code>null</code>
-       * @param lazyFields if <code>true</code>, then the generated class
-       *           contains blob/clob fields
-       */
-      public TypeNamingPolicy(String baseName, boolean lazyFields) {
-         baseName = PSStringUtils.replaceNonIdChars(baseName);
-         m_baseName = "com.percussion.services.generated."
-               + baseName;
-         if (lazyFields)
-         {
-            m_baseName += "_lobs";
-         }
-      }
-
-      /* (non-Javadoc)
-       * @see net.sf.cglib.core.DefaultNamingPolicy#getClassName(java.lang.String,
-       *      java.lang.String, java.lang.Object, net.sf.cglib.core.Predicate)
-       */
-      @Override
-      @SuppressWarnings("unused")
-      public String getClassName(String prefix, String source, Object key,
-            Predicate inuse)
-      {
-         StringBuilder b = new StringBuilder();
-         b.append(m_baseName);
-         if (inuse.evaluate(b.toString()))
-         {
-            b.append("_");
-            b.append(ms_suffix.addAndGet(1));
-         }
-         return b.toString();
-      }
-
-      @Override
-      public boolean equals(Object obj)
-      {
-         return EqualsBuilder.reflectionEquals(this, obj);
-      }
-
-      @Override
-      public int hashCode()
-      {
-         return new HashCodeBuilder(5, 6).append(m_baseName).toHashCode()
-               + super.hashCode();
-      }
-   }
 
    /**
     * Represents an implementation class for the content
@@ -968,7 +901,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       StringBuilder hibProps = new StringBuilder(512);
       StringBuilder hibId = new StringBuilder(128);
       StringBuilder hibJoin = new StringBuilder(128);
-      BeanGenerator gen = createBeanGenerator(lazyFields);
+      PSBeanGenerator gen = createBeanGenerator(lazyFields);
 
       for (String table : tableNames)
       {
@@ -1005,10 +938,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
          handleChildId(sortedchild, hibProps, hibId, gen);
       }
 
-      // Finish the configuration for hibernate
-      gen.setUseCache(false); // Do not reuse classes!
-
-      Class beanClass = (Class) gen.createClass();
+      Class beanClass = gen.createClass();
       String hibConfig = buildHibernateConfiguration(firstTable, hibProps,
             hibId, hibJoin, beanClass);
 
@@ -1039,7 +969,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
    private void handleProperties(Map<String, List<String>> fieldsByTable,
          Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
          String firstTable, List<String> props, StringBuilder hibProps,
-         BeanGenerator gen, String table, StringBuilder pertableprops,
+         PSBeanGenerator gen, String table, StringBuilder pertableprops,
          boolean lazyFields, boolean isDerbyDatabase)
    {
       for (String field : fieldsByTable.get(table))
@@ -1107,14 +1037,19 @@ public class PSTypeConfiguration implements NodeType, Serializable
     *
     * @return the bean generator
     */
-   private BeanGenerator createBeanGenerator(boolean lazyFields)
+   private PSBeanGenerator createBeanGenerator(boolean lazyFields)
    {
-      BeanGenerator gen = new BeanGenerator();
+      PSBeanGenerator gen = new PSBeanGenerator();
       gen.setSuperclass(GeneratedClassBase.class);
       gen.setClassLoader(getClass().getClassLoader());
-      String pcasetable = StringUtils.capitalize(m_type);
-      NamingPolicy policy = new TypeNamingPolicy(pcasetable, lazyFields);
-      gen.setNamingPolicy(policy);
+      String baseName = PSStringUtils.replaceNonIdChars(
+            StringUtils.capitalize(m_type));
+      String className = "com.percussion.services.generated." + baseName;
+      if (lazyFields)
+      {
+         className += "_lobs";
+      }
+      gen.setClassName(className);
       return gen;
    }
 
@@ -1188,7 +1123,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     *           will be modified by this method
     */
    private void handleSimpleChildren(List<String> props,
-         StringBuilder hibProps, BeanGenerator gen)
+         StringBuilder hibProps, PSBeanGenerator gen)
    {
       for (String property : getSimpleChildProperties())
       {
@@ -1211,7 +1146,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param gen the properties generator, assumed not <code>null</code>
     */
    private void handleChildId(boolean sortedchild, StringBuilder hibProps,
-         StringBuilder hibId, BeanGenerator gen)
+         StringBuilder hibId, PSBeanGenerator gen)
    {
       // All children have the contentid and revision as foreign
       // keys.
@@ -1244,7 +1179,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param gen the properties generator, assumed not <code>null</code>
     */
    private void handleParentId(StringBuilder hibProps, StringBuilder hibId,
-         BeanGenerator gen)
+         PSBeanGenerator gen)
    {
       addHibernateCompositeKey(hibId);
       gen.addProperty(PSContentNode.ID_PROPERTY_NAME, PSLegacyCompositeId.class);

@@ -78,7 +78,7 @@ fi
 ## If the service is started we restrict the command line options that will pass
 ## through to the jetty start.jar
 
-RUN_CMD="${JAVA_HOME}/bin/java -XX:+DisableAttachMechanism -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -jar ${JETTY_HOME}/start.jar -Djetty_perc_defaults=${JETTY_DEFAULTS} -Drxdeploydir=${rxDir} -DTIKA_CONFIG=${rxDir}/rxconfig/tika-config.xml -Djetty.base=${JETTY_BASE} --include-jetty-dir=${JETTY_DEFAULTS} $@"
+RUN_CMD="${JAVA_HOME}/bin/java --add-opens java.base/java.lang=ALL-UNNAMED -XX:+DisableAttachMechanism -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -jar ${JETTY_HOME}/start.jar -Djetty_perc_defaults=${JETTY_DEFAULTS} -Drxdeploydir=${rxDir} -DTIKA_CONFIG=${rxDir}/rxconfig/tika-config.xml -Djetty.base=${JETTY_BASE} --include-jetty-dir=${JETTY_DEFAULTS} $@"
 echo RUN_CMD=$RUN_CMD
 
 if [ ${PID} -gt 0 ]; then

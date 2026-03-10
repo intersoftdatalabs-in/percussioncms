@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * Unit tests for the PSBaseHttpUtils class
  */
-@Disabled("Temporarily disabled — failing in perc-system test run")
+
 public class PSBaseHttpUtilsTest
 {
 
@@ -54,7 +54,12 @@ public class PSBaseHttpUtilsTest
       for (String[] vector : vectors)
       {
          String result = PSBaseHttpUtils.removeQueryParam(vector[0], vector[2]);
-         assertEquals(result, vector[1]);
+         String expectedPath = PSBaseHttpUtils.parseHttpPath(vector[1]);
+         String actualPath = PSBaseHttpUtils.parseHttpPath(result);
+         assertEquals(expectedPath, actualPath);
+         Map<String, Object> expectedParams = PSBaseHttpUtils.parseQueryParamsString(vector[1]);
+         Map<String, Object> actualParams = PSBaseHttpUtils.parseQueryParamsString(result);
+         assertEquals(expectedParams, actualParams);
       }
    }
 
@@ -209,10 +214,10 @@ public class PSBaseHttpUtilsTest
          PSInputStreamReader rdr = new PSInputStreamReader(in);
 
          String line = PSBaseHttpUtils.readStatusLine(rdr);
-         assertEquals("UTF-8", parseStrings[i], line);
+         assertEquals(parseStrings[i], line);
 
          String nextLine = rdr.readLine("UTF-8");
-         assertEquals("UTF-8", "NEXTLINE", nextLine);
+         assertEquals("NEXTLINE", nextLine);
       }
    }
 

@@ -165,7 +165,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private String globalTemplate;
 
     @Basic
-    @Column(name = "ALLOWEDNAMESPACES")
+    @Column(name = "ALLOWED_NAMESPACES")
     private String allowedNamespaces;
 
     @Basic

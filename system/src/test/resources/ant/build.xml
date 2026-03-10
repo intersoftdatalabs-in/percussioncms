@@ -2,20 +2,20 @@
 <!--
    Runs all Junit tests using the following properties and references:
       Properties:
-         classdir - the root directory from which to recursively search for 
+         classdir - the root directory from which to recursively search for
             Junit test classes.
          junit.results.dir - the directory in which test results are to be
             written as Xml files.
       References:
          junit.test.classpath - the classpath used to run the junit tests.
-   
-   Converts the junit.test.classpath ref to a property named filter.classpath, 
+
+   Converts the junit.test.classpath ref to a property named filter.classpath,
       which may used by the custom filter represented by the filterFile entity.
-      
-   Will fail upon error if the property FAIL_ON_JUNIT_ERROR is set.   
+
+   Will fail upon error if the property FAIL_ON_JUNIT_ERROR is set.
 -->
 <project name="JunitTest" basedir="." default="runJunitTest">
- 
+
 	<!-- setup code coverage -->
 		<property environment="env" />
 		<property name="cobertura.dir" value="${env.THIRD_PARTY_TOOLS_BASE}/cobertura/cobertura-1.9.4.1" />
@@ -28,15 +28,15 @@
 		</path>
 
 		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
-	
+
 	<target name="runJunitTest">
       <pathconvert property="filter.classpath" refid="junit.test.classpath"/>
-		
+
 		<mkdir dir="${outputdir}" />
 		<mkdir dir="${junit.results.dir}" />
 		<mkdir dir="${coverage.results.dir}" />
 		<echo>Test run configured with the following directories:</echo>
-		<echo>Classes Dir: ${classdir} </echo>		
+		<echo>Classes Dir: ${classdir} </echo>
 		<echo>Output Dir: ${outputdir} </echo>
 		<echo>Instrumented Dir: ${outputdir}/instrumented </echo>
 		<echo>RX Deployer Dir: ${rxdeploydir} </echo>
@@ -48,9 +48,9 @@
 		<echo>Base Dir: ${basedir}</echo>
 		<echo>Web Services Dir: ${webservicesdir}</echo>
 		<echo>FAIL_ON_JUNIT_ERROR: ${FAIL_ON_JUNIT_ERROR}</echo>
-		<echo>env.THIRD_PARTY_TOOLS_BASE: ${env.THIRD_PARTY_TOOLS_BASE}</echo>	
-		<echo>env.JAVA_HOME: ${env.JAVA_HOME}</echo>	
-				
+		<echo>env.THIRD_PARTY_TOOLS_BASE: ${env.THIRD_PARTY_TOOLS_BASE}</echo>
+		<echo>env.JAVA_HOME: ${env.JAVA_HOME}</echo>
+
 		<delete file="${junit.results.dir}/cobertura.ser"  failonerror="false" />
 		<!-- See https://github.com/cobertura/cobertura/wiki/FAQ -->
 		<delete failonerror="false">
@@ -58,14 +58,14 @@
 				<include name="**/*"/>
 			</fileset>
 		</delete>
-		
+
 		<!-- Instrument Classes For Code Coverage -->
 		<cobertura-instrument todir="${outputdir}/instrumented" datafile="${junit.results.dir}/cobertura.ser">
 		    <fileset dir="${classdir}">
 		        <include name="**/*.class"/>
-		    </fileset>						
-		</cobertura-instrument>	
-		
+		    </fileset>
+		</cobertura-instrument>
+
       <junit printsummary="true" fork="on" enableTestListenerEvents="false" showoutput="false" forkmode="once"
             errorProperty="test.failed" failureProperty="test.failed">
          <sysproperty key="rxdeploydir" value="${rxdeploydir}"/>
@@ -73,7 +73,6 @@
       	<jvmarg value="-Xmx1024m"/>
       	<jvmarg value="-XX:MaxPermSize=256m"/>
       	<jvmarg value="-server"/>
-      	<jvmarg value="-noverify" />
       	<sysproperty key="net.sourceforge.cobertura.datafile"
       							file="${junit.results.dir}/cobertura.ser" />
       	<classpath>
@@ -81,7 +80,7 @@
       		<path refid="junit.test.classpath"/>
       		<path refid="cobertura.classpath" />
       	</classpath>
-      	         
+
          <formatter type="xml"/>
          <batchtest todir="${junit.results.dir}">
             <fileset dir="${classdir}">
@@ -160,14 +159,14 @@
               	<fileset dir="${basedir}/release/Install/src" includes="*.java" />
               	<fileset dir="${basedir}/Tools/CodeGenerator/src" includes="*.java" />
               	<fileset dir="${basedir}/Tools/ImageWidgetService/src" includes="*.java" />
-		</cobertura-report>       	
-            	
+		</cobertura-report>
+
 	  <!-- Set failure if previous results failed for when more then one set of tests is run -->
 	  <antcall target="setFailure" />
 	  <condition property="test.failed">
 		<available file="${junit.results.dir}/setFailed.txt" />
       </condition>
-	  	  
+
       <!-- save results of unit tests for the calling scripts -->
       <echo file="${junit.results.dir}/testsFailed.txt" message="${test.failed}"/>
 
@@ -177,13 +176,13 @@
             <isset property="test.failed"/>
          </and>
       </condition>
-      <fail message="One or more JUnit tests failed.  Check the ${junit.results.dir} directory for details" 
+      <fail message="One or more JUnit tests failed.  Check the ${junit.results.dir} directory for details"
          if="fail.on.error"/>
    </target>
-              	
+
    <!-- Set file on failure -->
    <target name="setFailure" if="test.failed">
 		<echo file="${junit.results.dir}/setFailed.txt" message="Failed" />
    </target>
-              	
+
 </project>

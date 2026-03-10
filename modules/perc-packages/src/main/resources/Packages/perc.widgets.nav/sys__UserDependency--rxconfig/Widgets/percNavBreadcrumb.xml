@@ -19,7 +19,7 @@
 		default_value="" datatype="string" />
 	<UserPref name="navLabel" display_name="Navigation Label"
 		default_value="Breadcrumb Navigation" datatype="string" />
-    <CssPref name="rootclass" display_name="CSS root class"
+	<CssPref name="rootclass" display_name="CSS root class"
 		datatype="string" />
 	<Code type="jexl">
         <![CDATA[

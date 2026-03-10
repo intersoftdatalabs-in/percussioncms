@@ -1,33 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html [
-	<!ENTITY % HTMLlat1 SYSTEM "https://www.percussion.com/HTMLlat1x.ent">
-	%HTMLlat1;
-	<!ENTITY % HTMLsymbol SYSTEM "https://www.percussion.com/DTD/HTMLsymbolx.ent">
-	%HTMLsymbol;
-	<!ENTITY % HTMLspecial SYSTEM "https://www.percussion.com/DTD/HTMLspecialx.ent">
-	%HTMLspecial;
-]>
-<!-- 
-   $Id: simple.xml 1.1 2002/05/07 13:54:01Z jamesschultz Exp $
-   
-   This file is used by the PSXPathEvaluatorTest as source data for evaluating XPath expressions.
-   
-   /*/@commandName
-   //Control[@paramName='authornames']//ActionLinkList/ActionLink[DisplayLabel='Edit']/Param[@name='sys_childrowid']
-   /*/horsey
-   
 
-   NOTE: if using the following DOCTYPE, then the XPATH will fail to find "//html", "//body" or "//title"
-   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-  -->
-<ContentEditor docType="sys_normal" mode="sys_edit" commandName="edit" submitHref="simple.html" contentTypeId="309">
+<!-- $Id: simple.xml 1.1 2002/05/07 13:54:01Z jamesschultz Exp $ This file
+	is used by the PSXPathEvaluatorTest as source data for evaluating XPath expressions.
+	/*/@commandName //Control[@paramName='authornames']//ActionLinkList/ActionLink[DisplayLabel='Edit']/Param[@name='sys_childrowid']
+	/*/horsey NOTE: if using the following DOCTYPE, then the XPATH will fail
+	to find "//html", "//body" or "//title" <!DOCTYPE html PUBLIC "-//W3C//DTD
+	XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> -->
+<ContentEditor docType="sys_normal" mode="sys_edit"
+	commandName="edit" submitHref="simple.html" contentTypeId="309">
 	<html>
 		<head>
 			<title>Small Airplane Directorate - FAR 23 vs. CS 23</title>
 		</head>
 		<body>
-			<h1>&nbsp; Hello 1</h1>
+			<h1>&#160;
+				Hello 1
+			</h1>
 			<h1> &gt;Hello 2 &lt;</h1>
 		</body>
 	</html>
@@ -38,7 +26,9 @@
 	<ItemContent newDocument="no">
 		<DisplayField displayType="sys_normal">
 			<DisplayLabel>Authors:</DisplayLabel>
-			<Control name="sys_Table" paramName="authornames" dataType="sys_local" dimension="table" isReadOnly="yes" isRequired="no">
+			<Control name="sys_Table" paramName="authornames"
+				dataType="sys_local" dimension="table" isReadOnly="yes"
+				isRequired="no">
 				<Table>
 					<Header>
 						<Column>FirstName:</Column>
@@ -47,17 +37,22 @@
 					<RowData>
 						<Row childkey="3">
 							<Column>
-								<Control name="sys_EditBox" paramName="firstName" dataType="sys_local" dimension="single" isReadOnly="yes" isRequired="no">
+								<Control name="sys_EditBox" paramName="firstName"
+									dataType="sys_local" dimension="single" isReadOnly="yes"
+									isRequired="no">
 									<Value>Joe</Value>
 								</Control>
 							</Column>
 							<Column>
-								<Control name="sys_EditBox" paramName="lastName" dataType="sys_local" dimension="single" isReadOnly="yes" isRequired="no">
+								<Control name="sys_EditBox" paramName="lastName"
+									dataType="sys_local" dimension="single" isReadOnly="yes"
+									isRequired="no">
 									<Value>Bloe</Value>
 								</Control>
 							</Column>
 							<ActionLinkList>
-								<ActionLink imageHref="/rx_resources/images/delete.gif">
+								<ActionLink
+									imageHref="/rx_resources/images/delete.gif">
 									<DisplayLabel>Del</DisplayLabel>
 									<Param name="sys_command">modify</Param>
 									<Param name="sys_childrowid">3</Param>
@@ -73,7 +68,8 @@
 									<Param name="sys_pageid">2</Param>
 									<Param name="sys_view">sys_All</Param>
 								</ActionLink>
-								<ActionLink imageHref="../sys_resources/images/arrowup.gif">
+								<ActionLink
+									imageHref="../sys_resources/images/arrowup.gif">
 									<DisplayLabel>Up</DisplayLabel>
 									<Param name="sys_command">modify</Param>
 									<Param name="DBActionType">SEQUENCE_DECREMENT</Param>
@@ -82,7 +78,8 @@
 									<Param name="sys_childid">2</Param>
 									<Param name="sys_view">sys_All</Param>
 								</ActionLink>
-								<ActionLink imageHref="../sys_resources/images/arrowdown.gif">
+								<ActionLink
+									imageHref="../sys_resources/images/arrowdown.gif">
 									<DisplayLabel>Dn</DisplayLabel>
 									<Param name="sys_command">modify</Param>
 									<Param name="DBActionType">SEQUENCE_INCREMENT</Param>
@@ -98,24 +95,30 @@
 			</Control>
 		</DisplayField>
 		<DisplayField displayType="sys_hidden">
-			<Control name="sys_HiddenInput" paramName="sys_contentid" dataType="sys_system" dimension="single" isReadOnly="no" isRequired="yes">
+			<Control name="sys_HiddenInput" paramName="sys_contentid"
+				dataType="sys_system" dimension="single" isReadOnly="no"
+				isRequired="yes">
 				<Value>8</Value>
 			</Control>
 		</DisplayField>
 		<DisplayField displayType="sys_hidden">
-			<Control name="sys_HiddenInput" paramName="sys_revision" dataType="sys_system" dimension="single" isReadOnly="no" isRequired="yes">
+			<Control name="sys_HiddenInput" paramName="sys_revision"
+				dataType="sys_system" dimension="single" isReadOnly="no"
+				isRequired="yes">
 				<Value>1</Value>
 			</Control>
 		</DisplayField>
 	</ItemContent>
-	<UserStatus sessionId="103b15dc3d708cf32a86de30893c699f51d4307a">
+	<UserStatus
+		sessionId="103b15dc3d708cf32a86de30893c699f51d4307a">
 		<UserName>Rhythmyx</UserName>
 		<Time>May 01, 2002 01:41 PM Eastern Daylight Time</Time>
 		<Roles>
 			<Role>Role1</Role>
 		</Roles>
 		<RequestProperties>
-			<UserAgent>Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; Q312461)</UserAgent>
+			<UserAgent>Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0;
+				Q312461)</UserAgent>
 			<AcceptLanguage>en-us</AcceptLanguage>
 		</RequestProperties>
 	</UserStatus>
@@ -161,22 +164,24 @@
 				</ActionLink>
 			</ActionLinkList>
 		</BasicInfo>
-		<ContentStatus thisRevision="1" editRevision="1" contentId="8" currentRevision="1">
+		<ContentStatus thisRevision="1" editRevision="1"
+			contentId="8" currentRevision="1">
 			<WorkflowName workflowId="1">Article</WorkflowName>
 			<StateName isPublishable="no" stateId="1">Draft</StateName>
 			<ContentTypeName typeId="309">TestViewsContentType</ContentTypeName>
 			<Title>test</Title>
-			<CheckOutUserName assignmentType="2" checkOutStatus="1">Rhythmyx</CheckOutUserName>
+			<CheckOutUserName assignmentType="2"
+				checkOutStatus="1">Rhythmyx</CheckOutUserName>
 			<LastModifier>Rhythmyx</LastModifier>
 			<LastModified>May 01, 2002 - 01:40</LastModified>
 			<CreatedBy>Rhythmyx</CreatedBy>
 			<CreatedDate>May 01, 2002 - 01:40</CreatedDate>
 			<StartDate>May 01, 2002 - 01:41</StartDate>
 			<ExpirationDate>May 01, 2002 - 01:41</ExpirationDate>
-			<AgingTime/>
-			<PublishDate/>
-			<PathName/>
-			<Suffix/>
+			<AgingTime />
+			<PublishDate />
+			<PathName />
+			<Suffix />
 		</ContentStatus>
 	</Workflow>
 	<SectionLinkList>

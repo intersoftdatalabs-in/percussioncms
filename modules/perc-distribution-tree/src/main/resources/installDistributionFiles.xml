@@ -77,7 +77,8 @@
 		<!-- Unpack perc-web-ui WAR to Rhythmyx -->
 		<echo>Unpacking perc-web-ui WAR...</echo>
 		<mkdir dir="${assembly-directory}/jetty/base/webapps/Rhythmyx" />
-		<unzip dest="${assembly-directory}/jetty/base/webapps/Rhythmyx" overwrite="true">
+		<unzip dest="${assembly-directory}/jetty/base/webapps/Rhythmyx"
+			overwrite="true">
 			<fileset dir="../../WebUI/target">
 				<include name="perc-web-ui-${project.version}.war" />
 			</fileset>
@@ -89,7 +90,8 @@
 		<!-- Unpack perc-openapi-webapp WAR to /openapi context -->
 		<echo>Unpacking perc-openapi-webapp WAR...</echo>
 		<mkdir dir="${assembly-directory}/jetty/base/webapps/openapi" />
-		<unzip dest="${assembly-directory}/jetty/base/webapps/openapi" overwrite="true">
+		<unzip dest="${assembly-directory}/jetty/base/webapps/openapi"
+			overwrite="true">
 			<fileset dir="../../modules/perc-openapi-webapp/target">
 				<include name="perc-openapi-webapp-${project.version}.war" />
 			</fileset>
@@ -700,6 +702,16 @@
 					tofile="${assembly-directory}/jetty/base/lib/jdbc/mysql-connector.jar" />
 			</then>
 		</if>
+
+		<!-- Enable logging-log4j2 Jetty module to ensure all System.out/err goes
+			to Log4j2 -->
+		<echo>Enabling Jetty logging-log4j2 module...</echo>
+		<exec executable="java" dir="${assembly-directory}/jetty/base"
+			failonerror="false">
+			<arg value="-jar" />
+			<arg value="../start.jar" />
+			<arg value="--add-modules=logging-log4j2" />
+		</exec>
 
 		<echo>Fixing Line Feeds for sh files...</echo>
 		<fixcrlf includes="**/*.sh" eol="unix" eof="remove"

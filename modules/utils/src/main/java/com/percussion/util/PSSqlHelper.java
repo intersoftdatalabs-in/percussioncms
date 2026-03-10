@@ -1461,7 +1461,7 @@ public class PSSqlHelper {
 
           if (tType.equals("U")) {
             if (!tName.equals(indexName)) {
-              renameIdx = renameIdx + indexName + " to " + tName;
+              renameIdx = renameIdx + "\"" + indexName + "\" to \"" + tName + "\"";
               st = conn.prepareStatement(renameIdx);
               int rc = st.executeUpdate();
               if (rc == 1) {
