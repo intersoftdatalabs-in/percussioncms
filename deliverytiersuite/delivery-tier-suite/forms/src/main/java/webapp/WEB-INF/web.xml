@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 	      http://java.sun.com/xml/ns/javaee/web-app_3_1.xsd"
          version="3.0">
-      
+
 	 <!-- Specify Application Context with perc-context.properties -->
        <context-param>
 	   	<param-name>contextClass</param-name>
@@ -28,9 +28,9 @@
 
     <filter>
       <filter-name>PSInputValidatorFilter</filter-name>
-      <filter-class>com.percussion.utils.servlet.PSInputValidatorFilter</filter-class>
+      <filter-class>com.percussion.servlet_utils.servlet.PSInputValidatorFilter</filter-class>
    </filter>
-   
+
    <filter-mapping>
       <filter-name>PSInputValidatorFilter</filter-name>
       <url-pattern>/*</url-pattern>

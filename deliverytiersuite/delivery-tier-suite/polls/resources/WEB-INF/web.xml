@@ -7,7 +7,7 @@
                        https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
     version="5.0"
     metadata-complete="true">
-      
+
 	  <!-- Specify Application Context with perc-context.properties -->
      <context-param>
 	   	<param-name>contextClass</param-name>
@@ -39,9 +39,9 @@
 
     <filter>
       <filter-name>PSInputValidatorFilter</filter-name>
-      <filter-class>com.percussion.utils.servlet.PSInputValidatorFilter</filter-class>
+      <filter-class>com.percussion.servlet_utils.servlet.PSInputValidatorFilter</filter-class>
    </filter>
-   
+
    <filter-mapping>
       <filter-name>PSInputValidatorFilter</filter-name>
       <url-pattern>/*</url-pattern>
