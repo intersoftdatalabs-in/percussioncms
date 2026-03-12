@@ -40,12 +40,6 @@
             <artifactId>tomcat-catalina</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- Servlet API (Jakarta) -->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-coyote</artifactId>
@@ -55,11 +49,6 @@
             <groupId>com.percussion</groupId>
             <artifactId>perc-security-utils</artifactId>
             <!-- version inherited from parent -->
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>

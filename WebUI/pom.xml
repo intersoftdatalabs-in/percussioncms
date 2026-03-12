@@ -50,6 +50,87 @@
             <artifactId>perc-toolkit</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- TwelveMonkeys image processing library - required by web.xml IIOProviderContextListener -->
+        <dependency>
+            <groupId>com.twelvemonkeys.servlet</groupId>
+            <artifactId>servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-bmp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-jpeg</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-tiff</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-metadata</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-psd</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-pnm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-sgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-icns</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-tga</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-pcx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-iff</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-clippath</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-hdr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-batik</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-pict</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-pdf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-thumbsdb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-webp</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-tinymce</artifactId>
@@ -764,6 +845,35 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+            </plugin>
+            <!-- TwelveMonkeys dependencies loaded via SPI by IIOProviderContextListener in web.xml -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <usedDependencies>
+                        <usedDependency>com.twelvemonkeys.servlet:servlet</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-core</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-bmp</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-jpeg</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-tiff</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-metadata</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-psd</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-pnm</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-sgi</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-icns</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-tga</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-pcx</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-iff</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-clippath</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-hdr</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-batik</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-pict</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-pdf</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-thumbsdb</usedDependency>
+                        <usedDependency>com.twelvemonkeys.imageio:imageio-webp</usedDependency>
+                    </usedDependencies>
+                </configuration>
             </plugin>
         </plugins>
         <sourceDirectory>src/main/java</sourceDirectory>

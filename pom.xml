@@ -76,7 +76,7 @@
     </scm>
     <properties>
         <activation.api.version>1.2.0</activation.api.version>
-        <activemq.version>6.2.0</activemq.version>
+        <activemq.version>6.2.1</activemq.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <aopalliance.version>1.0</aopalliance.version>
@@ -305,13 +305,13 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.google.gwt</groupId>
+                <groupId>org.gwtproject</groupId>
                 <artifactId>gwt-servlet</artifactId>
                 <version>2.10.0</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
-                <groupId>com.google.gwt</groupId>
+                <groupId>org.gwtproject</groupId>
                 <artifactId>gwt-user</artifactId>
                 <version>2.10.0</version>
                 <scope>provided</scope>
@@ -447,6 +447,18 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-engine</artifactId>
                 <version>${junit5.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -1426,33 +1438,6 @@
                 <version>2.1.1</version>
             </dependency>
             <dependency>
-                <groupId>com.mockrunner</groupId>
-                <artifactId>mockrunner-jms</artifactId>
-                <version>2.0.7</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>ant</groupId>
-                        <artifactId>ant</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.ivy</groupId>
-                        <artifactId>ivy</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.jvnet.hudson</groupId>
-                        <artifactId>ivy</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.bcel</groupId>
-                        <artifactId>bcel</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
                 <version>1.9.0</version>
@@ -1636,6 +1621,11 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j2-impl</artifactId>
                 <version>${log4j2.version}</version>
             </dependency>
             <dependency>
