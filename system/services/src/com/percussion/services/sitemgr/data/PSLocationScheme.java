@@ -78,17 +78,17 @@ import java.util.Set;
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSLocationScheme")
-@Table(name = "PSX_LOCATIONSCHEME")
+@Table(name = "RXLOCATIONSCHEME")
 public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSCatalogIdentifier {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "LOCATIONSCHEME_ID")
+    @Column(name = "SCHEMEID")
     private long schemeId = -1;
 
     @Basic
-    @Column(name = "NAME")
+    @Column(name = "SCHEMENAME")
     private String name;
 
     @Basic
@@ -100,15 +100,15 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
     private String generator;
 
     @Basic
-    @Column(name = "TEMPLATE_ID")
+    @Column(name = "VARIANTID")
     private Long templateId;
 
     @Basic
-    @Column(name = "CONTENT_TYPE_ID")
+    @Column(name = "CONTENTTYPEID")
     private Long contentTypeId;
 
     @Basic
-    @Column(name = "CONTEXT_ID")
+    @Column(name = "CONTEXTID")
     private Long contextId;
 
     @Version
@@ -119,7 +119,7 @@ public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSC
                cascade = {CascadeType.ALL},
                fetch = FetchType.EAGER,
                orphanRemoval = true)
-    @JoinColumn(name = "LOCATIONSCHEME_ID")
+    @JoinColumn(name = "SCHEMEID", nullable = false)
     @Fetch(FetchMode.SUBSELECT)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<PSLocationSchemeParameter> parameters = new HashSet<>();

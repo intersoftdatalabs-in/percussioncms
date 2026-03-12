@@ -322,15 +322,13 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSAssemblyTemplate_Slots")
     private Set<IPSTemplateSlot> slots = new HashSet<>();
 
-    @Basic
-    @Column(name = "GLOBAL_TEMPLATE_USAGE")
-    private String globalTemplateUsage;
+   @Basic
+   @Column(name = "GLOBAL_TEMPLATE_USAGE")
+   private Integer globalTemplateUsage = GlobalTemplateUsage.None.ordinal();
 
-    // Backing field for the global template GUID. Transient for now to keep
-    // changes minimal and behavior-preserving; persisted mapping can be added
-    // later if required.
-    @jakarta.persistence.Transient
-    private com.percussion.utils.guid.IPSGuid globalTemplateGuid;
+   @Basic
+   @Column(name = "GLOBAL_TEMPLATE")
+   private Long globalTemplate;
 
     /**
      * Default constructor required for JPA/Hibernate.
@@ -730,7 +728,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
        if (usage == null)
           this.globalTemplateUsage = null;
        else
-          this.globalTemplateUsage = usage.name();
+          this.globalTemplateUsage = usage.ordinal();
     }
 
     /**
@@ -738,7 +736,10 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      */
     public void setGlobalTemplate(IPSGuid guid)
     {
-       this.globalTemplateGuid = guid;
+      if (guid != null)
+         this.globalTemplate = guid.longValue();
+      else
+         this.globalTemplate = null;
     }
 
     /**
@@ -746,7 +747,10 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
      */
     public IPSGuid getGlobalTemplate()
     {
-       return this.globalTemplateGuid;
+      if (this.globalTemplate != null)
+         return new PSGuid(PSTypeEnum.TEMPLATE, this.globalTemplate);
+      else
+         return null;
     }
 
     /**
@@ -757,8 +761,8 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
        if (this.globalTemplateUsage == null)
           return IPSAssemblyTemplate.GlobalTemplateUsage.None;
        try {
-          return IPSAssemblyTemplate.GlobalTemplateUsage.valueOf(this.globalTemplateUsage);
-       } catch (IllegalArgumentException e) {
+          return IPSAssemblyTemplate.GlobalTemplateUsage.values()[this.globalTemplateUsage];
+       } catch (Exception e) {
           return IPSAssemblyTemplate.GlobalTemplateUsage.None;
        }
     }
@@ -791,7 +795,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
     {
       if (StringUtils.isBlank(tmpStr))
          throw new IllegalArgumentException("tmpStr may not be null or empty");
-      
+
       Set<IPSGuid> slotGuids = new HashSet<>();
       Document doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(
             tmpStr), false);
@@ -833,7 +837,7 @@ public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummar
          throw new IllegalArgumentException("siteStr may not be null or empty");
       if (newSlots == null)
          throw new IllegalArgumentException("template list may not be null");
-   
+
       Document doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(
             tmpStr), false);
       Element root = doc.getDocumentElement();

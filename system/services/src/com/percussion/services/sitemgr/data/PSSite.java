@@ -117,7 +117,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private String name;
 
     @Basic
-    @Column(name = "DESCRIPTION")
+    @Column(name = "SITEDESC")
     private String description;
 
     @Basic
@@ -145,7 +145,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private String password;
 
     @Basic
-    @Column(name = "PRIVATEKEY")
+    @Column(name = "PRIVATE_KEY")
     private String privateKey;
 
     @Basic
@@ -153,11 +153,11 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private Integer state;
 
     @Basic
-    @Column(name = "NAVTHEME")
+    @Column(name = "NAV_THEME")
     private String navTheme;
 
     @Basic
-    @Column(name = "FOLDERROOT")
+    @Column(name = "FOLDER_ROOT")
     private String folderRoot;
 
     @Basic
@@ -169,59 +169,59 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private String allowedNamespaces;
 
     @Basic
-    @Column(name = "PREVIOUSNAME")
+    @Column(name = "PREVSITENAME")
     private String previousName;
 
     @Basic
-    @Column(name = "ISSECURE")
+    @Column(name = "IS_SECURE")
     private String is_secure;
 
     @Basic
-    @Column(name = "DEFAULTPUBSERVER")
+    @Column(name = "DEFAULT_PUBSERVERID")
     private Long defaultPubServer;
 
     @Basic
-    @Column(name = "DEFAULTFILEEXTENTION")
+    @Column(name = "DEFAULT_FILE_EXT")
     private String defaultFileExtention;
 
     @Basic
-    @Column(name = "ISCANONICAL")
+    @Column(name = "IS_CANONICAL")
     private String is_canonical;
 
     @Basic
-    @Column(name = "SITEPROTOCOL")
+    @Column(name = "SITE_PROTOCOL")
     private String siteProtocol;
 
     @Basic
-    @Column(name = "DEFAULTDOCUMENT")
+    @Column(name = "DEFAULT_DOCUMENT")
     private String defaultDocument;
 
     @Basic
-    @Column(name = "CANONICALDIST")
+    @Column(name = "CANONICAL_DIST")
     private String canonicalDist;
 
     @Basic
-    @Column(name = "ISCANONICALREPLACE")
+    @Column(name = "IS_CANONICAL_REPLACE")
     private String is_canonical_replace;
 
     @Basic
-    @Column(name = "SITE_ADDITIONAL_HEAD")
+    @Column(name = "ADDL_HEAD_CONTENT")
     private String siteAdditionalHeadContent;
 
     @Basic
-    @Column(name = "SITE_BEFORE_BODY_CLOSE")
+    @Column(name = "BEFORE_BODY_CLOSE")
     private String siteBeforeBodyCloseContent;
 
     @Basic
-    @Column(name = "SITE_AFTER_BODY_OPEN")
+    @Column(name = "AFTER_BODY_START")
     private String siteAfterBodyOpenContent;
 
     @Basic
-    @Column(name = "LOGINPAGE")
+    @Column(name = "LOGIN_PAGE")
     private String loginPage;
 
     @Basic
-    @Column(name = "REGISTRATIONPAGE")
+    @Column(name = "REGISTRATION_PAGE")
     private String registrationPage;
 
     @Basic
@@ -259,27 +259,27 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     }
 
     @Basic
-    @Column(name = "GENERATESITEMAP")
+    @Column(name = "GENERATE_SITEMAP")
     private String generateSiteMap;
 
     @Basic
-    @Column(name = "GENERATESITEMAPOPTIONS")
+    @Column(name = "GENERATE_SITEMAP_OPTIONS")
     private String generateSiteMapOptions;
 
     @Basic
-    @Column(name = "MOBILEPREVIEWENABLED")
+    @Column(name = "ENABLE_MOBILE_PREVIEW")
     private Boolean mobilePreviewEnabled;
 
     @Basic
-    @Column(name = "OVERRIDE_SYSTEM_JQUERY")
+    @Column(name = "OVERRIDE_JQUERY")
     private Boolean overrideSystemJQuery;
 
     @Basic
-    @Column(name = "OVERRIDE_SYSTEM_FOUNDATION")
+    @Column(name = "OVERRIDE_FOUNDATION")
     private Boolean overrideSystemFoundation;
 
     @Basic
-    @Column(name = "OVERRIDE_SYSTEM_JQUERYUI")
+    @Column(name = "OVERRIDE_JQUERYUI")
     private Boolean overrideSystemJQueryUI;
 
     @ManyToMany(targetEntity = PSAssemblyTemplate.class, fetch = FetchType.LAZY)
@@ -291,7 +291,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private Set<IPSAssemblyTemplate> templates = new HashSet<>();
 
     @Basic
-    @Column(name = "UNPUBLISHFLAGS")
+    @Column(name = "UNPUBLISH_FLAGS")
     private String unpublishFlags;
 
     @Basic
