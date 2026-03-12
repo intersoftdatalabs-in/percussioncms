@@ -41,7 +41,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @Disabled(
-    "Remove this if you want to run the test. Remember the webservice must be up and running and you should configure the Server annotation with the correct params")
+    "Remove this if you want to run the test. Remember the webservice must be up and running and"
+        + " you should configure the Server annotation with the correct params")
 @ExtendWith(ConcurrentJunitRunner.class)
 @Concurrent(threads = 10)
 @Threshold(value = 2000)

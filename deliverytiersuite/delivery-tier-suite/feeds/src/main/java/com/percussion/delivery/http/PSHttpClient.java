@@ -92,8 +92,12 @@ public class PSHttpClient {
   private boolean tryAccess(String url) {
     try {
       HttpRequest request =
-          HttpRequest.newBuilder().uri(URI.create(url)).method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
-      HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+          HttpRequest.newBuilder()
+              .uri(URI.create(url))
+              .method("HEAD", HttpRequest.BodyPublishers.noBody())
+              .build();
+      HttpResponse<Void> response =
+          httpClient.send(request, HttpResponse.BodyHandlers.discarding());
       int statusCode = response.statusCode();
       return statusCode == 200;
     } catch (InterruptedException e) {

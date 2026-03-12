@@ -16,6 +16,10 @@
  */
 package com.percussion.delivery.feeds.services.rdbms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.percussion.delivery.feeds.data.IPSFeedDescriptor;
 import com.percussion.delivery.feeds.services.IPSConnectionInfo;
 import com.percussion.delivery.feeds.services.IPSFeedDao;
@@ -27,11 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-/** @author erikserating */
+/**
+ * @author erikserating
+ */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSFeedDaoTest {

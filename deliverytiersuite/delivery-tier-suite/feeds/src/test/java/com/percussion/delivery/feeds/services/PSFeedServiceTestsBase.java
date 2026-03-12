@@ -30,9 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 
 /**
  * The base class for Feeds Rest Service Tests

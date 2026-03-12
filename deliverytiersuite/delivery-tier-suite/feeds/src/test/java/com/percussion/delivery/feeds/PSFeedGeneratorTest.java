@@ -25,7 +25,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
-/** @author erikserating */
+/**
+ * @author erikserating
+ */
 public class PSFeedGeneratorTest {
 
   private static final Logger log = LogManager.getLogger(PSFeedGeneratorTest.class);
@@ -127,32 +129,44 @@ public class PSFeedGeneratorTest {
       return title;
     }
 
-    /** @param title the title to set */
+    /**
+     * @param title the title to set
+     */
     public void setTitle(String title) {
       this.title = title;
     }
 
-    /** @param description the description to set */
+    /**
+     * @param description the description to set
+     */
     public void setDescription(String description) {
       this.description = description;
     }
 
-    /** @param feedType the feedType to set */
+    /**
+     * @param feedType the feedType to set
+     */
     public void setFeedType(String feedType) {
       this.feedType = feedType;
     }
 
-    /** @param link the link to set */
+    /**
+     * @param link the link to set
+     */
     public void setLink(String link) {
       this.link = link;
     }
 
-    /** @param name the name to set */
+    /**
+     * @param name the name to set
+     */
     public void setName(String name) {
       this.name = name;
     }
 
-    /** @param site the site to set */
+    /**
+     * @param site the site to set
+     */
     public void setSite(String site) {
       this.site = site;
     }

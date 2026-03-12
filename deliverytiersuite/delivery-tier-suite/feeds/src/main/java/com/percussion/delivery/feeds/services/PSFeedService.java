@@ -29,6 +29,7 @@ import com.percussion.security.PSEncryptor;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.security.ToDoVulnerability;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.validation.URLValidation;
 import com.percussion.security.validation.XSSValidation;
 import com.percussion.utils.io.PathUtils;
 import com.rometools.rome.io.FeedException;
@@ -61,7 +62,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import com.percussion.security.validation.URLValidation;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
@@ -531,8 +531,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       if (isIPV4Address) {
         url = scheme + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
       } else if (isIPV6Address) {
-        url =
-            scheme + "://[" + this.rssFeedsIP + "]:" + httpRequest.getLocalPort();
+        url = scheme + "://[" + this.rssFeedsIP + "]:" + httpRequest.getLocalPort();
       } else {
         url = scheme + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
       }
