@@ -73,7 +73,7 @@ http://www.springframework.org/schema/util/spring-util.xsd">
 					value="org.hibernate.dialect.OracleDialect" />
 				<entry key="db2" value="org.hibernate.dialect.DB2Dialect" />
 				<entry key="derby"
-				value="org.hibernate.community.dialect.DerbyDialect" />
+				value="com.percussion.services.datasource.PSCommunityDerbyDialect" />
 				<entry key="mysql"
 					value="org.hibernate.dialect.MySQLDialect" />
 			</util:map>

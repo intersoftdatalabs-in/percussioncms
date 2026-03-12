@@ -11,7 +11,7 @@ resources
 logging
 
 [provides]
-logging|default
+logging-log4j2|default
 
 [lib]
 lib/perc-logging/**.jar
@@ -24,6 +24,6 @@ basehome:modules/perc-logging
 [ini]
 
 [exec]
--Dorg.eclipse.jetty.util.log.class?=org.eclipse.jetty.util.log.Slf4jLog
+-Dorg.eclipse.jetty.util.log.class?=org.apache.logging.log4j.appserver.jetty.Log4j2Logger
 
 
