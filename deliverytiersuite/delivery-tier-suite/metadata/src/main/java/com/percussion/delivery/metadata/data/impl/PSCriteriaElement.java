@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @author erikserating
  */
-
 public class PSCriteriaElement {
   private String name;
   private String operation;

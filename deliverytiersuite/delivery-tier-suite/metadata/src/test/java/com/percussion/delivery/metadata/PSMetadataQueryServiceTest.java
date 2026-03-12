@@ -799,7 +799,7 @@ public class PSMetadataQueryServiceTest {
     // less than operators with created properties).
     runPropertyTest(
         "dcterms:created != '2010-12-15T16:17:18'",
-      ENTRY_COUNT * 4,
+        ENTRY_COUNT * 4,
         "dcterms:created",
         VALUETYPE.DATE,
         new PropertyValueChecker<Object>() {
@@ -1065,7 +1065,7 @@ public class PSMetadataQueryServiceTest {
 
     props = toPropsMap(results.get(1).getProperties());
     assertEquals(
-      "f page", props.get("dcterms:title").getStringvalue(), "First title from the list");
+        "f page", props.get("dcterms:title").getStringvalue(), "First title from the list");
   }
 
   @Test
@@ -1434,7 +1434,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/blogs/",
               "blogs linktext",
-            getTime(2010, 12, 14, 12, 0, 0),
+              getTime(2010, 12, 14, 12, 0, 0),
               "blog",
               entryIdx++);
       ents.add(e);
@@ -1445,7 +1445,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/events/",
               "events linktext",
-            getTime(2010, 12, 15, 16, 17, 18),
+              getTime(2010, 12, 15, 16, 17, 18),
               "event",
               entryIdx++);
       ents.add(e);
@@ -1456,7 +1456,7 @@ public class PSMetadataQueryServiceTest {
           createEntry(
               "/folderA/foobars/",
               "foobars linktext",
-            getTime(2010, 12, 16, 9, 0, 0),
+              getTime(2010, 12, 16, 9, 0, 0),
               "template2",
               "foobar",
               entryIdx++);
@@ -1469,7 +1469,7 @@ public class PSMetadataQueryServiceTest {
               "customSite",
               "/folderA/pages/",
               "pages linktext",
-            getTime(2010, 12, 17, 10, 0, 0),
+              getTime(2010, 12, 17, 10, 0, 0),
               "other abstract",
               "otherTemplate",
               "page",
@@ -1485,7 +1485,7 @@ public class PSMetadataQueryServiceTest {
               "portal",
               "/noticias/destacadas/noticias-destacadas-2021/",
               faker.chuckNorris().fact(),
-            getTime(2011, 1, i + 1, 11, 0, 0),
+              getTime(2011, 1, i + 1, 11, 0, 0),
               faker.hitchhikersGuideToTheGalaxy().quote(),
               "Noticias-Noticia-Single",
               "page",

@@ -62,7 +62,6 @@ public abstract class PSMetadataQueryServiceHelper {
     return datatypeMappings.getDatatype(nameWithOutNamespace);
   }
 
-
   public static List parseToList(
       String key,
       String val,

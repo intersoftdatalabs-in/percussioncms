@@ -43,7 +43,9 @@ import org.hibernate.annotations.*;
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSMetadataEntry")
-@Table(name = "PERC_PAGE_METADATA", indexes = {@Index(name = "typeIndex", columnList = "type")})
+@Table(
+    name = "PERC_PAGE_METADATA",
+    indexes = {@Index(name = "typeIndex", columnList = "type")})
 public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
 
   @Id
@@ -67,9 +69,7 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
 
   @Basic @Nationalized private String linktext_lower;
 
-  @Basic
-  @Nationalized
-  private String type;
+  @Basic @Nationalized private String type;
 
   @Basic @Nationalized private String site;
 

@@ -52,7 +52,6 @@ public class PSUpgradePluginRelationshipVersions implements IPSUpgradePlugin {
       var cfgDoc = relPlugin.getRelationshipConfigs(logger, conn);
       var cfgSet = relPlugin.getConfigSet(cfgDoc);
 
-
       var cfgStream = (java.util.stream.Stream<PSRelationshipConfig>) cfgSet.stream();
       cfgStream
           .filter(PSRelationshipConfig::isSystem)
