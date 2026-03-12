@@ -529,12 +529,26 @@ class PSExtensionHandlerConfiguration {
       } catch (PSExtensionException pse) {
         String extName = e.getAttribute("name");
         String context = e.getAttribute("context");
-        ms_log.error(
-            "Failed to load extension definition \"{}{}\": {}",
-            context,
-            extName,
-            pse.getMessage(),
-            pse);
+        String msg = pse.getMessage();
+        if (msg != null && msg.contains("No class found")) {
+          // Class-not-found is expected during Ant install context where not
+          // all extension classes are on the classpath. The extension
+          // definition is still registered via addExtensionDef above; only
+          // the JEXL method metadata is missing and will be populated when
+          // the server starts with the full classpath.
+          ms_log.debug(
+              "Skipping JEXL method loading for extension \"{}{}\": {}",
+              context,
+              extName,
+              msg);
+        } else {
+          ms_log.error(
+              "Failed to load extension definition \"{}{}\": {}",
+              context,
+              extName,
+              msg,
+              pse);
+        }
       }
     }
   }
@@ -575,7 +589,17 @@ class PSExtensionHandlerConfiguration {
 
     try {
       if (def.isJexlExtension()) {
-        Class clazz = Class.forName(def.getInitParameter("className"));
+        String className = def.getInitParameter("className");
+        Class<?> clazz = null;
+        try {
+            // Use the thread's context classloader to support normal running execution environment
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            clazz = Class.forName(className, true, loader);
+        } catch (ClassNotFoundException e) {
+           // Fallback for Ant installation context where context class loader might not have the correct libs
+           ClassLoader classLoader = PSExtensionHandlerConfiguration.class.getClassLoader();
+           clazz = Class.forName(className, true, classLoader);
+        }
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
           IPSJexlMethod methodAnnotation = method.getAnnotation(IPSJexlMethod.class);
