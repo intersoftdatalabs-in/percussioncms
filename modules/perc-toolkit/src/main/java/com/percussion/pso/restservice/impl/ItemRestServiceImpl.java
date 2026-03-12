@@ -176,8 +176,8 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
-import org.apache.cxf.common.util.Base64Exception;
-import org.apache.cxf.common.util.Base64Utility;
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
@@ -862,7 +862,7 @@ public class ItemRestServiceImpl implements IItemRestService {
       log.debug("mime type is {}:", mime_prop);
       String orig = prop.getString();
       if (orig != null && orig.length() > 0) {
-        return Base64Utility.encode(prop.getString().getBytes());
+        return Base64.getEncoder().encodeToString(prop.getString().getBytes(StandardCharsets.UTF_8));
       }
     } catch (RepositoryException e) {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -1684,8 +1684,8 @@ public class ItemRestServiceImpl implements IItemRestService {
         String base64 = binValue.getStringValue();
         if (base64 != null && base64.length() > 0) {
           try {
-            newValue = new PSBinaryValue(Base64Utility.decode(base64));
-          } catch (Base64Exception e) {
+            newValue = new PSBinaryValue(Base64.getDecoder().decode(base64));
+          } catch (IllegalArgumentException e) {
             throw new ItemRestException(
                 "Cannot base64 decode file body for field " + psField.getName());
           }
