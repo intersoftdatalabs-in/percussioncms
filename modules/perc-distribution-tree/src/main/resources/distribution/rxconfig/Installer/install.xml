@@ -129,6 +129,12 @@
 			erroronmissingdir="false">
 			<include name="**/*.jar" />
 		</fileset>
+		<fileset
+			dir="${install.src}/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
+			erroronmissingdir="false">
+			<include name="perc-toolkit-*.jar" />
+			<include name="extensions-*.jar" />
+		</fileset>
 	</path>
 	<echo>Checking if jetty directory exists...</echo>
 	<property name="customer.jdbc.drivers"
