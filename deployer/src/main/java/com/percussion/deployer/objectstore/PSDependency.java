@@ -212,14 +212,13 @@ public abstract class PSDependency
   /**
    * Gets all dependencies of this dependency that have been set.
    *
-   * @return Iterator over zero or more <code>PSDependency</code> objects, or <code>null</code> if
-   *     the dependencies have not been set on this object.
+   * @return Iterator over zero or more <code>PSDependency</code> objects, never <code>null</code>.
    */
   public Iterator<PSDependency> getDependencies() {
-    Iterator<PSDependency> deps = null;
-    if (m_dependencies != null) deps = m_dependencies.iterator();
-
-    return deps;
+    if (m_dependencies == null) {
+      return Collections.emptyIterator();
+    }
+    return m_dependencies.iterator();
   }
 
   /**
