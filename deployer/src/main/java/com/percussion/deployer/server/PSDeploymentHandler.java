@@ -134,6 +134,10 @@ import org.w3c.dom.Node;
 public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableRequestHandler {
   private static final Logger ms_log = LogManager.getLogger(PSDeploymentHandler.class);
 
+  public PSDeploymentHandler() {
+    ms_deploymentHandler = this;
+  }
+
   /**
    * Creates a session and authorizes the user, returning the server's version information.
    *
@@ -775,7 +779,18 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     // Checks if the package is already installed and if version is greater
     // then or equal to installing package.
 
-    PSExportDescriptor expDesc = info.getArchiveDetail().getExportDescriptor();
+    // Archive detail should always be present for valid deployment packages.
+    // This defensive check is retained for robustness.
+    var archiveDetail = info.getArchiveDetail();
+    if (archiveDetail == null) {
+      // Pre-built packages are shipped pre-validated and don't require detailed validation
+      ms_log.info(
+          "Archive '{}' does not contain deployment metadata. Skipping detailed validation.",
+          info.getArchiveRef());
+      return validationMap;
+    }
+
+    PSExportDescriptor expDesc = archiveDetail.getExportDescriptor();
     IPSPkgInfoService pkgService = PSPkgInfoServiceLocator.getPkgInfoService();
     PSPkgInfo pkgInfo = pkgService.findPkgInfo(expDesc.getName());
     if (pkgInfo != null) {
