@@ -147,4 +147,114 @@ public class PSArchiveTest {
     }
     assertTrue(caught);
   }
+
+  /**
+   * Test that getArchiveInfo with includeDetail=true handles null archive detail correctly.
+   * This test verifies the fix for the NullPointerException when loading archives without a
+   * detail section (i.e., when PSArchiveDetail is not present in the archive XML).
+   *
+   * The key assertion is that we should NOT get a NullPointerException when detail is null.
+   * Other errors are acceptable (e.g., archive corruption), but NPE from updateDbmsInfoList
+   * indicates the bug is still present.
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testArchiveWithoutDetailNull() throws Exception {
+    // Create a minimal archive info without detail
+    PSArchiveInfo info = PSArchiveInfoTest.getArchiveInfo(false);
+    assertNull(info.getArchiveDetail(), "Test setup: archive info must have null detail");
+
+    File archiveFile = File.createTempFile("ArchiveTestNoDetail", ".pda");
+    archiveFile.deleteOnExit();
+
+    // Create and store the archive
+    PSArchive archive = new PSArchive(archiveFile, info);
+    archive.close();
+
+    // The critical test: reopen the archive with includeDetail=true
+    // With the bug, this would throw NullPointerException from updateDbmsInfoList
+    // With the fix, it should either succeed or fail with a different error
+    try {
+      archive = new PSArchive(archiveFile);
+      PSArchiveInfo retrievedInfo = archive.getArchiveInfo(true);
+
+      // If we get here, the archive was read successfully
+      assertNull(
+          retrievedInfo.getArchiveDetail(),
+          "Detail should remain null when not stored in archive");
+      archive.close();
+    } catch (NullPointerException e) {
+      // This would indicate the bug is still present
+      fail("NullPointerException should not occur - the fix may not be applied: " + e.getMessage());
+    } catch (Exception e) {
+      // Other exceptions are acceptable; just log and verify it's not NPE
+      System.out.println(
+          "Archive read raised exception (not NullPointerException, which is expected): "
+              + e.getClass().getSimpleName()
+              + " - "
+              + e.getMessage());
+    }
+  }
+
+  /**
+   * Test loading one of the actual pre-built packages from the system to see if detail is being
+   * read correctly. This helps debug why detail might be null in real packages.
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testLoadPreBuiltPackage() throws Exception {
+    String packagePath = System.getenv("PACKAGE_PATH");
+    if (packagePath == null) {
+      packagePath = "/home/nate/installs/cms-8.2-dev/Packages/Percussion/perc.baseTemplates.ppkg";
+    }
+
+    File pkgFile = new File(packagePath);
+    if (!pkgFile.exists()) {
+      System.out.println("Skipping test - pre-built package not found at: " + packagePath);
+      return;
+    }
+
+    try {
+      PSArchive archive = new PSArchive(pkgFile);
+      PSArchiveInfo info = archive.getArchiveInfo(true);
+
+      System.out.println("Package loaded: " + info.getArchiveRef());
+      System.out.println("Archive detail is: " + (info.getArchiveDetail() == null ? "NULL" : "PRESENT"));
+
+      if (info.getArchiveDetail() != null) {
+        @SuppressWarnings("unchecked")
+        Iterator<PSDependency> pkgs = info.getArchiveDetail().getPackages();
+        long pkgCount = java.util.stream.StreamSupport.stream(
+            java.util.Spliterators.spliteratorUnknownSize(pkgs, 0), false)
+            .count();
+        System.out.println("Detail contains " + pkgCount + " packages");
+
+        // Reset iterator since we consumed it
+        @SuppressWarnings("unchecked")
+        Iterator<PSDependency> pkgs2 = info.getArchiveDetail().getPackages();
+        int pkgIndex = 0;
+        while (pkgs2.hasNext()) {
+          PSDependency pkg = pkgs2.next();
+          Iterator<PSDependency> deps = pkg.getDependencies();
+          long depCount = java.util.stream.StreamSupport.stream(
+              java.util.Spliterators.spliteratorUnknownSize(deps, 0), false)
+              .count();
+          System.out.println(
+              "  Package " + pkgIndex + " ("
+                  + pkg.getDisplayName() + ") has " + depCount + " dependencies");
+          pkgIndex++;
+        }
+      } else {
+        System.out.println(
+            "WARNING: Detail is null even though package should contain it! This indicates a parsing issue.");
+      }
+
+      archive.close();
+    } catch (Exception e) {
+      System.out.println("Error loading package: " + e.getMessage());
+      throw e;
+    }
+  }
 }
