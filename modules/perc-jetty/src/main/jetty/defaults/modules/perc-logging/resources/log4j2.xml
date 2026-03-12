@@ -199,18 +199,9 @@
 			<AppenderRef ref="FILE" />
 		</AsyncLogger>
 
-		<!-- Separate loggers for redirected stdout/stderr so redirected
-		     streams write only to the FILE appender (avoid recursion).
-	 >
-		<AsyncLogger name="STDOUT" level="info" includeLocation="true" additivity="false">
-			<AppenderRef ref="FILE" />
-		</AsyncLogger>
-
-		<AsyncLogger name="STDERR" level="error" includeLocation="true" additivity="false">
-			<AppenderRef ref="FILE" />
-		</AsyncLogger>
-
-		<!-- <AsyncLogger name="com.percussion.rx.delivery" level="DEBUG" includeLocation="true">
-			<AppenderRef ref="CONSOLE"/> <AppenderRef ref="FILE"/> </AsyncLogger> -->
+		<!--
+		 <AsyncLogger name="com.percussion.rx.delivery" level="DEBUG" includeLocation="true">
+			<AppenderRef ref="CONSOLE"/> <AppenderRef ref="FILE"/> </AsyncLogger>
+    -->
 	</Loggers>
 </Configuration>
