@@ -4,6 +4,8 @@ Percussion CMS is a de-coupled Java-based content management system. It has a lo
 
 This repository is a large mono-repo with many submodules.  This code base has a lot of history and legacy, and is currently in the process of being modernized and refactored, do not assume that all code is up to date with current best practices.  When making code changes, follow these guidelines:
 
+If you are `GPT-5 mini` load `AGENTS-MINI.md` instead of this file and stop here.
+
 ## Rule Discovery Protocol
 
 **For any task, question, or code modification related to a specific module, you MUST first apply this protocol to the module's path:**
@@ -91,8 +93,18 @@ This repository is a large mono-repo with many submodules.  This code base has a
 * Avoid reflection and dynamic class loading unless absolutely necessary and explicitly approved by the team.
 * Resolve Java compiler warnings and errors before submitting code for review.
 * Use appropriate logging levels (e.g. debug, info, warn, error) for logging statements, and avoid excessive logging in production code.
+* Locate and read the `./modules/ai-shared-develop/src/main/resources/skills/javadoc/SKILL.md` file for best practices on generating Javadoc comments for your Java code changes. Follow the instructions in that file to ensure your Javadoc comments are accurate, concise, and compatible with the target JDK version.
 
-### Unit Testing
+## Primary Directive for Unit Testing
+
+When tasked with creating or updating Java tests:
+
+1. Locate and read the `./modules/ai-shared-develop/src/main/resources/skills/java-unit-testing/SKILL.md` file.
+2. Follow the **Given-When-Then** structure defined therein.
+3. Utilize **MockitoExtension** and **Static Mocking** patterns exactly as specified.
+4. Do not introduce dependencies outside of JUnit 5 and Mockito.
+
+### Unit Testing Rules
 
 * Unit test cases are required for all code changes.
 * Unit tests should use mock objects for code requiring a running application server.

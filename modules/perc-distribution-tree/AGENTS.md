@@ -33,6 +33,7 @@ The module automatically enables Jetty's `logging-log4j2` module during distribu
 - All Jetty and application logs are unified
 
 The module enablement command is:
+
 ```bash
 java -jar ../start.jar --add-modules=logging-log4j2
 ```

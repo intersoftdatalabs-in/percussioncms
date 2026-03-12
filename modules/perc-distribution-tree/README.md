@@ -35,6 +35,7 @@ The module uses Maven's `maven-antrun-plugin` to execute an ANT build script (`s
 - Log rotation, formatting, and filtering follow the centralized Log4j2 configuration
 
 The module enablement is performed by executing:
+
 ```bash
 java -jar ../start.jar --add-modules=logging-log4j2
 ```

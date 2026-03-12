@@ -12,3 +12,4 @@ This module is not intended to be shipped with the product and should not contai
 - Do not place any production code, resources, or documentation here. This module is not intended to be included in the final product and should not contain anything that is needed at runtime or for end users.
 - Do not place module specific instructions or prompts here. Module specific agentic instructions and prompts should be placed in the respective module's directory (e.g., `modules/perc-jetty/AGENTS.md` for Jetty module specific instructions).
 - Use clear and descriptive naming for any files placed here to indicate their purpose and intended usage.
+

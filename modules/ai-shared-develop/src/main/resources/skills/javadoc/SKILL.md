@@ -1,6 +1,6 @@
 ---
 name: javadoc
-description: Best practices and version-correct Javadoc comment generation
+description: Best practices and version-correct Javadoc comment generation. Use when the user asks for "Javadoc", "Java documentation", "doc comments", "doc", "documentation", or related terms.
 ---
 
 # Javadoc Best Practices

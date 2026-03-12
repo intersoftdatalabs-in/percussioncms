@@ -60,3 +60,4 @@ When addressing `[this-escape]` warnings:
 - **Switch Statements:** - Prefer **Switch Expressions** (`case ->`) for all new code or when refactoring logic that doesn't require complex fall-through.
   - If using traditional `switch` blocks, every `case` must end with `break`, `return`, `throw`, or an explicit `// fall through` comment.
   - Use `@SuppressWarnings("fallthrough")` only for complex legacy logic where refactoring is high-risk.
+

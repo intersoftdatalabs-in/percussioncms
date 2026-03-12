@@ -43,16 +43,12 @@ Add the plugin to your `pom.xml`:
 
 - **outputFile** (default: `${project.build.directory}/../src/main/webapp/openapi.json`)
   - The file path where the generated OpenAPI specification will be written in JSON format.
-
 - **apiTitle** (default: `Percussion CMS REST API`)
   - The title of the API as it will appear in the OpenAPI specification.
-
 - **apiVersion** (default: `${project.version}`)
   - The semantic version of the API.
-
 - **apiDescription** (default: `Public REST API for Percussion CMS content management and delivery`)
   - A detailed description of the API's purpose and capabilities.
-
 - **restModuleJar** (optional)
   - Path to the REST module JAR file to scan for JAX-RS annotations. If not specified, the plugin will scan the project's classes.
 
@@ -61,24 +57,23 @@ Add the plugin to your `pom.xml`:
 1. **Classpath Scanning**: The plugin uses bytecode reflection to scan the compiled REST module classes for JAX-RS annotations.
 
 2. **Annotation Detection**: It identifies:
+
    - `@Path` annotations on resource classes
    - HTTP method annotations: `@GET`, `@POST`, `@PUT`, `@DELETE`, `@HEAD`, `@OPTIONS`
    - Parameter annotations: `@PathParam`, `@QueryParam`, `@Consumes`, `@Produces`
    - JAX-RS media types and content negotiation patterns
-
 3. **Swagger Annotation Processing**: The plugin reads Swagger/OpenAPI annotations:
    - `@OpenAPIDefinition` - Overall API definition
    - `@Operation` - Operation-level documentation
    - `@Parameter` - Parameter documentation
    - `@Schema` - Data model documentation
-
 4. **OpenAPI Specification Generation**: The collected metadata is synthesized into a valid OpenAPI 3.0 specification in JSON format.
-
 5. **Output**: The specification is written to the configured output file, which can be served by a separate web module (e.g., perc-openapi-webapp) or integrated into the build artifacts.
 
 ## Supported Annotations
 
 ### JAX-RS Core Annotations
+
 - `@Path` - Resource class and method paths
 - `@GET`, `@POST`, `@PUT`, `@DELETE`, `@HEAD`, `@OPTIONS` - HTTP methods
 - `@Consumes`, `@Produces` - Media type negotiation
@@ -86,6 +81,7 @@ Add the plugin to your `pom.xml`:
 - `@DefaultValue` - Default parameter values
 
 ### Swagger/OpenAPI Annotations
+
 - `@OpenAPIDefinition` - API-level metadata
 - `@Server` - Server information
 - `@Operation` - Operation documentation

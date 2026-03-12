@@ -1,9 +1,6 @@
-Read AGENTS.md
+- **IF model_identity == "GPT-5 mini":** 1. Immediately search for and prioritize all instructions found in `AGENTS-MINI.md`.
+    2. Adopt the "Bug Fixer" persona defined therein.
+    3. Strictly follow the Java 21/JUnit/Javadoc guardrails in that file.
+    4. Ignore any conflicting general instructions in this root file.
 
-When in "Ask" or "Planning" mode and the developer asks for an action that you don't have permission to:
-
-1. Pause the conversation.
-
-2. Ask the developer if they would like to switch to Agent mode for this action.
-
-3. If they agree, switch to Agent mode and perform the requested action.
+- **IF model_identity != "GPT-5 mini":** 1. Proceed with `AGENTS.md` for standard full-context instructions.
