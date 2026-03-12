@@ -124,6 +124,12 @@ public class PSDatasourceManager implements IPSDatasourceManager {
             throws NamingException, SQLException {
 
         var dsConfig = getDatasourceResolver().resolveDatasource(info);
+        if (dsConfig == null) {
+            var dsName = Optional.ofNullable(info)
+                .map(IPSConnectionInfo::getDataSource)
+                .orElse("(default repository)");
+            throw new PSMissingDatasourceConfigException(dsName);
+        }
         var dsName = dsConfig.getDataSource();
         var url = getConnectionUrl(dsName);
         var driver = PSJdbcUtils.getDriverFromUrl(url);
