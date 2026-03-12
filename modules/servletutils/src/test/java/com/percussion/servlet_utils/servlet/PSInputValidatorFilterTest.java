@@ -22,33 +22,52 @@ import static com.percussion.util.PSResourceUtils.getResourcePath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.mock.web.MockFilterChain;
-import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletContext;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * @author erikserating
  * @author adamgent
  */
+@ExtendWith(MockitoExtension.class)
 public class PSInputValidatorFilterTest {
 
   private PSInputValidatorFilter filter;
-  private MockHttpServletResponse response = new MockHttpServletResponse();
-  private MockFilterChain filterChain = new MockFilterChain();
-  private MockFilterConfig filterConfig;
+
+  @Mock private HttpServletResponse response;
+
+  @Mock private FilterChain filterChain;
+
+  @Mock private FilterConfig filterConfig;
+
+  private StringWriter responseWriter;
+  private int responseStatus;
+  private List<String> responseHeaders;
 
   /*
    * (non-Javadoc)
@@ -60,7 +79,7 @@ public class PSInputValidatorFilterTest {
     String filePath =
         getResourcePath(
             PSInputValidatorFilterTest.class,
-            "/com/percussion/utils/servlet/" + getClass().getSimpleName() + ".properties");
+            "/com/percussion/servlet_utils/servlet/" + getClass().getSimpleName() + ".properties");
 
     URL url = new File(filePath).toURI().toURL();
     setupFilter("true", url.toExternalForm());
@@ -68,11 +87,36 @@ public class PSInputValidatorFilterTest {
 
   private void setupFilter(String enable, String customConfigPath) throws ServletException {
     filter = new PSInputValidatorFilter();
-    filterConfig = new MockFilterConfig();
-    MockServletContext context = (MockServletContext) filterConfig.getServletContext();
-    if (enable != null) context.addInitParameter(VALIDATOR_ENABLE_PROP_NAME, enable);
-    if (customConfigPath != null)
-      context.addInitParameter(VALIDATOR_CONFIG_RESOURCE_PROP_NAME, customConfigPath);
+
+    // Setup mock response
+    responseWriter = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(responseWriter);
+    responseStatus = 200;
+    responseHeaders = new ArrayList<>();
+
+    try {
+      when(response.getWriter()).thenReturn(printWriter);
+    } catch (java.io.IOException e) {
+      // This shouldn't happen during mock setup
+      throw new RuntimeException(e);
+    }
+    when(response.getStatus()).thenAnswer(invocation -> responseStatus);
+
+    // Capture setStatus calls
+    doNothing().when(response).setStatus(anyInt());
+
+    // Setup mock FilterConfig with ServletContext
+    ServletContext mockServletContext = mock(ServletContext.class);
+    when(filterConfig.getServletContext()).thenReturn(mockServletContext);
+
+    if (enable != null) {
+      when(mockServletContext.getInitParameter(VALIDATOR_ENABLE_PROP_NAME)).thenReturn(enable);
+    }
+    if (customConfigPath != null) {
+      when(mockServletContext.getInitParameter(VALIDATOR_CONFIG_RESOURCE_PROP_NAME))
+          .thenReturn(customConfigPath);
+    }
+
     filter.init(filterConfig);
   }
 
@@ -98,19 +142,19 @@ public class PSInputValidatorFilterTest {
   protected void tearDown() throws Exception {}
 
   private void assertErrorMessage(String badParam, String goodParam) {
-    String actualBody = response.getErrorMessage();
-    assertTrue(actualBody.contains(badParam));
-    if (goodParam != null) assertFalse(actualBody.contains(goodParam));
+    String actualBody = responseWriter.toString();
+    assertTrue(actualBody.contains(badParam), "Response should contain: " + badParam);
+    if (goodParam != null) assertFalse(actualBody.contains(goodParam), "Response should not contain: " + goodParam);
   }
 
   private void assertErrorStatus() {
-    int actualStatus = response.getStatus();
-    assertEquals(RESPONSE_ERROR_STATUS, actualStatus, "status should be");
+    int actualStatus = responseStatus;
+    assertEquals(RESPONSE_ERROR_STATUS, actualStatus, "status should be 422");
   }
 
   private void assertOkStatus() {
-    int actualStatus = response.getStatus();
-    assertEquals(200, actualStatus, "status should be");
+    int actualStatus = responseStatus;
+    assertEquals(200, actualStatus, "status should be 200");
   }
 
   @Test
@@ -159,8 +203,17 @@ public class PSInputValidatorFilterTest {
     for (int i = 0; i < (params.length - 1); i += 2) {
       paramMap.put(params[i], params[i + 1]);
     }
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    if (params != null) request.addParameters(paramMap);
+
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getParameterNames()).thenReturn(new Vector<>(paramMap.keySet()).elements());
+
+    // For each parameter, setup the mock to return its value
+    for (Map.Entry<String, String> entry : paramMap.entrySet()) {
+      when(request.getParameter(entry.getKey())).thenReturn(entry.getValue());
+      when(request.getParameterValues(entry.getKey()))
+          .thenReturn(new String[] {entry.getValue()});
+    }
+
     return request;
   }
 }

@@ -29,7 +29,7 @@
 
     <filter>
         <filter-name>PSInputValidatorFilter</filter-name>
-        <filter-class>com.percussion.utils.servlet.PSInputValidatorFilter</filter-class>
+        <filter-class>com.percussion.servlet_utils.servlet.PSInputValidatorFilter</filter-class>
     </filter>
 
     <filter-mapping>
