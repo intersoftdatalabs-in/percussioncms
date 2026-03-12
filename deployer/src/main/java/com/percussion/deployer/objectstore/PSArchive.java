@@ -205,7 +205,10 @@ public class PSArchive {
           m_archiveInfoFull = new PSArchiveInfo(infoRoot);
           if (!m_writing) {
             m_archiveInfoFull.setArchiveRef(newArchiveRef);
-            updateDbmsInfoList(m_archiveInfoFull.getArchiveDetail());
+            PSArchiveDetail archiveDetail = m_archiveInfoFull.getArchiveDetail();
+            if (archiveDetail != null) {
+              updateDbmsInfoList(archiveDetail);
+            }
           }
         }
         result = m_archiveInfoFull;
