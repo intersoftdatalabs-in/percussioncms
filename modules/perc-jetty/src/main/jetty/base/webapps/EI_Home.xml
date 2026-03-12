@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configure class="org.eclipse.jetty.ee10.webapp.WebAppContext">
+<Configure class="org.eclipse.jetty.ee11.webapp.WebAppContext">
 	<Set name="contextPath">/EI_Home</Set>
 	<Set name="war"><SystemProperty name="jetty.base" default="." />/webapps/EI_Home</Set>
 </Configure>

@@ -53,6 +53,7 @@ under the License.
         </menu>
         <menu name="Work / Change Log">
             <item name="Jetty 9 to Jetty 12 Migration" href="./worklog/jetty-12-compatibility-fixes.html"/>
+            <item name="Jetty EE11 Migration" href="./worklog/jetty-ee11-migration-2026-03-12.html"/>
         </menu>
         <menu ref="reports"/>
     </body>

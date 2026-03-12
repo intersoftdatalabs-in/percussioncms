@@ -4,11 +4,18 @@
 
 - Read modules/perc-jetty/README.md before making changes in this module.
 
+## Embedded Messaging
+
+- Embedded JMS broker uses Apache Artemis, not ActiveMQ Classic.
+- Broker configuration file: modules/perc-jetty/src/main/jetty/defaults/etc/artemis/broker.xml
+- Jetty JNDI wiring file: modules/perc-jetty/src/main/jetty/defaults/etc/perc-mq.xml
+- In-VM broker endpoint: vm://0
+
 ## Jetty and Servlet Specification
 
-- Current Jetty version: 12.0.25
+- Current Jetty version: 12.1.7
 - Current Servlet API: Jakarta 6.1.0
-- Servlet Environment: ee10 (Jakarta EE 10)
+- Servlet Environment: ee11 (Jakarta EE 11)
 - Source of truth for Jetty version: root pom.xml property "jetty.version"
 - Source of truth for Servlet API: root pom.xml property "jakarta.servlet.api.version"
 
@@ -18,15 +25,16 @@ Jetty 12.x provides multiple servlet environments via module loading:
 
 - `ee8-*` modules → javax.servlet (legacy, NOT used)
 - `ee9-*` modules → Jakarta Servlet 5.0
-- `ee10-*` modules → Jakarta Servlet 6.0+ ✅ (REQUIRED)
+- `ee10-*` modules → Jakarta Servlet 6.0+ (legacy in this repository)
+- `ee11-*` modules → Jakarta Servlet 6.1+ ✅ (REQUIRED)
 
-The `perc.mod` file MUST use `ee10-*` modules because the project requires Jakarta Servlet 6.1.0:
+The `perc.mod` file MUST use `ee11-*` modules because the project requires Jakarta Servlet 6.1.0:
 
-- `ee10-deploy`
-- `ee10-servlets`
-- `ee10-annotations`
-- `ee10-cdi`
-- `ee10-jstl`
+- `ee11-deploy`
+- `ee11-servlets`
+- `ee11-annotations`
+- `ee11-cdi`
+- `ee11-jstl`
 
 **CRITICAL**: Do not use `ee8-*` modules. All servlet filters and listeners must implement `jakarta.servlet.*` interfaces, not `javax.servlet.*`.
 
@@ -35,7 +43,7 @@ The `perc.mod` file MUST use `ee10-*` modules because the project requires Jakar
 1. Update the root pom.xml property:
    - <jetty.version>NEW_VERSION</jetty.version>
 2. Verify the Jetty version supports the required Jakarta Servlet version
-3. Update `perc.mod` if EE modules change (e.g., ee9 → ee10):
+3. Update `perc.mod` if EE modules change (e.g., ee10 → ee11):
    - modules/perc-jetty/src/main/jetty/defaults/modules/perc.mod
 4. Rebuild perc-jetty to refresh the assembled distribution:
    - ./mvn-env.sh clean install -pl modules/perc-jetty -DskipTests

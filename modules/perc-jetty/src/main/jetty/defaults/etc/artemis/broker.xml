@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="urn:activemq"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+  <core xmlns="urn:activemq:core">
+    <name>localhost</name>
+    <persistence-enabled>true</persistence-enabled>
+    <security-enabled>false</security-enabled>
+
+    <bindings-directory>data/artemis-data/bindings</bindings-directory>
+    <journal-directory>data/artemis-data/journal</journal-directory>
+    <paging-directory>data/artemis-data/paging</paging-directory>
+    <large-messages-directory>data/artemis-data/largemessages</large-messages-directory>
+
+    <acceptors>
+      <acceptor name="in-vm">vm://0</acceptor>
+    </acceptors>
+
+    <address-settings>
+      <address-setting match="#">
+        <dead-letter-address>DLQ</dead-letter-address>
+        <expiry-address>ExpiryQueue</expiry-address>
+        <redelivery-delay>0</redelivery-delay>
+        <auto-create-addresses>true</auto-create-addresses>
+        <auto-create-queues>true</auto-create-queues>
+        <auto-delete-addresses>false</auto-delete-addresses>
+        <auto-delete-queues>false</auto-delete-queues>
+      </address-setting>
+    </address-settings>
+
+    <addresses>
+      <address name="PERCUSSION.NOTIFICATIONS">
+        <anycast>
+          <queue name="PERCUSSION.NOTIFICATIONS"/>
+        </anycast>
+      </address>
+      <address name="PERCUSSION.PUBLISHING">
+        <anycast>
+          <queue name="PERCUSSION.PUBLISHING"/>
+        </anycast>
+      </address>
+      <address name="PERCUSSION.EMAIL">
+        <anycast>
+          <queue name="PERCUSSION.EMAIL"/>
+        </anycast>
+      </address>
+    </addresses>
+  </core>
+</configuration>

@@ -11,7 +11,7 @@ jndi
 
 [lib]
 #lib/perc/**.jar
-etc/activemq/
+etc/artemis/
 
 
 

@@ -7,7 +7,7 @@
 
 
 [exec]
--Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.lang,java.util,org.apache.activemq,org.fusesource.hawtbuf,com.thoughtworks.xstream.mapper,com.percussion"
+-Dorg.apache.activemq.artemis.jms.deserialization.allowlist="java.lang,java.util,org.apache.activemq.artemis,com.thoughtworks.xstream.mapper,com.percussion"
 -javaagent:../../bin/contrast-rO0/contrast-rO0.jar
 -DrO0.outfile=${jetty.base}/logs/serialize_security.log
 -DrO0.lists=../../bin/contrast-rO0/perc-serialize-list.txt

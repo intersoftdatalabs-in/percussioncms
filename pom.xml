@@ -76,7 +76,7 @@
     </scm>
     <properties>
         <activation.api.version>1.2.0</activation.api.version>
-        <activemq.version>6.2.1</activemq.version>
+        <artemis.version>2.42.0</artemis.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <aopalliance.version>1.0</aopalliance.version>
@@ -159,7 +159,7 @@
         <jdk.version>21</jdk.version>
         <jenkins.buildNumber>2024</jenkins.buildNumber>
         <jetty.maven.plugin.version>11.0.26</jetty.maven.plugin.version>
-        <jetty.version>12.0.25</jetty.version>
+        <jetty.version>12.1.7</jetty.version>
         <jfx.version>11.0.2</jfx.version>
         <json.version>20251224</json.version>
         <jsoup.version>1.22.1</jsoup.version>
@@ -1056,28 +1056,13 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-broker</artifactId>
-                <version>${activemq.version}</version>
+                <artifactId>artemis-server</artifactId>
+                <version>${artemis.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-client</artifactId>
-                <version>${activemq.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-kahadb-store</artifactId>
-                <version>${activemq.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-spring</artifactId>
-                <version>${activemq.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-jms-pool</artifactId>
-                <version>${activemq.version}</version>
+                <artifactId>artemis-jakarta-client</artifactId>
+                <version>${artemis.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-digester</groupId>

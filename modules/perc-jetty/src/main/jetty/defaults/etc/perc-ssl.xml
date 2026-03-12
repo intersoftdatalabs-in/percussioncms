@@ -15,6 +15,7 @@
 	<Set name="IncludeProtocols">
 		<Array type="String">
 			<Item>TLSv1.2</Item>
+			<Item>TLSv1.3</Item>
 		</Array>
 	</Set>
 	<Set name="KeyStoreType">

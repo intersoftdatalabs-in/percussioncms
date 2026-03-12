@@ -13,6 +13,7 @@ The Percussion OpenAPI Generator Maven Plugin accepts the following configuratio
 - **Description**: The file path where the generated OpenAPI specification will be written in JSON format.
 
 **Example**:
+
 ```xml
 <configuration>
     <outputFile>${project.build.directory}/openapi.json</outputFile>
@@ -28,6 +29,7 @@ The Percussion OpenAPI Generator Maven Plugin accepts the following configuratio
 - **Description**: The title of the API as it will appear in the OpenAPI specification and documentation.
 
 **Example**:
+
 ```xml
 <configuration>
     <apiTitle>My Organization API</apiTitle>
@@ -43,6 +45,7 @@ The Percussion OpenAPI Generator Maven Plugin accepts the following configuratio
 - **Description**: The semantic version of the API. Typically matches the project version but can be customized.
 
 **Example**:
+
 ```xml
 <configuration>
     <apiVersion>1.0.0</apiVersion>
@@ -58,6 +61,7 @@ The Percussion OpenAPI Generator Maven Plugin accepts the following configuratio
 - **Description**: A detailed description of the API's purpose, capabilities, and use cases.
 
 **Example**:
+
 ```xml
 <configuration>
     <apiDescription>
@@ -76,6 +80,7 @@ The Percussion OpenAPI Generator Maven Plugin accepts the following configuratio
 - **Description**: Path to an external REST module JAR file to scan for JAX-RS annotations. If not specified, the plugin scans the project's compiled classes. Useful for generating specifications from pre-built or external REST modules.
 
 **Example**:
+
 ```xml
 <configuration>
     <restModuleJar>${project.build.directory}/rest-module.jar</restModuleJar>

@@ -1,14 +1,19 @@
 <?xml version="1.0"?>
 <Configure id='wac'
-	class="org.eclipse.jetty.ee10.webapp.WebAppContext">
+	class="org.eclipse.jetty.ee11.webapp.WebAppContext">
+	<New id="embeddedArtemisBroker"
+		class="org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ">
+		<Set name="configResourcePath">broker.xml</Set>
+		<Call name="start" />
+	</New>
 	<New id="cf" class="org.eclipse.jetty.plus.jndi.Resource">
 		<Arg>
 			<Ref refid='wac' />
 		</Arg> <!-- reference to WebAppContext -->
 		<Arg>jms/ConnectionFactory</Arg>
 		<Arg>
-			<New class="org.apache.activemq.ActiveMQConnectionFactory">
-				<Arg>vm://localhost?brokerConfig=xbean:activemq.xml</Arg>
+			<New class="org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory">
+				<Arg>vm://0</Arg>
 			</New>
 		</Arg>
 	</New>
@@ -19,7 +24,7 @@
 		</Arg> <!-- reference to WebAppContext -->
 		<Arg>queue/notificationQueue</Arg>
 		<Arg>
-			<New class="org.apache.activemq.command.ActiveMQQueue">
+			<New class="org.apache.activemq.artemis.jms.client.ActiveMQQueue">
 				<Arg>PERCUSSION.NOTIFICATIONS</Arg>
 			</New>
 		</Arg>
@@ -30,7 +35,7 @@
 		</Arg> <!-- reference to WebAppContext -->
 		<Arg>queue/publishQueue</Arg>
 		<Arg>
-			<New class="org.apache.activemq.command.ActiveMQQueue">
+			<New class="org.apache.activemq.artemis.jms.client.ActiveMQQueue">
 				<Arg>PERCUSSION.PUBLISHING</Arg>
 			</New>
 		</Arg>
@@ -41,7 +46,7 @@
 		</Arg> <!-- reference to WebAppContext -->
 		<Arg>queue/emailQueue</Arg>
 		<Arg>
-			<New class="org.apache.activemq.command.ActiveMQQueue">
+			<New class="org.apache.activemq.artemis.jms.client.ActiveMQQueue">
 				<Arg>PERCUSSION.EMAIL</Arg>
 			</New>
 		</Arg>
