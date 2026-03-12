@@ -1759,7 +1759,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <bean id="maintenanceManager" class="com.percussion.maintenance.service.impl.PSMaintenanceManager"/>
 
-    <bean id="startupPackageInstaller" class="com.percussion.packagemanagement.PSStartupPkgInstaller">
+    <bean id="startupPackageInstaller" class="com.percussion.packagemanagement.PSStartupPkgInstaller"
+          depends-on="sys_deploymentHandler">
         <property name="packageFileListPath" value="rxconfig/Installer/InstallPackages.xml"/>
         <property name="logFilePath" value="logs/InstallPackages.log"/>
         <property name="packageInstaller" ref="localDeployerClient"/>
