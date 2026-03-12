@@ -62,7 +62,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -683,5 +684,5 @@ public class PSContentBrowser {
   /** Constant to indicate a site record type in {@link #COLUMN_TYPE}. */
   public static final int SITE_TYPE = 9;
 
-  private static Logger ms_logger = Logger.getLogger(PSContentBrowser.class);
+  private static final Logger ms_logger = LogManager.getLogger(PSContentBrowser.class);
 }
