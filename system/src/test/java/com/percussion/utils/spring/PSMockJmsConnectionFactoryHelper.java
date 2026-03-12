@@ -16,22 +16,24 @@
  */
 package com.percussion.utils.spring;
 
-import com.mockrunner.jms.DestinationManager;
-import com.mockrunner.mock.jms.JMSMockObjectFactory;
-import com.mockrunner.mock.jms.MockConnectionFactory;
 import com.percussion.utils.jndi.PSNamingContextHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSException;
 import jakarta.jms.Queue;
 import jakarta.jms.Topic;
 import javax.naming.NamingException;
+import java.util.HashMap;
 import java.util.Map;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Create the connection factory for the mock JMS system. This bean registers
- * the created factory as <em>jdbc/ConnectionFactory</em>.
+ * the created factory as <em>jms/ConnectionFactory</em> using Mockito-created
+ * mock objects.
  *
  * @author dougrand
  *
@@ -39,7 +41,6 @@ import java.util.Map;
 public class PSMockJmsConnectionFactoryHelper
 {
 
-   private static PSMockJmsConnectionFactoryHelper instance = null;
    /**
     * Logger used for publisher service
     */
@@ -52,25 +53,20 @@ public class PSMockJmsConnectionFactoryHelper
     */
    private static final String JMS_CONNECTION_FACTORY = "java:comp/env/jms/ConnectionFactory";
 
-   public static JMSMockObjectFactory getMs_mockFactory() {
-      return ms_mockFactory;
-   }
+   /**
+    * Mock connection factory instance
+    */
+   private static final ConnectionFactory ms_jmsConnectionFactory = mock(ConnectionFactory.class);
 
    /**
-    * Mock object factory
+    * Map to store created mock destinations
     */
-   private static JMSMockObjectFactory ms_mockFactory = new JMSMockObjectFactory();
+   private static final Map<String, Object> ms_destinations = new HashMap<>();
 
    /**
     * Destinations to configure, set from the spring configuration.
     */
-   Map<String, String> m_destinations = null;
-
-   /**
-    * The connection factory, never <code>null</code> after ctor.
-    */
-   private static MockConnectionFactory m_jmsConnectionFactory;
-
+   private Map<String, String> m_destinations = null;
 
    /**
     * The context helper, set in the ctor
@@ -81,7 +77,7 @@ public class PSMockJmsConnectionFactoryHelper
     * Create the instance
     *
     * @param helper the jndi helper, never <code>null</code>.
-    * @throws NamingException
+    * @throws NamingException on error binding to JNDI
     */
    public PSMockJmsConnectionFactoryHelper(PSNamingContextHelper helper)
    throws NamingException {
@@ -89,51 +85,51 @@ public class PSMockJmsConnectionFactoryHelper
       {
          throw new IllegalArgumentException("helper may not be null");
       }
-      m_jmsConnectionFactory = ms_mockFactory.createMockConnectionFactory();
       m_helper = helper;
-      m_helper.addBareBinding(JMS_CONNECTION_FACTORY, m_jmsConnectionFactory);
+      m_helper.addBareBinding(JMS_CONNECTION_FACTORY, ms_jmsConnectionFactory);
    }
 
    /**
-    * @return the destinations
+    * @return the destinations map
     */
-   public Map getDestinations()
+   public Map<String, String> getDestinations()
    {
       return m_destinations;
    }
 
    /**
-    * @param destinations the destinations to set
-    * @throws JMSException
-    * @throws NamingException
+    * @param destinations the destinations to set, where key is JNDI name and value is "queue" or "topic"
+    * @throws JMSException on error creating destination
+    * @throws NamingException on error binding to JNDI
     */
-
-   public void setDestinations(Map destinations)
+   public void setDestinations(Map<String, String> destinations)
          throws JMSException, NamingException
    {
       m_destinations = destinations;
-      DestinationManager destmgr = ms_mockFactory.getDestinationManager();
-      // Add destinations to factory. The key of each entry is the jndi
-      // name, the value is the string topic or queue
+      // Add destinations to JNDI. The key of each entry is the jndi
+      // name, the value is the string "topic" or "queue"
       for (Map.Entry<String, String> destination : m_destinations.entrySet())
       {
          String jndiname = destination.getKey();
          String type = destination.getValue();
+         Object destinationObject;
+
          if (type.equals("topic"))
          {
-            Topic t = (Topic) destmgr.createTopic(jndiname);
-            m_helper.addBareBinding(jndiname, t);
+            destinationObject = mock(Topic.class);
+            ms_destinations.put(jndiname, destinationObject);
+            m_helper.addBareBinding(jndiname, destinationObject);
          }
          else if (type.equals("queue"))
          {
-            Queue q = (Queue) destmgr.createQueue(jndiname);
-            m_helper.addBareBinding(jndiname, q);
+            destinationObject = mock(Queue.class);
+            ms_destinations.put(jndiname, destinationObject);
+            m_helper.addBareBinding(jndiname, destinationObject);
          }
          else
          {
             ms_log.warn("Unknown type found " + type);
          }
       }
-
    }
 }
