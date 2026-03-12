@@ -247,7 +247,6 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     }
   }
 
-
   @Override
   public Iterator<PSJdbcTableSchema> iterator() {
     return super.iterator();

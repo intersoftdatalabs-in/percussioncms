@@ -300,8 +300,8 @@ public class PSSecureXMLUtils {
 
   /**
    * Applies security features to a SAXParserFactory instance. External entities and external
-   * parameter entities are always hard-disabled regardless of caller-supplied options to prevent XXE
-   * (CWE-611).
+   * parameter entities are always hard-disabled regardless of caller-supplied options to prevent
+   * XXE (CWE-611).
    *
    * @param spf the SAXParserFactory to secure, assumed not {@code null}
    * @param options the security options to apply

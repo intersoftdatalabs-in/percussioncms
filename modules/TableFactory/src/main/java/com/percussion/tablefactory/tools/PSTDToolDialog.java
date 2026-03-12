@@ -880,7 +880,6 @@ public class PSTDToolDialog extends JPanel {
      * @return the common ancestor class of the object values in the model, returns <code>null
      *     </code> if this column does not exist
      */
-
     @Override
     public Class getColumnClass(int c) {
       switch (c) {

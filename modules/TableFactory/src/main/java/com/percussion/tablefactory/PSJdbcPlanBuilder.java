@@ -814,7 +814,6 @@ public class PSJdbcPlanBuilder {
    * @return <code>true</code> if it is possible to unpublish from child table, <code>false</code>
    *     otherwise
    */
-
   private static boolean canUnpublishChildTables(
       PSJdbcTableSchema parentTableSchema,
       PSJdbcTableSchema childTableSchema,
@@ -881,7 +880,6 @@ public class PSJdbcPlanBuilder {
    * @throws PSJdbcTableFactoryException if there are any errors.
    * @throws IllegalArgumentException if tableSchema is <code>null</code>
    */
-
   private static PSJdbcTableData doTableDataDiff(
       PSJdbcTableSchema tableSchema,
       PSJdbcTableData dbChildTblData,
@@ -996,7 +994,6 @@ public class PSJdbcPlanBuilder {
    * @param row the row of data for which the step is to be executed, never <code>null</code>
    * @throws IllegalArgumentException if dbmsDef or tableSchema or row is <code>null</code>
    */
-
   private static void setLogData(
       PSJdbcExecutionStep step,
       PSJdbcDbmsDef dbmsDef,
@@ -1235,7 +1232,6 @@ public class PSJdbcPlanBuilder {
    * @return The tableSchema object, or <code>null</code> if no changes are required.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
-
   private static PSJdbcTableSchema getTableChanges(
       PSJdbcTableSchema oldSchema, PSJdbcTableSchema newSchema, StringBuilder buffer)
       throws PSJdbcTableFactoryException {

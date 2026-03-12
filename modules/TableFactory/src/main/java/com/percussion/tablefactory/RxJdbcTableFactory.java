@@ -1864,7 +1864,8 @@ public class RxJdbcTableFactory {
           // try to get the type and set it
           try {
             Integer jType =
-                Integer.valueOf(java.sql.Types.class.getField(wfColumn.getColDataType()).getInt(null));
+                Integer.valueOf(
+                    java.sql.Types.class.getField(wfColumn.getColDataType()).getInt(null));
 
             pStmt.setObject(wfIndex, wfColumn.getColValue(), jType.intValue());
           } catch (java.lang.NoSuchFieldException e) {
