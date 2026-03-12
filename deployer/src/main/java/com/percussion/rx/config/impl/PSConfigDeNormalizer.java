@@ -156,7 +156,6 @@ public class PSConfigDeNormalizer {
    *     the name gets used as is.
    * @return <code>true</code> if a FIXME exists in the output.
    */
-
   private boolean handleProperties(
       final Document doc,
       final Element parent,
@@ -239,7 +238,6 @@ public class PSConfigDeNormalizer {
    * @param obj
    * @return
    */
-
   private String toString(Object obj) {
     if (obj instanceof Enum) return ((Enum) obj).name();
     return obj.toString();

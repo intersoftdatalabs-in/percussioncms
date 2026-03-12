@@ -114,7 +114,6 @@ public class PSEditionSetter extends PSSimplePropertySetter {
     return taskMap;
   }
 
-
   private void setTasks(PSEditionWrapper wrapper, Object propValue, boolean isPreTasks) {
     var srcTasks = new ArrayList<Map>();
     if (propValue instanceof List) {
@@ -148,7 +147,6 @@ public class PSEditionSetter extends PSSimplePropertySetter {
       wrapper.setPostTasks(tasks);
     }
   }
-
 
   private IPSEditionTaskDef createTask(Map<String, Object> props, int seq, IPSGuid editionId) {
     var srv = PSPublisherServiceLocator.getPublisherService();

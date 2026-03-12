@@ -41,7 +41,6 @@ public class PSConfigNormalizerTest {
    *
    * @throws Exception if an error occurs.
    */
-
   @Test
   public void testLocalConfigTest() throws Exception {
     loadLocalConfigTest(true);
@@ -69,7 +68,6 @@ public class PSConfigNormalizerTest {
 
     return props;
   }
-
 
   public void validateLocalConfig(Map<String, Object> props, boolean resolveFQName) {
     int count = resolveFQName ? 9 + 14 : 9; // == 9 top level + 14 sub-level
@@ -276,7 +274,6 @@ public class PSConfigNormalizerTest {
     }
   }
 
-
   private void dumpNormalizedMap(Map<String, Object> nMap) {
     SortedMap<String, Object> sortedMap = new TreeMap<String, Object>(nMap);
     Set<Map.Entry<String, Object>> sortedSet = sortedMap.entrySet();
@@ -297,7 +294,6 @@ public class PSConfigNormalizerTest {
    *
    * @throws Exception if an error occurs.
    */
-
   public void testEmptyLocalConfig() throws Exception {
     LoadEmptyLocalConfig(false);
   }

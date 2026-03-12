@@ -188,7 +188,6 @@ public class PSContentTypeSetter extends PSSimplePropertySetter {
    * @param fields the value of {@link #FIELDS} property, it may be <code>null</code>, which is
    *     treated as empty map.
    */
-
   private void setFields(PSItemDefinition itemDef, ObjectState state, Object fields) {
     Map<String, Map<String, Object>> fieldMap = convertObjectToMap(fields);
     Collection<String> prevOnlyNames = getPrevFieldNames(fieldMap.keySet());
@@ -253,7 +252,6 @@ public class PSContentTypeSetter extends PSSimplePropertySetter {
    * @param fieldName the name of the field, assumed not <code>null</code> or empty.
    * @param type the type of the field, assumed returned by PSField.getType().
    */
-
   private void addFieldToExcludes(PSItemDefinition itemDef, String fieldName, int type) {
     if (type == PSField.TYPE_SYSTEM) {
       ArrayList<String> names = new ArrayList<>();
@@ -276,7 +274,6 @@ public class PSContentTypeSetter extends PSSimplePropertySetter {
    * @param fieldName the name of the shared field in question, assumed not <code>null</code> or
    *     empty.
    */
-
   private void addFieldToSharedExcludes(PSItemDefinition itemDef, String fieldName) {
     ArrayList<String> names =
         iteratorToList(itemDef.getContentEditorMapper().getSharedFieldExcludes());
@@ -327,7 +324,6 @@ public class PSContentTypeSetter extends PSSimplePropertySetter {
    * @param it the iterator, assumed not <code>null</code>.
    * @return the converted list, never <code>null</code>, may be empty.
    */
-
   private ArrayList<String> iteratorToList(Iterator it) {
     ArrayList<String> list = new ArrayList<>();
     CollectionUtils.addAll(list, it);
@@ -357,7 +353,6 @@ public class PSContentTypeSetter extends PSSimplePropertySetter {
    * @return the field map, never <code>null</code>, may be empty if there is no previous only
    *     field.
    */
-
   private Map<String, Map<String, Object>> convertObjectToMap(Object fields) {
     if (fields == null) return Collections.emptyMap();
 

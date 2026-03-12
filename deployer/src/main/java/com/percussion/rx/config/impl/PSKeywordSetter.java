@@ -76,7 +76,6 @@ public class PSKeywordSetter extends PSSimplePropertySetter {
    * @param kw The object of the keyword assumed not null.
    * @param propValue The choice values object.
    */
-
   private void setChoices(PSKeyword kw, Object propValue) {
     if (!(propValue instanceof List)) {
       throw new PSConfigException("The value type of the " + CHOICES_PAIRS + " must be a List");

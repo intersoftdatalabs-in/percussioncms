@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,8 +67,7 @@ class FileCreatorTest {
     // Then
     assertFalse(result.isEmpty(), "File creation should succeed");
     assertTrue(Files.exists(Paths.get(result)), "Created file should exist");
-    assertTrue(
-        result.contains(fileName), "File path should contain the specified file name");
+    assertTrue(result.contains(fileName), "File path should contain the specified file name");
     assertTrue(result.startsWith(basePath), "File should be created in the base directory");
   }
 
@@ -232,8 +230,7 @@ class FileCreatorTest {
   }
 
   @Test
-  @DisplayName(
-      "Should prevent absolute path traversal attempts with file name starting with /")
+  @DisplayName("Should prevent absolute path traversal attempts with file name starting with /")
   void testPreventAbsolutePathTraversal() {
     // Given - File name that attempts absolute path traversal
     String fileName = "/etc/passwd";
@@ -277,8 +274,7 @@ class FileCreatorTest {
       Path createdPath = Paths.get(result).toAbsolutePath().normalize();
       Path base = Paths.get(basePath).toAbsolutePath().normalize();
       assertTrue(
-          createdPath.startsWith(base),
-          "Created file must be within the base directory bounds");
+          createdPath.startsWith(base), "Created file must be within the base directory bounds");
     }
   }
 }

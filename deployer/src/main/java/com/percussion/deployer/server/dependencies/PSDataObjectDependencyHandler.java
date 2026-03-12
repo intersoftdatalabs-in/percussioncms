@@ -442,7 +442,6 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
-
   protected Iterator<PSDependency> getDependencies(
       PSSecurityToken tok, String table, String idCol, String nameCol, PSJdbcSelectFilter filter)
       throws PSDeployException {
@@ -754,7 +753,9 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
     if (file == null) throw new IllegalArgumentException("file may not be null");
 
     Document dataDoc = null;
-    if (file.getType() == PSDependencyFile.TYPE_DBMS_DATA) {
+    // Accept both DBMS_DATA and APPLICATION_XML file types for compatibility with legacy packages.
+    // Some older packages may have been created with APPLICATION_XML format, but the data structure is identical.
+    if (file.getType() == PSDependencyFile.TYPE_DBMS_DATA || file.getType() == PSDependencyFile.TYPE_APPLICATION_XML) {
       dataDoc = createXmlDocument(archive.getFileData(file));
     } else {
       Object[] args = {
@@ -890,7 +891,6 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @return The transfered table data, will never be <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
-
   private PSJdbcTableData transferDepIdInDepData(
       PSJdbcTableData data, String tableName, String idColumn, PSIdMapping mapping)
       throws PSDeployException {

@@ -93,7 +93,6 @@ public class PSIdNameService implements IPSIdNameService {
     return loadMap(ID_NAME_MAP);
   }
 
-
   private <K, V> Map<K, V> loadMap(int requiredMap) {
     if (requiredMap == NAME_TYPE_ID_MAP) {
       var m = getNameTypeToIdMap();
@@ -120,7 +119,6 @@ public class PSIdNameService implements IPSIdNameService {
     }
   }
 
-
   private Map<String, IPSGuid> getNameTypeToIdMap() {
     // cache.get now returns Optional<Serializable>
     return cache
@@ -128,7 +126,6 @@ public class PSIdNameService implements IPSIdNameService {
         .map(o -> (Map<String, IPSGuid>) o)
         .orElse(null);
   }
-
 
   private Map<IPSGuid, String> getIdToNameMap() {
     return cache

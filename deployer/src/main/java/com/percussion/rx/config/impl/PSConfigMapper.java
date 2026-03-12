@@ -334,7 +334,6 @@ public class PSConfigMapper {
    *     replaced values; the 2nd element determines if a replacement has happened, never <code>null
    *     </code>.
    */
-
   private PSPair<Object, Boolean> replaceCollectionValues(
       Object value, Map<String, Object> props, boolean isDelta) {
     PSPair<Object, Boolean> r;
@@ -370,7 +369,6 @@ public class PSConfigMapper {
    * @return a pair, where the 1st element may or may not contains the replaced values; the 2nd
    *     element determines if a replacement has happened, never <code>null</code>.
    */
-
   private PSPair<Object, Boolean> replaceMapValues(
       Map map, Map<String, Object> props, boolean isDelta) {
     PSPair<Object, Boolean> r;
@@ -400,7 +398,6 @@ public class PSConfigMapper {
    * @return a pair, where the 1st element is the replaced value or the original value; the 2nd
    *     element determines if a replacement has happened, never <code>null</code>.
    */
-
   private PSPair<Object, Boolean> getReplacedValue(
       String origValue, Map<String, Object> props, boolean isDelta) {
     if (StringUtils.isBlank(origValue)) return new PSPair(origValue, false);
@@ -562,7 +559,6 @@ public class PSConfigMapper {
    * @return a pair, where the 1st element is the replaced value or the original value; the 2nd
    *     element determines if a replacement has happened, never <code>null</code>.
    */
-
   private static PSPair<Object, Boolean> replaceOneValue(
       String origValue, Map<String, Object> props, boolean isDelta) {
     int index = origValue.indexOf(SUFFIX);

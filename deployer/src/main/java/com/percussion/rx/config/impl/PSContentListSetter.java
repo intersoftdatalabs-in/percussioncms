@@ -122,7 +122,6 @@ public class PSContentListSetter extends PSSimplePropertySetter {
   }
 
   /** Sets the {@link #EXPANDER_PARAMS} property. */
-
   private void setExpanderParams(IPSContentList cList, Object value) {
     if (!(value instanceof Map)) {
       throw new PSConfigException(
@@ -132,7 +131,6 @@ public class PSContentListSetter extends PSSimplePropertySetter {
   }
 
   /** Sets the {@link #GEN_PARAMS} property. */
-
   private void setGeneratorParams(IPSContentList cList, Object value) {
     if (!(value instanceof Map)) {
       throw new PSConfigException("The type of property \"" + GEN_PARAMS + "\" must be a Map.");

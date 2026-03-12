@@ -216,7 +216,6 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler {
    * //see base class method for details
    */
   @Override
-
   public Map<String, Object> getExtraProperties() {
     return m_siteNames;
   }

@@ -171,7 +171,6 @@ public class PSSiteSetter extends PSPropertySetterWithValidation {
    * @param propValue the value of the site variable.
    * @return <code>true</code> if the object has been modified.
    */
-
   private boolean applySiteVariables(IPSSite site, ObjectState state, Object propValue)
       throws PSNotFoundException {
     if (state.equals(ObjectState.PREVIOUS)) {
@@ -193,7 +192,6 @@ public class PSSiteSetter extends PSPropertySetterWithValidation {
    *     or empty if there is nothing to merge.
    * @return <code>true</code> if the object has been modified.
    */
-
   private boolean mergeAndDeleteSiteVariables(IPSSite site, Object propValue)
       throws PSNotFoundException {
     var isChanged = mergeSiteVariables(site, propValue);
@@ -225,7 +223,6 @@ public class PSSiteSetter extends PSPropertySetterWithValidation {
    * @param propValue the object in question, may be <code>null</code>.
    * @return the converted list of maps, never <code>null</code>, may be empty.
    */
-
   private List<Map<String, Object>> convertObjectToMaps(Object propValue) {
     if (propValue == null) return Collections.emptyList();
 
@@ -241,7 +238,6 @@ public class PSSiteSetter extends PSPropertySetterWithValidation {
    *
    * @return the property value, may be <code>null</code> or empty if it is undefined.
    */
-
   private List<Map<String, Object>> getPrevSiteVariables() {
     var props = getPrevProperties();
     if (props == null || props.isEmpty()) return Collections.emptyList();
@@ -256,7 +252,6 @@ public class PSSiteSetter extends PSPropertySetterWithValidation {
    * @param vars the Site Variables were applied in previous configuration.
    * @return <code>true</code> if the object has been modified.
    */
-
   private boolean deleteSiteVariables(IPSSite site, List<Map<String, Object>> vars)
       throws PSNotFoundException {
     if (vars.isEmpty()) return false;
@@ -275,7 +270,6 @@ public class PSSiteSetter extends PSPropertySetterWithValidation {
    *     or empty if there is nothing to merge.
    * @return <code>true</code> if the object has been modified.
    */
-
   private boolean mergeSiteVariables(IPSSite site, Object propValue) throws PSNotFoundException {
     // apply the property
     var vars = convertObjectToMaps(propValue);

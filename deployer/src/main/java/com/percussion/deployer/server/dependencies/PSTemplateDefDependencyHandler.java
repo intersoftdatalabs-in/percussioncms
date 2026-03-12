@@ -213,7 +213,6 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   // see base class
   @Override
-
   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -838,7 +837,6 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    * @param t the template may be <code>null</code>
    * @return the bindings map may be <code>null</code>
    */
-
   private PSJexlBindings getBindingsForIDTypes(IPSAssemblyTemplate t) {
     PSJexlBindings bindings = new PSJexlBindings();
     if (t == null) return bindings;
@@ -851,7 +849,6 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
     }
     return bindings;
   }
-
 
   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {

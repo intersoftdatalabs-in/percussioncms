@@ -168,7 +168,6 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
    *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
-
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
   }
@@ -194,7 +193,6 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-
   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -240,7 +238,6 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -269,7 +266,6 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
    * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
    * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
-
   public void doInstallDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException, PSNotFoundException {
@@ -350,7 +346,6 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
    * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
-
   private void transferIdsForEdition(PSEdition edition, PSDependency edDep, PSImportCtx ctx)
       throws PSDeployException {
     // get id map and xform ids (flip new entries to not-new)
@@ -381,7 +376,6 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
    * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
-
   private void transferIdsForEditionContentList(
       PSEditionContentList ecl, PSDependency edDep, PSImportCtx ctx) throws PSDeployException {
     // xform the ids for EDITION, CONTENTLIST, DELIVERY and ASSEMBLY CONTEXTS

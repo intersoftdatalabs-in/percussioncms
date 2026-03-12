@@ -735,7 +735,6 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
    * @return The id of the Display Format to use as default or -1 if a Display Format was not found.
    * @throws PSDeployException if any errors occur.
    */
-
   private Integer getDefaultTargetDisplayFormatId(
       PSComponentProcessorProxy proc, PSDisplayFormatDefDependencyHandler dfHandler)
       throws PSDeployException {

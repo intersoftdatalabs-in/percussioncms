@@ -296,7 +296,6 @@ public class PSAssemblyServiceHelper {
     return m_legacyTemplatesMap;
   }
 
-
   private void catalogSlots() {
     try {
       var summaries = m_assemblySvc.getSummaries(PSTypeEnum.SLOT);

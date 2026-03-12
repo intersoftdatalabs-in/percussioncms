@@ -121,7 +121,6 @@ public class PSConfigMerger {
    *     object could be a String or Map or List and the second object is list of exceptions.
    *     Neither the pair nor the parts are null. The objects of the pairs may be empty.
    */
-
   public PSPair<Map<String, Object>, List<Exception>> getPropertyDefs(
       List<IPSConfigHandler> cfgHandlers) {
     if (cfgHandlers == null) throw new IllegalArgumentException("cfgHandlers must not be null");
@@ -156,7 +155,6 @@ public class PSConfigMerger {
    * @return the objects, it never <code>null</code>, but may be empty if cannot find any objects
    *     for the given handler.
    */
-
   private List<PSPair<Object, ObjectState>> getDesignObjectsWithState(
       PSTypeEnum type, IPSDesignModel model, IPSConfigHandler handler, boolean hasPrevProps)
       throws PSNotFoundException {

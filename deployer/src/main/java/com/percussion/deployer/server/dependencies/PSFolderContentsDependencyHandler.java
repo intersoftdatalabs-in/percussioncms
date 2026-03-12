@@ -119,7 +119,8 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
 
     PSComponentSummary sum = getFolderSummary(getRelationshipProcessor(tok), id);
     if (sum != null) {
-      Iterator<PSComponentSummary> sums = getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
+      Iterator<PSComponentSummary> sums =
+          getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
       if (sums.hasNext()) dep = createDependency(m_def, id, sum.getName());
     }
 
@@ -161,7 +162,8 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
     // get all child item summaries and save them
     PSComponentSummary sum = getFolderSummary(getRelationshipProcessor(tok), dep.getDependencyId());
     if (sum != null) {
-      Iterator<PSComponentSummary> sums = getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
+      Iterator<PSComponentSummary> sums =
+          getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
       while (sums.hasNext()) {
         PSComponentSummary itemSum = (PSComponentSummary) sums.next();
         files.add(createDependencyFile(itemSum));

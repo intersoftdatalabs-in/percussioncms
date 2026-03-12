@@ -177,7 +177,6 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
 
   // see base class
   @Override
-
   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -201,7 +200,6 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
 
   // see base class
   @Override
-
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -226,7 +224,6 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
    * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
    * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
-
   public void doInstallDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException, PSNotFoundException {
@@ -309,7 +306,6 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
    * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
-
   private void transferIdsInLocationScheme(
       PSLocationScheme scheme, PSDependency dep, PSImportCtx ctx) throws PSDeployException {
     // get id map for the location scheme object

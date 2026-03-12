@@ -73,7 +73,6 @@ public class PSConfigNormalizer {
     return result;
   }
 
-
   private void appendFQNames(
       Map<String, Object> tgtMap, String prefix, Map<String, Object> srcMap) {
     for (var k : srcMap.keySet()) {

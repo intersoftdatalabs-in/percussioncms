@@ -66,7 +66,6 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-
   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -132,7 +131,6 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
   }
@@ -145,7 +143,6 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-
   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -199,7 +196,6 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
    * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
    * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
-
   public void doInstallDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -330,7 +326,6 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
    *     delimiter. Never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
-
   PSBijectionMap getRowIdMap(PSJdbcTableData data) throws PSDeployException {
     if (data == null) throw new IllegalArgumentException("data may not be null");
 

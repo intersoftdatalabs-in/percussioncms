@@ -84,7 +84,8 @@ public class PSPackageUninstall implements IPSPackageUninstaller {
       var msg = new PSUninstallMessage();
       msg.setPackageName(pkgNameList.isEmpty() ? "none" : pkgNameList.get(0));
       msg.setType(PSPackageService.ERROR);
-      msg.setBody("Deployment handler is not initialized. Please ensure the server has fully started.");
+      msg.setBody(
+          "Deployment handler is not initialized. Please ensure the server has fully started.");
       messages.add(msg);
       return messages;
     }

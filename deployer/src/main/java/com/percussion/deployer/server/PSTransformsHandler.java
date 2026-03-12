@@ -136,7 +136,6 @@ public class PSTransformsHandler {
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws IllegalStateException if id map can not be modifiable.
    */
-
   private Iterator<PSIdMapping> getIDMappings(
       boolean unMappedOnly, PSDeployableElement depElement) {
     if (depElement == null) throw new IllegalArgumentException("depElement may not be null.");
@@ -210,7 +209,6 @@ public class PSTransformsHandler {
    * @throws IllegalStateException if the found parent does not support id mapping or reached the
    *     dependency in the tree but not found the parent.
    */
-
   private PSDependency getParentDependency(PSDependency dep, String parentType, PSDependency root) {
     /* Reached the actual dependency for which we are finding the parent, that
      * means we didn't find a parent for the dependency matching the supplied
@@ -247,7 +245,6 @@ public class PSTransformsHandler {
    * @param idMapDeps the list of dependencies that support id maps, gets updated in this method.
    *     Assumed not <code>null</code>.
    */
-
   private void getSupportedIdMapDependencies(
       PSDependency dependency, List<PSDependency> idMapDeps) {
     if (dependency.supportsIDMapping()) idMapDeps.add(dependency);
@@ -408,7 +405,6 @@ public class PSTransformsHandler {
    * @throws PSDeployException if an exception happens cataloging target elements.
    * @throws IllegalStateException if id map does not exist.
    */
-
   private List<PSMappingElement> getUnmappedTargetElements(
       String objectType, String parentType, String sourceParentId)
       throws PSDeployException, PSNotFoundException {
@@ -492,7 +488,6 @@ public class PSTransformsHandler {
    * </code>, may be empty.
    * @throws PSDeployException if any error happens cataloging.
    */
-
   private Set<PSMappingElement> getMappingElements(String type)
       throws PSDeployException, PSNotFoundException {
     Set<PSMappingElement> mapElems = new HashSet<>();
@@ -523,7 +518,6 @@ public class PSTransformsHandler {
    * @throws IllegalStateException if server is not connected.
    * @throws PSDeployException if any error happens cataloging.
    */
-
   private Iterator<PSMappingElement> getElementsByType(String type)
       throws PSDeployException, PSNotFoundException {
     if (type == null || type.trim().length() == 0)
@@ -578,7 +572,6 @@ public class PSTransformsHandler {
    * @return See {@link PSDependencyManager#getParentTypes()}.
    * @throws PSDeployException
    */
-
   private Map getParentTypes() throws PSDeployException {
     return PSDependencyManager.getInstance().getParentTypes();
   }
@@ -603,7 +596,6 @@ public class PSTransformsHandler {
    * @throws IllegalStateException if server is not connected.
    * @throws PSDeployException if an error happens getting parent types.
    */
-
   private String getParentType(String type) throws PSDeployException {
     Map parentTypes = getParentTypes();
     return (String) parentTypes.get(type);
@@ -615,7 +607,6 @@ public class PSTransformsHandler {
    *
    * @return the literal id types, never <code>null</code>, it may have empty results.
    */
-
   private Set<PSDependencyDef> getLiteralIDTypes() {
     if (m_idTypes == null) {
       m_idTypes = new HashSet<>();
@@ -639,7 +630,6 @@ public class PSTransformsHandler {
    * @param idMap The map to copy, assumed not <code>null</code>.
    * @return The copy, never <code>null</code>.
    */
-
   private PSIdMap getValidMappings(PSIdMap idMap) {
     PSIdMap copy = new PSIdMap(idMap.getSourceServer());
     Iterator mappings = idMap.getMappings();

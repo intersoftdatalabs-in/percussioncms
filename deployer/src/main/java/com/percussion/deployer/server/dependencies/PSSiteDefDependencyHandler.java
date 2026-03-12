@@ -516,7 +516,6 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-
   protected Iterator<PSDependencyFile> getSiteDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");

@@ -74,10 +74,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A util class with ALL static methods to help in new GUID type create/install actions
@@ -86,7 +85,7 @@ import org.apache.log4j.Logger;
  */
 public class PSDependencyUtils {
 
-  private static final Logger log = LogManager.getLogger("Deployer");
+  private static final Logger log = LogManager.getLogger(PSDependencyUtils.class);
 
   /**
    * Given a guid as a string, get the long value
@@ -445,7 +444,6 @@ public class PSDependencyUtils {
    * @return Iterator over zero or more table names as <code>String</code> objects, never <code>null
    *     </code>, may be empty.
    */
-
   public static List<String> getLocatorTables(PSContainerLocator locator) {
     if (locator == null) throw new IllegalArgumentException("locator may not be null");
 
@@ -481,20 +479,28 @@ public class PSDependencyUtils {
     return sharedDef;
   }
 
-  /**
-   * Gets the table names used by all shared groups.
-   *
-   * @return the table names, never <code>null</code>, may be empty.
-   * @throws PSDeployException if an error occurs.
-   */
-  public static List<String> getSharedGroupTables() throws PSDeployException {
-    List<String> tables = new ArrayList<>();
+/**
+ * Gets the table names used by all shared groups.
+ *
+ * @return the table names, never <code>null</code>, may be empty.
+ * @throws PSDeployException if an error occurs.
+ */
+public static List<String> getSharedGroupTables() throws PSDeployException {
+  List<String> tables = new ArrayList<>();
 
-    List<PSSharedFieldGroup> groups = new ArrayList<>();
-    CollectionUtils.addAll(groups, getSharedDef().getFieldGroups());
-    for (PSSharedFieldGroup group : groups) {
-      tables.addAll(getLocatorTables(group.getLocator()));
+  List<PSSharedFieldGroup> groups = new ArrayList<>();
+
+  Iterator fieldGroups = getSharedDef().getFieldGroups();
+  while (fieldGroups.hasNext()) {
+    Object obj = fieldGroups.next();
+    if (obj instanceof PSSharedFieldGroup) {
+      groups.add((PSSharedFieldGroup) obj);
     }
-    return tables;
   }
+
+  for (PSSharedFieldGroup group : groups) {
+    tables.addAll(getLocatorTables(group.getLocator()));
+  }
+  return tables;
+}
 }

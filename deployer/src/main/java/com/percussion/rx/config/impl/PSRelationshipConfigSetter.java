@@ -107,7 +107,6 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
     }
   }
 
-
   private void setCloneFieldOverrides(PSRelationshipConfig relConfig, Object propValue) {
     if (!(propValue instanceof List))
       throw new IllegalArgumentException(
@@ -191,7 +190,6 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
     }
     return result;
   }
-
 
   private void setCloningProperty(
       PSRelationshipConfig relConfig, Object cloningPropValue, boolean isShallow) {

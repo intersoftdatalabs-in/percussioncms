@@ -574,7 +574,6 @@ public class PSConfigService implements IPSConfigService {
     if (!f.exists()) PSConfigUtils.saveObjectToFile(new HashSet<String>(), f);
   }
 
-
   @Override
   public Collection<String> loadCommunityVisibility(String pkgName) {
     var f = getConfigFile(ConfigTypes.VISIBILITY, pkgName);

@@ -62,7 +62,6 @@ import com.percussion.tablefactory.PSJdbcSelectFilter;
 import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.util.PSPurgableTempFile;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.Reader;
 import java.io.StringReader;

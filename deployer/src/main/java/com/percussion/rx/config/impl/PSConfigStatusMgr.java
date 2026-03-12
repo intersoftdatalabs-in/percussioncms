@@ -139,7 +139,7 @@ public class PSConfigStatusMgr implements IPSConfigStatusMgr {
         builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
     criteria.orderBy(
         builder.asc(critRoot.get("configName")), builder.asc(critRoot.get("dateApplied")));
-        entityManager.createQuery(criteria).getResultList().forEach(sess::remove);
+    entityManager.createQuery(criteria).getResultList().forEach(sess::remove);
   }
 
   @Override

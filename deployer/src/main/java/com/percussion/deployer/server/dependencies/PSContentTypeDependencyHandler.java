@@ -429,7 +429,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *     </code>.
    * @throws PSDeployException if an error occurs.
    */
-
   private List<PSDependencyFile> getSchemaDepFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     IPSNodeDefinition node = findNodeDefByDependencyID(dep.getDependencyId());
@@ -876,7 +875,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *     </code> if the Content Type does not exist. The returned object never <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
-
   private PSPair<PSItemDefinition, Integer> getExistingItemDef(PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
     IPSNodeDefinition node = null;
@@ -916,7 +914,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param ctx the import context, assumed not <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
-
   private void saveItemDef(
       PSDependencyFile itemFile,
       PSItemDefinition curItemDef,
@@ -1468,7 +1465,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param wfInfo The workflow info to search.
    * @return The id of the workflow to use as default or -1 if a workflow was not found.
    */
-
   private Integer getDefaultWorkflowId(PSWorkflowInfo wfInfo) {
     Integer defaultWfId = -1;
 
@@ -1509,7 +1505,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param ce the content editor, assumed not <code>null</code>.
    * @throws PSDeployException
    */
-
   private void removeWorkflowAssociations(
       PSSecurityToken tok, PSDependency dep, PSImportCtx ctx, PSContentEditor ce)
       throws PSDeployException {
@@ -1553,7 +1548,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param descSet the content type template descriptors, assumed not <code>null</code>.
    * @throws PSDeployException
    */
-
   private void removeTemplateAssociations(
       PSSecurityToken tok, PSDependency dep, PSImportCtx ctx, Set<PSContentTemplateDesc> descSet)
       throws PSDeployException {

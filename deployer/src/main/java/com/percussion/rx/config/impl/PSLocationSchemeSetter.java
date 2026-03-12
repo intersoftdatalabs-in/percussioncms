@@ -119,7 +119,6 @@ public class PSLocationSchemeSetter extends PSSimplePropertySetter {
     return true;
   }
 
-
   @Override
   protected boolean applyProperty(
       Object obj,
@@ -195,7 +194,6 @@ public class PSLocationSchemeSetter extends PSSimplePropertySetter {
    * Filters the given parameters for the supplied Java extension. Removes entries whose keys are
    * not defined as parameters of the slot-filter.
    */
-
   private List<PSPair<String, String>> filterParameters(String extFQN, Object propValue) {
     if (!(propValue instanceof List)) {
       throw new PSConfigException(
@@ -224,7 +222,6 @@ public class PSLocationSchemeSetter extends PSSimplePropertySetter {
    * @param extName the extension/generator name (not FQN).
    * @return the extension reference, or null if not found.
    */
-
   private PSExtensionRef getExtensionRef(String extName) {
     var mgr = (PSExtensionManager) PSServer.getExtensionManager(null);
     try {

@@ -17,7 +17,6 @@
 
 package com.percussion.auditlog.util;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,12 +31,12 @@ public class FileCreator {
   /**
    * Generates a file with the specified parameters.
    *
-   * <p>Security: This method validates the filePath to prevent path traversal attacks. The
-   * resolved path must be within the base audit directory to prevent writing files outside the
-   * intended location.
+   * <p>Security: This method validates the filePath to prevent path traversal attacks. The resolved
+   * path must be within the base audit directory to prevent writing files outside the intended
+   * location.
    *
-   * @param filePath the base directory path where the file will be created, never
-   *     <code>null</code> or empty
+   * @param filePath the base directory path where the file will be created, never <code>null</code>
+   *     or empty
    * @param fileName the name of the file without extension, never <code>null</code> or empty
    * @param filePattern the date format pattern for the timestamp, never <code>null</code>
    * @param extension the file extension, never <code>null</code>

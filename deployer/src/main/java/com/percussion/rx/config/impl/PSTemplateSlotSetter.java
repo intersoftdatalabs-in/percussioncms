@@ -159,7 +159,6 @@ public class PSTemplateSlotSetter extends PSPropertySetterWithValidation {
    * @return <code>true</code> if the associations have been removed; otherwise have done nothing or
    *     no association has been removed.
    */
-
   private boolean removeSlotAssociations(List<IPSAssociationSet> aSets, Object propValue) {
     if (aSets == null || aSets.isEmpty())
       throw new IllegalArgumentException(
@@ -180,7 +179,6 @@ public class PSTemplateSlotSetter extends PSPropertySetterWithValidation {
    * @param propValue the new value of the property, assumed it is a Map object, may be <code>null
    *     </code>.
    */
-
   private void setFinderArguments(IPSTemplateSlot slot, Object propValue) {
     if (propValue == null) return;
 
@@ -199,7 +197,6 @@ public class PSTemplateSlotSetter extends PSPropertySetterWithValidation {
    * @param propValue the new filter-arguments, assumed is a type of Map, not <code>null</code>.
    * @return the filtered map, never <code>null</code>, may be empty.
    */
-
   private Map<String, String> filterParameters(IPSTemplateSlot slot, Object propValue) {
     var props = (Map<String, String>) propValue;
     var params = new HashMap<String, String>();
@@ -225,7 +222,6 @@ public class PSTemplateSlotSetter extends PSPropertySetterWithValidation {
    * @param aSets the target associated, not <code>null</code> or empty.
    * @param propValue the new association, not <code>null</code>, but be empty.
    */
-
   private void setSlotAssociations(List<IPSAssociationSet> aSets, Object propValue) {
     if (aSets == null || aSets.isEmpty())
       throw new IllegalArgumentException(

@@ -26,7 +26,6 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.Collections;
 import java.util.Iterator;
 

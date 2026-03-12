@@ -142,7 +142,6 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   // see base class
   @Override
-
   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");

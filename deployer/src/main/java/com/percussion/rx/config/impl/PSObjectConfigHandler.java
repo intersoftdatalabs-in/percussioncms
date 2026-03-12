@@ -192,7 +192,6 @@ public class PSObjectConfigHandler implements IPSConfigHandler {
     return false;
   }
 
-
   @Override
   public Map<String, Object> getExtraProperties() {
     return Collections.EMPTY_MAP;
