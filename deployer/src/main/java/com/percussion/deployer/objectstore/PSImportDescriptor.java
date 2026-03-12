@@ -78,20 +78,25 @@ public class PSImportDescriptor extends PSDescriptor {
     var archiveDetail = archiveInfo.getArchiveDetail();
     var desc = new PSImportDescriptor(archiveInfo);
 
-    var exportDesc = archiveDetail.getExportDescriptor();
-    archiveInfo.setArchiveRef(exportDesc.getName());
+    // Archive detail should always be present for valid deployment packages.
+    // This defensive check is retained for robustness in case of future changes or
+    // custom package formats that might not include deployment metadata.
+    if (archiveDetail != null) {
+      var exportDesc = archiveDetail.getExportDescriptor();
+      archiveInfo.setArchiveRef(exportDesc.getName());
 
-    var packages = desc.getImportPackageList();
-    packages.clear();
+      var packages = desc.getImportPackageList();
+      packages.clear();
 
-    archiveDetail
-        .getPackages()
-        .forEachRemaining(
-            obj -> {
-              if (obj instanceof PSDeployableElement) {
-                packages.add(new PSImportPackage((PSDeployableElement) obj));
-              }
-            });
+      archiveDetail
+          .getPackages()
+          .forEachRemaining(
+              obj -> {
+                if (obj instanceof PSDeployableElement) {
+                  packages.add(new PSImportPackage((PSDeployableElement) obj));
+                }
+              });
+    }
 
     return desc;
   }
