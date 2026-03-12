@@ -29,6 +29,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSConversions;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -533,13 +534,15 @@ public class PSGuidManager implements IPSGuidManager
        PSGuidGeneratorData data;
        long current = -1L;
 
-      data = s.get(PSGuidGeneratorData.class, key);
+      // Use pessimistic locking to prevent OptimisticLockException during concurrent allocation
+      // This ensures only one thread can update the GUID allocation at a time
+      data = s.get(PSGuidGeneratorData.class, key, LockMode.PESSIMISTIC_WRITE);
+
       if (data == null)
       {
+         // New entry - create it without locking issues
          data = new PSGuidGeneratorData(key, 1);
          data.setVersion(0);
-         s.persist(data);
-
       }
       current = data.getValue();
 
@@ -548,6 +551,7 @@ public class PSGuidManager implements IPSGuidManager
       data.setValue(next);
       try
       {
+         // Persist the updated value - pessimistic lock ensures no version conflict
          s.merge(data);
       }
       catch (HibernateException e1)
