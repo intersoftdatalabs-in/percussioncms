@@ -22,6 +22,7 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -180,5 +181,6 @@ public class PSPkgDependency implements Serializable {
    * defined.
    */
   @Column(name = "IMPLIED_DEP", nullable = false)
+  @Convert(converter = BooleanToCharConverter.class)
   private Boolean impliedDep;
 }
