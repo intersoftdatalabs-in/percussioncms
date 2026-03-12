@@ -134,6 +134,9 @@ public class PSSaxHelper {
       writer.close();
       String result = writer.toString();
       result = StringUtils.replace(result, PSSaxCopier.RX_FILLER, "");
+      // Convert empty elements to self-closing notation: <tag attr="val"></tag> -> <tag attr="val"/>
+      // Match the pattern: opening tag (with any attributes) followed immediately by closing tag
+      result = result.replaceAll("<([^>/]+)([^>]*)></\\1>", "<$1$2/>");
       return result;
     } catch (SecurityException
         | FactoryConfigurationError
