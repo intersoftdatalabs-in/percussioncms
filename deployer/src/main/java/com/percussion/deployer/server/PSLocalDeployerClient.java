@@ -27,6 +27,7 @@ import com.percussion.error.PSLockedException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
 import com.percussion.server.job.PSJobException;
+import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.request.PSRequestInfo;
 import java.io.File;
@@ -55,6 +56,16 @@ public class PSLocalDeployerClient implements IPSPackageInstaller {
       throws PSDeployException, PSNotFoundException {
     Validate.notNull(packageFile, "Package file may not be null");
     var dh = PSDeploymentHandler.getInstance();
+    if (dh == null) {
+      dh = (PSDeploymentHandler) PSBaseServiceLocator.getBean("sys_deploymentHandler");
+    }
+    if (dh == null) {
+      throw new PSDeployException(
+          new PSException(
+              "PSDeploymentHandler bean 'sys_deploymentHandler' is not available. "
+                  + "This typically indicates the Spring context is not fully initialized or the bean is not registered. "
+                  + "Verify that PSDeploymentHandler is registered with @PSBaseBean and that dependent beans have proper 'depends-on' declarations."));
+    }
     var sessionId = getDeploymentLock(dh);
 
     try {
@@ -63,7 +74,7 @@ public class PSLocalDeployerClient implements IPSPackageInstaller {
       var importDesc = validateArchive(dh, archiveInfo, shouldValidateVersion);
       installArchive(packageFile, importDesc);
     } finally {
-      if (sessionId != null) {
+      if (sessionId != null && dh != null) {
         dh.releaseLock(sessionId);
       }
     }
