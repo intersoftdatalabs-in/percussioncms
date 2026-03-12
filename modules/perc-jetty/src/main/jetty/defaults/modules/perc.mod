@@ -51,7 +51,7 @@ jetty.deploy.defaultsDescriptionPath=${jetty_perc_defaults}/perc-webdefault.xml
 jetty_perc_defaults?=${jetty.base}/../defaults
 jetty.server.stopTimeout=10000
 jetty.server.dumpBeforeStart=true
-jetty.webapp.addSystemClasses+=,org.xml.sax.,org.w3c.,org.apache.xmlcommons.Version,org.apache.html.,org.apache.wml.,org.apache.xerces.,org.apache.xml.
+jetty.webapp.addProtectedClasses+=,org.xml.sax.,org.w3c.,org.apache.xmlcommons.Version,org.apache.html.,org.apache.wml.,org.apache.xerces.,org.apache.xml.
 [exec]
 -Djava.library.path=../../bin
 -Djavax.xml.parsers.SAXParserFactory=com.percussion.xml.PSSaxParserFactoryImpl
