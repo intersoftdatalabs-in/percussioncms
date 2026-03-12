@@ -241,7 +241,7 @@ public class PSDatasourceResolver implements IPSDatasourceResolver {
    * List of datasource configurations, never <code>null</code>, empty until first call to {@link
    * #setDatasourceConfigurations(List)}, never <code>null</code> or empty after that.
    */
-  private List<IPSDatasourceConfig> m_configs = null;
+  private List<IPSDatasourceConfig> m_configs = new ArrayList<>();
 
   // private XML constants
   private static final String REPOSITORY_PROP_NAME = "repositoryDatasource";
