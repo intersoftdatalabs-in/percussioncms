@@ -58,12 +58,13 @@ import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.StartTagType;
 import net.htmlparser.jericho.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /** Various utility methods that are used by one or more client actions. */
 public abstract class PSActionUtil {
 
-  static Logger log = Logger.getLogger(PSActionUtil.class);
+  private static final Logger log = LogManager.getLogger(PSActionUtil.class);
 
   /** Private ctor to not allow instantiation */
   private PSActionUtil() {}
