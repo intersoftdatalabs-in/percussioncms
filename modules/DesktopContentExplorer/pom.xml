@@ -190,13 +190,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx</artifactId>
-			<version>17</version>
-			<type>pom</type>
-		</dependency>
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
@@ -204,7 +197,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-fxml</artifactId>
+			<artifactId>javafx-graphics</artifactId>
+			<version>17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-base</artifactId>
 			<version>17</version>
 		</dependency>
 		<dependency>
@@ -265,13 +263,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.percussion</groupId>
-			<artifactId>servlet-utils</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.percussion</groupId>
-			<artifactId>perc-rxapps</artifactId>
+			<artifactId>webservices</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 
@@ -295,11 +287,6 @@
 
 		<dependency>
 			<groupId>com.percussion</groupId>
-			<artifactId>perc-checkboxtree</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.percussion</groupId>
 			<artifactId>perc-server-ui-cmp</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
@@ -314,6 +301,21 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.jetbrains</groupId>
+			<artifactId>annotations</artifactId>
+			<version>15.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${json.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.xml.ws</groupId>
+			<artifactId>jakarta.xml.ws-api</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
 			<version>${log4j2.version}</version>
@@ -324,47 +326,20 @@
 			<version>${log4j2.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-1.2-api</artifactId>
-			<version>${log4j2.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>${log4j2.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>xml-resolver</groupId>
-			<artifactId>xml-resolver</artifactId>
-			<version>${xmlresolver.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.vladsch.javafx-webview-debugger</groupId>
 			<artifactId>javafx-webview-debugger</artifactId>
 			<version>0.8.6</version>
 		</dependency>
 		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-			<version>${xstream.version}</version>
-			<scope>runtime</scope>
+			<groupId>com.vladsch.boxed-json</groupId>
+			<artifactId>boxed-json</artifactId>
+			<version>0.5.32</version>
 		</dependency>
 
 		<!-- JUnit 5 for testing -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.8.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
 			<version>5.8.2</version>
 			<scope>test</scope>
 		</dependency>

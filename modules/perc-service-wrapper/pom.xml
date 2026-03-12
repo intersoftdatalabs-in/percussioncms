@@ -17,9 +17,17 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>perc-system</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
+            <artifactId>perc-security-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-i18n</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -258,6 +258,32 @@
             <artifactId>json-simple</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Used by preinstall code via transitive dependency from perc-jetty->rest->cxf-rt-frontend-jaxrs -->
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${jakarta.ws.rs.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Used by preinstall code via transitive dependency from utils -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Used by preinstall code via transitive dependency from utils -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Used by preinstall code via transitive dependency from utils/perc-security-utils -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-xml-security</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -544,6 +570,12 @@
                             </exclusion>
                         </exclusions>
                     </dependency>
+                    <!-- Add perc-toolkit to the antrun classpath so PSExtension tasks can load its classes -->
+                    <dependency>
+                        <groupId>com.percussion</groupId>
+                        <artifactId>perc-toolkit</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
                 </dependencies>
                 <executions>
                     <execution>
@@ -575,9 +607,7 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${assembly-directory}/jetty/base/etc"/>
-                                <copy file="${assembly-directory}/jetty/upstream/modules/rewrite/jetty-rewrite-rules.xml"
-                                      tofile="${assembly-directory}/jetty/base/etc/jetty-rewrite-rules.xml"
-                                      overwrite="true"/>
+                                <copy file="${assembly-directory}/jetty/upstream/modules/rewrite/jetty-rewrite-rules.xml" overwrite="true" tofile="${assembly-directory}/jetty/base/etc/jetty-rewrite-rules.xml"/>
                             </target>
                         </configuration>
                     </execution>
@@ -629,6 +659,7 @@
                                 <argument>--create-files</argument>
                                 <argument>--modules=perc-logging</argument>
                                 <argument>--add-modules=perc</argument>
+                                <argument>--approve-all-licenses</argument>
                             </arguments>
                         </configuration>
                     </execution>

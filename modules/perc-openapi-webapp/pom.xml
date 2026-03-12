@@ -13,36 +13,7 @@
     <packaging>war</packaging>
     <name>Percussion OpenAPI Web App</name>
 
-    <dependencies>
-        <!-- REST module for scanning OpenAPI annotations -->
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>rest</artifactId>
-            <version>${project.parent.version}</version>
-            <!-- Needed at compile time for plugin to scan annotations -->
-        </dependency>
-
-        <!-- Swagger UI for OpenAPI documentation -->
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>swagger-ui</artifactId>
-        </dependency>
-
-        <!-- Swagger annotations for OpenAPI support (compile-time only) -->
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-annotations</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- JAX-RS API for REST annotations -->
-        <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>${jakarta.ws.rs.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+    <dependencies />
 
     <build>
         <plugins>
