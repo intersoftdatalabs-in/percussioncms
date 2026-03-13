@@ -4,8 +4,6 @@ Percussion CMS is a de-coupled Java-based content management system. It has a lo
 
 This repository is a large mono-repo with many submodules.  This code base has a lot of history and legacy, and is currently in the process of being modernized and refactored, do not assume that all code is up to date with current best practices.  When making code changes, follow these guidelines:
 
-If you are `GPT-5 mini` load `AGENTS-MINI.md` instead of this file and stop here.
-
 ## Rule Discovery Protocol
 
 **For any task, question, or code modification related to a specific module, you MUST first apply this protocol to the module's path:**
@@ -14,10 +12,32 @@ If you are `GPT-5 mini` load `AGENTS-MINI.md` instead of this file and stop here
 2. **Check for local override files:** Scan the identified directory for the following files in this specific order of priority:
     * `AGENTS.local.md` (Personal or task-specific overrides)
     * `AGENTS.md` (Module-specific permanent rules)
+
 3. **Apply Hierarchy:**
     * If local files exist, their instructions **supersede** global rules for that module's logic.
     * `AGENTS.local.md` takes precedence over `AGENTS.md`.
     * If no local files are found, default strictly to the root-level instructions.
+
+## **ANTI-HALLUCINATION RULES**
+
+Please **OBEY THESE ALWAYS**
+
+## ANTI-HALLUCINATION – ALL MODELS
+
+# ANTI-HALLUCINATION – ALL MODELS
+
+* DO NOT invent third-party APIs, libraries, functions, or syntax.
+* If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): say "Unsure—need real source."
+* If you need clarification or can't find info: prefer using the "Ask Question" tool with multiple-choice options—don't guess.
+* Base EVERY output on:
+  * The currently checked-out Git branch (e.g., development, feature/auth-fix, development-8.1.x, etc)
+  * Files in the current workspace
+  * Checked-out code only—no peeking at other branches unless asked
+* Always start your response with: "On branch: "
+* If unsure about branch context: "Unsure—clarify branch?"
+* For strings/paths: pick the standard way (e.g., / for URLs, \ for Windows) and explain once—no flip-flopping.
+* If pulling from project: cite file/line (e.g., "modules/workflow/PSWorkflowService.java:42")—no "it works" nonsense.
+* Use * for all unordered lists—no dashes, no numbers unless ordered.
 
 ## Git Branch Information
 
@@ -51,6 +71,7 @@ If you are `GPT-5 mini` load `AGENTS-MINI.md` instead of this file and stop here
 
 ## General Coding Rules
 
+* **IMPORTANT** you must ALWAYS update or create unit tests for any code changes that you make. And the tests must pass. No exceptions.
 * Always work with the #codebase directory as the root for all file paths.
 * Always use the #codebase context when resolving missing interfaces or classes.
 * Follow Java coding standards defined in `modules/ai-shared-develop/src/main/resources/instructions/java-coding-standards.md` for all Java code changes.

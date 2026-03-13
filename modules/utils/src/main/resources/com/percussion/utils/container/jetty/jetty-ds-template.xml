@@ -38,14 +38,15 @@
 								</Arg>
 							</Call>
 						</Set>
-						<Set name="driverClassName">
-							<Property name="perc.ds.{0}.driver.class" />
-						</Set>
 						<Set name="jdbcUrl">
-							jdbc:
-							<Property name="perc.ds.{0}.driver.name" />
-							:
-							<Property name="perc.ds.{0}.server" />
+							<Call class="com.percussion.utils.container.PSStaticContainerUtils" name="buildConnectionUrl">
+								<Arg>
+									<Property name="perc.ds.{0}.driver.name" />
+								</Arg>
+								<Arg>
+									<Property name="perc.ds.{0}.server" />
+								</Arg>
+							</Call>
 						</Set>
 						<Set name="username">
 							<Property name="perc.ds.{0}.uid" />

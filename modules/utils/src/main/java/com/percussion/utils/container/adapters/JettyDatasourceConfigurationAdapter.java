@@ -526,16 +526,17 @@ public class JettyDatasourceConfigurationAdapter
       }
     }
 
-    if (updated) {
-      // Make sure the file is writeable before we try to write to it.
-      file.setWritable(true);
+    // Always write the XML file to ensure fresh configurations are applied
+    // Make sure the file is writeable before we try to write to it.
+    file.setWritable(true);
 
-      try (OutputStream out = new FileOutputStream(file)) {
-        PSXmlDocumentBuilder.write(doc, out);
-      } catch (IOException e) {
-        ms_log.error("Cound not save jetty datasource configuration jetty-ds.xml", e);
-        throw e;
-      }
+    try (OutputStream out = new FileOutputStream(file)) {
+      // Normalize document to remove excess whitespace nodes before writing
+      doc.getDocumentElement().normalize();
+      PSXmlDocumentBuilder.write(doc, out);
+    } catch (IOException e) {
+      ms_log.error("Cound not save jetty datasource configuration jetty-ds.xml", e);
+      throw e;
     }
 
     return true;

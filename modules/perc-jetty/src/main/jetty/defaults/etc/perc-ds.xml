@@ -1,4 +1,67 @@
 <?xml version="1.0"?>
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
-
+	<!-- Default Percussion datasource for JDBC operations -->
+	<!-- This datasource is loaded into JNDI under: java:jdbc/RhythmyxData -->
+	<New id="perc.ds.1" class="org.eclipse.jetty.plus.jndi.Resource">
+		<Arg></Arg>
+		<Arg>java:jdbc/RhythmyxData</Arg>
+		<Arg>
+			<New class="com.zaxxer.hikari.HikariDataSource">
+				<Arg>
+					<New class="com.zaxxer.hikari.HikariConfig">
+						<Set name="poolName">
+							Hikari
+							<Property default="RhythmyxDS" name="perc.ds.1.name" />
+							Pool
+						</Set>
+						<Set name="connectionTimeout">120000</Set>
+						<Set name="initializationFailTimeout">0</Set>
+						<Set name="minimumIdle">
+							<Property default="5" name="perc.ds.1.connections.min" />
+						</Set>
+						<Set name="maximumPoolSize">
+							<Property default="20" name="perc.ds.1.connections.max" />
+						</Set>
+						<Set name="idleTimeout">
+							<Property default="600000" name="perc.ds.1.idle.ms" />
+						</Set>
+						<Set name="transactionIsolation">TRANSACTION_READ_COMMITTED</Set>
+						<Set name="ConnectionTestQuery">
+							<Call class="com.percussion.utils.container.PSStaticContainerUtils" name="connectionTestQuery">
+								<Arg>
+									<Property default="derby" name="perc.ds.1.driver.name" />
+								</Arg>
+								<Arg>
+									<Property default="SELECT 1" name="perc.ds.1.connectiontest" />
+								</Arg>
+							</Call>
+						</Set>
+						<Set name="jdbcUrl">
+							<Call class="com.percussion.utils.container.PSStaticContainerUtils" name="buildConnectionUrl">
+								<Arg>
+									<Property default="derby" name="perc.ds.1.driver.name" />
+								</Arg>
+								<Arg>
+									<Property default="memory:musicbrainz" name="perc.ds.1.server" />
+								</Arg>
+							</Call>
+						</Set>
+						<Set name="username">
+							<Property default="" name="perc.ds.1.uid" />
+						</Set>
+						<Set name="password">
+							<Call class="com.percussion.utils.container.PSStaticContainerUtils" name="decrypt">
+								<Arg>
+									<Property default="" name="perc.ds.1.pwd" />
+								</Arg>
+								<Arg>
+									<Property default="N" name="perc.ds.1.pwd.encrypted" />
+								</Arg>
+							</Call>
+						</Set>
+					</New>
+				</Arg>
+			</New>
+		</Arg>
+	</New>
 </Configure>
