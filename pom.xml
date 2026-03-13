@@ -76,7 +76,7 @@
     </scm>
     <properties>
         <activation.api.version>1.2.0</activation.api.version>
-        <artemis.version>2.42.0</artemis.version>
+        <artemis.version>2.44.0</artemis.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <aopalliance.version>1.0</aopalliance.version>
