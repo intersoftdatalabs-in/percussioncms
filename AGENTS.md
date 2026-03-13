@@ -22,12 +22,9 @@ This repository is a large mono-repo with many submodules.  This code base has a
 
 Please **OBEY THESE ALWAYS**
 
-## ANTI-HALLUCINATION – ALL MODELS
+## ANTI-HALLUCINATION
 
-# ANTI-HALLUCINATION – ALL MODELS
-
-* DO NOT invent third-party APIs, libraries, functions, or syntax.
-* If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): say "Unsure—need real source."
+* DO NOT invent third-party APIs, libraries, functions, or syntax. If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): say "Unsure—need real source."
 * If you need clarification or can't find info: prefer using the "Ask Question" tool with multiple-choice options—don't guess.
 * Base EVERY output on:
   * The currently checked-out Git branch (e.g., development, feature/auth-fix, development-8.1.x, etc)
