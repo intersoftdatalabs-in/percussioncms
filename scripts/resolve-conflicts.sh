@@ -1,40 +1,58 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Script to resolve merge conflicts by accepting "ours" (current branch changes)
-# and rejecting "theirs" (incoming branch changes)
+set -euo pipefail
 
-# Find all files with conflict markers (search all files, excluding .git)
-echo "Finding files with merge conflict markers..."
-files_with_conflicts=$(grep -rl "^>>>>>>> " . 2>/dev/null | grep -v ".git" | grep -v "resolve-conflicts.sh")
+echo "Scanning index for unresolved merge conflicts..."
 
-count=0
-for file in $files_with_conflicts; do
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Error: this script must be run inside a Git repository." >&2
+    exit 1
+fi
+
+mapfile -d '' conflicted_files < <(git diff --name-only --diff-filter=U -z)
+
+if [ "${#conflicted_files[@]}" -eq 0 ]; then
+    echo "No unresolved merge conflicts found."
+    exit 0
+fi
+
+echo "Resolving ${#conflicted_files[@]} conflicted file(s) by accepting ours..."
+
+resolved=0
+failed=0
+
+for file in "${conflicted_files[@]}"; do
     echo "Processing: $file"
-    
-    # Use perl to remove conflict markers and keep only "ours"
-    # This removes:
-    # - Lines with <<<<<<< HEAD
-    # - Everything between ======= and >>>>>>> (including those markers)
-    perl -i -pe '
-        BEGIN { $in_conflict = 0; $in_theirs = 0; }
-        if (/^<<<<<<< HEAD/) {
-            $in_conflict = 1;
-            $_ = "";
-        } elsif (/^=======/ && $in_conflict) {
-            $in_theirs = 1;
-            $_ = "";
-        } elsif (/^>>>>>>> / && $in_conflict) {
-            $in_conflict = 0;
-            $in_theirs = 0;
-            $_ = "";
-        } elsif ($in_theirs) {
-            $_ = "";
-        }
-    ' "$file"
-    
-    ((count++))
+
+    # Stage 2 is the "ours" side. If it does not exist, our side deleted this file.
+    if git show ":2:$file" >/dev/null 2>&1; then
+        if git checkout --ours -- "$file" >/dev/null 2>&1 && git add -- "$file"; then
+            resolved=$((resolved + 1))
+        else
+            echo "Warning: failed to resolve with ours: $file" >&2
+            failed=$((failed + 1))
+        fi
+    else
+        if git rm --force -- "$file" >/dev/null 2>&1 || git add -u -- "$file" >/dev/null 2>&1; then
+            resolved=$((resolved + 1))
+        else
+            echo "Warning: failed to stage deletion for ours: $file" >&2
+            failed=$((failed + 1))
+        fi
+    fi
 done
 
-echo ""
-echo "Processed $count files"
-echo "All conflicts resolved by accepting 'our' changes"
+remaining_conflicts=$(git diff --name-only --diff-filter=U | wc -l | tr -d '[:space:]')
+
+echo
+echo "Resolved: $resolved"
+echo "Failed: $failed"
+echo "Remaining unresolved conflicts: $remaining_conflicts"
+
+if [ "$failed" -gt 0 ] || [ "$remaining_conflicts" -gt 0 ]; then
+    echo "Some conflicts could not be resolved automatically. Review with: git status" >&2
+    exit 1
+fi
+
+echo "Done. All current merge conflicts were resolved using our local version."
+echo "Review with: git status"

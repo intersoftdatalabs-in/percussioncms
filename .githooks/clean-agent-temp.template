@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Git Hook Template: Clean Agent Temp Directories
+# This hook runs after a merge or push to clean old agent temp directories
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# Run the cleaner script to remove temp directories older than 24 hours
+"$REPO_ROOT/modules/ai-shared-release/src/main/resources/skills/agent-temp-directory/scripts/cleaner.sh" --clean-old

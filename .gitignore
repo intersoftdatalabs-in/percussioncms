@@ -200,3 +200,6 @@ WebUI/src/main/frontend/dist/
 # Build logs
 WebUI/build.log
 WebUI/rxBuild.log
+
+# Repository Temp Folder
+.tmp/

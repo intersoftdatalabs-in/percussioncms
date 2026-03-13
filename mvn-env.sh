@@ -25,7 +25,5 @@ export JAVA_HOME="${JAVA_HOME_21}"
 
 echo "Using JDK 21 at ${JAVA_HOME}"
 
-export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-# Run Maven wrapper with all arguments
-exec $SCRIPT_DIR/mvnw "$@"
+# Run Maven with all arguments
+exec mvn "$@"

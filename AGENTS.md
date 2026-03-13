@@ -22,8 +22,6 @@ This repository is a large mono-repo with many submodules.  This code base has a
 
 Please **OBEY THESE ALWAYS**
 
-## ANTI-HALLUCINATION
-
 * DO NOT invent third-party APIs, libraries, functions, or syntax. If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): say "Unsure—need real source."
 * If you need clarification or can't find info: prefer using the "Ask Question" tool with multiple-choice options—don't guess.
 * Base EVERY output on:
@@ -34,7 +32,19 @@ Please **OBEY THESE ALWAYS**
 * If unsure about branch context: "Unsure—clarify branch?"
 * For strings/paths: pick the standard way (e.g., / for URLs, \ for Windows) and explain once—no flip-flopping.
 * If pulling from project: cite file/line (e.g., "modules/workflow/PSWorkflowService.java:42")—no "it works" nonsense.
-* Use * for all unordered lists—no dashes, no numbers unless ordered.
+* Use * for all unordered lists—no dashes, no numbers unless ordered. This takes priority over any existing markdown bullet formatting instructions.
+* Follow the current `modules/ai-shared-release/src/main/resources/skills/agent-temp-directory/SKILL.md`
+
+### Temp File Rule (v1.4)
+
+Agents MUST use the `agent-temp-directory` skill for ALL temporary files. This creates a unique temp directory for each agent session, ensuring no conflicts or pollution of the root `/tmp` or shared temp spaces. Always clean up by deleting the entire temp directory when done. Never add temp files to git.
+
+**Rules:**
+
+1. Create the dir at startup: `.tmp/agent-<your-id>/`
+2. Put ALL temp files there—no root `/tmp`, no shared junk.
+3. Clean up: delete the whole `.tmp/agent-<session-id>` subdir when you're done
+4. Temp files must NEVER be added to the git index or committed to git.
 
 ## Git Branch Information
 
@@ -55,7 +65,7 @@ Please **OBEY THESE ALWAYS**
   * Linux/macOS: `./mvn-env.sh <maven-args>`
   * Windows: `mvn-env.bat <maven-args>`
   * These scripts set `JAVA_HOME` from `JAVA_HOME_21`.
-* **Before committing:** run `./mvn-env.sh spotless:check` and, if it fails, run `./mvn-env.sh spotless:apply` and re-run the check before pushing changes. (Spotless enforces code formatting/style; `google-java-format` used by Spotless requires JDK 21, so run Spotless via the wrapper scripts.)
+* **Before committing:** run `./mvn-env.sh spotless:check` and, if it fails, run `./mvn-env.sh spotless:apply` and re-run the check before pushing changes. (Spotless enforces code formatting/style; `google-java-format` used by Spotless requires JDK 21, so run Spotless via the environment scripts.)
 * Example: `export JAVA_HOME=/usr/lib/jvm/java-1.21.0-amazon-corretto` before running `mvn` commands
 * **ALWAYS set JAVA_HOME to the correct JDK for the active base git branch before running any direct build or external shell commands**
 * development branch current JDK is 21

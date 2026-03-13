@@ -211,8 +211,10 @@
             <groupId>org.apache.myfaces.tomahawk</groupId>
             <artifactId>tomahawk</artifactId>
         </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-service-description-swagger-ui</artifactId>
+            <version>${cxf.version}</version>
         </dependency>
         <!-- Swagger annotations kept for source-level OpenAPI documentation support.
              All runtime Swagger/OpenAPI features moved to perc-openapi-webapp. -->
@@ -242,7 +244,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
-<<<<<<<<< Temporary merge branch 1
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -253,8 +254,6 @@
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
         <dependency>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-hikaricp</artifactId>
         </dependency>
@@ -263,28 +262,21 @@
             <artifactId>hibernate-jcache</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-spring</artifactId>
+            <version>5.7.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
@@ -292,7 +284,10 @@
             <version>5.7.0</version>
             <exclusions>
                 <exclusion>
+                    <groupId>org.apache.activemq</groupId>
                     <artifactId>activemq-protobuf</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -337,7 +332,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <artifactId>spring-test</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -440,16 +434,13 @@
                     <artifactId>org.aspectj</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
         </dependency>
-       <!--  <dependency>
-        -->
 
-			</dependency> <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-snowball</artifactId>
-			</dependency> <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-wordnet</artifactId>
-			</dependency> -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
@@ -694,72 +685,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant</artifactId>
-                        <version>${ant.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-apache-oro</artifactId>
-                        <version>${ant.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-jsch</artifactId>
-                        <version>${ant.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-launcher</artifactId>
-                        <version>${ant.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-commons-net</artifactId>
-                        <version>${ant.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-commons-logging</artifactId>
-                        <version>${ant.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-apache-regexp</artifactId>
-                        <version>${ant.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>${ant.contrib.version}</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>ant</groupId>
-                                <artifactId>ant</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.apache.ivy</groupId>
-                                <artifactId>ivy</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.jvnet.hudson</groupId>
-                                <artifactId>ivy</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>junit</groupId>
-                                <artifactId>junit</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.apache.bcel</groupId>
-                                <artifactId>bcel</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <dependencies>

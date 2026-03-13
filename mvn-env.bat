@@ -23,5 +23,5 @@ set JAVA_HOME=%JAVA_HOME_21%
 
 echo Using JDK 21 at %JAVA_HOME%
 
-REM Run Maven wrapper with all arguments
-call mvnw.cmd %*
+REM Run Maven with all arguments
+call mvn %*
