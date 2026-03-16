@@ -20,9 +20,38 @@ import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
 
+/**
+ * JSP tag handler that resolves and displays a localized message key from the TMX cache.
+ * 
+ * <p>The tag retrieves the language from the page context attribute {@code sys_lang}
+ * and looks up the specified key in the translation cache. If no translation is found,
+ * it either displays the key (in debug mode) or attempts to extract a display value.</p>
+ * 
+ * <p>Usage example:</p>
+ * <pre>
+ * &lt;tmx:message key="myapp.welcome"/&gt;
+ * </pre>
+ * 
+ * <p>Required attributes:</p>
+ * <ul>
+ *   <li>{@code key} - the message key to resolve</li>
+ * </ul>
+ * 
+ * <p>The page context must contain a {@code sys_lang} attribute set to the desired
+ * language code (e.g., "en", "fr").</p>
+ * 
+ * @author erikserating
+ */
 public class TmxMessageTag extends TagSupport {
+  
+  /** The message key to look up in the translation cache. */
   private String key;
 
+  /**
+   * Sets the message key to be resolved.
+   * 
+   * @param key the message key, must not be null or empty
+   */
   public void setKey(String key) {
     this.key = key;
   }

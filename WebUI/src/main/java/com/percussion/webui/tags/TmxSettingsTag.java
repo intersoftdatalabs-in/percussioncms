@@ -25,18 +25,59 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 /**
+ * JSP tag handler that initializes TMX (Translation Memory eXchange) settings for the page.
+ * 
+ * <p>This tag sets up the language and optional key prefixes for the translation cache,
+ * making localized messages available to other TMX tags on the page.</p>
+ * 
+ * <p>Usage example:</p>
+ * <pre>
+ * &lt;tmx:settings lang="en-us" prefixes="myapp,common"/&gt;
+ * </pre>
+ * 
+ * <p>Attributes:</p>
+ * <ul>
+ *   <li>{@code lang} - language code (default: "en-us")</li>
+ *   <li>{@code prefixes} - comma-separated key prefixes to load (default: all keys)</li>
+ *   <li>{@code debug} - set to "true" to display raw keys when translations are missing</li>
+ * </ul>
+ * 
+ * <p>After processing, this tag sets page context attributes:</p>
+ * <ul>
+ *   <li>{@code sys_lang} - the configured language code</li>
+ *   <li>{@code debug} - the debug flag</li>
+ * </ul>
+ * 
  * @author erikserating
  */
 public class TmxSettingsTag extends TagSupport {
+  
+  /** Comma-separated list of key prefixes to load from the translation bundle. */
   private String prefixes;
+  
+  /** Language code for translations (e.g., "en-us", "fr"). */
   private String lang = DEFAULT_LANG;
+  
+  /** Debug flag - when true, displays raw keys if translation is missing. */
   private String debug = "false";
+  
+  /** Default language code. */
   private static final String DEFAULT_LANG = "en-us";
 
+  /**
+   * Sets the comma-separated key prefixes to load.
+   * 
+   * @param prefixes the prefixes, or null/empty for all keys
+   */
   public void setPrefixes(String prefixes) {
     this.prefixes = prefixes;
   }
 
+  /**
+   * Sets the language code for translations.
+   * 
+   * @param lang the language code (e.g., "en-us", "fr")
+   */
   public void setLang(String lang) {
     if (lang == null || lang.isEmpty()) {
       return;
@@ -44,6 +85,11 @@ public class TmxSettingsTag extends TagSupport {
     this.lang = lang;
   }
 
+  /**
+   * Sets the debug flag for displaying raw keys.
+   * 
+   * @param debug "true" to enable debug mode
+   */
   public void setDebug(String debug) {
     if (debug == null) {
       debug = "false";
