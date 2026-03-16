@@ -176,3 +176,20 @@ Example: Build only system,rest, sitemanage, webui and hot deploy them to a loca
 ``` bash
 ./scripts/hot-deploy-local.sh --install-dir /home/nate/installs/cms-8.2-dev --modules system,rest,sitemanage,webui --restart
 ```
+
+## Tips for Editing XML Files (pom.xml, etc.)
+
+* When editing `pom.xml` or other XML files, the `edit` tool may fail due to XML namespace handling.
+* If an edit fails but you're confident the content should be correct, use shell tools (`sed`, `awk`, or direct file write via `exec`) as a workaround.
+* For complex XML edits, consider using Python with `xml.etree.ElementTree` or a dedicated XML tool.
+
+## Agent Work Batching Strategy
+
+For large projects like percussioncms, agents should work in small, focused batches:
+
+* **Complete before context overflow** — Work until the agent's context is nearly full, then stop
+* **Multiple small commits** — Better than one giant PR; easier to review and verify
+* **Heartbeat节奏** — Agents run on 30-min heartbeats, doing focused chunks each cycle
+* **Prioritize high-impact items** — Each cycle, pick the most important pending tasks
+
+This approach ensures accuracy over speed on massive codebases.

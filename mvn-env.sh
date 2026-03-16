@@ -37,4 +37,4 @@ fi
 echo "Using JDK 21 at ${JAVA_HOME}"
 
 # Run Maven with all arguments
-exec mvn "$@"
+exec /opt/maven/bin/mvn "$@"
