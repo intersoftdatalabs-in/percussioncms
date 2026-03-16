@@ -23,9 +23,25 @@ import com.percussion.webservices.content.PSContentWsLocator;
 import java.util.List;
 import java.util.Map;
 
-/** Catalogs the locales on the system and returns the number of them. */
+/**
+ * Action that catalogs the locales defined in the system and returns the count.
+ * 
+ * <p>This action takes no parameters and is useful for determining how many
+ * localization contexts are available in the system.</p>
+ * 
+ * @param params this action does not require any parameters (empty map)
+ * @return an {@link PSActionResponse} containing the locale count as a plain text string
+ * @throws PSAAClientActionException if the locale catalog cannot be retrieved
+ */
 public class PSGetLocaleCountAction extends PSAAActionBase {
-  // see interface for details
+
+  /**
+   * Executes the action to retrieve the count of defined locales.
+   *
+   * @param params this action does not require any parameters; an empty map is acceptable
+   * @return PSActionResponse containing the number of locales as a plain text string
+   * @throws PSAAClientActionException if the locales cannot be cataloged
+   */
   @SuppressWarnings("unused") // exception
   public PSActionResponse execute(@SuppressWarnings("unused") Map<String, Object> params)
       throws PSAAClientActionException {

@@ -130,6 +130,20 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Maven Javadoc Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.11.1</version>
+                <configuration>
+                    <doclint>none</doclint>
+                    <source>21</source>
+                    <detectLinks>true</detectLinks>
+                    <links>
+                        <link>https://docs.oracle.com/en/java/javase/21/docs/api/</link>
+                    </links>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

@@ -20,17 +20,53 @@ package com.percussion.taxonomy.repository;
 import com.percussion.taxonomy.domain.Visibility;
 import java.util.Collection;
 
+/**
+ * Service interface for managing Visibility entities.
+ * Provides CRUD operations for controlling node visibility in different contexts.
+ */
 public interface VisibilityServiceInf {
 
+  /**
+   * Retrieves all visibility options defined in the system.
+   *
+   * @return a collection of all Visibility entities, or an empty collection
+   */
   public Collection getAllVisibilities();
 
+  /**
+   * Retrieves all visibility options for a specific taxonomy.
+   *
+   * @param taxonomy_id the unique identifier of the taxonomy
+   * @return a collection of Visibility entities associated with the taxonomy
+   */
   public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id);
 
+  /**
+   * Retrieves a specific visibility by its unique identifier.
+   *
+   * @param id the unique identifier of the visibility
+   * @return the Visibility entity, or null if not found
+   */
   public Visibility getVisibility(int id);
 
-  public void removeVisibility(Visibility Visibility);
+  /**
+   * Removes the specified visibility from the system.
+   *
+   * @param visibility the Visibility entity to remove; must not be null
+   */
+  public void removeVisibility(Visibility visibility);
 
-  public void removeVisibilities(Collection<Visibility> Visibilities);
+  /**
+   * Removes multiple visibility entities from the system.
+   *
+   * @param visibilities the collection of Visibility entities to remove
+   */
+  public void removeVisibilities(Collection<Visibility> visibilities);
 
-  public void saveVisibility(Visibility Visibility);
+  /**
+   * Saves or updates the specified visibility in the system.
+   *
+   * @param visibility the Visibility entity to save; must not be null
+   */
+  public void saveVisibility(Visibility visibility);
 }

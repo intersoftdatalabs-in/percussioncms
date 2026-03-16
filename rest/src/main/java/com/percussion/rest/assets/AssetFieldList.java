@@ -30,6 +30,7 @@ import java.util.Objects;
 @XmlType(propOrder = {})
 @ArraySchema(schema = @Schema(implementation = AssetField.class))
 public class AssetFieldList extends ArrayList<AssetField> {
+  private static final long serialVersionUID = 1L;
 
   public AssetFieldList(Collection<? extends AssetField> c) {
     super(c);

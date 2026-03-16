@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 @XmlRootElement(name = "GuidList")
 @Schema(description = "A list of Guids, commonly used for bulk operations")
 public class GuidList extends ArrayList<Guid> {
+  private static final long serialVersionUID = 1L;
+  
   public GuidList(Collection<? extends Guid> c) {
     super(c);
   }

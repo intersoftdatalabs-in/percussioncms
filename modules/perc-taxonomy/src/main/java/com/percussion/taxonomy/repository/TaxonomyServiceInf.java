@@ -20,27 +20,57 @@ import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Service interface for managing Taxonomy entities.
+ * Provides CRUD operations and queries for taxonomies including their associated nodes, attributes, and visibility settings.
+ */
 public interface TaxonomyServiceInf {
+
+  /**
+   * Retrieves all taxonomies defined in the system.
+   *
+   * @return a collection of all Taxonomy entities, or an empty collection
+   */
   Collection<Taxonomy> getAllTaxonomys();
 
+  /**
+   * Retrieves a specific taxonomy by its unique identifier.
+   *
+   * @param id the unique identifier of the taxonomy
+   * @return the Taxonomy entity, or null if not found
+   */
   Taxonomy getTaxonomy(int id);
 
   /**
-   * Determines if an taxonomy exists for a given name. Using case insensitive to compare the names.
+   * Determines if a taxonomy exists for a given name.
+   * Comparison is case-insensitive.
    *
-   * @param name the name in question, not empty.
-   * @return <code>true</code> if such taxonomy exist.
+   * @param name the name to search for; must not be empty
+   * @return true if a taxonomy with the given name exists, false otherwise
    */
   boolean doesTaxonomyExists(String name);
 
   /**
-   * Removes a taxonomy and all the attributes, nodes and visibilities associated to it.
+   * Removes a taxonomy and all associated entities.
+   * This will delete all attributes, nodes, and visibilities associated with the taxonomy.
    *
-   * @param taxonomy {@link Taxonomy} to be removed. Must not be <code>null</code>.
+   * @param taxonomy the Taxonomy entity to remove; must not be null
    */
   void removeTaxonomy(Taxonomy taxonomy);
 
+  /**
+   * Saves or updates the specified taxonomy in the system.
+   *
+   * @param taxonomy the Taxonomy entity to save; must not be null
+   */
   void saveTaxonomy(Taxonomy taxonomy);
 
-  public List<Node> getNodesInDeletionOrder(Taxonomy taxonomy);
+  /**
+   * Retrieves nodes in an order suitable for deletion (children before parents).
+   * This ensures referential integrity when deleting nodes in bulk.
+   *
+   * @param taxonomy the Taxonomy whose nodes are to be ordered
+   * @return a list of Node entities in deletion order
+   */
+  List<Node> getNodesInDeletionOrder(Taxonomy taxonomy);
 }

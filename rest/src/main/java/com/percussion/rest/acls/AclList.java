@@ -32,6 +32,7 @@ import java.util.Objects;
 @ArraySchema(schema = @Schema(implementation = Acl.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AclList extends ArrayList<Acl> {
+  private static final long serialVersionUID = 1L;
 
   public AclList(Collection<? extends Acl> c) {
     super(c);

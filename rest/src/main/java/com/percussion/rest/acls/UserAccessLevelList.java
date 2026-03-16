@@ -34,6 +34,7 @@ import java.util.Objects;
 @ArraySchema(schema = @Schema(implementation = UserAccessLevel.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAccessLevelList extends ArrayList<UserAccessLevel> {
+  private static final long serialVersionUID = 1L;
 
   public UserAccessLevelList() {
     super();

@@ -21,10 +21,31 @@ import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import java.util.Map;
 
-/** Retrieves the server's max timeout setting in seconds. Takes no params. Used for keep alive. */
+/**
+ * Action that retrieves the server's maximum timeout setting in seconds.
+ * 
+ * <p>This action is used for keep-alive functionality to determine how long
+ * the client should wait before timing out.</p>
+ * 
+ * <p>Required parameters:</p>
+ * <ul>
+ *   <li>timeout - the timeout value from {@link PSAAClientServlet#PARAM_TIMEOUT}</li>
+ * </ul>
+ * 
+ * @param params a map containing the timeout parameter
+ * @return an {@link PSActionResponse} containing the timeout value as plain text
+ * @throws PSAAClientActionException if the timeout value cannot be processed
+ */
 public class PSGetMaxTimeoutAction extends PSAAActionBase {
 
-  // see interface for details
+  /**
+   * Executes the action to return the maximum timeout value.
+   *
+   * @param params a map containing:
+   *   - PSAAClientServlet.PARAM_TIMEOUT: the timeout Integer value
+   * @return PSActionResponse containing the timeout as a plain text string
+   * @throws PSAAClientActionException if the timeout parameter is invalid
+   */
   @SuppressWarnings("unused")
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     Integer timeout = (Integer) params.get(PSAAClientServlet.PARAM_TIMEOUT);

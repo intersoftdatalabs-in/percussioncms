@@ -61,8 +61,8 @@ public class PSCryptographer {
     parttwo /= 13;
 
     int padLen = 0;
-    ByteArrayOutputStream bOut = new ByteArrayOutputStream()) {
-      String ret = "";
+    String ret = "";
+    try {
       byte[] bOutarr = Base64.getMimeDecoder().decode(str.getBytes(StandardCharsets.UTF_8));
 
       if ((key != null) && (key instanceof IPSSecretKey)) {
@@ -100,13 +100,12 @@ public class PSCryptographer {
 
       // pad must be between 1 and 7 bytes, fix for bug id Rx-99-11-0049
       if ((padLen > 0) & (padLen < 8)) ret = ret.substring(0, ret.length() - padLen);
-
-      return ret;
     } catch (Exception e) {
       // we were returning null which caused a decryption error downstream
       // now we return ""
       return "";
     }
+    return ret;
   }
 
   /**

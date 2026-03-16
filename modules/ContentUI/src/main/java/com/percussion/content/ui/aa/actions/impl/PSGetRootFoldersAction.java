@@ -22,9 +22,31 @@ import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.browse.PSContentBrowser;
 import java.util.Map;
 
-/** Implementation of the get root folders action. */
+/**
+ * Action that retrieves the root folders accessible to the current user.
+ * 
+ * <p>This action returns a JSON representation of the root folders in the 
+ * content repository that the current user has access to.</p>
+ * 
+ * <p>Required parameters:</p>
+ * <ul>
+ *   <li>None - uses the request context to determine user and permissions</li>
+ * </ul>
+ * 
+ * @param params a map of action parameters (unused, user context is derived from request)
+ * @return an {@link PSActionResponse} containing the root folders as JSON
+ * @throws PSAAClientActionException if the root folders cannot be retrieved
+ */
 public class PSGetRootFoldersAction extends PSAAActionBase {
-  /** todo document the required and optional parameters in the map. */
+
+  /**
+   * Executes the action to retrieve root folders for the current user context.
+   *
+   * @param params this action does not require explicit parameters;
+   *   user context is derived from the request
+   * @return PSActionResponse containing the root folders as JSON
+   * @throws PSAAClientActionException if the folders cannot be retrieved
+   */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     try {
       return new PSActionResponse(

@@ -23,6 +23,7 @@ import com.percussion.error.PSException;
 
 /** Exception for backend errors. Sunny Sal: "Backend mein kuch gadbad hai, boss!" */
 public class BackendException extends PSException {
+  private static final long serialVersionUID = 1L;
 
   public BackendException(String message, Exception e) {
     super(message, e);

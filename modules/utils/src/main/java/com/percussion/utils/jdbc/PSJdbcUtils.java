@@ -183,9 +183,9 @@ public class PSJdbcUtils {
     if (subIndex2 != -1) sub2 = url.substring(subIndex1 + 1, subIndex2);
 
     String driver = null;
-    if (sub2 != null) driver = (String) ms_jdbcUrlToDriverMap.get(sub1 + ":" + sub2);
+    if (sub2 != null) driver = ms_jdbcUrlToDriverMap.get(sub1 + ":" + sub2);
 
-    if (driver == null) driver = (String) ms_jdbcUrlToDriverMap.get(sub1);
+    if (driver == null) driver = ms_jdbcUrlToDriverMap.get(sub1);
 
     if ((driver == null) && (sub2 != null)) driver = sub1 + ":" + sub2;
 
@@ -223,9 +223,9 @@ public class PSJdbcUtils {
     if (subIndex2 != -1) sub2 = tmpUrl.substring(subIndex1 + 1, subIndex2);
 
     String driver = null;
-    if (sub2 != null) driver = (String) ms_jdbcUrlToDriverMap.get(sub1 + ":" + sub2);
+    if (sub2 != null) driver = ms_jdbcUrlToDriverMap.get(sub1 + ":" + sub2);
 
-    if (driver == null) driver = (String) ms_jdbcUrlToDriverMap.get(sub1);
+    if (driver == null) driver = ms_jdbcUrlToDriverMap.get(sub1);
 
     if ((driver == null) && (sub2 != null)) driver = sub1 + ":" + sub2;
 

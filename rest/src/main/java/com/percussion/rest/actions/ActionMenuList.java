@@ -28,6 +28,7 @@ import java.util.Objects;
 @XmlRootElement(name = "ActionMenuList")
 @ArraySchema(schema = @Schema(implementation = ActionMenu.class))
 public class ActionMenuList extends ArrayList<ActionMenu> {
+  private static final long serialVersionUID = 1L;
 
   public ActionMenuList() {
     super();

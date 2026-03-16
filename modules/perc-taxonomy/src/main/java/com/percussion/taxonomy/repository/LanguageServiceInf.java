@@ -20,13 +20,38 @@ package com.percussion.taxonomy.repository;
 import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
+/**
+ * Service interface for managing Language entities.
+ * Provides CRUD operations and queries for supported languages in the taxonomy system.
+ */
 public interface LanguageServiceInf {
 
+  /**
+   * Retrieves all languages available in the system.
+   *
+   * @return a collection of all Language entities, or an empty collection if none exist
+   */
   public Collection getAllLanguages();
 
+  /**
+   * Retrieves a specific language by its unique identifier.
+   *
+   * @param id the unique identifier of the language
+   * @return the Language entity with the given id, or null if not found
+   */
   public Language getLanguage(int id);
 
+  /**
+   * Removes the specified language from the system.
+   *
+   * @param language the Language entity to remove; must not be null
+   */
   public void removeLanguage(Language language);
 
+  /**
+   * Saves or updates the specified language in the system.
+   *
+   * @param language the Language entity to save; must not be null
+   */
   public void saveLanguage(Language language);
 }
