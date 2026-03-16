@@ -62,14 +62,14 @@ public abstract class PSMetadataQueryServiceHelper {
     return datatypeMappings.getDatatype(nameWithOutNamespace);
   }
 
-  public static List parseToList(
+  public static List<Object> parseToList(
       String key,
       String val,
       PSPropertyDatatypeMappings datatypeMappings,
       PSHashCalculator hashCalc)
       throws ParseException {
     VALUETYPE type = datatypeMappings.getDatatype(key);
-    List results = new ArrayList();
+    List<Object> results = new ArrayList<>();
 
     if (type == VALUETYPE.NUMBER) {
       for (String s : val.split(",")) {
