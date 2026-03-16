@@ -34,9 +34,15 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.HibernateException;
 
+/**
+ * Service implementation for managing Taxonomy entities.
+ * Provides CRUD operations and node/attribute management for taxonomies.
+ *
+ * @author rxengineer
+ */
 public class TaxonomyService implements TaxonomyServiceInf {
   /**
-   * Auto wired by spring framework.
+   * Creates a new TaxonomyService with the specified dependencies.
    *
    * @param taxonomyDAO the taxonomy DAO service, not <code>null</code>.
    * @param visibilityService the visibility service, not <code>null</code>.
@@ -54,6 +60,11 @@ public class TaxonomyService implements TaxonomyServiceInf {
     this.attributeService = attributeService;
   }
 
+  /**
+   * Retrieves all taxonomies in the system.
+   *
+   * @return a collection of all Taxonomy entities, or an empty collection if none exist
+   */
   public Collection<Taxonomy> getAllTaxonomys() {
     try {
       return taxonomyDAO.getAllTaxonomys();
@@ -62,10 +73,22 @@ public class TaxonomyService implements TaxonomyServiceInf {
     }
   }
 
+  /**
+   * Retrieves a specific taxonomy by its unique identifier.
+   *
+   * @param id the unique identifier of the taxonomy
+   * @return the Taxonomy entity with the given id, or null if not found
+   */
   public Taxonomy getTaxonomy(int id) {
     return taxonomyDAO.getTaxonomy(id);
   }
 
+  /**
+   * Checks if a taxonomy with the specified name already exists.
+   *
+   * @param name the name of the taxonomy to check
+   * @return true if a taxonomy with the given name exists, false otherwise
+   */
   public boolean doesTaxonomyExists(String name) {
     List<Taxonomy> result = taxonomyDAO.getTaxonomy(name);
     for (Taxonomy t : result) {
@@ -74,11 +97,22 @@ public class TaxonomyService implements TaxonomyServiceInf {
     return false;
   }
 
+  /**
+   * Gets the ID of a taxonomy by its name.
+   *
+   * @param name the name of the taxonomy
+   * @return the taxonomy ID, or -1 if not found
+   */
   public int getTaxonomyIdByName(String name) {
     List<Integer> result = taxonomyDAO.getTaxonomyIdForName(name);
     return (result.size() > 0) ? result.get(0) : -1;
   }
 
+  /**
+   * Removes the specified taxonomy and all associated nodes, attributes, and visibility settings.
+   *
+   * @param taxonomy the Taxonomy entity to remove; must not be null
+   */
   public void removeTaxonomy(Taxonomy taxonomy) {
     notNull(taxonomy);
 
@@ -93,6 +127,11 @@ public class TaxonomyService implements TaxonomyServiceInf {
     taxonomyDAO.removeTaxonomy(taxonomy);
   }
 
+  /**
+   * Saves or updates the specified taxonomy in the system.
+   *
+   * @param taxonomy the Taxonomy entity to save; must not be null
+   */
   public void saveTaxonomy(Taxonomy taxonomy) {
     taxonomyDAO.saveTaxonomy(taxonomy);
   }
@@ -110,7 +149,7 @@ public class TaxonomyService implements TaxonomyServiceInf {
 
   /**
    * Iterates over the node list and gets the nodes ordered from root parent to the leaf level
-   * nodes. First node is the root, then all its childrens, and so on.
+   * nodes. First node is the root, then all its children, and so on.
    *
    * @param taxonomy the {@link Taxonomy} object, must not be <code>null</code>
    * @return {@link List}<{@link Node}> never <code>null</code> but may be empty.

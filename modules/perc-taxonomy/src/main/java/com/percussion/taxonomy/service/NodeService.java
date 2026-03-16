@@ -68,6 +68,13 @@ public class NodeService implements NodeServiceInf {
 
   /////////////////////////////////////////////////////////
 
+  /**
+   * Retrieves all nodes for a given taxonomy and language.
+   *
+   * @param taxID the unique identifier of the taxonomy
+   * @param langID the unique identifier of the language
+   * @return a collection of all Node entities matching the criteria
+   */
   public Collection<Node> getAllNodes(int taxID, int langID) {
     Collection<Node> nodes = null;
     try {
@@ -78,6 +85,13 @@ public class NodeService implements NodeServiceInf {
     return nodes;
   }
 
+  /**
+   * Retrieves a specific node by its unique identifier and language.
+   *
+   * @param nodeID the unique identifier of the node
+   * @param langID the unique identifier of the language
+   * @return the Node entity, or null if not found
+   */
   public Node getNode(int nodeID, int langID) {
     Node node = null;
     try {
@@ -88,6 +102,12 @@ public class NodeService implements NodeServiceInf {
     return node;
   }
 
+  /**
+   * Retrieves multiple nodes by their unique identifiers.
+   *
+   * @param ids a collection of node unique identifiers
+   * @return a collection of Node entities corresponding to the provided IDs
+   */
   public Collection<Node> getSomeNodes(Collection<Integer> ids) {
     Collection<Node> nodes = null;
     if (ids != null) {
@@ -100,7 +120,15 @@ public class NodeService implements NodeServiceInf {
     return nodes;
   }
 
-  /** Return nodeID, parentID, and name of all nodes for a given taxonomy and search string */
+  /**
+   * Searches for nodes matching the specified search string within a taxonomy and language.
+   *
+   * @param taxID the unique identifier of the taxonomy to search in
+   * @param langID the unique identifier of the language
+   * @param search_string the search string to match against node names or values
+   * @param exclude_disabled if true, excludes disabled nodes from results
+   * @return a collection of Node entities matching the search criteria
+   */
   public Collection<Node> getNodesFromSearch(
       int taxID, int langID, String search_string, boolean exclude_disabled) {
     Collection<Node> nodes = null;
@@ -114,7 +142,12 @@ public class NodeService implements NodeServiceInf {
     return nodes;
   }
 
-  /** Return all child nodes of the given node */
+  /**
+   * Retrieves all direct child nodes of a given parent node.
+   *
+   * @param nodeID the unique identifier of the parent node
+   * @return a collection of child Node entities, or an empty collection if none exist
+   */
   public Collection<Node> getChildNodes(int nodeID) {
     Collection<Node> children = null;
     try {
@@ -125,6 +158,12 @@ public class NodeService implements NodeServiceInf {
     return children;
   }
 
+  /**
+   * Finds nodes that have the specified attribute with associated values.
+   *
+   * @param attribute the Attribute to search for; must not be null
+   * @return a collection of Node entities that have the given attribute
+   */
   public Collection<Node> findNodesByAttribute(Attribute attribute) {
     Collection<Node> nodes = new ArrayList<Node>();
     if (attribute != null) {
@@ -135,6 +174,11 @@ public class NodeService implements NodeServiceInf {
 
   /////////////////////////////////////////////////////////
 
+  /**
+   * Removes the specified node from the system.
+   *
+   * @param node the Node entity to remove; must not be null
+   */
   public void removeNode(Node node) {
     if (node != null) {
       try {
@@ -145,6 +189,11 @@ public class NodeService implements NodeServiceInf {
     }
   }
 
+  /**
+   * Saves or updates the specified node in the system.
+   *
+   * @param node the Node entity to save; must not be null
+   */
   public void saveNode(Node node) {
     if (node != null) {
       try {
@@ -157,7 +206,14 @@ public class NodeService implements NodeServiceInf {
 
   /////////////////////////////////////////////////////////
 
-  /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
+  /**
+   * Retrieves all node names (and their IDs) for a given taxonomy and language.
+   * Useful for dropdown selections.
+   *
+   * @param taxonomyID the unique identifier of the taxonomy
+   * @param langID the unique identifier of the language
+   * @return a collection of Object arrays containing [nodeId, nodeName] pairs
+   */
   public Collection<Object[]> getAllNodeNames(int taxonomyID, int langID) {
     Collection<Object[]> names = null;
     try {
@@ -168,7 +224,13 @@ public class NodeService implements NodeServiceInf {
     return names;
   }
 
-  /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
+  /**
+   * Retrieves names for a subset of nodes by their IDs.
+   *
+   * @param ids a collection of node unique identifiers
+   * @param langID the unique identifier of the language
+   * @return a collection of Object arrays containing [nodeId, nodeName] pairs
+   */
   public Collection<Object[]> getSomeNodeNames(Collection<Integer> ids, int langID) {
     Collection<Object[]> names = null;
     try {
@@ -179,7 +241,13 @@ public class NodeService implements NodeServiceInf {
     return names;
   }
 
-  /** Return a nodeName for the given node */
+  /**
+   * Retrieves the name of a specific node.
+   *
+   * @param nodeID the unique identifier of the node
+   * @param langID the unique identifier of the language
+   * @return a collection of node names (typically contains one entry)
+   */
   public Collection<String> getNodeName(int nodeID, int langID) {
     Collection<String> names = null;
     try {
@@ -192,7 +260,13 @@ public class NodeService implements NodeServiceInf {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  /** Return all values associated with a given node */
+  /**
+   * Retrieves all values associated with a specific node.
+   *
+   * @param nodeID the unique identifier of the node
+   * @param langID the unique identifier of the language
+   * @return a collection of Value entities associated with the node
+   */
   public Collection<Value> getValuesForNode(int nodeID, int langID) {
     Collection<Value> values = null;
     try {
@@ -203,7 +277,14 @@ public class NodeService implements NodeServiceInf {
     return values;
   }
 
-  /** Return all values associated with a given node and attribute combo */
+  /**
+   * Retrieves values for a specific node that are associated with a particular attribute.
+   *
+   * @param nodeID the unique identifier of the node
+   * @param attrID the unique identifier of the attribute
+   * @param langID the unique identifier of the language
+   * @return a collection of Value entities matching the criteria
+   */
   public Collection<Value> getSpecificValuesForNode(int nodeID, int attrID, int langID) {
     Collection<Value> values = null;
     try {
@@ -216,7 +297,12 @@ public class NodeService implements NodeServiceInf {
 
   //////////////////////////////////////////////////////////////////////////////////////
 
-  /** Return all nodes 'related to' the given node */
+  /**
+   * Retrieves all nodes related to the specified node (as defined by relationships).
+   *
+   * @param nodeID the unique identifier of the source node
+   * @return a collection of Related_node entities
+   */
   public Collection<Related_node> getRelatedNodes(int nodeID) {
     Collection<Related_node> nodes = null;
     try {
@@ -227,7 +313,12 @@ public class NodeService implements NodeServiceInf {
     return nodes;
   }
 
-  /** Return all related nodes 'that reference' the given node */
+  /**
+   * Retrieves all references to the specified node from other nodes.
+   *
+   * @param nodeID the unique identifier of the target node
+   * @return a collection of Related_node entities that reference this node
+   */
   public Collection<Related_node> getRelatedNodeReferences(int nodeID) {
     Collection<Related_node> relatedNodes = null;
     try {
@@ -238,7 +329,12 @@ public class NodeService implements NodeServiceInf {
     return relatedNodes;
   }
 
-  /** Return all nodes 'similar to' the given node */
+  /**
+   * Finds nodes that are similar to the specified node based on attribute values.
+   *
+   * @param nodeID the unique identifier of the source node
+   * @return a collection of Related_node entities representing similar nodes
+   */
   public Collection<Related_node> getSimilarNodes(int nodeID) {
     Collection<Related_node> relatedNodes = null;
     try {
@@ -251,7 +347,12 @@ public class NodeService implements NodeServiceInf {
 
   ///////////////////////////////////////////////////////////////////////////////////////
 
-  /** Return all NodeEditors for the given node */
+  /**
+   * Retrieves all editors associated with a given node.
+   *
+   * @param nodeID the unique identifier of the node
+   * @return a collection of Node_editor entities, or an empty collection if none exist
+   */
   public Collection<Node_editor> getNodeEditors(int nodeID) {
     Collection<Node_editor> editors = null;
     try {
@@ -264,7 +365,12 @@ public class NodeService implements NodeServiceInf {
 
   ///////////////////////////////////////////////////////////////////////////////////////
 
-  /** Change the parent of a node */
+  /**
+   * Changes the parent of a node (moves the node to a new location in the hierarchy).
+   *
+   * @param nodeID the unique identifier of the node to move
+   * @param newParentID the unique identifier of the new parent node
+   */
   public void changeParent(int nodeID, int newParentID) {
     try {
       this.nodeDAO.changeParent(nodeID, newParentID);
@@ -273,7 +379,13 @@ public class NodeService implements NodeServiceInf {
     }
   }
 
-  /** Return all titles for all nodes */
+  /**
+   * Retrieves titles for all nodes in a given taxonomy.
+   *
+   * @param taxonomyID the unique identifier of the taxonomy
+   * @param languageID the unique identifier of the language
+   * @return a collection of Object arrays containing [nodeId, title] pairs
+   */
   public Collection<Object[]> getTitlesForNodes(int taxonomyID, int languageID) {
     Collection<Object[]> titles = null;
     try {
@@ -285,11 +397,11 @@ public class NodeService implements NodeServiceInf {
   }
 
   /**
-   * If the node doesn't have children, delet it and its relations
+   * If the node doesn't have children, deletes it and its relations.
    *
-   * @param nodeID
-   * @param taxonomyID
-   * @return errors if any, null otherwise
+   * @param nodeID the unique identifier of the node to delete
+   * @param taxonomyID the unique identifier of the taxonomy containing the node
+   * @return a map of error messages if any, or null if the deletion was successful
    */
   public Map<String, String> deleteNodeAndFriends(int nodeID, int taxonomyID) {
     Map<String, String> results = null;
@@ -301,24 +413,56 @@ public class NodeService implements NodeServiceInf {
     return results;
   }
 
+  /**
+   * Sets the NodeDAO instance for this service.
+   *
+   * @param nodeDAO the NodeDAO to use for database operations
+   */
   public void setNodeDAO(NodeDAO nodeDAO) {
     this.nodeDAO = nodeDAO;
   }
 
+  /**
+   * Finds items that use the specified node in their content.
+   *
+   * @param table the database table name containing the taxonomy field
+   * @param column the database column name of the taxonomy field
+   * @param node the Node to search for
+   * @param maxItems the maximum number of items to return (-1 for unlimited)
+   * @param remove if true, removes the node reference from found items
+   * @return a list of PSLocator objects pointing to the found items
+   */
   public List<PSLocator> findItemsUsingNode(
       String table, String column, Node node, int maxItems, boolean remove) {
     return this.nodeDAO.findItemsUsingNode(table, column, node, maxItems, remove);
   }
 
+  /**
+   * Gets all database locations where the specified node is in use.
+   *
+   * @param node the Node to search for
+   * @return a list of PSLocator objects representing database locations
+   */
   public List<PSLocator> getDbInUse(Node node) {
     return findItemsForAllTables(node, -1, false);
   }
 
+  /**
+   * Checks if the specified node is in use in any content.
+   *
+   * @param node the Node to check
+   * @return true if the node is in use, false otherwise
+   */
   public boolean checkDbInUse(Node node) {
 
     return findItemsForAllTables(node, 1, false).size() > 0;
   }
 
+  /**
+   * Deletes the specified node from all content items that reference it.
+   *
+   * @param node the Node to remove from content
+   */
   public void deleteNodeFromContent(Node node) {
     findItemsForAllTables(node, -1, true);
   }

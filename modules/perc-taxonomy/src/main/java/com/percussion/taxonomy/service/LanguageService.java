@@ -23,10 +23,27 @@ import com.percussion.taxonomy.repository.LanguageServiceInf;
 import java.util.Collection;
 import org.hibernate.HibernateException;
 
+/**
+ * Service implementation for managing Language entities.
+ * Provides CRUD operations and queries for supported languages in the taxonomy system.
+ *
+ * @author rxengineer
+ */
+/**
+ * Service implementation for managing Language entities.
+ * Provides CRUD operations and queries for supported languages in the taxonomy system.
+ *
+ * @author rxengineer
+ */
 public class LanguageService implements LanguageServiceInf {
 
   public LanguageDAO languageDAO;
 
+  /**
+   * Retrieves all languages available in the system.
+   *
+   * @return a collection of all Language entities, or an empty collection if none exist
+   */
   public Collection getAllLanguages() {
     try {
       return languageDAO.getAllLanguages();
@@ -35,6 +52,12 @@ public class LanguageService implements LanguageServiceInf {
     }
   }
 
+  /**
+   * Retrieves a specific language by its unique identifier.
+   *
+   * @param id the unique identifier of the language
+   * @return the Language entity with the given id, or null if not found
+   */
   public Language getLanguage(int id) {
     try {
       return languageDAO.getLanguage(id);
@@ -43,6 +66,11 @@ public class LanguageService implements LanguageServiceInf {
     }
   }
 
+  /**
+   * Removes the specified language from the system.
+   *
+   * @param language the Language entity to remove; must not be null
+   */
   public void removeLanguage(Language language) {
     try {
       languageDAO.removeLanguage(language);
@@ -51,6 +79,11 @@ public class LanguageService implements LanguageServiceInf {
     }
   }
 
+  /**
+   * Saves or updates the specified language in the system.
+   *
+   * @param language the Language entity to save; must not be null
+   */
   public void saveLanguage(Language language) {
     try {
       languageDAO.saveLanguage(language);
@@ -59,6 +92,11 @@ public class LanguageService implements LanguageServiceInf {
     }
   }
 
+  /**
+   * Sets the LanguageDAO instance for this service.
+   *
+   * @param languageDAO the LanguageDAO to use for database operations
+   */
   public void setLanguageDAO(LanguageDAO languageDAO) {
     this.languageDAO = languageDAO;
   }
