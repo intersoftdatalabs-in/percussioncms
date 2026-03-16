@@ -250,7 +250,7 @@
         <versionString>INTERNAL</versionString>
         <versions.maven.plugin.version>2.21.0</versions.maven.plugin.version>
         <sigstore.maven.plugin.version>2.0.0</sigstore.maven.plugin.version>
-        <sigstore.java.version>1.0.0</sigstore.java.version>
+        <sigstore.java.version>1.2.0</sigstore.java.version>
         <xerces.version>2.12.2</xerces.version>
         <xmlgraphics.common.version>2.11</xmlgraphics.common.version>
         <xmlresolver.version>1.2</xmlresolver.version>
