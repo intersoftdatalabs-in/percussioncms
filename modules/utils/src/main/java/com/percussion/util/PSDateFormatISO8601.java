@@ -32,6 +32,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * flexible than a generic (or even simple) date format.
  */
 public class PSDateFormatISO8601 extends Format {
+   /** */
+   private static final long serialVersionUID = 1L;
   /** Constructs an ISO 8601 date formatter. */
   public PSDateFormatISO8601() {
     m_df = FastDateFormat.getInstance("yyyyMMdd'T'HHmmssSSS");

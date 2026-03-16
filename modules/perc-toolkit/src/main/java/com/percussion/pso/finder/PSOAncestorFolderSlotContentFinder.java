@@ -80,10 +80,10 @@ public class PSOAncestorFolderSlotContentFinder extends PSBaseSlotContentFinder 
     init(contentWs, folderTools);
   }
 
-  protected void init(IPSContentWs contentWs, PSOFolderTools folderTools) {
-    this.contentWs = contentWs;
-    this.folderTools = folderTools;
-  }
+   protected final void init(IPSContentWs contentWs, PSOFolderTools folderTools) {
+     this.contentWs = contentWs;
+     this.folderTools = folderTools;
+   }
 
   @Override
   public Set<SlotItem> getSlotItems(

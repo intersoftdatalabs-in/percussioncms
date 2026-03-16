@@ -21,9 +21,23 @@ import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.browse.PSContentBrowser;
 import java.util.Map;
 
-/** Implementation of the get sites action. */
+/**
+ * Action to retrieve all available sites from the content browser.
+ * Returns a JSON list of site names and their properties.
+ * 
+ * <p>Parameters: None required.
+ * 
+ * <p>Returns: JSON response containing site information.
+ */
 public class PSGetSitesAction extends PSAAActionBase {
-  /** todo document the required and optional parameters in the map. */
+
+  /**
+   * Executes the get sites action.
+   * 
+   * @param params action parameters (unused)
+   * @return PSActionResponse containing JSON list of sites
+   * @throws PSAAClientActionException if an error occurs retrieving sites
+   */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     try {
       return new PSActionResponse(PSContentBrowser.getSites(), PSActionResponse.RESPONSE_TYPE_JSON);

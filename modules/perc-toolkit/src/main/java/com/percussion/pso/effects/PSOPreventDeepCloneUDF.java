@@ -122,7 +122,7 @@ public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension implements 
     initServices();
     log.debug("Getting workflow name");
     PSWorkflow workflow = wf.loadWorkflow(new PSGuid(PSTypeEnum.WORKFLOW, id));
-    log.debug("got workflow name " + workflow.getName());
+    log.debug("got workflow name {}", workflow.getName());
     return workflow.getName();
   }
 
@@ -132,7 +132,7 @@ public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension implements 
     PSState state =
         wf.loadWorkflowState(
             new PSGuid(PSTypeEnum.WORKFLOW_STATE, stateid), new PSGuid(PSTypeEnum.WORKFLOW, wfid));
-    log.debug("Got state name" + state.getName());
+    log.debug("Got state name {}", state.getName());
     return state.getName();
   }
 

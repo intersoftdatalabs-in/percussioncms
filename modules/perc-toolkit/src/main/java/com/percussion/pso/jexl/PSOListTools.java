@@ -64,22 +64,22 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @throws IllegalArgumentException, IndexOutOfBoundsException
    */
 
-  public List subListUnSafe(Collection c, int start, int end)
-      throws IllegalArgumentException, IndexOutOfBoundsException {
-    if (c == null) {
-      throw new IllegalArgumentException("The collection cannot be null");
-    }
-    if (start > end) {
-      throw new IllegalArgumentException("Start index is greater then end.");
-    }
-    if (start > c.size() || end > c.size() || start < 0 || end < 0) {
-      throw new IndexOutOfBoundsException("Index out of bounds");
-    }
-    List rvalue = new ArrayList(c);
-    rvalue = rvalue.subList(start, end);
-
-    return rvalue;
-  }
+   public List<Object> subListUnSafe(Collection<?> c, int start, int end)
+       throws IllegalArgumentException, IndexOutOfBoundsException {
+     if (c == null) {
+       throw new IllegalArgumentException("The collection cannot be null");
+     }
+     if (start > end) {
+       throw new IllegalArgumentException("Start index is greater then end.");
+     }
+     if (start > c.size() || end > c.size() || start < 0 || end < 0) {
+       throw new IndexOutOfBoundsException("Index out of bounds");
+     }
+     List<Object> rvalue = new ArrayList<>(c);
+     rvalue = rvalue.subList(start, end);
+ 
+     return rvalue;
+   }
 
   /**
    * Gets a sublist from the specified Collection avoiding exceptions.

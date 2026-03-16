@@ -294,20 +294,22 @@ public class PSBrandCodeMapVersion {
             bce.getAttributeValue(IPSBrandCodeMap.ATTR_UNSELECTED_OPTIONAL_PART_ID, true), errMsg);
 
     int reqoptPartId = 0;
-    switch (partsType) {
-      case IPSBrandCodeMap.PARTS_TYPE_ALL:
-      case IPSBrandCodeMap.PARTS_TYPE_REQUIRED:
-        reqoptPartId += reqPartId;
-        if (partsType == IPSBrandCodeMap.PARTS_TYPE_REQUIRED) break;
+     switch (partsType) {
+       case IPSBrandCodeMap.PARTS_TYPE_ALL:
+       case IPSBrandCodeMap.PARTS_TYPE_REQUIRED:
+         reqoptPartId += reqPartId;
+         if (partsType == IPSBrandCodeMap.PARTS_TYPE_REQUIRED) break;
+         /* falls through */
 
-      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL:
-      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED:
-        reqoptPartId += selOptPartId;
-        if (partsType == IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED) break;
+       case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL:
+       case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED:
+         reqoptPartId += selOptPartId;
+         if (partsType == IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED) break;
+         /* falls through */
 
-      case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_UNSELECTED:
-        reqoptPartId += unselOptPartId;
-        break;
+       case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_UNSELECTED:
+         reqoptPartId += unselOptPartId;
+         break;
 
       default:
         throw new IllegalArgumentException("Invalid parts type");

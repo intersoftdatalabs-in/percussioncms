@@ -61,16 +61,17 @@ public interface IPSOObjectFinder {
       params = {@IPSJexlParam(name = "guid", description = "the content type GUID")})
   public PSContentTypeSummary getContentTypeSummary(IPSGuid guid);
 
-  /**
-   * Gets the JSESSIONID value for the current session.
-   *
-   * @return the jsessionid
-   * @deprecated in 6.5 and later, replaced by PSSessionUtils.getJSessionId().
-   */
-  @IPSJexlMethod(
-      description = "Get the JSESSIONID value for the current request",
-      params = {})
-  public String getJSessionId();
+   /**
+    * Gets the JSESSIONID value for the current session.
+    *
+    * @return the jsessionid
+    * @deprecated in 6.5 and later, replaced by PSSessionUtils.getJSessionId().
+    */
+   @Deprecated
+   @IPSJexlMethod(
+       description = "Get the JSESSIONID value for the current request",
+       params = {})
+   public String getJSessionId();
 
   /**
    * Gets the PSSessionId for the current session.

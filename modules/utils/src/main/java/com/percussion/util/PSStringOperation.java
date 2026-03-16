@@ -295,11 +295,11 @@ public class PSStringOperation {
 
     StringBuilder buffer = new StringBuilder();
 
-    while (iter.hasNext()) {
-      // If separator is part of the value in the list, escape it by itself
-      // sothat when we get back list of values from the string, it can be
-      // identified and unescape instead of treating it as separator.
-      String value = replace((String) iter.next(), separator, separator + separator);
+     while (iter.hasNext()) {
+       // If separator is part of the value in the list, escape it by itself
+       // sothat when we get back list of values from the string, it can be
+       // identified and unescape instead of treating it as separator.
+       String value = replace(iter.next(), separator, separator + separator);
 
       buffer.append(value);
       buffer.append(separator);

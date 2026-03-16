@@ -83,10 +83,10 @@ public class PSOFolderTools extends PSJexlUtilBase implements IPSJexlExpression 
     init(contentWs, guidManager);
   }
 
-  protected void init(IPSContentWs contentWs, IPSGuidManager guidManager) {
-    this.contentWs = contentWs;
-    this.guidManager = guidManager;
-  }
+   protected final void init(IPSContentWs contentWs, IPSGuidManager guidManager) {
+     this.contentWs = contentWs;
+     this.guidManager = guidManager;
+   }
 
   /**
    * Get the folder path for an item.
@@ -226,21 +226,22 @@ public class PSOFolderTools extends PSJexlUtilBase implements IPSJexlExpression 
       params = {@IPSJexlParam(name = "path", description = "folder path")},
       returns = "The folder properties (Map)")
 
-  public Map<String, String> getFolderProperties(String path) {
-    try {
-      PSFolder folder = getContentWs().loadFolders(new String[] {path}).get(0);
-      Map<String, String> props = new HashMap<String, String>();
-      Iterator<PSFolderProperty> it = folder.getProperties();
-      while (it.hasNext()) {
-        PSFolderProperty prop = it.next();
-        props.put(prop.getName(), prop.getValue());
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getFolderProperties(String path) {
+      try {
+        PSFolder folder = getContentWs().loadFolders(new String[] {path}).get(0);
+        Map<String, String> props = new HashMap<String, String>();
+        Iterator<PSFolderProperty> it = folder.getProperties();
+        while (it.hasNext()) {
+          PSFolderProperty prop = it.next();
+          props.put(prop.getName(), prop.getValue());
+        }
+        return props;
+      } catch (PSErrorResultsException e) {
+        log.error("Could not get folder properties for: " + path, e);
+        throw new RuntimeException(e);
       }
-      return props;
-    } catch (PSErrorResultsException e) {
-      log.error("Could not get folder properties for: " + path, e);
-      throw new RuntimeException(e);
     }
-  }
 
   /**
    * Get the folder paths Given a FolderID.

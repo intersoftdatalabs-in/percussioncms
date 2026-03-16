@@ -37,6 +37,12 @@ import javax.swing.SwingUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Popup frame for launching content explorer applets in separate windows.
+ * Supports dependency tree and item assembly views.
+ * 
+ * @since 8.0.0
+ */
 public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
   static Logger log = LogManager.getLogger(PSPopupAppletFrame.class);
 
@@ -46,6 +52,9 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
 
   private String view = null;
 
+  /**
+   * Creates a new popup applet frame with default settings.
+   */
   public PSPopupAppletFrame() {
     super();
 
@@ -65,6 +74,12 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
         });
   }
 
+  /**
+   * Determines the view type based on the action URL.
+   * 
+   * @param mi_actionurl the action URL to inspect
+   * @return "DT" for dependency tree, "IA" for item assembly, or null if unknown
+   */
   private static String getView(String mi_actionurl) {
     String view;
     if (mi_actionurl.contains("/Rhythmyx/sys_cxDependencyTree/dependencytree.html")) view = "DT";
@@ -73,6 +88,16 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
     return view;
   }
 
+  /**
+   * Validates whether this frame can open the given URL.
+   * 
+   * @param mi_actionurl the action URL
+   * @param mi_target the target name
+   * @param mi_style the window style specifications
+   * @param selection the current selection
+   * @param actiom the menu action
+   * @return true if the URL matches a supported view type
+   */
   @Override
   public boolean validateOpen(
       String mi_actionurl,
@@ -83,6 +108,11 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
     return getView(mi_actionurl) != null;
   }
 
+  /**
+   * Creates and returns the popup frame instance.
+   * 
+   * @return the configured popup frame
+   */
   @Override
   public JFrame instanceOpen() {
 
@@ -132,6 +162,11 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
     return this;
   }
 
+  /**
+   * Builds the session parameter map for the inner applet.
+   * 
+   * @return map of parameter names to values
+   */
   private Map<String, String> buildSessionParameterMapForInnerApplet() {
 
     Map<String, String> params = PSContentExplorerHelper.initializeDefaultParameters();
@@ -168,6 +203,11 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
     return params;
   }
 
+  /**
+   * Reloads the popup with optional new parameters.
+   * 
+   * @param parameters optional new parameters to merge
+   */
   @Override
   public void reload(Map<String, String> parameters) {
     Map<String, String> params = buildSessionParameterMapForInnerApplet();

@@ -21,12 +21,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-// ...existing code...
-
 /**
  * Provides common exception utilities for logging and message extraction.
- *
- * <p>
  */
 public class PSExceptionUtils {
 
@@ -84,10 +80,9 @@ public class PSExceptionUtils {
    */
   public static String getDebugMessageForLog(Exception e) {
     try (StringWriter sw = new StringWriter()) {
-      try (PrintWriter pw = new PrintWriter(sw)) {
-        e.printStackTrace(new PrintWriter(sw));
-        return sw.toString().trim();
-      }
+      PrintWriter pw = new PrintWriter(sw);
+      e.printStackTrace(pw);
+      return sw.toString().trim();
     } catch (IOException ioException) {
       return "Unable to extract stack trace for exception. Error: "
           + PSExceptionUtils.getMessageForLog(ioException);

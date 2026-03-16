@@ -174,25 +174,25 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
   }
 
 
-  public static void logRequestAttributes(HttpServletRequest request, String message) {
-    if (!log.isDebugEnabled()) return;
-    log.debug("logging request attributes for " + message);
-    Enumeration en = request.getAttributeNames();
-    while (en.hasMoreElements()) {
-      String nm = (String) en.nextElement();
-      log.debug("Attribute " + nm);
-      Object val = request.getAttribute(nm);
-      log.debug("Type is " + val.getClass().getCanonicalName());
-      log.debug("Value is " + val);
+    public static void logRequestAttributes(HttpServletRequest request, String message) {
+      if (!log.isDebugEnabled()) return;
+      log.debug("logging request attributes for " + message);
+      Enumeration<String> en = request.getAttributeNames();
+      while (en.hasMoreElements()) {
+        String nm = en.nextElement();
+        log.debug("Attribute " + nm);
+        Object val = request.getAttribute(nm);
+        log.debug("Type is " + val.getClass().getCanonicalName());
+        log.debug("Value is " + val);
+      }
     }
-  }
 
-  /**
-   * Sets the isdm in unit tests.
-   *
-   * @param isdm the isdm to set
-   */
-  public void setIsdm(ImageSizeDefinitionManager isdm) {
-    this.isdm = isdm;
-  }
+    /**
+     * Sets the isdm in unit tests.
+     *
+     * @param isdm the isdm to set
+     */
+    public void setIsdm(ImageSizeDefinitionManager isdm) {
+      this.isdm = isdm;
+    }
 }

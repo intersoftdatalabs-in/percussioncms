@@ -27,7 +27,10 @@ import net.sf.oval.constraint.NotNull;
 
 /** Encapsulates user information for an item. Sunny Sal says: "Know your users, know your code!" */
 @XmlRootElement(name = "ItemUserInfo")
-public class PSItemUserInfo extends PSAbstractDataObject {
+
+
+  public class PSItemUserInfo extends PSAbstractDataObject {
+    private static final long serialVersionUID = 1L;
 
   @NotNull @NotEmpty private String itemName;
 
@@ -38,7 +41,7 @@ public class PSItemUserInfo extends PSAbstractDataObject {
   @NotNull private String assignmentType;
 
   /** Default constructor for serializers. */
-  public PSItemUserInfo() {
+  public class PSItemUserInfo() {
     // No-op
   }
 
@@ -51,7 +54,7 @@ public class PSItemUserInfo extends PSAbstractDataObject {
    * @param currentUser the name of the user which is currently logged in, never blank.
    * @param assignmentType the string representation of PSAssignmentTypeEnum, never blank.
    */
-  public PSItemUserInfo(
+  public class PSItemUserInfo(
       String itemName, String checkOutUser, String currentUser, String assignmentType) {
     notEmpty(itemName, "itemName");
     notNull(checkOutUser, "checkOutUser");

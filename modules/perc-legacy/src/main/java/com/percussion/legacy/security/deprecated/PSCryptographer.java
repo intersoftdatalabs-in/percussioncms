@@ -61,7 +61,7 @@ public class PSCryptographer {
     parttwo /= 13;
 
     int padLen = 0;
-    try (ByteArrayOutputStream bOut = new ByteArrayOutputStream()) {
+    ByteArrayOutputStream bOut = new ByteArrayOutputStream()) {
       String ret = "";
       byte[] bOutarr = Base64.getMimeDecoder().decode(str.getBytes(StandardCharsets.UTF_8));
 

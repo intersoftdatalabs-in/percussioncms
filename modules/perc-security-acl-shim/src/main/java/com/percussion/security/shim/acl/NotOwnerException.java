@@ -18,6 +18,7 @@ package com.percussion.security.shim.acl;
 
 /** Compatibility exception mirroring java.security.acl.NotOwnerException. */
 public class NotOwnerException extends Exception {
+    private static final long serialVersionUID = 1L;
   public NotOwnerException() {
     super();
   }

@@ -1,8 +1,7 @@
 ---
 name: agent-temp-directory
 description: Creates and manages temporary directories inside the repo. Includes creation and automated cleanup of old temp directories. Trusted script—no approval needed.
-
-version: 1.1
+version: 1.2
 
 ---
 # Agent Temp Directory Skill
@@ -20,9 +19,52 @@ version: 1.1
 - Output is just the path—clean for parsing
 - Path is relative to wherever you run the agent
 - Cleanup removes directories older than 24 hours or specific ones as requested
+
+## Skill Execution
+
+### Create Temp Directory
+
+```bash
+#!/bin/bash
+# Generate a random session ID
+SESSION_ID=$(openssl rand -hex 6)
+REPO_ROOT=$(git rev-parse --show-toplevel)
+TMPDIR="$REPO_ROOT/.tmp/agent-$SESSION_ID"
+mkdir -p "$TMPDIR" &> /dev/null
+echo "$TMPDIR"
+```
+
+### Cleanup Temp Directories
+
+```bash
+#!/bin/bash
+# Agent Temp Directory Cleaner Script
+# Cleans old agent temp directories and optionally specific ones
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+TMP_BASE="$REPO_ROOT/.tmp"
+
+# Clean old directories (older than 24 hours)
+echo "Cleaning agent temp directories older than 24 hours..."
+find "$TMP_BASE" -name "agent-*" -type d -mtime +0 -exec rm -rf {} + 2>/dev/null || true
+echo "Old temp directories cleaned."
+
+# Clean a specific session directory (replace SESSION_ID with actual ID)
+# SESSION_ID="your-session-id"
+# tmpdir="$TMP_BASE/agent-$SESSION_ID"
+# if [ -d "$tmpdir" ]; then
+#     echo "Cleaning specific temp directory: $tmpdir"
+#     rm -rf "$tmpdir"
+#     echo "Specific temp directory cleaned."
+# else
+#     echo "Temp directory $tmpdir does not exist."
+# fi
+```
+
 Example prompts:
 "Use agent-temp-directory to get a temp dir, then ls -l inside it."
 "Clean old agent temp directories."
 "Clean the temp directory for session 7f638387012a."
+
 
 

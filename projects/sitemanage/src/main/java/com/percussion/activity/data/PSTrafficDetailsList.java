@@ -24,8 +24,10 @@ import java.util.Collection;
 
 /** List of PSTrafficDetails objects. */
 @JsonRootName(value = "TrafficDetails")
+  
 public class PSTrafficDetailsList extends ArrayList<PSTrafficDetails> {
-  public PSTrafficDetailsList(Collection<? extends PSTrafficDetails> c) {
+    private static final long serialVersionUID = 1L;
+  public class PSTrafficDetailsList(Collection<? extends PSTrafficDetails> c) {
     super(c);
   }
 }

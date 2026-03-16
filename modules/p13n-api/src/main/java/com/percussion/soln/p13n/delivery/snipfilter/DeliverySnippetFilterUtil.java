@@ -27,15 +27,24 @@ import com.percussion.soln.p13n.delivery.IDeliveryResponseSnippetItem;
 import com.percussion.soln.segment.Segment;
 
 /**
- * 
- * Helpful utilities methods for filtering snippets.
+ * Utility class for filtering and sorting delivery response snippet items.
+ * Provides methods to match segments and snippets, sort by index, and perform
+ * set operations on segment collections.
  * 
  * @author adamgent
- *
+ * @since 8.0.0
  */
 public class DeliverySnippetFilterUtil {
     private static final DeliveryResponseSnippetItemSorter snippetSorter = new DeliveryResponseSnippetItemSorter();
 
+    /**
+     * Finds segments that exist in both the given segments collection and snippet items.
+     * 
+     * @param segments the segments to match against
+     * @param snipItems the snippet items to check
+     * @return list of matching segments
+     * @throws IllegalArgumentException if either parameter is null
+     */
     public static List<? extends Segment> matchingSegments(
             Collection<? extends Segment> segments, 
             List<IDeliveryResponseSnippetItem> snipItems) {
@@ -48,6 +57,13 @@ public class DeliverySnippetFilterUtil {
         return matching;
     }
     
+    /**
+     * Finds snippet items that contain at least one segment from the given segments collection.
+     * 
+     * @param segments the segments to match
+     * @param snipItems the snippet items to check
+     * @return list of matching snippet items
+     */
     public static List<IDeliveryResponseSnippetItem> matchingSnippets(
             Collection<? extends Segment> segments,
             List<IDeliveryResponseSnippetItem> snipItems) {
@@ -60,6 +76,13 @@ public class DeliverySnippetFilterUtil {
         return matching;
     }
     
+    /**
+     * Sorts snippet items by their sort index in ascending order.
+     * Items with no or invalid sort index are placed at the beginning.
+     * 
+     * @param unSorted the unsorted list of snippet items
+     * @return sorted list of snippet items
+     */
     public static List<IDeliveryResponseSnippetItem> sortSnippets(List<IDeliveryResponseSnippetItem> unSorted) {
         List<IDeliveryResponseSnippetItem> sort = new ArrayList<IDeliveryResponseSnippetItem>(unSorted);
         Collections.sort(sort, snippetSorter);
@@ -79,6 +102,13 @@ public class DeliverySnippetFilterUtil {
         }
     }
     
+    /**
+     * Checks if a snippet exists in the given list of snippets.
+     * 
+     * @param snippetToMatch the snippet to find
+     * @param snippets the list to search in
+     * @return true if the snippet is found, false otherwise
+     */
     public static boolean containsSnippet(IDeliveryResponseSnippetItem snippetToMatch, List<IDeliveryResponseSnippetItem> snippets) {
         if (snippetToMatch == null) return false;
         if (snippets == null) return false;
@@ -90,6 +120,13 @@ public class DeliverySnippetFilterUtil {
         return false;
     }
     
+    /**
+     * Checks if any segment from collection A exists in collection B.
+     * 
+     * @param as first collection of segments
+     * @param bs second collection of segments
+     * @return true if any segment from A is found in B
+     */
     public static boolean containsAnySegment(
             Collection<? extends Segment> as,
             Collection<? extends Segment> bs ) {
@@ -97,6 +134,13 @@ public class DeliverySnippetFilterUtil {
         return false;
     }
     
+    /**
+     * Returns the intersection of two segment collections.
+     * 
+     * @param as first collection of segments
+     * @param bs second collection of segments
+     * @return collection of segments that exist in both A and B
+     */
     public static Collection<? extends Segment> intersectSegments(
             Collection<? extends Segment> as,
             Collection<? extends Segment> bs ) {
@@ -105,12 +149,26 @@ public class DeliverySnippetFilterUtil {
         return segs;
     }
     
+    /**
+     * Checks if a segment exists in the given collection by comparing segment objects.
+     * 
+     * @param segment the segment to find
+     * @param segments the collection to search
+     * @return true if found, false otherwise
+     */
     public static boolean containsSegment(Segment segment, 
             Collection<? extends Segment> segments) {
         if (segment == null) return false;
         return containsSegment(segment.getId(), segments);
     }
     
+    /**
+     * Checks if a segment with the given ID exists in the collection.
+     * 
+     * @param id the segment ID to find
+     * @param segments the collection to search
+     * @return true if found, false otherwise
+     */
     public static boolean containsSegment(String id, Collection<? extends Segment> segments) {
         for(Segment s : segments) { if (id.equals(s.getId())) return true; }
         return false;

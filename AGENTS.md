@@ -4,6 +4,8 @@ Percussion CMS is a de-coupled Java-based content management system. It has a lo
 
 This repository is a large mono-repo with many submodules.  This code base has a lot of history and legacy, and is currently in the process of being modernized and refactored, do not assume that all code is up to date with current best practices.  When making code changes, follow these guidelines:
 
+
+
 ## Rule Discovery Protocol
 
 **For any task, question, or code modification related to a specific module, you MUST first apply this protocol to the module's path:**
@@ -17,6 +19,15 @@ This repository is a large mono-repo with many submodules.  This code base has a
     * If local files exist, their instructions **supersede** global rules for that module's logic.
     * `AGENTS.local.md` takes precedence over `AGENTS.md`.
     * If no local files are found, default strictly to the root-level instructions.
+
+## AI Agent Optimization Protocol (Signed Skills)
+
+**Objective:** Maintain high security with sub-100ms tool-call latency.
+
+* **Mandatory Reference:** Before performing any domain tasks, you MUST use the `agent-integrity-validator` skill to verify the integrity and authenticity of your root instructions (`AGENTS.md`) and any other skills you intend to load.
+* **Pre-Verification:** Verification is performed at the "Loader" level. If any resource fails verification (e.g., `verified: false`), you MUST stop immediately and report the security violation to the user.
+* **Stripped Context:** Do not request or process raw Sigstore signatures. Work only with the lean `verified: true/false` status and file hashes.
+* **Caching:** The verification system automatically caches results to ensure that repeated checks are near-instantaneous. Do not attempt to bypass or manually clear this cache.
 
 ## **ANTI-HALLUCINATION RULES**
 

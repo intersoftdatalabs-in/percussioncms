@@ -59,15 +59,17 @@ public abstract class ConfigurationContextAbstract<
     return config;
   }
 
-  @Override
-  public void load() {
-    load((T) this);
-  }
+   @Override
+   @SuppressWarnings("unchecked")
+   public void load() {
+     load((T) this);
+   }
 
-  @Override
-  public void save() {
-    save((T) this);
-  }
+   @Override
+   @SuppressWarnings("unchecked")
+   public void save() {
+     save((T) this);
+   }
 
   public void copyFrom(ConfigurationContextAbstract<T, U> from) {
     try {

@@ -88,13 +88,13 @@ public class PSSynFeedProxy {
     return ret;
   }
 
-  /***
-   * Returns the feed categories.
-   * @return
-   */
-  public List getCategoriesList() {
-    return feed.getCategories();
-  }
+   /***
+    * Returns the feed categories.
+    * @return
+    */
+   public List<?> getCategoriesList() {
+     return feed.getCategories();
+   }
 
   /***
    * Returns the feed categories as a comma separated string.
