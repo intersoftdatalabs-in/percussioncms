@@ -17,25 +17,55 @@
 
 package com.percussion.cx;
 
+/**
+ * Represents a clipboard data item for JavaScript clipboard operations.
+ * Used to transfer data between JavaScript and Java clipboard systems.
+ */
 public class JSClipDataItem {
 
+  /** The kind of clip data, always "text" for this implementation. */
   public String kind = "text";
+  
+  /** The MIME type of the data (e.g., "text/plain"). */
   public String type;
+  
+  /** The actual data content. */
   public String data;
 
+  /**
+   * Creates a new JSClipDataItem with the specified type and data.
+   *
+   * @param type the MIME type of the data
+   * @param data the data content
+   */
   public JSClipDataItem(String type, String data) {
     this.type = type;
     this.data = data;
   }
 
+  /**
+   * Gets the kind of clip data.
+   *
+   * @return always returns "text"
+   */
   public String getKind() {
     return "text";
   }
 
+  /**
+   * Gets the data as a string.
+   *
+   * @return the data content as a string
+   */
   public String getAsString() {
     return this.data;
   }
 
+  /**
+   * Gets the MIME type of the data.
+   *
+   * @return the MIME type
+   */
   public String getType() {
     return this.type;
   }

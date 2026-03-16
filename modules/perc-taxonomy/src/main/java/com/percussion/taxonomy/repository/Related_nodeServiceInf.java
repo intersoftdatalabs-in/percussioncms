@@ -20,13 +20,38 @@ package com.percussion.taxonomy.repository;
 import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
+/**
+ * Service interface for managing Related_node entities.
+ * Provides CRUD operations for node relationships in the taxonomy system.
+ */
 public interface Related_nodeServiceInf {
 
+  /**
+   * Retrieves all related node associations defined in the system.
+   *
+   * @return a collection of all Related_node entities, or an empty collection
+   */
   public Collection getAllRelated_nodes();
 
+  /**
+   * Retrieves a specific related node by its unique identifier.
+   *
+   * @param id the unique identifier of the related node
+   * @return the Related_node entity, or null if not found
+   */
   public Related_node getRelated_node(int id);
 
+  /**
+   * Removes the specified related node from the system.
+   *
+   * @param related_node the Related_node entity to remove; must not be null
+   */
   public void removeRelated_node(Related_node related_node);
 
+  /**
+   * Saves or updates the specified related node in the system.
+   *
+   * @param related_node the Related_node entity to save; must not be null
+   */
   public void saveRelated_node(Related_node related_node);
 }

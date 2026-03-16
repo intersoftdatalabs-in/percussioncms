@@ -20,6 +20,11 @@ package com.percussion.cx;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Locator class for obtaining the appropriate IPSAjaxSwingWrapper implementation.
+ * Determines at runtime whether the application is running in AjaxSwing or browser context
+ * and returns the corresponding wrapper implementation.
+ */
 public class PSAjaxSwingWrapperLocator {
   private static volatile IPSAjaxSwingWrapper wrapperClass;
 
@@ -27,6 +32,13 @@ public class PSAjaxSwingWrapperLocator {
 
   static Logger log = LogManager.getLogger(PSAjaxSwingWrapperLocator.class);
 
+  /**
+   * Gets the singleton instance of IPSAjaxSwingWrapper for the current runtime context.
+   * Detects whether the application is running in AjaxSwing or browser context and
+   * returns the appropriate wrapper implementation.
+   *
+   * @return the IPSAjaxSwingWrapper instance for the current context, never null
+   */
   public static IPSAjaxSwingWrapper getInstance() {
     if (wrapperClass == null) {
       synchronized (lock) {
@@ -65,6 +77,12 @@ public class PSAjaxSwingWrapperLocator {
     return wrapperClass;
   }
 
+  /**
+   * Checks whether the application is running in an AjaxSwing applet context.
+   * Looks for the presence of AjaxSwing classes to determine the runtime environment.
+   *
+   * @return true if running in AjaxSwing context, false if in browser context
+   */
   private static boolean isAjaxSwingApplet() {
     boolean exist = true;
 

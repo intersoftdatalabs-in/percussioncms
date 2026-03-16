@@ -20,15 +20,45 @@ package com.percussion.taxonomy.repository;
 import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
+/**
+ * Service interface for managing Node_editor entities.
+ * Provides CRUD operations for node editor configurations in the taxonomy system.
+ */
 public interface Node_editorServiceInf {
 
+  /**
+   * Retrieves all node editor configurations defined in the system.
+   *
+   * @return a collection of all Node_editor entities, or an empty collection
+   */
   public Collection getAllNode_editors();
 
+  /**
+   * Retrieves a specific node editor by its unique identifier.
+   *
+   * @param id the unique identifier of the node editor
+   * @return the Node_editor entity, or null if not found
+   */
   public Node_editor getNode_editor(int id);
 
+  /**
+   * Removes the specified node editor from the system.
+   *
+   * @param node_editor the Node_editor entity to remove; must not be null
+   */
   public void removeNode_editor(Node_editor node_editor);
 
+  /**
+   * Removes multiple node editors from the system.
+   *
+   * @param node_editors the collection of Node_editor entities to remove
+   */
   public void removeNode_editors(Collection<Node_editor> node_editors);
 
+  /**
+   * Saves or updates the specified node editor in the system.
+   *
+   * @param node_editor the Node_editor entity to save; must not be null
+   */
   public void saveNode_editor(Node_editor node_editor);
 }

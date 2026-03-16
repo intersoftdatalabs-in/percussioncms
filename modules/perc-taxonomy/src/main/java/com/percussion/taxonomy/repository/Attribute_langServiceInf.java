@@ -20,13 +20,38 @@ package com.percussion.taxonomy.repository;
 import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
+/**
+ * Service interface for managing Attribute_lang entities.
+ * Provides CRUD operations for localized attribute metadata in the taxonomy system.
+ */
 public interface Attribute_langServiceInf {
 
+  /**
+   * Retrieves all attribute language localizations defined in the system.
+   *
+   * @return a collection of all Attribute_lang entities, or an empty collection
+   */
   public Collection getAllAttribute_langs();
 
+  /**
+   * Retrieves a specific attribute language by its unique identifier.
+   *
+   * @param id the unique identifier of the attribute language
+   * @return the Attribute_lang entity, or null if not found
+   */
   public Attribute_lang getAttribute_lang(int id);
 
+  /**
+   * Removes the specified attribute language from the system.
+   *
+   * @param attribute_lang the Attribute_lang entity to remove; must not be null
+   */
   public void removeAttribute_lang(Attribute_lang attribute_lang);
 
+  /**
+   * Saves or updates the specified attribute language in the system.
+   *
+   * @param attribute_lang the Attribute_lang entity to save; must not be null
+   */
   public void saveAttribute_lang(Attribute_lang attribute_lang);
 }
