@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-core</artifactId>
-            <scope>test</scope>
+            <version>${cxf.version}</version>
         </dependency>
         <!-- JAX-RS API is provided by the servlet/container at runtime but
              we need it on the compile classpath for the annotations used in
@@ -156,10 +156,6 @@
             <artifactId>jackson-jakarta-rs-json-provider</artifactId>
             <version>${jackson.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

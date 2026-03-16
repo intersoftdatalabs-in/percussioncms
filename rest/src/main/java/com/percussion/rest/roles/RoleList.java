@@ -29,6 +29,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = Role.class))
 @XmlSeeAlso(Role.class)
 public class RoleList extends ArrayList<Role> {
+  private static final long serialVersionUID = 1L;
+  
   public RoleList(Collection<? extends Role> c) {
     super(c);
   }

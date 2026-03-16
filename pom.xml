@@ -2624,9 +2624,32 @@
                     <artifactId>sigstore-maven-plugin</artifactId>
                     <version>${sigstore.maven.plugin.version}</version>
                 </plugin>
+		<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-javadoc-plugin</artifactId>
+        		<version>3.12.0</version>
+        		<configuration>
+          			<failOnWarnings>false</failOnWarnings>
+                                <failOnError>false</failOnError>
+          			<doclint>all</doclint> 
+        		</configuration>
+			<executions>
+          			<execution>
+            				<id>attach-javadocs</id>
+            				<goals>
+              					<goal>jar</goal>
+            				</goals>
+          			</execution>
+        		</executions>
+    		 </plugin>
             </plugins>
         </pluginManagement>
+    
         <plugins>
+            <plugin> 
+		<groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+	    </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jarsigner-plugin</artifactId>
@@ -2791,8 +2814,22 @@
         </plugins>
     </build>
     <reporting>
-        <plugins>
-            <plugin>
+   	<excludeDefaults>true</excludeDefaults>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.12.0</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>javadoc-no-fork</report>
+              <report>test-javadoc-no-fork</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+	<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>${maven.jxr.plugin.version}</version>
