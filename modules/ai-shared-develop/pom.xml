@@ -13,8 +13,30 @@
     <description>Shared AI development libraries and utilities for Percussion CMS</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <exec.mainClass>com.percussion.ai.signing.ResourceSigner</exec.mainClass>
     </properties>
-    <dependencies/>
+    <dependencies>
+        <dependency>
+            <groupId>dev.sigstore</groupId>
+            <artifactId>sigstore-java</artifactId>
+        </dependency>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <!-- Maven Compiler Plugin for Java 21 -->
@@ -36,6 +58,77 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+            </plugin>
+            <!-- Exec Maven Plugin to run ResourceSigner -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${maven.execmaven.plugin.version}</version>
+                <configuration>
+                    <mainClass>${exec.mainClass}</mainClass>
+                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                </configuration>
+            </plugin>
+            <!-- Zip skills for signing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>zip-skills</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/skills"/>
+                                <zip destfile="${project.build.directory}/skills/java-unit-testing.zip" basedir="src/main/resources/skills/java-unit-testing"/>
+                                <zip destfile="${project.build.directory}/skills/javadoc.zip" basedir="src/main/resources/skills/javadoc"/>
+                                <zip destfile="${project.build.directory}/skills/patch.zip" basedir="src/main/resources/skills/patch"/>
+                                <zip destfile="${project.build.directory}/skills/percussioncms-dev.zip" basedir="src/main/resources/skills/percussioncms-dev"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Attach zipped skills as artifacts -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-skills</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/skills/java-unit-testing.zip</file>
+                                    <type>zip</type>
+                                    <classifier>skill-java-unit-testing</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/skills/javadoc.zip</file>
+                                    <type>zip</type>
+                                    <classifier>skill-javadoc</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/skills/patch.zip</file>
+                                    <type>zip</type>
+                                    <classifier>skill-patch</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/skills/percussioncms-dev.zip</file>
+                                    <type>zip</type>
+                                    <classifier>skill-percussioncms-dev</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

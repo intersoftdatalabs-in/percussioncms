@@ -23,6 +23,17 @@ fi
 # Set JAVA_HOME
 export JAVA_HOME="${JAVA_HOME_21}"
 
+# Automatically pick up Sigstore OIDC token if it exists in session cache
+# This avoids repeated OAuth prompts during multimodule builds
+if [[ -f ~/.sigstore-token ]] && [[ -z "${SIGSTORE_IDENTITY_TOKEN}" ]]; then
+    export SIGSTORE_IDENTITY_TOKEN=$(cat ~/.sigstore-token)
+    echo "Using cached Sigstore Identity Token from ~/.sigstore-token"
+elif [[ -n "${SIGSTORE_IDENTITY_TOKEN}" ]]; then
+    # If token is already set in environment, cache it for future sessions
+    echo "${SIGSTORE_IDENTITY_TOKEN}" > ~/.sigstore-token
+    echo "Cached Sigstore Identity Token to ~/.sigstore-token"
+fi
+
 echo "Using JDK 21 at ${JAVA_HOME}"
 
 # Run Maven with all arguments

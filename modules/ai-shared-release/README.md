@@ -12,3 +12,14 @@ This module is intended for production, release, instructions, skills, prompts, 
 - Place shared agentic instructions, skills, prompts, and resources here that are intended to be used by end users and administrators of Percussion CMS.
 - Do not place any development-only code, resources, or documentation here. This module is intended to be included in the final product and should only contain files that are needed at runtime or for end users.  Use `ai-shared-develop` for development-only resources.
 
+## Skill Verification
+
+The `SkillVerificationService` provides runtime verification of AI resource signatures.
+
+To verify a resource:
+```java
+SkillVerificationService verificationService = new SkillVerificationService();
+boolean isValid = verificationService.verify(resourcePath, signaturePath);
+```
+Signature files are typically named `<filename>.sigstore.json`.
+

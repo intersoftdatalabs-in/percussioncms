@@ -15,7 +15,17 @@
         <assembly-directory>${basedir}/target/distribution</assembly-directory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <dependencies/>
+    <dependencies>
+        <dependency>
+            <groupId>dev.sigstore</groupId>
+            <artifactId>sigstore-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <!-- Maven Compiler Plugin for Java 21 -->
@@ -81,6 +91,49 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+            </plugin>
+            <!-- Zip skills for signing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>zip-skills</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/skills"/>
+                                <zip destfile="${project.build.directory}/skills/agent-temp-directory.zip" basedir="src/main/resources/skills/agent-temp-directory"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Attach zipped skill as artifact -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-skills</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/skills/agent-temp-directory.zip</file>
+                                    <type>zip</type>
+                                    <classifier>skill-agent-temp-directory</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -31,110 +31,18 @@ Yes.  The latest release will be featured in the [Releases page](https://github.
 
 ## Building from Source
 
-This project requires JDK 21 for building and running. The build uses Maven toolchains to ensure compatibility.
+This project requires JDK 21. Use the provided environment scripts to build:
 
-### Prerequisites
+```bash
+# Linux/macOS
+./mvn-env.sh clean install
 
-- JDK 21 installed on your system.
-- Set the `JAVA_HOME_21` environment variable to the path of your JDK 21 installation.
-
-### Environment Setup Scripts
-
-To ensure Maven uses JDK 21, use the provided environment setup scripts instead of running `mvn` directly. These scripts set `JAVA_HOME` to `JAVA_HOME_21` and run Maven.
-
-#### Linux/macOS
-
-1. Set `JAVA_HOME_21` in your shell profile (e.g., `~/.bashrc` or `~/.zshrc`):
-
-   ```bash
-   export JAVA_HOME_21=/path/to/jdk-21
-   ```
-
-   - Linux example: `export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk-amd64`
-   - macOS example: `export JAVA_HOME_21=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home`
-2. Run Maven commands using the script:
-
-   ```bash
-   ./mvn-env.sh clean install
-   ```
-
-#### Windows
-
-1. Set `JAVA_HOME_21` as an environment variable:
-   - Open System Properties > Environment Variables.
-   - Add a new user variable `JAVA_HOME_21` with value `C:\path\to\jdk-21` (e.g., `C:\Program Files\Java\jdk-21`).
-2. Run Maven commands using the script:
-
-   ```batch
-   mvn-env.bat clean install
-   ```
-
-If `JAVA_HOME_21` is not set or invalid, the script will display an error message with setup instructions.
-
-⚠️ **Windows Developers: Important!** Before building, please read [WINDOWS-BUILD-GUIDE.md](WINDOWS-BUILD-GUIDE.md), especially the **"Enable Long Path Support"** section. This is critical for modules with Node.js builds (like `perc-tinymce`) and prevents build failures on Windows.
-
-Editor / IDE tip: To avoid your IDE (for example, VS Code) writing build outputs into Maven's `target/` directory and causing conflicts with command-line builds, add the following to your local `.vscode/settings.json` (the repository ignores `.vscode/`):
-
-```json
-{
-  "java.autobuild.enabled": false,
-  "files.watcherExclude": {
-    "**/target/**": true,
-    "**/.git/**": true
-  },
-  "files.exclude": {
-    "**/target": true,
-    "**/.vscode/out": true
-  },
-  "search.exclude": {
-    "**/target": true
-  },
-  "java.project.outputPath": ".vscode/out"
-}
+# Windows
+mvn-env.bat clean install
 ```
 
-These settings disable automatic Java builds, exclude `target/` from file watchers and search, and optionally direct VS Code output to `.vscode/out` to avoid collisions with Maven's `target/`.
-
-### Local CodeQL Scanning
-
-If CodeQL CLI is installed locally and available in `PATH`, you can run scans from the repository root using Maven.
-
-* Create CodeQL databases only:
-
-  ```bash
-  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-create-db
-  ```
-
-* Analyze existing databases only (faster for re-runs):
-
-  ```bash
-  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-analyze
-  ```
-
-* Full create + analyze scan:
-
-  ```bash
-  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-scan
-  ```
-
-Output is written to `.codeql-results/` as SARIF files.
+For detailed build instructions, environment setup, CodeQL scanning, and development guides, see the [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md).
 
 ## Interested in Contributing?
 
 Check out our [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md) for more information.
-
-### GitHub Target Preflight (Fork Safety)
-
-Before running `gh issue ...` or `gh pr ...`, verify your GitHub target is the Intersoft fork:
-
-```bash
-./scripts/gh-preflight.sh
-```
-
-If needed, auto-fix local defaults:
-
-```bash
-./scripts/gh-preflight.sh --fix
-```
-
-This prevents accidentally creating issues/PRs in upstream (`percussion/percussioncms`) when work should stay in `intersoftdatalabs-in/percussioncms`.

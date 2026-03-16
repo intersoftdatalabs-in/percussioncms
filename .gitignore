@@ -181,6 +181,7 @@ docker/logs
 
 # Local Agents file
 AGENTS.local.md
+.AGENTS.local.md.sigstore.json
 
 # Generated frontend outputs (do not commit)
 WebUI/target/generated-webui/
