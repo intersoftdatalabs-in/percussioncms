@@ -168,11 +168,11 @@ public class PSBeansException extends Exception {
   /** The error code of this exception, set during ctor, never modified after that. */
   private int m_code;
 
-  /**
-   * The array of arguments to use to format the message with. Set during ctor, may be <code>null
-   * </code>, never modified after that.
-   */
-  private Object[] m_args;
+   /**
+    * The array of arguments to use to format the message with. Set during ctor, may be <code>null
+    * </code>, never modified after that.
+    */
+   private transient Object[] m_args;
 
   /**
    * The resource bundle containing error message formats. <code>null</code> until the first call to

@@ -67,21 +67,16 @@ public class PSExceptionUtils {
     return getMessageForLog((Throwable) exception);
   }
 
-  /**
-   * Use when outputting stack trace etc to debug log.
-   *
-   * @param e A valid exception
-   * @return A safe debug string to wrote to the log.
-   */
-  public static String getDebugMessageForLog(Exception e) {
-    try (StringWriter sw = new StringWriter()) {
-      try (PrintWriter pw = new PrintWriter(sw)) {
-        e.printStackTrace(new PrintWriter(sw));
-        return sw.toString().trim();
-      }
-    } catch (IOException ioException) {
-      return "Unable to extract stack trace for exception. Error: "
-          + PSExceptionUtils.getMessageForLog(ioException);
+    /**
+     * Use when outputting stack trace etc to debug log.
+     *
+     * @param e A valid exception
+     * @return A safe debug string to wrote to the log.
+     */
+    public static String getDebugMessageForLog(Exception e) {
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter(sw);
+      e.printStackTrace(pw);
+      return sw.toString().trim();
     }
-  }
 }

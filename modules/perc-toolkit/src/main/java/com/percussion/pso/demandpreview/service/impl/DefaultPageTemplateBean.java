@@ -29,8 +29,8 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.guid.IPSGuid;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -64,34 +64,34 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
    * @return the default template. Never <code>null</code>.
    * @throws SiteLookUpException when the template cannot be located or a service error occurs.
    */
-  public IPSAssemblyTemplate findTemplate(IPSSite site, IPSGuid contentId)
-      throws SiteLookUpException {
-    String emsg;
-    Validate.notNull(site);
+    public IPSAssemblyTemplate findTemplate(IPSSite site, IPSGuid contentId)
+        throws SiteLookUpException {
+     String emsg;
+     Objects.requireNonNull(site);
     try {
       PSComponentSummary summ = objFinder.getComponentSummary(contentId);
       Set<IPSGuid> siteTemplates = getSiteTemplates(site);
       List<IPSAssemblyTemplate> allTemps =
           tempSvc.findTemplatesByContentType(summ.getContentTypeGUID());
 
-      for (IPSAssemblyTemplate template : allTemps) {
-        log.trace("examining template " + template.getName());
-        if (template.getPublishWhen() == IPSAssemblyTemplate.PublishWhen.Default) {
-          OutputFormat oformat = template.getOutputFormat();
-          if (oformat == OutputFormat.Page || oformat == OutputFormat.Binary) {
-            if (siteTemplates.contains(template.getGUID())) { // we found it!
-              log.trace("found template");
-              return template;
-            } else {
-              log.trace("template not in site");
-            }
-          } else {
-            log.trace("template not a page or binary");
-          }
-        } else {
-          log.trace("template not default");
-        }
-      }
+       for (IPSAssemblyTemplate template : allTemps) {
+         log.trace("examining template {}", template.getName());
+         if (template.getPublishWhen() == IPSAssemblyTemplate.PublishWhen.Default) {
+           OutputFormat oformat = template.getOutputFormat();
+           if (oformat == OutputFormat.Page || oformat == OutputFormat.Binary) {
+             if (siteTemplates.contains(template.getGUID())) { // we found it!
+               log.trace("found template");
+               return template;
+             } else {
+               log.trace("template not in site");
+             }
+           } else {
+             log.trace("template not a page or binary");
+           }
+         } else {
+           log.trace("template not default");
+         }
+       }
 
       emsg =
           "no default page template found for type "

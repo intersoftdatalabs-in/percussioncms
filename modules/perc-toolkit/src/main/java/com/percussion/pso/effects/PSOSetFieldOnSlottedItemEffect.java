@@ -116,11 +116,43 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
 
       if (params != null) {
 
-        // Make sure that all the parameters have been supplied.
-        if (params.length < 4) {
-          // REFACTORED: CP-JAVA11
-          throw new IllegalArgumentException("All parameters are required!");
-        }
+         // Make sure that all the parameters have been supplied.
+         if (params != null) {
+ 
+           // Make sure that all the parameters have been supplied.
+           if (params.length < 4) {
+             // REFACTORED: CP-JAVA11
+             throw new IllegalArgumentException("All parameters are required!");
+           }
+ 
+           if (params[0] != null) {
+             fieldName = params[0].toString();
+             log.debug("fieldName={}", params[0]);
+           } else {
+             fieldName = null;
+           }
+ 
+           if (params[1] != null) {
+             valueIfEmpty = params[1].toString();
+             log.debug("valueIfEmpty={}", params[1]);
+           } else {
+             valueIfEmpty = null;
+           }
+ 
+           if (params[2] != null) {
+             valueIfNotEmpty = params[2].toString();
+             log.debug("valueIfNotEmpty={}", params[2]);
+           } else {
+             valueIfNotEmpty = null;
+           }
+ 
+           if (params[3] != null) {
+             slotName = params[3].toString().trim();
+             log.debug("slotName={}", params[3]);
+           } else {
+             slotName = null;
+           }
+         }
 
         if (params[0] != null) {
           fieldName = params[0].toString();
@@ -257,12 +289,12 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
   public void init(IPSExtensionDef def, File f) throws PSExtensionException {
     log.debug("Initializing...");
 
-    for ( Iterator<String> paramsIter = def.getInitParameterNames();
-        paramsIter.hasNext(); ) {
-      String p = paramsIter.next();
+       for ( Iterator<String> paramsIter = def.getInitParameterNames();
+         paramsIter.hasNext(); ) {
+       String p = paramsIter.next();
 
-      log.debug(p + ":=" + def.getInitParameter(p));
-    }
+       log.debug("{} := {}", p, def.getInitParameter(p));
+     }
   }
 
   /***
@@ -337,14 +369,13 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
                   }
                   if (!found) {
                     updateField(item, configParams.fieldName, configParams.valueIfEmpty + "");
-                    log.debug(
-                        "No item found in slot, setting "
-                            + configParams.fieldName
-                            + " to "
-                            + (configParams.valueIfEmpty + ""));
+                       log.debug(
+                           "No item found in slot, setting {} to {}",
+                           configParams.fieldName,
+                           configParams.valueIfEmpty + "");
                   }
                 } catch (PSErrorException e) {
-                  log.debug("Error processing slot relationships for item " + "");
+                  log.debug("Error processing slot relationships for item {}", "");
                   log.error(PSExceptionUtils.getMessageForLog(e));
                   log.debug(PSExceptionUtils.getDebugMessageForLog(e));
                 } finally {
@@ -418,7 +449,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
   private void updateFieldValue(PSItemField field, Object value)
       throws FileNotFoundException, IOException {
     field.clearValues();
-    log.debug("updating field " + field.getName());
+             log.debug("updating field {}", field.getName());
     IPSFieldValue newValue = getFieldValue(field, value);
     if (newValue != null) {
       field.addValue(newValue);
@@ -432,7 +463,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     PSItemFieldMeta fieldMeta = field.getItemFieldMeta();
     IPSFieldValue newValue = null;
     String dataType = fieldMeta.getFieldDef().getDataType();
-    log.debug("Field " + field.getName() + "DataType is " + dataType);
+    log.debug("Field {} DataType is {}", field.getName(), dataType);
 
     if (dataType.equals(PSField.DT_BOOLEAN)) {
       log.debug("Found boolean fields value is ");

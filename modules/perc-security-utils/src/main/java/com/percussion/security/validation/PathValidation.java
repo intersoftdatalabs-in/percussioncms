@@ -357,18 +357,21 @@ public class PathValidation {
     return true;
   }
 
-  /**
-   * SecurityException thrown when path validation fails.
-   *
-   * <p>Indicates a potential path traversal (CWE-22) or ZipSlip attack.
-   */
-  public static class SecurityException extends RuntimeException {
-    public SecurityException(String message) {
-      super(message);
-    }
+   /**
+    * SecurityException thrown when path validation fails.
+    *
+    * <p>Indicates a potential path traversal (CWE-22) or ZipSlip attack.
+    */
+   public static class SecurityException extends RuntimeException {
+     /** */
+     private static final long serialVersionUID = 1L;
 
-    public SecurityException(String message, Throwable cause) {
-      super(message, cause);
-    }
-  }
+     public SecurityException(String message) {
+       super(message);
+     }
+
+     public SecurityException(String message, Throwable cause) {
+       super(message, cause);
+     }
+   }
 }

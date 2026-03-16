@@ -46,10 +46,12 @@ public class ImageSizeTemplateExpander extends AbstractTemplateExpanderAdaptor
   private ImageSizeDefinitionManager isdm = null;
   private IPSAssemblyService asm = null;
 
-  /** Default constructor. */
-  public ImageSizeTemplateExpander() {
-    super.setNeedsContentNode(true);
-  }
+   /** Default constructor. */
+   @SuppressWarnings("this-escape")
+   // Safe because setNeedsContentNode is final or not overridden in subclasses
+   public ImageSizeTemplateExpander() {
+     super.setNeedsContentNode(true);
+   }
 
   private void initServices() {
     if (isdm == null) {

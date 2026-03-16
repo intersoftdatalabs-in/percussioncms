@@ -24,7 +24,9 @@ import java.util.Collection;
 
 @JsonRootName(value = "ContentActivity")
 public class PSContentActivityList extends ArrayList<PSContentActivity> {
-  public PSContentActivityList(Collection<? extends PSContentActivity> c) {
-    super(c);
-  }
+    private static final long serialVersionUID = 1L;
+
+    public PSContentActivityList(Collection<? extends PSContentActivity> c) {
+        super(c);
+    }
 }

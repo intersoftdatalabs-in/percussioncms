@@ -24,7 +24,9 @@ import java.util.Collection;
 
 @JsonRootName(value = "Effectiveness")
 public class PSEffectivenessList extends ArrayList<PSEffectiveness> {
-  public PSEffectivenessList(Collection<? extends PSEffectiveness> c) {
-    super(c);
-  }
+    private static final long serialVersionUID = 1L;
+
+    public PSEffectivenessList(Collection<? extends PSEffectiveness> c) {
+        super(c);
+    }
 }

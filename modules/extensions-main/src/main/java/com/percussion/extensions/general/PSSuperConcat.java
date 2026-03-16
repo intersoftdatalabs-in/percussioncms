@@ -19,7 +19,36 @@ package com.percussion.extensions.general;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 
+/**
+ * A simple concatenation extension that joins multiple non-empty parameters into a single string.
+ * 
+ * <p>This UDF (User Defined Function) processes all provided parameters and concatenates them
+ * together, skipping any null or empty values. It is useful for combining multiple field values
+ * or creating computed strings in Rhythmyx workflows.</p>
+ * 
+ * <p>Example usage in Rhythmyx:</p>
+ * <pre>
+ * {%sysworkflowid%}_{%syscontentid%} -> use this extension to combine fields
+ * </pre>
+ * 
+ * @extends PSSimpleJavaUdfExtension
+ */
 public class PSSuperConcat extends PSSimpleJavaUdfExtension {
+  
+  /**
+   * Processes the provided parameters and concatenates all non-empty values.
+   * 
+   * <p>This method iterates through all parameters, converts each to a string, trims whitespace,
+   * and appends non-empty values to the result. The order of parameters is preserved.</p>
+   * 
+   * @param params the array of parameters to concatenate. May contain null elements or empty strings.
+   *          Parameters are processed in order from index 0 to length-1.
+   * @param request the request context. This parameter is required but not used by this implementation.
+   *          Pass a valid IPSRequestContext; passing null will result in a NullPointerException.
+   * @return a string containing the concatenation of all non-empty parameter values, in the order they 
+   *         appeared in the input array. Returns an empty string if all parameters are null or empty.
+   * @throws NullPointerException if request is null
+   */
   public Object processUdf(Object[] params, IPSRequestContext request) {
     StringBuilder result = new StringBuilder(100);
     int parmCount = params.length;

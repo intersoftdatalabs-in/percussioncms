@@ -26,7 +26,10 @@ import java.util.List;
  * transitions are like plot twists—keep them clear!"
  */
 @XmlRootElement(name = "ItemStateTransition")
-public class PSItemStateTransition extends PSAbstractDataObject {
+
+
+  public class PSItemStateTransition extends PSAbstractDataObject {
+    private static final long serialVersionUID = 1L;
 
   private String itemId;
   private String stateId;

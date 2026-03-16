@@ -21,6 +21,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Parses and stores browser window properties from a comma-separated string.
+ * Supports toolbar, location, directories, status, menubar, scrollbars, resizable, 
+ * left, width, and height properties.
+ * 
+ * @since 8.0.0
+ */
 public class BrowserProps {
   static Logger log = LogManager.getLogger(BrowserProps.class);
 
@@ -35,6 +42,11 @@ public class BrowserProps {
   private int height = 200;
   private int width = 200;
 
+  /**
+   * Creates a new BrowserProps instance by parsing the given properties string.
+   * 
+   * @param props comma-separated window properties (e.g., "toolbar=0,location=0,status=1")
+   */
   public BrowserProps(String props) {
     String[] propList = StringUtils.split(props, ",");
 
@@ -93,42 +105,72 @@ public class BrowserProps {
     return value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("1");
   }
 
+  /**
+   * @return true if toolbar is enabled
+   */
   public boolean isToolbar() {
     return this.toolbar;
   }
 
+  /**
+   * @return true if location bar is enabled
+   */
   public boolean isLocation() {
     return this.location;
   }
 
+  /**
+   * @return true if directories are enabled
+   */
   public boolean isDirectories() {
     return this.directories;
   }
 
+  /**
+   * @return true if status bar is enabled
+   */
   public boolean isStatus() {
     return this.status;
   }
 
+  /**
+   * @return true if menu bar is enabled
+   */
   public boolean isMenubar() {
     return this.menubar;
   }
 
+  /**
+   * @return true if scrollbars are enabled
+   */
   public boolean isScrollbars() {
     return this.scrollbars;
   }
 
+  /**
+   * @return true if window is resizable
+   */
   public boolean isResizable() {
     return this.resizable;
   }
 
+  /**
+   * @return the left position of the window
+   */
   public int getLeft() {
     return this.left;
   }
 
+  /**
+   * @return the height of the window
+   */
   public int getHeight() {
     return this.height;
   }
 
+  /**
+   * @return the width of the window
+   */
   public int getWidth() {
     return this.width;
   }

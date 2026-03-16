@@ -65,8 +65,8 @@ public class PSEncryptor extends PSAbstractEncryptor {
   private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
   public static final String SECRETKEY_PROPNAME = "secretKey";
 
-  private static Map<String, List<String>> propertyFilesWithPassword = new HashMap();
-  private static Map<String, List<String>> xmlFilesWithPassword = new HashMap();
+   private static Map<String, List<String>> propertyFilesWithPassword = new HashMap<String, List<String>>();
+   private static Map<String, List<String>> xmlFilesWithPassword = new HashMap<String, List<String>>();
 
   private static File getRxDir(String path) {
     return new File(".");
@@ -351,22 +351,20 @@ public class PSEncryptor extends PSAbstractEncryptor {
 
         File absFile = new File(propertyFile.toString());
 
-        try (FileReader fr = new FileReader(absFile)) { // reads the file
-          BufferedReader br = new BufferedReader(fr); // creates a buffering character input stream
-          StringBuffer sb = new StringBuffer(); // constructs a string buffer with no characters
-          String line;
-          while ((line = br.readLine()) != null) {
-            for (String oldPw : encPwds) {
-              String dePwd = instance.decrypt((String) oldPw);
-              String newPwd = instance.encrypt(dePwd);
-              line.replaceAll(oldPw, newPwd);
-            }
-            sb.append(line); // appends line to string buffer
-            sb.append("\n"); // line feed
-          }
-          fr.close(); // closes the stream and release the resources
-          log.info("Passwords rotated in File : {}" + absFile.getAbsolutePath());
-        } catch (IOException e) {
+         try (FileReader fr = new FileReader(absFile)) { // reads the file
+           BufferedReader br = new BufferedReader(fr); // creates a buffering character input stream
+           StringBuffer sb = new StringBuffer(); // constructs a string buffer with no characters
+           String line;
+           while ((line = br.readLine()) != null) {
+             for (String oldPw : encPwds) {
+               String dePwd = instance.decrypt(oldPw);
+               String newPwd = instance.encrypt(dePwd);
+               line = line.replaceAll(oldPw, newPwd);
+             }
+             sb.append(line); // appends line to string buffer
+             sb.append("\n"); // line feed
+           }
+         } catch (IOException e) {
           log.error("Rotation Of Password Failed in XML File Updates");
         }
 

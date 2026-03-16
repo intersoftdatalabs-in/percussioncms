@@ -17,7 +17,16 @@
 
 package com.percussion.soln.linkback.utils;
 
+/**
+ * Utility class for linkback functionality.
+ * Contains constants and helper methods for the linkback feature.
+ * 
+ * @since 8.0.0
+ */
 public class LinkbackUtils {
 
+  /**
+   * The request parameter name used to identify linkback requests.
+   */
   public static String LINKBACK_PARAM_NAME = "perc_linkback";
 }

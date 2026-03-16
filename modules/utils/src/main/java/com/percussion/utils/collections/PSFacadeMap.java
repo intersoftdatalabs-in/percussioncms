@@ -31,6 +31,8 @@ import java.util.Map;
  * @param <V> the value class for the map
  */
 public class PSFacadeMap<K, V> extends HashMap<K, V> {
+   /** */
+   private static final long serialVersionUID = 1L;
 
   /**
    * Construct a new facade map

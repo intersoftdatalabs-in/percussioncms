@@ -21,44 +21,139 @@ import java.util.HashMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Represents a workflow transition between two states in the Rhythmyx system.
+ * 
+ * <p>This class encapsulates a workflow transition element and provides methods for
+ * accessing its properties and generating XML representations. Transitions define how
+ * content moves between workflow states and can have various types (e.g., approval,
+ * rejection, automatic).</p>
+ * 
+ * <p>Transitions are used in conjunction with {@link State} objects to build workflow
+ * visualizations and process workflow actions.</p>
+ * 
+ * @see State
+ * @see PreviewWorkflow
+ */
 public class Transition {
 
+  /** The DOM element containing transition attributes */
+  Element m_ElemTransition = null;
+
+  /** Constant for line image type */
+  static final String LINE = "line";
+  /** Constant for middle line image type */
+  static final String MLINE = "mline";
+  /** Constant for blank image type */
+  static final String BLANK = "blank";
+  /** Constant for vertical line image type */
+  static final String VLINE = "vline";
+  /** Constant for self-loop image type */
+  static final String SELF = "self";
+  /** Constant for right arrow image type */
+  static final String RARROW = "rarrow";
+  /** Constant for left arrow image type */
+  static final String LARROW = "larrow";
+
+  /**
+   * Creates a new Transition instance from a DOM element.
+   * 
+   * @param elemTransition the DOM element containing transition attributes
+   */
   public Transition(Element elemTransition) {
     m_ElemTransition = elemTransition;
   }
 
+  /**
+   * Gets the unique identifier for this transition.
+   * 
+   * @return the transition ID
+   */
   public String getID() {
     return m_ElemTransition.getAttribute("id");
   }
 
+  /**
+   * Gets the URL link associated with this transition.
+   * 
+   * @return the link URL, or empty string if not set
+   */
   public String getLink() {
     return m_ElemTransition.getAttribute("link");
   }
 
+  /**
+   * Gets the display label for this transition.
+   * 
+   * @return the transition label, or empty string if not set
+   */
   public String getLabel() {
     return m_ElemTransition.getAttribute("label");
   }
 
+  /**
+   * Gets the trigger type for this transition.
+   * 
+   * <p>The trigger defines what causes this transition to execute, such as
+   * automatic, manual, or event-based triggers.</p>
+   * 
+   * @return the trigger type, or empty string if not set
+   */
   public String getTrigger() {
     return m_ElemTransition.getAttribute("trigger");
   }
 
+  /**
+   * Gets the source state ID for this transition.
+   * 
+   * @return the "from" state ID
+   */
   public String getFrom() {
     return m_ElemTransition.getAttribute("from");
   }
 
+  /**
+   * Gets the target state ID for this transition.
+   * 
+   * @return the "to" state ID
+   */
   public String getTo() {
     return m_ElemTransition.getAttribute("to");
   }
 
+  /**
+   * Gets the type of this transition.
+   * 
+   * <p>Common transition types include approval, rejection, and workflow steps.</p>
+   * 
+   * @return the transition type, or empty string if not set
+   */
   public String getType() {
     return m_ElemTransition.getAttribute("type");
   }
 
+  /**
+   * Constructs the image filename for a given GIF name and transition type.
+   * 
+   * @param gifName the base GIF name
+   * @return the complete GIF filename (e.g., "line_approval.gif")
+   */
   private String makeGif(String gifName) {
     return gifName + "_" + getType() + ".gif";
   }
 
+  /**
+   * Creates an XML element representing this transition for inclusion in a workflow document.
+   * 
+   * <p>This method generates the visual representation of the transition, including
+   * the appropriate arrows and lines based on whether the transition is forward,
+   * backward, or self-referencing.</p>
+   * 
+   * @param elemTransitions the parent element to which the new transition element will be appended
+   * @param statesMap a map of state IDs to State objects for reference
+   * @param height the height of the transition elements
+   * @return a new Element representing this transition, ready for insertion into a document
+   */
   public Element makeElement(Element elemTransitions, HashMap statesMap, int height) {
     int indexFrom = ((State) statesMap.get(getFrom())).getIndex();
     int indexTo = ((State) statesMap.get(getTo())).getIndex();
@@ -186,14 +281,4 @@ public class Transition {
     }
     return elemTransition;
   }
-
-  Element m_ElemTransition = null;
-
-  static final String LINE = "line";
-  static final String MLINE = "mline";
-  static final String BLANK = "blank";
-  static final String VLINE = "vline";
-  static final String SELF = "self";
-  static final String RARROW = "rarrow";
-  static final String LARROW = "larrow";
 }

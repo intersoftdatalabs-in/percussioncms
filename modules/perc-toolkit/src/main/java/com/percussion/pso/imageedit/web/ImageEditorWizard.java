@@ -386,7 +386,7 @@ public class ImageEditorWizard {
     SimpleImageMetaData output = new SimpleImageMetaData();
     long height = Math.round(imageData.getHeight() / scaleFactor);
     long width = Math.round(imageData.getWidth() / scaleFactor);
-    Dimension dim = new Dimension(new Long(width).intValue(), new Long(height).intValue());
+     Dimension dim = new Dimension((int) width, (int) height);
     resizeSimpleImage(output, mimd.getImageKey(), null, dim);
     return output;
   }

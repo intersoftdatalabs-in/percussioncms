@@ -751,16 +751,25 @@ public class InstallUtil {
     return isRunning;
   }
 
-  /** THis is a utility method to shutdown Derby Server. CMS-5932 */
-  public static void shutDownDerby() {
-
-    try (Connection cn = DriverManager.getConnection("jdbc:derby:;shutdown=true")) {
-    } catch (SQLException e) {
-      if ("XJ015".equals(e.getSQLState())) {
-        PSLogger.logInfo("Derby shutdown succeeded. SQLState=" + e.getSQLState());
-      }
-    }
-  }
+   /** THis is a utility method to shutdown Derby Server. CMS-5932 */
+   public static void shutDownDerby() {
+       Connection cn = null;
+       try {
+           cn = DriverManager.getConnection("jdbc:derby:;shutdown=true");
+       } catch (SQLException e) {
+           if ("XJ015".equals(e.getSQLState())) {
+               PSLogger.logInfo("Derby shutdown succeeded. SQLState=" + e.getSQLState());
+           }
+       } finally {
+           if (cn != null) {
+               try {
+                   cn.close();
+               } catch (SQLException e) {
+                   // Ignore
+               }
+           }
+       }
+   }
 
   public static boolean isDerbyRunning(String dirName) {
     boolean isRunning = false;

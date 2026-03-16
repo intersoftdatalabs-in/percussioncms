@@ -25,12 +25,24 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Helpful functions for managing segment weight maps.
+ * Utility class for managing segment weight maps.
+ * Provides methods to normalize, merge, set, and clean segment weights.
+ * 
  * @author adamgent
+ * @since 8.0.0
  */
 public class SegmentWeightUtil {
     
     
+    /**
+     * Normalizes segment weights to match a desired total.
+     * Distributes weights proportionally while ensuring the sum equals the total.
+     * 
+     * @param segmentWeights the original weights to normalize (must not be null)
+     * @param total the desired total weight sum
+     * @return a new map with normalized weights that sum to total
+     * @throws IllegalArgumentException if segmentWeights is null
+     */
     public static Map<String,Integer> normalizeSegmentWeights(final Map<String,Integer> segmentWeights, int total) {
         if (segmentWeights == null) throw new IllegalArgumentException("Cannot normalize null segmentWeights");
         if (segmentWeights.isEmpty()) return new HashMap<String,Integer>();
@@ -91,11 +103,26 @@ public class SegmentWeightUtil {
         }
     }
     
+    /**
+     * Normalizes segment weights to sum to 100.
+     * Convenience method calling normalizeSegmentWeights with total=100.
+     * 
+     * @param segmentWeights the original weights to normalize
+     * @return a new map with weights normalized to sum to 100
+     */
     public static Map<String,Integer> normalizeSegmentWeights(Map<String,Integer> segmentWeights) {
         return normalizeSegmentWeights(segmentWeights, 100);
     }
     
-    
+    /**
+     * Merges two segment weight maps by adding values from mapToAdd to baseMap.
+     * Modifies and returns the baseMap.
+     * 
+     * @param baseMap the map to receive added weights (modified in place)
+     * @param mapToAdd the map containing weights to add
+     * @return the modified baseMap
+     * @throws IllegalArgumentException if either parameter is null
+     */
     public static Map<String,Integer> mergeSegmentWeights(Map<String,Integer> baseMap, Map<String,Integer> mapToAdd) {
         if (baseMap == null) throw new IllegalArgumentException("baseMap cannot be null");
         if (mapToAdd == null) throw new IllegalArgumentException("mapToAdd cannot be null");
@@ -127,6 +154,15 @@ public class SegmentWeightUtil {
         return v == null ? 0 : v;
     }
     
+    /**
+     * Sets weights in baseMap from mapToAdd, replacing any existing values.
+     * Modifies and returns the baseMap.
+     * 
+     * @param baseMap the map to receive new weights (modified in place)
+     * @param mapToAdd the map containing weights to set
+     * @return the modified baseMap
+     * @throws IllegalArgumentException if either parameter is null
+     */
     public static Map<String,Integer> setSegmentWeights(Map<String,Integer> baseMap, Map<String,Integer> mapToAdd) {
         if (baseMap == null) throw new IllegalArgumentException("baseMap cannot be null");
         if (mapToAdd == null) throw new IllegalArgumentException("mapToAdd cannot be null");
@@ -141,6 +177,12 @@ public class SegmentWeightUtil {
         return baseMap;
     }
     
+    /**
+     * Removes entries with null keys or null values from the weights map.
+     * 
+     * @param weights the weights map to clean (modified in place)
+     * @throws IllegalArgumentException if weights is null
+     */
     public static void cleanSegmentWeightsOfNull(Map<String,Integer> weights) {
        if (weights == null) throw new IllegalArgumentException("weights cannot be null");
        synchronized (weights) {

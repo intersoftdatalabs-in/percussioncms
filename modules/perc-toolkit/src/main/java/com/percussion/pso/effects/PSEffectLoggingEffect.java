@@ -120,13 +120,12 @@ public class PSEffectLoggingEffect implements IPSEffect {
     String sourceFolderId = req.getParameter("sys_moveSourceFolderId");
     String targetFolderId = req.getParameter("sys_moveTargetFolderId");
 
-    log.debug("Move source folder id is =" + sourceFolderId);
-    log.debug("Move target folder id is =" + targetFolderId);
+    log.debug("Move source folder id is ={}", sourceFolderId);
+    log.debug("Move target folder id is ={}", targetFolderId);
 
     PSRelationship current = exCtx.getCurrentRelationship();
     PSRelationship orig = exCtx.getOriginatingRelationship();
-    //noinspection unchecked
-    Set<PSRelationship> processed = (Set<PSRelationship>) exCtx.getProcessedRelationships();
+     Set<PSRelationship> processed = exCtx.getProcessedRelationships();
 
     String o = "EFFECT Context=" + context + "\n";
     o += "Current Relationship\n";
@@ -158,12 +157,12 @@ public class PSEffectLoggingEffect implements IPSEffect {
     if (current != null && "rs_folder".equals(current.getConfig().getCategory())) {
       int dependent = current.getDependent().getId();
       int owner = current.getOwner().getId();
-      log.debug("Setting private object " + "Added:" + dependent);
+      log.debug("Setting private object {}Added:{}", "", dependent);
       req.setPrivateObject("Added:" + dependent, owner);
       Object obj = req.getPrivateObject("Added:" + dependent);
       if (obj != null) {
         int newFolder = Integer.parseInt(obj.toString());
-        log.debug("Detected item moved from folder " + owner + " to folder" + newFolder);
+        log.debug("Detected item moved from folder {} to folder{}", owner, newFolder);
       }
       if (dependent == 503) {
         // String msg = "Cannot Move Item";

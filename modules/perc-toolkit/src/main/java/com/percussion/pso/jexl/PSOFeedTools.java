@@ -119,24 +119,23 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
     return ret;
   }
 
-  @IPSJexlMethod(
-      description = "Returns a ROME MediaEntryModule to handle Media RSS content.",
-      params = {@IPSJexlParam(name = "entry", description = "A ROME SyndEntry instance.")})
-  public List<MediaContent> getMediaRSSModuleContent(Object entry) {
-    MediaEntryModule mediaModule = null;
-    SyndEntry item = (SyndEntry) entry;
-    List<MediaContent> contents = new ArrayList<MediaContent>();
+    @IPSJexlMethod(
+       description = "Returns a ROME MediaEntryModule to handle Media RSS content.",
+       params = {@IPSJexlParam(name = "entry", description = "A ROME SyndEntry instance.")})
+    public List<MediaContent> getMediaRSSModuleContent(Object entry) {
+        SyndEntry item = (SyndEntry) entry;
+        List<MediaContent> contents = new ArrayList<MediaContent>();
 
-    mediaModule = (MediaEntryModule) item.getModule(MediaEntryModule.URI);
-    if (mediaModule != null && mediaModule instanceof MediaEntryModule) {
-      MediaEntryModule mentry = (MediaEntryModule) mediaModule;
+         Object moduleObj = item.getModule(MediaEntryModule.URI);
+         if (moduleObj instanceof MediaEntryModule) {
+             MediaEntryModule mediaModule = (MediaEntryModule) moduleObj;
 
-      for (MediaGroup mg : mentry.getMediaGroups()) {
-        for (MediaContent mc : mg.getContents()) {
-          contents.add(mc);
-        }
-      }
-    }
+             for (MediaGroup mg : mediaModule.getMediaGroups()) {
+                 for (MediaContent mc : mg.getContents()) {
+                     contents.add(mc);
+                 }
+             }
+         }
     return contents;
   }
 

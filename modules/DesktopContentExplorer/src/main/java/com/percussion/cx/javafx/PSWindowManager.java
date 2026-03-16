@@ -28,6 +28,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Manages desktop explorer windows for the content explorer application.
+ * Provides window creation, tracking, and lifecycle management for
+ * multiple browser windows with various targets.
+ * 
+ * @since 8.0.0
+ */
 public class PSWindowManager {
   private static PSWindowManager instance = new PSWindowManager();
 
@@ -48,10 +55,20 @@ public class PSWindowManager {
 
   private String last_opened;
 
+  /**
+   * Gets the singleton instance of the window manager.
+   * 
+   * @return the PSWindowManager instance
+   */
   public static PSWindowManager getInstance() {
     return instance;
   }
 
+  /**
+   * Adds a root window to the manager.
+   * 
+   * @param baseFrame the desktop explorer window to add as root
+   */
   public void addRoot(PSDesktopExplorerWindow baseFrame) {
     instance.windows.put(ROOT_TARGET, baseFrame);
     baseFrame.setTarget(ROOT_TARGET);
@@ -61,6 +78,17 @@ public class PSWindowManager {
     PSPopupAppletFrame.class, PSSimpleSwingBrowser.class
   };
 
+  /**
+   * Opens a new window or returns an existing window with the specified parameters.
+   * 
+   * @param parent the parent window identifier
+   * @param url the URL to load in the window
+   * @param target the target name (_blank, _parent, _self, _top, or custom name)
+   * @param specs the window specifications string
+   * @param mi_selection the current selection context
+   * @param action the menu action to perform
+   * @return the opened or existing window, or null if opening failed
+   */
   public PSDesktopExplorerWindow open(
       String parent,
       String url,
@@ -119,6 +147,11 @@ public class PSWindowManager {
     return window;
   }
 
+  /**
+   * Closes and disposes the window with the specified name.
+   * 
+   * @param name the target name of the window to close
+   */
   public void close(String name) {
     PSDesktopExplorerWindow window = windows.get(name);
     if (window != null) {
@@ -135,6 +168,17 @@ public class PSWindowManager {
         });
   }
 
+  /**
+   * Opens a window with an explicit parent reference.
+   * 
+   * @param parent the parent window identifier
+   * @param mi_actionurl the action URL to open
+   * @param mi_target the target frame name
+   * @param mi_style the window specifications
+   * @param selection the current selection context
+   * @param action the menu action to perform
+   * @return the opened window, or null if failed
+   */
   public PSDesktopExplorerWindow openWithParent(
       String parent,
       String mi_actionurl,
@@ -192,10 +236,23 @@ public class PSWindowManager {
     }
   }
 
+  /**
+   * Gets the window with the specified target name.
+   * 
+   * @param target the target name of the window
+   * @return the window, or null if not found
+   */
   public PSDesktopExplorerWindow getWindow(String target) {
     return windows.get(target);
   }
 
+  /**
+   * Updates the default window size based on the last opened window.
+   * 
+   * @param target the target name of the resized window
+   * @param height the new height
+   * @param width the new width
+   */
   public void windowResized(String target, int height, int width) {
     if (last_opened.equals(target)) {
       defaultHeight = height;

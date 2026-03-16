@@ -14,44 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 // REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.activity.service.IPSContentActivityService.PSUsageEnum;
-
 /**
  * A request object used for getting the effectiveness data from the rest service. Extends the
  * content activity request by adding additional fields for usage and threshold.
  */
 @JsonRootName(value = "EffectivenessRequest")
-public class PSEffectivenessRequest extends PSContentActivityRequest {
-
+  public class PSEffectivenessRequest extends PSContentActivityRequest {
+    private static final long serialVersionUID = 1L;
   private PSUsageEnum usage;
   private int threshold;
-
   /**
    * @return the usage metric to use when calculating effectiveness.
    */
   public PSUsageEnum getUsage() {
     return usage;
   }
-
   /**
    * @param usage the usage to set.
    */
   public void setUsage(PSUsageEnum usage) {
     this.usage = usage;
   }
-
   /**
    * @return the acceptable threshold (views/changes) to use when calculating effectiveness.
    */
   public int getThreshold() {
     return threshold;
   }
-
   /**
    * @param threshold the threshold to set.
    */

@@ -67,17 +67,17 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
 
     IPSGuid itemGuid = gmgr.makeGuid(current.getDependent());
 
-    for (String folderPath : ownerFolderPaths) {
-      log.debug("owner folder path is " + folderPath);
-      if (StringUtils.isNotBlank(folderPath) && folderPath.startsWith("//Sites/")) {
-        String subPath = findOrCreateChildFolder(folderPath, subfolderPath, userName);
-        log.debug("checking subfolder path " + subPath);
-        if (!itemFolderPaths.contains(subPath)) {
-          log.debug("adding item to folder " + subPath);
-          cws.addFolderChildren(subPath, Collections.<IPSGuid>singletonList(itemGuid));
-        }
-      }
-    }
+     for (String folderPath : ownerFolderPaths) {
+       log.debug("owner folder path is {}", folderPath);
+       if (StringUtils.isNotBlank(folderPath) && folderPath.startsWith("//Sites/")) {
+         String subPath = findOrCreateChildFolder(folderPath, subfolderPath, userName);
+         log.debug("checking subfolder path {}", subPath);
+         if (!itemFolderPaths.contains(subPath)) {
+           log.debug("adding item to folder {}", subPath);
+           cws.addFolderChildren(subPath, Collections.<IPSGuid>singletonList(itemGuid));
+         }
+       }
+     }
   }
 
   /**
@@ -115,7 +115,7 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
       sb.append('/');
     }
     sb.append(subfolderPath);
-    log.debug("adding folder path " + sb.toString());
+         log.debug("adding folder path {}", sb.toString());
     cws.addFolderTree(sb.toString());
 
     return sb.toString();
@@ -132,11 +132,11 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
     // For now, always run effect for backward compatibility
     {
       String subfolderName = params[0].toString();
-      log.debug("subfolder name is " + subfolderName);
-      String userName = req.getUserName();
-      log.debug("user name is " + userName);
-      String sessionId = req.getUserSessionId();
-      log.debug("session id is " + sessionId);
+       log.debug("subfolder name is {}", subfolderName);
+       String userName = req.getUserName();
+       log.debug("user name is {}", userName);
+       String sessionId = req.getUserSessionId();
+       log.debug("session id is {}", sessionId);
 
       PSRelationship current = exCtx.getCurrentRelationship();
       try {
@@ -144,9 +144,9 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
       } catch (PSErrorsException e) {
         Map<IPSGuid, Object> emap = e.getErrors();
         for (Map.Entry<IPSGuid, Object> entry : emap.entrySet()) {
-          log.error("Error for Guid " + entry.getKey() + " is " + entry.getValue());
+           log.error("Error for Guid {} is {}", entry.getKey(), entry.getValue());
         }
-        log.error("Errors Exception " + e.getLocalizedMessage(), e);
+         log.error("Errors Exception: {}", e.getLocalizedMessage(), e);
       } catch (PSErrorException ee) {
         log.error(ee.getErrorMessage(), ee);
 
