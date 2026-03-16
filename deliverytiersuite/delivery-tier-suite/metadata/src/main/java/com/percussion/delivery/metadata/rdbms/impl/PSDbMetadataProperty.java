@@ -56,6 +56,9 @@ import org.hibernate.annotations.Nationalized;
       @Index(columnList = "NAME,VALUE_HASH", name = "name_valuehash_hidx")
     })
 public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
+
+  private static final long serialVersionUID = 1L;
+
   @Id
   @Column(unique = true, name = "ID", nullable = false)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -123,7 +126,7 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
           || value instanceof Float
           || value instanceof Long
           || value instanceof Short) {
-        d = new Double(value.toString());
+        d = Double.valueOf(value.toString());
         nan = false;
       } else if (value instanceof Double) {
         d = (Double) value;

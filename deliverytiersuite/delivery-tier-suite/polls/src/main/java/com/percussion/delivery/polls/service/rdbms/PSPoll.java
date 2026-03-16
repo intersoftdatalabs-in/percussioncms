@@ -27,6 +27,9 @@ import java.util.Set;
 @Entity
 @Table(name = "PERC_POLLS")
 public class PSPoll implements IPSPoll, Serializable {
+
+  private static final long serialVersionUID = 1L;
+
   @Id
   @GeneratedValue
   @Column(name = "POLL_ID")

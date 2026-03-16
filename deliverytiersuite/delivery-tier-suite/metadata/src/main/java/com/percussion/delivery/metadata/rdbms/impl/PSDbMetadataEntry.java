@@ -48,6 +48,8 @@ import org.hibernate.annotations.*;
     indexes = {@Index(name = "typeIndex", columnList = "type")})
 public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
 
+  private static final long serialVersionUID = 1L;
+
   @Id
   @Column(length = 40)
   @Nationalized

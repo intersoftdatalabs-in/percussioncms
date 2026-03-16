@@ -244,7 +244,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     try (Session session = getSession()) {
 
-      Query hq = session.createQuery(hql);
+      Query<Object[]> hq = session.createQuery(hql, Object[].class);
       log.debug("{}", hq);
       for (String key : paramValues.keySet()) {
         Object value = paramValues.get(key);

@@ -19,6 +19,8 @@ package com.percussion.preinstall;
 
 public class AntJobFailedException extends RuntimeException {
 
+  private static final long serialVersionUID = 1L;
+
   public AntJobFailedException(String message) {
     super(message);
   }

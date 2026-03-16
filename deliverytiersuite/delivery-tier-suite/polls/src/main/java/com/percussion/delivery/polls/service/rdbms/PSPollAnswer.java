@@ -32,6 +32,9 @@ import java.io.Serializable;
 @Entity
 @Table(name = "PERC_ANSWERS")
 public class PSPollAnswer implements IPSPollAnswer, Serializable {
+
+  private static final long serialVersionUID = 1L;
+
   @Id
   @GeneratedValue
   @Column(name = "ANSWER_ID")
