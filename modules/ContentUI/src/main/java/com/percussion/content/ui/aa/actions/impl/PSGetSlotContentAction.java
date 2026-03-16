@@ -30,9 +30,23 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Retrieves the assembled html content for the specified slot. Expects an objectid for the snippet.
+ * 
+ * <p>Required parameters:</p>
+ * <ul>
+ *   <li>objectid - The object ID containing item ID and slot ID</li>
+ *   <li>isaamode (optional) - Whether to use active assembly mode</li>
+ *   <li>{@link IPSHtmlParameters#SYS_ACTIVE_ASSEMBLY_MODE} (optional) - The active assembly mode</li>
+ * </ul>
  */
 public class PSGetSlotContentAction extends PSAAActionBase {
 
+  /**
+   * Retrieves the assembled HTML content for the specified slot.
+   * 
+   * @param params the action parameters containing object ID and optional assembly mode
+   * @return PSActionResponse containing HTML with the slot content
+   * @throws PSAAClientActionException if assembly fails
+   */
   // see interface for more detail
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     PSAAObjectId objectId = getObjectId(params);

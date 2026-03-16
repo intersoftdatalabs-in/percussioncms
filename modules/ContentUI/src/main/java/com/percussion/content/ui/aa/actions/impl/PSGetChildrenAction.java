@@ -23,9 +23,29 @@ import com.percussion.content.ui.browse.PSContentBrowser;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Map;
 
-/** Implementation of the get folder children action. */
+/**
+ * Implementation of the get folder children action.
+ * 
+ * <p>Required parameters:</p>
+ * <ul>
+ *   <li>{@link PSAAActionBase#PARAM_NAME_PARENT_FOLDER_PATH} - The path to the parent folder</li>
+ *   <li>{@link IPSHtmlParameters#SYS_CONTENTTYPEID} - The content type ID</li>
+ *   <li>{@link PSAAActionBase#PARAM_NAME_CATEGORY} - The category: either {@link PSAAActionBase#PARAM_CATEGORY_FOLDERS} or {@link PSAAActionBase#PARAM_CATEGORY_SITES}</li>
+ * </ul>
+ * 
+ * <p>Additional parameters for SITES category:</p>
+ * <ul>
+ *   <li>{@link IPSHtmlParameters#SYS_SLOTID} - The slot ID (required when category is SITES)</li>
+ * </ul>
+ */
 public class PSGetChildrenAction extends PSAAActionBase {
-  /** todo document the required and optional parameters in the map. */
+  /**
+   * Retrieves children (folders or sites) for a given parent folder.
+   * 
+   * @param params the action parameters containing parent folder path, content type ID, and category
+   * @return PSActionResponse containing JSON with the folder children data
+   * @throws PSAAClientActionException if required parameters are missing or invalid
+   */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     Object obj = getParameter(params, PARAM_NAME_PARENT_FOLDER_PATH);
     if (obj == null || obj.toString().trim().length() == 0) {

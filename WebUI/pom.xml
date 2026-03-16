@@ -414,6 +414,11 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
+            <artifactId>perc-i18n</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
             <artifactId>perc-shared-test-resources</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
