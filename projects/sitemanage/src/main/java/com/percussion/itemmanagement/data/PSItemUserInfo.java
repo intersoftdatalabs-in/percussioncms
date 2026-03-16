@@ -41,7 +41,7 @@ import net.sf.oval.constraint.NotNull;
   @NotNull private String assignmentType;
 
   /** Default constructor for serializers. */
-  public class PSItemUserInfo() {
+  public PSItemUserInfo() {
     // No-op
   }
 
@@ -54,7 +54,7 @@ import net.sf.oval.constraint.NotNull;
    * @param currentUser the name of the user which is currently logged in, never blank.
    * @param assignmentType the string representation of PSAssignmentTypeEnum, never blank.
    */
-  public class PSItemUserInfo(
+  public PSItemUserInfo(
       String itemName, String checkOutUser, String currentUser, String assignmentType) {
     notEmpty(itemName, "itemName");
     notNull(checkOutUser, "checkOutUser");

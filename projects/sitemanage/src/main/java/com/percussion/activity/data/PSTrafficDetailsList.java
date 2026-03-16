@@ -27,7 +27,7 @@ import java.util.Collection;
   
 public class PSTrafficDetailsList extends ArrayList<PSTrafficDetails> {
     private static final long serialVersionUID = 1L;
-  public class PSTrafficDetailsList(Collection<? extends PSTrafficDetails> c) {
+  public PSTrafficDetailsList(Collection<? extends PSTrafficDetails> c) {
     super(c);
   }
 }
