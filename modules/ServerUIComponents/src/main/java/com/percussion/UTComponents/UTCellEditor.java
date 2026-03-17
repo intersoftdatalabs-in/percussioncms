@@ -24,6 +24,9 @@ import javax.swing.*;
  * </code> and <code>JTextField</code>.
  */
 public class UTCellEditor extends DefaultCellEditor {
+
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructor for creating a cell editor with panel as editor component.
    *

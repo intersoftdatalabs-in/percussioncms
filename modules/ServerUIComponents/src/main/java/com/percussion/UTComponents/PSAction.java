@@ -27,6 +27,9 @@ import javax.swing.*;
  * <p>The class is abstract because it does not define actionPerformed().
  */
 public abstract class PSAction extends AbstractAction {
+
+  private static final long serialVersionUID = 1L;
+
   // constructors
   /**
    * @param strMenuText text displayed with the item, if null or empty, no text is displayed

@@ -29,6 +29,8 @@ import java.util.ResourceBundle;
 @XmlRootElement(name = "Error")
 public class RestExceptionBase extends WebApplicationException {
 
+  private static final long serialVersionUID = 1L;
+
   private RestErrorCode errorCode;
   private String message;
   private String detailMessage;

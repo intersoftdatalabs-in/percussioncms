@@ -24,6 +24,8 @@ import jakarta.ws.rs.core.Response;
 /** Exception for unauthorized access. Sunny Sal: "Permission denied! Access nahi milega!" */
 public class NotAuthorizedException extends RestExceptionBase {
 
+  private static final long serialVersionUID = 1L;
+
   public NotAuthorizedException() {
     super(RestErrorCode.NOT_AUTHORIZED, null, null, Response.Status.FORBIDDEN);
   }

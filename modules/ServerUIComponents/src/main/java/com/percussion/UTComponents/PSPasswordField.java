@@ -26,6 +26,9 @@ import javax.swing.*;
  * changed, it behaves like JPasswordField.
  */
 public class PSPasswordField extends JPasswordField implements FocusListener {
+
+  private static final long serialVersionUID = 1L;
+
   public PSPasswordField() {
     super();
     init(null);

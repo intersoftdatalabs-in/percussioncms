@@ -22,6 +22,9 @@ import javax.swing.*;
 /** A fixed sized JButton. */
 ////////////////////////////////////////////////////////////////////////////////
 public class UTFixedButton extends JButton {
+
+  private static final long serialVersionUID = 1L;
+
   /** The size of button used by default by this class. */
   public static final Dimension STANDARD_BUTTON_SIZE = new Dimension(80, 24);
 

@@ -26,6 +26,8 @@ import jakarta.ws.rs.core.Response;
  */
 public class LocationMismatchException extends RestExceptionBase {
 
+  private static final long serialVersionUID = 1L;
+
   public LocationMismatchException() {
     super(RestErrorCode.LOCATION_MISMATCH, null, null, Response.Status.CONFLICT);
   }

@@ -27,6 +27,9 @@ import java.util.Collection;
 @XmlRootElement(name = "SiteList")
 @ArraySchema(schema = @Schema(implementation = Site.class))
 public class SiteList extends ArrayList<Site> {
+
+  private static final long serialVersionUID = 1L;
+
   public SiteList(Collection<? extends Site> c) {
     super(c);
   }

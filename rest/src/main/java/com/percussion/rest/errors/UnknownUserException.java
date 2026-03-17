@@ -27,6 +27,8 @@ import jakarta.ws.rs.core.Response;
  */
 public class UnknownUserException extends RestExceptionBase {
 
+  private static final long serialVersionUID = 1L;
+
   /** Constructs an UnknownUserException with NOT_FOUND status. */
   public UnknownUserException() {
     super(RestErrorCode.UNKNOWN_USER, null, null, Response.Status.NOT_FOUND);

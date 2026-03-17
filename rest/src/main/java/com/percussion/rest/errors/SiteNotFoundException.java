@@ -27,6 +27,8 @@ import jakarta.ws.rs.core.Response;
  */
 public class SiteNotFoundException extends RestExceptionBase {
 
+  private static final long serialVersionUID = 1L;
+
   /** Constructs a SiteNotFoundException with NOT_FOUND status. */
   public SiteNotFoundException() {
     super(RestErrorCode.SITE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);

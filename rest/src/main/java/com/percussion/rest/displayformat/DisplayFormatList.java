@@ -29,6 +29,9 @@ import java.util.Objects;
 @XmlSeeAlso({DisplayFormat.class})
 @ArraySchema(schema = @Schema(implementation = DisplayFormat.class))
 public class DisplayFormatList extends ArrayList<DisplayFormat> {
+
+  private static final long serialVersionUID = 1L;
+
   public DisplayFormatList(Collection<? extends DisplayFormat> c) {
     super(c);
   }

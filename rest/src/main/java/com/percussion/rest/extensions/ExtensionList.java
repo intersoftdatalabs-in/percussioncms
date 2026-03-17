@@ -30,6 +30,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = Extension.class))
 public class ExtensionList extends ArrayList<Extension> {
 
+  private static final long serialVersionUID = 1L;
+
   public ExtensionList(Collection<? extends Extension> c) {
     super(c);
   }

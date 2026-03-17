@@ -29,6 +29,9 @@ import java.util.Objects;
 @XmlSeeAlso({DisplayFormatColumn.class, DisplayFormatProperty.class})
 @ArraySchema(schema = @Schema(implementation = DisplayFormatColumn.class))
 public class DisplayFormatColumnList extends ArrayList<DisplayFormatColumn> {
+
+  private static final long serialVersionUID = 1L;
+
   public DisplayFormatColumnList(Collection<? extends DisplayFormatColumn> c) {
     super(c);
   }

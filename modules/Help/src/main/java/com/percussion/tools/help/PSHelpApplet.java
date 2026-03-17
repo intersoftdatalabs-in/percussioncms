@@ -26,6 +26,9 @@ import javax.swing.*;
 
 /** Applet Class for launching JavaHelp viewer from browser. */
 public class PSHelpApplet extends JApplet {
+
+  private static final long serialVersionUID = 1L;
+
   /** Init function for applet. Gets helpset file url and help topic id from applet parameters. */
   public void init() {
     // Get the JavaHelp helpset file and attach the protocol based on its

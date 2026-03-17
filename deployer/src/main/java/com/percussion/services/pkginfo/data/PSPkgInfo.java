@@ -43,6 +43,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "PSX_PKG_INFO")
 public class PSPkgInfo implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+
   /**
    * The types of actions that can be taken with the associated package.
    *

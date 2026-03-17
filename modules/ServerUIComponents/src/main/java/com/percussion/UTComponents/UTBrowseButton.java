@@ -25,6 +25,9 @@ import javax.swing.*;
  * browser dialog. The button attempts to maintain a fixed size.
  */
 public class UTBrowseButton extends JButton {
+
+  private static final long serialVersionUID = 1L;
+
   /** The standard ctor for the browse button object. */
   public UTBrowseButton() {
     ImageIcon icon =

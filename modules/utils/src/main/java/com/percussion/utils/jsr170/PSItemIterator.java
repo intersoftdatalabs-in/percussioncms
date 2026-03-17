@@ -72,14 +72,14 @@ public abstract class PSItemIterator<M> implements Iterator {
    */
 
   private Iterator<M> calculateIter() {
-    if (m_map instanceof Map && !(m_map instanceof HashMap)) {
-      return new PSMultiMapIterator(m_map, m_filter);
+    if (m_map instanceof Map<?, ?> && !(m_map instanceof HashMap<?, ?>)) {
+      return new PSMultiMapIterator<>(m_map, m_filter);
     } else if (m_filter != null) {
-      Collection<M> values = new ArrayList<M>();
+      Collection<M> values = new ArrayList<>();
       values.addAll(m_map.values());
-      return new FilterIterator(values.iterator(), m_filter);
+      return new FilterIterator<>(values.iterator(), m_filter);
     } else {
-      Collection<M> values = new ArrayList<M>();
+      Collection<M> values = new ArrayList<>();
       values.addAll(m_map.values());
       return values.iterator();
     }

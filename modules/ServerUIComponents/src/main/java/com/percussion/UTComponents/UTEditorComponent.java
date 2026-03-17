@@ -25,6 +25,8 @@ import javax.swing.*;
  */
 public abstract class UTEditorComponent extends JPanel implements IEditorComponent {
 
+  private static final long serialVersionUID = 1L;
+
   // see interface for description
   public abstract JComponent getEditorComponent();
 

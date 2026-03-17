@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 @XmlSeeAlso(DisplayFormatProperty.class)
 public class DisplayFormatPropertyList extends java.util.ArrayList<DisplayFormatProperty> {
 
+  private static final long serialVersionUID = 1L;
+
   public DisplayFormatPropertyList(Collection<? extends DisplayFormatProperty> c) {
     super(c == null ? java.util.Collections.emptyList() : c.stream().collect(Collectors.toList()));
   }

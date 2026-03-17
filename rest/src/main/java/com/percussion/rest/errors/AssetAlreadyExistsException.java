@@ -27,6 +27,8 @@ import jakarta.ws.rs.core.Response;
  */
 public class AssetAlreadyExistsException extends RestExceptionBase {
 
+  private static final long serialVersionUID = 1L;
+
   public AssetAlreadyExistsException() {
     this(null);
   }

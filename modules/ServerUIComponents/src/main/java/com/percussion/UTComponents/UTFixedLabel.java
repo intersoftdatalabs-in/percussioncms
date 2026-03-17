@@ -24,6 +24,9 @@ import javax.swing.*;
  * maintained at a constant value as defined by IUTConstants.FIXED_HEIGHT.
  */
 public class UTFixedLabel extends JLabel {
+
+  private static final long serialVersionUID = 1L;
+
   public UTFixedLabel(String label, int position) {
     super(label, position);
   }

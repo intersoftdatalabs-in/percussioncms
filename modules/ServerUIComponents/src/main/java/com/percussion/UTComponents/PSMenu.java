@@ -26,6 +26,9 @@ import javax.swing.*;
  * <p>If the supplied action is not a PSAction, this object behaves identically to its base class.
  */
 public class PSMenu extends JMenu {
+
+  private static final long serialVersionUID = 1L;
+
   // constructors
   /** Default constructor. */
   PSMenu() {}

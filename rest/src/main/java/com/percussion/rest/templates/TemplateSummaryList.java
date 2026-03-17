@@ -16,6 +16,9 @@ import java.util.Collection;
 @XmlSeeAlso({TemplateSummary.class})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TemplateSummaryList extends ArrayList<TemplateSummary> {
+
+  private static final long serialVersionUID = 1L;
+
   public TemplateSummaryList(Collection<? extends TemplateSummary> c) {
     super(c);
   }

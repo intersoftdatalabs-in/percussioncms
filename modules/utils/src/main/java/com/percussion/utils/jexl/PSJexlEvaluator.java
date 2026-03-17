@@ -210,9 +210,9 @@ public class PSJexlEvaluator {
           List nlist = (List) next;
           if (nlist == null) {
             nlist = new ArrayList<>();
-            ((Map) current).put(component, nlist);
+            ((Map<String, Object>) current).put(component, nlist);
           }
-          matchLength((ArrayList) nlist, index);
+          matchLength((ArrayList<Object>) nlist, index);
           next = nlist.get(index);
           if (next == null) {
             next = new HashMap<>();

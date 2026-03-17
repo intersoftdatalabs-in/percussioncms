@@ -26,6 +26,9 @@ import javax.swing.table.TableCellRenderer;
 /** the cell renderer when JTextArea object is stored within a table cell. */
 public class UTMultiLineCellRenderer extends JTextArea
     implements TableCellRenderer, ListCellRenderer, Serializable {
+
+  private static final long serialVersionUID = 1L;
+
   public UTMultiLineCellRenderer() {
     super();
     noFocusBorder = new EmptyBorder(1, 2, 1, 2);
@@ -110,7 +113,10 @@ public class UTMultiLineCellRenderer extends JTextArea
   }
 
   public static class UIResource extends UTMultiLineCellRenderer
-      implements javax.swing.plaf.UIResource {}
+      implements javax.swing.plaf.UIResource {
+
+    private static final long serialVersionUID = 1L;
+  }
 
   protected static Border noFocusBorder;
 

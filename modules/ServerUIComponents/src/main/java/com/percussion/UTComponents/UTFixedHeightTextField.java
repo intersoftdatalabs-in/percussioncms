@@ -24,6 +24,9 @@ import javax.swing.*;
  * Box layout, it will take up all available width, but is limited in height.
  */
 public class UTFixedHeightTextField extends JTextField {
+
+  private static final long serialVersionUID = 1L;
+
   /** Overridden to return the preferred size for the control. */
   public Dimension getPreferredSize() {
     return IUTConstants.PREF_CONTROL_SIZE;

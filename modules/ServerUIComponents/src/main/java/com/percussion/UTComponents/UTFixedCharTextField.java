@@ -24,6 +24,9 @@ import javax.swing.text.PlainDocument;
 
 /** Just like a standard text field except for restricting the number of characters in the field. */
 public class UTFixedCharTextField extends JTextField {
+
+  private static final long serialVersionUID = 1L;
+
   /**
    * Ctor for creating a fixed character text field.
    *

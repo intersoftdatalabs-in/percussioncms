@@ -25,6 +25,9 @@ import org.w3c.dom.Element;
 
 /** Implementation for the PSXEntry DTD in BasicObjects.dtd. */
 public class PSEntry extends PSComponent {
+
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new entry for the provided parameters.
    *

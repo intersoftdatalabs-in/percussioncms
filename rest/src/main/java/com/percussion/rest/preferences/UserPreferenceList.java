@@ -32,6 +32,8 @@ import java.util.Collection;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserPreferenceList extends ArrayList<UserPreference> {
 
+  private static final long serialVersionUID = 1L;
+
   public UserPreferenceList(Collection<? extends UserPreference> c) {
     super(c);
   }

@@ -27,6 +27,9 @@ import java.util.List;
  * @author stephenbolton
  */
 public class TaxAttMap extends HashMap<String, TaxAttribute> {
+
+  private static final long serialVersionUID = 1L;
+
   public TaxAttMap() {
     super();
   }

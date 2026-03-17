@@ -27,6 +27,8 @@ import jakarta.ws.rs.core.Response;
  */
 public class AssetNotFoundException extends RestExceptionBase {
 
+  private static final long serialVersionUID = 1L;
+
   public AssetNotFoundException() {
     this((String) null);
   }
