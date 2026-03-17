@@ -78,7 +78,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
    * Initializes a new instance with the specified algorithm and key location.
    *
    * @param algorithm encryption algorithm
-   * @param keyLocation location of the key file
+   * @param keystoreLocation location of the key file
    */
   public PSEncryptor(String algorithm, String keystoreLocation) {
     // Initialize directly to avoid 'this' escape

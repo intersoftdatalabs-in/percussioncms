@@ -49,7 +49,7 @@ public interface IPSManagedLinkDao {
      * Saves a link with enhanced validation.
      *
      * @param link the link to save, never null
-     * @throws SaveException if there is an unexpected error
+     * @throws PSDataServiceException if there is an unexpected error
      * @throws IllegalArgumentException if link is null
      */
     void saveLink(PSManagedLink link) throws PSDataServiceException;
@@ -58,7 +58,7 @@ public interface IPSManagedLinkDao {
      * Saves multiple links efficiently.
      *
      * @param links the collection of links to save, never null
-     * @throws SaveException if there is an unexpected error
+     * @throws PSDataServiceException if there is an unexpected error
      * @throws IllegalArgumentException if links is null or contains null elements
      */
     default void saveLinks(Collection<PSManagedLink> links) throws PSDataServiceException {

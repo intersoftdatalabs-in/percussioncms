@@ -124,15 +124,10 @@ public class ImageListControlList extends JList<ImageListItem>
   {
     return m_useVisibleRowCount;
   }
-
-/** Allows the programmer to use either the visibleRowCount method (takes the
-  * width of the first element and duplicates it for the number of
-  * visibleRowCount) or the preferredSize method (setting the preferredSize to
-  * dictate viewable width of list) for display.
-  *
-  * @return boolean true = uses visibleRowCount for display; false = uses
-  *                  preferredSize for display.
-*/
+/** Sets whether to use visibleRowCount or preferredSize for display.
+ *
+ * @param b true = use visibleRowCount; false = use preferredSize
+ */
   public void setUseVisibleRowCount(boolean b)
   {
     m_useVisibleRowCount = b;

@@ -92,7 +92,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * If the designer needs more time to complete the task, an additional 30 minute extension can be
    * requested.
    *
-   * @param doc the XML document containing the application data
+   * @param inDoc the XML document containing the application data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -117,7 +117,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * the object store when this method is called. If the application is being loaded for editing, be
    * sure to lock the application.
    *
-   * @param doc the XML document containing the application data
+   * @param inDoc the XML document containing the application data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -163,7 +163,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
   /**
    * Saves the server configuration information for the specified user to the object store.
    *
-   * @param doc the XML document containing the server configuration data
+   * @param inDoc the XML document containing the server configuration data
    * @param req the request context (for security)
    * @return the XML response document
    * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
@@ -179,7 +179,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * minutes. If the administrator needs more time to complete the task, an additional 30 minute
    * extension can be requested.
    *
-   * @param doc the XML document containing the server config data
+   * @param inDoc the XML document containing the server config data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -237,7 +237,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * </tr>
    * </table>
    *
-   * @param doc the XML document containing the application data
+   * @param inDoc the XML document containing the application data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -266,7 +266,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * Remove the specified application from the object store. This permanently deletes the
    * application, which cannot be recovered.
    *
-   * @param doc the XML document containing the application data
+   * @param inDoc the XML document containing the application data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -286,7 +286,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
   /**
    * Rename the specified application defined in this object store.
    *
-   * @param doc the XML document containing the application data
+   * @param inDoc the XML document containing the application data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -313,7 +313,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * application represents an existing application in this object store, it will be updated. This
    * behavior can also be overriden by using the createNewApp parameter.
    *
-   * @param doc the XML document containing the application data
+   * @param inDoc the XML document containing the application data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -344,7 +344,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * Loads the previously saved user configuration object for the specified user. If configuration
    * information does not exist on the server, an empty object will be returned.
    *
-   * @param doc the XML document containing the user configuration data
+   * @param inDoc the XML document containing the user configuration data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -363,7 +363,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * Loads the character encoding map from the installation root. If the character encoding map does
    * not exist an exception will be thrown.
    *
-   * @param doc the XML document containing the character encoding data
+   * @param inDoc the XML document containing the character encoding data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -386,7 +386,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
    * Remove the user configuration information for the specified user. This permanently deletes all
    * the user configuration information, which cannot be recovered.
    *
-   * @param doc the XML document containing the user configuration data
+   * @param inDoc the XML document containing the user configuration data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding
@@ -407,7 +407,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
   /**
    * Saves the user configuration information for the specified user to the object store.
    *
-   * @param doc the XML document containing the user configuration data
+   * @param inDoc the XML document containing the user configuration data
    * @param req the request context (for security)
    * @return the XML response document
    * @exception PSServerException if the server is not responding

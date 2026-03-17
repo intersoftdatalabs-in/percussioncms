@@ -156,7 +156,7 @@ public interface IPSAclService {
      *
      * @param aclGuids list of ACL GUIDs to load ACLs for
      * @return Stream of ACLs, never {@code null}
-     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     * @throws PSServiceSecurityException if any of the specified ACLs cannot be loaded
      */
     default Stream<IPSAcl> streamAcls(List<IPSGuid> aclGuids) throws PSServiceSecurityException {
         return loadAcls(aclGuids).stream();
@@ -204,7 +204,7 @@ public interface IPSAclService {
      *
      * @param objectGuids list of object GUIDs to load ACLs for, not {@code null}
      * @return an immutable list of modifiable ACL objects, never {@code null}, may be empty
-     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     * @throws PSServiceSecurityException if any of the specified ACLs cannot be loaded
      * @throws IllegalArgumentException if objectGuids is null
      */
     List<IPSAcl> loadAclsForObjectsModifiable(List<IPSGuid> objectGuids) throws PSServiceSecurityException;
@@ -255,7 +255,7 @@ public interface IPSAclService {
      * Delete ACLs for the specified object GUIDs with enhanced validation.
      *
      * @param objectGuids list of object GUIDs whose ACLs should be deleted, not {@code null}
-     * @throws PSSecurityException if the delete operation fails
+     * @throws PSServiceSecurityException if the delete operation fails
      * @throws IllegalArgumentException if objectGuids is null
      */
     default void deleteAcls(List<IPSGuid> objectGuids) throws PSServiceSecurityException {

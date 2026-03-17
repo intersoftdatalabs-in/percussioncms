@@ -74,8 +74,6 @@ public class PSProcessRequestResult {
    * @param resultCode The numeric value returned after the process has completed, or -1 for any
    *     other error conditions.
    * @param resultText If the process is started, the console output. Otherwise, some message
-   *     describing the error condition. May be <code>null</code> or empty, in which case a default message indicating this is used. All control
-   *     codes are stripped from the string before being saved. This prevents problems when the
    *     object is serialized to xml.
    * @param status One of the STATUS_xxx values.
    * @param actionHandle See {@link #getActionHandle()} for details. If <code>status</code> is not

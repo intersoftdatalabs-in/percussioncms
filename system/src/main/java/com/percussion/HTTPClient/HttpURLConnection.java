@@ -478,7 +478,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
    * @exception ProtocolException if already connect()'ed, if output is not enabled or if the
    *     request method does not support output.
    * @see java.net.URLConnection#setDoOutput(boolean)
-   * @see HTTPClient.HttpOutputStream
+   * @see com.percussion.HTTPClient.HttpOutputStream
    */
   public synchronized OutputStream getOutputStream() throws IOException {
     if (connected) throw new ProtocolException("Already connected!");

@@ -387,8 +387,8 @@ public interface IPSTemplateService
          throws PSAssemblyException;
    
    /**
-    * Creates a list of template binding objects from the given LinkedHashMap<String,
-    * String>. Creates the template binding with variable as the first parameter
+    * Creates a list of template binding objects from the given LinkedHashMapLinkedHashMap<String,lt;String,
+    * String&gt;. Creates the template binding with variable as the first parameter
     * and expression as the second parameter, the linked hash maps order is used
     * as order by adding the starting order value. Throws assembly exception if
     * the variable parameter is null or empty. If the expression parameter is

@@ -54,7 +54,7 @@ public interface IPSObjectStoreLockManager {
    * @return Object The lock key for this object. Keys should be lightweight identifier objects that
    *     identify a lock. Keys do not act as a lock; synchronizing on (or finalization of) a key
    *     will not interfere with the lock nor with any other keys.
-   * @throws PSIllegalArgumentexception If no lock key can be associated with this object. This may
+   * @throws PSIllegalArgumentException If no lock key can be associated with this object. This may
    *     happen if this is not a lockable object, or if the object store is not responsive.
    */
   public Object getLockKey(Class lockObClass, Object unique, int lockType)

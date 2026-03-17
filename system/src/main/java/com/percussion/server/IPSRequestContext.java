@@ -872,7 +872,7 @@ public interface IPSRequestContext {
    * @param contextItem The name of the desired aspect of the user context. See the following table
    *     for a list of the supported items.
    *     <table border="1"><caption>Context Item Identifiers</caption>
-   *    <TR ALIGN="center"><TH COLSPAN="2">Context Item Identifiers</TH></TR>
+   *    <TR style="text-align:center"><TH COLSPAN="2">Context Item Identifiers</TH></TR>
    *    <TR><TH>Element</TH><TH>Description</TH></TR>
    *    <TR>
    *         <TD>SessionId</TD>

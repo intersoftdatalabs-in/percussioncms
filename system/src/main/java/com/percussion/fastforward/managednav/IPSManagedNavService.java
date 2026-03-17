@@ -307,7 +307,7 @@ public interface IPSManagedNavService {
    * Throws exception if any of the supplied name is not a field on navon content type.
    *
    * @param navId the ID of the navigation node, never <code>null</code>.
-   * @param propertyNames, names of the navon fields for which the value is required.
+   * @param propertyNames names of the navon fields for which the value is required.
    * @return Map<String, String> the map of name and value pairs, corresponding to the supplied list
    *     of names.
    */
