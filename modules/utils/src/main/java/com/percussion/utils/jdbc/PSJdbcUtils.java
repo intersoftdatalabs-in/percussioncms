@@ -107,24 +107,24 @@ public class PSJdbcUtils {
    */
   public static final String JTDS = "jtds";
 
-  /** Constant for sprinta db backend property, see {@link com.percussion.utils.jdbc.PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
+  /** Constant for sprinta db backend property, see  */
   public static final String SPRINTA_DB_BACKEND = "MSSQL";
 
-  /** Constant for db2 db backend property, see {@link com.percussion.utils.jdbc.PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
+  /** Constant for db2 db backend property, see  */
   public static final String DB2_DB_BACKEND = "db2";
 
-  /** Constant for jtds db backend property, see {@link com.percussion.utils.jdbc.PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
+  /** Constant for jtds db backend property, see  */
   public static final String JTDS_DB_BACKEND = "MSSQL";
 
-  /** Constant for oracle db backend property, see {@link com.percussion.utils.jdbc.PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
+  /** Constant for oracle db backend property, see  */
   public static final String ORACLE_DB_BACKEND = "ORACLE";
 
   /**
-   * Constant for Apache Derby db backend property, see {@link com.percussion.utils.jdbc.PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
+   * Constant for Apache Derby db backend property, see 
    */
   public static final String DERBY_DB_BACKEND = "DERBY";
 
-  /** Constant for MYSQL db backend property, see {@link com.percussion.utils.jdbc.PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
+  /** Constant for MYSQL db backend property, see  */
   public static final String MYSQL_DB_BACKEND = "MYSQL";
 
   /** Constant for transaction isolation level read uncommitted */

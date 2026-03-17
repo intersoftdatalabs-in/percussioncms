@@ -220,7 +220,7 @@ public class PSXmlPIUtils {
   /**
    * Remove any pi that is followed by a value in the start sequences, and which has the
    * corresponding value in the end sequences at the other end. So a string that consists of a start
-   * pi, followed by <code>JSP code</code> will have the pi stripped if the <% and %> are in the sequences.
+   * pi, followed by <code>{@code %} code</code> will have the pi stripped if the <% and %> are in the sequences.
    *
    * @param input input data string, never <code>null</code> or empty
    * @return a filtered string, where appropriate CData are removed

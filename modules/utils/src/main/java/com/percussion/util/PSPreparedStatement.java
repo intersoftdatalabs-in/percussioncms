@@ -54,7 +54,7 @@ public class PSPreparedStatement extends PSSQLStatement implements PreparedState
    * @param conn the connection, may not be <code>null</code>.
    * @param sql the SQL statement, may not be <code>null</code> or empty.
    *
-   * @return an created <code>PSPreparedStatement<code> object if the
+   * @return an created <code>PSPreparedStatement</code> object if the
    *    log4j debug mode is on for this class; otherwise return
    *    <code>PreparedStatement</code> object, never <code>null</code>.
    *

@@ -277,7 +277,7 @@ public class RxFileManager {
   /**
    * Sets the installation.properties file for the instance.
    *
-   * @param propertyFileName A valid property file name to use for the property file.
+   * @param arg A valid property file name to use for the property file.
    */
   public static void setSystemInstallationPropertiesFile(String arg) {
     if (arg == null || arg.trim().equals(""))
@@ -290,7 +290,6 @@ public class RxFileManager {
   /***
    * Returns the absolute path to the installation properties file.
    * @param os Specifies the OS that we are returning props for.
-   * @return
    */
   public static String getSystemInstallationPropertiesAbsolute(OSEnum os) {
     if (os == OSEnum.Windows)
@@ -520,10 +519,10 @@ public class RxFileManager {
    * Retrieve the DTS System file properties.  Will first attempt
    * to use dtsinstall.properties and will fail back to cm1install.properties
    *
-   * @param fileObj The file
+   * @param dts_file The DTS file
+   * @param cm1_file The CM1 file
    * @param os The Operating System
-   * @return
-   * @throws IOException
+   * @throws IOException if an error occurs
    */
   public static Properties getDTSSystemFileProperties(String dts_file, String cm1_file, OSEnum os)
       throws IOException {
