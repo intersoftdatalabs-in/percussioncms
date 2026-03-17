@@ -554,8 +554,8 @@
             <id>all-tests</id>
             <properties>
                 <build.profile.id>all-tests</build.profile.id>
-                <skipTests>false</skipTests>
                 <skipITs>false</skipITs>
+                <skipTests>false</skipTests>
             </properties>
         </profile>
         <profile>
@@ -566,9 +566,9 @@
             <properties>
                 <!-- Used to locate the profile specific configuration file. -->
                 <build.profile.id>integration-test</build.profile.id>
+                <skipITs>false</skipITs>
                 <!-- Only integration tests are run. -->
                 <skipTests>true</skipTests>
-                <skipITs>false</skipITs>
             </properties>
         </profile>
     </profiles>
