@@ -70,7 +70,7 @@ import org.w3c.dom.NodeList;
  * &lt;/tr&gt;
  * &lt;/table&gt;
  *
- * @see PSContextMenu for more information about the <code>ActionList</code> dtd.
+ * See the <code>ActionList</code> dtd for more information.
  */
 public class PSFilterContextMenu implements IPSResultDocumentProcessor {
 

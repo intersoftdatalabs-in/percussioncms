@@ -43,8 +43,8 @@ import org.xml.sax.SAXException;
  *   <li>This specially marked HTML file is now ready to be split using tidy.
  *   <li>After the split process we put back the original server page code. If the original code was
  *       part of an attribute, it will be escaped before put back so the input parser is happy.
- *       Otherwise the original code is wrapped with '<xsl:text
- *       disable-output-escaping="yes"><![CDATA[' ... ']]></xsl:text>' to tell the parser not to
+ *       Otherwise the original code is wrapped with '{@code <xsl:text
+ *       disable-output-escaping="yes"><![CDATA[} ... {@code ]]></xsl:text>}' to tell the parser not to
  *       escape the generated output.
  * </ol>
  */
