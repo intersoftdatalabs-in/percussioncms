@@ -34,7 +34,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 public class PSAclEntryImplConverter extends PSConverter
 {
    /**
-    * See {@link PSConverter#PSConverter(BeanUtilsBean) super()}
+    * See {@link PSConverter#PSConverter(BeanUtilsBean)}
     * @param beanUtils
     */
    public PSAclEntryImplConverter(BeanUtilsBean beanUtils)

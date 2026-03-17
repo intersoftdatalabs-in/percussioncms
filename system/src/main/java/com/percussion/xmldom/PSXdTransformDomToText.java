@@ -52,6 +52,7 @@ import org.xml.sax.SAXException;
  * <p>This extension can be used as either a pre-exit or a post exit. The parameters are:
  *
  * <table border="1">
+ * <caption>Table</caption>
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Required?</th>
  *   <th>default value</th></tr>
  *   <tr>

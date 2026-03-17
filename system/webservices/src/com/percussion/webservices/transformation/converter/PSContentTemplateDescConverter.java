@@ -25,7 +25,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
  * Convert between {@link PSContentTemplateDesc} and
- * {@link com.percussion.webservices.content.data.PSContentTemplateDesc}.
+ * {@link PSContentTemplateDesc}.
  */
 public class PSContentTemplateDescConverter extends PSConverter
 {

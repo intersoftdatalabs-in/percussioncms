@@ -48,9 +48,10 @@ import java.util.Map;
  * The following table shows the preferred create methods for each type of 
  * relationship:
  * <table>
- *   <th>
- *      <td>Relationship category</td><td>Method</td>
- *   </th>
+ *   <caption>Create methods by relationship type</caption>
+ *   <tr>
+ *      <th>Relationship category</th><th>Method</th>
+ *   </tr>
  *   <tr>
  *      <td>Active Assembly</td>
  *      <td>{@link IPSContentWs#addContentRelations(

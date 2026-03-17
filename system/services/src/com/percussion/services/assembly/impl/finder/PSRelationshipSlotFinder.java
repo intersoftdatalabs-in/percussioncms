@@ -31,6 +31,7 @@ import java.util.Set;
  * value of the "sys_slotid" property of the relationships.
  * The parameters of the finder are:
  * <table>
+ * <caption>Table</caption>
  * <tr>
  * <th>Parameter</th>
  * <th>Description</th>

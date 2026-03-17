@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
  * <p>This extension can be used either as a pre-exit or a post-exit. There are six parameters:
  *
  * <table border="1">
+ * <caption>Table</caption>
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Required?</th>
  *   <th>default value</th><tr>
  *   <tr>

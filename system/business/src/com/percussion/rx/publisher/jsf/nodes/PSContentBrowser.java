@@ -259,7 +259,7 @@ public abstract class PSContentBrowser {
 
    /**
     * This is the backing bean for a sub folder or item of the current
-    * Folder Path, {@link #getPathBrowser()}.
+    * Folder Path.
     */
    public class ChildItem implements Comparable<ChildItem> {
       /**

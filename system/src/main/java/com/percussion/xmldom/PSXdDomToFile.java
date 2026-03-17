@@ -37,6 +37,7 @@ import org.w3c.dom.Document;
  * <p>The parameters to the extension are:
  *
  * <table border="1">
+ * <caption>Table</caption>
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Required?</th>
  *   <th>default value</th><tr>
  *   <tr>

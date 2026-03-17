@@ -38,6 +38,7 @@ import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.
  * by a query. Note that any projection specified in the
  * 
  * <table>
+ * <caption>Query parameters</caption>
  * <tr>
  * <th>Parameter</th>
  * <th>Description</th>

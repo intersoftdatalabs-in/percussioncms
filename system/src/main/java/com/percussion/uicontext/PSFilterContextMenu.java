@@ -70,7 +70,7 @@ import org.w3c.dom.NodeList;
  * &lt;/tr&gt;
  * &lt;/table&gt;
  *
- * @see com.percussion.uicontext.PSContextMenu for more information about the <code>ActionList</code> dtd.
+ * @see PSContextMenu for more information about the <code>ActionList</code> dtd.
  */
 public class PSFilterContextMenu implements IPSResultDocumentProcessor {
 

@@ -43,6 +43,7 @@ import javax.jcr.RepositoryException;
  * <p>
  * The parameter of the navigation slot finder:
  * <table>
+ * <caption>Table</caption>
  * <tr>
  * <th>Parameter</th>
  * <th>Description</th>

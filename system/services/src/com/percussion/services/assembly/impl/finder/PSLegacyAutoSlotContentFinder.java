@@ -51,6 +51,7 @@ import org.w3c.dom.NodeList;
  * The auto slot content finder allows a slot to be filled with items returned
  * by a legacy application. In the future this will also allow searches to be
  * specified using some syntax. <table>
+ * <caption>Table</caption>
  * <tr>
  * <th>Parameter</th>
  * <th>Description</th>

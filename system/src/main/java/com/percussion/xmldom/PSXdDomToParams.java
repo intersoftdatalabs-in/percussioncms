@@ -51,6 +51,7 @@ import org.w3c.dom.Node;
  * <p>The parameters for this exit are:
  *
  * <table border="1">
+ * <caption>Table</caption>
  *   <tr><th>Param #</th><th>Description</th><th>Required?</th>
  *   <th>default value</th><tr>
  *   <tr>

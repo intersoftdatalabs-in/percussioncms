@@ -36,6 +36,7 @@ import org.w3c.dom.Node;
  * 
  *
  * <table border="1">
+ * <caption>Table</caption>
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Default</th><tr>
  *   <tr>
  *     <td>1</td>
