@@ -40,7 +40,7 @@ public class PSSQLStatement implements Statement {
    *
    * @param conn the connection, may not be <code>null</code>.
    *
-   * @return the created <code>PSSQLStatement<code> object if the log4j is
+   * @return the created <code>PSSQLStatement</code> object if the log4j is
    *    configured and debug mode is on for this class; otherwise return
    *    <code>Statement</code> object, never <code>null</code>.
    *
@@ -65,7 +65,7 @@ public class PSSQLStatement implements Statement {
    * @param resultSetType a result set type; see ResultSet.TYPE_XXX
    * @param resultSetConcurrency a concurrency type; see ResultSet.CONCUR_XXX
    *
-   * @return the created <code>PSSQLStatement<code> object if the log4j is
+   * @return the created <code>PSSQLStatement</code> object if the log4j is
    *    configured and debug mode is on for this class; otherwise return
    *    <code>Statement</code> object, never <code>null</code>.
    *
@@ -366,7 +366,7 @@ public class PSSQLStatement implements Statement {
 
   /**
    * It contains additional log info, such as the binding values from the
-   * derived class <code>PSPreparedStatement<code>. Never <code>null</code>,
+   * derived class <code>PSPreparedStatement</code>. Never <code>null</code>,
    * may be empty.
    */
   protected StringBuilder m_additionalLogInfo = new StringBuilder();

@@ -34,9 +34,16 @@ import java.util.ResourceBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Exception thrown when a connector configuration is invalid.
+ */
 public class ConnectorConfigurationException extends Exception {
 
+  /**
+   * Error codes for this exception.
+   */
   public static class Errors {
+    /** Error code for duplicate port. */
     public static int DUPLICATE_PORT = 1;
   }
 
