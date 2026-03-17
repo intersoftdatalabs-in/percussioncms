@@ -55,9 +55,6 @@ import org.w3c.dom.NodeList;
  * (current one) parameters may be passed that will be used by this exit. In the absence of
  * parameters, the list will not be filtered.
  *
- * &lt;p&gt;Note that the rules used here should be in sync with the rules used in
- * {@link PSActionManager#filter(PSMenuAction, PSSelection)}.
- *
  * &lt;table caption="Parameters"&gt;
  * &lt;tr&gt;
  * &lt;th&gt;Parameter&lt;/th&gt;
@@ -73,7 +70,7 @@ import org.w3c.dom.NodeList;
  * &lt;/tr&gt;
  * &lt;/table&gt;
  *
- * @see PSContextMenu for more information about the <code>ActionList</code> dtd.
+ * @see com.percussion.uicontext.PSContextMenu for more information about the <code>ActionList</code> dtd.
  */
 public class PSFilterContextMenu implements IPSResultDocumentProcessor {
 

@@ -27,13 +27,13 @@ import java.util.Map;
  *
  * &lt;ol&gt;
  *   &lt;li&gt;Instantiate the class defined as the resolver.&lt;/li&gt;
- *   &lt;li&gt;Call {@link #setName(String) setName} with the name supplied in the def.&lt;/li&gt;
- *   &lt;li&gt;Call {@link #setValue(String) setValue} with the value supplied in the def. If no value is
+ *   &lt;li&gt;Set the name with the name supplied in the def.&lt;/li&gt;
+ *   &lt;li&gt;Set the value with the value supplied in the def. If no value is
  *       present, "" is set.&lt;/li&gt;
  * &lt;/ol&gt;
  *
- * During process instantiation, the {@link #getName()} and {@link #getValue(Map) getValue} methods
- * are called and their results are passed to the process or process container.
+ * During process instantiation, the {@link #getValue(String, Map)} method is called and its result
+ * is passed to the process or process container.
  */
 public interface IPSVariableResolver {
   /**

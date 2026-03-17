@@ -66,10 +66,9 @@ import org.w3c.dom.Element;
  * the slot name references NOT to have blank spaces in between.
  *
  * &lt;p&gt;First we modify the database table "RXSLOTTYPE" for the "SLOTNAME" not to have blank spaces in
- * between. The logic is explained in {@link #modifySlotName(String)}.
- * The modified slot names are now applied to the XSL and HTML files. Since we do not have an easy way
- * of getting the assembly applications, we take all the applications whose names do not start with
- * "sys_" or "psx_" or part of the set {@link #EXCLUDE_APP_SET}.
+ * between. The modified slot names are now applied to the XSL and HTML files. Since we do not have
+ * an easy way of getting the assembly applications, we take all the applications whose names do not
+ * start with "sys_" or "psx_" or part of the set {@link #EXCLUDE_APP_SET}.
  *
  * &lt;p&gt;
  *

@@ -29,9 +29,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Updates the spring configuration file {@link PSJBossUtils#SPRING_CONFIG_FILE} by adding a
- * property to the 'sys_beanConfiguration' bean which contains quartz-specific properties which will
- * override the default values specified in beans.xml.
+ * Updates the spring configuration file by adding a property to the 'sys_beanConfiguration' bean
+ * which contains quartz-specific properties which will override the default values specified in
+ * beans.xml.
  *
  * &lt;p&gt;For System Master:&lt;/p&gt;
  * &lt;pre&gt;
