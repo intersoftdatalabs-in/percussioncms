@@ -67,8 +67,6 @@ public class PSSiteListSelect
     * <li>New Site</li>
     * <li>Delete Site</li>
     * </ul>
-    * <ul>New Site</ul>
-    * <ul>Delete Site</ul>
     * 
     * @author vamsinukala
     * 
@@ -197,8 +195,6 @@ public class PSSiteListSelect
     * <li>New Site</li>
     * <li>Delete Site</li>
     * </ul>
-    * <ul>New Site</ul>
-    * <ul>Delete Site</ul>
     * 
     * @author vamsinukala
     * 
