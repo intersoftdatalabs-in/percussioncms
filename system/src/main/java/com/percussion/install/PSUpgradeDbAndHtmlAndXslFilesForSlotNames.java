@@ -70,7 +70,6 @@ import org.w3c.dom.Element;
  * an easy way of getting the assembly applications, we take all the applications whose names do not
  * start with "sys_" or "psx_" or part of the set {@link #EXCLUDE_APP_SET}.
  *
- * &lt;p&gt;
  *
  * &lt;ol&gt;
  *   &lt;li&gt;In each application directory we modify all *.xsl files&lt;/li&gt;

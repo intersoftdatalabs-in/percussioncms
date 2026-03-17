@@ -35,22 +35,22 @@ import org.w3c.dom.NodeList;
  *
  * &lt;p&gt;For System Master:&lt;/p&gt;
  * &lt;pre&gt;
- * &amp;ltproperty name="quartzProperties"&amp;gt
- *     &amp;ltprops&amp;gt
- *         &amp;ltprop key="org.quartz.jobStore.isClustered"&amp;gtfalse&amp;lt/prop&amp;gt
- *         &amp;ltprop key="org.quartz.scheduler.instanceName"&amp;gtSystemMaster&amp;lt/prop&amp;gt
- *     &amp;lt/props&amp;gt
- * &amp;lt/property&amp;gt
+ * &amp;lt;property name="quartzProperties"&amp;gt;
+ *     &amp;lt;props&amp;gt;
+ *         &amp;lt;prop key="org.quartz.jobStore.isClustered"&amp;gt;false&amp;lt;/prop&amp;gt;
+ *         &amp;lt;prop key="org.quartz.scheduler.instanceName"&amp;gt;SystemMaster&amp;lt;/prop&amp;gt;
+ *     &amp;lt;/props&amp;gt;
+ * &amp;lt;/property&amp;gt;
  * &lt;/pre&gt;
  *
  * &lt;p&gt;For Pub Hub:&lt;/p&gt;
  * &lt;pre&gt;
- * &amp;ltproperty name="quartzProperties"&amp;gt
- *     &amp;ltprops&amp;gt
- *         &amp;ltprop key="org.quartz.jobStore.isClustered"&amp;gttrue&amp;lt/prop&amp;gt
- *         &amp;ltprop key="org.quartz.scheduler.instanceName"&amp;gtPublishingHub&amp;lt/prop&amp;gt
- *     &amp;lt/props&amp;gt
- * &amp;lt/property&amp;gt
+ * &amp;lt;property name="quartzProperties"&amp;gt;
+ *     &amp;lt;props&amp;gt;
+ *         &amp;lt;prop key="org.quartz.jobStore.isClustered"&amp;gt;true&amp;lt;/prop&amp;gt;
+ *         &amp;lt;prop key="org.quartz.scheduler.instanceName"&amp;gt;PublishingHub&amp;lt;/prop&amp;gt;
+ *     &amp;lt;/props&amp;gt;
+ * &amp;lt;/property&amp;gt;
  * &lt;/pre&gt;
  */
 // REFACTORED: CP-JAVA11

@@ -56,7 +56,6 @@ import org.w3c.dom.Element;
  * relationship properties need to be changed. The responsibility of this together with the derived
  * class inlcude:
  *
- * <p>
  *
  * <ul>
  *   <li>For each folder child in action, find if it is invloved in cross site linking with any
@@ -64,7 +63,7 @@ import org.w3c.dom.Element;
  *   <li>If so, be able to generate detailed report of the participation so that user of this class
  *       can communicate to user or write log.
  *   <li>Finally, to be able to modify and save the links to reflect the consequences of the action
- *       in the links>/li>
+ *       in the links</li>
  * </ul>
  *
  * <p>See the derived classes' implementation of {@link #modifyLinks(PSAaFolderDependent)} for the
