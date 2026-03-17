@@ -21,7 +21,7 @@ package com.percussion.content;
  * This interface contains the error codes for all exceptions thrown by classes in this pkg. The
  * search error code ranges are:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>17001 - 17100</TD><TD>conversion errors</TD></TR>
  * <TR><TD>17101 - 17500</TD><TD>general errors</TD></TR>
@@ -39,7 +39,7 @@ public interface IPSContentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR>
    * <TH>Arg</TH>
    * <TH>Description</TH>
@@ -61,7 +61,7 @@ public interface IPSContentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR>
    * <TH>Arg</TH>
    * <TH>Description</TH>
@@ -87,7 +87,7 @@ public interface IPSContentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR>
    * <TH>Arg</TH>
    * <TH>Description</TH>
@@ -109,7 +109,7 @@ public interface IPSContentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR>
    * <TH>Arg</TH>
    * <TH>Description</TH>

@@ -61,7 +61,7 @@ public interface IPSLuceneErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the parameter.</TD></TR>
    * </TABLE>
@@ -74,7 +74,7 @@ public interface IPSLuceneErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id.</TD></TR>
    * <TR><TD>1</TD><TD>Directory path</TD></TR>
@@ -88,7 +88,7 @@ public interface IPSLuceneErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id</TD></TR>
    * </TABLE>
@@ -101,7 +101,7 @@ public interface IPSLuceneErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id</TD></TR>
    * </TABLE>
@@ -113,7 +113,7 @@ public interface IPSLuceneErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type ids</TD></TR>
    * </TABLE>
@@ -126,7 +126,7 @@ public interface IPSLuceneErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id</TD></TR>
    * </TABLE>
@@ -139,7 +139,7 @@ public interface IPSLuceneErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id</TD></TR>
    * </TABLE>

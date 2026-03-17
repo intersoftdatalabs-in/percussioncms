@@ -30,7 +30,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the server version</TD></TR>
    * </TABLE>
@@ -42,7 +42,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request type</TD></TR>
    * <TR><TD>1</TD><TD>The missing element name</TD></TR>
@@ -55,7 +55,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request type</TD></TR>
    * <TR><TD>1</TD><TD>The malformed element name</TD></TR>
@@ -69,7 +69,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The server name</TD></TR>
    * </TABLE>
@@ -81,7 +81,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message</TD></TR>
    * </TABLE>
@@ -93,7 +93,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The status code</TD></TR>
    * <TR><TD>1</TD><TD>The request type</TD></TR>
@@ -106,7 +106,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request type</TD></TR>
    * <TR><TD>1</TD><TD>The status code</TD></TR>
@@ -134,7 +134,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request type</TD></TR>
    * </TABLE>
@@ -146,7 +146,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The archive file name</TD></TR>
    * <TR><TD>1</TD><TD>The error</TD></TR>
@@ -159,7 +159,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The archive file name</TD></TR>
    * <TR><TD>1</TD><TD>The error</TD></TR>
@@ -172,7 +172,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the property</TD></TR>
    * </TABLE>
@@ -184,7 +184,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request element</TD></TR>
    * <TR><TD>1</TD><TD>The error mesage</TD></TR>
@@ -197,7 +197,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The object type</TD></TR>
    * <TR><TD>1</TD><TD>The name of the object</TD></TR>
@@ -210,7 +210,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The param name</TD></TR>
    * <TR><TD>1</TD><TD>The param value</TD></TR>
@@ -223,7 +223,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The handler class</TD></TR>
    * <TR><TD>1</TD><TD>The error</TD></TR>
@@ -236,7 +236,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child type</TD></TR>
    * <TR><TD>1</TD><TD>The parent type</TD></TR>
@@ -249,7 +249,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error</TD></TR>
    * </TABLE>
@@ -261,7 +261,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The dependency type</TD></TR>
    * </TABLE>
@@ -273,7 +273,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message</TD></TR>
    * </TABLE>
@@ -285,7 +285,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message</TD></TR>
    * </TABLE>
@@ -297,7 +297,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table</TD></TR>
    * <TR><TD>1</TD><TD>The column</TD></TR>
@@ -311,7 +311,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The type</TD></TR>
    * <TR><TD>1</TD><TD>The id</TD></TR>
@@ -325,7 +325,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file type</TD></TR>
    * <TR><TD>1</TD><TD>The dependency type</TD></TR>
@@ -340,7 +340,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file type</TD></TR>
    * <TR><TD>1</TD><TD>The dependency type</TD></TR>
@@ -356,7 +356,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The source repository</TD></TR>
    * <TR><TD>1</TD><TD>The source-id of a <code>PSIdMapping</code></TD></TR>
@@ -370,7 +370,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>source repository</TD></TR>
    * <TR><TD>1</TD><TD>table name</TD></TR>
@@ -383,7 +383,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>table name</TD></TR>
    * </TABLE>
@@ -395,7 +395,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the dependency key</TD></TR>
    * <TR><TD>1</TD><TD>the error</TD></TR>
@@ -408,7 +408,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the archive server version</TD></TR>
    * <TR><TD>1</TD><TD>the target server version</TD></TR>
@@ -423,7 +423,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the archive server build</TD></TR>
    * <TR><TD>1</TD><TD>the target server build</TD></TR>
@@ -438,7 +438,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the archive name</TD></TR>
    * </TABLE>
@@ -450,7 +450,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The type of map's dependency</TD></TR>
    * <TR><TD>1</TD><TD>The id of the map's dependency</TD></TR>
@@ -465,7 +465,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table</TD></TR>
    * <TR><TD>1</TD><TD>The key col (may be list)</TD></TR>
@@ -479,7 +479,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The type</TD></TR>
    * <TR><TD>1</TD><TD>The id</TD></TR>
@@ -493,7 +493,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The type</TD></TR>
    * <TR><TD>1</TD><TD>The id</TD></TR>
@@ -508,7 +508,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The object value</TD></TR>
    * <TR><TD>1</TD><TD>The table name</TD></TR>
@@ -522,7 +522,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The id of the child dependency</TD></TR>
    * <TR><TD>1</TD><TD>The object type of the child dependency </TD></TR>
@@ -540,7 +540,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The wrong dependency file type</TD></TR>
    * <TR><TD>1</TD><TD>The expected dependency file type</TD></TR>
@@ -552,7 +552,7 @@ public interface IPSDeploymentErrors {
    * Id types expected for a dependency, but not found
    * <p>
    * The arguments passed in for this message are:
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The dependency type</TD></TR>
    * <TR><TD>1</TD><TD>The dependency id</TD></TR>
@@ -563,7 +563,7 @@ public interface IPSDeploymentErrors {
    * validation result is expected in import package, but not found
    * <p>
    * The arguments passed in for this message are:
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The package name</TD></TR>
    */
@@ -573,7 +573,7 @@ public interface IPSDeploymentErrors {
    * wrong format for the id of a pair id dependency object
    * <p>
    * The arguments passed in for this message are:
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The current id</TD></TR>
    */
@@ -584,7 +584,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The id of the dependency</TD></TR>
    * <TR><TD>1</TD><TD>The object type of the dependency </TD></TR>
@@ -598,7 +598,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the user currently holding the lock</TD>
    * </TR>
@@ -613,7 +613,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the user currently holding the lock</TD>
    * </TR>
@@ -628,7 +628,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The filter that used to query the database</TD></TR>
@@ -642,7 +642,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the supplied directory</TD></TR>
    * </TABLE>
@@ -654,7 +654,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The max count</TD></TR>
    * </TABLE>
@@ -674,7 +674,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The last user to hold the lock</TD></TR>
    * </TABLE>
@@ -686,7 +686,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The server name</TD></TR>
    * <TR><TD>1</TD><TD>The error message</TD></TR>
@@ -706,7 +706,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file name</TD></TR>
    * <TR><TD>1</TD><TD>The app name</TD></TR>
@@ -720,7 +720,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request type</TD></TR>
    * <TR><TD>1</TD><TD>The error text</TD></TR>
@@ -740,7 +740,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component name</TD></TR>
    * <TR><TD>1</TD><TD>The component type</TD></TR>
@@ -753,7 +753,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component name</TD></TR>
    * <TR><TD>1</TD><TD>The component type</TD></TR>
@@ -767,7 +767,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The new content id</TD></TR>
    * <TR><TD>1</TD><TD>The column name of the missing data</TD></TR>
@@ -781,7 +781,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The new content id</TD></TR>
    * <TR><TD>1</TD><TD>The table name of the archived data</TD></TR>
@@ -795,7 +795,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The slot id</TD></TR>
    * </TABLE>
@@ -807,7 +807,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Application Name</TD></TR>
    * </TABLE>
@@ -819,7 +819,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Object type</TD></TR>
    * </TABLE>
@@ -832,7 +832,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Object type</TD></TR>
    * </TABLE>
@@ -844,7 +844,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Object type</TD></TR>
    * </TABLE>
@@ -856,7 +856,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Object type</TD></TR>
    * </TABLE>
@@ -874,7 +874,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Object type of the invalid parent</TD></TR>
    * <TR><TD>1</TD><TD>Object type of the expected parent</TD></TR>
@@ -887,7 +887,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Object type of the "Custom" element</TD></TR>
    * </TABLE>
@@ -902,7 +902,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the new package version</TD></TR>
    * <TR><TD>1</TD><TD>the installed package version</TD></TR>
@@ -915,7 +915,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>ArrayList of packages not installed</TD></TR>
    * </TABLE>
@@ -927,7 +927,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>ArrayList of packages and versions</TD></TR>
    * </TABLE>
@@ -939,7 +939,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>configuration file path</TD></TR>
    * </TABLE>
@@ -951,7 +951,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Package Name</TD></TR>
    * </TABLE>
@@ -963,7 +963,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Control Name</TD></TR>
    * </TABLE>
@@ -978,7 +978,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Community Name</TD></TR>
    * </TABLE>

@@ -34,7 +34,7 @@ public interface IPSMailErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the invalid email address</TD></TR>
    * </TABLE>
@@ -46,7 +46,7 @@ public interface IPSMailErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the header</TD></TR>
    * </TABLE>
@@ -65,7 +65,7 @@ public interface IPSMailErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
    * </TABLE>
@@ -75,7 +75,7 @@ public interface IPSMailErrors {
   /**
    * An exception occurred when mail server is expected to be up.
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
    * </TABLE>
@@ -85,7 +85,7 @@ public interface IPSMailErrors {
   /**
    * An exception occurred when trying to communicate with the mail server.
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
    * </TABLE>
@@ -95,7 +95,7 @@ public interface IPSMailErrors {
   /**
    * The attempted host is invalid.
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
    * </TABLE>

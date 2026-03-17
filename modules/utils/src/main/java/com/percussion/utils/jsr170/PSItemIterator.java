@@ -27,7 +27,7 @@ import org.apache.commons.collections4.iterators.FilterIterator;
  * base iterator implements a wrapper on the standard Java iterator that allows the additional
  * common methods to be implemented.
  *
- * @param <M> the type of elements iterated
+ * @param <M> the type of elements iterated the type of elements iterated
  * @author dougrand
  */
 public abstract class PSItemIterator<M> implements Iterator {

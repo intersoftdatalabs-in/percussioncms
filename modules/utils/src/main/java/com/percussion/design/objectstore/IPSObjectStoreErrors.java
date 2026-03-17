@@ -44,7 +44,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected XML Element tag</TD></TR>
    * </TABLE>
@@ -56,7 +56,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag expected</TD></TR>
    * <TR><TD>1</TD><TD>the XML Element tag encountered</TD></TR>
@@ -69,7 +69,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
    * <TR><TD>1</TD><TD>the id specified</TD></TR>
@@ -82,7 +82,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
    * <TR><TD>1</TD><TD>the attribute name</TD></TR>
@@ -96,7 +96,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
    * <TR><TD>1</TD><TD>the child element name</TD></TR>
@@ -110,7 +110,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the object</TD></TR>
    * <TR><TD>1</TD><TD>the expected number of characters</TD></TR>
@@ -124,7 +124,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the human readable collection type</TD></TR>
    * <TR><TD>1</TD><TD>the class expected</TD></TR>
@@ -138,7 +138,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the desired content class</TD></TR>
    * </TABLE>
@@ -150,7 +150,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class</TD></TR>
    * </TABLE>
@@ -162,7 +162,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>application name</TD></TR>
    * <TR><TD>1</TD><TD>incorrect major version</TD></TR>
@@ -178,7 +178,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The object type</TD></TR>
    * </TABLE>
@@ -190,7 +190,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>application name</TD></TR>
    * <TR><TD>1</TD><TD>start time</TD></TR>
@@ -211,7 +211,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the document root name, or null if not found</TD></TR>
    * </TABLE>
@@ -251,7 +251,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>entry name</TD></TR>
    * <TR><TD>1</TD><TD>entry security provider instance</TD></TR>
@@ -271,7 +271,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the type</TD></TR>
    * </TABLE>
@@ -283,7 +283,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -310,7 +310,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -323,7 +323,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -336,7 +336,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -370,7 +370,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -383,7 +383,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -396,7 +396,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -409,7 +409,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -422,7 +422,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -443,7 +443,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -463,7 +463,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -476,7 +476,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -489,7 +489,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -502,7 +502,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -536,7 +536,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the valid class type</TD></TR>
    * <TR><TD>1</TD><TD>the class type of the object specified</TD></TR>
@@ -556,7 +556,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -569,7 +569,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -582,7 +582,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -595,7 +595,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -629,7 +629,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -656,7 +656,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -669,7 +669,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -717,7 +717,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -730,7 +730,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -743,7 +743,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -777,7 +777,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the type specified</TD></TR>
    * </TABLE>
@@ -796,7 +796,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -809,7 +809,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -829,7 +829,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -863,7 +863,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -890,7 +890,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -910,7 +910,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>table alias</TD></TR>
    * </TABLE>
@@ -929,7 +929,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -942,7 +942,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the security provider type</TD></TR>
    * </TABLE>
@@ -954,7 +954,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -974,7 +974,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -987,7 +987,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>operator specified</TD></TR>
    * </TABLE>
@@ -1006,7 +1006,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -1019,7 +1019,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -1032,7 +1032,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -1074,7 +1074,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of params in the UDF exit def</TD></TR>
    * <TR><TD>1</TD><TD>the number of params specified</TD></TR>
@@ -1122,7 +1122,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>boolean operator specified</TD></TR>
    * </TABLE>
@@ -1134,7 +1134,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the date specified</TD></TR>
    * </TABLE>
@@ -1146,7 +1146,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the format specified</TD></TR>
    * </TABLE>
@@ -1158,7 +1158,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number specified</TD></TR>
    * </TABLE>
@@ -1170,7 +1170,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the format specified</TD></TR>
    * </TABLE>
@@ -1182,7 +1182,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -1195,7 +1195,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * </TABLE>
@@ -1207,7 +1207,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -1221,7 +1221,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -1242,7 +1242,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>exit name</TD></TR>
    * <TR><TD>1</TD><TD>exit class</TD></TR>
@@ -1255,7 +1255,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>class of object specified as an exit</TD></TR>
    * </TABLE>
@@ -1267,7 +1267,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the type code</TD></TR>
    * </TABLE>
@@ -1300,7 +1300,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
    * <TR><TD>1</TD><TD>a brief description of the error</TD></TR>
@@ -1313,7 +1313,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the alias</TD></TR>
    * <TR><TD>1</TD><TD>the maximum</TD></TR>
@@ -1326,7 +1326,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the alias</TD></TR>
    * <TR><TD>1</TD><TD>the minimum</TD></TR>
@@ -1339,7 +1339,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the alias</TD></TR>
    * <TR><TD>1</TD><TD>the timeout</TD></TR>
@@ -1359,7 +1359,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>selection type</TD></TR>
    * </TABLE>
@@ -1371,7 +1371,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>cache type</TD></TR>
    * </TABLE>
@@ -1383,7 +1383,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>cache age interval (in minutes)</TD></TR>
    * </TABLE>
@@ -1402,7 +1402,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the option bits</TD></TR>
    * </TABLE>
@@ -1429,7 +1429,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the operator</TD></TR>
    * </TABLE>
@@ -1441,7 +1441,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exit name</TD></TR>
    * </TABLE>
@@ -1453,7 +1453,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the dataset containing the tank</TD></TR>
    * <TR><TD>1</TD><TD>the number of tables present</TD></TR>
@@ -1468,7 +1468,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the invalid ID</TD></TR>
    * </TABLE>
@@ -1480,7 +1480,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the data set to whose pipe the selector is
    * applied</TD></TR>
@@ -1493,7 +1493,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the data set to whose pipe the
    * updater (synchronizer) is applied</TD></TR>
@@ -1506,7 +1506,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>1</TD><TD>The name of the user, group, or role</TD></TR>
    * <TR><TD>0</TD><TD>The type specified</TD></TR>
@@ -1519,7 +1519,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>1</TD><TD>The XML fieldname</TD></TR>
    * <TR><TD>0</TD><TD>A brief description of the error</TD></TR>
@@ -1546,7 +1546,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -1580,7 +1580,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
    * <TR><TD>1</TD><TD>length specified</TD></TR>
@@ -1593,7 +1593,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the type specified</TD></TR>
    * </TABLE>
@@ -1605,7 +1605,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the access level</TD></TR>
    * </TABLE>
@@ -1617,7 +1617,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the invalid version</TD></TR>
    * </TABLE>
@@ -1636,7 +1636,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the exit handler</TD></TR>
    * <TR><TD>0</TD><TD>the 1-based param def index</TD></TR>
@@ -1649,7 +1649,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the application</TD></TR>
    * </TABLE>
@@ -1661,7 +1661,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the request page</TD></TR>
@@ -1676,7 +1676,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>application name</TD></TR>
    * <TR><TD>1</TD><TD>data set name that is duplicated</TD></TR>
@@ -1710,7 +1710,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>application name</TD></TR>
    * <TR><TD>1</TD><TD>error description</TD></TR>
@@ -1725,7 +1725,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the xml field</TD></TR>
    * </TABLE>
@@ -1737,7 +1737,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the user or group</TD></TR>
    * <TR><TD>1</TD><TD>The type specified</TD></TR>
@@ -1751,7 +1751,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of params specified</TD></TR>
    * <TR><TD>1</TD><TD>the database function name</TD></TR>
@@ -1765,7 +1765,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the database function name</TD></TR>
    * </TABLE>
@@ -1777,7 +1777,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the database function name</TD></TR>
    * <TR><TD>1</TD><TD>the database driver type</TD></TR>
@@ -1790,7 +1790,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>parameter type</TD></TR>
    * <TR><TD>1</TD><TD>database function name</TD></TR>
@@ -1803,7 +1803,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the database function name</TD></TR>
    * <TR><TD>1</TD><TD>parse error message</TD></TR>
@@ -1816,7 +1816,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the page in question</TD></TR>
    * <TR><TD>1</TD><TD>The name of the application</TD></TR>
@@ -1829,7 +1829,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The driver name</TD></TR>
    * </TABLE>
@@ -1841,7 +1841,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The driver name</TD></TR>
    * <TR><TD>1</TD><TD>The server name</TD></TR>
@@ -1854,7 +1854,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The JNDI datasource name</TD></TR>
    * <TR><TD>1</TD><TD>The database name</TD></TR>
@@ -1868,7 +1868,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The application name</TD></TR>
    * </TABLE>
@@ -1880,7 +1880,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The application name</TD></TR>
    * </TABLE>
@@ -1892,7 +1892,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the field / field set name</TD></TR>
    * </TABLE>
@@ -1904,7 +1904,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed field types</TD></TR>
    * </TABLE>
@@ -1916,7 +1916,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed occurrence dimension types</TD></TR>
    * </TABLE>
@@ -1928,7 +1928,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>null or the pipe class</TD></TR>
    * </TABLE>
@@ -1940,7 +1940,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>content type</TD></TR>
    * </TABLE>
@@ -1952,7 +1952,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>workflow ID</TD></TR>
    * </TABLE>
@@ -1964,7 +1964,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -1975,7 +1975,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed types</TD></TR>
    * </TABLE>
@@ -1987,7 +1987,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed sort orders</TD></TR>
    * </TABLE>
@@ -1999,7 +1999,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the table ID</TD></TR>
    * </TABLE>
@@ -2011,7 +2011,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2022,7 +2022,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2033,7 +2033,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2044,7 +2044,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2055,7 +2055,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2066,7 +2066,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2077,7 +2077,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2088,7 +2088,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2099,7 +2099,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2110,7 +2110,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2121,7 +2121,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2132,7 +2132,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2143,7 +2143,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2154,7 +2154,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2165,7 +2165,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2176,7 +2176,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed types</TD></TR>
    * </TABLE>
@@ -2188,7 +2188,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2199,7 +2199,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed types</TD></TR>
    * </TABLE>
@@ -2211,7 +2211,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed repeatability settings</TD></TR>
    * </TABLE>
@@ -2223,7 +2223,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2234,7 +2234,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2245,7 +2245,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2256,7 +2256,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2267,7 +2267,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2278,7 +2278,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2289,7 +2289,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2300,7 +2300,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed types</TD></TR>
    * </TABLE>
@@ -2312,7 +2312,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2323,7 +2323,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2334,7 +2334,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2345,7 +2345,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2356,7 +2356,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2367,7 +2367,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2378,7 +2378,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2389,7 +2389,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed data hiding options</TD></TR>
    * </TABLE>
@@ -2401,7 +2401,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2412,7 +2412,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2423,7 +2423,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2434,7 +2434,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2445,7 +2445,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */
@@ -2456,7 +2456,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The fieldset name.</TD></TR>
    *    <TR><TD>1</TD><TD>The min # of fields, as a String.</TD></TR>
@@ -2470,7 +2470,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The object type name.</TD></TR>
    * </TABLE>
@@ -2482,7 +2482,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The List of table names separated by ',' which do not
    * exist</TD></TR>
@@ -2495,7 +2495,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>Table Name</TD></TR>
    * </TABLE>
@@ -2513,7 +2513,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>field name</TD></TR>
    * <TR><TD>1</TD><TD>missing element name</TD></TR>
@@ -2526,7 +2526,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The group name</TD></TR>
    * </TABLE>
@@ -2538,7 +2538,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The group name.</TD></TR>
    * </TABLE>
@@ -2550,7 +2550,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The field name(s).</TD></TR>
    * </TABLE>
@@ -2562,7 +2562,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The field name(s).</TD></TR>
    * </TABLE>
@@ -2574,7 +2574,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The field</TD></TR>
    * </TABLE>
@@ -2587,7 +2587,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The field</TD></TR>
    * </TABLE>
@@ -2600,7 +2600,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The field</TD></TR>
    * </TABLE>
@@ -2612,7 +2612,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The default UISet name</TD></TR>
    * </TABLE>
@@ -2626,7 +2626,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the duplicate field</TD></TR>
    * </TABLE>
@@ -2640,7 +2640,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the field</TD></TR>
    * <TR><TD>1</TD><TD>The type of the field</TD></TR>
@@ -2655,7 +2655,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>1</TD><TD>The name of the fieldset ref</TD></TR>
    * </TABLE>
@@ -2667,7 +2667,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the shared group</TD></TR>
    * <TR><TD>1</TD><TD>The name of the fieldset</TD></TR>
@@ -2681,7 +2681,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>fieldset name</TD></TR>
    * </TABLE>
@@ -2693,7 +2693,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Shared group name</TD></TR>
    * </TABLE>
@@ -2705,7 +2705,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Shared group name</TD></TR>
    * </TABLE>
@@ -2717,7 +2717,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>fieldset name</TD></TR>
    * </TABLE>
@@ -2729,7 +2729,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child element name</TD></TR>
    * </TABLE>
@@ -2741,7 +2741,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The attribute name</TD></TR>
    * </TABLE>
@@ -2753,7 +2753,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the unsupported method</TD></TR>
    * </TABLE>
@@ -2765,7 +2765,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the app</TD></TR>
    * </TABLE>
@@ -2777,7 +2777,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the app</TD></TR>
    * </TABLE>
@@ -2789,7 +2789,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the exception text</TD></TR>
@@ -2809,7 +2809,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
    * </TABLE>
@@ -2821,7 +2821,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the user</TD></TR>
    * </TABLE>
@@ -2833,7 +2833,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the user</TD></TR>
    * <TR><TD>1</TD><TD>the exception text</TD></TR>
@@ -2846,7 +2846,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the application</TD></TR>
    * <TR><TD>1</TD><TD>The name of the file</TD></TR>
@@ -2859,7 +2859,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the application</TD></TR>
    * <TR><TD>1</TD><TD>The name of the directory</TD></TR>
@@ -2872,7 +2872,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the application</TD></TR>
    * <TR><TD>1</TD><TD>The name of the file, including the path</TD></TR>
@@ -2885,7 +2885,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
    * <TR><TD>1</TD><TD>The name of the user currently holding the lock</TD></TR>
@@ -2907,7 +2907,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value of the key</TD></TR>
    * </TABLE>
@@ -2919,7 +2919,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value of the locker id</TD></TR>
    * </TABLE>
@@ -2931,7 +2931,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value of the expiration (in ms)</TD></TR>
    * </TABLE>
@@ -2943,7 +2943,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The class of the object, or "null"</TD></TR>
    * </TABLE>
@@ -2955,7 +2955,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The invalid lock type</TD></TR>
    * </TABLE>
@@ -2989,7 +2989,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file name</TD></TR>
    * <TR><TD>1</TD><TD>A description of the IO error</TD></TR>
@@ -3002,7 +3002,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request type</TD></TR>
    * </TABLE>
@@ -3021,7 +3021,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The original application root directory</TD></TR>
    * <TR><TD>0</TD><TD>The new application root directory</TD></TR>
@@ -3034,7 +3034,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The app file name</TD></TR>
    * <TR><TD>1</TD><TD>A description of the IO error</TD></TR>
@@ -3047,7 +3047,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The app file name</TD></TR>
    * <TR><TD>1</TD><TD>The app request root</TD></TR>
@@ -3066,7 +3066,7 @@ public interface IPSObjectStoreErrors {
    * The XML object store handler was constructed with a null or invalid object dir. The arguments
    * passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The object dir, or null</TD></TR>
    * </TABLE>
@@ -3078,7 +3078,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The exception text</TD></TR>
    * </TABLE>
@@ -3090,7 +3090,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The application name</TD></TR>
    * <TR><TD>1</TD><TD>A description of the exception</TD></TR>
@@ -3103,7 +3103,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The lock file name</TD></TR>
    * </TABLE>
@@ -3115,7 +3115,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The lock file name</TD></TR>
    * <TR><TD>1</TD><TD>A description of the IO error</TD></TR>
@@ -3129,7 +3129,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
    * <TR><TD>1</TD><TD>The name of the user currently holding the lock</TD></TR>
@@ -3146,7 +3146,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The version of the application</TD></TR>
    * <TR><TD>1</TD><TD>The version being converted to</TD></TR>
@@ -3163,7 +3163,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file name we were looking for.</TD></TR>
    * </TABLE>
@@ -3175,7 +3175,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file name we tried to load.</TD></TR>
    * </TABLE>
@@ -3188,7 +3188,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The description of the error. </TD></TR>
    * </TABLE>
@@ -3200,7 +3200,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
    * </TABLE>
@@ -3212,7 +3212,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
    * </TABLE>
@@ -3224,7 +3224,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
    * </TABLE>
@@ -3236,7 +3236,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the component type</TD></TR>
    * <TR><TD>1</TD><TD>the exception text</TD></TR>
@@ -3249,7 +3249,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the relation type</TD></TR>
    * <TR><TD>1</TD><TD>the related component type</TD></TR>
@@ -3265,7 +3265,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>duplicate shared field name</TD></TR>
    * <TR><TD>1</TD><TD>shared group names</TD></TR>
@@ -3278,7 +3278,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type</TD></TR>
    * <TR><TD>1</TD><TD>Field type</TD></TR>
@@ -3293,7 +3293,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>old path</TD></TR>
    * <TR><TD>1</TD><TD>new path</TD></TR>
@@ -3306,7 +3306,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>Comma separated list of roles as a String</TD></TR>
    * </TABLE>
@@ -3318,7 +3318,7 @@ public interface IPSObjectStoreErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
    */

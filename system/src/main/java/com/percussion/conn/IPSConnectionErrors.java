@@ -22,7 +22,7 @@ package com.percussion.conn;
  * connectivity related error codes. Connectivity errors are in the range 3001 - 4000. Within this
  * range, errors are further broken down as follows:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>3001 - 3100</TD><TD>general errors used all over</TD></TR>
  * <TR><TD>3101 - 3200</TD><TD>connection object errors</TD></TR>
@@ -40,7 +40,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the port number</TD></TR>
    * </TABLE>
@@ -59,7 +59,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the host address specified</TD></TR>
    * </TABLE>
@@ -78,7 +78,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the queue limit specified</TD></TR>
    * </TABLE>
@@ -104,7 +104,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the URL used to access the server</TD></TR>
    * </TABLE>
@@ -123,7 +123,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the property name</TD></TR>
    * </TABLE>
@@ -135,7 +135,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the cipher</TD></TR>
    * </TABLE>
@@ -147,7 +147,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the socket timeout specified</TD></TR>
    * </TABLE>
@@ -159,7 +159,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
    * </TABLE>
@@ -171,7 +171,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception class</TD></TR>
    * <TR><TD>1</TD><TD>the exception text</TD></TR>
@@ -184,7 +184,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected type</TD></TR>
    * <TR><TD>1</TD><TD>the type received</TD></TR>
@@ -197,7 +197,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>SAXParseException.getMessage()</TD></TR>
    * <TR><TD>1</TD><TD>SAXParseException.getLineNumber()</TD></TR>
@@ -211,7 +211,7 @@ public interface IPSConnectionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>SAXParseException.getMessage()</TD></TR>
    * </TABLE>

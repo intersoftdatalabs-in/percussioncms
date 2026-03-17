@@ -31,7 +31,7 @@ public interface IPSUiErrors {
     * Missing hierarchy node error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the missing hierarchy node</TD></TR>
     * </TABLE>
@@ -47,7 +47,7 @@ public interface IPSUiErrors {
     * Duplicate node name error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The duplicate node name</TD></TR>
     * <TR><TD>1</TD><TD>The parent node id or "root"</TD></TR>
@@ -59,7 +59,7 @@ public interface IPSUiErrors {
     * Invalid hierarchy operation error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The operation that failed</TD></TR>
     * <TR><TD>1</TD><TD>The reason for failure</TD></TR>
@@ -71,7 +71,7 @@ public interface IPSUiErrors {
     * Node type mismatch error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The node id</TD></TR>
     * <TR><TD>1</TD><TD>The expected node type</TD></TR>
@@ -84,7 +84,7 @@ public interface IPSUiErrors {
     * General operation failed error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The operation that failed</TD></TR>
     * <TR><TD>1</TD><TD>Additional error details</TD></TR>
@@ -96,7 +96,7 @@ public interface IPSUiErrors {
     * Invalid node name error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The invalid node name</TD></TR>
     * <TR><TD>1</TD><TD>The validation rule that failed</TD></TR>
@@ -108,7 +108,7 @@ public interface IPSUiErrors {
     * Circular reference error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The source node id</TD></TR>
     * <TR><TD>1</TD><TD>The target node id</TD></TR>
@@ -120,7 +120,7 @@ public interface IPSUiErrors {
     * Access denied error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The operation that was denied</TD></TR>
     * <TR><TD>1</TD><TD>The node id or resource</TD></TR>

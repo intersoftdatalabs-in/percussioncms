@@ -21,7 +21,7 @@ package com.percussion.design.catalog;
  * The IPSCatalogErrors inteface is provided as a convenient mechanism for accessing the various
  * catalog related error codes. The catalog error code ranges are:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>4000 - 4100</TD><TD>general errors used all over</TD></TR>
  * <TR><TD>4101 - 4300</TD><TD>client-side classes</TD></TR>
@@ -40,7 +40,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the property</TD></TR>
    * </TABLE>
@@ -52,7 +52,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the value expected</TD></TR>
    * <TR><TD>1</TD><TD>the value specified</TD></TR>
@@ -65,7 +65,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the value expected</TD></TR>
    * <TR><TD>1</TD><TD>the value specified</TD></TR>
@@ -78,7 +78,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>request category</TD></TR>
    * <TR><TD>1</TD><TD>request type</TD></TR>
@@ -99,7 +99,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>request category</TD></TR>
    * <TR><TD>1</TD><TD>request type</TD></TR>
@@ -119,7 +119,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the document type (DTD) expected</TD></TR>
    * <TR><TD>1</TD><TD>the document type (DTD) specified</TD></TR>
@@ -132,7 +132,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>request category</TD></TR>
    * <TR><TD>1</TD><TD>request type</TD></TR>
@@ -145,7 +145,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>request category</TD></TR>
    * <TR><TD>1</TD><TD>request type</TD></TR>
@@ -159,7 +159,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
    * </TABLE>
@@ -173,7 +173,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
    * </TABLE>
@@ -185,7 +185,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
    * <TR><TD>1</TD><TD>exceptin text</TD></TR>
@@ -198,7 +198,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the session id of the requestor</TD></TR>
    * <TR><TD>1</TD><TD>catalog request category</TD></TR>
@@ -212,7 +212,7 @@ public interface IPSCatalogErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>exceptin text</TD></TR>
    * </TABLE>

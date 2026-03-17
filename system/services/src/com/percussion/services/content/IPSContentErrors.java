@@ -26,7 +26,7 @@ public interface IPSContentErrors
     * Missing keyword.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the missing keyword</TD></TR>
     * </TABLE>

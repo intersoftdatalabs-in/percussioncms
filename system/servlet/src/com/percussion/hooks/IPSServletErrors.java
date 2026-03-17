@@ -20,7 +20,7 @@ package com.percussion.hooks;
  * The IPSServletErrors interface provides a convenient mechanism
  * for accessing servlet related error codes. The servlet error
  * code ranges are:
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>10151 - 10200</TD><TD>general errors</TD></TR>
  * </TABLE>
@@ -35,7 +35,7 @@ public interface IPSServletErrors
     * Unable to create connections for the supplied parameters.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The host name</TD></TR>
     * <TR><TD>1</TD><TD>The port number</TD></TR>
@@ -48,7 +48,7 @@ public interface IPSServletErrors
     * An invalid port number was supplied, must be a parsable integer.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The port number provided</TD></TR>
     * </TABLE>
@@ -80,7 +80,7 @@ public interface IPSServletErrors
     * Received invalid status code.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The status code received</TD></TR>
     * </TABLE>
@@ -91,7 +91,7 @@ public interface IPSServletErrors
     * The servlet information string.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The version string</TD></TR>
     * </TABLE>
@@ -102,7 +102,7 @@ public interface IPSServletErrors
     * The version string.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The version prefix</TD></TR>
     * <TR><TD>1</TD><TD>The major version</TD></TR>

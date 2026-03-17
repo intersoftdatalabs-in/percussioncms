@@ -23,7 +23,7 @@ public interface IPSJBossErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the policy</TD></TR>
    * <TR><TD>1</TD><TD>the name of the file</TD></TR>

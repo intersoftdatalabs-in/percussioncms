@@ -22,7 +22,7 @@ package com.percussion.data;
  * The IPSDataErrors inteface is provided as a convenient mechanism for accessing the various data
  * related error codes. The data error code ranges are:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>5201 - 5400</TD><TD>back-end data processing errors</TD></TR>
  * <TR><TD>6001 - 7000</TD><TD>XML/general data processing errors</TD></TR>
@@ -42,7 +42,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id</TD></TR>
    * </TABLE>
@@ -54,7 +54,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id</TD></TR>
    * </TABLE>
@@ -66,7 +66,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the specified object's class name</TD></TR>
    * </TABLE>
@@ -79,7 +79,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of columns required for the link</TD></TR>
    * <TR><TD>1</TD><TD>the number of value specified</TD></TR>
@@ -99,7 +99,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the target data set name (if available)</TD></TR>
@@ -112,7 +112,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the source data set name (if available)</TD></TR>
@@ -125,7 +125,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the back-end column name</TD></TR>
    * </TABLE>
@@ -137,7 +137,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the back-end column name</TD></TR>
    * <TR><TD>1</TD><TD>the exception text</TD></TR>
@@ -150,7 +150,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the back-end column name</TD></TR>
    * <TR><TD>1</TD><TD>the exception text</TD></TR>
@@ -163,7 +163,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the source data set name</TD></TR>
@@ -178,7 +178,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the source data set name</TD></TR>
@@ -192,7 +192,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the source data set name</TD></TR>
@@ -206,7 +206,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the source data set name</TD></TR>
@@ -221,7 +221,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the source data set name</TD></TR>
@@ -236,7 +236,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the source data set name</TD></TR>
@@ -259,7 +259,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the back-end column name</TD></TR>
    * </TABLE>
@@ -271,7 +271,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of result sets found</TD></TR>
    * </TABLE>
@@ -283,7 +283,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the back-end column name</TD></TR>
    * </TABLE>
@@ -295,7 +295,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the back-end column name</TD></TR>
    * </TABLE>
@@ -307,7 +307,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected column count</TD></TR>
    * <TR><TD>1</TD><TD>the actual column count</TD></TR>
@@ -321,7 +321,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected column count</TD></TR>
    * <TR><TD>1</TD><TD>the actual column count</TD></TR>
@@ -334,7 +334,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the cache key</TD></TR>
    * <TR><TD>1</TD><TD>the excception text</TD></TR>
@@ -347,7 +347,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the cache key</TD></TR>
    * <TR><TD>1</TD><TD>the excception text</TD></TR>
@@ -360,7 +360,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the cache key</TD></TR>
    * <TR><TD>1</TD><TD>the excception text</TD></TR>
@@ -373,7 +373,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the cache key</TD></TR>
    * <TR><TD>1</TD><TD>the excception text</TD></TR>
@@ -386,7 +386,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the cache key</TD></TR>
    * <TR><TD>1</TD><TD>the max size permitted</TD></TR>
@@ -401,7 +401,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the file name</TD></TR>
    * <TR><TD>1</TD><TD>the excception text</TD></TR>
@@ -414,7 +414,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML field name</TD></TR>
    * <TR><TD>1</TD><TD>the occurrence setting string</TD></TR>
@@ -427,7 +427,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML field name</TD></TR>
    * </TABLE>
@@ -439,7 +439,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the session id</TD></TR>
    * <TR><TD>1</TD><TD>the exception text</TD></TR>
@@ -452,7 +452,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML field name</TD></TR>
    * </TABLE>
@@ -465,7 +465,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML field name</TD></TR>
    * <TR><TD>1</TD><TD>the statement text</TD></TR>
@@ -479,7 +479,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the rebased XML field name</TD></TR>
    * <TR><TD>1</TD><TD>the statement text</TD></TR>
@@ -492,7 +492,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the udf name</TD></TR>
    * <TR><TD>1</TD><TD>the handler class name</TD></TR>
@@ -506,7 +506,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -520,7 +520,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -536,7 +536,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -549,7 +549,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -562,7 +562,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -576,7 +576,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -590,7 +590,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -604,7 +604,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -619,7 +619,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -635,7 +635,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -650,7 +650,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -665,7 +665,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -681,7 +681,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -696,7 +696,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -712,7 +712,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
    * <TR><TD>1</TD><TD>the data set name</TD></TR>
@@ -728,7 +728,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the driver used by the builder</TD></TR>
    * <TR><TD>1</TD><TD>the server used by the builder</TD></TR>
@@ -743,7 +743,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the left table</TD></TR>
    * <TR><TD>1</TD><TD>the right table</TD></TR>
@@ -757,7 +757,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the left table</TD></TR>
    * <TR><TD>1</TD><TD>the right table</TD></TR>
@@ -771,7 +771,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the left table</TD></TR>
    * <TR><TD>1</TD><TD>the right table</TD></TR>
@@ -784,7 +784,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the table alias</TD></TR>
    * </TABLE>
@@ -796,7 +796,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the bad replacement value</TD></TR>
    * </TABLE>
@@ -815,7 +815,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>specified type</TD></TR>
    * </TABLE>
@@ -827,7 +827,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>left operand</TD></TR>
    * <TR><TD>0</TD><TD>operator</TD></TR>
@@ -843,7 +843,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>left operand</TD></TR>
    * <TR><TD>0</TD><TD>operator</TD></TR>
@@ -857,7 +857,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the left side data type</TD></TR>
    * </TABLE>
@@ -869,7 +869,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the right side data type</TD></TR>
    * </TABLE>
@@ -881,7 +881,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the source data type</TD></TR>
    * <TR><TD>1</TD><TD>the target data type</TD></TR>
@@ -895,7 +895,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the source data type</TD></TR>
    * <TR><TD>1</TD><TD>the target data type</TD></TR>
@@ -908,7 +908,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the data type</TD></TR>
    * <TR><TD>1</TD><TD>the operator</TD></TR>
@@ -921,7 +921,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the user context type</TD></TR>
    * <TR><TD>1</TD><TD>the user context value</TD></TR>
@@ -934,7 +934,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the replacement value type</TD></TR>
    * </TABLE>
@@ -948,7 +948,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id</TD></TR>
    * <TR><TD>1</TD><TD>style sheet name</TD></TR>
@@ -968,7 +968,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>number of result sets</TD></TR>
    * </TABLE>
@@ -980,7 +980,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the request page extension</TD></TR>
    * </TABLE>
@@ -992,7 +992,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the request page extension</TD></TR>
    * </TABLE>
@@ -1011,7 +1011,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id</TD></TR>
    * <TR><TD>1</TD><TD>style sheet name</TD></TR>
@@ -1032,7 +1032,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id</TD></TR>
    * <TR><TD>1</TD><TD>error description</TD></TR>
@@ -1045,7 +1045,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id</TD></TR>
    * <TR><TD>1</TD><TD>error description</TD></TR>
@@ -1058,7 +1058,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>XML doc's root node tag</TD></TR>
    * <TR><TD>1</TD><TD>style sheet</TD></TR>
@@ -1072,7 +1072,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the specified object's class name</TD></TR>
    * </TABLE>
@@ -1091,7 +1091,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the MIME type specified</TD></TR>
    * </TABLE>
@@ -1103,7 +1103,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of pipes in the data set</TD></TR>
    * </TABLE>
@@ -1122,7 +1122,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of mappings in the data mapper</TD></TR>
    * </TABLE>
@@ -1134,7 +1134,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of columns in the data mapping</TD></TR>
    * </TABLE>
@@ -1146,7 +1146,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of columns in the result set</TD></TR>
    * </TABLE>
@@ -1165,7 +1165,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>root element 1</TD></TR>
    * <TR><TD>1</TD><TD>root element 2</TD></TR>
@@ -1178,7 +1178,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the variable name</TD></TR>
    * </TABLE>
@@ -1190,7 +1190,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML parent node being mapped to</TD></TR>
    * </TABLE>
@@ -1202,7 +1202,7 @@ public interface IPSDataErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The virtual path</TD></TR>
    * </TABLE>
@@ -1214,7 +1214,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the source type</TD></TR>
    * <TR><TD>1</TD><TD>the destination type</TD></TR>
@@ -1235,7 +1235,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the source type</TD></TR>
    * <TR><TD>1</TD><TD>the destination type</TD></TR>
@@ -1249,7 +1249,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>number of result sets</TD></TR>
    * </TABLE>
@@ -1261,7 +1261,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the result handler method</TD></TR>
    * </TABLE>
@@ -1273,7 +1273,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>number of result sets</TD></TR>
    * </TABLE>
@@ -1285,7 +1285,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>number of result sets</TD></TR>
    * </TABLE>
@@ -1299,7 +1299,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR>
    * <TD>0</TD><TD>Text of the <code>PSAuthorizationException</code></TD>
@@ -1313,7 +1313,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR>
    * <TD>0</TD><TD>The name of the view</code></TD>
@@ -1329,7 +1329,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR>
    * <TD>0</TD><TD>Text of the <code>PSAuthorizationException</code></TD>
@@ -1343,7 +1343,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -1356,7 +1356,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -1369,7 +1369,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -1382,7 +1382,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -1395,7 +1395,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -1408,7 +1408,7 @@ public interface IPSDataErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the invalid parameter</TD></TR>
    * <TR><TD>1</TD><TD>The name of the macro</TD></TR>

@@ -24,7 +24,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>error text (sql exception text)</TD></TR>
    * </TABLE>
@@ -36,7 +36,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>list of valid types</TD></TR>
    * </TABLE>
@@ -48,7 +48,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extension name</TD></TR>
    * <TR><TD>1</TD><TD>the error</TD></TR>
@@ -61,7 +61,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the required parameter</TD></TR>
    * <TR><TD>1</TD><TD>the error message</TD></TR>
@@ -74,7 +74,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the parameter</TD></TR>
    * <TR><TD>1</TD><TD>the error message</TD></TR>
@@ -87,7 +87,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>expected number of parameters</TD></TR>
    * <TR><TD>0</TD><TD>number of values specified</TD></TR>
@@ -100,7 +100,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The entire message string</TD></TR>
    * </TABLE>
@@ -113,7 +113,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The extension definition</TD></TR>
    * </TABLE>
@@ -125,7 +125,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The extension definition</TD></TR>
    * <TR><TD>0</TD><TD>The unsupported resource</TD></TR>
@@ -138,7 +138,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The resource</TD></TR>
    * </TABLE>
@@ -150,7 +150,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The resource</TD></TR>
    * </TABLE>
@@ -162,7 +162,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extension name</TD></TR>
    * <TR><TD>1</TD><TD>the exception text</TD></TR>
@@ -175,7 +175,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class detected</TD></TR>
    * <TR><TD>1</TD><TD>the expected interface</TD></TR>
@@ -188,7 +188,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>function name</TD></TR>
    * <TR><TD>0</TD><TD>the message text</TD></TR>
@@ -201,7 +201,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the reason of failure</TD></TR>
    * </TABLE>
@@ -213,7 +213,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the reason of failure</TD></TR>
    * </TABLE>
@@ -225,7 +225,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extension name</TD></TR>
    * <TR><TD>1</TD><TD>the reason of failure</TD></TR>
@@ -238,7 +238,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extension name</TD></TR>
    * <TR><TD>1</TD><TD>the resource name</TD></TR>
@@ -252,7 +252,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extension name</TD></TR>
    * <TR><TD>1</TD><TD>the resource name</TD></TR>
@@ -266,7 +266,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extension name</TD></TR>
    * </TABLE>
@@ -278,7 +278,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extension name</TD></TR>
    * </TABLE>
@@ -290,7 +290,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>error text</TD></TR>
    * </TABLE>
@@ -302,7 +302,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>error text</TD></TR>
    * </TABLE>
@@ -314,7 +314,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the unique extension handler name</TD></TR>
    * <TR><TD>1</TD><TD>error text</TD></TR>
@@ -327,7 +327,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the unique extension handler name</TD></TR>
    * <TR><TD>1</TD><TD>error text</TD></TR>
@@ -340,7 +340,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the unique extension handler name</TD></TR>
    * <TR><TD>1</TD><TD>the unique extension name</TD></TR>
@@ -355,7 +355,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extension ref string</TD></TR>
    * <TR><TD>1</TD><TD>the expected interface</TD></TR>
@@ -368,7 +368,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The exception message</TD></TR>
    * </TABLE>
@@ -380,7 +380,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The received element name.</TD></TR>
    * <TR><TD>1</TD><TD>The expected element name.</TD></TR>
@@ -393,7 +393,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The missing attribute name.</TD></TR>
    * </TABLE>
@@ -405,7 +405,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The class name.</TD></TR>
    * </TABLE>
@@ -420,7 +420,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The missing parameter number or name.</TD></TR>
    * </TABLE>
@@ -432,7 +432,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The invalid parameter number or name.</TD></TR>
    * </TABLE>
@@ -444,7 +444,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The invalid parameter number or name.</TD></TR>
    * </TABLE>
@@ -456,7 +456,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The invalid parameter number or name.</TD></TR>
    * </TABLE>
@@ -468,7 +468,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The invalid parameter number or name.</TD></TR>
    * </TABLE>
@@ -480,7 +480,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The invalid index value.</TD></TR>
    * </TABLE>
@@ -492,7 +492,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The invalid index value.</TD></TR>
    * </TABLE>
@@ -504,7 +504,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>function name</TD></TR>
    * <TR><TD>0</TD><TD>the message text</TD></TR>
@@ -517,7 +517,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>function name</TD></TR>
    * <TR><TD>0</TD><TD>the message text</TD></TR>
@@ -531,7 +531,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>function name</TD></TR>
    * <TR><TD>0</TD><TD>the message text</TD></TR>
@@ -544,7 +544,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>function name</TD></TR>
    * <TR><TD>0</TD><TD>the message text</TD></TR>
@@ -558,7 +558,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extractor's source</TD></TR>
    * </TABLE>
@@ -570,7 +570,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the extractor's source</TD></TR>
    * <TR><TD>1</TD><TD>the error text</TD></TR>
@@ -583,7 +583,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The exit name</TD></TR>
    * <TR><TD>0</TD><TD>The parameter name</TD></TR>
@@ -596,7 +596,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Current user name</TD></TR>
    * </TABLE>
@@ -608,7 +608,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Current user name</TD></TR>
    * </TABLE>
@@ -634,7 +634,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>authenticated user name</TD></TR>
    * </TABLE>
@@ -646,7 +646,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>invalid workflow id</TD></TR>
    * </TABLE>
@@ -681,7 +681,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>invalid state id</TD></TR>
    * <TR><TD>1</TD><TD>invalid workflow id</TD></TR>
@@ -696,7 +696,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>required access level</TD></TR>
    * <TR><TD>1</TD><TD>contentstate id</TD></TR>
@@ -1125,7 +1125,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The effect name.</TD></TR>
    * <TR><TD>1</TD><TD>The desired state.</TD></TR>
@@ -1140,7 +1140,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The effect name.</TD></TR>
    * <TR><TD>1</TD><TD>The cause of the validation failure.</TD></TR>
@@ -1154,7 +1154,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error</TD></TR>
    * <TR><TD>1</TD><TD>The content id</TD></TR>
@@ -1167,7 +1167,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Specifies the specific problem that occurred in
    * initialization.</TD></TR>
@@ -1180,7 +1180,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Specifies the specific problem that occurred.</TD></TR>
    * </TABLE>

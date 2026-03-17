@@ -21,7 +21,7 @@ package com.percussion.server.clone;
  *
  * <p>The search error code ranges are:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>17501 - 18000</TD><TD>general errors</TD></TR>
  * </TABLE>
@@ -35,7 +35,7 @@ public interface IPSCloneErrors {
    *
    * <p>The argument passed in for this message is:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied clone source id</TD></TR>
    * <TR><TD>1</TD><TD>The actual error message</TD></TR>
@@ -48,7 +48,7 @@ public interface IPSCloneErrors {
    *
    * <p>The argument passed in for this message is:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The actual error message</TD></TR>
    * </TABLE>
@@ -60,7 +60,7 @@ public interface IPSCloneErrors {
    *
    * <p>The argument passed in for this message is:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The actual error message</TD></TR>
    * </TABLE>
@@ -72,7 +72,7 @@ public interface IPSCloneErrors {
    *
    * <p>The argument passed in for this message is:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The rhythmyx resource being called</TD></TR>
    * <TR><TD>1</TD><TD>The actual error message</TD></TR>
@@ -85,7 +85,7 @@ public interface IPSCloneErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the resource, in form app/resource</TD></TR>
    * </TABLE>
@@ -97,7 +97,7 @@ public interface IPSCloneErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The role name to create</TD></TR>
    * <TR><TD>1</TD><TD>The error message</TD></TR>

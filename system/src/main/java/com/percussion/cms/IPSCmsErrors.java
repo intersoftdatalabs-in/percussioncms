@@ -21,7 +21,7 @@ package com.percussion.cms;
  * error codes. Errors are in the range 13001 - 14000. Within this range, errors are further broken
  * down as follows:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>1601 - 1700</TD><TD>This range is actually defined in the
  *    IPSServerErrors, but noted here. These codes should be moved here at
@@ -46,7 +46,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the CMS component that was being processed
    *    when the error occurred, or the table name itself.</TD></TR>
@@ -63,7 +63,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the content type that was passed. May be
    *    the string based name or the numeric id.</TD></TR>
@@ -76,7 +76,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception</TD></TR>
    * </TABLE>
@@ -88,7 +88,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected node</TD></TR>
    * <TR><TD>1</TD><TD>the received XML</TD></TR>
@@ -101,7 +101,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>folder operation</TD></TR>
    * </TABLE>
@@ -113,7 +113,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the error message</TD></TR>
    * </TABLE>
@@ -140,7 +140,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Name of the Rhythmyx intenrnal request resource to perform the site lookup</TD></TR>
    * <TR><TD>1</TD><TD>SiteId of the site to lookup</TD></TR>
@@ -154,7 +154,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the id of the Content Item</TD></TR>
    * <TR><TD>1</TD><TD>the revision of the Content Item</TD></TR>
@@ -169,7 +169,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The content type name or id.</TD></TR>
    * </TABLE>
@@ -181,7 +181,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the content type that was passed. May be
    *    the string based name or the numeric id.</TD></TR>
@@ -196,7 +196,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The contentId of the item to be located.</TD></TR>
    * <TR><TD>1</TD><TD>The revisionId of the item to be located.</TD></TR>
@@ -218,7 +218,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The description of the possible problem.  If
    *    known.</TD></TR>
@@ -231,7 +231,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Submitted location</TD></TR>
    * </TABLE>
@@ -243,7 +243,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Brief information, Node name if possible.</TD></TR>
    * </TABLE>
@@ -255,7 +255,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Location url or app/source.</TD></TR>
    * <TR><TD>1</TD><TD>The text of the source exception.</TD></TR>
@@ -268,7 +268,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The expected key parts / definitions</TD></TR>
    * <TR><TD>1</TD><TD>The incountered key parts / definitions</TD></TR>
@@ -284,7 +284,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value returned by IPSDbComponent.getComponentType()
    *    method.</TD></TR>
@@ -298,7 +298,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the required property</TD></TR>
    * <TR><TD>1</TD><TD>The value returned by IPSDbComponent.getComponentType()
@@ -312,7 +312,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>1</TD><TD>The value returned by IPSDbComponent.getComponentType()
    *    method.</TD></TR>
@@ -330,7 +330,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the resource, in form app/resource</TD></TR>
    * </TABLE>
@@ -342,7 +342,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the config file.</TD></TR>
    * </TABLE>
@@ -354,7 +354,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the xml document. If there isn't one,
    *    supply 'unknown'.</TD></TR>
@@ -371,7 +371,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the processor.</TD></TR>
    * <TR><TD>1</TD><TD>The name of the component type.</TD></TR>
@@ -385,7 +385,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the processor.</TD></TR>
    * <TR><TD>1</TD><TD>The name of the component type.</TD></TR>
@@ -399,7 +399,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component type.</TD></TR>
    * <TR><TD>1</TD><TD>The type of the processor.</TD></TR>
@@ -413,7 +413,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The fully qualified name of the class that is
    *    missing the desired ctor.</TD></TR>
@@ -435,7 +435,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The fully qualified class name that caused the
    *    failure.</TD></TR>
@@ -452,7 +452,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The fully qualified class name that caused the
    *    failure.</TD></TR>
@@ -469,7 +469,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component type as returned by getComponentType()
    *    that was performing the processing.</TD></TR>
@@ -483,7 +483,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component type as returned by getComponentType()
    *    that was performing the processing.</TD></TR>
@@ -497,7 +497,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component type as returned by getComponentType()
    *    that was performing the processing.</TD></TR>
@@ -511,7 +511,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The fully qualified class name that caused the
    *    failure.</TD></TR>
@@ -528,7 +528,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The node name.</TD></TR>
    * <TR><TD>1</TD><TD>The type of the list, as returned by the
@@ -542,7 +542,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component name as provided by getComponentType().
    *    </TD></TR>
@@ -556,7 +556,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component name as provided by getComponentType().
    *    </TD></TR>
@@ -572,7 +572,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Context - what were you doing when it happened.
    *    </TD></TR>
@@ -588,7 +588,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Context - what were you doing when it happened.
    *    </TD></TR>
@@ -602,7 +602,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Parameter name</TD></TR>
    * <TR><TD>1</TD><TD>The supplied value</TD></TR>
@@ -615,7 +615,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Parameter name</TD></TR>
    * <TR><TD>1</TD><TD>A list of content ids</TD></TR>
@@ -628,7 +628,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Parameter name</TD></TR>
    * <TR><TD>1</TD><TD>content id of the child item</TD></TR>
@@ -641,7 +641,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Parameter name</TD></TR>
    * <TR><TD>1</TD><TD>folder id</TD></TR>
@@ -654,7 +654,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>id</TD></TR>
    * </TABLE>
@@ -666,7 +666,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>source object id</TD></TR>
    * </TABLE>
@@ -678,7 +678,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the target folder.</TD></TR>
    * <TR><TD>1</TD><TD>A list of id's with possible violators.</TD></TR>
@@ -691,7 +691,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the moved folder</TD></TR>
    * <TR><TD>1</TD><TD>the id of the moved folder</TD></TR>
@@ -707,7 +707,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied related type.</TD></TR>
    * </TABLE>
@@ -720,7 +720,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied related type.</TD></TR>
    * </TABLE>
@@ -732,7 +732,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the copied folder</TD></TR>
    * <TR><TD>1</TD><TD>the id of the copied folder</TD></TR>
@@ -748,7 +748,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the moved item.</TD></TR>
    * <TR><TD>1</TD><TD>The content id of the moved item.</TD></TR>
@@ -766,7 +766,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the moved item.</TD></TR>
    * <TR><TD>1</TD><TD>The content id of the moved item.</TD></TR>
@@ -783,7 +783,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child name.</TD></TR>
    * <TR><TD>1</TD><TD>The content type name or id.</TD></TR>
@@ -796,7 +796,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The requested relationship type.</TD></TR>
    * </TABLE>
@@ -808,7 +808,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The required key type.</TD></TR>
    * <TR><TD>1</TD><TD>The supplied key type.</TD></TR>
@@ -824,7 +824,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The requested relationship type.</TD></TR>
    * </TABLE>
@@ -836,7 +836,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message.</TD></TR>
    * </TABLE>
@@ -848,7 +848,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message.</TD></TR>
    * </TABLE>
@@ -860,7 +860,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Relationshipid</TD></TR>
    * <TR><TD>1</TD><TD>The requested relationship type.</TD></TR>
@@ -874,7 +874,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied command</TD></TR>
    * </TABLE>
@@ -886,7 +886,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The required parameters</TD></TR>
    * </TABLE>
@@ -898,7 +898,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The text of the exception</TD></TR>
    * </TABLE>
@@ -911,7 +911,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The workflowid</TD></TR>
    * <TR><TD>0</TD><TD>The stateid</TD></TR>
@@ -925,7 +925,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The parent folder name</TD></TR>
    * <TR><TD>1</TD><TD>
@@ -947,7 +947,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The non-folder component name</TD></TR>
    * </TABLE>
@@ -959,7 +959,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The un-expected exception</TD></TR>
    * </TABLE>
@@ -971,7 +971,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The catalog resource</TD></TR>
    * <TR><TD>1</TD><TD>The un-expected exception</TD></TR>
@@ -984,7 +984,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the invalid value</TD></TR>
    * <TR><TD>1</TD><TD>The invalid length</TD></TR>
@@ -998,7 +998,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The owner id</TD></TR>
    * <TR><TD>1</TD><TD>The dependent id</TD></TR>
@@ -1016,7 +1016,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The resource path of the request</TD></TR>
    * <TR><TD>1</TD><TD>The validation error message</TD></TR>
@@ -1029,7 +1029,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught, if any.</TD></TR>
    * </TABLE>
@@ -1042,7 +1042,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child content id</TD></TR>
    * <TR><TD>1</TD><TD>The child revision</TD></TR>
@@ -1058,7 +1058,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child name</TD></TR>
    * <TR><TD>1</TD><TD>The parent folder name</TD></TR>
@@ -1073,7 +1073,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The locator id</TD></TR>
    * <TR><TD>1</TD><TD>The locator revision</TD></TR>
@@ -1087,7 +1087,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Original message</TD></TR>
    * </TABLE>
@@ -1100,7 +1100,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR>
    * <TH>Arg</TH>
    * <TH>Description</TH>
@@ -1122,7 +1122,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The owner id</TD></TR>
    * </TABLE>
@@ -1134,7 +1134,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The dependent id</TD></TR>
    * </TABLE>
@@ -1147,7 +1147,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child name</TD></TR>
    * <TR><TD>1</TD><TD>The parent folder name</TD></TR>
@@ -1160,7 +1160,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Authtype value</TD></TR>
    * <TR><TD>1</TD><TD>Authtype configuration file path</TD></TR>
@@ -1173,7 +1173,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Relationshipid</TD></TR>
    * <TR><TD>1</TD><TD>Variantid</TD></TR>
@@ -1186,7 +1186,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Variantid</TD></TR>
    * </TABLE>
@@ -1198,7 +1198,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Relationshipid</TD></TR>
    * <TR><TD>1</TD><TD>Slotid</TD></TR>
@@ -1220,7 +1220,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR>
    * <TH>Arg</TH>
    * <TH>Description</TH>
@@ -1242,7 +1242,7 @@ public interface IPSCmsErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR>
    * <TH>Arg</TH>
    * <TH>Description</TH>
@@ -1260,7 +1260,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>error occurred</TD></TR>
    * </TABLE>
@@ -1272,7 +1272,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>name of the system relationship config</TD></TR>
    * <TR><TD>1</TD><TD>the right id of the system relationship config</TD></TR>
@@ -1287,7 +1287,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the deleted relationship config</TD></TR>
    * <TR><TD>1</TD><TD>the error occurred during the delete process</TD></TR>
@@ -1301,7 +1301,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>id of the relationship config in question</TD></TR>
    * <TR><TD>1</TD><TD>name of the relationship config in question</TD></TR>
@@ -1314,7 +1314,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>name of the relationship config in question</TD></TR>
    * </TABLE>
@@ -1326,7 +1326,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Error message from server</TD></TR>
    * </TABLE>
@@ -1338,7 +1338,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>list of item content ids</TD></TR>
    * <TR><TD>1</TD><TD>Action name (move, remove)</TD></TR>
@@ -1351,7 +1351,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>list of item content ids</TD></TR>
    * <TR><TD>1</TD><TD>Action name (move, remove)</TD></TR>
@@ -1365,7 +1365,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>list of item content ids</TD></TR>
    * <TR><TD>1</TD><TD>Action name (move, remove)</TD></TR>
@@ -1378,7 +1378,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Error message from server</TD></TR>
    * </TABLE>
@@ -1390,7 +1390,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>relationship id</TD></TR>
    * </TABLE>
@@ -1402,7 +1402,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>action failure message</TD></TR>
    * <TR><TD>1</TD><TD>Save of partial relationships failure message</TD></TR>
@@ -1415,7 +1415,7 @@ public interface IPSCmsErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the owner id of the bad relationship</TD></TR>
    * <TR><TD>1</TD><TD>XML representation of the bad relationship</TD></TR>

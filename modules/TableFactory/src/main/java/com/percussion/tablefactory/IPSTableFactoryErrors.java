@@ -20,7 +20,7 @@ package com.percussion.tablefactory;
  * The IPSTableFactoryErrors interface is provided as a convenient mechanism for accessing the
  * various related error codes. Errors are further broken down as follows:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>1001 - 1100</TD><TD>general errors used all over</TD></TR>
  * <TR><TD>1101 - 1200</TD><TD>object store errors</TD></TR>
@@ -34,7 +34,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected XML Element tag</TD></TR>
    * </TABLE>
@@ -46,7 +46,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag expected</TD></TR>
    * <TR><TD>1</TD><TD>the XML Element tag encountered</TD></TR>
@@ -59,7 +59,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
    * <TR><TD>1</TD><TD>the attribute name</TD></TR>
@@ -73,7 +73,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
    * <TR><TD>1</TD><TD>the child element name</TD></TR>
@@ -87,7 +87,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the stylesheet name</TD></TR>
    * </TABLE>
@@ -99,7 +99,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the stylesheet name</TD></TR>
    * <TR><TD>1</TD><TD>the transformer error message</TD></TR>
@@ -126,7 +126,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the db alias to match</TD></TR>
    * <TR><TD>1</TD><TD>the driver to match</TD></TR>
@@ -140,7 +140,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the jdbc type</TD></TR>
    * <TR><TD>1</TD><TD>the native type</TD></TR>
@@ -153,7 +153,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the jdbc type</TD></TR>
    * </TABLE>
@@ -165,7 +165,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the jdbc type</TD></TR>
    * </TABLE>
@@ -177,7 +177,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the password</TD></TR>
    * <TR><TD>1</TD><TD>the error text</TD></TR>
@@ -190,7 +190,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The container (e.g. table, primary key)</TD></TR>
    * <TR><TD>1</TD><TD>The column</TD></TR>
@@ -203,7 +203,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The container (e.g. table, primary key)</TD></TR>
    * </TABLE>
@@ -223,7 +223,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * </TABLE>
@@ -235,7 +235,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The column name</TD></TR>
@@ -249,7 +249,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * </TABLE>
@@ -262,7 +262,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The container (e.g. primary key, foreign key)</TD></TR>
@@ -276,7 +276,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message</TD></TR>
    * </TABLE>
@@ -288,7 +288,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The container (e.g. table, primary key)</TD></TR>
    * <TR><TD>0</TD><TD>The specified encoding.</TD></TR>
@@ -301,7 +301,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>0</TD><TD>The error text</TD></TR>
@@ -314,7 +314,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message</TD></TR>
    * </TABLE>
@@ -326,7 +326,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The message</TD></TR>
@@ -339,7 +339,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value</TD></TR>
    * <TR><TD>1</TD><TD>The type</TD></TR>
@@ -353,7 +353,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The message</TD></TR>
@@ -366,7 +366,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The message</TD></TR>
@@ -379,7 +379,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The message</TD></TR>
@@ -393,7 +393,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message</TD></TR>
    * </TABLE>
@@ -405,7 +405,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * </TABLE>
@@ -417,7 +417,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * </TABLE>
@@ -429,7 +429,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The column name</TD></TR>
@@ -442,7 +442,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The message</TD></TR>
@@ -455,7 +455,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The table name</TD></TR>
    * <TR><TD>1</TD><TD>The column name</TD></TR>
@@ -468,7 +468,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The VIEW name</TD></TR>
    * </TABLE>
@@ -480,7 +480,7 @@ public interface IPSTableFactoryErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Data handler class name</TD></TR>
    * </TABLE>

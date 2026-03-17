@@ -33,7 +33,7 @@ public interface IPSCatalogErrors {
     * Unknown type
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The name of the type</TD></TR>
     * </TABLE>
@@ -44,7 +44,7 @@ public interface IPSCatalogErrors {
     * Database error
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the object being saved or loaded</TD></TR>
     * </TABLE>
@@ -55,7 +55,7 @@ public interface IPSCatalogErrors {
     * XML error reading an XML representation of an object
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The xml source of the object being loaded</TD></TR>
     * </TABLE>
@@ -66,7 +66,7 @@ public interface IPSCatalogErrors {
     * An io error
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the object being saved or loaded</TD></TR>
     * </TABLE>

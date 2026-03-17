@@ -27,7 +27,7 @@ public interface IPSSiteManagerErrors
     * Cannot find a site with the specified site id.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the site</TD></TR>
     * </TABLE>
@@ -38,7 +38,7 @@ public interface IPSSiteManagerErrors
     * Failed to find the root folder id for a specified site.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the site</TD></TR>
     * <TR><TD>1</TD><TD>The root folder path</TD></TR>
@@ -51,7 +51,7 @@ public interface IPSSiteManagerErrors
     * Cannot find the root folder id for a specified site.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the site</TD></TR>
     * <TR><TD>1</TD><TD>The root folder path</TD></TR>
@@ -64,7 +64,7 @@ public interface IPSSiteManagerErrors
     * Failed to get a path for the specified folder id and the specified site.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The specified folder id</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error</TD></TR>
@@ -76,7 +76,7 @@ public interface IPSSiteManagerErrors
     * The specified folder does not exist under the specified site.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The specified folder id</TD></TR>
     * <TR><TD>1</TD><TD>The id of the site</TD></TR>
@@ -89,7 +89,7 @@ public interface IPSSiteManagerErrors
     * The caught an unexpected error.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The unexpected error message</TD></TR>
     * </TABLE>
@@ -100,7 +100,7 @@ public interface IPSSiteManagerErrors
     * Cannot find a site with the specified site name.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The name of the site</TD></TR>
     * </TABLE>
@@ -111,7 +111,7 @@ public interface IPSSiteManagerErrors
     * Cannot find a scheme with the specified id.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the scheme</TD></TR>
     * </TABLE>
@@ -122,7 +122,7 @@ public interface IPSSiteManagerErrors
     * Cannot find a context with the specified info.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>What kind of data was specified</TD></TR>
     * <TR><TD>1</TD><TD>What data specified the context, i.e. name, id, etc.</TD></TR>

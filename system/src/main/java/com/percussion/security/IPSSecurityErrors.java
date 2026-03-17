@@ -21,7 +21,7 @@ package com.percussion.security;
  * The IPSSecurityErrors inteface is provided as a convenient mechanism for accessing the various
  * security related error codes. The error code ranges are:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>9001 - 9300</TD><TD>general errors used all over</TD></TR>
  * <TR><TD>9301 - 9500</TD><TD>ACL errors</TD></TR>
@@ -47,7 +47,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * </TABLE>
@@ -59,7 +59,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * <TR><TD>1</TD><TD>security provider instance name</TD></TR>
@@ -73,7 +73,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider class name</TD></TR>
    * <TR><TD>1</TD><TD>requested security provider type</TD></TR>
@@ -86,7 +86,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * </TABLE>
@@ -98,7 +98,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * </TABLE>
@@ -110,7 +110,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * </TABLE>
@@ -122,7 +122,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>resource type</TD></TR>
    * <TR><TD>1</TD><TD>resource name</TD></TR>
@@ -135,7 +135,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>resource type</TD></TR>
    * <TR><TD>1</TD><TD>resource name</TD></TR>
@@ -149,7 +149,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>resource type</TD></TR>
    * <TR><TD>1</TD><TD>resource name</TD></TR>
@@ -164,7 +164,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * <TR><TD>1</TD><TD>instance name</TD></TR>
@@ -178,7 +178,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * <TR><TD>1</TD><TD>instance name</TD></TR>
@@ -191,7 +191,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * <TR><TD>1</TD><TD>security provider instance name</TD></TR>
@@ -207,7 +207,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * <TR><TD>1</TD><TD>instance name</TD></TR>
@@ -230,7 +230,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id for the request</TD></TR>
    * <TR><TD>1</TD><TD>required strength (in bits)</TD></TR>
@@ -258,7 +258,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected secret size</TD></TR>
    * <TR><TD>1</TD><TD>the specified secret size</TD></TR>
@@ -272,7 +272,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>A concatenation of all the error messages returned from
    * the providers that failed to authenticate.</TD></TR>
@@ -292,7 +292,7 @@ public interface IPSSecurityErrors {
    * data was stored in a db and the db couldn't be reaached), this error is returned. The arguments
    * passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The detailed information describing the problem.</TD>
    *    </TR>
@@ -305,7 +305,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The wildcard</TD></TR>
    * <TR><TD>1</TD><TD>security provider type</TD></TR>
@@ -318,7 +318,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The group provider name</TD></TR>
    * <TR><TD>1</TD><TD>The directory name</TD></TR>
@@ -332,7 +332,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The provider type</TD></TR>
    * <TR><TD>1</TD><TD>The provider name</TD></TR>
@@ -348,7 +348,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The group provider name</TD></TR>
    * </TABLE>
@@ -360,7 +360,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the specified filter</TD></TR>
    * </TABLE>
@@ -403,7 +403,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the role name</TD></TR>
    * <TR><TD>1</TD><TD>the application name</TD></TR>
@@ -417,7 +417,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the role name</TD></TR>
    * </TABLE>
@@ -430,7 +430,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the role name</TD></TR>
    * <TR><TD>1</TD><TD>the application name</TD></TR>
@@ -444,7 +444,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the role name</TD></TR>
    * </TABLE>
@@ -480,7 +480,7 @@ public interface IPSSecurityErrors {
   /**
    * Authentication of user through directory provider failed.
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the user name</TD></TR>
    * </TABLE>
@@ -493,7 +493,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the user name</TD></TR>
    * </TABLE>
@@ -505,7 +505,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the password filter class name</TD></TR>
    * <TR><TD>1</TD><TD>additional error text</TD></TR>
@@ -518,7 +518,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>security provider type</TD></TR>
    * </TABLE>
@@ -530,7 +530,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error</TD></TR>
    * </TABLE>
@@ -542,7 +542,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The referenced directory set name</TD></TR>
    * </TABLE>
@@ -554,7 +554,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The referenced directory name</TD></TR>
    * </TABLE>
@@ -566,7 +566,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The referenced authentication name</TD></TR>
    * </TABLE>
@@ -578,7 +578,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The referenced role provider name</TD></TR>
    * </TABLE>
@@ -590,7 +590,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the provider instance</TD></TR>
    * <TR><TD>1</TD><TD>additional error text from jdbc</TD></TR>
@@ -603,7 +603,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the provider instance</TD></TR>
    * <TR><TD>1</TD><TD>the user id that has duplicates</TD></TR>
@@ -622,7 +622,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception message</TD></TR>
    * </TABLE>
@@ -634,7 +634,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -647,7 +647,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -660,7 +660,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -673,7 +673,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -686,7 +686,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the requested class</TD></TR>
    * <TR><TD>1</TD><TD>the stack trace</TD></TR>
@@ -699,7 +699,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the directory name</TD></TR>
    * </TABLE>
@@ -711,7 +711,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the authentication name</TD></TR>
    * </TABLE>
@@ -723,7 +723,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the directory name</TD></TR>
    * <TR><TD>1</TD><TD>the authentication name</TD></TR>
@@ -737,7 +737,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the required attribute</TD></TR>
    * </TABLE>
@@ -749,7 +749,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception message</TD></TR>
    * </TABLE>
@@ -761,7 +761,7 @@ public interface IPSSecurityErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception message</TD></TR>
    * </TABLE>

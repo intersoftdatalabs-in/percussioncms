@@ -21,7 +21,7 @@ package com.percussion.search;
  * This interface contains the error codes for all exceptions thrown by classes in this pkg. The
  * search error code ranges are:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>16001 - 16050</TD><TD>general errors</TD></TR>
  * <TR><TD>16051 - 16100</TD><TD>Init and config errors</TD></TR>
@@ -47,7 +47,7 @@ public interface IPSSearchErrors {
    *
    * <p>The argument passed in for this message is:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the library being referenced, if available.
    * </TD></TR>
@@ -77,7 +77,7 @@ public interface IPSSearchErrors {
    *
    * <p>The arguments passed in for this message is:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error code from the search system</TD></TR>
    * <TR><TD>1</TD><TD>The name of the search system</TD></TR>
@@ -90,7 +90,7 @@ public interface IPSSearchErrors {
    *
    * <p>The argument passed in for this message is:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the search engine</TD></TR>
    * <TR><TD>1</TD><TD>A description of the parsing problem encountered</TD>
@@ -112,7 +112,7 @@ public interface IPSSearchErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The number of admin objects still allocated.</TD></TR>
    * <TR><TD>1</TD><TD>The number of query objects still allocated.</TD></TR>
@@ -133,7 +133,7 @@ public interface IPSSearchErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The content id of the item.</TD></TR>
    * <TR><TD>1</TD><TD>The content type id</TD></TR>
@@ -146,7 +146,7 @@ public interface IPSSearchErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the class being loaded.</TD></TR>
    * <TR><TD>1</TD><TD>The text from the underlying exception</TD></TR>
@@ -162,7 +162,7 @@ public interface IPSSearchErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The parameter name.</TD></TR>
    * <TR><TD>1</TD><TD>The parameter type (HTML or extension).</TD></TR>

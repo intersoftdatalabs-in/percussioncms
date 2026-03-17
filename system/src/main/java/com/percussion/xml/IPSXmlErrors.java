@@ -21,7 +21,7 @@ package com.percussion.xml;
  * The IPSXmlErrors inteface is provided as a convenient mechanism for accessing the various XML
  * related error codes. The XML error code ranges are:
  *
- * <TABLE BORDER="1">
+ * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>6001 - 7000</TD><TD>XML errors</TD></TR>
  * </TABLE>
@@ -37,7 +37,7 @@ public interface IPSXmlErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>XML data as a string</TD></TR>
    * </TABLE>
@@ -49,7 +49,7 @@ public interface IPSXmlErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id</TD></TR>
    * </TABLE>
@@ -61,7 +61,7 @@ public interface IPSXmlErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception string</TD></TR>
    * </TABLE>
@@ -73,7 +73,7 @@ public interface IPSXmlErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the root name expected</TD></TR>
    * </TABLE>
@@ -85,7 +85,7 @@ public interface IPSXmlErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the first occurrence setting</TD></TR>
    * <TR><TD>1</TD><TD>the second occurrence setting</TD></TR>
@@ -98,7 +98,7 @@ public interface IPSXmlErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
+   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the element name expected</TD></TR>
    * </TABLE>

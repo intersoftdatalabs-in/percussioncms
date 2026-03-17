@@ -27,7 +27,7 @@ public interface IPSAssemblyErrors
     * Missing template
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The name or id of the template</TD></TR>
     * </TABLE>
@@ -38,7 +38,7 @@ public interface IPSAssemblyErrors
     * Missing assembler
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The name of the assembler</TD></TR>
     * </TABLE>
@@ -49,7 +49,7 @@ public interface IPSAssemblyErrors
     * Assembler can't be instantiated
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The name of the assembler</TD></TR>
     * </TABLE>
@@ -65,7 +65,7 @@ public interface IPSAssemblyErrors
     * Unknown error while processing assembly item
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The original error message</TD></TR>
     * </TABLE>
@@ -86,7 +86,7 @@ public interface IPSAssemblyErrors
     * The given path is invalid 
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The invalid path</TD></TR>
     * </TABLE>
@@ -97,7 +97,7 @@ public interface IPSAssemblyErrors
     * The given path is missing 
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The missing path</TD></TR>
     * </TABLE>
@@ -113,7 +113,7 @@ public interface IPSAssemblyErrors
     * The given slot is missing 
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The missing slot</TD></TR>
     * </TABLE>
@@ -124,7 +124,7 @@ public interface IPSAssemblyErrors
     * The given finder is missing 
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The missing finder</TD></TR>
     * </TABLE>
@@ -142,7 +142,7 @@ public interface IPSAssemblyErrors
     * Couldn't build landing page url
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the landing page item</TD></TR>
     * </TABLE>
@@ -153,7 +153,7 @@ public interface IPSAssemblyErrors
     * Missing pagelink binding
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the template</TD></TR>
     * </TABLE>
@@ -164,7 +164,7 @@ public interface IPSAssemblyErrors
     * Missing template
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The name or id of the template</TD></TR>
     * <TR><TD>1</TD><TD>The id of the content type</TD></TR>
@@ -176,7 +176,7 @@ public interface IPSAssemblyErrors
     * Could not locate the default template.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The content id</TD></TR>
     * <TR><TD>1</TD><TD>The id of the content type</TD></TR>
@@ -189,7 +189,7 @@ public interface IPSAssemblyErrors
     * Not unique name for object
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The name of the object (template or slot)</TD></TR>
     * <TR><TD>1</TD><TD>The name of the type</TD></TR>
@@ -201,7 +201,7 @@ public interface IPSAssemblyErrors
     * A problem occurred while running the given slot content finder
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The name of the slot content finder</TD></TR>
     * <TR><TD>1</TD><TD>The exception message</TD></TR>
@@ -213,7 +213,7 @@ public interface IPSAssemblyErrors
     * Item's id field does not match its sys_contentid parameter.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The value of the id field</TD></TR>
     * <TR><TD>1</TD><TD>The value of the sys_contentid parameter</TD></TR>
@@ -225,7 +225,7 @@ public interface IPSAssemblyErrors
     * Item's folder field does not match its sys_folderid parameter.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The value of the folder field</TD></TR>
     * <TR><TD>1</TD><TD>The value of the sys_folderid parameter</TD></TR>
@@ -238,7 +238,7 @@ public interface IPSAssemblyErrors
     * for this hash cannot be found
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The hash value specified</TD></TR>
     * </TABLE>

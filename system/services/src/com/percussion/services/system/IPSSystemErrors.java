@@ -25,7 +25,7 @@ public interface IPSSystemErrors
    /**
     * Missing shared property.
     * <p>
-    * The arguments passed in for this message are: <TABLE BORDER="1">
+    * The arguments passed in for this message are: <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR>
     * <TH>Arg</TH>
     * <TH>Description</TH>
@@ -40,7 +40,7 @@ public interface IPSSystemErrors
 
    /**
     * Couldn't read a folder
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR>
     * <TH>Arg</TH>
     * <TH>Description</TH>

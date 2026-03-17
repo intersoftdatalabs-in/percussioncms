@@ -25,7 +25,7 @@ public interface IPSLockErrors
     * Object is already locked.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the object.</TD></TR>
     * <TR><TD>1</TD><TD>The name of the locker.</TD></TR>
@@ -37,7 +37,7 @@ public interface IPSLockErrors
     * Object is not locked for a valid extension.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the object.</TD></TR>
     * </TABLE>
@@ -48,7 +48,7 @@ public interface IPSLockErrors
     * Object is locked by somebody else and cannot be entended.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the object.</TD></TR>
     * <TR><TD>1</TD><TD>The name of the locker.</TD></TR>
@@ -60,7 +60,7 @@ public interface IPSLockErrors
     * An invalid session was supplied for the lock extension.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the object.</TD></TR>
     * </TABLE>
@@ -71,7 +71,7 @@ public interface IPSLockErrors
     * The object for the supplied id is not locked.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * <TR><TD>0</TD><TD>The id of the object.</TD></TR>
     * </TABLE>
@@ -83,7 +83,7 @@ public interface IPSLockErrors
     * may be successful results and errors mixed together in the exception.
     * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
+    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
     * <TR><TH>Arg</TH><TH>Description</TH></TR>
     * </TABLE>
     */
