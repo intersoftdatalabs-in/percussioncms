@@ -113,7 +113,7 @@ public class PSBackEndQueryProcessingError extends PSBackEndError {
    * @param errorParams if the error string associated with the error code specifies parameters,
    *     this is an array of values to use to fill the string appropriately. Be sure to include the
    *     correct arguments in their correct positions!
-   * @param queryString the SELECT statement which caused the error
+   * @param source the SELECT statement which caused the error
    */
   public PSBackEndQueryProcessingError(
       int applId,

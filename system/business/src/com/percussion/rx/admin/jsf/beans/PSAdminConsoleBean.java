@@ -73,7 +73,6 @@ public class PSAdminConsoleBean extends PSLockableNode {
      * Constructs an object with the given parameters.
      *
      * @param title  never <code>null</code> or empty.
-     * @param outcome the outcome, may be <code>null</code>.
      * @param label  the value returned by {@link #getLabel()}.
      *                Can be <code>null</code> or blank.
      */

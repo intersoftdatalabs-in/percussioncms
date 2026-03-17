@@ -126,20 +126,21 @@ public class PSCataloger {
    * <p>The request properties must contain two properties which the cataloger uses to determine
    * which handler must be loaded. These properties are:
    *
-   * <table border="2">
+   * <table summary="Table">
    * <tr><th>Key</th><th>Description</th></tr>
    * <tr><td>RequestCategory</td>
    *      <td>the catalog request category</td></tr>
    * <tr><td>RequestType</td>
    *      <td>the catalog request type within the category</td></tr>
    * </table>
+   * <table summary></table>
    *
    * <em>NOTE:</em> property keys and values are case sensitive
    *
    * <p>The <code>{@link com.percussion.design.catalog.data data}</code> RequestCategory supports
    * the following RequestType values:
    *
-   * <table border="2">
+   * <table summary="Table">
    * <tr><th>Value</th><th>Description</th></tr>
    * <tr><td>Driver</td>
    *      <td>used to locate the back-end drivers available for data access.
@@ -186,6 +187,7 @@ public class PSCataloger {
    *         values.
    *      </td></tr>
    * </table>
+   * <table summary></table>
    *
    * <p>The <code>{@link com.percussion.design.catalog.security security}</code> RequestCategory
    * supports the following RequestType values: ???
@@ -193,7 +195,7 @@ public class PSCataloger {
    * <p>The <code>{@link com.percussion.design.catalog.exit exit}</code> RequestCategory supports
    * the following RequestType values:
    *
-   * <table border="2">
+   * <table summary="Table">
    * <tr><th>Value</th><th>Description</th></tr>
    * <tr><td>ServerExit</td>
    *      <td>provides the exit definition for all exits defined for global
@@ -204,22 +206,24 @@ public class PSCataloger {
    *      global use on the server.
    *      </td></tr>
    * </table>
+   * <table summary></table>
    *
    * <p>The <code>{@link com.percussion.design.catalog.mail mail}</code> RequestCategory supports
    * the following RequestType values:
    *
-   * <table border="2">
+   * <table summary="Table">
    * <tr><th>Value</th><th>Description</th></tr>
    * <tr><td>MailProvider</td>
    *      <td>get the mail providers available to the E2 server for sending
    *         e-mail messages.
    *      </td></tr>
    * </table>
+   * <table summary></table>
    *
    * <p>The <code>{@link com.percussion.design.catalog.xml xml}</code> RequestCategory supports the
    * following RequestType values:
    *
-   * <table border="2">
+   * <table summary="Table">
    * <tr><th>Value</th><th>Description</th></tr>
    * <tr><td>DocType</td>
    *      <td>get the document types (DTDs) defined by the E2 server.
@@ -227,6 +231,7 @@ public class PSCataloger {
    *         as those used for cataloging purposes.
    *      </td></tr>
    * </table>
+   * <table summary></table>
    *
    * <p>If this object is not connected, an attempt will be made to connect to the server.
    *

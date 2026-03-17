@@ -244,11 +244,9 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
    public abstract int getTimeout();
 
    /**
-    * 
     * Internal class for managing the item's stream so that it can be handled
     * properly on a retry. Because the item can use a file or a stream the
     * mechanism for repositioning back to the beginning is different.
-    * 
     * @author BillLanglais
     */
    public class RetryItem
@@ -395,9 +393,7 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
    /**
     * Object to save the login properties. Similar to {@link FTPLoginInfo}, but
     * adds the private key.
-    * 
     * @author Santiago M. Murchio
-    * 
     */
    protected class SFTPLoginInfo extends FTPLoginInfo
    {
@@ -471,30 +467,25 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
    /**
     * This is the same as {@link #doRemoval(Item, long, String)}, except this
     * can be used to remove either a file or directory.
-    * 
     * @param item the processed item, it may be <code>null</code> if removing a directory.
     * @param jobId the job ID, it is not used if removing a directory.
     * @param location the file or directory path, not blank.
     * @param isFile it is <code>true</code> if removing a file; otherwise removing a directory.
-    * 
     * @return the delivery result. It is <code>null</code> if removing a directory.
     */
    protected abstract IPSDeliveryResult removeFileOrDir(Item item, long jobId, String location, boolean isFile);
 
    /**
     * Performs the actual connect and login to the ftp server.
-    * 
     * @param jobId the publishing job ID.
     * @param failAll if <code>true</code>, then all items for the current
     * job will be marked as failed if the login was unsuccessful, otherwise,
     * a {@link PSDeliveryException} will be thrown in the event of a failed
     * connection.
-    * @param retries 
     * @param
     *  
     * @return error results for the specified job.  Will be
     * <code>null</code> if the connection and login were successful.
-    * 
     * @throws PSDeliveryException if <code>failAll</code> is
     * <code>false</code> and a connection could not be established or the
     * login was unsuccessful.
@@ -510,7 +501,6 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
    
    /**
     * Performs the actual delivery of the item to the ftp server.
-    * 
     * @param item - Item to be written to destination
     * @param inputStream - Stream content is read from
     * @param jobId - Id of publishing job
@@ -522,7 +512,6 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
 
    /*
     * (non-Javadoc)
-    * 
     * @see com.percussion.rx.delivery.impl.PSBaseDeliveryHandler#doDelivery(com.
     * percussion.rx.delivery.impl.PSBaseDeliveryHandler.Item, long,
     * java.lang.String)
@@ -570,7 +559,6 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
    /**
     * Puts out error information if we have either exceeded the number of
     * retries or if the stream does not support resetting back to the beginning.
-    * 
     * @param retryItem - item we tried to publish.
     * @param location - location of the published item assumed never
     * <code>null</null>
@@ -609,7 +597,6 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
     * that may be temporary do we retry.  We delay a every increasing amount 
     * of time, attempt to relogin and prepare the content stream to be read 
     * again from the beginning.
-    * 
     * @param jobId - id of job being published.
     * @param isDebugEnabled - is debug enabled.
     * @param ftpPutRetriesLeft - how many time more will we try.
@@ -681,9 +668,8 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
    }
    
    /**
-    * Logs in to the ftp server using {@link # doLogin(long, boolean)}.
+    * Logs in to the ftp server using {@link #doLogin(long, boolean)}.
     * Multiple attempts are made in an effort to establish a connection.
-    * 
     * @param jobId the publishing job ID.
     * @param failAll if <code>true</code>, then all items for the current job will be
     * marked as failed if the login was unsuccessful, otherwise, a
@@ -691,7 +677,6 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
     *  
     * @return error results for the specified job if the login was unsuccessful.
     * Will be <code>null</code> if the login was successful.
-    * 
     * @throws PSDeliveryException if <code>failAll</code> is <code>false</code> and
     * login was unsuccessful.
     */
@@ -834,7 +819,6 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
    
    /**
     * Performs a logoff followed by a login to the ftp server.
-    * 
     * @param jobId the publishing job ID.
     * @throws PSDeliveryException if the login was unsuccessful.
     */
@@ -847,13 +831,11 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
    
    /**
     * Handles an error encountered during login.
-    * 
     * @param jobId the publishing job ID.
     * @param msg the error message.  May be blank.
     * @param failAll if <code>true</code>, then all items for the current
     * job will be marked as failed, otherwise, a {@link PSDeliveryException}
     * will be thrown.
-    * 
     * @return error results, never <code>null</code>.
     *    
     * @throws PSDeliveryException if <code>failAll</code> is <code>false</code>.
@@ -882,7 +864,6 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
     * Verifies if the server corresponding to the given publishing job is
     * suppose to publish items relatively to the home directory or relative to
     * an absolute path.
-    * 
     * @param jobData {@link IPSPubServer} the publish server to use. Assumed
     *           not <code>null</code>.
     * @return <code>false</code> if the server should publish relatively to

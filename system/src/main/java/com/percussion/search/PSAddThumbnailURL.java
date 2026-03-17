@@ -59,8 +59,10 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
    * they exist. The thumbnail column to use can be passed in as parameter [0] or it will default to
    * use sys_thumbnail.
    *
-   * @see com.percussion.extension.IPSSearchResultsProcessor#processRows( java.lang.Object[],
-   *     java.util.List, com.percussion.server.IPSRequestContext)
+   * @param params the parameters array.
+   * @param rows the search result rows.
+   * @param request the request context.
+   * @return the processed rows.
    */
   public List<Object> processRows(Object[] params, List<Object> rows, IPSRequestContext request)
       throws PSExtensionProcessingException {

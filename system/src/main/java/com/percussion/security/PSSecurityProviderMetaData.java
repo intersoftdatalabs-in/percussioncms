@@ -236,7 +236,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * Defines the meta data for the result set created by the {@link #getEmptyServers()} method.
    * Initialized in static block.
    *
-   * @todo Make this private.
+   * 
    */
   protected static final PSResultSetMetaData ms_GetServerRSMeta;
 
@@ -244,7 +244,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * Defines the meta data for the result set created by the {@link #getEmptyObjectTypes()} method.
    * Initialized in static block.
    *
-   * @todo Make this private.
+   * 
    */
   protected static final PSResultSetMetaData ms_GetObjectTypesRSMeta;
 
@@ -252,7 +252,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * Defines the meta data for the result set created by the {@link #getEmptyObjects()} method.
    * Initialized in static block.
    *
-   * @todo Make this private.
+   * 
    */
   protected static final PSResultSetMetaData ms_GetObjectsRSMeta;
 
@@ -260,7 +260,7 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
    * Defines the meta data for the result set created by the {@link #getEmptyAttributes()} method.
    * Initialized in static block.
    *
-   * @todo Make this private.
+   * 
    */
   protected static final PSResultSetMetaData ms_GetAttributesRSMeta;
 

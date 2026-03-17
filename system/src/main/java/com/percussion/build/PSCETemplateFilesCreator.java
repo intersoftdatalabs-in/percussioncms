@@ -60,8 +60,8 @@ public class PSCETemplateFilesCreator {
    * @param strDtdFile Must not be <code>null</code> and must exist.
    * @param strDocTypePath Must not be <code>null</code>..
    * @throws IllegalArgumentException if any params are invalid.
-   *     <p>Example: applications\rx_ce<name>\rx_ce<Name>.xml will create a template
-   *     applications\sys_psxTemplates\sys_<name>.xml.
+   *     <p>Example: applications\rx_ce&lt;name&gt;\rx_ce&lt;Name&gt;.xml will create a template
+   *     applications\sys_psxTemplates\sys_&lt;name&gt;.xml.
    */
   public static void createTemplates(
       String strAppDirectory, String strDtdFile, String strDocTypePath) {

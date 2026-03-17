@@ -515,7 +515,7 @@ public class PSBackEndJoin extends PSComponent {
    * Performs a shallow copy of the data in the supplied component to this component. Derived
    * classes should implement this method for their data, calling the base class method first.
    *
-   * @param selector a valid PSDataSelector.
+   * @param join the join to copy from.
    */
   public void copyFrom(PSBackEndJoin join) {
     copyFrom((PSComponent) join);

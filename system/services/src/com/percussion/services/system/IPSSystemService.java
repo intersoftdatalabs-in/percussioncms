@@ -46,7 +46,7 @@ public interface IPSSystemService
     * content activity is represented by the work-flow state.
     * <p> 
     * For example, this can be used to find out the total number of new published  
-    * items since a specified date, where the <code>stateName<code> may be LIVE.
+    * items since a specified date, where the <code>stateName</code> may be LIVE.
     * 
     * @param cids the IDs of the content items in question, not
     * <code>null</code>.

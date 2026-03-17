@@ -97,7 +97,7 @@ public class PSAuthenticateUserUtils {
    * "sys_commSupport/communityidlookup" by their community name.
    * @param request <code>IPSRequestContext</code> object that is available in
    * the extension's process request method, assumed never <code>null</code>.
-   * @param name Community name, can not be <code>null</null>
+   * @param name Community name, can not be <code>null</code>
    * @return Community id.
    * @throws Exception
    */
@@ -130,10 +130,10 @@ public class PSAuthenticateUserUtils {
    *
    * @param request <code>IPSRequestContext</code> object that is available in the extension's
    *     process request method, assumed never <code>null</code>.
-   * @param srcAttrName, Name of the role attribute to retrieve, cannot be <code>null</code>, if
+   * @param srcAttrName Name of the role attribute to retrieve, cannot be <code>null</code>, if
    *     <code>null</code> the result will be <code>null</code>.
    * @return value of the given attribute, may be <code>null</code>
-   * @throws Exception, if it cannot retrieve tha role attribute for any reason.
+   * @throws Exception if it cannot retrieve the role attribute for any reason.
    */
   public static String getUserRoleAttribute(IPSRequestContext request, String srcAttrName)
       throws Exception {

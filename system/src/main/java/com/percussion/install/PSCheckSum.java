@@ -35,14 +35,14 @@ public class PSCheckSum {
 
   /**
    * Run this program to obtain the checksum of any file. Usage is java
-   * com.percussion.install.PSCheckSum <input file>
+   * com.percussion.install.PSCheckSum &lt;input file&gt;
    *
    * @param args a string array containing a single string representing the absolute path to the
    *     file whose checksum is to be calculated.
    */
   public static void main(String[] args) {
     if (args.length != 1) {
-      System.err.println("Usage: PSCheckSum <input file>");
+      System.err.println("Usage: PSCheckSum &lt;input file&gt;");
       System.exit(0);
     }
     try {

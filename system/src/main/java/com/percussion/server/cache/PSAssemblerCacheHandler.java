@@ -77,7 +77,6 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    * @throws IllegalArgumentException if <code>cacheSettings</code> is <code>null</code>.
    * @throws IllegalStateException if the <code>PSCacheManager</code> has not been initialized.
    * @throws RuntimeException if there are any errors loading the key rules resource file.
-   * @todo In future, handle resource file errors gracefully and disable caching.
    */
   public PSAssemblerCacheHandler(PSServerCacheSettings cacheSettings) {
     super(KEY_SIZE, cacheSettings);

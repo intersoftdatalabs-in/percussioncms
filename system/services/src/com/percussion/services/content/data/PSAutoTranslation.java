@@ -223,7 +223,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
     * Set the community ID with enhanced validation.
     *
     * @param communityId the community ID, must be > 0
-    * @throws IllegalArgumentException if communityId is <= 0
+    * @throws IllegalArgumentException if communityId is &lt;= 0
     */
    public void setCommunityId(long communityId) {
       if (communityId <= 0) {
@@ -281,7 +281,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
     * Set the content type ID with enhanced validation.
     *
     * @param contentTypeId the content type ID, must be > 0
-    * @throws IllegalArgumentException if contentTypeId is <= 0
+    * @throws IllegalArgumentException if contentTypeId is &lt;= 0
     */
    public void setContentTypeId(long contentTypeId) {
       if (contentTypeId <= 0) {
@@ -370,7 +370,7 @@ public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCa
     * Set the workflow ID with enhanced validation.
     *
     * @param workflowId the workflow ID, must be > 0
-    * @throws IllegalArgumentException if workflowId is <= 0
+    * @throws IllegalArgumentException if workflowId is &lt;= 0
     */
    public void setWorkflowId(long workflowId) {
       if (workflowId <= 0) {

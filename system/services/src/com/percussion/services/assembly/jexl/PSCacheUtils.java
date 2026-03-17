@@ -97,7 +97,7 @@ public class PSCacheUtils extends PSJexlUtilBase {
 	 * The default value is 0, which means no TTL eviction takes place (infinite lifetime).
 	 * 
 	 * @param key
-	 * @param region
+	 * @param region the cache region name
 	 * @param timeToLiveSeconds
 	 */
 	@IPSJexlMethod(description = "set the time for expiration by setting the time to live for the cache entry", params =
@@ -114,7 +114,7 @@ public class PSCacheUtils extends PSJexlUtilBase {
 	 * The default value is 0, which means no TTI eviction takes place (infinite lifetime).
 	 * 
 	 * @param key
-	 * @param region
+	 * @param region the cache region name
 	 * @param timeToIdleSeconds
 	 */
 	@IPSJexlMethod(description = "set the time for expiration by setting the time to live for the cache entry", params =

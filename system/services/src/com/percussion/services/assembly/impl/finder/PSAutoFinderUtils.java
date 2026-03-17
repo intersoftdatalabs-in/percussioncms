@@ -70,6 +70,7 @@ public class PSAutoFinderUtils implements IPSAutoFinderUtils {
     * Gets the content items returned by a query, which is specified in
     * the parameter. The allowed parameters are the following:
     * <table>
+    * <caption>Query Parameters</caption>
     * <tr>
     * <th>Parameter</th>
     * <th>Description</th>

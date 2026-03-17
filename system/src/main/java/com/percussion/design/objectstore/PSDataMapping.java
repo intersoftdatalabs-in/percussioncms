@@ -176,6 +176,7 @@ public class PSDataMapping extends PSComponent {
    * number is for a fax or a work phone. The mappings would then be defined as follows:
    *
    * <table border="1">
+   * <caption>XML Field Mappings</caption>
    * <tr>   <th>XML Field</th>
    *       <th>Back-end Column</th>
    *       <th>Conditional</th></tr>
@@ -211,6 +212,7 @@ public class PSDataMapping extends PSComponent {
    * number is for a fax or a work phone. The mappings would then be defined as follows:
    *
    * <table border="1">
+   * <caption>XML Field Mappings</caption>
    * <tr>   <th>XML Field</th>
    *       <th>Back-end Column</th>
    *       <th>Conditional</th></tr>

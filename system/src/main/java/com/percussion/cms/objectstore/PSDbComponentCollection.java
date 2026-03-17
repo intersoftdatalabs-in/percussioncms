@@ -135,7 +135,7 @@ public class PSDbComponentCollection extends PSDbComponent {
    *    name.
    *
    * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   *    not conform to the dtd defined in the {@link #fromXml} method.
    */
   public PSDbComponentCollection(Element[] items, Class compClass)
       throws PSUnknownNodeTypeException {
@@ -166,7 +166,7 @@ public class PSDbComponentCollection extends PSDbComponent {
    *    <code>null</code> or empty.
    *
    * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   *    not conform to the dtd defined in the {@link #fromXml} method.
    */
   public PSDbComponentCollection(Element[] items, Class compClass, String compType)
       throws PSUnknownNodeTypeException {

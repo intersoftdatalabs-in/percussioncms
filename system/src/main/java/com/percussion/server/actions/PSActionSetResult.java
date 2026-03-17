@@ -69,17 +69,17 @@ public class PSActionSetResult {
    * Generates an XML representation of the results of the action set's
    * execution in the following format:
    *
-   * <code><pre>
+   * <pre>
    * &lt;!--
    * This element is a container for the results of all actions specified in an
    * ActionSet. There will be 1 child for each action in the original set with
    * the status set to 'success', 'error' or 'skipped'.
-   * -->
-   * &lt;!ELEMENT StoredActionResults (ActionResult+)>
+   * --&gt;
+   * &lt;!ELEMENT StoredActionResults (ActionResult+)&gt;
    * &lt;!ATTLIST StoredActionResults
    *    actionSetName CDATA #REQUIRED
    *    originalHref CDATA #REQUIRED
-   * >
+   * &gt;
    *
    * &lt;!--
    * This element contains the results from a single action, either the
@@ -94,18 +94,18 @@ public class PSActionSetResult {
    *    the value is 'success', the child element will be Stats. If the value
    *    is 'error', the child element will be Error.  All actions after an
    *    'error' action have the status 'skipped'.
-   * -->
-   * &lt;!ELEMENT ActionResult ((PSXExecStatistics | Error)?)>
+   * --&gt;
+   * &lt;!ELEMENT ActionResult ((PSXExecStatistics | Error)?)&gt;
    * &lt;!ATTLIST ActionResult
    *    actionName CDATA #REQUIRED
    *    status (succeeded|skipped|failed) "succeeded"
-   * >
+   * &gt;
    *
    * &lt;!--
    * This element contains the result statistics from a successful update. This
    * tag is a placeholder for future enhancements.
-   * -->
-   * &lt;!ELEMENT PSXExecStatistics EMPTY>
+   * --&gt;
+   * &lt;!ELEMENT PSXExecStatistics EMPTY&gt;
    *
    * &lt;!--
    * This element contains all of the available information about an error that
@@ -114,24 +114,24 @@ public class PSActionSetResult {
    *
    * Attributes:
    * className - The fully-qualified class name of the exception that occurred.
-   * -->
-   * &lt;!ELEMENT Error (Description, Callstack)>
+   * --&gt;
+   * &lt;!ELEMENT Error (Description, Callstack)&gt;
    * &lt;!ATTLIST Error
    *    className CDATA #REQUIRED
-   * >
+   * &gt;
    *
    * &lt;!--
    * The message text associated with the exception. For chained exceptions,
    * the text from all of them is concatenated. May be empty.
-   * -->
-   * &lt;!ELEMENT Description (#PCDATA)>
+   * --&gt;
+   * &lt;!ELEMENT Description (#PCDATA)&gt;
    *
    * &lt;!--
    * A textual representation of the callstack of the thread when the error
    * occurred. This may not be available for all errors.
-   * -->
-   * &lt;!ELEMENT Callstack (#PCDATA)>
-   * </pre><code>
+   * --&gt;
+   * &lt;!ELEMENT Callstack (#PCDATA)&gt;
+   * </pre>
    *
    * @return a new document in the specified format.  never <code>null</code>.
    */

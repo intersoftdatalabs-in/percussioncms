@@ -84,7 +84,8 @@ public class PSAttributesCatalogHandler implements IPSCatalogHandler {
    * Format the catalog request based upon the specified request information. The request
    * information for this request type is:
    *
-   * <TABLE border="2">
+   * <table border="1">
+   * <caption>Request Information</caption>
    *   <tr><th>Key</th>
    *       <th>Value</th>
    *       <th>Required</th></tr>
@@ -103,7 +104,7 @@ public class PSAttributesCatalogHandler implements IPSCatalogHandler {
    *         of types. The supported types are security provider specific. Use
    *         the ObjectTypes catalog for a list of supported types.</td>
    *     <td>yes</td></tr>
-   * </TABLE>
+   * </table>
    *
    * @param req the request information
    * @return an XML document containing the appropriate catalog request information

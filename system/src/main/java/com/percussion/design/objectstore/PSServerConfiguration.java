@@ -89,7 +89,7 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Set the number of days the log has been running.
    *
-   * @param days The number of days. Any value < 0 is treated as 0.
+   * @param days The number of days. Any value &lt; 0 is treated as 0.
    */
   public void setRunningLogDays(int days) {
     if (days <= 0) days = 0;
@@ -855,7 +855,7 @@ public class PSServerConfiguration implements IPSDocument {
    *       Describes how to link content items to actions on them. Values are:
    *       actionMenu -- Use an active menu (4.5+ behavior)
    *       ceLink -- Use a CE Url (4.0 behavior), or
-   *       both -- Use <bold>both</bold> an active menu and a CE Url
+   *       both -- Use &lt;bold&gt;both&lt;/bold&gt; an active menu and a CE Url
    *  --&gt;
    *  &lt;!ELEMENT ContentActions EMPTY &gt;
    *     &lt;!ATTLIST ContentActions

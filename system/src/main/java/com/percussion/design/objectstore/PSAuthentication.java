@@ -229,8 +229,8 @@ public class PSAuthentication extends PSComponent {
 
   /**
    * Get the principal <code>String</code> which is
-   * <<code>m_userAttr</code>>=<<code>m_user</code>> if a user attribute is
-   * defined, only <<code>m_user</code>> otherwise.
+   * {@code m_userAttr}={@code m_user} if a user attribute is
+   * defined, only {@code m_user} otherwise.
    *
    * @return the principal <code>String</code> as used to authenticate,
    *    never <code>null</code> or empty.

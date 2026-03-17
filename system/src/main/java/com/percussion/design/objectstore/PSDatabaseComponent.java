@@ -149,7 +149,7 @@ public abstract class PSDatabaseComponent implements IPSDatabaseComponent {
 
   /**
    * Get the name of the key to use to identify this component from the data retrieved from the
-   * system components application. By default, this name is of the form '<componentType>_id'.
+   * system components application. By default, this name is of the form '{@code componentType}_id'.
    *
    * @return A valid identifier.
    */

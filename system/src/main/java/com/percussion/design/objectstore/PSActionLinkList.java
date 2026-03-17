@@ -27,7 +27,7 @@ public class PSActionLinkList extends PSCollectionComponent {
   /**
    * Creates a new action link collection of PSAcionLink objects.
    *
-   * @param actionlink an action link, not <code>null</code>.
+   * @param actionLink an action link, not <code>null</code>.
    */
   public PSActionLinkList(PSActionLink actionLink) {
     super(PSActionLink.class);
@@ -110,7 +110,7 @@ public class PSActionLinkList extends PSCollectionComponent {
   }
 
   /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
+   * Generates code of the object. Overrides {@link Object#hashCode()}.
    */
   @Override
   public int hashCode() {

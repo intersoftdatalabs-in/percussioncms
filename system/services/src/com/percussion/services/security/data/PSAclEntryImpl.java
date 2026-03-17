@@ -177,7 +177,10 @@ public class PSAclEntryImpl implements IPSAclEntry
    }
 
    /**
-    * @see java.security.acl.AclEntry#setPrincipal(java.security.Principal)
+    * Set the principal for this entry.
+    *
+    * @param user the principal to set, must not be null.
+    * @return true if this is a new entry (no principal set yet).
     */
    public boolean setPrincipal(Principal user)
    {
@@ -275,9 +278,7 @@ public class PSAclEntryImpl implements IPSAclEntry
 
    /**
     * Not supported. Always throws
-    * {@link java.lang.UnsupportedOperationException}.
-    * 
-    * @see java.security.acl.AclEntry#setNegativePermissions()
+    * {@link UnsupportedOperationException}.
     */
    public void setNegativePermissions()
    {
@@ -295,9 +296,7 @@ public class PSAclEntryImpl implements IPSAclEntry
    }
 
    /**
-    * @see java.security.acl.AclEntry#isNegative()
-    * 
-    * @return <code>false</code> always.
+    * @return false always.
     */
    public boolean isNegative()
    {

@@ -337,7 +337,7 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Same as {@createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
+   * Same as {@link #createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
    * PSDataMapper, boolean) createUpdateDataset()} but allows you to specify what actions (insert,
    * update, or delete) are allowed.
    *
@@ -372,7 +372,7 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Same as {@createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
+   * Same as {@link #createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
    * PSDataMapper, boolean, int) createUpdateDataset()} but allows you to specify a Dtd to use. The
    * supplied Dtd must work with the supplied mappings - this is not validated by this method.
    *
@@ -1153,7 +1153,7 @@ public class PSApplicationBuilder {
    *     Each element must be a Map.Entry object. The key of each pair should be the name of a
    *     column in the table, while the value should be the name of the html parameter from which
    *     the check will be made. Must have at least one entry.
-   * @param sotrCols Iterator over one or more PSSortedColumns that the results should be sorted by,
+   * @param sortCols Iterator over one or more PSSortedColumns that the results should be sorted by,
    *     in the order that the sort should occur. All columns must be part of the mapper. May be
    *     <code>null</code> if no sort is desired.
    * @param dtd Optional dtdbuilder that will be used. It is the caller's responsibility to ensure

@@ -44,7 +44,7 @@ public class PSCacheStatisticsSnapshot {
    *     0</code>.
    * @param diskItems the number of items in disk, may not be less than <code>0
    * </code>.
-   * @param diskUage the amount of disk space used in bytes, may not be less than <code>0</code>.
+   * @param diskUsage the amount of disk space used in bytes, may not be less than <code>0</code>.
    * @param memItems the number of items in memory, may not be less than <code>
    * 0</code>.
    * @param memUsage the amount of memory used in bytes, may not be less than <code>0</code>.
@@ -264,13 +264,14 @@ public class PSCacheStatisticsSnapshot {
    * returned value is converted to its unit (bytes/KB/MB).
    *
    * The following specifies the returned value:
-   * <table border=1>
+   * <table>
    * <tr><th>condition</th><th>return value</th></tr>
-   * <tr><td> size < 1 KB </td><td> size in bytes</td></tr>
-   * <tr><td> 1 KB <= size < 1 MB </td><td> converted size to KB rounded with
+   * <tr><td> size &lt; 1 KB </td><td> size in bytes</td></tr>
+   * <tr><td> 1 KB <= size &lt; 1 MB </td><td> converted size to KB rounded with
    * scale '1' </td></tr>
    * <tr><td> 1 MB <= size </td><td> converted size to MB rounded with scale
    * '1'</td></tr>
+   * </table>
    *
    * @param size the size to get the proper unit
    *

@@ -244,10 +244,6 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * @see
-   * @param objectTypes
-   * @return
-   * @throws SQLException
    */
   @Override
   public ResultSet getAttributes(String[] objectTypes) throws SQLException {

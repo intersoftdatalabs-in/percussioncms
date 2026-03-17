@@ -51,38 +51,39 @@ public class PSBackEndConnection {
    *     the supplied properties is made for local usage and the original properties will not be
    *     changed in any way. May not be <code>null</code> or empty, the following properties are
    *     expected:
-   *     <TABLE BORDER="1">
-   *    <TH><TD>Property</TD>
-   *        <TD>Description</TD>
-   *        <TD>Required?</TD>
-   *    </TH>
-   *    <TR><TD>datasourceName</TD>
-   *        <TD>The datasource to connect to, may be omitted to use the
-   *        repository.</TD>
-   *        <TD>N</TD>
-   *    </TR>
-   *    <TR>
-   *        <TD>tableName</TD>
-   *        <TD>The name of the table containing the user info.</TD>
-   *        <TD>Y</TD>
-   *    </TR>
-   *    <TR>
-   *        <TD>uidColumn</TD>
-   *        <TD>The column in the table containing user ids.</TD>
-   *        <TD>Y</TD>
-   *    </TR>
-   *    <TR>
-   *        <TD>passwordColumn</TD>
-   *        <TD>The column in the table containing passwords.</TD>
-   *        <TD>Y</TD>
-   *    </TR>
-   *    <TR>
-   *        <TD>passwordFilter</TD>
-   *        <TD>The fully qualified extension name for the extension implementing
-   *           IPSPasswordFilter</TD>
-   *        <TD>N</TD>
-   *    </TR>
-   *    </TABLE>
+   *     <table border="1">
+   *     <caption>Connection Properties</caption>
+   *    <tr><th>Property</th>
+   *        <th>Description</th>
+   *        <th>Required?</th>
+   *    </tr>
+   *    <tr><td>datasourceName</td>
+   *        <td>The datasource to connect to, may be omitted to use the
+   *        repository.</td>
+   *        <td>N</td>
+   *    </tr>
+   *    <tr>
+   *        <td>tableName</td>
+   *        <td>The name of the table containing the user info.</td>
+   *        <td>Y</td>
+   *    </tr>
+   *    <tr>
+   *        <td>uidColumn</td>
+   *        <td>The column in the table containing user ids.</td>
+   *        <td>Y</td>
+   *    </tr>
+   *    <tr>
+   *        <td>passwordColumn</td>
+   *        <td>The column in the table containing passwords.</td>
+   *        <td>Y</td>
+   *    </tr>
+   *    <tr>
+   *        <td>passwordFilter</td>
+   *        <td>The fully qualified extension name for the extension implementing
+   *           IPSPasswordFilter</td>
+   *        <td>N</td>
+   *    </tr>
+   *    </table>
    */
   public PSBackEndConnection(Properties properties) {
     if (properties == null) throw new IllegalArgumentException("properties cannot be null");
@@ -478,7 +479,7 @@ public class PSBackEndConnection {
    * Credential Filter' section. The filter is used only to encrypt a provided password to compare
    * it against an already encrypted stored password.
    *
-   * @see {@link IPSPasswordFilter#encrypt(String)}
+   * @see IPSPasswordFilter#encrypt(String)
    */
   public static final String PROPS_PW_FILTER = "passwordFilter";
 

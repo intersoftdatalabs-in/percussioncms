@@ -64,7 +64,7 @@ public abstract class PSBaseComponentConverter extends PSBaseDSConverter
   }
 
   /**
-   * Get the context message in the form "in <ctx> " (with a trailing space).
+   * Get the context message in the form "in {@code ctx} " (with a trailing space).
    *
    * @return The message, or an empty string if no context is set.
    * @see #setConversionContext(String)

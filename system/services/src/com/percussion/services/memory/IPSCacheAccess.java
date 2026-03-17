@@ -136,7 +136,7 @@ public interface IPSCacheAccess {
     * @param region the cache region, never {@code null} or empty
     * @param timeToIdleSeconds the time to idle in seconds, must be >= 0
     * @return {@code true} if the TTI was successfully set, {@code false} otherwise
-    * @throws IllegalArgumentException if key/region is null/empty or timeToIdleSeconds < 0
+    * @throws IllegalArgumentException if key/region is null/empty or timeToIdleSeconds &lt; 0
     */
    boolean setTimeToIdle(Serializable key, String region, int timeToIdleSeconds);
 
@@ -150,7 +150,7 @@ public interface IPSCacheAccess {
     * @param region the cache region, never {@code null} or empty
     * @param timeToLiveSeconds the time to live in seconds, must be >= 0
     * @return {@code true} if the TTL was successfully set, {@code false} otherwise
-    * @throws IllegalArgumentException if key/region is null/empty or timeToLiveSeconds < 0
+    * @throws IllegalArgumentException if key/region is null/empty or timeToLiveSeconds &lt; 0
     */
    boolean setTimeToLive(Serializable key, String region, int timeToLiveSeconds);
 

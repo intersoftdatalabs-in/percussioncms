@@ -905,7 +905,6 @@ public class PSAssemblyService implements IPSAssemblyService
     *
     * @param items the items to look up the templates for, assumed not
     *           <code>null</code>
-    * @throws PSAssemblyException
     */
    @Transactional
    public void handleItemTemplates(List<IPSAssemblyItem> items)

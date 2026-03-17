@@ -76,7 +76,7 @@ public interface IPSWFActionService {
    * @param workflowid the workflow id.
    * @param transitionid the transition id.
    * @return a list of workflow actions. The actions are already loaded and
-   * ready for execution. May be empty but never <code>null</null>
+   * ready for execution. May be empty but never <code>null</code>
    * @throws Exception
    */
   public List<IPSWorkflowAction> getActions(int workflowid, int transitionid) throws Exception;

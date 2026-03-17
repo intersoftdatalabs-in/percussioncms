@@ -59,7 +59,7 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
    *    description of {@link #toXml(Document)}. Never <code>null</code>.
    *
    * @throws PSUnknownNodeTypeException if the supplied source element does
-   *    not conform to the DTD defined in the <code>fromXml<code> method.
+   *    not conform to the DTD defined in the <code>fromXml</code> method.
    */
   public PSActiveAssemblerHandlerRequest(Element source) throws PSUnknownNodeTypeException {
     fromXml(source, null, null);

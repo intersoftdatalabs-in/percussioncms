@@ -448,8 +448,8 @@ public class PSExecutionData implements AutoCloseable {
    * become available in the array that was returned by the {@link
    * #getCurrentResultRowData() getCurrentResultRowData} method.
    *
-   * @return <code>true if a new row was available in the result set, <code>
-   *    false</code> otherwise.
+   * @return <code>true</code> if a new row was available in the result set,
+   *    <code>false</code> otherwise.
    *
    * @throws IllegalStateException if called before <code>getNextResultRow
    *    </code> has been called.
@@ -671,9 +671,9 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Set method fot current relationship that can be processed by an effect.
    *
-   * @return current relationship, not <code>null</code> within an effect except during {@link
-   *     com.percussion.relationship.IPSExecutionContext# RS_PRE_CLONE clone context}. May be <code>
-   *     null</code> otherwise.
+   * @return current relationship, not <code>null</code> within an effect except during
+   *     {@link com.percussion.relationship.IPSExecutionContext#RS_PRE_CLONE} clone context.
+   *     May be <code>null</code> otherwise.
    */
   public PSRelationship getCurrentRelationship() {
     return m_currentRelationship;
@@ -692,9 +692,9 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Set method fot current relationship that can be processed by an effect.
    *
-   * @return current relationship, not <code>null</code> within an effect except during {@link
-   *     com.percussion.relationship.IPSExecutionContext# RS_PRE_CLONE clone context}. May be <code>
-   *     null</code> otherwise.
+   * @return current relationship, not <code>null</code> within an effect except during
+   *     {@link com.percussion.relationship.IPSExecutionContext#RS_PRE_CLONE} clone context.
+   *     May be <code>null</code> otherwise.
    */
   public PSRelationship getSourceRelationship() {
     return m_sourceRelationship;

@@ -111,7 +111,7 @@ public class PSApplicationFlow extends PSComponent {
    * handler name. The last entry is the default redirect with a condition evaluating always to
    * <code>true</code>.
    *
-   * @param name the name of the command handler we want the redirect for. Never code>null</code> or
+   * @param name the name of the command handler we want the redirect for. Never <code>null</code> or
    *     empty.
    * @return a collection of PSConditionalRequest objects, <code>null</code> if not found, but never
    *     empty.
@@ -459,7 +459,7 @@ public class PSApplicationFlow extends PSComponent {
   /**
    * Validates the provided redirect collection.
    *
-   * @param stylesheets the stylesheet collection to validate.
+   * @param redirects the redirect collection to validate.
    */
   public void validate(PSCollection redirects) {
     if (redirects == null || redirects.isEmpty())

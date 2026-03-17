@@ -94,7 +94,7 @@ public interface IPSTemplateService
     * @return a list of zero or more matching templates.
     * Never <code>null</code>. Does not contain the 5.7 legacy global templates.
     * @throws PSAssemblyException
-    * @see {@link #findAll57GlobalTemplates()}
+    * #@see  #findAll57GlobalTemplates()}
     */
    Set<IPSAssemblyTemplate> findAllGlobalTemplates() throws PSAssemblyException;
    

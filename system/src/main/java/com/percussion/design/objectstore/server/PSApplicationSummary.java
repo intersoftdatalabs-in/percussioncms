@@ -180,8 +180,8 @@ public class PSApplicationSummary {
    *
    * @version 1.0 1999/6/24
    *
-   *   @return   <code>true<code>   The application is enabled
-   *            <code>false<code>   The application is not enabled
+   *   @return   <code>true</code>   The application is enabled
+   *            <code>false</code>   The application is not enabled
    */
   public boolean isEnabled() {
     return m_isEnabled;
@@ -222,8 +222,8 @@ public class PSApplicationSummary {
    *
    * @version 1.0 1999/6/24
    *
-   *   @return   <code>true<code>   The application is running
-   *            <code>false<code>   The application is not running
+   *   @return   <code>true</code>   The application is running
+   *            <code>false</code>   The application is not running
    */
   public boolean isActive() {
     return PSServer.isApplicationActive(m_name);

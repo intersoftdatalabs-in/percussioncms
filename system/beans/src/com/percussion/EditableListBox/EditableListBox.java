@@ -480,6 +480,7 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Get the value of cell, single-column version.
   *
   * @param o The Object to be stored in Table.
+  * @param index The row index..
   * @param column The column index.
 */
   public void setRowValue(Object o, int index)

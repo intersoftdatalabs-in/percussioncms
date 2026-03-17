@@ -35,7 +35,7 @@ public interface FilenameMangler {
    * written. This allows you to control which files are written and the names of the resulting
    * files.
    *
-   * <p>For {@link Codecs#mpFormDataEncode(HTTPClient.NVPair[], HTTPClient.NVPair[],
+   * <p>For {@link com.percussion.HTTPClient.Codecs#mpFormDataEncode(HTTPClient.NVPair[], HTTPClient.NVPair[],
    * HTTPClient.NVPair[], HTTPClient.FilenameMangler) Codecs.mpFormDataEncode} this is also invoked
    * on each filename, allowing you to control the actual name used in the <var>filename</var>
    * attribute of the Content-Disposition header. This does not change the name of the file actually
