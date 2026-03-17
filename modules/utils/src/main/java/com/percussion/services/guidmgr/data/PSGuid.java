@@ -33,7 +33,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  *
  * <p>The data in the 64 bit value is laid out as described in this table:
  *
- * <table>
+ * <table border="1">
+ * <caption>GUID Bit Layout</caption>
  * <tr>
  * <th>Bits</th>
  * <th>Description</th>

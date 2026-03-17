@@ -21,13 +21,14 @@ package com.percussion.util;
  * The IPSUtilErrors inteface is provided as a convenient mechanism for accessing the various util
  * related error codes. The util error code ranges are:
  *
- * <TABLE BORDER="1">
- * <TR><TH>Range</TH><TH>Component</TH></TR>
- * <TR><TD>10001 - 10050</TD><TD>encode/decoder class errors</TD></TR>
- * <TR><TD>10051 - 10100</TD><TD>collection errors</TD></TR>
- * <TR><TD>10101 - 10150</TD><TD>file support class errors</TD></TR>
- * <TR><TD>10151 - 11000</TD><TD>-not assigned-</TD></TR>
- * </TABLE>
+ * <table border="1">
+ * <caption>Error Code Ranges</caption>
+ * <tr><th>Range</th><th>Component</th></tr>
+ * <tr><td>10001 - 10050</td><td>encode/decoder class errors</td></tr>
+ * <tr><td>10051 - 10100</td><td>collection errors</td></tr>
+ * <tr><td>10101 - 10150</td><td>file support class errors</td></tr>
+ * <tr><td>10151 - 11000</td><td>-not assigned-</td></tr>
+ * </table>
  *
  * @author Tas Giakouminakis
  * @version 1.0
@@ -39,10 +40,11 @@ public interface IPSUtilErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>input string</TD></TR>
-   * <TR><TD>1</TD><TD>the exception text</TD></TR>
+   * <table border="1">
+   * <caption>Arguments</caption>
+   * <tr><th>Arg</th><th>Description</th></tr>
+   * <tr><td>0</td><td>input string</td></tr>
+   * <tr><td>1</td><td>the exception text</td></tr>
    * </TABLE>
    */
   public static final int BASE64_ENCODING_EXCEPTION = 10001;

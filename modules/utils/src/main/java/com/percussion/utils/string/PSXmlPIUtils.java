@@ -29,16 +29,15 @@ import org.w3c.dom.NodeList;
  * other fields. This is used to deal with JSP/ASP/PHP embedded tags. This is done in three
  * sections:
  *
- * <ul>
- *   <li>The first section replaces all <i>active</i> tags with a comment of the form &lt;!--
- *
- * @psx-activetag-NNNNN --!&gt; where <code>NNNNN</code> is a sequential number allocated for each
- *     active tag.
- *     <li>In the second step, run after the content has been process through html tidy, the
- *         comments are replaced with processing instructions.
- *     <li>The third step is run when the content is being sent back to ephox. In the third step the
- *         processing instructions are stripped.
- *     </ul>
+ * <ol>
+ *   <li>The first section replaces all active tags with a comment of the form
+ *   &lt;!--@psx-activetag-NNNNN--&gt; where NNNNN is a sequential number allocated for each active
+ *   tag.</li>
+ *   <li>In the second step, run after the content has been process through html tidy, the comments
+ *   are replaced with processing instructions.</li>
+ *   <li>The third step is run when the content is being sent back to ephox. In the third step the
+ *   processing instructions are stripped.</li>
+ * </ol>
  *
  * @author dougrand
  */

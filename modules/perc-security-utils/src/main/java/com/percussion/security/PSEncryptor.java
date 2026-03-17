@@ -49,7 +49,7 @@ import org.apache.logging.log4j.Logger;
  * Main encryption class to be used for Encryption within the code base.
  *
  * <p>When initialized will generate an instance unique encryption key in
- * <InstallDir>/rxconfig/secure/.key if one is not present.
+ * the directory specified by the install location /rxconfig/secure/.key if one is not present.
  */
 public class PSEncryptor extends PSAbstractEncryptor {
 
@@ -537,9 +537,10 @@ public class PSEncryptor extends PSAbstractEncryptor {
    * Given a UID and password, returns an encrypted password
    *
    * @param uid The user id
-   * @param pw
-   * @return
-   * @throws PSEncryptionException,IllegalArgumentException
+   * @param pw The password
+   * @return The encrypted credentials as a Base64-encoded string
+   * @throws PSEncryptionException if encryption fails
+   * @throws IllegalArgumentException if uid or pw is null
    */
   @Override
   public String encryptCredentials(String uid, String pw)
@@ -560,7 +561,8 @@ public class PSEncryptor extends PSAbstractEncryptor {
    * @param encrypted The encrypted credentials
    * @param pw The password to use for decryption.
    * @return Returns a decrypted string in the form of uid:password
-   * @throws PSEncryptionException,IllegalArgumentException
+   * @throws PSEncryptionException if decryption fails
+   * @throws IllegalArgumentException if encrypted or pw is null
    */
   @Override
   public String decryptCredentials(String encrypted, String pw)

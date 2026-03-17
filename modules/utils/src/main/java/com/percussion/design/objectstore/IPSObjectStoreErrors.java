@@ -22,15 +22,16 @@ package com.percussion.design.objectstore;
  * object store related error codes. Object Store errors are in the range 2001 - 3000. Within this
  * range, errors are further broken down as follows:
  *
- * <TABLE BORDER="1">
- * <TR><TH>Range</TH><TH>Component</TH></TR>
- * <TR><TD>2001 - 2100</TD><TD>general errors used all over</TD></TR>
- * <TR><TD>2101 - 2200</TD><TD>PSObjectStore object</TD></TR>
- * <TR><TD>2201 - 2400</TD><TD>object store objects</TD></TR>
- * <TR><TD>2401 - 2500</TD><TD>Content Editor object store objects</TD></TR>
- * <TR><TD>2501 - 2800</TD><TD>-unassigned-</TD></TR>
- * <TR><TD>2801 - 3000</TD><TD>object store server handlers</TD></TR>
- * </TABLE>
+ * <table border="1">
+ * <caption>Error Code Ranges</caption>
+ * <tr><th>Range</th><th>Component</th></tr>
+ * <tr><td>2001 - 2100</td><td>general errors used all over</td></tr>
+ * <tr><td>2101 - 2200</td><td>PSObjectStore object</td></tr>
+ * <tr><td>2201 - 2400</td><td>object store objects</td></tr>
+ * <tr><td>2401 - 2500</td><td>Content Editor object store objects</td></tr>
+ * <tr><td>2501 - 2800</td><td>-unassigned-</td></tr>
+ * <tr><td>2801 - 3000</td><td>object store server handlers</td></tr>
+ * </table>
  *
  * @author Tas Giakouminakis
  * @version 1.0

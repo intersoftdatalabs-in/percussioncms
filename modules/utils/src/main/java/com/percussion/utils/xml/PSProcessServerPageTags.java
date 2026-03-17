@@ -42,13 +42,12 @@ import org.xml.sax.SAXException;
  * <ol>
  *   <li>The source HTML is passed through the preProcess method to replace all server page source
  *       code with our own markup. While doing this the original code is stored in a map together
- *       with the key of our markup.
- *   <li>This specially marked HTML file is now ready to be split using tidy.
+ *       with the key of our markup.</li>
+ *   <li>This specially marked HTML file is now ready to be split using tidy.</li>
  *   <li>After the split process we put back the original server page code. If the original code was
  *       part of an attribute, it will be escaped before put back so the input parser is happy.
- *       Otherwise the original code is wrapped with '<xsl:text
- *       disable-output-escaping="yes"><![CDATA[' ... ']]></xsl:text>' to tell the parser not to
- *       escape the generated output.
+ *       Otherwise the original code is wrapped with an xsl:text disable-output-escaping CDATA block
+ *       to tell the parser not to escape the generated output.</li>
  * </ol>
  */
 public class PSProcessServerPageTags extends Object {

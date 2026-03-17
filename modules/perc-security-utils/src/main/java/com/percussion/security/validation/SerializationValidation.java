@@ -40,7 +40,7 @@ import java.util.Set;
  *
  * <p>Manual validation in code:
  * <pre>
- * Class<?> cls = Class.forName(className, false, classLoader);
+ * Class&lt;?&gt; cls = Class.forName(className, false, classLoader);
  * if (!SerializationValidation.isSafeClass(className)) {
  *   throw new InvalidClassException("Class not in allow-list: " + className);
  * }

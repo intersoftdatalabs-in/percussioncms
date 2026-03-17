@@ -54,11 +54,8 @@ public class SecureStringUtils {
   /**
    * Characters that are invalid for the file name in Windows, which is more restrictive than UNIX.
    *
-   * <p>The invalid characters for the file name in Windows are:
-   *
-   * <pre>
-   * \ / | < > ? " : *
-   * </pre>
+   * <p>The invalid characters for the file name in Windows are: backslash, forward slash, pipe,
+   * less than, greater than, question mark, double quote, colon, asterisk
    */
   public static final String INVALID_WINDOWS_FILE_CHARACTERS = "\\/|<>?\":*";
 
@@ -1655,7 +1652,6 @@ public class SecureStringUtils {
    * @return A compiled Pattern that matches the literal string, or null if input is null
    * @throws PatternSyntaxException if the input contains an invalid pattern (unlikely since
    *     characters are escaped)
-   * @see #escapeRegexString(String)
    */
   public static Pattern createSafeRegexPattern(final String input) {
     if (input == null) {

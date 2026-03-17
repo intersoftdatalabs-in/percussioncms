@@ -41,11 +41,10 @@ public interface IPSContainerUtils extends ContainerConfig {
    * supported by the {@link PSJndiDatasource} class are loaded and preserved when the datasource is
    * saved (see {@link #saveRxDatasources(File, File, List, String)}.
    *
-   * @param dsFile The file from which the datasources should be loaded, identified by {@link
-   *     #DATASOURCE_FILE_NAME}. May not be <code>null</code> and must be a file conforming to the
-   *     JBoss "jboss-ds_1_5.dtd" DTD.
-   * @param loginCfgFile The file from which encrypted credentials are loaded, identified by the
-   *     {@link #LOGIN_CONFIG_FILE_NAME}. May not be <code>null</code> and must conform to the JBoss
+   * @param dsFile The file from which the datasources should be loaded. May not be <code>null</code>
+   *     and must be a file conforming to the JBoss "jboss-ds_1_5.dtd" DTD.
+   * @param loginCfgFile The file from which encrypted credentials are loaded. May not be
+   *     <code>null</code> and must conform to the JBoss
    *     "security_config.dtd" DTD.
    * @param secretKey The key to use when decrypting passwords, may not be <code>null</code> or
    *     empty.

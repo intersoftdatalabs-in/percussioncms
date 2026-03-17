@@ -17,11 +17,13 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.delivery.polls.data;
 
+import java.io.Serializable;
+
 /**
  * Represents a poll answer with its count. Sunny Sal: Refactored for Java 11, Google style, and
  * better grammar.
  */
-public interface IPSPollAnswer {
+public interface IPSPollAnswer extends Serializable {
   long getId();
 
   void setId(long id);

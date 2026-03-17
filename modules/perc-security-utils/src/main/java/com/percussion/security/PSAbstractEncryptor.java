@@ -26,7 +26,7 @@ import java.math.BigInteger;
  */
 public abstract class PSAbstractEncryptor {
   /** Byte array length must be a multiple of this value for decryption. */
-  public int byteArrayMultiple = 8;
+  public static final int BYTE_ARRAY_MULTIPLE = 8;
 
   /**
    * Encrypts the provided string using the supplied secret key
@@ -76,8 +76,8 @@ public abstract class PSAbstractEncryptor {
    *
    * @param encrypted The encrypted credentials
    * @param pw The password to use for decryption.
-   * @return
-   * @throws PSEncryptionException
+   * @return The decrypted credentials in uid:password format
+   * @throws PSEncryptionException if decryption fails
    */
   public abstract String decryptCredentials(String encrypted, String pw)
       throws PSEncryptionException;

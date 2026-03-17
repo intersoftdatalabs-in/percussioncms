@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * <p><strong>Example Usage</strong>:
  *
  * <pre>
- * Set<String> allowedDomains = new HashSet<>(Arrays.asList("example.com", "www.example.com"));
+ * Set&lt;String&gt; allowedDomains = new HashSet&lt;&gt;(Arrays.asList("example.com", "www.example.com"));
  * String redirectUrl = request.getParameter("redirect");
  * String safeUrl = PSRedirectValidation.validateRedirectUrl(redirectUrl, allowedDomains);
  * if (safeUrl != null) {

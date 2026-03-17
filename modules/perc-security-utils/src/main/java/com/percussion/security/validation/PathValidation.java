@@ -65,7 +65,7 @@ import org.apache.logging.log4j.Logger;
  *
  * <pre>
  * ZipFile zip = new ZipFile(uploadedZip);
- * Enumeration<? extends ZipEntry> entries = zip.entries();
+ * Enumeration&lt;? extends ZipEntry&gt; entries = zip.entries();
  * while (entries.hasMoreElements()) {
  *   String entryName = entries.nextElement().getName();
  *   File target = PathValidation.constructSafePath(extractDir, entryName);

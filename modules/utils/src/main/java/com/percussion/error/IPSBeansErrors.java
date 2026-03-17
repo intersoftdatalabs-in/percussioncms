@@ -22,10 +22,11 @@ package com.percussion.error;
  * created so that it would be completely independent of the other elements in the system and can
  * stand on its own. There should not be many messages herein.
  *
- * <TABLE BORDER="1">
- * <TR><TH>Range</TH><TH>Component</TH></TR>
- * <TR><TD>1001 - 2000</TD><TD>MISC- Miscellaneous</TD></TR>
- * </TABLE>
+ * <table border="1">
+ * <caption>Error Code Ranges</caption>
+ * <tr><th>Range</th><th>Component</th></tr>
+ * <tr><td>1001 - 2000</td><td>MISC- Miscellaneous</td></tr>
+ * </table>
  */
 public interface IPSBeansErrors {
   /**
@@ -33,10 +34,11 @@ public interface IPSBeansErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1">
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The message from the exception caught,</TD></TR>
-   * </TABLE>
+   * <table border="1">
+   * <caption>Arguments</caption>
+   * <tr><th>Arg</th><th>Description</th></tr>
+   * <tr><td>0</td><td>The message from the exception caught,</td></tr>
+   * </table>
    */
   public static final int XML_PROCESSING_ERROR = 1001;
 }

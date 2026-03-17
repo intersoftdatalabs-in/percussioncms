@@ -50,7 +50,6 @@ import org.xml.sax.SAXException;
  * <p>This is a wrapper class on {@link com.percussion.services.utils.xml.PSXmlSerializationHelper}
  *
  * @version 6.0
- * @created 09-Sep-2005 2:49:09 PM
  */
 public class PSObjectSerializer {
   /**

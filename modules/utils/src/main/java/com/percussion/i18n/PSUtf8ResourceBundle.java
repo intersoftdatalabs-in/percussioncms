@@ -32,7 +32,7 @@ import java.util.ResourceBundle;
  *
  * <p>Use: ResourceBundle bundle = Utf8ResourceBundle.getBundle("bundle_name");
  *
- * @author Tomas Varaneckas <tomas.varaneckas@gmail.com>
+ * @author Tomas Varaneckas
  */
 public abstract class PSUtf8ResourceBundle {
 

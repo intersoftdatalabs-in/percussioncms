@@ -21,7 +21,6 @@ package com.percussion.xml.serialization;
  * of objects. This is a nested exception and will have information about the chain of exceptions.
  *
  * @version 6.0
- * @created 09-Sep-2005 2:49:09 PM
  */
 public class PSObjectSerializerException extends Exception {
   /** Auto generated serialization id. */
