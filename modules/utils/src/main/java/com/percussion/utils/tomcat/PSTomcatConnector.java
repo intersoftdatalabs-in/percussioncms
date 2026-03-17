@@ -228,7 +228,7 @@ public class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled
   public static final Map<String, String> PROP_MAP = new HashMap<>();
 
   static final HashSet<String> DELETE_ATTRIBUTES =
-      new HashSet() {
+      new HashSet<String>() {
         {
           add(X_POWERED_BY);
           add(OLD_SSP_PROTOCOL_ATTR);

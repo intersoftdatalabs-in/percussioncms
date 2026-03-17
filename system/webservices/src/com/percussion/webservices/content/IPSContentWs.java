@@ -97,6 +97,7 @@ public interface IPSContentWs
    
    /**
     * @deprecated Use {@link #createItems(String, int)}
+    * @param user the user name
     */
    @Deprecated
    public List<PSCoreItem> createItems(String contentType, int count, 

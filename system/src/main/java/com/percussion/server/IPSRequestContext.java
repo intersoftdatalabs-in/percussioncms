@@ -871,7 +871,7 @@ public interface IPSRequestContext {
    *
    * @param contextItem The name of the desired aspect of the user context. See the following table
    *     for a list of the supported items.
-   *     <TABLE BORDER="1">
+   *     <table border="1"><caption>Context Item Identifiers</caption>
    *    <TR ALIGN="center"><TH COLSPAN="2">Context Item Identifiers</TH></TR>
    *    <TR><TH>Element</TH><TH>Description</TH></TR>
    *    <TR>
@@ -1046,7 +1046,7 @@ public interface IPSRequestContext {
    *     be made. May optionally include a "query string" -- name/value pairs, separated by equals,
    *     delimited by ampersand, and identified as the portion of the path following a question
    *     mark. May be as little as "<code>appName/pageName</code>" or as much as "<code>
-   *     http://127.0.0.1:9992/Rhythmyx/AppTest/nov.xml?alpha=bravo&test=5
+   *     http://127.0.0.1:9992/Rhythmyx/AppTest/nov.xml?alpha=bravo&amp;test=5
    * </code>". Not <code>null</code> or empty.
    * @param extraParams an optional group of parameters to be added to the internal request's
    *     context. Skipped if <code>null</code>.

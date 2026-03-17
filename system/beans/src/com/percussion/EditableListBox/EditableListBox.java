@@ -461,7 +461,7 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Get the value of cell, multi-column version.
   *
   * @param row The row index.
-  * @param index The row index.
+  * @param column The column index.
   *
   * @return Object The Object at the specified indices.
 */
@@ -480,7 +480,7 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Get the value of cell, single-column version.
   *
   * @param o The Object to be stored in Table.
-  * @param index The row index.
+  * @param column The column index.
 */
   public void setRowValue(Object o, int index)
   {
@@ -491,8 +491,8 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Set the value of cell, multi-column version.
   *
   * @param o The Object to be stored at the specified indices.
-  * @param index The row index.
-  * @param index The row index.
+  * @param column The column index.
+  * @param column The column index.
 */
   public void setRowValue(Object o, int index, int column)
   {
@@ -503,7 +503,7 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Inserts the value of cell, single-column version.
   *
   * @param o The Object to be stored at the specified indices.
-  * @param index The row index.
+  * @param column The column index.
 */
   public void insertRowValue(int index, Object o)
   {
@@ -515,8 +515,8 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Inserts the value of cell, multi-column version.
   *
   * @param o The Object to be stored at the specified indices.
-  * @param index The row index.
-  * @param index The row index.
+  * @param column The column index.
+  * @param column The column index.
 */
   public void insertRowValue(int index, int column, Object o)
   {

@@ -386,7 +386,7 @@ public class Util {
    * @return a Vector containing all the elements; each entry is an instance of
    *     <var>HttpHeaderElement</var>.
    * @exception ParseException if the above syntax rules are violated.
-   * @see HTTPClient.HttpHeaderElement
+   * @see com.percussion.HTTPClient.HttpHeaderElement
    */
   public static final Vector parseHeader(String header, boolean dequote) throws ParseException {
     if (header == null) return null;
@@ -604,7 +604,7 @@ public class Util {
    * Assembles a Vector of HttpHeaderElements into a full header string. The individual header
    * elements are seperated by a ", ".
    *
-   * @param header the parsed header
+   * @param pheader the parsed header
    * @return a string containing the assembled header
    */
   public static final String assembleHeader(Vector pheader) {

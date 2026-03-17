@@ -694,4 +694,18 @@ public interface IPSDeploymentErrors {
 
   /** Failed to locate a type mapping for the specified GUID. */
   public static final int NO_TYPE_MAPPING_FOR_GUID = 83;
+
+  /**
+   * Validation result is expected but missing.
+   *
+   * <p>Arguments: 0 - The package name, 1 - The dependency id
+   */
+  public static final int MISSING_VALIDATION_RESULTS = 84;
+
+  /**
+   * Wrong format for pair ID dependency ID.
+   *
+   * <p>Arguments: 0 - The pair ID
+   */
+  public static final int WRONG_FORMAT_FOR_PAIRID_DEP_ID = 85;
 }

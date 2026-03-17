@@ -28,6 +28,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The service name.</td></tr>
     * <tr><td>1</td><td>The contract violation error message.</td></tr>
@@ -40,6 +41,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The name of the design object type.</td></tr>
     * <tr><td>1</td><td>The requested id.</td></tr>
@@ -52,6 +54,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The received rhythmyx session id.</td></tr>
     * </table>
@@ -68,6 +71,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the object tried to lock.</td></tr>
     * <tr><td>1</td><td>The id of the object tried to lock.</td></tr>
@@ -81,6 +85,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the object tried to save.</td></tr>
     * <tr><td>1</td><td>The id of the object tried to save.</td></tr>
@@ -94,6 +99,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the object tried to delete.</td></tr>
     * <tr><td>1</td><td>The id of the object tried to delete.</td></tr>
@@ -107,6 +113,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the object tried to lock.</td></tr>
     * <tr><td>1</td><td>The id of the object tried to lock.</td></tr>
@@ -119,6 +126,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the object tried to lock.</td></tr>
     * <tr><td>1</td><td>The id of the object tried to lock.</td></tr>
@@ -133,6 +141,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id of the object tried to lock.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -146,6 +155,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The name of the design object type.</td></tr>
     * <tr><td>1</td><td>The specified name.</td></tr>
@@ -158,6 +168,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The name of the hierarchy node.</td></tr>
     * <tr><td>1</td><td>The parent id.</td></tr>
@@ -170,6 +181,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The name of the hierarchy node.</td></tr>
     * <tr><td>1</td><td>The parent id.</td></tr>
@@ -182,6 +194,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the object tried to delete.</td></tr>
     * <tr><td>1</td><td>The id of the object tried to delete.</td></tr>
@@ -195,6 +208,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the object tried to load.</td></tr>
     * <tr><td>1</td><td>The id of the object tried to load.</td></tr>
@@ -208,6 +222,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the object tried to save.</td></tr>
     * <tr><td>1</td><td>The id of the object tried to save.</td></tr>
@@ -221,6 +236,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The underlying error message.</td></tr>
     * </table>
@@ -232,6 +248,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The community id.</td></tr>
     * <tr><td>1</td><td>The object type.</td></tr>
@@ -245,6 +262,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The object type.</td></tr>
     * </table>
@@ -256,6 +274,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The workflow id.</td></tr>
     * </table>
@@ -267,6 +286,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The state id.</td></tr>
     * <tr><td>1</td><td>The workflow id.</td></tr>
@@ -281,6 +301,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The current state id.</td></tr>
     * <tr><td>0</td><td>The current state name.</td></tr>
@@ -296,6 +317,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id of the public state.</td></tr>
     * <tr><td>1</td><td>The name of the public state.</td></tr>
@@ -311,6 +333,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id of the from-state.</td></tr>
     * <tr><td>1</td><td>The name of the from-state.</td></tr>
@@ -327,6 +350,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id of the item.</td></tr>
     * <tr><td>1</td><td>The trigger name of the transition.</td></tr>
@@ -339,6 +363,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id of the item.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -351,6 +376,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id of the item.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -363,6 +389,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The underlying error message.</td></tr>
     * </table>
@@ -374,6 +401,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id of the relationship.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -386,6 +414,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id of the relationship.</td></tr>
     * </table>
@@ -397,6 +426,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The underlying error message.</td></tr>
     * </table>
@@ -409,6 +439,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The object guid </TD></TR>
     * <TR><TD>1</TD><TD>The action attempted</TD></TR>
@@ -421,6 +452,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The object type.</td></tr>
     * <tr><td>1</td><td>The specified criteria.</td></tr>
@@ -434,6 +466,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The name of the design object type.</td></tr>
     * <tr><td>1</td><td>The requested name.</td></tr>
@@ -446,6 +479,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The folder id.</td></tr>
     * </table>
@@ -457,6 +491,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The folder id.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -469,6 +504,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The object guid </TD></TR>
     * <TR><TD>1</TD><TD>The action attempted</TD></TR>
@@ -481,6 +517,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The child entry id</TD></TR>
     * <TR><TD>1</TD><TD>The child fieldset name</TD></TR>
@@ -494,6 +531,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The child entry id</TD></TR>
     * <TR><TD>1</TD><TD>The child fieldset name</TD></TR>
@@ -507,6 +545,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The child entry id</TD></TR>
     * <TR><TD>1</TD><TD>The child fieldset name</TD></TR>
@@ -520,6 +559,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The service name</TD></TR>
     * <TR><TD>1</TD><TD>The unknown content type name</TD></TR>
@@ -534,6 +574,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The folder path</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error message</TD></TR>
@@ -546,6 +587,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The specified folder path</TD></TR>
     * </table>
@@ -557,6 +599,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The community id</TD></TR>
     * </table>
@@ -569,6 +612,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The parent folder id</TD></TR>
     * <TR><TD>1</TD><TD>The list of child ids</TD></TR>
@@ -582,6 +626,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The parent folder id</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error message</TD></TR>
@@ -594,6 +639,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The parent item id</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error message</TD></TR>
@@ -606,6 +652,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The child item id</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error message</TD></TR>
@@ -619,6 +666,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The item id</TD></TR>
     * <TR><TD>1</TD><TD>The user name</TD></TR>
@@ -632,6 +680,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The content id </TD></TR>
     * <TR><TD>1</TD><TD>The revision</TD></TR>
@@ -645,6 +694,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The content id </TD></TR>
     * <TR><TD>1</TD><TD>The revision</TD></TR>
@@ -658,6 +708,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The community </TD></TR>
     * </table>
@@ -669,6 +720,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The locale code</TD></TR>
     * </table>
@@ -680,6 +732,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The specified folder parent id.</td></tr>
     * <tr><td>1</td><td>The specified child id.</td></tr>
@@ -692,6 +745,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The id of an item or folder</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error message</TD></TR>
@@ -704,6 +758,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The item id.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -716,6 +771,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The item id.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -728,6 +784,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The object guid </TD></TR>
     * <TR><TD>1</TD><TD>The action attempted</TD></TR>
@@ -740,6 +797,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The object guid </TD></TR>
     * <TR><TD>1</TD><TD>The action attempted</TD></TR>
@@ -754,6 +812,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The id of the item to create a new copy for.</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error message.</TD></TR>
@@ -766,6 +825,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The id of the item to create a new promotable version for.</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error message.</TD></TR>
@@ -778,6 +838,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <TR><TD>0</TD><TD>The id of the item to create a new translation for.</TD></TR>
     * <TR><TD>1</TD><TD>The underlying error message.</TD></TR>
@@ -790,6 +851,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The item id.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -803,6 +865,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The item id.</td></tr>
     * <tr><td>1</td><td>The field name.</td></tr>
@@ -817,6 +880,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The error message</td></tr>
     * <tr><td>1</td><td>The list of content type names for which validation 
@@ -830,6 +894,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The type of the association owner.</td></tr>
     * <tr><td>1</td><td>The id of the association owner.</td></tr>
@@ -845,6 +910,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The id or path string for which the load was executed.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -857,6 +923,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The description of the operation.</td></tr>
     * <tr><td>1</td><td>The underlying error message.</td></tr>
@@ -869,6 +936,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The unexpected error message.</td></tr>
     * </table>
@@ -880,6 +948,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The error message</td></tr>
     * </table>
@@ -891,6 +960,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The object type string</td></tr>
     * <tr><td>1</td><td>A string collection with all underlying errors</td></tr>
@@ -903,6 +973,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The users name</td></tr>
     * <tr><td>1</td><td>Requested operation</td></tr>
@@ -916,6 +987,7 @@ public interface IPSWebserviceErrors
     * <p>
     * The arguments passed in for this message are:
     * <table border="1">
+    * <caption>Arguments</caption>
     * <tr><th>Arg</th><th>Description</th></tr>
     * <tr><td>0</td><td>The underlying error message</td></tr>
     * </table>

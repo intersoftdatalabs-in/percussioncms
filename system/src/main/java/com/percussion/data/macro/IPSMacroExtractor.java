@@ -24,7 +24,7 @@ public interface IPSMacroExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param execData the execution data associated with this request. This includes all context
+   * @param data the execution data associated with this request. This includes all context
    *     data, result sets, etc.
    * @return the associated value, may be <code>null</code>.
    * @throws PSDataExtractionException if an error condition causes the extraction to fail. This is

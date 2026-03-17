@@ -87,7 +87,7 @@ public class PSParseArguments {
       throw new IllegalArgumentException("name must never be null");
     }
 
-    return (String) m_args.get(name);
+    return m_args.get(name);
   }
 
   /**

@@ -56,7 +56,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
   /**
    * Add a listener for changes to application objects.
    *
-   * @param the listener object
+   * @param listener the listener object
    * @exception PSAuthorizationException if the user is not permitted to listen for the specified
    *     events
    */
@@ -66,14 +66,14 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
   /**
    * Remove a previously installed application event listener.
    *
-   * @param the listener object
+   * @param listener the listener object
    */
   public abstract void removeApplicationListener(IPSApplicationListener listener);
 
   /**
    * Add a listener for changes to server objects.
    *
-   * @param the listener object
+   * @param listener the listener object
    * @exception PSAuthorizationException if the user is not permitted to listen for the specified
    *     events
    */
@@ -83,7 +83,7 @@ public interface IPSObjectStoreHandler extends IPSRequestHandler {
   /**
    * Remove a previously installed server event listener.
    *
-   * @param the listener object
+   * @param listener the listener object
    */
   public abstract void removeServerListener(IPSServerConfigurationListener listener);
 

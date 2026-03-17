@@ -108,7 +108,7 @@ public class PSStopwatchStack {
       throw new IllegalArgumentException("category may not be null or empty");
     }
     if (m_stack.size() > 0) {
-      PSStopwatch w = (PSStopwatch) m_stack.peek();
+      PSStopwatch w = m_stack.peek();
       w.pause();
     }
     m_stack.push(watch);
@@ -144,11 +144,11 @@ public class PSStopwatchStack {
     PSStopwatch w = m_stack.pop();
     w.stop();
     double total = 0;
-    String cat = (String) m_category.pop();
-    Double cur = (Double) m_statistics.get(cat);
+    String cat = m_category.pop();
+    Double cur = m_statistics.get(cat);
     if (cur != null) total = cur.doubleValue();
     total += w.elapsed();
-    m_statistics.put(cat, new Double(total));
+    m_statistics.put(cat, total);
     Integer counter = m_counters.get(cat);
     if (counter == null) {
       counter = 1;
@@ -177,7 +177,7 @@ public class PSStopwatchStack {
     Iterator<String> kiter = sortedKeys.iterator();
     while (kiter.hasNext()) {
       String key = kiter.next();
-      Double time = (Double) m_statistics.get(key);
+      Double time = m_statistics.get(key);
       buf.append("  ");
       buf.append(key);
       buf.append("=");

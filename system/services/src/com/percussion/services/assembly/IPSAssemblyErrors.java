@@ -28,8 +28,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The name or id of the template</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The name or id of the template</TD></TR>
     * </TABLE>
     */
    public static final int TEMPLATE_MISSING = 1;
@@ -39,8 +39,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The name of the assembler</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The name of the assembler</TD></TR>
     * </TABLE>
     */
    public static final int ASSEMBLER_MISSING = 2;   
@@ -50,8 +50,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The name of the assembler</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The name of the assembler</TD></TR>
     * </TABLE>
     */
    public static final int ASSEMBLER_INST = 3; 
@@ -66,8 +66,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The original error message</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The original error message</TD></TR>
     * </TABLE>
     */
    public static final int UNKNOWN_ERROR = 5;
@@ -87,8 +87,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The invalid path</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The invalid path</TD></TR>
     * </TABLE>
     */
    public static final int INVALID_PATH = 8; 
@@ -98,8 +98,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The missing path</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The missing path</TD></TR>
     * </TABLE>
     */
    public static final int MISSING_PATH = 9;
@@ -114,8 +114,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The missing slot</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The missing slot</TD></TR>
     * </TABLE>
     */
    public static final int MISSING_SLOT = 11;
@@ -125,8 +125,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The missing finder</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The missing finder</TD></TR>
     * </TABLE>
     */
    public static final int MISSING_FINDER = 12;   
@@ -143,8 +143,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The id of the landing page item</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The id of the landing page item</TD></TR>
     * </TABLE>
     */
    public static final int LANDING_PAGE_URL_1 = 14;
@@ -154,8 +154,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The id of the template</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The id of the template</TD></TR>
     * </TABLE>
     */
    public static final int MISSING_PAGELINK = 15;   
@@ -165,9 +165,9 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The name or id of the template</TD></TR>
-    * <TR><TD>1</TD><TD>The id of the content type</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The name or id of the template</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>1</TD><TD>The id of the content type</TD></TR>
     * </TABLE>
     */
    public static final int TEMPLATE_BY_ID_MISSING = 16;
@@ -177,10 +177,10 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The content id</TD></TR>
-    * <TR><TD>1</TD><TD>The id of the content type</TD></TR>
-    * <TR><TD>2</TD><TD>The reason</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The content id</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>1</TD><TD>The id of the content type</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>2</TD><TD>The reason</TD></TR>
     * </TABLE>
     */
    public static final int NO_DEFAULT_TEMPLATE = 17;
@@ -190,9 +190,9 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The name of the object (template or slot)</TD></TR>
-    * <TR><TD>1</TD><TD>The name of the type</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The name of the object (template or slot)</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>1</TD><TD>The name of the type</TD></TR>
     * </TABLE>
     */
    public static final int NAME_NOT_UNIQUE = 18;
@@ -202,9 +202,9 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The name of the slot content finder</TD></TR>
-    * <TR><TD>1</TD><TD>The exception message</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The name of the slot content finder</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>1</TD><TD>The exception message</TD></TR>
     * </TABLE>
     */   
    public static final int FINDER_ERROR = 19;
@@ -214,9 +214,9 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The value of the id field</TD></TR>
-    * <TR><TD>1</TD><TD>The value of the sys_contentid parameter</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The value of the id field</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>1</TD><TD>The value of the sys_contentid parameter</TD></TR>
     * </TABLE>
     */
    public static final int PARAMS_ITEM_ID_MISMATCH = 20;
@@ -226,9 +226,9 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The value of the folder field</TD></TR>
-    * <TR><TD>1</TD><TD>The value of the sys_folderid parameter</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The value of the folder field</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>1</TD><TD>The value of the sys_folderid parameter</TD></TR>
     * </TABLE>
     */
    public static final int PARAMS_ITEM_FOLDER_MISMATCH = 21;
@@ -239,8 +239,8 @@ public interface IPSAssemblyErrors
     * <p>
     * The arguments passed in for this message are:
     * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The hash value specified</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TH>Arg</TH><TH>Description</TH></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The hash value specified</TD></TR>
     * </TABLE>
     */
    public static final int HASHED_BINARY_NOT_FOUND = 22;
@@ -255,8 +255,8 @@ public interface IPSAssemblyErrors
    /**
     * A binary is being accessed by its hash value, 
     * an Error was thrown.
-    * <TR><TD>0</TD><TD>The hash value specified</TD></TR>
-    * <TR><TD>1</TD><TD>The exception message</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>0</TD><TD>The hash value specified</TD></TR>
+    * <table border="1"><caption>Arguments</caption><TR><TD>1</TD><TD>The exception message</TD></TR>
     */
    public static final int HASHED_BINARY_ERROR = 24;
 

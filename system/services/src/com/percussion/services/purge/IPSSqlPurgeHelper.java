@@ -106,7 +106,7 @@ public interface IPSSqlPurgeHelper
     * @param parent - the parent folder if available. items will not be purged
     *           from this folder if they are linked elsewhere.
     * @param items
-    * @param typeFilter
+    * @param data the revision data
     * @return
     * @throws PSException
     */
@@ -128,7 +128,7 @@ public interface IPSSqlPurgeHelper
    * Y must be greater than X (if set); error if not.
    * E must be greater than D (if set); error if not.
    *
-   * @param typeFilter
+   * @param data the revision data
    * @return the number of revisions removed across all items.
    * @throws Exception
    */

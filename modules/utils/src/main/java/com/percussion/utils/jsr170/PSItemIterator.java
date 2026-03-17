@@ -30,6 +30,7 @@ import org.apache.commons.collections4.iterators.FilterIterator;
  * @param <M> the type of elements iterated the type of elements iterated
  * @author dougrand
  */
+@SuppressWarnings("rawtypes")
 public abstract class PSItemIterator<M> implements Iterator {
   /** Hold the current position */
   int m_current = 0;
@@ -85,7 +86,7 @@ public abstract class PSItemIterator<M> implements Iterator {
 
   public M next() {
     m_current++;
-    return (M) m_iter.next();
+    return m_iter.next();
   }
 
   /**
