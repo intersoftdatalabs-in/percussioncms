@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @version 1.0
- * @created 18-Oct-2005 11:36:19 AM
+ * @since 18-Oct-2005 11:36:19 AM
  */
 public class PSFileCatalogHandler extends PSCatalogRequestHandler {
   /** Construct the file related catalog handler. */

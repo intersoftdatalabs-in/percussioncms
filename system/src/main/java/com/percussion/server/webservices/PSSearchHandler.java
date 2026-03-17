@@ -136,7 +136,7 @@ import org.xml.sax.SAXException;
  * This class is used to handle all search related operations for webservices. These operations are
  * specified in the "Search" port in the <code>WebServices.wsdl</code>.
  *
- * @see {@link com.percussion.hooks.webservices.PSWSSearch}.
+   * @see com.percussion.hooks.webservices.PSWSSearch
  */
 public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSearchHandler {
   /**

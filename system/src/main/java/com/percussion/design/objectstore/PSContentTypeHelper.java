@@ -822,8 +822,8 @@ public class PSContentTypeHelper {
   }
 
   /**
-   * Used to be informed of a successful save of a node def during a call to {@link
-   * PSContentTypeHelper#saveContentType(PSItemDefinition, Set, int, IPSSaveNodeDefListener)}
+   * Used to be informed of a successful save of a node def during a call to
+   * PSContentTypeHelper#saveContentType(PSItemDefinition, Set, int, IPSSaveNodeDefListener)
    */
   public interface IPSSaveNodeDefListener {
     /** Called to inform listener of successful save. */

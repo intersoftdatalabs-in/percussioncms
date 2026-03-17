@@ -45,7 +45,7 @@ import org.xml.sax.SAXParseException;
  * The PSXmlContentParser class is used by the PSRequestParser to handle content of type text/xml or
  * application/xml.
  *
- * @see com.percussion.server.PSRequestParser
+ * // @see com.percussion.server.PSRequestParser
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0

@@ -65,28 +65,28 @@ import org.w3c.dom.Element;
  * property file {@link #NAVIGATION_PROPERTIES} used in the assembly applications in the system for
  * the slot name references NOT to have blank spaces in between.
  *
- * <p>First we modify the database table "RXSLOTTYPE" for the "SLOTNAME" not to have blank spaces in
- * between. The logic is explained in {@link #modifySlotName(String)}. The modified slot names are
- * now applied to the XSL and HTML files. Since we do not have an easy way of getting the assembly
- * applications, we take all the applications whose names do not start with "sys_" or "psx_" or part
- * of the set {@link #EXCLUDE_APP_SET}.
+ * &lt;p&gt;First we modify the database table "RXSLOTTYPE" for the "SLOTNAME" not to have blank spaces in
+ * between. The logic is explained in {@link #modifySlotName(String)}.
+ * The modified slot names are now applied to the XSL and HTML files. Since we do not have an easy way
+ * of getting the assembly applications, we take all the applications whose names do not start with
+ * "sys_" or "psx_" or part of the set {@link #EXCLUDE_APP_SET}.
  *
- * <p>
+ * &lt;p&gt;
  *
- * <ol>
- *   <li>In each application directory we modify all *.xsl files
- *   <li>In each application directory we modify all *.htm* files in "src" subdirectory
- *   <li>In each application directory we empty "edit" subdirectory
- * </ol>
+ * &lt;ol&gt;
+ *   &lt;li&gt;In each application directory we modify all *.xsl files&lt;/li&gt;
+ *   &lt;li&gt;In each application directory we modify all *.htm* files in "src" subdirectory&lt;/li&gt;
+ *   &lt;li&gt;In each application directory we empty "edit" subdirectory&lt;/li&gt;
+ * &lt;/ol&gt;
  *
  * The slot names are located based on:
  *
- * <ol>
- *   <li>in an HTML file, we look for the attribute name "slotname" and if the value consists of a
- *       slot name requires modification we replace with new name
- *   <li>in an XSL file, we look for the attribute name "select" and if the value consists of the
- *       string "@slotname" and a slot name that needs modification we replace with new name
- * </ol>
+ * &lt;ol&gt;
+ *   &lt;li&gt;in an HTML file, we look for the attribute name "slotname" and if the value consists of a
+ *       slot name requires modification we replace with new name&lt;/li&gt;
+ *   &lt;li&gt;in an XSL file, we look for the attribute name "select" and if the value consists of the
+ *       string "@slotname" and a slot name that needs modification we replace with new name&lt;/li&gt;
+ * &lt;/ol&gt;
  */
 public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlugin {
   /*
@@ -161,7 +161,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /**
-   * Update the slot names in the navigation properties file {@link #NAVIGATION_PROPERTIES}.
+   * Update the slot names in the navigation properties file {@link #NAVIGATION_PROPERTIES
    *
    * @param logStream print stream for logging, assumed not <code>null</code>.
    */

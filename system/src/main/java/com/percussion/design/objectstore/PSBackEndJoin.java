@@ -34,6 +34,7 @@ import org.w3c.dom.Node;
  * then be specified. This can be one of the following:
  *
  * <table border="1">
+ * <caption>Join Type Behavior</caption>
  * <tr><td>Type</td><td>Behavior</td></tr>
  * <tr><td>Inner</td>
  *     <td>only matching rows are returned</td>

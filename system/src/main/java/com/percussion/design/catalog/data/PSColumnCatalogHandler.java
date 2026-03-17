@@ -89,8 +89,8 @@ import org.w3c.dom.Element;
  *    &lt;!-- does the column allow NULL values to be stored?
  *     --&gt;
  *    &lt;!ELEMENT allowsNull              (yes | no | unknown)&gt;
- * <pre>
  *
+ * </pre>
  */
 public class PSColumnCatalogHandler implements IPSCatalogHandler {
   /** Constructs an instance of this handler. */

@@ -27,6 +27,7 @@ import java.sql.SQLException;
  * whatever you like):
  *
  * <table>
+ * <caption>Database Schema</caption>
  * <tr><td>Column</td><td>DataType</td><td>Use</td></tr>
  * <tr>
  * <td>Key</td>

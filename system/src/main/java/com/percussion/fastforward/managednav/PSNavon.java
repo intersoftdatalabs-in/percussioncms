@@ -49,7 +49,7 @@ import org.w3c.dom.Node;
  * The PSNavon represents a navigation section. This can be represented as either a Navon or NavTree
  * content item.
  *
- * <p>
+
  *
  * @author DavidBenua
  */

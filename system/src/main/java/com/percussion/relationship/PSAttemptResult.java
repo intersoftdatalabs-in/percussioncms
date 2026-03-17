@@ -19,7 +19,7 @@ package com.percussion.relationship;
 
 /**
  * This class may define additional methods to pass sufficient information as attempt result to
- * relationship engine after executing the {@link IPSEffect#attempt() attempt} method. This
+ * relationship engine after executing the {@link IPSEffect#attempt()} method. This
  * information includes whether to test for dependents' processing and error details if the test
  * fails for some reason.
  */

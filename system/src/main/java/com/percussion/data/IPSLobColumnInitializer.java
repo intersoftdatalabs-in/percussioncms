@@ -21,10 +21,10 @@ package com.percussion.data;
  * The IPSLobColumnInitializer interface must be utilized by any classes which require LOB
  * initializer instead of placeholders in LOB based update and insert statements.
  *
- * <p>An example of replacement strings from Oracle are:<B> <code>empty_clob()</code> for Clob
- * initialization, and<B> <code>empty_blob()</code> for Blob initialization <B> UPDATE mytable set
- * myblobcol = ?, myclobcol = ?, mydata = ? where mykey = ? <B> Would become:<B> UPDATE mytable set
- * myblobcol = empty_blob(), myclobcol = empty_clob(), mydata = ? where mykey = ? <B> when the
+ * <p>An example of replacement strings from Oracle are: &lt;B&gt; <code>empty_clob()</code> for Clob
+ * initialization, and &lt;B&gt; <code>empty_blob()</code> for Blob initialization &lt;B&gt; UPDATE mytable set
+ * myblobcol = ?, myclobcol = ?, mydata = ? where mykey = ? &lt;B&gt; Would become:&lt;B&gt; UPDATE mytable set
+ * myblobcol = empty_blob(), myclobcol = empty_clob(), mydata = ? where mykey = ? &lt;B&gt; when the
  * statement were generated at runtime to update the lob columns to a non-null value.
  */
 public interface IPSLobColumnInitializer {

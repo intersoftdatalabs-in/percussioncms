@@ -47,7 +47,7 @@ package com.percussion.search.lucene;
  * <TD>16501 - 16700</TD>
  * <TD>-unassigned-</TD>
  * </TR>
- * </TABLE>
+ * </table>
  *
  * The message strings for search messages are stored in the i18n resource bundle, not the error
  * string bundle.
@@ -64,7 +64,7 @@ public interface IPSLuceneErrors {
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the parameter.</TD></TR>
-   * </TABLE>
+   * </table>
    */
   public static final int INDEX_DIR_PARAM_INVALID_MISSING = 16311;
 
@@ -78,7 +78,7 @@ public interface IPSLuceneErrors {
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id.</TD></TR>
    * <TR><TD>1</TD><TD>Directory path</TD></TR>
-   * </TABLE>
+   * </table>
    */
   public static final int INVALID_INDEX_DIRECTORY = 16366;
 
@@ -91,7 +91,7 @@ public interface IPSLuceneErrors {
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id</TD></TR>
-   * </TABLE>
+   * </table>
    */
   public static final int INDEX_CURRUPTED_EXCEPTION_INDEXING = 16402;
 
@@ -104,7 +104,7 @@ public interface IPSLuceneErrors {
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id</TD></TR>
-   * </TABLE>
+   * </table>
    */
   public static final int INDEX_IO_EXCEPTION_INDEXING = 16403;
 
@@ -116,7 +116,7 @@ public interface IPSLuceneErrors {
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type ids</TD></TR>
-   * </TABLE>
+   * </table>
    */
   public static final int INDEX_OPTIMIZATION_ERROR = 16404;
 
@@ -129,7 +129,7 @@ public interface IPSLuceneErrors {
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id</TD></TR>
-   * </TABLE>
+   * </table>
    */
   public static final int INDEX_CURRUPTED_EXCEPTION_SEARCHING = 16451;
 
@@ -142,7 +142,7 @@ public interface IPSLuceneErrors {
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type id</TD></TR>
-   * </TABLE>
+   * </table>
    */
   public static final int INDEX_IO_EXCEPTION_SEARCHING = 16452;
 

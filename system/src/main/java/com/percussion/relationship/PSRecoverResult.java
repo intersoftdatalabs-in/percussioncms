@@ -19,7 +19,7 @@ package com.percussion.relationship;
 
 /**
  * This class may define additional methods to pass sufficient informtion as recover result to
- * relationship engine after executing the {@link IPSEffect#recover() method}. This information
+ * relationship engine after executing the {@link IPSEffect#recover()} method. This information
  * includes whether to test for dependents' processing and error details if the test fails for some
  * reason.
  */

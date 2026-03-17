@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  *
- * <pre>
+ * {@code
  * @PSHandlesEffectContext(
  *    required={PSEffectContext.PRE_CONSTRUCTION, PSEffectContext.PRE_UPDATE},
  *    optional={PSEffectContext.PRE_DESTRUCTION}
@@ -36,13 +36,13 @@ import java.lang.annotation.Target;
  * {
  *    .....
  * }
- * </pre>
+ * }
  *
  * <p>or
  *
  * <p>
  *
- * <pre>
+ * {@code
  * @PSHandlesEffectContext(
  *    required={PSEffectContext.PRE_WORKFLOW},
  *    endpoint={PSEndpoint.BOTH}
@@ -51,7 +51,7 @@ import java.lang.annotation.Target;
  * {
  *    .....
  * }
- * </pre>
+ * }
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

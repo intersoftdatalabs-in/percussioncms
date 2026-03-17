@@ -30,7 +30,8 @@ import org.w3c.dom.Document;
  * the style sheet type in proper case format. For instance, the following are possible style sheet
  * types:
  *
- * <table border="2">
+ * <table border="1">
+ * <caption>Style Sheet Types</caption>
  *   <tr><th>Style Sheet Type</th><th>Expected Class Name</th></tr>
  *   <tr><td>XSL</td>             <td>PSXslStyleSheetMerger</td></tr>
  *   <tr><td>CSS1</td>            <td>PSCss1StyleSheetMerger</td></tr>

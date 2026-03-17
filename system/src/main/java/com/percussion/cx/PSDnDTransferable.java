@@ -21,7 +21,7 @@ import java.awt.datatransfer.Transferable;
 
 /**
  * The class to represent a dummy <code>Transferable</code> object to use with drag and drop. Applet
- * uses {@link #PSClipBoard} for actual data transfer.
+ * uses a clipboard for actual data transfer.
  */
 public class PSDnDTransferable implements Transferable {
   /**

@@ -18,8 +18,7 @@
 package com.percussion.HTTPClient;
 
 /**
- * {@link Codecs#mpFormDataDecode(byte[], String, String, FilenameMangler) Codecs.mpFormDataDecode} and {@link
- * Codecs#mpFormDataEncode(NVPair[], NVPair[], NVPair[], FilenameMangler) Codecs.mpFormDataEncode} may be handed an instance of a class which
+ * Codecs.mpFormDataDecode and Codecs.mpFormDataEncode may be handed an instance of a class which
  * implements this interface in order to control names of the decoded files or the names sent in the
  * encoded data.
  *

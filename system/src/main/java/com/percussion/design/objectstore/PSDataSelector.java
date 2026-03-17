@@ -35,9 +35,11 @@ import org.w3c.dom.Element;
  * <ul>
  *   <li>defining WHERE clauses
  *   <li>using a native SELECT statement
- *       <p>The data selector can also be used to define how data is cached. Since performance is
- *       critical, the results of requests which may be repeated often can be cached for better
- *       performance.
+ * </ul>
+ *
+ * <p>The data selector can also be used to define how data is cached. Since performance is
+ * critical, the results of requests which may be repeated often can be cached for better
+ * performance.
  *
  * @see PSQueryPipe#getDataSelector
  * @see PSQueryPipe

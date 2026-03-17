@@ -33,6 +33,7 @@ import org.w3c.dom.ProcessingInstruction;
  * exit:
  *
  * <table border="1">
+ * <caption>Parameters</caption>
  * <tr><th>Parameter</th><th>Description</th></tr>
  * <tr><td>StyleSheet</td>
  *     <td>(required) the URL of the style sheet</td></tr>

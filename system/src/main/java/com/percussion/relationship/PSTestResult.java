@@ -19,7 +19,7 @@ package com.percussion.relationship;
 
 /**
  * This class defines additional methods to pass sufficient informtion as test result to
- * relationship engine after executing the {@link IPSEffect#test() method}. This information
+ * relationship engine after executing the {@link IPSEffect#test()} method. This information
  * includes whether to test for dependents' processing and error details if the test fails for some
  * reason.
  */
@@ -46,7 +46,7 @@ public class PSTestResult extends PSEffectResult {
   /**
    * Returns whether ActivationEndPoint which was used to run Test was the owner.
    *
-   * @return
+   * @return true if owner, false if dependent
    */
   public boolean isActivationEndPointOwner() {
     return m_activationEndPointOwner;

@@ -28,6 +28,7 @@ import org.w3c.dom.Document;
  * Several attributes are associated with the cookie:
  *
  * <table border="1">
+ * <caption>Cookie Parameters</caption>
  * <tr><th>Parameter</th><th>Description</th></tr>
  * <tr><td>PSXName</td>
  *     <td>(required) the name of the cookie</td></tr>
@@ -58,6 +59,7 @@ import org.w3c.dom.Document;
  * A sample usage is:
  *
  * <table border="1">
+ * <caption>Sample Cookie Parameters</caption>
  * <tr><th>Parameter</th><th>Value</th></tr>
  * <tr><td>PSXName</td>    <td>"MySessId2"</td></tr>
  * <tr><td>PSXValue</td>   <td>"1001"</td></tr>

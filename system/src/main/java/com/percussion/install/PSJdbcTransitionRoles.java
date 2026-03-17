@@ -47,8 +47,8 @@ import org.w3c.dom.Element;
  *
  * <p>The logic used for inserting data into "TRANSITIONROLES" table is as follows:
  *
- * <p>Catalog "TRANSITIONS" table : SELECT TRANSITIONID, WORKFLOWAPPID, TRANSITIONROLES FROM
- * TRANSITIONS WHERE ((TRANSITIONROLES != null) && (TRANSITIONROLES != '*ALL*') && (TRANSITIONROLES
+ * Catalog "TRANSITIONS" table : SELECT TRANSITIONID, WORKFLOWAPPID, TRANSITIONROLES FROM
+ * TRANSITIONS WHERE ((TRANSITIONROLES != null) &amp;&amp; (TRANSITIONROLES != '*ALL*') &amp;&amp; (TRANSITIONROLES
  * != '*Specified*'))
  *
  * <p>Store the value of TRANSITIONID, WORKFLOWAPPID and TRANSITIONROLES for all such rows into

@@ -33,7 +33,7 @@ import java.util.List;
  *   <li>Check if it contains a certain element.
  * </ul>
  *
- * <p>
+
  *
  * <pre>
  * Example uses:

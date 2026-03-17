@@ -45,15 +45,13 @@ import org.w3c.dom.Element;
  *  &lt;!ELEMENT PSXDatabaseFunctionCatalog (datasource?)&gt;
  *  &lt;!ELEMENT datasource (#PCDATA)&gt;
  *
- * <pre><code>
+ * </code></pre>
  *
  * The PSXDatabaseFunctionCatalogResults XML document is sent
  * as the response. Its definition is as follows:
- * <pre><code>
- *
+ * <pre>
  *  &lt;!ELEMENT PSXDatabaseFunctionCatalogResults (PSXDatabaseFunctionDef*)&gt;
- *
- * <pre><code>
+ * </pre>
  *
  * See "DatabaseFunctionDefs.dtd" for the DTD of the "PSXDatabaseFunctionDef"
  * element.

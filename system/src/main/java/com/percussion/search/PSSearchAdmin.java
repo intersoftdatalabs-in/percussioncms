@@ -34,7 +34,6 @@ import java.util.Set;
  * modification and methods to manage the indexes.
  *
  * <p>The typical usage of this class is as follows (when starting up):
- *
  * <ol>
  *   <li>Call {@link #verify(Set)}to confirm with the external search engine that the given set of
  *       content type ids are known to the system.
@@ -42,17 +41,21 @@ import java.util.Set;
  *       type.
  *   <li>Call {@link #save()}
  *   <li>Start the search engine (through the {@link PSSearchEngine}interface)
- *       <ol>
- *         <p>While running, call <code>update</code> followed by <code>save</code> and an engine
- *         restart each time a content editor is modified. Follow a similar procedure each time a
- *         content editor is removed, except rather than calling <code>update</code>, call <code>
- *         delete</code>.
- *         <p>Depending on the configuration changes required by the update, a re-index for that
- *         content type may be required.
- *         <p>If the derived class does not override non-abstract methods, this class manages the
- *         binary locator and item defition tracking.
- *         <p>This class may have {@link java.util.Observer Observers}registered that are notified
- *         when an admin method is called. This is an implementation decision.
+ * </ol>
+ *
+ * <p>While running, call <code>update</code> followed by <code>save</code> and an engine
+ * restart each time a content editor is modified. Follow a similar procedure each time a
+ * content editor is removed, except rather than calling <code>update</code>, call <code>
+ * delete</code>.
+ *
+ * <p>Depending on the configuration changes required by the update, a re-index for that
+ * content type may be required.
+ *
+ * <p>If the derived class does not override non-abstract methods, this class manages the
+ * binary locator and item defition tracking.
+ *
+ * <p>This class may have {@link java.util.Observer Observers}registered that are notified
+ * when an admin method is called. This is an implementation decision.
  *
  * @author paulhoward
  */

@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
  *   <li>Server
  *   <li>Application (overrides Server)
  *   <li>Data Set (overrides Application)
+ * </ul>
  *
  * @see PSDataSet#getDataEncryptor
  * @see PSApplication#getDataEncryptor

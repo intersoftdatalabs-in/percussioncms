@@ -71,7 +71,7 @@ import org.w3c.dom.Document;
  * name "." (period) will cause the new document fragment to be copied directly underneath the
  * <code>&lt;root&gt;</code> element.
  *
- * <p>
+ * 
  */
 public class PSXdDomToText extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {

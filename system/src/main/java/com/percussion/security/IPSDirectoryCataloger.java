@@ -26,7 +26,7 @@ import java.util.Iterator;
  * provides a simple search mechanism for finding collections of users based on conditional logic.
  *
  * <p>Methods are provided for specific properties that are widely used. The methods are of the form
- * get<Type> and get<Type>AttributeName. If such an attribute is multi-valued, the first value found
+ * getget&lt;Type&gt;lt;Typeget&lt;Type&gt;gt; and getget&lt;Type&gt;lt;Typeget&lt;Type&gt;gt;AttributeName. If such an attribute is multi-valued, the first value found
  * is returned.
  *
  * <p>Most methods that require a user name take either a <code>String</code> that is the base user

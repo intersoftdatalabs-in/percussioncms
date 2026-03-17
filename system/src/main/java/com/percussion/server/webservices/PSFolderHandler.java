@@ -55,7 +55,7 @@ import org.w3c.dom.NodeList;
  * This class is used to handle all folder related operations for webservices. These operations are
  * specified in the "Folder" port in the <code>WebServices.wsdl</code>.
  *
- * @see {@link com.percussion.hooks.webservices.PSWSFolder}.
+   * @see com.percussion.hooks.webservices.PSWSFolder
  */
 public class PSFolderHandler extends PSWebServicesBaseHandler {
   /**

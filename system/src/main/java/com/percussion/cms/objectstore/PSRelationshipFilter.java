@@ -41,14 +41,12 @@ import org.w3c.dom.NodeList;
  * aim is to be able to specify the filtering conditions easily. The following rules apply when
  * using the filter conditions.
  *
- * <p>
- *
  * <ol>
  *   <li>All specified conditions will be ANDed except for relationship name, type, and category.
  *       These 3 properties are OR'd together before they are AND'ed with the other properties. For
  *       example, if category and a property name-value is set, the results include the
- *       relationships that match the category and the property value. If the <em>translation<em>
- *       category and the <em>Active Assembly Mandatory<em> translation name are both specified, any
+ *       relationships that match the category and the property value. If the <em>translation</em>
+ *       category and the <em>Active Assembly Mandatory</em> translation name are both specified, any
  *       relationship that is either AA mandatory or has a category of translation will be returned.
  *   <li>The order of using filter parameters (if specified) will be as follows:
  *       <ol>
@@ -63,8 +61,6 @@ import org.w3c.dom.NodeList;
  *         <li>relationship properties
  *       </ol>
  * </ol>
- *
- * <p>
  *
  * @author RammohanVangapalli
  */

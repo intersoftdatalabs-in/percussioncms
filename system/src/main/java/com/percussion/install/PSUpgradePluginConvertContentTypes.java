@@ -59,29 +59,29 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to convert pre-6.0 content type applications to the new 6.0 format.
- * Conversion will involve the following steps:
- * <li>1. Back-up original application. private static Set<String> m_contentNames = new HashSet<>();
- * <li>2. Find and extract all content editor resources, placing each in a new application named
+ * This plugin converts pre-6.0 content type applications to the new 6.0 format.
+ *
+ * &lt;p&gt;Conversion involves these steps:&lt;/p&gt;
+ * &lt;ol&gt;
+ * &lt;li&gt;Back-up original application.&lt;/li&gt;
+ * &lt;li&gt;Find and extract all content editor resources, placing each in a new application named
  *     psx_ce[typename], where typename is the name of the content type. Runtime access will be
  *     maintained in the application acl, however, design access will be turned off for all entries
- *     other than the default user. It will be ensured that a default user exists with design
- *     access.
- * <li>3. If the original application does not have any resources other than the purge resource,
- *     remove it.
- * <li>4. If the original application does contain resources other than the purge resource, remove
- *     the purge resource and leave the application.
- * <li>5. Create and persist a new acl with the appropriate permissions to the database.
- * <li>6. For each content editor resource, add a mapping entry to the
- *     rxconfig/Server/resourceMap.properties file which describes the request mappings for old ->
- *     new content editors. The format of the entry is as follows:
- *
- *     <p>appname1/resource1=appname2/resource2 // IOTools.copyToDir(origFiles[i], newAppDir);
- * <li>7. Invalid url characters non-alphanumeric or "_" which are found in a content type name will
- *     be converted to underscore.
- * <li>8. If the previous application had a corresponding directory under Rhythmyx, create a
+ *     other than the default user.&lt;/li&gt;
+ * &lt;li&gt;If the original application does not have any resources other than the purge resource,
+ *     remove it.&lt;/li&gt;
+ * &lt;li&gt;If the original application does contain resources other than the purge resource, remove
+ *     the purge resource and leave the application.&lt;/li&gt;
+ * &lt;li&gt;Create and persist a new acl with the appropriate permissions to the database.&lt;/li&gt;
+ * &lt;li&gt;For each content editor resource, add a mapping entry to the
+ *     rxconfig/Server/resourceMap.properties file which describes the request mappings for old to
+ *     new content editors.&lt;/li&gt;
+ * &lt;li&gt;Invalid url characters (non-alphanumeric or "_") which are found in a content type name will
+ *     be converted to underscore.&lt;/li&gt;
+ * &lt;li&gt;If the previous application had a corresponding directory under Rhythmyx, create a
  *     directory for the newly created content editor application and copy all files from the
- *     original folder to the new folder.
+ *     original folder to the new folder.&lt;/li&gt;
+ * &lt;/ol&gt;
  */
 public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBase {
   /**

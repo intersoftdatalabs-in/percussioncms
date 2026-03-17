@@ -69,12 +69,12 @@ import org.w3c.dom.Element;
  *   <li>Submit 'units of content' and perform queries
  *   <li>Change the configuration as content editors are modified. {@link #restart()} must be called
  *       before the configuration changes will take effect.
- *   <li>When finished, call {@link #shutdown(boolean) shutdown}
- *       <ol>
- *         <p>Note to implementers of plugins:
- *         <p>There are a number of methods of the form "doXXX". These methods are equivalent to
- *         XXX, but don't need to check for a running server as that has already been done by this
- *         class.
+ *   <li>When finished, call {@link #shutdown(boolean) shutdown}&lt;/li&gt;
+ * &lt;/ol&gt;
+ *
+ * &lt;p&gt;Note to implementers of plugins: There are a number of methods of the form "doXXX".
+ * These methods are equivalent to XXX, but don't need to check for a running server as that has
+ * already been done by this class.
  *
  * @see PSSearchIndexer
  * @see PSSearchQuery

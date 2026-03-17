@@ -42,7 +42,7 @@ import javax.swing.event.MenuEvent;
  * <p>This class also provides a mechanism to enable or disable the actions that can be performed
  * depending on selected nodes in the tree table and their current states.
  *
- * <p>
+
  */
 public class MainFrame extends JFrame {
   // all UI related variables/constants here

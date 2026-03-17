@@ -18,8 +18,8 @@
 package com.percussion.HTTPClient;
 
 /**
- * This is the interface that a username/password prompter must implement. The {@link
- * HTTPClient.DefaultAuthHandler} invokes an instance of this each time it needs
+ * This is the interface that a username/password prompter must implement. The
+ * HTTPClient.DefaultAuthHandler invokes an instance of this each time it needs
  * a username and password to satisfy an authorization challenge (for which it doesn't already have
  * the necessary info).
  *
@@ -27,7 +27,7 @@ package com.percussion.HTTPClient;
  * usernames and passwords, or for using an altogether different way of getting the necessary auth
  * info.
  *
- * @see DefaultAuthHandler#setAuthorizationPrompter(HTTPClient.AuthorizationPrompter)
+ * @see com.percussion.HTTPClient.DefaultAuthHandler#setAuthorizationPrompter(AuthorizationPrompter)
  * @version 0.3-3 06/05/2001
  * @author Ronald Tschalär
  * @since V0.3-3

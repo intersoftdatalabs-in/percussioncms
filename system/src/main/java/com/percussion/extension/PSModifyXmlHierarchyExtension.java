@@ -53,7 +53,7 @@ import org.w3c.dom.Element;
  *       UNIQUE amongst all the response nodes!
  * </UL>
  *
- * <p><BIG>Example:</BIG> Pay special attention to the relationship between parentid and id
+ * <p><strong>Example:</strong> Pay special attention to the relationship between parentid and id
  * attributes
  *
  * <UL>

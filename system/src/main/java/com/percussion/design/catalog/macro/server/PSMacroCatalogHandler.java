@@ -35,15 +35,13 @@ import org.w3c.dom.Element;
  *
  *  &lt;!ELEMENT PSXMacroCatalog EMPTY&gt;
  *
- * <pre><code>
+ * </code></pre>
  *
  * The PSXMacroCatalogResults XML document is sent as the response. It's
  * definition is as follows:
- * <pre><code>
- *
+ * <pre>
  *  &lt;!ELEMENT PSXMacroDefinitionSet (PSXMacroDefinition*)&gt;
- *
- * <pre><code>
+ * </pre>
  */
 public class PSMacroCatalogHandler extends PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {

@@ -35,9 +35,8 @@ import org.w3c.dom.Node;
  * will be evaluated before the corresponding OR conditionals. For instance, in the following
  * example:
  *
- * <p>
- *
  * <TABLE>
+ *       <caption>Conditional Example</caption>
  *       <TR>
  *          <TH>Name</TH>
  *          <TH>Operator</TH>

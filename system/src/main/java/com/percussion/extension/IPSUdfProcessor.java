@@ -25,8 +25,7 @@ import com.percussion.server.IPSRequestContext;
  * primary use of UDFs is for data transformation.
  *
  * <p>At run-time, the extension handler that handles this extension will construct an instance of
- * this class. This occurs when Rhythmyx calls the {@link IPSExtensionHandler#prepare
- * <code>prepare</code>} method of the {@link IPSExtensionHandler <code>IPSExtensionHandler</code>}
+ * this class. This occurs when Rhythmyx calls the <code>prepare</code> method of IPSExtensionHandler
  * managing the extension.
  *
  * <p><em>NOTE:</em> The IPSUdfProcessor implementation must be safe for multi-threaded use. One

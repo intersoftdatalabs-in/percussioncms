@@ -32,8 +32,6 @@ import java.util.HashMap;
  *
  * <p>Example
  *
- * <p>
- *
  * <pre>
  *          queryString.append(
  *             "SELECT t2.log_appl, t2.log_type, t2.log_id_high, t2.log_id_low,");

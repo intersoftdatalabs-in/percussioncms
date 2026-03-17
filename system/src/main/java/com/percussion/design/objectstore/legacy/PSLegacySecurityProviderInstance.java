@@ -36,8 +36,8 @@ import org.w3c.dom.Element;
  * The PSSecurityProviderInstance class is used to define a connection to a security provider for
  * authentication of users.
  *
- * @see PSServerConfiguration
- * @see PSServerConfiguration#getSecurityProviderInstances
+ * @see com.percussion.design.objectstore.PSServerConfiguration
+ * @see com.percussion.design.objectstore.PSServerConfiguration#getSecurityProviderInstances
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0

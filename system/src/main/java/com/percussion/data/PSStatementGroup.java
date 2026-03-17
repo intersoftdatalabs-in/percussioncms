@@ -47,6 +47,7 @@ import java.util.List;
  * both of the above cases:
  *
  * <TABLE BORDER="1">
+ * <caption>Group Configuration</caption>
  * <TR>
  *      <TH>Group Number</TH>
  *      <TH>Prefix</TH>
@@ -81,6 +82,7 @@ import java.util.List;
  * Using the above example, here's a table of possible values
  * and the expected output from thie grouping:
  * <TABLE BORDER="1">
+ * <caption>Expected Output</caption>
  * <TR>
  *      <TH>col1</TH>
  *      <TH>col2</TH>
@@ -135,6 +137,7 @@ import java.util.List;
  *      <TH>NOT NULL</TH>
  *      <TH>WHERE col1 = ? AND col2 = ? AND col3 = ?</TH>
  * </TR>
+ * </TABLE>
  *
  * @see         PSStatementBlock
  *

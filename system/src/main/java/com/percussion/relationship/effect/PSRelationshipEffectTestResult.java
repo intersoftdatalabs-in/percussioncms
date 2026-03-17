@@ -26,10 +26,9 @@ import java.util.List;
 /**
  * This class represents a set of effect test and result pairs for a particular relationship. The
  * effect processing can make use of this class to gather all relationship-effect-test results for
- * all relationships processed. One such use is by {@link com.percussion.cms.handlers.
- * PSRelationshipEffectProcessor effect processor} which walks throw each relationship running all
- * effects attached to it. The analysis of test results is done later before running the attempt()
- * methods of the effects.
+ * all relationships processed. One such use is by the effect processor which walks throw each 
+ * relationship running all effects attached to it. The analysis of test results is done later 
+ * before running the attempt() methods of the effects.
  *
  * @author RammohanVangapalli
  */

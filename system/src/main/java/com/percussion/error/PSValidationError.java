@@ -29,8 +29,6 @@ import org.w3c.dom.Element;
  * when an a user submits data which does not meet the validation requirements defined in the
  * application's data set.
  *
- * <p>
- *
  * <p>An error message containing the user's session id and the text of the message is logged when
  * this error is encountered. If detailed user activity logging is also enabled, the request can be
  * tracked back to see all the data associated with the request.

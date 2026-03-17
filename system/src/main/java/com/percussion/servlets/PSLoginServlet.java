@@ -58,7 +58,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * This servlet will process form based login/out calls. The servlet is mapped to the
  * "/Rhythmyx/login" and "/Rhythmyx/logout" request roots. The servlet will look for pages named
- * "login.jsp", "error.jsp", and "logout.jsp" in the "<webapp root>/user" directory. Any or all of
+ * "login.jsp", "error.jsp", and "logout.jsp" in the "&lt;webapp root&gt;/user" directory. Any or all of
  * these pages may be defined. For each found, that page will be used by Rhythmyx in place of the
  * default login/error and logout forms. If a custom login page is found, but a custom error page is
  * not found, then the custom login page will be used as the error page.

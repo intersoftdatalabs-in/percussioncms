@@ -19,9 +19,9 @@ package com.percussion.install;
 import org.w3c.dom.Element;
 
 /**
- * This class updates the tomcat connectors in {@link PSJBossUtils#TOMCAT_SERVER_FILE} by loading
- * and saving them. This process will update the connector elements with any default attributes
- * which have been added in subsequent Rhythmyx versions.
+ * This class updates the tomcat connectors by loading and saving them. This process will update
+ * the connector elements with any default attributes which have been added in subsequent Rhythmyx
+ * versions.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginUpdateConnectors implements IPSUpgradePlugin {
@@ -82,6 +82,6 @@ public class PSUpgradePluginUpdateConnectors implements IPSUpgradePlugin {
     }
   }
 
-  /** The config module, initialized in {@link #process(IPSUpgradeModule, Element)}. */
+  /** The config module, initialized in {@link #process(IPSUpgradeModule, Element) */
   private IPSUpgradeModule m_config;
 }

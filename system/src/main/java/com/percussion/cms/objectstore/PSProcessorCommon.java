@@ -51,7 +51,7 @@ import org.w3c.dom.Element;
  *          for all the components to be loaded will be included as multiple
  *          html params. An html param for each key part is created for each
  *          key. For example, if you have 2 simple keys whose part is "ID",
- *          the html param "ID" will appear twice, e.g., ID=3&amp;ID=4.
+ *          the html param "ID" will appear twice, e.g., ID=3&amp;ID=4.</td>
  *       <td>required</td>
  *       <td>standard</td>
  *    </tr>
@@ -79,14 +79,13 @@ import org.w3c.dom.Element;
  *          for all the components to be loaded will be included as multiple
  *          html params. An html param for each key part is created for each
  *          key. For example, if you have 2 simple keys whose part is "ID",
- *          the html param "ID" will appear twice, e.g., ID=3&ID=4.
+ *          the html param "ID" will appear twice, e.g., ID=3&amp;ID=4.
  *          The system may also request all objects of this type by not
  *          including any keys. The implementor will typically handle this by
  *          making 2 resources with the same name and adding selection criteria
  *          based on the presence of the key. One of the apps will use a
  *          native select using an IN clause, and the PrepareInClause exit.
  *          The other one is a simple selector w/ no WHERE clauses.</td>
- *          </td>
  *       <td>required</td>
  *       <td>standard</td>
  *    </tr>

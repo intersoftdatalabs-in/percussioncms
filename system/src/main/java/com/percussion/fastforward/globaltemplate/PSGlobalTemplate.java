@@ -49,8 +49,6 @@ import org.xml.sax.SAXException;
  * <p>Mere construction of this object does all the steps in creating the outer template XSL which
  * will be ready to be saved on to the server. The steps are summarized below:
  *
- * <p>
- *
  * <ol>
  *   <li>Read the markedup source HTML file specified by its name from the provided directory
  *   <li>Run Tidy to make it a well formed XML document

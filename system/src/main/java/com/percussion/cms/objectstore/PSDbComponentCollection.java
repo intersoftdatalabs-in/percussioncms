@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  * <p>The clone, hashCode and equals methods do not consider the delete list when performing their
  * operations.
  *
- * <p><em>Note:<em> You should only use this class if you have a true database collection as any
+ * <p><em>Note:</em> You should only use this class if you have a true database collection as any
  * items removed from this collection will be permanently removed from the db when this collection
  * is saved. For example, if you retrieved all slots from the system, you could use this class.
  * After performing all desired changes, the resulting collection would be saved. The processor

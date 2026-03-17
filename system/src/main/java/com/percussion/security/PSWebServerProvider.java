@@ -65,7 +65,7 @@ import org.apache.commons.lang3.StringUtils;
  * <P>
  * Password: AUTH_PASSWORD</TD>
  * </TR>
- * </TABLE>
+ * </table>
  *
  * @author Tas Giakouminakis
  * @version 1.0

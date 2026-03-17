@@ -37,19 +37,15 @@ import org.w3c.dom.Element;
  * Extension handler catalog requests are sent to the server
  * using the PSXExtensionHandlerCatalog XML document. Its definition
  * is as follows:
- * <pre><code>
- *
+ * <pre>
  *    &lt;!ELEMENT PSXExtensionHandlerCatalog EMPTY&gt;
- *
- * <pre><code>
+ * </pre>
  *
  * The PSXExtensionHandlerCatalogResults XML document is sent
  * as the response. Its definition is as follows:
- * <pre><code>
- *
+ * <pre>
  *    &lt;!ELEMENT PSXExtensionHandlerCatalogResults   (IPSExtensionHandlerDef*)&gt;
- *
- * <pre><code>
+ * </pre>
  */
 public class PSExtensionHandlerCatalogHandler implements IPSCatalogHandler {
   /** Constructs an instance of this handler. This is used primarily by the cataloger. */

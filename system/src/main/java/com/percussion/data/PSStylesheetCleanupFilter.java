@@ -48,8 +48,6 @@ import org.xml.sax.SAXException;
  * elements, and attributes are allowed. The matching expressions use Glob type patterns for
  * matching.
  *
- * <p>
- *
  * <pre>
  *    Wildcard symbols:
  *

@@ -29,9 +29,8 @@ import org.apache.commons.collections.IteratorUtils;
  * Field validation extension that checks if the given field has any of the given invalid
  * characters.
  *
- * <p>
- *
  * <table border="1">
+ * <caption>Parameters</caption>
  * <tr><th>Param</th><th>Name</th><th>Description</th></tr>
  * <tr><td>0</td><td>fieldName</td><td>(String) If null <code>{@link #DEFAULT_FIELD_NAME}</code> is used.</td></tr>
  * <tr><td>1</td><td>invalidChars</td><td>(String) If null {@link SecureStringUtils#INVALID_ITEM_NAME_CHARACTERS} is used.</td></tr>

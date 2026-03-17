@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
  * &lt;!--
  *    A set of rules, one for each cache key that is optional.
  * -->
- * <ELEMENT PSXKeyRules (KeyRule*)>
+ * <code>PSXKeyRules (KeyRule*)</code>
  *
  * &lt;!--
  *    A rule for a single key used to determine if the key value should be used

@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  * This class represents a set of choices and an optional choice filter. Handles serializing this
  * data to and from its XML representation.
  *
- * @todo Refactor the PSChoiceBuilder to use this class if possible.
+ * @deprecated Refactor the PSChoiceBuilder to use this class if possible.
  */
 public class PSDisplayChoices implements Cloneable {
   /**

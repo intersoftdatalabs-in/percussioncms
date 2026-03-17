@@ -23,6 +23,7 @@ import java.util.Iterator;
  * take the form "$(macroName)". The following macros are currently supported: <br>
  *
  * <table border=1>
+ * <caption>Supported Macros</caption>
  * <tr><th>macroName</th><th>Resolution</th></tr>
  * <tr><td>fieldName</td><td>replaced by the html field name that this control
  * is associated with</td></tr>

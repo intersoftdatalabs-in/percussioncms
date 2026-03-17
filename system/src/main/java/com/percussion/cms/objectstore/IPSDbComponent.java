@@ -47,6 +47,7 @@ import org.w3c.dom.Element;
  * <p>Following is a description of how these classes are expected to be used in various cases:
  *
  * <table border="1">
+ *    <caption>Object Lifecycle Procedures</caption>
  *    <tr>
  *       <th>Case</th>
  *       <th>Procedure</th>

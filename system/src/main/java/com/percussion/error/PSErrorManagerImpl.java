@@ -31,6 +31,7 @@ import java.util.Locale;
  * are using are as follows:
  *
  * <table border="1">
+ *    <caption>Error Code Ranges</caption>
  *    <tr><th>Range</th>      <th>Component</th></tr>
  *    <tr><td>0001 - 1000</td><td>HTML - this is HTML's range of errors</td></tr>
  *    <tr><td>1001 - 2000</td><td>Server Core (including hooks)</td></tr>

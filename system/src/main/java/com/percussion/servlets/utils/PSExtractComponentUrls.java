@@ -24,7 +24,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This contains methods that extract the component urls needed to create the existing l&f of the
+ * This contains methods that extract the component urls needed to create the existing l&amp;f of the
  * HTML interface. The object is created with a document obtained from an internal request, and
  * after creation allows the caller to retrieve the header, user status and left nav urls.
  *

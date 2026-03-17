@@ -49,26 +49,29 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author dougrand
- *     <p>This class implements a filter that checks each action in the context menu and decides,
- *     based on visibility, whether the specific action should remain in the menu. One or more
- *     (current one) parameters may be passed that will be used by this exit. In the absence of
- *     parameters, the list will not be filtered.
- *     <p>Note that the rules used here should be in sync with the rules used in {@link
- *     PSActionManager#filter(PSMenuAction, PSSelection)}.
- *     <table>
- * <tr>
- * <th>Parameter</th>
- * <th>Description</th>
- * </tr>
- * <tr>
- * <td>sys_contentid</td>
- * <td>The content id being filtered for.</td>
- * </tr>
- * <tr>
- * <td>sys_assignmenttype</td>
- * <td>The assignment type of the user/role for this content id</td>
- * </tr>
- * </table>
+ *
+ * &lt;p&gt;This class implements a filter that checks each action in the context menu and decides,
+ * based on visibility, whether the specific action should remain in the menu. One or more
+ * (current one) parameters may be passed that will be used by this exit. In the absence of
+ * parameters, the list will not be filtered.
+ *
+ * &lt;p&gt;Note that the rules used here should be in sync with the rules used in
+ * {@link PSActionManager#filter(PSMenuAction, PSSelection)}.
+ *
+ * &lt;table caption="Parameters"&gt;
+ * &lt;tr&gt;
+ * &lt;th&gt;Parameter&lt;/th&gt;
+ * &lt;th&gt;Description&lt;/th&gt;
+ * &lt;/tr&gt;
+ * &lt;tr&gt;
+ * &lt;td&gt;sys_contentid&lt;/td&gt;
+ * &lt;td&gt;The content id being filtered for.&lt;/td&gt;
+ * &lt;/tr&gt;
+ * &lt;tr&gt;
+ * &lt;td&gt;sys_assignmenttype&lt;/td&gt;
+ * &lt;td&gt;The assignment type of the user/role for this content id&lt;/td&gt;
+ * &lt;/tr&gt;
+ * &lt;/table&gt;
  *
  * @see PSContextMenu for more information about the <code>ActionList</code> dtd.
  */

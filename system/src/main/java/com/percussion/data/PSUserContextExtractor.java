@@ -51,10 +51,8 @@ import org.w3c.dom.Element;
  *
  * <p>The user context object uses the following XML structure:
  *
- * <p>
- *
  * <TABLE BORDER="1">
- *    <TR><TH>Element</TH><TH>Description</TH></TR>
+ *    <caption>XML Structure</caption>
  *    <TR>
  *       <TD>SessionId</TD>
  *       <TD>The session identifier associated with this request</TD>

@@ -33,33 +33,25 @@ import org.w3c.dom.NodeList;
  * property to the 'sys_beanConfiguration' bean which contains quartz-specific properties which will
  * override the default values specified in beans.xml.
  *
- * <p>For System Master:
+ * &lt;p&gt;For System Master:&lt;/p&gt;
+ * &lt;pre&gt;
+ * &amp;ltproperty name="quartzProperties"&amp;gt
+ *     &amp;ltprops&amp;gt
+ *         &amp;ltprop key="org.quartz.jobStore.isClustered"&amp;gtfalse&amp;lt/prop&amp;gt
+ *         &amp;ltprop key="org.quartz.scheduler.instanceName"&amp;gtSystemMaster&amp;lt/prop&amp;gt
+ *     &amp;lt/props&amp;gt
+ * &amp;lt/property&amp;gt
+ * &lt;/pre&gt;
  *
- * <p>&ltproperty name="quartzProperties"&gt
- *
- * <p>&ltprops&gt
- *
- * <p>&ltprop key="org.quartz.jobStore.isClustered"&gtfalse&lt/prop&gt
- *
- * <p>&ltprop key="org.quartz.scheduler.instanceName"&gtSystemMaster&lt/prop&gt
- *
- * <p>&lt/props&gt
- *
- * <p>&lt/property&gt
- *
- * <p>For Pub Hub:
- *
- * <p>&ltproperty name="quartzProperties"&gt
- *
- * <p>&ltprops&gt
- *
- * <p>&ltprop key="org.quartz.jobStore.isClustered"&gttrue&lt/prop&gt
- *
- * <p>&ltprop key="org.quartz.scheduler.instanceName"&gtPublishingHub&lt/prop&gt
- *
- * <p>&lt/props&gt
- *
- * <p>&lt/property&gt
+ * &lt;p&gt;For Pub Hub:&lt;/p&gt;
+ * &lt;pre&gt;
+ * &amp;ltproperty name="quartzProperties"&amp;gt
+ *     &amp;ltprops&amp;gt
+ *         &amp;ltprop key="org.quartz.jobStore.isClustered"&amp;gttrue&amp;lt/prop&amp;gt
+ *         &amp;ltprop key="org.quartz.scheduler.instanceName"&amp;gtPublishingHub&amp;lt/prop&amp;gt
+ *     &amp;lt/props&amp;gt
+ * &amp;lt/property&amp;gt
+ * &lt;/pre&gt;
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddQuartzProperties implements IPSUpgradePlugin {
