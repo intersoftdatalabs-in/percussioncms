@@ -37,6 +37,8 @@ import java.util.Objects;
             description = "A List of CommunityRole associations"))
 public class CommunityRoleList extends ArrayList<CommunityRole> {
 
+  private static final long serialVersionUID = 1L;
+
   public CommunityRoleList(Collection<? extends CommunityRole> c) {
     super(c);
   }

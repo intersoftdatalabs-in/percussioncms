@@ -21,7 +21,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 /**
+ * String template utility for variable substitution.
  * @author DougRand
+
  *     <p>Allows the caller to use string templates with substitution variables. Variables are
  *     expressed in the string by an introduction sequence, which defaults to "{", a series of alpha
  *     characters and an end sequence, which defaults to "}". The start and end sequences should be

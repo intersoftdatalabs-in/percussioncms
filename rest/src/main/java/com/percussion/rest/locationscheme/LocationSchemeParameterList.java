@@ -30,6 +30,8 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = LocationSchemeParameter.class))
 public class LocationSchemeParameterList extends ArrayList<LocationSchemeParameter> {
 
+  private static final long serialVersionUID = 1L;
+
   public LocationSchemeParameterList(Collection<? extends LocationSchemeParameter> c) {
     super(c);
   }

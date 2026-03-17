@@ -23,6 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * A one-to-one object map (or bijection) backed by two ConcurrentHashMaps for time efficiency
  * purposes. Like all hash tables, there is at most one value for a given key. However, unlike hash
  * tables, this class guarantees that there is at most one key for a given value.
+ *
+ * @param <K> the type of keys maintained by this map
+ * @param <V> the type of mapped values
  */
 public class PSBijectionMap<K, V> {
   public PSBijectionMap(int initialCapacity) {

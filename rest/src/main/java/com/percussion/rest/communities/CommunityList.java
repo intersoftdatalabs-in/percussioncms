@@ -33,6 +33,8 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommunityList extends ArrayList<Community> {
 
+  private static final long serialVersionUID = 1L;
+
   public CommunityList(Collection<? extends Community> c) {
     super(c);
   }

@@ -21,6 +21,9 @@ package com.percussion.i18n.rxlt;
  * exception thrown during processing.
  */
 public class PSActionProcessingException extends RuntimeException {
+
+  private static final long serialVersionUID = 1L;
+
   /** Default constructor. */
   public PSActionProcessingException() {
     super();

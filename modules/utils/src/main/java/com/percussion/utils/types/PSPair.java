@@ -22,7 +22,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * This class holds a generic pair of objects
+ * This class holds a generic pair of objects.
+ *
+ * @param <A> the type of the first element
+ * @param <B> the type of the second element
  *
  * @author dougrand
  */

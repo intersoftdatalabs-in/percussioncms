@@ -20,6 +20,8 @@ import com.percussion.utils.request.PSRequestInfoBase;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * Thread utility methods for interrupt handling.
+ *
  * @author JaySeletz
  */
 public class PSThreadUtils {

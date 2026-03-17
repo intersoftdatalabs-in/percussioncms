@@ -54,8 +54,7 @@ public interface IPSContainerUtils extends ContainerConfig {
    * @throws PSInvalidXmlException If either document does not conform to the expected format.
    * @throws PSMissingApplicationPolicyException If a datasource specfies a security domain name
    *     that cannot be located in the supplied <code>logingCfgFile</code>
-   * @throws org.xml.sax.SAXException
-   */
+     */
   List<IPSJndiDatasource> getDatasources();
 
   /**
@@ -74,8 +73,7 @@ public interface IPSContainerUtils extends ContainerConfig {
    *     empty.
    * @throws IOException If there is an error saving to the files.
    * @throws SAXException If there is an error reading an existing file.
-   * @throws org.xml.sax.SAXException
-   */
+     */
   void setDatasources(List<IPSJndiDatasource> datasources);
 
   IPSDatasourceResolver getDatasourceResolver();

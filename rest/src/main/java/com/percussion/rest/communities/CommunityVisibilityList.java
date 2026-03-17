@@ -37,6 +37,8 @@ import java.util.Objects;
             description = "A List of CommunityVisibility instances with their visible objects"))
 public class CommunityVisibilityList extends ArrayList<CommunityVisibility> {
 
+  private static final long serialVersionUID = 1L;
+
   public CommunityVisibilityList(Collection<? extends CommunityVisibility> c) {
     super(c);
   }

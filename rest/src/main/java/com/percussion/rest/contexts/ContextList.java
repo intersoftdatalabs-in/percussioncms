@@ -29,6 +29,9 @@ import java.util.Objects;
 @XmlSeeAlso(Context.class)
 @ArraySchema(schema = @Schema(implementation = Context.class))
 public class ContextList extends ArrayList<Context> {
+
+  private static final long serialVersionUID = 1L;
+
   public ContextList(Collection<? extends Context> c) {
     super(c);
   }

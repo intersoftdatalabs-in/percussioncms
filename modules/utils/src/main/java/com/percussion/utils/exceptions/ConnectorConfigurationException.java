@@ -55,7 +55,7 @@ public class ConnectorConfigurationException extends Exception {
   }
 
   /**
-   * Same as {@link #PSDeployException(int, Object[])} but takes one additional parameter to
+   * Same as {@link #ConnectorConfigurationException(int, Object[])} but takes one additional parameter to
    * indicate the exception that caused this exception.
    *
    * @param msgCode The code of the error string to load.
@@ -154,14 +154,16 @@ public class ConnectorConfigurationException extends Exception {
    * This method is called to create an XML element node with the appropriate format for this
    * object. The format is:
    *
-   * <pre><code>
+   * <pre>
+<code>
    * <!ELEMENT PSXDeployException (Arg*)
    * <!ATTLIST PSXDeployException
    *    msgCode CDATA #REQUIRED
    *    exceptionClass CDATA #IMPLIED
    * >
    * <!ELEMENT Arg (#PCDATA)>
-   * </code></pre>
+   * </code>
+</pre>
    *
    * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>

@@ -24,6 +24,9 @@ package com.percussion.util;
  *
  * @author Tas Giakouminakis
  * @version 1.0
+ * 
+ * @param <K> the type of key
+ * @param <V> the type of value
  * @since 1.0
  */
 public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {

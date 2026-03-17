@@ -21,6 +21,9 @@ package com.percussion.i18n.rxlt;
  * will be aborted.
  */
 public class PSFatalException extends RuntimeException {
+
+  private static final long serialVersionUID = 1L;
+
   /** Default constructor, simply delegates to its base class counterpart. */
   public PSFatalException() {
     super();

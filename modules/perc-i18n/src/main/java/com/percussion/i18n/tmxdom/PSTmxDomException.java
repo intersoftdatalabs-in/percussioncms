@@ -26,6 +26,9 @@ import java.util.ResourceBundle;
  * @see java.lang.RuntimeException
  */
 public class PSTmxDomException extends RuntimeException {
+
+  private static final long serialVersionUID = 1L;
+
   /** Default constructor */
   public PSTmxDomException() {
     super();

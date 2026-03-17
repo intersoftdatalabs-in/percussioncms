@@ -24,6 +24,8 @@ import java.util.Objects;
 /** Represents a list of allowed communities for a display format. */
 public class AllowedCommunityList extends ArrayList<String> {
 
+  private static final long serialVersionUID = 1L;
+
   public AllowedCommunityList() {
     super();
   }

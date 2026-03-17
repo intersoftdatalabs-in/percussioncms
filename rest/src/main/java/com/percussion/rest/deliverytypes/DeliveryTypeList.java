@@ -31,6 +31,9 @@ import java.util.Objects;
 @ArraySchema(schema = @Schema(implementation = DeliveryType.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeliveryTypeList extends ArrayList<DeliveryType> {
+
+  private static final long serialVersionUID = 1L;
+
   public DeliveryTypeList(Collection<? extends DeliveryType> c) {
     super(c);
   }

@@ -27,6 +27,9 @@ import java.util.Objects;
 @XmlRootElement(name = "ContentType")
 @ArraySchema(schema = @Schema(implementation = ContentType.class))
 public class ContentTypeList extends ArrayList<ContentType> {
+
+  private static final long serialVersionUID = 1L;
+
   public ContentTypeList(Collection<? extends ContentType> c) {
     super(c);
   }
