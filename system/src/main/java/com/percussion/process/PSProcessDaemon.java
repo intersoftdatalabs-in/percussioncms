@@ -104,6 +104,7 @@ import org.xml.sax.SAXException;
  * </code>, which should be an <code>InputStream</code> for the data.
  *
  * <table>
+ *    <caption>Command reference</caption>
  *    <tr>
  *       <th>Command name</th>
  *       <th>Description</th>

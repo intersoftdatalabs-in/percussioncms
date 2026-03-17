@@ -58,6 +58,7 @@ import org.xml.sax.SAXException;
  * are using are as follows:
  *
  * <table border="1">
+ *     <caption>Log message ranges</caption>
  *     <tr><th>Range</th>      <th>Component</th></tr>
  *     <tr><td>0001 - 2000</td><td>Server Logging</td></tr>
  *     <tr><td>2001 - 4000</td><td>Application Logging</td></tr>
@@ -108,6 +109,7 @@ public class PSLogManager {
    * <p>In case of fileTo = "DBMS":
    *
    * <table border="1">
+   *   <caption>DBMS configuration</caption>
    *   <tr><th>Key</th><th>Value</th></tr>
    *   <tr><td>logTo</td>
    *       <td>DBMS</td>
@@ -138,6 +140,7 @@ public class PSLogManager {
    * <p>In case of fileTo = "FILE":
    *
    * <table border="1">
+   *   <caption>FILE configuration</caption>
    *   <tr><th>Key</th><th>Value</th></tr>
    *   <tr><td>logTo</td>
    *       <td>FILE</td>

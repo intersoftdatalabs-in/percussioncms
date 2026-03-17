@@ -22,8 +22,7 @@ import java.util.EventListener;
  * Listener interface to inform the listeners that the handler's state is changed. If an object
  * wants to receive notifications from the Rhythmyx server indicating something has changed with
  * regard to one of its handlers (such as the handler is stopped or started), it should implement
- * this interface and register itself by calling {@link com.percussion.server.
- * PSServer#addHandlerStateListener(IPSHandlerStateListener, String, int)}.
+ * this interface and register itself by calling {@link com.percussion.server.PSServer#addHandlerStateListener}.
  */
 public interface IPSHandlerStateListener extends EventListener {
   /**

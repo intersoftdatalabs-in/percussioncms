@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
  * for the authentication info. The authentication schemes we currently know about are:
  *
  * <TABLE BORDER="1">
+ * <CAPTION>Web Server Authentication Schemes</CAPTION>
  * <TR>
  * <TH>Web Server</TH>
  * <TH>Authentication Type</TH>

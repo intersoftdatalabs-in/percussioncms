@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
  * broken up into two tables. The main table, pslog, has the following format:
  *
  * <table border="1">
+ *   <caption>pslog table</caption>
  *   <tr><th>Column</th><th>Data Type</th><th>Description</th></tr>
  *   <tr><td>log_id_high</td>
  *         <td>INT (PRIMARY KEY)</td>
@@ -59,6 +60,7 @@ import org.apache.logging.log4j.Logger;
  * The secondary table, pslogdat, has the following format:
  *
  * <table border="1">
+ *   <caption>pslog table</caption>
  *   <tr><td>log_id_high</td>
  *         <td>INT (PRIMARY KEY, FOREIGN KEY)</td>
  *         <td>More significant half of the unique id for this entry.</td></tr>
