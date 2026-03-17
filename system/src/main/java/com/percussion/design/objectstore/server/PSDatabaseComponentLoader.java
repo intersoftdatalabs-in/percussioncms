@@ -105,7 +105,7 @@ public class PSDatabaseComponentLoader {
    * May not be <code>null</code>, and must implment
    * {@link IPSDatabaseComponent}.
    *
-   * @param componentType The type of component. May not be <code>null<code> or
+   * @param componentType The type of component. May not be <code>null</code> or
    * empty.
    *
    * @return An array of database components of the specified class, never

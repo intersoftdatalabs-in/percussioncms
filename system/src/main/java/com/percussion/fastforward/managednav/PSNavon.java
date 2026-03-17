@@ -278,7 +278,7 @@ public class PSNavon {
   }
 
   /**
-   * Finds the parent summary. Will be <code>null<code> if the parent
+   * Finds the parent summary. Will be <code>null</code> if the parent
    * cannot be found.
    * @param req the parent request context.
    * @return the component summary or <code>null</code>

@@ -451,7 +451,7 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
 
   /**
    * @return the credential attribute name used to find the user password,
-   *    may be <code>null<code>, not empty.
+   *    may be <code>null</code>, not empty.
    */
   String getCredentialAttribute() {
     return m_credentialAttribute;

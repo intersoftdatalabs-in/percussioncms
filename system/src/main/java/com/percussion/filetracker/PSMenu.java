@@ -50,7 +50,7 @@ class PSMenu extends JMenu {
    *
    * @param checked If <code>true</code>, the menu item will be checked initially, otherwise, it
    *     will be unchecked initially.
-   * @returns the newly created menu item
+   * @return the newly created menu item
    */
   public JCheckBoxMenuItem addCheckBox(PSAction a, boolean checked) {
     JCheckBoxMenuItem newItem = new JCheckBoxMenuItem((String) a.getValue(Action.NAME));
@@ -72,7 +72,7 @@ class PSMenu extends JMenu {
    * Inserts the supplied action in this menu. If the supplied action is a PSAction object, checks
    * if various properties are set. If they are, the menuitem is modified appropriately.
    *
-   * @returns the newly created MenuItem
+   * @return the newly created MenuItem
    */
   public JMenuItem insert(Action a, int pos) {
     JMenuItem newItem = super.insert(a, pos);
@@ -86,7 +86,7 @@ class PSMenu extends JMenu {
   /**
    * Takes properties out of the action and sets the corresponding property in the menu item.
    *
-   * @returns the passed in menu item
+   * @return the passed in menu item
    */
   private JMenuItem decorateMenuItem(JMenuItem item, PSAction action) {
     char cMnemonic = action.getMnemonic();

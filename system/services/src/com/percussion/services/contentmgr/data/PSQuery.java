@@ -327,7 +327,7 @@ public class PSQuery implements Query
     * @param col the name of the property
     * @param type the type being processed
     * @param classes the classes in use in the where clause of the query
-    * @returns <code>true</code> if first was <code>true</code> or if this
+    * @return <code>true</code> if first was <code>true</code> or if this
     *          property was processed
     */
    private boolean mapProjectionParam(StringBuilder rval, boolean first,

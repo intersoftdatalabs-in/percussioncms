@@ -53,7 +53,7 @@ public abstract class PSCataloger {
   /**
    * Convenience constructor that calls
    * {@link #PSCataloger(Properties, PSServerConfiguration)} with
-   * <code>null<code> for the server configuration.
+   * <code>null</code> for the server configuration.
    */
   public PSCataloger(Properties properties) {
     this(properties, null);
@@ -66,7 +66,7 @@ public abstract class PSCataloger {
    *    reference to the <code>PSDirectorySet</code> definition used as the
    *    catalog server, not <code>null</code> or empty.
    * @param config the server configuration with all directory definitions,
-   *    may be <code>null<code> in which case this will get it through
+   *    may be <code>null</code> in which case this will get it through
    *    <code>PSServer.getServerConfiguration()</code>.
    */
   public PSCataloger(Properties properties, PSServerConfiguration config) {
@@ -90,8 +90,8 @@ public abstract class PSCataloger {
    * Creates a new context for the supplied directory.
    *
    * @param directory the directory for which to create the context, assumed
-   *    not <code>null<code>.
-   * @return a new directory context, never <code>null<code>. The caller is
+   *    not <code>null</code>.
+   * @return a new directory context, never <code>null</code>. The caller is
    *    responsible to close it.
    * @throws NamingException if anything goes wrong creating the new context.
    */
@@ -103,11 +103,11 @@ public abstract class PSCataloger {
    * Create new search controls for the supplied parameters.
    *
    * @param directory the directory for which to create the search controls
-   *    for, assumed not <code>null<code>.
+   *    for, assumed not <code>null</code>.
    * @param returnAttrs an array with all attribute names that will be
-   *    returned, <code>null<code> to return all attributes, empty to return
+   *    returned, <code>null</code> to return all attributes, empty to return
    *    no attributes.
-   * @return a search control object, never <code>null<code>.
+   * @return a search control object, never <code>null</code>.
    */
   protected SearchControls createSearchControls(PSDirectory directory, String[] returnAttrs) {
     return PSJndiUtils.createSearchControls(directory, returnAttrs);
@@ -453,7 +453,7 @@ public abstract class PSCataloger {
 
   /**
    * The directory set used for this cataloger, initialized in constructor,
-   * may be <code>null<code> but never changed after that.
+   * may be <code>null</code> but never changed after that.
    */
   protected PSDirectorySet m_directorySet = null;
 

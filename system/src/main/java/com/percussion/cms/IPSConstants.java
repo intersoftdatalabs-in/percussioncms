@@ -213,7 +213,7 @@ public interface IPSConstants {
 
   /**
    * The name of the system view that includes a single field. The format is <code>
-   * sys_SingleField:<fieldName></code> where <code>fieldName</code> is the name of the single
+   * sys_SingleField:&lt;fieldName&gt;</code> where <code>fieldName</code> is the name of the single
    * field.
    */
   String SYS_SINGLE_FIELD_VIEW_NAME = "sys_SingleField:";

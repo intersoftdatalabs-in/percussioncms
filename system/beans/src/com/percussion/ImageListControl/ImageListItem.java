@@ -56,7 +56,7 @@ public class ImageListItem
     return itemText;
   }
 
-/** @returns String The text name of the ImageListItem object.
+/** @return String The text name of the ImageListItem object.
 */
   public String getText()
   {
@@ -70,7 +70,7 @@ public class ImageListItem
     itemText = text;
   }
 
-/** @returns ImageIcon The image of the ImageListItem object.
+/** @return ImageIcon The image of the ImageListItem object.
 */
   public ImageIcon getImage()
   {

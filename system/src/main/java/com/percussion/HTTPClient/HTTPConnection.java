@@ -522,7 +522,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    * @param host the host
    * @param port the port, or -1 for the default port
    * @param localAddr the local address to bind to
-   * @param lcoalPort the local port to bind to
+   * @param localPort the local port to bind to
    * @exception ProtocolNotSuppException if the protocol is not HTTP
    */
   public HTTPConnection(String prot, String host, int port, InetAddress localAddr, int localPort)
@@ -735,7 +735,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
   /**
    * GETs the file with a query consisting of the specified form-data. The data is urlencoded,
-   * turned into a string of the form "name1=value1&name2=value2" and then sent as a query string.
+   * turned into a string of the form "name1=value1&amp;name2=value2" and then sent as a query string.
    *
    * @param file the absolute path of the file
    * @param form_data an array of Name/Value pairs
@@ -749,7 +749,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
   /**
    * GETs the file with a query consisting of the specified form-data. The data is urlencoded,
-   * turned into a string of the form "name1=value1&name2=value2" and then sent as a query string.
+   * turned into a string of the form "name1=value1&amp;name2=value2" and then sent as a query string.
    *
    * @param file the absolute path of the file
    * @param form_data an array of Name/Value pairs
@@ -811,7 +811,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
   /**
    * POSTs form-data to the specified file. The data is first urlencoded and then turned into a
-   * string of the form "name1=value1&name2=value2". A <var>Content-type</var> header with the value
+   * string of the form "name1=value1&amp;name2=value2". A <var>Content-type</var> header with the value
    * <var>application/x-www-form-urlencoded</var> is added.
    *
    * @param file the absolute path of the file
@@ -828,7 +828,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
   /**
    * POST's form-data to the specified file using the specified headers. The data is first
-   * urlencoded and then turned into a string of the form "name1=value1&name2=value2". If no
+   * urlencoded and then turned into a string of the form "name1=value1&amp;name2=value2". If no
    * <var>Content-type</var> header is given then one is added with a value of
    * <var>application/x-www-form-urlencoded</var>.
    *
@@ -1177,7 +1177,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *
    * @param method the extension method
    * @param file the absolute path of the resource, or null
-   * @param stream optional output stream, or null
+   * @param os optional output stream, or null
    * @param headers optional headers, or null
    * @return an HTTPResponse structure containing the response
    * @exception java.io.IOException when an exception is returned from the socket.
@@ -1529,12 +1529,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *
    * @see HTTPClientModule
    * @param module the module's Class object
-   * @param pos the position of this module in the list; if <var>pos</var> >= 0 then this is the
-   *     absolute position in the list (0 is the first position); if <var>pos</var> < 0 then this is
+   * @param pos the position of this module in the list; if <var>pos</var> &gt;= 0 then this is the
+   *     absolute position in the list (0 is the first position); if <var>pos</var> &lt; 0 then this is
    *     the position relative to the end of the list (-1 means the last element, -2 the second to
    *     last element, etc).
    * @return true if module was successfully added; false if the module is already in the list.
-   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> > list-size or if <var>pos</var> <
+   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> &gt; list-size or if <var>pos</var> &lt; 
    *     -(list-size).
    * @exception ClassCastException if <var>module</var> does not implement the
    *     <var>HTTPClientModule</var> interface.
@@ -1571,12 +1571,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *
    * @see HTTPClientModule
    * @param module the module's Class object
-   * @param pos the position of this module in the list; if <var>pos</var> >= 0 then this is the
-   *     absolute position in the list (0 is the first position); if <var>pos</var> < 0 then this is
+   * @param pos the position of this module in the list; if <var>pos</var> &gt;= 0 then this is the
+   *     absolute position in the list (0 is the first position); if <var>pos</var> &lt; 0 then this is
    *     the position relative to the end of the list (-1 means the last element, -2 the second to
    *     last element, etc).
    * @return true if module was successfully added; false if the module is already in the list.
-   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> > list-size or if <var>pos</var> <
+   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> &gt; list-size or if <var>pos</var> &lt; 
    *     -(list-size).
    * @exception ClassCastException if <var>module</var> does not implement the
    *     <var>HTTPClientModule</var> interface.
@@ -1711,7 +1711,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *
    * @param realm the realm
    * @param user the username
-   * @param passw the password
+   * @param passwd the password
    * @see AuthorizationInfo#addDigestAuthorization(java.lang.String, int, java.lang.String,
    *     java.lang.String, java.lang.String)
    */
@@ -1727,7 +1727,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    *
    * @param realm the realm
    * @param user the username
-   * @param passw the password
+   * @param passwd the password
    * @see AuthorizationInfo#addBasicAuthorization(java.lang.String, int, java.lang.String,
    *     java.lang.String, java.lang.String)
    */

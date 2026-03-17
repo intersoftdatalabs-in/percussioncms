@@ -37,7 +37,7 @@ public interface IPSSecurityProvider {
   public int getTypeId();
 
   /**
-   * @return the security provider instance name, never <code>null<code> or
+   * @return the security provider instance name, never <code>null</code> or
    *    empty. This name is unique across all security provider instances.
    */
   public String getInstance();

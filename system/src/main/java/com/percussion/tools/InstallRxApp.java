@@ -36,7 +36,7 @@ public class InstallRxApp {
    * Constructor that takes the JAR file that has all the application files. The file name paths
    * MUST be relative to the Rhythmyx root directory.
    *
-   * @param JAR file (full path)
+   * @param sJarFilePath the JAR file with full path
    * @throws FileNotFoundException when the JAR file is not found.
    * @throws IOException when the file could not be accessed.
    */
@@ -49,10 +49,10 @@ public class InstallRxApp {
   /**
    * This method actually installs the applications. In the first part it copies the application
    * file 'ObjectStore/<appName.xml> to target directory. In the later part, It copies all the
-   * application files (folder <appName>) to the target directory.
+   * application files (folder &lt;appName&gt;) to the target directory.
    *
-   * @param target Rhythmyx root directory as String. e.g. c:/Rhythmyx.
-   * @param application name as String. e.g. WFEditor in (ObjectStore/WFEditor.xml)
+   * @param sTargetRoot Rhythmyx root directory as String. e.g. c:/Rhythmyx.
+   * @param sAppName application name as String. e.g. WFEditor in (ObjectStore/WFEditor.xml)
    */
   public void install(String sTargetRoot, String sAppName) {
     String sAppFilePath = "ObjectStore/" + sAppName + ".xml";

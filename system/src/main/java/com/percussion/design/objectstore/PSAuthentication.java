@@ -218,7 +218,7 @@ public class PSAuthentication extends PSComponent {
    *
    * @param userAttr the new attribute name which holds the user to
    *    authenticate with, may be <code>null</code> or empty. Empty
-   *    attribute names are stored as <code>null<code>.
+   *    attribute names are stored as <code>null</code>.
    */
   public void setUserAttr(String userAttr) {
     if (userAttr != null) userAttr = userAttr.trim();
@@ -233,7 +233,7 @@ public class PSAuthentication extends PSComponent {
    * defined, only <<code>m_user</code>> otherwise.
    *
    * @return the principal <code>String</code> as used to authenticate,
-   *    never <code>null<code> or empty.
+   *    never <code>null</code> or empty.
    */
   public String getPrincipal() {
     String attrName = getUserAttr();
@@ -314,7 +314,7 @@ public class PSAuthentication extends PSComponent {
    * Get the credential string used to authenticate with.
    *
    * @return the credential string as used to authenticate, never
-   *    <code>null<code>, may be empty.
+   *    <code>null</code>, may be empty.
    */
   public String getCredentials() {
     return getPassword();

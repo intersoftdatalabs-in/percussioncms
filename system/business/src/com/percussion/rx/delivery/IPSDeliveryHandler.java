@@ -77,7 +77,7 @@ public interface IPSDeliveryHandler
     * <p>
     * Deliver is also called for handlers that remove items using assembly
     * results, where the value of
-    * {@link IPSDeliveryType#isUnpublishingRequiresAssembly()} is
+    * {@link com.percussion.services.publisher.IPSDeliveryType#isUnpublishingRequiresAssembly()} is
     * <code>true</code>, and the value of {@link IPSDeliveryItem#isPublish()}
     * is <code>false</code>. Such cases call this method instead of
     * {@link #remove(IPSDeliveryItem)}
@@ -97,7 +97,7 @@ public interface IPSDeliveryHandler
     * removed immediately.
     * <p>
     * This remove method is not called if
-    * {@link IPSDeliveryType#isUnpublishingRequiresAssembly()} is
+    * {@link com.percussion.services.publisher.IPSDeliveryType#isUnpublishingRequiresAssembly()} is
     * <code>true</code> regardless the value of
     * {@link IPSDeliveryItem#isPublish()}. See {@link #deliver(IPSDeliveryItem)}
     * for details.
@@ -108,7 +108,7 @@ public interface IPSDeliveryHandler
     * @return the delivery result, see {@link #deliver(IPSDeliveryItem)} for
     * details.
     * 
-    * @see #deliver(IPSDeliveryItem).
+    * @see #deliver(IPSDeliveryItem)
     */
    IPSDeliveryResult remove(IPSDeliveryItem deliveryItem);
    

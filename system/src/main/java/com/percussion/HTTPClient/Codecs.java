@@ -1353,7 +1353,7 @@ public class Codecs {
   }
 
   /**
-   * Turns an array of name/value pairs into the string "name1=value1&name2=value2&name3=value3".
+   * Turns an array of name/value pairs into the string "name1=value1&amp;name2=value2&name3=value3".
    * The names and values are first urlencoded. This is the form in which form-data is passed to a
    * cgi script.
    *
@@ -1378,7 +1378,7 @@ public class Codecs {
   }
 
   /**
-   * Turns a string of the form "name1=value1&name2=value2&name3=value3" into an array of name/value
+   * Turns a string of the form "name1=value1&amp;name2=value2&name3=value3" into an array of name/value
    * pairs. The names and values are urldecoded. The query string is in the form in which form-data
    * is received in a cgi script.
    *

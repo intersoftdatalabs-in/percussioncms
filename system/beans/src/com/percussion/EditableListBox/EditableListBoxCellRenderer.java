@@ -79,7 +79,7 @@ public class EditableListBoxCellRenderer extends JLabel
     }
 
     /**
-     * Notification from the UIManager that the L&F has changed. 
+     * Notification from the UIManager that the L&amp;F has changed. 
      * Replaces the current UI object with the latest version from the 
      * UIManager.
      *

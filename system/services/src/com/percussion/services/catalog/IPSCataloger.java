@@ -64,7 +64,7 @@ public interface IPSCataloger {
     * particularly during import operations.
     *
     * @return array of handled types, never {@code null}, may be empty
-    * @implNote Implementations should return a consistent set of types
+    * // @implNote Implementations should return a consistent set of types
     */
    PSTypeEnum[] getTypes();
 

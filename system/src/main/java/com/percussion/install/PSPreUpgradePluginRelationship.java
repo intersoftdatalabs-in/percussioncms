@@ -44,7 +44,7 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Implements process method of IPSUpgradePlugin.
    *
-   * @param module IPSUpgradeModule object. may not be <code>null<code>.
+   * @param module IPSUpgradeModule object. may not be <code>null</code>.
    * @param elemData data element of plugin.
    */
   public PSPluginResponse process(IPSUpgradeModule module, Element elemData) {

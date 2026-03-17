@@ -210,7 +210,7 @@ public class PSXdTransformDomToText extends PSDefaultExtension
    * @param cx the XMLDOM context for this request; must not be <code>null</code>
    * @param xmlDoc the source document to be transformed; must not be <code>null</code>
    * @param stylesheetName a URL to the XSLT stylesheet; must not be <code>null</code> or empty
-   * @returns an XML Document containing the output from the stylesheet
+   * @return an XML Document containing the output from the stylesheet
    * @throws PSExtensionProcessingException
    * @throws TransformerException
    * @throws SAXException

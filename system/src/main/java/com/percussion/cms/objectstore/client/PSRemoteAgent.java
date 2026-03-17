@@ -373,7 +373,7 @@ public class PSRemoteAgent {
    *  @param contentId
    *            for the item. Assumed valid content id.
    *
-   *  @return the transistion comment. May be <code>null<code> if there is no
+   *  @return the transistion comment. May be <code>null</code> if there is no
    *    transition performed for this supplied item.
    *
    *  @throws PSRemoteException if an error occurs.

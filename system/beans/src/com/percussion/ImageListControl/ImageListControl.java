@@ -69,7 +69,7 @@ public class ImageListControl extends JPanel
 // PUBLIC METHODS
 //
 
-/** @returns JList The JList (ImageListControlList) reference for setting the
+/** @return JList The JList (ImageListControlList) reference for setting the
   * list configuration. *NOTE* USE THE <CODE>setPreferredSize()</CODE> METHOD
   * FROM THIS CLASS (ImageListControl), NOT FROM THE <CODE>JList</CODE> RETURNED
   * BY THIS METHOD.

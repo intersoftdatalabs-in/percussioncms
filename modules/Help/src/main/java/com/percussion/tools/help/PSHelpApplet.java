@@ -110,7 +110,7 @@ public class PSHelpApplet extends JApplet {
    * Returns the context corrected image url
    *
    * @param imageURLString the image url string passed in. Must not be <code>null</code>.
-   * @returns url corrected to be in the correct context.
+   * @return url corrected to be in the correct context.
    */
   private URL getCorrectedURL(String imageURLString) {
     URL theURL = null;

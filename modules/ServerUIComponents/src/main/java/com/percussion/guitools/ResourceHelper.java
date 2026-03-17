@@ -104,7 +104,7 @@ public class ResourceHelper {
   }
 
   /**
-   * @returns the point found in the supplied resource bundle under the supplied key name. If one is
+   * @return the point found in the supplied resource bundle under the supplied key name. If one is
    *     not found, a point of 0,0 is returned. If debugging is enabled and the resource isn't
    *     found, an assertion is issued.
    */

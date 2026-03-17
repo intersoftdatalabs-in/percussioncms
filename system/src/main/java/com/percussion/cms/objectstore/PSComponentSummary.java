@@ -159,7 +159,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
    *           <code>null</code>.
    *
    * @throws PSUnknownNodeTypeException If the supplied source element does not
-   *            conform to the dtd defined in the <code>fromXml<code> method.
+   *            conform to the dtd defined in the <code>fromXml()</code> method.
    */
   public PSComponentSummary(Element source) throws PSUnknownNodeTypeException {
     super(source);

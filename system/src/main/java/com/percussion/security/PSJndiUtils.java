@@ -104,7 +104,7 @@ public class PSJndiUtils {
    *
    * @param extensionName the password filter extension name. Must
    *    not be <code>null</code> or empty.
-   * @return the newly constructed password filter, never <code>null<code>.
+   * @return the newly constructed password filter, never <code>null</code>.
    * @throws PSRuntimeException if instance of filter class cannot be found
    *    or constructed.
    */
@@ -176,11 +176,11 @@ public class PSJndiUtils {
    * @param values the filter values, where the key is the attribute name
    *    as <code>String</code> and the value is the attribute value as
    *    <code>String</code>, or a list of <code>String</code>snot
-   *    <code>null<code> or empty. <code>null<code> or empty attribute values
+   *    <code>null</code> or empty. <code>null</code> or empty attribute values
    *    will be replace with a wildcard value '*'. <code>null</code> or
    *    empty attribute keys are not allowed.
    * @return the filter string in the form of (&(key1=value1)...(keyN=valueN))
-   *    for all map entries, never <code>null<code>.
+   *    for all map entries, never <code>null</code>.
    */
   public static String buildFilter(Map<String, Object> values) {
     if (values == null) throw new IllegalArgumentException("values cannot be null");
@@ -247,10 +247,10 @@ public class PSJndiUtils {
    * Creates a new context for the supplied directory using the specified url.
    *
    * @param directoryDef the directory definition for which to create the
-   *    context, not <code>null<code>.
+   *    context, not <code>null</code>.
    * @param url The url to use, may be <code>null</code> to use the one defined
    *    in the supplied directory def.
-   * @return a new directory context, never <code>null<code>. The caller is
+   * @return a new directory context, never <code>null</code>. The caller is
    *    responsible to close it.
    * @throws NamingException if anything goes wrong creating the new context.
    */
@@ -340,11 +340,11 @@ public class PSJndiUtils {
    * Create new search controls for the supplied parameters.
    *
    * @param directory the directory for which to create the search controls
-   *    for, not <code>null<code>.
+   *    for, not <code>null</code>.
    * @param returnAttributes an array with all attribute names that must be
-   *    returned, <code>null<code> to return all attributes, empty to return
+   *    returned, <code>null</code> to return all attributes, empty to return
    *    no attributes.
-   * @return a search control object, never <code>null<code>.
+   * @return a search control object, never <code>null</code>.
    */
   public static SearchControls createSearchControls(
       PSDirectory directory, String[] returnAttributes) {
@@ -366,7 +366,7 @@ public class PSJndiUtils {
    * Attempts to determine the base context from the provided URL.
    *
    * @param providerUrl the url to the directory provider, may be
-   *           <code>null<code> or empty.
+   *           <code>null</code> or empty.
    * @return the base context if there is one specified by the provided url,
    *    or an empty string if there is not one specified, or <code>null</code>
    *    if the provided url is <code>null</code> or malformed.
@@ -401,9 +401,9 @@ public class PSJndiUtils {
    * @param uid the value of the userid attribute in the directory we are
    *    building a username for, my not be <code>null</code> or empty.
    * @param principleAttribute the priciple attribute name, may be
-   *    <code>null<code> but not empty.
+   *    <code>null</code> but not empty.
    * @param baseContext the base context to build the full name for, may be
-   *    <code>null<code> but not empty.
+   *    <code>null</code> but not empty.
    * @return the fully qualified username, never <code>null</code> or empty.
    *    The returned name is escaped.
    */
@@ -449,7 +449,7 @@ public class PSJndiUtils {
    * context.
    *
    * @param dn the distinguished name to create the compound name from, not
-   *    <code>null<code> or empty.
+   *    <code>null</code> or empty.
    * @param context if dn is relative to a search context, the distinguished
    *    name of the entry the dn is relative to. This value is appended onto
    *    the dn. May be <code>null</code> if dn is not a relative name.
@@ -470,9 +470,9 @@ public class PSJndiUtils {
   /**
    * Get the full password for the supplied parameters.
    *
-   * @param pw the password, not <code>null<code>, may be empty.
+   * @param pw the password, not <code>null</code>, may be empty.
    * @param credentialAttribute the credential attribute name, may be
-   *    <code>null<code> but not empty.
+   *    <code>null</code> but not empty.
    * @return the full password which is <code>credentialAttribute=pw</code> if
    *    a valid credential attribute was supplied, <code>pw</code> otherwise.
    */

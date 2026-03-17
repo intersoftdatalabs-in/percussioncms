@@ -40,7 +40,7 @@ public class PSUpgradePluginAddNewVersionToSiteExplorer implements IPSUpgradePlu
   /**
    * Implements process method of IPSUpgradePlugin.
    * @param config IPSUpgradeModule object.
-   *    may not be <code>null<code>.
+   *    may not be <code>null</code>.
    * @param elemData data element of plugin.
    * @return <code>null</code>
    */

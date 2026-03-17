@@ -78,7 +78,7 @@ public interface IPSAssemblyService extends IPSAssembler, IPSTemplateService, IP
      * {@link IPSAssemblyItem#normalize()} before assembling the item.
      *
      * @return an uninitialized assembly item, never {@code null}
-     * @implNote This method replaces the deprecated factory method with a cleaner API
+     * // @implNote This method replaces the deprecated factory method with a cleaner API
      */
     IPSAssemblyItem createAssemblyItem();
 
@@ -162,7 +162,7 @@ public interface IPSAssemblyService extends IPSAssembler, IPSTemplateService, IP
      * Get all available content finder names as a Stream for functional processing.
      *
      * @return Stream of content finder names, never {@code null}
-     * @implNote Implementation should provide efficient streaming of finder names
+     * // @implNote Implementation should provide efficient streaming of finder names
      */
     default Stream<String> getContentFinderNames() {
         // Default implementation returns empty stream - implementations should override

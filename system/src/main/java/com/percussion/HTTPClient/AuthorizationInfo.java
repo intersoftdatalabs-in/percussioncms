@@ -932,7 +932,7 @@ public class AuthorizationInfo implements Cloneable {
   /**
    * Set the authentication parameters.
    *
-   * @param an array of name/value pairs.
+   * @param pairs of name/value pairs.
    */
   public final void setParams(NVPair[] params) {
     if (params != null) auth_params = Util.resizeArray(params, params.length);

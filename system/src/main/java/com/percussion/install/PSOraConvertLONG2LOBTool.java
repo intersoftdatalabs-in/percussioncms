@@ -69,9 +69,9 @@ public class PSOraConvertLONG2LOBTool {
 
   /**
    * The only constuctor
-   * @param conn opened database connection, never <code>null<code>
-   * @param databaseDef never <code>null<code>
-   * @param debugLogStream a stream for logging, never <code>null<code>
+   * @param conn opened database connection, never <code>null</code>
+   * @param databaseDef never <code>null</code>
+   * @param debugLogStream a stream for logging, never <code>null</code>
    * @throws SQLException
    */
   public PSOraConvertLONG2LOBTool(
@@ -1231,7 +1231,7 @@ public class PSOraConvertLONG2LOBTool {
 
   /**
    * logs database query results
-   * @param rs result set to log, can be <code>null<code>
+   * @param rs result set to log, can be <code>null</code>
    * @throws SQLException
    */
   private static void logQueryResults(ResultSet rs) throws SQLException {

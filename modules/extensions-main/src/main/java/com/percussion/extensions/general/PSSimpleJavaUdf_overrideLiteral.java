@@ -33,9 +33,9 @@ public class PSSimpleJavaUdf_overrideLiteral extends PSSimpleJavaUdfExtension
    * value if an override parameter (<code>params[1]</code>) is specified and was found on the
    * supplied request. If found, the override parameter is removed from the request.
    *
-   * @params[0] the object which will be returned as <code>String</code>, required, may be <code>
+   * @param[0] the object which will be returned as <code>String</code>, required, may be <code>
    *     null</code> or empty.
-   * @params[1] the request parameter name used to allow overrides through the HTML request,
+   * @param[1] the request parameter name used to allow overrides through the HTML request,
    *     optional, may be <code>null</code> or empty.
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(Object[], IPSRequestContext) for
    *     additional documentation.

@@ -32,7 +32,7 @@ public class PSCreatePortalPropertyList extends PSSimpleJavaUdfExtension {
    * Creates the <code>Properties</code> element as specified in the sys_PortalPublisher.dtd for the
    * supplied parameters.
    *
-   * @params the property attributes and values for all properties that need to be created. For each
+   * @param the property attributes and values for all properties that need to be created. For each
    *     property a group of 4 parameters is expected in the order name, type, pattern and value.
    *     The pattern can be <code>null</code> or empty. If empty and the type is set to dateTime,
    *     the default pattern "yyyy-MM-dd" is used. Multiple values can be supplied as a coma

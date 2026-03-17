@@ -61,7 +61,7 @@ public class PSLogServerWarning extends PSLogInformation {
    *
    * @param   origin         if <code>toConsole</code> is <code>true</code>
    *                           the name to use in the console message.
-   *                           if <code>null<code>, "Server" is used.
+   *                           if <code>null</code>, "Server" is used.
    */
   public PSLogServerWarning(int msgCode, Object[] msgParams, boolean toConsole, String origin) {
     super(LOG_TYPE, 0);

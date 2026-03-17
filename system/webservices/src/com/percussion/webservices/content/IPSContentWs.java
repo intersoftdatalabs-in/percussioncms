@@ -169,7 +169,7 @@ public interface IPSContentWs
    /**
     * Finds the IDs of all items in the specified folder path, recursively processes child folders.  
     * 
-    * @param folderPath The folder path to check, may not be <code>null<code/> or empty.
+    * @param folderPath The folder path to check, may not be <code>null</code> or empty.
     * 
     * @return The list of item ids, may be empty, <code>null</code> if the supplied folder path is invalid.
     * @throws PSErrorException if there is an unexpected error.
@@ -1083,7 +1083,6 @@ public interface IPSContentWs
     * greater than the existing relationship size, then the new content
     * relations are appended to the existing ones in the order as the related
     * items were supplied.
-    * @param user the requester. Must not be <code>null</code> or empty.
     * 
     * @return a list of created active assembly relationships in the order of
     * sort rank property, never <code>null</code> or empty. All content
@@ -1648,7 +1647,7 @@ public interface IPSContentWs
    public PSFolder addFolder(String name, String parentPath, String srcPath, boolean loadTransientData);
    
    /**
-    * @deperecated Use {@link #addFolderTree(String)}
+    * @deprecated Use {@link #addFolderTree(String)}
     */
    @Deprecated
    public List<PSFolder> addFolderTree(String path, String user) 
@@ -1696,7 +1695,7 @@ public interface IPSContentWs
       throws PSErrorResultsException, PSErrorException;
 
    /**
-    * @deperecated Use {@link #findFolderChildren(IPSGuid, boolean)}
+    * @deprecated Use {@link #findFolderChildren(IPSGuid, boolean)}
     */
    @Deprecated
    public List<PSItemSummary> findFolderChildren(IPSGuid id, 
@@ -1735,7 +1734,7 @@ public interface IPSContentWs
    List<PSItemSummary> findChildFolders(IPSGuid id) throws PSErrorException;
    
    /**
-    * @deperecated Use {@link #findFolderChildren(String, boolean)}
+    * @deprecated Use {@link #findFolderChildren(String, boolean)}
     */
    @Deprecated
    public List<PSItemSummary> findFolderChildren(String path,

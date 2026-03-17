@@ -112,7 +112,7 @@ public class PSValidateSlotName implements IPSRequestPreProcessor {
    * <p>A slotname is considered unique if the name is not already in the database or the name is in
    * the database and has the same slotid passed in by this request.
    *
-   * @returns true if this slotname is unique, else false if it is not unique.
+   * @return true if this slotname is unique, else false if it is not unique.
    */
   private boolean isValid() {
 

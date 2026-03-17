@@ -53,7 +53,7 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
   /*
    * Constuctor of this class.
    * @param configFile Name of the configuration file.
-   *    May not be <code>null<code>.
+   *    May not be <code>null</code>.
    */
   public PSUpgradeConfig(Document configDoc) throws IOException, SAXException {
     loadConfig(configDoc);
@@ -62,7 +62,7 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
   /*
    * Constuctor of this class.
    * @param configFile Name of the configuration file.
-   *    May not be <code>null<code>.
+   *    May not be <code>null</code>.
    */
   public PSUpgradeConfig(String configFile)
       throws FileNotFoundException, IOException, SAXException {
@@ -805,7 +805,7 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
    * if one exists it loads it and sets PreviousVersionExists=yes, otherwise it loads version props
    * from the rxclient.jar file and sets PreviousVersionExists=no.
    *
-   * @returns server version props, may be <code>null</code>.
+   * @return server version props, may be <code>null</code>.
    */
   private Properties getVersionProps() {
     if (ms_versionProps != null) return ms_versionProps;

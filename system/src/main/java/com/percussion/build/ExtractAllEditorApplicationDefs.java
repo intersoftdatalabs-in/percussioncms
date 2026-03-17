@@ -62,7 +62,7 @@ public class ExtractAllEditorApplicationDefs {
    *     externally defined <code>SYSTEM</code> DTD. May not be <code>null</code> or emtpy, and
    *     should be relative to the working directory of the workbench, and assumes that the
    *     workbench has been installed along with the server.
-   * @throws <code>IllegalArgumentException</code> any params are invalid.
+   * @throws IllegalArgumentException if any params are invalid.
    *     <p>Example: applications\rx_ce<name>\rx_ce<Name>.xml will create
    *     applications\rx_ce<name>\src\name.xml.
    */

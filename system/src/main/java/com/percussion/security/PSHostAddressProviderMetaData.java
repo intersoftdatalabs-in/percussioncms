@@ -69,7 +69,7 @@ public class PSHostAddressProviderMetaData extends Object {
 
   /**
    * The host address provider instance, initialized in constructor, may be
-   * <code>null<code>.
+   * <code>null</code>.
    */
   private PSHostAddressProvider m_instance = null;
 }

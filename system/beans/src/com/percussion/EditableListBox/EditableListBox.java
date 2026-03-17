@@ -331,7 +331,7 @@ public class EditableListBox extends JPanel implements ActionListener
 
 /** Checks if the current selected row is the last cell.
   *
-  * @returns boolean true = is last cell; false = is not last cell.
+  * @return boolean true = is last cell; false = is not last cell.
 */
   public boolean isLastCell()
   {
@@ -393,7 +393,7 @@ public class EditableListBox extends JPanel implements ActionListener
 
 /** Sets value at specified row index, single-column version.
   *
-  * @param o The Object to be stored at the index.
+  * @param obj The Object to be stored at the index.
   * @param index The int index of the row.
 */
   public void setItemAt(Object obj, int index)
@@ -434,24 +434,24 @@ public class EditableListBox extends JPanel implements ActionListener
      m_list.getColumn(m_dataModel.getColumnName(column)).setCellRenderer(renderer);
   }
 
-/** @returns <CODE>true</CODE> if empty last cell is enabled; <CODE>false</CODE>
+/** @return <CODE>true</CODE> if empty last cell is enabled; <CODE>false</CODE>
   * if it is not. */
   public boolean isEmptyEndCellEnabled() { return m_emptyEndCellEnabled; }
 
-/** @returns The browse dialog brought up by the browseButton. */
+/** @return The browse dialog brought up by the browseButton. */
   public JDialog getBrowseDialog()  { return m_browseDialog; }
 
-/** @returns The browse file chooser brought up by the browseButton. */
+/** @return The browse file chooser brought up by the browseButton. */
   public JFileChooser getFileChooser()  { return m_fChooser; }
 
-/** @params d A JDialog brought up by the browseButton. */
+/** @param d A JDialog brought up by the browseButton. */
   public void setBrowseDialog(JDialog d)
   {
      m_fChooser = null;
      m_browseDialog = d;
   }
 
-/** @params d A JFileChooser brought up by the browseButton. */
+/** @param d A JFileChooser brought up by the browseButton. */
   public void setFileChooser(JFileChooser d)
   {
      m_browseDialog = null;
@@ -461,9 +461,9 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Get the value of cell, multi-column version.
   *
   * @param row The row index.
-  * @param column The column index.
+  * @param index The row index.
   *
-  * @returns Object The Object at the specified indices.
+  * @return Object The Object at the specified indices.
 */
   public Object getRowValue(int row, int column)
   { return m_list.getValueAt(row, column); }
@@ -472,7 +472,7 @@ public class EditableListBox extends JPanel implements ActionListener
   *
   * @param row The row index.
   *
-  * @returns Object The Object at the specified index.
+  * @return Object The Object at the specified index.
 */
   public Object getRowValue(int row)
   { return m_list.getValueAt(row, 0); }
@@ -480,7 +480,7 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Get the value of cell, single-column version.
   *
   * @param o The Object to be stored in Table.
-  * @param column The column index.
+  * @param index The row index.
 */
   public void setRowValue(Object o, int index)
   {
@@ -492,7 +492,7 @@ public class EditableListBox extends JPanel implements ActionListener
   *
   * @param o The Object to be stored at the specified indices.
   * @param index The row index.
-  * @param column The column index.
+  * @param index The row index.
 */
   public void setRowValue(Object o, int index, int column)
   {
@@ -516,7 +516,7 @@ public class EditableListBox extends JPanel implements ActionListener
   *
   * @param o The Object to be stored at the specified indices.
   * @param index The row index.
-  * @param column The column index.
+  * @param index The row index.
 */
   public void insertRowValue(int index, int column, Object o)
   {
@@ -588,7 +588,7 @@ public class EditableListBox extends JPanel implements ActionListener
         throw new IllegalArgumentException();
   }
 
-/** @returns Component Retrieves the cell editor&apos;s editing component
+/** @return Component Retrieves the cell editor&apos;s editing component
   * (JTextField or JComboBox).
 */
   public Component getCellEditorComponent()
@@ -602,7 +602,7 @@ public class EditableListBox extends JPanel implements ActionListener
 
 
 /** @param columnIdentifier The string that identifies the columns.
-  * @returns Component Retrieves the cell editor&apos;s editing component
+  * @return Component Retrieves the cell editor&apos;s editing component
   * (JTextField or JComboBox).
 */
   public Component getCellEditorComponent(String columnIdentifier)
@@ -617,7 +617,7 @@ public class EditableListBox extends JPanel implements ActionListener
   
 
 /** 
-  * @param int The editorType component, either JTextField or JComboBox.
+  * @param editorType The editorType component, either JTextField or JComboBox.
   * 
 */
   public void setCellEditorComponent(int editorType)
@@ -628,8 +628,8 @@ public class EditableListBox extends JPanel implements ActionListener
   }
 
 
-/** @param String columnIdentifier The string that identifies the columns.
-  * @param int The editorType component, either JTextField or JComboBox.
+/** @param columnIdentifier The string that identifies the columns.
+  * @param editorType The editorType component, either JTextField or JComboBox.
 */
   public void setCellEditorComponent(String columnIdentifier, int editorType)
   {
@@ -639,7 +639,7 @@ public class EditableListBox extends JPanel implements ActionListener
   }
      
 
-/** @returns TableCellEditor The current editor used by the EditableListBox.
+/** @return TableCellEditor The current editor used by the EditableListBox.
 */
   public TableCellEditor getCellEditor()
   {
@@ -722,7 +722,7 @@ public class EditableListBox extends JPanel implements ActionListener
     * See setSelectionMode() in JList for details about the modes.    
     *    
     * @see javax.swing.JList#setSelectionMode
-    * @beaninfo    
+    * @deprecated beaninfo is not supported in Javadoc    
     * description: The selection mode used by the row and column selection models.    
     *        enum: SINGLE_SELECTION            ListSelectionModel.SINGLE_SELECTION    
     *              SINGLE_INTERVAL_SELECTION   ListSelectionModel.SINGLE_INTERVAL_SELECTION    
@@ -845,7 +845,7 @@ public class EditableListBox extends JPanel implements ActionListener
   }
 
 
-/** @returns IDataExchange The object that was implemented in setDataExchange.
+/** @return IDataExchange The object that was implemented in setDataExchange.
   * This may be <CODE>null</CODE>.  If <CODE>null</CODE>, the editor will create
   * a String object by default.
 */

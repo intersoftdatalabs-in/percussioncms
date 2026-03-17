@@ -53,7 +53,7 @@ public class PSModifyStyleSheet {
   /* function to run the guts
    * @param   strStyleSheet      the file name of the style sheet to be modified
    *                     (style-sheet-filename)
-   *@returns true for error, false for success
+   *@return true for error, false for success
    */
 
   public boolean modify(String strStyleSheet) {
@@ -115,7 +115,7 @@ public class PSModifyStyleSheet {
    * "./../../DTD/HTMLlat1x.ent" to "./../../DTD/HTMLlat1x.ent".
    *
    * @param strStyleSheet the file name of the style sheet to be modified
-   * @returns <code>true</code> for error, <code>false</code> for success
+   * @return <code>true</code> for error, <code>false</code> for success
    */
   public boolean convertServerRoot(String strStyleSheet) {
     File xslFile = null;

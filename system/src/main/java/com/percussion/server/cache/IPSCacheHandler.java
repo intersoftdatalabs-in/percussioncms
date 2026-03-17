@@ -102,7 +102,7 @@ public interface IPSCacheHandler {
    *     storing the item. May not be <code>null</code>. {@link #isRequestCacheable(PSCacheContext)
    *     isRequestCacheable} should be called before calling this method to ensure the current
    *     request is cacheable.
-   * @param response The document that will be stored in the cache. May not be <code>null</code>.
+   * @param doc The document that will be stored in the cache. May not be <code>null</code>.
    * @throws IllegalArgumentException if either param is <code>null</code> or if the current request
    *     is not cacheable.
    * @throws PSCacheException if there are any errors.
@@ -142,7 +142,7 @@ public interface IPSCacheHandler {
   /**
    * Determines if the supplied result data may be cached. Not all results are cacheable.
    *
-   * @param data The data that will be used to create a cached document or merged result to store.
+   * @param bytes The data that will be used to create a cached document or merged result to store.
    *     May not be <code>null</code>.
    * @return <code>true</code> if the data is cacheable, <code>false</code> if not.
    * @throws IllegalArgumentException if <code>response</code> is <code>null</code>.

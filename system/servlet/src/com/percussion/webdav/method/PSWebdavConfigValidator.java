@@ -556,7 +556,7 @@ public class PSWebdavConfigValidator
     * @param it a list of registered root paths, which does not include its
     *    own root path, assumed not <code>null</code>.
     * 
-    * @returns <code>true</code> if this servlet's rootpath is not contained
+    * @return <code>true</code> if this servlet's rootpath is not contained
     *          nor contains any other registered servlet root paths.
     *          <code>false</code> otherwise.
     */

@@ -28,7 +28,7 @@ public class Attribute_lang {
   /**
    * Returns unique id of the
    *
-   * @returns id - unique id of attribute language
+   * @return id - unique id of attribute language
    */
   public int getId() {
     return id;

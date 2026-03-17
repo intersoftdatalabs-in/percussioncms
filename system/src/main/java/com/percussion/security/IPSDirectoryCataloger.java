@@ -92,7 +92,7 @@ public interface IPSDirectoryCataloger {
    * @param user the subject as known to Rhythmyx. Never <code>null</code>.
    * @param attributeName the desired attribute, never <code>null</code> or
    *    empty.
-   * @return the requested attribute or <code>null<code> if no attribute is
+   * @return the requested attribute or <code>null</code> if no attribute is
    *    found for the specified attribute name. If the attribute holds
    *    multiple values, the first entry will be returned.
    */
@@ -135,7 +135,7 @@ public interface IPSDirectoryCataloger {
    * @return the supplied subject is returned. All requested attributes are
    *    set on this subject as attributes. Existing attributes on the supplied
    *    subject will be overwritten. Attributes that are not found are added
-   *    to the subject with <code>null<code> as value.
+   *    to the subject with <code>null</code> as value.
    */
   public PSSubject getAttributes(PSSubject user, Collection attributeNames);
 

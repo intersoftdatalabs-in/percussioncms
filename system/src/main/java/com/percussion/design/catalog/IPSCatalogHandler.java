@@ -33,7 +33,6 @@ public interface IPSCatalogHandler {
    * Format the catalog request based upon the specified request information. If any required
    * information is missing, an exception will be thrown.
    *
-   * @param out the output stream to which the properly formatted request will be written
    * @param req the request information
    */
   public abstract Document formatRequest(java.util.Properties req);

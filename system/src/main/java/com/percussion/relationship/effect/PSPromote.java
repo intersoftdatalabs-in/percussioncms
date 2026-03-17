@@ -220,7 +220,7 @@ public class PSPromote extends PSEffect {
   /**
    * Always returns success. For more info see {@link IPSEffect}.
    *
-   * @returns always returns success, never <code>null</code>.
+   * @return always returns success, never <code>null</code>.
    * @throws PSExtensionProcessingException never.
    */
   public void recover(

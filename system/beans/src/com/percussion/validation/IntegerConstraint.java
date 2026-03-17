@@ -51,8 +51,8 @@ public class IntegerConstraint implements ComponentValidationConstraint {
     * maximum boundary is required, and enter {@code Integer.MIN_VALUE} for
     * min if no minimum boundary is desired.
     *
-    * @param min input for the range minimum. Must be < max.
-    * @param max input for the range maximum. Must be > min.
+    * @param min input for the range minimum. Must be &lt; max.
+    * @param max input for the range maximum. Must be &gt; min.
     * 
     * @throws IllegalArgumentException if max is less than or equal to min.
     */

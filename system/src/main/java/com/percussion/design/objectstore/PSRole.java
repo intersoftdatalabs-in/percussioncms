@@ -46,7 +46,7 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   /**
    * Searches for a matching subject in this role.
    *
-   * @param   sub a subject, can't be <code>null<code>.
+   * @param   sub a subject, can't be <code>null</code>.
    *
    * @return  <code>true</code> if a matching subject is found (using the
    *          {@link PSSubject#isMatch(PSSubject)} method, <code>false</code>
@@ -418,7 +418,7 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
    * The map will contain entries keyed by the attribute name with
    * the associated value being the value of the attribute.
    *
-   * @return The attribute list, never <code>null<code>.
+   * @return The attribute list, never <code>null</code>.
    */
   public PSAttributeList getAttributes() {
     return m_attributes;

@@ -41,7 +41,7 @@ public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin
   /**
    * Implements process method of IPSUpgradePlugin.
    *
-   * @param module IPSUpgradeModule object. may not be <code>null<code>.
+   * @param module IPSUpgradeModule object. may not be <code>null</code>.
    * @param elemData data element of plugin.
    *
    * @return plugin response, may be <code>null</code>.

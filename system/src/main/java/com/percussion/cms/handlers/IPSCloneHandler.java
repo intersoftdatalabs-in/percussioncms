@@ -49,7 +49,7 @@ public interface IPSCloneHandler {
    *    If provided, this will be called after the object has been cloned to
    *    create a new relationship.
    *
-   * @return the locator of the new object created, never <code>null</null>.
+   * @return the locator of the new object created, never <code>null</code>.
    *
    * @throws IllegalArgumentException if any parameter but cb is
    *    <code>null</code>.

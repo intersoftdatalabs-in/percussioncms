@@ -30,7 +30,7 @@ public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInt
   /**
    * Convenience constructor that calls
    * {@link #PSBackendRoleCataloger(Properties, PSServerConfiguration)} with
-   * <code>null<code> for the server configuration.
+   * <code>null</code> for the server configuration.
    */
   public PSBackendRoleCataloger(Properties properties) {
     this(properties, null);

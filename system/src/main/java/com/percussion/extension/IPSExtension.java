@@ -59,6 +59,7 @@ public interface IPSExtension {
    * <p>The arguments passed in for this message are:
    *
    * <TABLE BORDER="1">
+   * <CAPTION>Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exit name</TD></TR>
    * <TR><TD>1</TD><TD>the message related to the failure</TD></TR>

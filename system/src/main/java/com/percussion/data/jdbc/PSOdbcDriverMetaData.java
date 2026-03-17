@@ -86,7 +86,7 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
    *
    * @param description The description of the server (DSN) being created.
    * @param serverAttrivutes The ini settings needed in the registry for this server (DSN) to work.
-   * @returns true if successful
+   * @return true if successful
    */
   public int createServer(String instDriver, String description, Properties serverAttributes) {
     // take the attributes and construct the attributes in a format the
@@ -120,7 +120,7 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
    *
    * @param description The description of the server (DSN) being created.
    * @param serverAttrivutes The ini settings needed in the registry for this server (DSN) to work.
-   * @returns true if successful
+   * @return true if successful
    */
   public int removeUserServer(String instDriver, String description, Properties serverAttributes) {
     if (!ms_libraryLoaded) {
@@ -154,7 +154,7 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
    *
    * @param description The description of the server (DSN) being created.
    * @param serverAttrivutes The ini settings needed in the registry for this server (DSN) to work.
-   * @returns true if successful
+   * @return true if successful
    */
   public int removeServer(String instDriver, String description, Properties serverAttributes) {
     if (!ms_libraryLoaded) {

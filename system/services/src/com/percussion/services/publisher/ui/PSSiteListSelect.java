@@ -62,9 +62,9 @@ public class PSSiteListSelect
    /**
     * an iterator for site list ui. This has the action methods for the
     * following:
-    * <li>Copy Site</li>
-    * <li>New Site</li>
-    * <li>Delete Site</li>
+    * <ul>Copy Site</ul>
+    * <ul>New Site</ul>
+    * <ul>Delete Site</ul>
     * 
     * @author vamsinukala
     * 
@@ -188,9 +188,9 @@ public class PSSiteListSelect
    /**
     * an iterator for site list ui. This has the action methods for the
     * following:
-    * <li>Copy Site</li>
-    * <li>New Site</li>
-    * <li>Delete Site</li>
+    * <ul>Copy Site</ul>
+    * <ul>New Site</ul>
+    * <ul>Delete Site</ul>
     * 
     * @author vamsinukala
     * 

@@ -97,7 +97,7 @@ public class PSCachedStylesheet {
    * @param encoding the character encoding that will be used for
    * transformation output. If this parameter is not <code>null</code>
    * then the stylesheet will have it's xsl:output element and meta tags
-   * overridden to use the specified encoding. May be <code>null<code>
+   * overridden to use the specified encoding. May be <code>null</code>
    * or empty in which case no modifications to the XSl template will be
    * made.
    *

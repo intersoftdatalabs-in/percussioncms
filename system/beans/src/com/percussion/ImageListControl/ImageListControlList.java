@@ -117,7 +117,7 @@ public class ImageListControlList extends JList<ImageListItem>
 
 /** Shows if this ImageListControl uses visibleRowCount to display the elements.
   *
-  * @returns boolean true = uses visibleRowCount for display; false = uses
+  * @return boolean true = uses visibleRowCount for display; false = uses
   *                  preferredSize for display.
 */
   public boolean useVisibleRowCount()
@@ -130,7 +130,7 @@ public class ImageListControlList extends JList<ImageListItem>
   * visibleRowCount) or the preferredSize method (setting the preferredSize to
   * dictate viewable width of list) for display.
   *
-  * @returns boolean true = uses visibleRowCount for display; false = uses
+  * @return boolean true = uses visibleRowCount for display; false = uses
   *                  preferredSize for display.
 */
   public void setUseVisibleRowCount(boolean b)

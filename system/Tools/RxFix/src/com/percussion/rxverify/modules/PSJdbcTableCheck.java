@@ -191,7 +191,7 @@ public class PSJdbcTableCheck extends PSVerifyDatabaseBase
      * @param betblSchema test table, it may be <code>null</code>.
      * @param l logger, assume never <code>null</code>.
      *
-     * @returns boolean true if keys are not equal, false otherwise
+     * @return boolean true if keys are not equal, false otherwise
      *
      */
     private boolean checkPrimaryKeys( String tableName, PSJdbcTableSchema tblSchema, PSJdbcTableSchema betblSchema, Logger l )
@@ -266,7 +266,7 @@ public class PSJdbcTableCheck extends PSVerifyDatabaseBase
      * @param betblSchema test table, it may be <code>null</code>.
      * @param l logger, assume never <code>null</code>.
      *
-     * @returns boolean true if indexes are not equal, false otherwise
+     * @return boolean true if indexes are not equal, false otherwise
      *
      */
     private boolean checkIndexes( String tableName, PSJdbcTableSchema tblSchema, PSJdbcTableSchema betblSchema, Logger l )
@@ -323,7 +323,7 @@ public class PSJdbcTableCheck extends PSVerifyDatabaseBase
      * @param betblSchema test table, it may be <code>null</code>.
      * @param l logger, assume never <code>null</code>.
      *
-     * @returns boolean true if keys are not equal, false otherwise
+     * @return boolean true if keys are not equal, false otherwise
      *
      */
     private boolean checkForeignKeys( String tableName, PSJdbcTableSchema tblSchema, PSJdbcTableSchema betblSchema, Logger l )
@@ -373,7 +373,7 @@ public class PSJdbcTableCheck extends PSVerifyDatabaseBase
      * @param rxdir file representation of the rhythmyx root directory,
      * assumed not <code>null</code>.
      *
-     * @returns boolean true if keys are not equal, false otherwise
+     * @return boolean true if keys are not equal, false otherwise
      *
      */
     private void dumpSchema( Iterator itrSchemaColl, File rxdir )
@@ -480,7 +480,7 @@ public class PSJdbcTableCheck extends PSVerifyDatabaseBase
      * @param type determines if it is primary key, index, or foreign key check
      * @param l is logger
      *
-     * @returns boolean true if errors, false otherwise
+     * @return boolean true if errors, false otherwise
      */
     private boolean checkForErrors( String tableName, Vector v1, Vector v2, String type, Logger l )
     {
@@ -547,7 +547,7 @@ public class PSJdbcTableCheck extends PSVerifyDatabaseBase
      * @param v vector
      * @param s string
      *
-     * @returns boolean true if the string is contained in the vector,
+     * @return boolean true if the string is contained in the vector,
      * false otherwise
      */
     private boolean contains( Vector v, String s )

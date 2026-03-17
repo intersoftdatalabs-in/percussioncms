@@ -29,7 +29,7 @@ public class PSUpgradePluginJetty implements IPSUpgradePlugin {
   /**
    * Implements process method of IPSUpgradePlugin.
    *
-   * @param config   IPSUpgradeModule object. may not be <code>null<code>.
+   * @param config   IPSUpgradeModule object. may not be <code>null</code>.
    * @param elemData data element of plugin.
    */
   public PSPluginResponse process(IPSUpgradeModule module, Element elemData) {

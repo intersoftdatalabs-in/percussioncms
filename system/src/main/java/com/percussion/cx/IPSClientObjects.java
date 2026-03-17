@@ -34,7 +34,6 @@ public interface IPSClientObjects {
    * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
    * @throws PSContentExplorerException if the XML element node does not represent a type supported
    *     by this class.
-   * @throws com.percussion.error.PSContentExplorerException
    */
   public void fromXml(Element sourceNode) throws PSContentExplorerException;
 

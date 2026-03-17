@@ -34,7 +34,7 @@ public abstract class PSResources extends ListResourceBundle {
   /**
    * Convenience method for getting KeyStroke resources.
    *
-   * @returns the KeyStroke associated with the supplied key
+   * @return the KeyStroke associated with the supplied key
    * @throws MissingResourceException if the key is not present in this bundle or the object type is
    *     not KeyStroke.
    */
@@ -49,7 +49,7 @@ public abstract class PSResources extends ListResourceBundle {
   /**
    * Convenience method for getting character resources.
    *
-   * @returns the char associated with the supplied key (taken from a Character object)
+   * @return the char associated with the supplied key (taken from a Character object)
    * @throws MissingResourceException if the key is not present in this bundle or the object type is
    *     not Character.
    */

@@ -556,6 +556,7 @@ public interface IPSDeploymentErrors {
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The dependency type</TD></TR>
    * <TR><TD>1</TD><TD>The dependency id</TD></TR>
+   * </TABLE>
    */
   public static final int MISSING_ID_TYPES = 42;
 

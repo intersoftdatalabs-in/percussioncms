@@ -929,7 +929,7 @@ public class PSApplication implements IPSDocument {
    * <p>
    * This may be null, in which case E2 will use its default error pages.
    *
-   * @return     the error pages object (may be <code>null<code>)
+   * @return     the error pages object (may be <code>null</code>)
    */
   public PSErrorWebPages getErrorWebPages() {
     return m_errorWebPages;

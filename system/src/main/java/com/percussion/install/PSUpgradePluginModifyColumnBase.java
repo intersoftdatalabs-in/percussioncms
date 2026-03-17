@@ -40,7 +40,7 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
   /**
    * Implements process method of IPSUpgradePlugin.
    * @param config IPSUpgradeModule object.
-   *    may not be <code>null<code>.
+   *    may not be <code>null</code>.
    * @param elemData data element of plugin.  Includes one or more tableset
    * elements, which can be described as follows:
    * <br>

@@ -28,7 +28,7 @@ import javax.swing.ImageIcon;
 public interface ICellImageHelper
 {
 
-/** @returns ImageIcon retrieves the image stored in this particular cell.
+/** @return ImageIcon retrieves the image stored in this particular cell.
 */
   public ImageIcon getImage();
 

@@ -129,7 +129,7 @@ public abstract class PSAction extends AbstractAction {
   }
 
   /**
-   * @returns the mnemonic letter associated with this action item. If it has not been set, 0 is
+   * @return the mnemonic letter associated with this action item. If it has not been set, 0 is
    *     returned.
    */
   public char getMnemonic() {
@@ -147,7 +147,7 @@ public abstract class PSAction extends AbstractAction {
   }
 
   /**
-   * @returns the accelerator key associated with this action item. If no key has been set, null is
+   * @return the accelerator key associated with this action item. If no key has been set, null is
    *     returned.
    */
   public KeyStroke getAccelerator() {

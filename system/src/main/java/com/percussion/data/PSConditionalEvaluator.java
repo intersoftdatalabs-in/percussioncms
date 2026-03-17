@@ -244,13 +244,13 @@ public class PSConditionalEvaluator {
   /**
    * Utility method to return <code>true</code> if the supplied
    * list is <code>null</code> or list does not contain any
-   * elements or all elements of list are <code>null<code>
+   * elements or all elements of list are <code>null</code>
    * or empty strings, otherwise <code>false</code>.
    *
    * @param ls List object.
    * @return <code>true</code> if the list is <code>null</code> or
    * list does not contain any elements or all elements of list are
-   * <code>null<code> or empty strings, otherwise <code>false</code>.
+   * <code>null</code> or empty strings, otherwise <code>false</code>.
    */
   private boolean isListEmpty(List<Object> ls) {
     if (ls == null || ls.isEmpty()) return true;

@@ -176,7 +176,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    * @param strName the name of the property case-insensitive
    *    match is performed. Never <code>null</code> or empty.
    *
-   * @param strValue the value to set, may be <code>null<code>
+   * @param strValue the value to set, may be <code>null</code>
    *    to specify the empty string.
    *
    */
@@ -191,7 +191,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    * @param strName the name of the property case-insensitive
    *    match is performed. Never <code>null</code> or empty.
    *
-   * @param strValue the value to set, may be <code>null<code>
+   * @param strValue the value to set, may be <code>null</code>
    *    to specify the empty string.
    *
    * @param bMulti if <code>true</code> then if the property exists this
@@ -293,7 +293,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    * @param strName the name of the property case-insensitive
    *    match is performed. Never <code>null</code> or empty.
    *
-   * @param strValue the value to set, may be <code>null<code> if not
+   * @param strValue the value to set, may be <code>null</code> if not
    *    applicable.
    *
    * @param bMulti if <code>true</code> this represents a multivalued property.

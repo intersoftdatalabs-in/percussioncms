@@ -813,7 +813,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param strName the name of the property case-insensitive
    *    match is performed. Never <code>null</code> or empty.
    *
-   * @param strValue the value to set, never  <code>null<code>
+   * @param strValue the value to set, never  <code>null</code>
    *    or empty.
    *
    */
@@ -1193,7 +1193,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param strName the name of the property case-insensitive
    *    match is performed. Never <code>null</code> or empty.
    *
-   * @param strValue the value to set, never <code>null<code>
+   * @param strValue the value to set, never <code>null</code>
    *    or empty.
    *
    * @param bMulti if <code>true</code> then if the property exists this

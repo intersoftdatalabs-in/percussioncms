@@ -53,7 +53,7 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   /**
    * Convenience constructor that calls
    * {@link #PSRoleCataloger(Properties, PSServerConfiguration)} with
-   * <code>null<code> for the server configuration.
+   * <code>null</code> for the server configuration.
    */
   public PSRoleCataloger(Properties properties) {
     this(properties, null);
@@ -66,7 +66,7 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
    *           the <code>PSDirectorySet</code> definition used as the role
    *           server, not <code>null</code> or empty.
    * @param config the server configuration with all directory definitions, may
-   *           be <code>null<code> in which case this will get it from the
+   *           be <code>null</code> in which case this will get it from the
    *    <code>PSServer</code>.
    * @throws PSSecurityException if the referenced role provider was not
    *    found.
@@ -385,7 +385,7 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
 
   /**
    * The role providef used for this cataloger, initialized in constructor,
-   * never <code>null<code> or never changed after that.
+   * never <code>null</code> or never changed after that.
    */
   protected PSRoleProvider m_roleProvider = null;
 }

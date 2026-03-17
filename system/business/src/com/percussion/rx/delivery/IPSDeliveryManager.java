@@ -42,7 +42,7 @@ public interface IPSDeliveryManager {
     *            time. In practice, since this is a long, it will never, ever be
     *            repeated.
     * @param site the site, never <code>null</code>.
-    * @pubServer the publishing server, may be <code>null</code>.
+    * @param pubServer the publishing server, may be <code>null</code>.
     */
    void init(long jobid, IPSSite site, IPSPubServer pubServer);
 

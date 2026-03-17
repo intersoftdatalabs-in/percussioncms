@@ -324,7 +324,7 @@ public class PSXmlDomUtils {
    *
    * @param stylesheetName - the input from the exit parameter list
    * @param appName - the application name from request context
-   * @returns the resolved name
+   * @return the resolved name
    * @todo migrate to PSXmlDomUtils
    */
   static String getFullStyleName(String stylesheetName, String appName) {
@@ -396,7 +396,7 @@ public class PSXmlDomUtils {
    * &lt!DOCTYPE...&gt;</code> header.
    *
    * @param xmlString the XML document to check.
-   * @returns <code>true</code> if an XML header is found, <code>false</code> otherwise.
+   * @return <code>true</code> if an XML header is found, <code>false</code> otherwise.
    */
   private static boolean hasXMLHeaders(String xmlString) {
     String subString =

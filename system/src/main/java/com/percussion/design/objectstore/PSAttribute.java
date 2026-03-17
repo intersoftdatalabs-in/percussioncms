@@ -326,7 +326,7 @@ public class PSAttribute extends PSDatabaseComponentCollection {
    * Gets the attribute values for this attribute, collected in a List of
    * Strings.
    *
-   * @return the value list never <code>null<code>, may be empty.
+   * @return the value list never <code>null</code>, may be empty.
    */
   public List<String> getValues() {
     ArrayList<String> values = new ArrayList<>();

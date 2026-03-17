@@ -522,7 +522,7 @@ public class RxJdbcTableFactory {
      * Returns the connection stored in the member variable if present. Otherwise, creates a new
      * connection and stores it in the member variable.
      *
-     * @returns Connection to the database specified by the properties, or <code>null</code> if a
+     * @return Connection to the database specified by the properties, or <code>null</code> if a
      *     connection could not be established
      * @throws SQLException if cannot load JDBC driver
      */

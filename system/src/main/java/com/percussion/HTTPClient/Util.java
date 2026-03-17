@@ -604,7 +604,7 @@ public class Util {
    * Assembles a Vector of HttpHeaderElements into a full header string. The individual header
    * elements are seperated by a ", ".
    *
-   * @param the parsed header
+   * @param header the parsed header
    * @return a string containing the assembled header
    */
   public static final String assembleHeader(Vector pheader) {
@@ -820,7 +820,7 @@ public class Util {
    * resource = [ "/" ] [ path ] [ ";" params ] [ "?" query ] [ "#" fragment ]
    * </PRE>
    *
-   * @param the resource to split
+   * @param resource the resource to split
    * @return the path, including any leading "/"
    * @see #getParams
    * @see #getQuery
@@ -840,7 +840,7 @@ public class Util {
   /**
    * Extract the params part from an http resource.
    *
-   * @param the resource to split
+   * @param resource the resource to split
    * @return the params, or null if there are none
    * @see #getPath
    */
@@ -860,7 +860,7 @@ public class Util {
   /**
    * Extract the query string from an http resource.
    *
-   * @param the resource to split
+   * @param resource the resource to split
    * @return the query, or null if there was none
    * @see #getPath
    */
@@ -877,7 +877,7 @@ public class Util {
   /**
    * Extract the fragment part from an http resource.
    *
-   * @param the resource to split
+   * @param resource the resource to split
    * @return the fragment, or null if there was none
    * @see #getPath
    */

@@ -32,6 +32,7 @@ public interface IPSDeliveryErrors
    /**
     * Cannot create the named directory. 
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -48,6 +49,7 @@ public interface IPSDeliveryErrors
    /**
     * Cannot create the named directory, caused by an exception. 
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -69,6 +71,7 @@ public interface IPSDeliveryErrors
     * Failed to copy temp file to the delivery destination, caused by an 
     * exception. 
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -92,6 +95,7 @@ public interface IPSDeliveryErrors
    /**
     * Unexpected failure
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -107,6 +111,8 @@ public interface IPSDeliveryErrors
    /**
     * Could not write temp file, due to an exception
     * <table>
+    * <caption>Error Arguments</caption>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -122,6 +128,7 @@ public interface IPSDeliveryErrors
    /**
     * Could not decrypt credentials, due to an exception
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -137,6 +144,7 @@ public interface IPSDeliveryErrors
    /**
     * Could not write temp file, due to an exception
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -160,6 +168,7 @@ public interface IPSDeliveryErrors
    /**
     * Could not write temp file, due to an exception
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -183,6 +192,7 @@ public interface IPSDeliveryErrors
    /**
     * Could not process delivery-servers.xml
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>
@@ -198,6 +208,7 @@ public interface IPSDeliveryErrors
    /**
     * Error attempting to send to SolrServer
     * <table>
+    * <caption>Error Arguments</caption>
     * <tr>
     * <td>Argument</td>
     * <td>Description</td>

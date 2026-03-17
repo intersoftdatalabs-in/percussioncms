@@ -33,7 +33,7 @@ import org.apache.jackrabbit.commons.iterator.RowIteratorAdapter;
 /**
  * JCR 170 Query Results utils similar to 
  * jackrabbit commons.
- * @adamgent
+ * @author adamgent
  */
 public class PSQueryResultUtils
 {

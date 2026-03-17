@@ -256,7 +256,7 @@ public class PSImportCtx {
   /**
    * Gets the validation results for the package currently being processed.
    *
-   * @returns The result, may be <code>null</code> if the current package did not have any warnings
+   * @return The result, may be <code>null</code> if the current package did not have any warnings
    *     or errors or if none have been set.
    */
   public PSValidationResults getCurrentValidationResults() {
