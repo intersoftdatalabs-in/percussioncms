@@ -19,7 +19,6 @@ node_modules/
 *.ipr
 *.iws
 *.class
-*.jar
 
 derby.log
 null
@@ -203,4 +202,5 @@ WebUI/build.log
 WebUI/rxBuild.log
 
 # Repository Temp Folder
+tmp/
 .tmp/

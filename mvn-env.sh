@@ -36,5 +36,11 @@ fi
 
 echo "Using JDK 21 at ${JAVA_HOME}"
 
-# Run Maven with all arguments
-exec /opt/maven/bin/mvn "$@"
+# Get the absolute path of the script directory
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+TMP_DIR="$SCRIPT_DIR/tmp"
+
+mkdir -p "$TMP_DIR"
+
+# Run Maven wrapper with all arguments
+exec "$SCRIPT_DIR/mvnw" -Djava.io.tmpdir="$TMP_DIR" "$@"

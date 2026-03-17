@@ -23,5 +23,11 @@ set JAVA_HOME=%JAVA_HOME_21%
 
 echo Using JDK 21 at %JAVA_HOME%
 
-REM Run Maven with all arguments
-call mvn %*
+REM Get the absolute path of the script directory
+set SCRIPT_DIR=%~dp0
+set TMP_DIR=%SCRIPT_DIR%tmp
+
+mkdir "%TMP_DIR%" 2>nul
+
+REM Run Maven wrapper with all arguments
+call "%SCRIPT_DIR%mvnw.cmd" -Djava.io.tmpdir="%TMP_DIR%" %*
