@@ -42,6 +42,7 @@ import javax.swing.border.EmptyBorder;
  * progress bar and status message for each job set.
  */
 public class PSContentExplorerStatusDialog extends PSDialog {
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs this dialog with specified process monitor.
    *

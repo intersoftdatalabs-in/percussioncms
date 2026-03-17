@@ -38,6 +38,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSCookieConsent")
 @Table(name = "PERC_COOKIE_CONSENT")
+  private static final long serialVersionUID = 1L;
 public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
 
   @Id

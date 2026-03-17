@@ -16,6 +16,7 @@
  */
 package com.percussion.delivery.utils;
 
+  private static final long serialVersionUID = 1L;
 public class PSEmailServiceNotInitializedException extends Exception {
   public PSEmailServiceNotInitializedException() {
     super("Email service is not initialized.");

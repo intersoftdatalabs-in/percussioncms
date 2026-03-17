@@ -408,7 +408,8 @@ public interface IPSAssemblyItem extends Cloneable, Serializable
     *
     * @param name the parameter name, never <code>null</code> or empty
     * @param value the value, never <code>null</code> or empty
-    * @fixme This needs to be reviewed as why empty values needs to be avoided.
+    * 
+    * FIXME: This needs to be reviewed as why empty values needs to be avoided.
     */
    void setParameterValue(String name, String value);
 

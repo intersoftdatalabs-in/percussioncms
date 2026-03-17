@@ -48,6 +48,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments1")
 @Table(name = "PERC_PAGE_COMMENTS")
+  private static final long serialVersionUID = 1L;
 public class PSComment implements IPSComment, Serializable {
   @TableGenerator(
       name = "commentId",

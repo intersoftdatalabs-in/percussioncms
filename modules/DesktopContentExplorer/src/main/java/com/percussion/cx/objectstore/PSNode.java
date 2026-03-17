@@ -183,10 +183,10 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     if (rowDataEl != null) m_rowData = new RowData(rowDataEl);
 
     m_children = null;
-    Iterator childNodes = PSComponentUtils.getChildElements(sourceNode, XML_NODE_NAME);
+    Iterator<Element> childNodes = PSComponentUtils.getChildElements(sourceNode, XML_NODE_NAME);
     if (childNodes.hasNext()) {
-      m_children = new ArrayList();
-      while (childNodes.hasNext()) m_children.add(new PSNode((Element) childNodes.next()));
+      m_children = new ArrayList<PSNode>();
+      while (childNodes.hasNext()) m_children.add(new PSNode(childNodes.next()));
     }
   }
 
@@ -202,7 +202,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
 
     if (m_children == null) throw new IllegalStateException("children are not loaded to replace");
 
-    Iterator children = m_children.iterator();
+    Iterator<PSNode> children = m_children.iterator();
     int i = 0;
     int childIndex = -1;
     while (children.hasNext()) {
@@ -224,7 +224,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
   public void addChild(PSNode child) {
     if (child == null) throw new IllegalArgumentException("child may not be null.");
 
-    if (m_children == null) m_children = new ArrayList();
+    if (m_children == null) m_children = new ArrayList<PSNode>();
 
     m_children.add(child);
   }
@@ -292,7 +292,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     if (m_rowData != null) root.appendChild(m_rowData.toXml(doc));
 
     if (m_children != null) {
-      Iterator children = m_children.iterator();
+      Iterator<PSNode> children = m_children.iterator();
       while (children.hasNext()) root.appendChild(((PSNode) children.next()).toXml(doc));
     }
 
@@ -1635,7 +1635,7 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
 
     boolean result = false;
 
-    Iterator children = m_children.iterator();
+    Iterator<PSNode> children = m_children.iterator();
     while (children.hasNext() && result == false) {
       PSNode child = (PSNode) children.next();
       if (child.isOfType(type)) {

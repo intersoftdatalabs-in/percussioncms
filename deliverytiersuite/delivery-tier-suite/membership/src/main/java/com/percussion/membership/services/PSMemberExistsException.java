@@ -16,6 +16,7 @@
  */
 package com.percussion.membership.services;
 
+  private static final long serialVersionUID = 1L;
 public class PSMemberExistsException extends Exception {
 
   public PSMemberExistsException(String userId) {

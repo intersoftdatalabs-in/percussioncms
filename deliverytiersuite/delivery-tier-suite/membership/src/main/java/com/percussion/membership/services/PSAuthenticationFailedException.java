@@ -16,6 +16,7 @@
  */
 package com.percussion.membership.services;
 
+  private static final long serialVersionUID = 1L;
 public class PSAuthenticationFailedException extends Exception {
 
   public PSAuthenticationFailedException(String string) {

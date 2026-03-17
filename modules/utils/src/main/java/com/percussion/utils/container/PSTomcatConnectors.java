@@ -44,6 +44,7 @@ public class PSTomcatConnectors extends PSAbstractXmlConnectors {
 
   private Path dtsRoot;
 
+  @SuppressWarnings("this-escape")
   public PSTomcatConnectors(Path rxDir, Path dtsRoot) {
     super(rxDir.resolve(dtsRoot.resolve("Server")));
     // dtsRoot = rxDir.resolve(dtsRoot);

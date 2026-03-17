@@ -26,6 +26,7 @@ import jakarta.ws.rs.core.Response.Status;
  *
  * @author JaySeletz
  */
+  private static final long serialVersionUID = 1L;
 public class PSBadRequestException extends WebApplicationException {
 
   public PSBadRequestException(String message) {

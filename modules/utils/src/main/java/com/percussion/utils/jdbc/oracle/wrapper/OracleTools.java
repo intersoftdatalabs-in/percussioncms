@@ -46,7 +46,7 @@ public class OracleTools {
    * @throws SQLException if database error occurs.
    */
   public static void setDataFromCollection(
-      PreparedStatement stmt, int bindStart, Collection coll, int dataType) throws SQLException {
+      PreparedStatement stmt, int bindStart, Collection<?> coll, int dataType) throws SQLException {
     if (stmt == null) throw new IllegalArgumentException("stmt may not be null");
     if (bindStart < 1) throw new IllegalArgumentException("bindStart must be greater than 0");
     if (coll == null) throw new IllegalArgumentException("coll may not be null");
@@ -66,7 +66,7 @@ public class OracleTools {
       stmt.setNull(bindStart, dataType);
     } else {
       Number[] arr = new Number[coll.size()];
-      Iterator it = coll.iterator();
+      Iterator<?> it = coll.iterator();
       int i = 0;
       try {
         while (it.hasNext()) {
@@ -77,9 +77,9 @@ public class OracleTools {
             } else {
               String str = obj.toString();
               if (str.indexOf(".") == -1) {
-                arr[i] = new Long(str);
+                arr[i] = Long.parseLong(str);
               } else {
-                arr[i] = new Float(str);
+                arr[i] = Float.parseFloat(str);
               }
             }
             i++;

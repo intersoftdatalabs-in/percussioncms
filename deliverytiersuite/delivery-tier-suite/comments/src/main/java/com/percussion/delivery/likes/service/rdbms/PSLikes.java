@@ -38,6 +38,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(
     name = "PERC_PAGE_LIKES",
     uniqueConstraints = @UniqueConstraint(columnNames = {"site", "likeId", "type"}))
+  private static final long serialVersionUID = 1L;
 public class PSLikes implements IPSLikes, Serializable {
 
   @TableGenerator(

@@ -30,6 +30,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    * Empty ctor only for use by Spring framework. If used, an invalid object may result if all
    * required members are not subsequently set on this object before its first use.
    */
+  @SuppressWarnings("this-escape")
   public PSDatasourceConfig() {}
 
   /**
@@ -44,6 +45,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    * @param database The database name to use when qualifying statements against this datasource,
    *     may be <code>null</code> or empty.
    */
+  @SuppressWarnings("this-escape")
   public PSDatasourceConfig(String name, String dsName, String origin, String database) {
     if (StringUtils.isEmpty(name))
       throw new IllegalArgumentException("name may not be null or empty");
@@ -64,6 +66,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    * @param sourceNode The source element, may not be <code>null</code>.
    * @throws PSInvalidXmlException if the supplied element does not conform to the expected DTD.
    */
+  @SuppressWarnings("this-escape")
   public PSDatasourceConfig(Element sourceNode) throws PSInvalidXmlException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
@@ -76,6 +79,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    *
    * @param config The config, may not be <code>null</code>.
    */
+  @SuppressWarnings("this-escape")
   @SuppressWarnings("this-escape")
   public PSDatasourceConfig(IPSDatasourceConfig config) {
     if (config == null) throw new IllegalArgumentException("config may not be null");
